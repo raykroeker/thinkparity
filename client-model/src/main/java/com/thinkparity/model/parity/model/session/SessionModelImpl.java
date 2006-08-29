@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -891,7 +890,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<ProfileEMail> readProfileEMails() {
+    List<EMail> readProfileEMails() {
         logApiId();
         try {
             synchronized (xmppHelper) {
@@ -1131,6 +1130,29 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Update the profile's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    void updateProfileCredentials(final JabberId userId,
+            final Credentials credentials) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("credentials", credentials);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.getXMPPSession().updateProfileCredentials(userId,
+                        credentials);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Verify an email in a user's profile.
      * 
      * @param userId
@@ -1209,11 +1231,7 @@ class SessionModelImpl extends AbstractModelImpl {
                             storedCredentials.equals(credentials));
                 }
                 // login
-                xmppHelper.login(
-                        environment.getServerHost(),
-                        environment.getServerPort(),
-                        credentials.getUsername(),
-                        credentials.getPassword());
+                xmppHelper.getXMPPSession().login(environment, credentials);
 
                 // save the user's credentials
                 if(null == storedCredentials) {
@@ -1224,11 +1242,6 @@ class SessionModelImpl extends AbstractModelImpl {
                 xmppHelper.processOfflineQueue();
             }
         } catch(final Throwable t) {
-            if("No response from the server.".equals(t.getMessage())) {
-                logWarning(MessageFormat.format(
-                        "NO RESPONSE FROM SERVER:  {0}", attempt), t);
-                login(attempt.intValue() + 1, environment, credentials);
-            }
             throw translateError(t);
         }
     }

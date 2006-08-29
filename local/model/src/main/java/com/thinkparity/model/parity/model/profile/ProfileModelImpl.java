@@ -3,14 +3,15 @@
  */
 package com.thinkparity.model.parity.model.profile;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ProfileIOHandler;
+import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.profile.ProfileEMail;
 
@@ -22,6 +23,34 @@ import com.thinkparity.model.profile.ProfileEMail;
  * @version 1.1.1.1
  */
 class ProfileModelImpl extends AbstractModelImpl {
+
+    /**
+     * Update the profile password.
+     * 
+     * @param password
+     *            The current password <code>String</code>.
+     * @param newPassword
+     *            The new password <code>String</code>.
+     */
+    void updatePassword(final String password,
+            final String newPassword) {
+        logApiId();
+        logVariable("password", "XXXXX");
+        logVariable("newPassword", "XXXXX");
+        try {
+            final Credentials credentials = readCredentials();
+            Assert.assertTrue("PASSWORD INCORRECT",
+                    password.equals(credentials.getPassword()));
+            // update local data
+            credentials.setPassword(newPassword);
+            updateCredentials(credentials);
+            // update remote data.
+            getInternalSessionModel().updateProfileCredentials(localUserId(),
+                    credentials);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /** The profile db io. */
     private final ProfileIOHandler profileIO;
@@ -136,7 +165,6 @@ class ProfileModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
-
     }
 
     /**
@@ -189,9 +217,19 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     private Profile lazyCreateProfile() {
         final Profile remoteProfile = getInternalSessionModel().readProfile();
-//        final List<ProfileEMail> remoteProfileEMails =
-//                getInternalSessionModel().readProfileEMails();
-        profileIO.create(remoteProfile, new ArrayList<ProfileEMail>());//remoteProfileEMails);
+        // NOTE Only verified emails are downloaded and created in the local
+        // profile.
+        final List<EMail> remoteEmails =
+                getInternalSessionModel().readProfileEmails();
+        profileIO.create(remoteProfile);
+        ProfileEMail profileEmail;
+        for (final EMail remoteEmail : remoteEmails) {
+            profileEmail = new ProfileEMail();
+            profileEmail.setEmail(remoteEmail);
+            profileEmail.setProfileId(remoteProfile.getLocalId());
+            profileEmail.setVerified(Boolean.TRUE);
+            profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
+        }
         return read();
     }
 }

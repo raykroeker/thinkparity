@@ -16,7 +16,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.events.XMPPProfileListener;
 
@@ -103,6 +102,7 @@ class XMPPProfile extends AbstractXMPP {
         profile.setId(response.readResultJabberId("jabberId"));
         profile.setName(response.readResultString("name"));
         profile.setOrganization(response.readResultString("organization"));
+        profile.setTitle(response.readResultString("title"));
         final VCard jiveVCard = new VCard();
         try { jiveVCard.load(xmppCore.getConnection()); }
         catch(final XMPPException xmppx) {
@@ -112,13 +112,13 @@ class XMPPProfile extends AbstractXMPP {
         return profile;
     }
 
-    List<ProfileEMail> readEMails(final JabberId jabberId) {
+    List<EMail> readEMails(final JabberId jabberId) {
         logApiId();
         logVariable("jabberId", jabberId);
         final XMPPMethod readEMails = new XMPPMethod("profile:reademails");
-        readEMails.setParameter("jabberId", jabberId);
+        readEMails.setParameter("userId", jabberId);
         final XMPPMethodResponse response = execute(readEMails, Boolean.TRUE);
-        return response.readResultProfileEMails("emails");
+        return response.readResultEMails("emails");
     }
 
     /**

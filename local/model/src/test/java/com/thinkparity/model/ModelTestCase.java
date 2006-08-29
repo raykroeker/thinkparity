@@ -30,12 +30,9 @@ import com.raykroeker.junitx.TestSession;
  */
 public abstract class ModelTestCase extends TestCase {
 
-    /**
-	 * The JUnit eXtension test session.
-	 * 
-	 */
+    /** The JUnit eXtension test session. */
 	private static final TestSession testSession;
-    
+
     static final String TEST_SERVERHOST = "thinkparity.dyndns.org";
 
     static final Integer TEST_SERVERPORT = 5224;
@@ -46,7 +43,7 @@ public abstract class ModelTestCase extends TestCase {
         System.setProperty("parity.serverhost", TEST_SERVERHOST);
         System.setProperty("parity.serverport", TEST_SERVERPORT.toString());
 
-		testSession = TestCase.getTestSession();
+        testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);
         // init archive

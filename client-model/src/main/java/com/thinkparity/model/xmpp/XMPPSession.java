@@ -16,7 +16,8 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.profile.ProfileEMail;
+import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.parity.model.session.Environment;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -96,19 +97,6 @@ public interface XMPPSession {
     public void addProfileEmail(final JabberId userId, final EMail email);
 
     /**
-     * Verify an email in a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            A <code>ProfileEmail</code>.
-     * @param key
-     *            A verification key <code>String</code>.
-     */
-    public void verifyProfileEmail(final JabberId userId, final EMail email,
-            final String key);
-
-    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -129,7 +117,8 @@ public interface XMPPSession {
      * @throws SmackException
      */
 	public void closeArtifact(final UUID uniqueId) throws SmackException;
-	/**
+
+    /**
      * Confirm artifact receipt.
      * 
      * @param receivedFrom
@@ -140,8 +129,7 @@ public interface XMPPSession {
      */
     public void confirmArtifactReceipt(final JabberId receivedFrom,
             final UUID uniqueId, final Long versionId) throws SmackException;
-
-    /**
+	/**
      * Create an artifact
      * 
      * @param uniqueId
@@ -204,18 +192,14 @@ public interface XMPPSession {
     /**
      * Login.
      * 
-     * @param host
-     *            The host.
-     * @param port
-     *            The port.
-     * @param username
-     *            The username.
-     * @param password
-     *            The password.
+     * @param environment
+     *            A thinkParity <code>Environment</code> to login to.
+     * @param credentials
+     *            The user's <code>Credentials</code>.
      * @throws SmackException
      */
-	public void login(final String host, final Integer port,
-			final String username, final String password) throws SmackException;
+	public void login(final Environment environment,
+            final Credentials credentials) throws SmackException;
 
     /**
      * Logout.
@@ -251,7 +235,7 @@ public interface XMPPSession {
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws SmackException;
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -262,7 +246,7 @@ public interface XMPPSession {
     public List<User> readArtifactTeam(final UUID artifactUniqueId)
             throws SmackException;
 
-    /**
+	/**
      * Read a contact.
      * 
      * @param contactId
@@ -296,19 +280,19 @@ public interface XMPPSession {
      */
 	public JabberId readKeyHolder(final UUID uniqueId);
 
-	/**
+    /**
      * Read the user's profile.
      * 
      * @return A profile.
      */
     public Profile readProfile() throws SmackException;
 
-    /**
+	/**
      * Read the user's profile emails addresses.
      * 
      * @return A list of profile emails addresses.
      */
-    public List<ProfileEMail> readProfileEMails();
+    public List<EMail> readProfileEMails();
 
     /**
      * Read a set of users.
@@ -324,8 +308,8 @@ public interface XMPPSession {
     public void removeListener(final XMPPArtifactListener l);
 
     public void removeListener(final XMPPContactListener l);
-    public void removeListener(final XMPPExtensionListener l);
 
+    public void removeListener(final XMPPExtensionListener l);
     public void removeListener(final XMPPSessionListener l);
 
     /**
@@ -378,4 +362,28 @@ public interface XMPPSession {
      *            The user's <code>Profile</code>.
      */
     public void updateProfile(final Profile profile);
+
+    /**
+     * Update a user's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    public void updateProfileCredentials(final JabberId userId,
+            final Credentials credentials);
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEmail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    public void verifyProfileEmail(final JabberId userId, final EMail email,
+            final String key);
 }

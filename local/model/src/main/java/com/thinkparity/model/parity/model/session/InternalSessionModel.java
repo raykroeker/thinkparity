@@ -254,7 +254,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * 
      * @return A list of profile email addresses.
      */
-    public List<ProfileEMail> readProfileEMails() {
+    public List<EMail> readProfileEmails() {
         synchronized (getImplLock()) {
             return getImpl().readProfileEMails();
         }
@@ -346,6 +346,21 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void updateProfile(final Profile profile) {
         synchronized (getImplLock()) {
             getImpl().updateProfile(profile);
+        }
+    }
+
+    /**
+     * Update the profile's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    public void updateProfileCredentials(final JabberId userId,
+            final Credentials credentials) {
+        synchronized (getImplLock()) {
+            getImpl().updateProfileCredentials(userId, credentials);
         }
     }
 

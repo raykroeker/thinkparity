@@ -1002,6 +1002,26 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Update the credentials from the configuration.
+     * 
+     * @param credentials
+     *            The user's credentials.
+     */
+    protected void updateCredentials(final Credentials credentials) {
+        final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
+        try {
+            getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+            getConfigurationHandler().update(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
+        }
+        catch(final BadPaddingException bpx) { throw translateError(bpx); }
+        catch(final IOException iox) { throw translateError(iox); }
+        catch(final IllegalBlockSizeException ibsx) { throw translateError(ibsx); }
+        catch(final InvalidKeyException ikx) { throw translateError(ikx); }
+        catch(final NoSuchAlgorithmException nsax) { throw translateError(nsax); }
+        catch(final NoSuchPaddingException nspx) { throw translateError(nspx); }
+    }
+
+    /**
      * Decrypt the cipher text into clear text using the cipher key.
      * 
      * @param cipherKey

@@ -48,14 +48,11 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		.append("where META_DATA_ID=?")
 		.toString();
 
-	/**
-	 * Sql to update a meta data value.
-	 * 
-	 */
+	/** Sql to update a meta data value. */
 	private static final String SQL_UPDATE =
 		new StringBuffer("update META_DATA ")
 		.append("set META_DATA_TYPE_ID=?,KEY=?,VALUE=? ")
-		.append("Where META_DATA_ID=?")
+		.append("where META_DATA_ID=?")
 		.toString();
 
 	/**
@@ -252,8 +249,9 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		session.setTypeAsInteger(1, metaDataType);
 		session.setString(2, metaDataKey);
 		setValue(session, 3, metaDataType, metaDataValue);
+        session.setLong(4, metaDataId);
 		if(1 != session.executeUpdate())
-			throw new HypersonicException("Coudl not update meta data.");
+			throw new HypersonicException("Could not update meta data.");
 	}
 
 	/**

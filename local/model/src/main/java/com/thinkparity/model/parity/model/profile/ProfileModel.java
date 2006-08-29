@@ -129,6 +129,21 @@ public class ProfileModel {
     }
 
     /**
+     * Update the profile password.
+     * 
+     * @param password
+     *            The current password <code>String</code>.
+     * @param newPassword
+     *            The new password <code>String</code>.
+     */
+    public void updatePassword(final String password,
+            final String newPassword) {
+        synchronized (getImplLock()) {
+            getImpl().updatePassword(password, newPassword);
+        }
+    }
+
+    /**
      * Verify an email.
      * 
      * @param email

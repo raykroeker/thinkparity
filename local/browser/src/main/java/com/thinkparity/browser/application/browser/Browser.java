@@ -1221,9 +1221,16 @@ public class Browser extends AbstractApplication {
      *            The user's organization <code>String</code>.
      * @param title
      *            The user's title <code>String</code>.
+     * @param password
+     *            The user's password <code>String</code>.
+     * @param newPassword
+     *            The user's updated password <code>String</code>.
+     * @param newPasswordConfirm
+     *            The user's updated password again <code>String</code>.
      */
     public void runUpdateProfile(final String name, final String organization,
-            final String title) {
+            final String title, final String password,
+            final String newPassword, final String newPasswordConfirm) {
         final Data data = new Data(4);
         data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(Update.DataKey.NAME, name);
@@ -1231,6 +1238,11 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.ORGANIZATION, organization);
         if (null != title)
             data.set(Update.DataKey.TITLE, title);
+        if (null != password) {
+            data.set(Update.DataKey.PASSWORD, password);
+            data.set(Update.DataKey.NEW_PASSWORD, newPassword);
+            data.set(Update.DataKey.NEW_PASSWORD_CONFIRM, newPasswordConfirm);
+        }
         invoke(ActionId.PROFILE_UPDATE, data);
     }
 

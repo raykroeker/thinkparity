@@ -134,6 +134,19 @@ public class UpdateProfileAvatar extends Avatar {
         return SwingUtil.extract(titleJTextField);
     }
 
+    private String extractPassword() {
+        return SwingUtil.extract(passwordJPasswordField);
+    }
+
+    private String extractNewPassword() {
+        return SwingUtil.extract(newPasswordJPasswordField);
+    }
+
+    private String extractNewPasswordConfirm() {
+        return SwingUtil.extract(newPasswordConfirmJPasswordField);
+    }
+
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -143,50 +156,169 @@ public class UpdateProfileAvatar extends Avatar {
     private void initComponents() {
         javax.swing.JButton addJButton;
         javax.swing.JButton cancelJButton;
-        javax.swing.JLabel eaJLabel;
-        javax.swing.JLabel emailsJLabel;
+        javax.swing.JLabel confirmPasswordJLabel;
+        javax.swing.JLabel currentPasswordJLabel;
+        javax.swing.JPanel emailPanel;
         javax.swing.JScrollPane emailsJScrollPane;
-        javax.swing.JPanel innerJPanel;
         javax.swing.JSeparator jSeparator;
         javax.swing.JLabel nameJLabel;
         javax.swing.JLabel organizationJLabel;
+        javax.swing.JLabel passwordJLabel;
+        javax.swing.JPanel profileJPanel;
         javax.swing.JButton removeJButton;
+        javax.swing.JButton resetPasswordJButton;
         javax.swing.JButton saveJButton;
         javax.swing.JLabel titleJLabel;
         javax.swing.JButton verifyJButton;
 
-        innerJPanel = new javax.swing.JPanel();
-        eaJLabel = new javax.swing.JLabel();
+        profileJPanel = new javax.swing.JPanel();
         nameJLabel = new javax.swing.JLabel();
         organizationJLabel = new javax.swing.JLabel();
         titleJLabel = new javax.swing.JLabel();
         organizationJTextField = new javax.swing.JTextField();
         nameJTextField = new javax.swing.JTextField();
         titleJTextField = new javax.swing.JTextField();
+        saveJButton = new javax.swing.JButton();
+        cancelJButton = new javax.swing.JButton();
         jSeparator = new javax.swing.JSeparator();
-        emailsJLabel = new javax.swing.JLabel();
+        passwordJLabel = new javax.swing.JLabel();
+        confirmPasswordJLabel = new javax.swing.JLabel();
+        resetPasswordJButton = new javax.swing.JButton();
+        newPasswordJPasswordField = new javax.swing.JPasswordField();
+        newPasswordConfirmJPasswordField = new javax.swing.JPasswordField();
+        passwordJPasswordField = new javax.swing.JPasswordField();
+        currentPasswordJLabel = new javax.swing.JLabel();
+        emailPanel = new javax.swing.JPanel();
         emailJTextField = new javax.swing.JTextField();
         addJButton = new javax.swing.JButton();
         emailsJScrollPane = new javax.swing.JScrollPane();
         emailsJList = new javax.swing.JList();
-        verifyJButton = new javax.swing.JButton();
         removeJButton = new javax.swing.JButton();
-        saveJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
+        verifyJButton = new javax.swing.JButton();
 
         setOpaque(false);
-        innerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.InnerPanelTitle")));
-        innerJPanel.setOpaque(false);
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.EmbeddedAssistance"));
-
+        profileJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.InnerPanelTitle")));
+        profileJPanel.setOpaque(false);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.NameLabel"));
 
         organizationJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.OrganizationLabel"));
 
         titleJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.TitleLabel"));
 
-        emailsJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.EmailsLabel"));
+        saveJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.SaveButton"));
+        saveJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                saveJButtonActionPerformed(e);
+            }
+        });
 
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.CancelButton"));
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+
+        passwordJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.PasswordLabel"));
+
+        confirmPasswordJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.ConfirmPasswordLabel"));
+
+        resetPasswordJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.ResetPasswordButton"));
+        resetPasswordJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                resetPasswordJButtonActionPerformed(e);
+            }
+        });
+
+        newPasswordJPasswordField.setFont(nameJTextField.getFont());
+
+        newPasswordConfirmJPasswordField.setFont(nameJTextField.getFont());
+
+        passwordJPasswordField.setFont(nameJLabel.getFont());
+
+        currentPasswordJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.CurrentPasswordLabel"));
+
+        org.jdesktop.layout.GroupLayout profileJPanelLayout = new org.jdesktop.layout.GroupLayout(profileJPanel);
+        profileJPanel.setLayout(profileJPanelLayout);
+        profileJPanelLayout.setHorizontalGroup(
+            profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, profileJPanelLayout.createSequentialGroup()
+                .addContainerGap(246, Short.MAX_VALUE)
+                .add(cancelJButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(saveJButton)
+                .add(10, 10, 10))
+            .add(profileJPanelLayout.createSequentialGroup()
+                .add(10, 10, 10)
+                .add(jSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                .addContainerGap())
+            .add(profileJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, confirmPasswordJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, currentPasswordJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, titleJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, nameJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, organizationJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(profileJPanelLayout.createSequentialGroup()
+                        .add(2, 2, 2)
+                        .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                            .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                            .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)))
+                    .add(profileJPanelLayout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(newPasswordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, profileJPanelLayout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(resetPasswordJButton)
+                            .add(newPasswordConfirmJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))))
+                .addContainerGap())
+        );
+        profileJPanelLayout.setVerticalGroup(
+            profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, profileJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(nameJLabel)
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(organizationJLabel)
+                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(titleJLabel)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(currentPasswordJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(newPasswordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(passwordJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(newPasswordConfirmJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(confirmPasswordJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(profileJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(saveJButton)
+                    .add(cancelJButton)
+                    .add(resetPasswordJButton))
+                .addContainerGap())
+        );
+
+        emailPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.EmailPanel")));
+        emailPanel.setOpaque(false);
         emailJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 emailJTextFieldActionPerformed(e);
@@ -210,13 +342,6 @@ public class UpdateProfileAvatar extends Avatar {
 
         emailsJScrollPane.setViewportView(emailsJList);
 
-        verifyJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.VerifyButton"));
-        verifyJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                verifyJButtonActionPerformed(e);
-            }
-        });
-
         removeJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.RemoveButton"));
         removeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -224,93 +349,46 @@ public class UpdateProfileAvatar extends Avatar {
             }
         });
 
-        org.jdesktop.layout.GroupLayout innerJPanelLayout = new org.jdesktop.layout.GroupLayout(innerJPanel);
-        innerJPanel.setLayout(innerJPanelLayout);
-        innerJPanelLayout.setHorizontalGroup(
-            innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(innerJPanelLayout.createSequentialGroup()
+        verifyJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.VerifyButton"));
+        verifyJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                verifyJButtonActionPerformed(e);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout emailPanelLayout = new org.jdesktop.layout.GroupLayout(emailPanel);
+        emailPanel.setLayout(emailPanelLayout);
+        emailPanelLayout.setHorizontalGroup(
+            emailPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(emailPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                .addContainerGap())
-            .add(innerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                .addContainerGap())
-            .add(innerJPanelLayout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
-                .addContainerGap(69, Short.MAX_VALUE))
-            .add(innerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(nameJLabel)
-                    .add(organizationJLabel)
-                    .add(titleJLabel))
-                .add(13, 13, 13)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, innerJPanelLayout.createSequentialGroup()
-                        .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                .add(emailPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailPanelLayout.createSequentialGroup()
+                        .add(removeJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(addJButton))
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
-                .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, innerJPanelLayout.createSequentialGroup()
-                .addContainerGap(292, Short.MAX_VALUE)
-                .add(removeJButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(verifyJButton)
+                        .add(verifyJButton))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                    .add(emailPanelLayout.createSequentialGroup()
+                        .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(addJButton)))
                 .addContainerGap())
         );
-        innerJPanelLayout.setVerticalGroup(
-            innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(innerJPanelLayout.createSequentialGroup()
+        emailPanelLayout.setVerticalGroup(
+            emailPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(emailPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 39, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJLabel)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(organizationJLabel)
-                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(titleJLabel)
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(emailsJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(emailPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(addJButton)
                     .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(emailPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(verifyJButton)
                     .add(removeJButton))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
-
-        saveJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.SaveButton"));
-        saveJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                saveJButtonActionPerformed(e);
-            }
-        });
-
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.CancelButton"));
-        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -319,25 +397,24 @@ public class UpdateProfileAvatar extends Avatar {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, innerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(cancelJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(saveJButton)))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, emailPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, profileJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(innerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(profileJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(saveJButton)
-                    .add(cancelJButton))
+                .add(emailPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void resetPasswordJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_resetPasswordJButtonActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_resetPasswordJButtonActionPerformed
 
     /**
      * Read the profile from the content provider.
@@ -407,7 +484,11 @@ public class UpdateProfileAvatar extends Avatar {
             final String name = extractInputName();
             final String organization = extractInputOrganization();
             final String title = extractInputTitle();
-            getController().runUpdateProfile(name, organization, title);
+            final String password = extractPassword();
+            final String newPassword = extractNewPassword();
+            final String newPasswordConfirm = extractNewPasswordConfirm();
+            getController().runUpdateProfile(name, organization, title,
+                    password, newPassword, newPasswordConfirm);
             disposeWindow();
         }
     }//GEN-LAST:event_saveJButtonActionPerformed
@@ -433,7 +514,10 @@ public class UpdateProfileAvatar extends Avatar {
     private javax.swing.JTextField emailJTextField;
     private javax.swing.JList emailsJList;
     private javax.swing.JTextField nameJTextField;
+    private javax.swing.JPasswordField newPasswordConfirmJPasswordField;
+    private javax.swing.JPasswordField newPasswordJPasswordField;
     private javax.swing.JTextField organizationJTextField;
+    private javax.swing.JPasswordField passwordJPasswordField;
     private javax.swing.JTextField titleJTextField;
     // End of variables declaration//GEN-END:variables
 

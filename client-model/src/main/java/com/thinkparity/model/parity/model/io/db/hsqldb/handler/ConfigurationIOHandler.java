@@ -133,17 +133,14 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ);
             session.setString(1, key);
             session.executeQuery();
-            if(session.nextResult()) {
+            if (session.nextResult()) {
                 final MetaData metaData = extractMetaData(session);
                 updateMetaData(session, metaData.getId(), key, value);
+            } else {
+                throw new HypersonicException("[CANNOT FIND CONFIGURATION]");
             }
-            else {
-                throw new HypersonicException(getErrorId("[UPDATE]", "[CANNOT FIND CONFIGURATION]"));
-            }
-
             session.commit();
-        }
-        catch(final HypersonicException hx) {
+        } catch(final HypersonicException hx) {
             session.rollback();
             throw hx;
         }

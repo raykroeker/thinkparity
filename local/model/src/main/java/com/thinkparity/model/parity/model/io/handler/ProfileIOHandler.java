@@ -21,10 +21,8 @@ public interface ProfileIOHandler extends IOHandler {
      * 
      * @param profile
      *            A <code>Profile</code>.
-     * @param emails
-     *            A <code>List&lt;ProfileEMail&gt;</code>.
      */
-    public void create(final Profile profile, final List<ProfileEMail> emails);
+    public void create(final Profile profile);
 
     /**
      * Create a profile email.

@@ -51,9 +51,19 @@ public class Update extends AbstractAction {
             profile.setOrganization(organization);
             profile.setTitle(title);
             profileModel.update(profile);
+            // update password
+            final String password = (String) data.get(DataKey.PASSWORD);
+            final String newPassword = (String) data.get(DataKey.NEW_PASSWORD);
+            if (null != password) {
+                // TODO Add a check for password complexity.
+                profileModel.updatePassword(password, newPassword);
+            }
         }
     }
 
     /** Data keys. */
-    public enum DataKey { DISPLAY_AVATAR, NAME, ORGANIZATION, TITLE }
+    public enum DataKey {
+        DISPLAY_AVATAR, NAME, NEW_PASSWORD, NEW_PASSWORD_CONFIRM, ORGANIZATION,
+        PASSWORD, TITLE
+    }
 }

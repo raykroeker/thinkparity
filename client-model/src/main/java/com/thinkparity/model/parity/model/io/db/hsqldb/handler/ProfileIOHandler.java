@@ -109,7 +109,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#create(com.thinkparity.model.parity.model.profile.Profile)
      */
-    public void create(final Profile profile, final List<ProfileEMail> emails) {
+    public void create(final Profile profile) {
         final Session session = openSession();
         try {
             userIO.create(session, profile);

@@ -285,24 +285,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	Boolean isLoggedIn() { return xmppSession.isLoggedIn(); }
 
 	/**
-	 * Establish a new xmpp session for the user.
-	 * 
-	 * @param host
-	 *            The server host.
-	 * @param port
-	 *            The server port.
-	 * @param username
-	 *            The login name.
-	 * @param password
-	 *            The login password.
-	 * @throws SmackException
-	 */
-	void login(final String host, final Integer port, final String username,
-			final String password) throws SmackException {
-		xmppSession.login(host, port, username, password);
-	}
-
-	/**
 	 * Terminate the existing session for the user.
 	 * 
 	 * @throws SmackException

@@ -115,13 +115,6 @@ public class DraftDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getInfoIcon()
-     */
-    public ImageIcon getInfoIcon() {
-        return null;
-    }
-
-    /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {

@@ -168,25 +168,6 @@ public class ContainerCell extends Container implements TabCell  {
     }
 
     /**
-     * Obtain an info icon.
-     * 
-     * 
-     * @return An image icon.
-     */
-    public ImageIcon getInfoIcon() {
-        return null;
-        //if(isKeyHolder()) { return imageCache.read(DocumentIcon.INFO_IS_KEYHOLDER); }
-        //else { return imageCache.read(DocumentIcon.INFO_IS_NOT_KEYHOLDER); }
-    }
-
-    /**
-     * Obtain the document cell's key requests.
-     * 
-     * @return The document cell's key requests.
-     */
-    //public List<KeyRequest> getKeyRequests() { return keyRequests; }
-
-    /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      * 
      */

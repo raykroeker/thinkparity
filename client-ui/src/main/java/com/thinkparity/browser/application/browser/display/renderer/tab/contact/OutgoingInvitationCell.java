@@ -76,13 +76,6 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getInfoIcon()
-     */
-    public ImageIcon getInfoIcon() {
-        return null;
-    }
-
-    /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {

@@ -48,13 +48,6 @@ public interface TabCell {
     public Border getBorder(int index);
 
     /**
-     * Obtain an info icon.
-     * 
-     * @return An image icon.
-     */
-    public ImageIcon getInfoIcon();
-
-    /**
      * Obtain the node icon.
      * 
      * @return The node icon.

@@ -70,31 +70,26 @@ public class TabCellRenderer extends AbstractJPanel implements
             final boolean cellHasFocus) {
         final TabCell cell = (TabCell) value;
 
-        remove(paddingJLabel);
+        remove(westPaddingJLabel);
         final GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, Math.round(PADDING_INSET_LEFT * cell.getTextInsetFactor()), 0, 0);
-        add(paddingJLabel, gridBagConstraints);
+        add(westPaddingJLabel, gridBagConstraints);
 
         if(isSelected) {
             background = cell.getBackgroundSelected();
-            nodeIconJLabel.setIcon(cell.getNodeIconSelected());
         }
         else {
             background = cell.getBackground();
-            nodeIconJLabel.setIcon(cell.getNodeIcon());
         }
         setBorder(cell.getBorder(index));
 
-
-        textJLabel.setFont(cell.getTextFont());
-        textJLabel.setForeground(cell.getTextForeground());
-        textJLabel.setText(cell.getText());
+        westTextJLabel.setFont(cell.getTextFont());
+        westTextJLabel.setForeground(cell.getTextForeground());
+        westTextJLabel.setText(cell.getText());
 
         setToolTipText(cell.getToolTip());
-
-        infoIconJLabel.setIcon(cell.getInfoIcon());
 
         revalidate();
         repaint();
@@ -148,51 +143,55 @@ public class TabCellRenderer extends AbstractJPanel implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JLabel eastPaddingJLabel;
+        javax.swing.JLabel eastTextJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
 
-        paddingJLabel = LabelFactory.create();
-        nodeIconJLabel = LabelFactory.create();
-        textJLabel = LabelFactory.create();
-        infoIconJLabel = LabelFactory.create();
+        westPaddingJLabel = LabelFactory.create();
+        iconJLabel = LabelFactory.create();
+        westTextJLabel = LabelFactory.create();
+        eastTextJLabel = new javax.swing.JLabel();
+        eastPaddingJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        paddingJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Invisible1x20.png")));
+        westPaddingJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Invisible1x20.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(paddingJLabel, gridBagConstraints);
+        add(westPaddingJLabel, gridBagConstraints);
 
-        nodeIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/MainCellExpand.png")));
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/MainCellExpand.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
-        add(nodeIconJLabel, gridBagConstraints);
+        add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Document!");
+        westTextJLabel.setText("!Document!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        add(textJLabel, gridBagConstraints);
+        add(westTextJLabel, gridBagConstraints);
 
-        infoIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Key.png")));
+        eastTextJLabel.setText("!Raymond Kroeker!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 32);
-        add(infoIconJLabel, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        add(eastTextJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 75, 0, 0);
+        add(eastPaddingJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel infoIconJLabel;
-    private javax.swing.JLabel nodeIconJLabel;
-    private javax.swing.JLabel paddingJLabel;
-    private javax.swing.JLabel textJLabel;
+    private javax.swing.JLabel iconJLabel;
+    private javax.swing.JLabel westPaddingJLabel;
+    private javax.swing.JLabel westTextJLabel;
     // End of variables declaration//GEN-END:variables
 }

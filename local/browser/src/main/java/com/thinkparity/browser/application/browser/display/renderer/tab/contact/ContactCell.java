@@ -43,6 +43,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @version $Revision$
  */
 public class ContactCell extends Contact implements TabCell {
+
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
 
@@ -129,16 +130,6 @@ public class ContactCell extends Contact implements TabCell {
             topBorder = BORDER_TOP_N;
         }
         return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
-    }
-
-    /**
-     * Obtain an info icon.
-     * 
-     * 
-     * @return An image icon.
-     */
-    public ImageIcon getInfoIcon() {
-        return imageCache.read(ContactIcon.INFO);
     }
 
     /**

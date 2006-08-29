@@ -162,8 +162,6 @@ public class ContainerAvatar extends Avatar {
      */
     public void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
-        // set initial selection
-        if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
     
     /**

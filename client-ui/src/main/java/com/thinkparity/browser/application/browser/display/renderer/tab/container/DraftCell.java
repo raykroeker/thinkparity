@@ -118,14 +118,6 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     public ContainerCell getContainerDisplay() { return container; }
 
     /**
-     * Obtain an info icon.
-     * 
-     * 
-     * @return An image icon.
-     */
-    public ImageIcon getInfoIcon() { return null; }
-
-    /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      * 
      */

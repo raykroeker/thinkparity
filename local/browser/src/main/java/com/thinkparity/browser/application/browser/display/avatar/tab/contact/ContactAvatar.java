@@ -58,6 +58,10 @@ public class ContactAvatar extends Avatar {
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
     
+    /** Variables used to modify behavior of selection. */
+    private Integer selectedIndex = -1;
+    private Boolean selectingLastIndex = Boolean.FALSE;
+    
     /** Create a BrowserContactsAvatar. */
     public ContactAvatar() {
         super("BrowserContactsAvatar", ScrollPolicy.NONE, Color.WHITE);
@@ -115,7 +119,7 @@ public class ContactAvatar extends Avatar {
     public void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
         if(0 < jList.getModel().getSize()) {
-            jList.setSelectedIndex(0);
+            setSelectedIndex(0);
         }
     }
     
@@ -136,8 +140,7 @@ public class ContactAvatar extends Avatar {
     public void syncContact(final JabberId contactId, final Boolean remote) {
         final TabCell selectedCell = getSelectedCell();
         model.syncContact(contactId, remote);
-        if(model.isCellVisible(selectedCell))
-            selectCell(selectedCell);
+        setSelectedCell(selectedCell);
     }
 
     /**
@@ -152,8 +155,7 @@ public class ContactAvatar extends Avatar {
             final Boolean remote) {
         final TabCell selectedCell = getSelectedCell();
         model.syncIncomingInvitation(invitationId, remote);
-        if (model.isCellVisible(selectedCell))
-            selectCell(selectedCell);
+        setSelectedCell(selectedCell);
     }
 
     /**
@@ -168,8 +170,7 @@ public class ContactAvatar extends Avatar {
             final Boolean remote) {
         final TabCell selectedCell = getSelectedCell();
         model.syncOutgoingInvitation(invitationId, remote);
-        if (model.isCellVisible(selectedCell))
-            selectCell(selectedCell);
+        setSelectedCell(selectedCell);
     }
 
     /**
@@ -195,16 +196,62 @@ public class ContactAvatar extends Avatar {
         jList.setDragEnabled(true);
         jList.setLayoutOrientation(JList.VERTICAL);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // The purpose of this ListSelectionListener is to change JList selection behavior
+        // so clicking below the last entry of the list does not cause selection of 
+        // the last entry in the list. See also the mousePressed method below.
+        jList.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(final ListSelectionEvent e) {
+                final Integer newSelectedIndex = jList.getSelectedIndex();
+                final Integer lastIndex = jList.getModel().getSize() - 1;
+                
+                // The first time here, or if the current selection is the last item
+                // in the list, or if the new selection is not the last item in
+                // the list, then proceed as usual.
+                if ((selectedIndex == -1) || (selectedIndex == lastIndex)
+                        || (newSelectedIndex != lastIndex)) {
+                    selectedIndex = newSelectedIndex;
+                    selectingLastIndex = Boolean.FALSE;                    
+                }
+                // If the last item is being selected then hold off until we can determine
+                // that the user has clicked on the cell and not below the cell.
+                else {
+                    jList.setSelectedIndex(selectedIndex);
+                    selectingLastIndex = Boolean.TRUE;   
+                }
+            }
+        });
+        
         jList.addMouseListener(new MouseAdapter() {
+            public void mousePressed(final MouseEvent e) {
+                // If selectingLastIndex is true then the selection was interrupted. Don't
+                // perform the selection if the user clicked below the last entry, otherwise
+                // proceed with the selection.
+                if (selectingLastIndex) {
+                    Boolean allowSelection = Boolean.TRUE;
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    if (listIndex != -1) {
+                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                        if (!SwingUtil.regionContains(cellBounds,p)) {
+                            allowSelection = Boolean.FALSE;
+                        }
+                    }
+                    if (allowSelection) {
+                        selectedIndex = listIndex;                        
+                        jList.setSelectedIndex(listIndex);
+                    }
+                    selectingLastIndex = Boolean.FALSE;  
+                }
+            }
             public void mouseClicked(final MouseEvent e) {
                 if(2 == e.getClickCount()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
                     // Don't process double click if it is on white space below the last contact
                     final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                    if(SwingUtil.regionContains(cellBounds, p)){
-                        jList.setSelectedIndex(listIndex);                    
-                        model.triggerDoubleClick((TabCell) jList.getSelectedValue());    
+                    if(SwingUtil.regionContains(cellBounds, p)){                  
+                        model.triggerDoubleClick((TabCell) jList.getSelectedValue());
                     }
                 }
             }
@@ -219,7 +266,7 @@ public class ContactAvatar extends Avatar {
                     else { // Check if the click is below the bottom entry in the list
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                         if (SwingUtil.regionContains(cellBounds,p)) {
-                            jList.setSelectedIndex(listIndex);
+                            setSelectedIndex(listIndex);
                             model.triggerPopup((TabCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
                         }
                         else {   // Below the bottom entry
@@ -265,8 +312,24 @@ public class ContactAvatar extends Avatar {
      * @param tabCell
      *            A display cell.
      */
-    private void selectCell(final TabCell tabCell) {
-        jList.setSelectedValue(tabCell, true);
+    private void setSelectedCell(final TabCell tabCell) {
+        if (model.isCellVisible(tabCell)) {
+            // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
+            selectedIndex = -1;
+            jList.setSelectedValue(tabCell, true);
+        }
+    }
+    
+    /**
+     * Select an entry in the JList.
+     * 
+     * @param index
+     *              The JList index to select.
+     */
+    private void setSelectedIndex(final Integer index) {
+        // Set selectedIndex to -1 so the ListSelectionListener behaves correctly        
+        selectedIndex = -1;
+        jList.setSelectedIndex(index);
     }
     
     /**

@@ -116,6 +116,14 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
         return localization.getString("Text", new Object[] {
                 invitedByUser.getName(), fuzzyDateFormat.format(createdOn) });
     }
+    
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * 
+     */
+    public String getSecondaryText() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()

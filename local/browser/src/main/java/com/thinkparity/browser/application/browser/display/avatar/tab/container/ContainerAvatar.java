@@ -13,8 +13,8 @@ import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-
-import com.thinkparity.codebase.assertion.Assert;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
@@ -30,6 +30,8 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -61,6 +63,10 @@ public class ContainerAvatar extends Avatar {
     
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** Variables used to modify behavior of selection. */
+    private Integer selectedIndex = -1;
+    private Boolean selectingLastIndex = Boolean.FALSE;
 
     /** Create ContainerAvatar. */
     public ContainerAvatar() {
@@ -162,6 +168,10 @@ public class ContainerAvatar extends Avatar {
      */
     public void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+
+        // set initial selection
+        if(0 < jList.getModel().getSize()) { setSelectedIndex(0); }
+
     }
     
     /**
@@ -190,11 +200,11 @@ public class ContainerAvatar extends Avatar {
             final ContainerCell container = model.getContainerCell(containerId);
             if (null!=container) {
                 model.triggerExpand(container);
-                selectContainer(container);
+                setSelectedCell(container);
             }
         }
         else {
-            selectContainer(selectedContainer);
+            setSelectedCell(selectedContainer);
         }
     }
     
@@ -212,7 +222,7 @@ public class ContainerAvatar extends Avatar {
             final Boolean remote) {
         final ContainerCell selectedContainer = getSelectedContainer();
         model.syncDocument(containerId, documentId, remote);
-        selectContainer(selectedContainer);
+        setSelectedCell(selectedContainer);
     }
 
     /**
@@ -226,7 +236,7 @@ public class ContainerAvatar extends Avatar {
     public void syncDocument(final Long documentId, final Boolean remote) {
         final ContainerCell selectedContainer = getSelectedContainer();
         model.syncDocument(documentId, remote);
-        selectContainer(selectedContainer);
+        setSelectedCell(selectedContainer);
     }
     /**
      * Obtain the selected container from the list.
@@ -260,7 +270,54 @@ public class ContainerAvatar extends Avatar {
         // so that it does not change the selection.
         //  -- jList.setDropMode(DropMode.ON);
         //CopyActionEnforcer.applyEnforcer(this);
+        
+        // The purpose of this ListSelectionListener is to change JList selection behavior
+        // so clicking below the last entry of the list does not cause selection of 
+        // the last entry in the list. See also the mousePressed method below.
+        jList.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(final ListSelectionEvent e) {
+                final Integer newSelectedIndex = jList.getSelectedIndex();
+                final Integer lastIndex = jList.getModel().getSize() - 1;
+                
+                // The first time here, or if the current selection is the last item
+                // in the list, or if the new selection is not the last item in
+                // the list, then proceed as usual.
+                if ((selectedIndex == -1) || (selectedIndex == lastIndex)
+                        || (newSelectedIndex != lastIndex)) {
+                    selectedIndex = newSelectedIndex;
+                    selectingLastIndex = Boolean.FALSE;                    
+                }
+                // If the last item is being selected then hold off until we can determine
+                // that the user has clicked on the cell and not below the cell.
+                else {
+                    jList.setSelectedIndex(selectedIndex);
+                    selectingLastIndex = Boolean.TRUE;   
+                }
+            }
+        });
+        
         jList.addMouseListener(new MouseAdapter() {
+            public void mousePressed(final MouseEvent e) {
+                // If selectingLastIndex is true then the selection was interrupted. Don't
+                // perform the selection if the user clicked below the last entry, otherwise
+                // proceed with the selection.
+                if (selectingLastIndex) {
+                    Boolean allowSelection = Boolean.TRUE;
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    if (listIndex != -1) {
+                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                        if (!SwingUtil.regionContains(cellBounds,p)) {
+                            allowSelection = Boolean.FALSE;
+                        }
+                    }
+                    if (allowSelection) {
+                        selectedIndex = listIndex;                        
+                        jList.setSelectedIndex(listIndex);
+                    }
+                    selectingLastIndex = Boolean.FALSE;  
+                }
+            }
             public void mouseClicked(final MouseEvent e) {
                 if(2 == e.getClickCount()) {
                     final Point p = e.getPoint();
@@ -269,7 +326,7 @@ public class ContainerAvatar extends Avatar {
                     final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                     if(SwingUtil.regionContains(cellBounds, p)){                 
                         model.triggerDoubleClick((TabCell) jList.getSelectedValue());  
-                        jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
+                        setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                     }
                 }
                 else if(1 == e.getClickCount()) {
@@ -282,14 +339,14 @@ public class ContainerAvatar extends Avatar {
                     final Integer selectedIndex = jList.getSelectedIndex();
                     if ((selectedIndex != -1) && (listIndex == selectedIndex)) {
                         final TabCell mc = (TabCell) jList.getSelectedValue();
-                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                        cellBounds.x += CELL_NODE_LOCATION.x * mc.getTextInsetFactor();
-                        cellBounds.y += CELL_NODE_LOCATION.y;
-                        cellBounds.width = CELL_NODE_SIZE.width;
-                        cellBounds.height = CELL_NODE_SIZE.height;
-                        if(SwingUtil.regionContains(cellBounds, p)) {                            
+                        final Rectangle iconBounds = jList.getCellBounds(listIndex, listIndex);
+                        iconBounds.x += CELL_NODE_LOCATION.x * mc.getTextInsetFactor();
+                        iconBounds.y += CELL_NODE_LOCATION.y;
+                        iconBounds.width = CELL_NODE_SIZE.width;
+                        iconBounds.height = CELL_NODE_SIZE.height;
+                        if(SwingUtil.regionContains(iconBounds, p)) {                            
                             model.triggerExpand(mc);
-                            jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
+                            setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                         }
                     }
                 }
@@ -304,14 +361,14 @@ public class ContainerAvatar extends Avatar {
                     // locationToIndex() to return the last entry.
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
-                    final Integer selectedIndex = jList.getSelectedIndex();
-                    if (selectedIndex==-1) {  // No entries in the list
+                    final Integer listSelectedIndex = jList.getSelectedIndex();
+                    if (listSelectedIndex==-1) {  // No entries in the list
                         triggerPopup(jList, e.getX(), e.getY());
                     }
                     else { // Check if the click is below the bottom entry in the list
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                         if (SwingUtil.regionContains(cellBounds,p)) {
-                            jList.setSelectedIndex(listIndex);
+                            setSelectedIndex(listIndex);
                             model.triggerPopup((TabCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
                         }
                         else {   // Below the bottom entry
@@ -350,10 +407,24 @@ public class ContainerAvatar extends Avatar {
      * @param cc
      *            The container cell.
      */
-    private void selectContainer(final ContainerCell cc) {
+    private void setSelectedCell(final ContainerCell cc) {
         if (model.isContainerVisible(cc)) {
+            // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
+            selectedIndex = -1;
             jList.setSelectedValue(cc, true);
         }
+    }
+    
+    /**
+     * Select an entry in the JList.
+     * 
+     * @param index
+     *              The JList index to select.
+     */
+    private void setSelectedIndex(final Integer index) {
+        // Set selectedIndex to -1 so the ListSelectionListener behaves correctly        
+        selectedIndex = -1;
+        jList.setSelectedIndex(index);
     }
     
     /**

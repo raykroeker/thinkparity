@@ -148,6 +148,14 @@ public class ContainerVersionCell extends ContainerVersion implements
     public String getText() {
         return localization.getString("Text", new Object[] {getVersionId()});
     }
+    
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * 
+     */
+    public String getSecondaryText() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()

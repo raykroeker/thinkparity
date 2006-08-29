@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.renderer.tab;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -13,11 +14,12 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.plaf.ComponentUI;
 
-import com.thinkparity.codebase.swing.AbstractJPanel;
-
 import com.thinkparity.browser.application.browser.component.LabelFactory;
+
+import com.thinkparity.codebase.swing.AbstractJPanel;
 
 /**
  * @author raykroeker@thinkparity.com
@@ -68,26 +70,49 @@ public class TabCellRenderer extends AbstractJPanel implements
     public Component getListCellRendererComponent(final JList list,
             final Object value, final int index, final boolean isSelected,
             final boolean cellHasFocus) {
-        final TabCell cell = (TabCell) value;
+        final TabCell cell = (TabCell) value;     
+        final Integer inset = Math.round(PADDING_INSET_LEFT * cell.getTextInsetFactor());
+        final Integer westSize;
+        final Integer eastSize;
 
         remove(westPaddingJLabel);
         final GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, Math.round(PADDING_INSET_LEFT * cell.getTextInsetFactor()), 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, inset, 0, 0);
         add(westPaddingJLabel, gridBagConstraints);
 
         if(isSelected) {
             background = cell.getBackgroundSelected();
+            iconJLabel.setIcon(cell.getNodeIconSelected());
         }
         else {
             background = cell.getBackground();
+            iconJLabel.setIcon(cell.getNodeIcon());
         }
         setBorder(cell.getBorder(index));
+        
+        if (null == cell.getSecondaryText()) {
+            westSize = 395-inset;
+            eastSize = 5;
+        } else {
+            westSize = 250-inset;
+            eastSize = 150;
+        }
 
         westTextJLabel.setFont(cell.getTextFont());
         westTextJLabel.setForeground(cell.getTextForeground());
         westTextJLabel.setText(cell.getText());
+        // The preferred size must subtract the inset to that the position
+        // of the east text does not change when you expand and increase the inset.
+        westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
+        
+        eastTextJLabel.setFont(cell.getTextFont());
+        eastTextJLabel.setForeground(cell.getTextForeground());
+        eastTextJLabel.setText(cell.getSecondaryText());
+        // These two lines make the east text left justified.
+        eastTextJLabel.setPreferredSize(new Dimension(eastSize, 14));
+        eastTextJLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
         setToolTipText(cell.getToolTip());
 
@@ -143,15 +168,12 @@ public class TabCellRenderer extends AbstractJPanel implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel eastPaddingJLabel;
-        javax.swing.JLabel eastTextJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
 
         westPaddingJLabel = LabelFactory.create();
         iconJLabel = LabelFactory.create();
         westTextJLabel = LabelFactory.create();
-        eastTextJLabel = new javax.swing.JLabel();
-        eastPaddingJLabel = new javax.swing.JLabel();
+        eastTextJLabel = LabelFactory.create();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -176,20 +198,17 @@ public class TabCellRenderer extends AbstractJPanel implements
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(westTextJLabel, gridBagConstraints);
 
-        eastTextJLabel.setText("!Raymond Kroeker!");
+        eastTextJLabel.setText("!Publisher!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         add(eastTextJLabel, gridBagConstraints);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 75, 0, 0);
-        add(eastPaddingJLabel, gridBagConstraints);
-
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel eastTextJLabel;
     private javax.swing.JLabel iconJLabel;
     private javax.swing.JLabel westPaddingJLabel;
     private javax.swing.JLabel westTextJLabel;

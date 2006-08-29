@@ -103,6 +103,14 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
         return localization.getString("Text", new Object[] {
                 getEmail(), fuzzyDateFormat.format(getCreatedOn()) });
     }
+    
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * 
+     */
+    public String getSecondaryText() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()

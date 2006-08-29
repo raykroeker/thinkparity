@@ -154,6 +154,14 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * 
      */
     public String getText() { return localization.getString("Draft"); }
+    
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * 
+     */
+    public String getSecondaryText() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()

@@ -74,6 +74,13 @@ public interface TabCell {
      * @return A string.
      */
     public String getText();
+    
+    /**
+     * Obtain the secondary text to display.
+     * 
+     * @return A string.
+     */
+    public String getSecondaryText();
 
     /**
      * Obatin the font for the cell text.

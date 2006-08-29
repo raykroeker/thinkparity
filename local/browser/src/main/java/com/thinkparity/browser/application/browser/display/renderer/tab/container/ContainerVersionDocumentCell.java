@@ -133,6 +133,14 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
             return getName();
         }
     }
+    
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * 
+     */
+    public String getSecondaryText() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()

@@ -132,8 +132,8 @@ public class BrowserMenuBar extends JMenuBar {
         this.add(helpMenu);
 
         // Create the New popup menu
-        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
-        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
+        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
+        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
 
         // Create the Profile menu
         final Data updateProfileData = new Data(1);
@@ -141,12 +141,12 @@ public class BrowserMenuBar extends JMenuBar {
         profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
         
         // Create the OpenHelp menu
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, new Data(0)));
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, new Data(0)));
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
         
         // Create the Sign-Up button
         this.add(Box.createRigidArea(new Dimension(3,0)));
-        this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, new Data(0)));        
+        this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, Data.emptyData()));
 
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());

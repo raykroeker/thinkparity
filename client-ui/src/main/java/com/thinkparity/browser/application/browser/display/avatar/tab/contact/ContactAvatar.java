@@ -275,7 +275,7 @@ public class ContactAvatar extends Avatar {
      */
     private void triggerPopup(final Component invoker, final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
         jPopupMenu.show(invoker, x, y);
     }   
 }

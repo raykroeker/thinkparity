@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
  * Data is a wrapper around a set of mapped name\values.
  *
@@ -19,7 +21,19 @@ import java.util.Map.Entry;
  */
 public class Data implements Cloneable {
 
-	/**
+    /** An empty data reference. */
+    private static final Data EMPTY_DATA = new EmptyData();
+
+    /**
+     * Obtain an immutable reference to empty data.
+     * 
+     * @return An empty <code>Data</code>.
+     */
+    public static Data emptyData() {
+        return EMPTY_DATA;
+    }
+
+    /**
 	 * The underlying data container.  It contains a map of enumerated types
 	 * pointing to object values.
 	 * 
@@ -64,7 +78,7 @@ public class Data implements Cloneable {
 	 */
 	public Object get(final Enum<?> key) { return data.get(key); }
 
-    /**
+	/**
      * Extract a typed list from the data.
      * 
      * @param <T>
@@ -105,5 +119,48 @@ public class Data implements Cloneable {
      */
     public Object unset(final Enum<?> key) {
         return data.remove(key);
+    }
+
+    private static class EmptyData extends Data {
+
+        /**
+         * @see com.thinkparity.browser.platform.action.Data#clone()
+         */
+        @Override
+        public Object clone() {
+            throw Assert.createUnreachable("CANNOT CLONE EMPTY DATA");
+        }
+
+        /**
+         * @see com.thinkparity.browser.platform.action.Data#get(java.lang.Enum)
+         */
+        @Override
+        public Object get(final Enum<?> key) {
+            return null;
+        }
+
+        /**
+         * @see com.thinkparity.browser.platform.action.Data#getList(java.lang.Enum)
+         */
+        @Override
+        public <T> List<T> getList(final Enum<?> key) {
+            return null;
+        }
+
+        /**
+         * @see com.thinkparity.browser.platform.action.Data#set(java.lang.Enum, java.lang.Object)
+         */
+        @Override
+        public Object set(final Enum<?> key, final Object value) {
+            throw Assert.createUnreachable("CANNOT SET EMPTY DATA");
+        }
+
+        /**
+         * @see com.thinkparity.browser.platform.action.Data#unset(java.lang.Enum)
+         */
+        @Override
+        public Object unset(final Enum<?> key) {
+            throw Assert.createUnreachable("CANNOT UNSET EMPTY DATA");
+        }
     }
 }

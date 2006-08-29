@@ -362,7 +362,7 @@ public class ContainerAvatar extends Avatar {
      */
     private void triggerPopup(final Component invoker, final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
         jPopupMenu.show(invoker, x, y);
     }    
 }

@@ -186,27 +186,27 @@ public class SystemApplication extends AbstractApplication {
 
     /** Run the exit platform action. */
     public void runExitPlatform() {
-        runLater(ActionId.PLATFORM_QUIT, new Data(0));
+        runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
     }
 
     /** Run the login action. */
     public void runLogin() {
-        runLater(ActionId.PLATFORM_LOGIN, new Data(0));
+        runLater(ActionId.PLATFORM_LOGIN, Data.emptyData());
     }
 
     /** Run the move to front action. */
     public void runMoveBrowserToFront() {
-        runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, new Data(0));
+        runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
     }
 
     /** Run the restart platform action. */
     public void runRestartPlatform() {
-        run(ActionId.PLATFORM_RESTART, new Data(0));
+        run(ActionId.PLATFORM_RESTART, Data.emptyData());
     }
 
     /** Run the restore browser action. */
 	public void runRestoreBrowser() {
-        runLater(ActionId.PLATFORM_BROWSER_RESTORE, new Data(0));
+        runLater(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
 
     /**

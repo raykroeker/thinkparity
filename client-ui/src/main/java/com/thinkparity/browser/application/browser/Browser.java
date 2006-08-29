@@ -1246,6 +1246,10 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.PROFILE_UPDATE, data);
     }
 
+    public void runResetProfilePassword() {
+        invoke(ActionId.PROFILE_RESET_PASSWORD, Data.emptyData());
+    }
+
     /**
      * Run the profile's verify email action.  Since no key is specified; this
      * will display a dialog.

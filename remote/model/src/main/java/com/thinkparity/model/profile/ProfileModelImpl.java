@@ -128,13 +128,13 @@ class ProfileModelImpl extends AbstractModelImpl {
         return profile;
     }
 
-    List<ProfileEMail> readEMails(final JabberId userId) {
+    List<EMail> readEmails(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
         assertEquals("CAN ONLY READ PERSONAL PROFILE", session.getJabberId(), userId);
 
         try {
-            return userSql.readEmails(userId);
+            return userSql.readEmails(userId, Boolean.TRUE);
         } catch (final SQLException sqlx) {
             throw translateError(sqlx);
         }

@@ -5,15 +5,14 @@ package com.thinkparity.server.handler.profile;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
-import com.thinkparity.model.profile.ProfileEMail;
 
 import com.thinkparity.server.handler.AbstractController;
 
 /**
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.2
  */
 public class ReadEmails extends AbstractController {
 
@@ -26,17 +25,17 @@ public class ReadEmails extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        writeProfileEMails("emails", readEMails(readJabberId("jabberId")));
+        writeEMails("emails", "emails", readEmails(readJabberId("userId")));
     }
 
     /**
-     * Read the profile.
+     * Read the profile's email addresses.
      * 
-     * @param jabberId
-     *            A jabber id.
-     * @return A profile.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;EMail&gt;</code>.
      */
-    private List<ProfileEMail> readEMails(final JabberId jabberId) {
-        return getProfileModel().readEMails(jabberId);
+    private List<EMail> readEmails(final JabberId userId) {
+        return getProfileModel().readEmails(userId);
     }
 }

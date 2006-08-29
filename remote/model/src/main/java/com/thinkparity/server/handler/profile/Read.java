@@ -32,6 +32,7 @@ public class Read extends AbstractController {
             writeJabberId(Xml.Profile.JABBER_ID, profile.getId());
             writeString(Xml.Profile.NAME, profile.getName());
             writeString(Xml.Profile.ORGANIZATION, profile.getOrganization());
+            writeString(Xml.Profile.TITLE, profile.getTitle());
         }
     }
 

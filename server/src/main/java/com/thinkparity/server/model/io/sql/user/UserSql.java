@@ -14,7 +14,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.profile.VerificationKey;
 
 import com.thinkparity.server.model.io.sql.AbstractSql;
@@ -52,7 +51,7 @@ public class UserSql extends AbstractSql {
             new StringBuffer("select PUE.USERNAME,PUE.EMAIL,PUE.VERIFIED ")
             .append("from parityUserEmail PUE ")
             .append("inner join jiveUser JU on PUE.USERNAME = JU.USERNAME ")
-            .append("where JU.USERNAME=?")
+            .append("where JU.USERNAME=? and PUE.VERIFIED=?")
             .toString();
 
     /** Sql to read a username from an e-mail address. */
@@ -132,17 +131,18 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public List<ProfileEMail> readEmails(final JabberId jabberId) throws SQLException {
+    public List<EMail> readEmails(final JabberId jabberId,
+            final Boolean verified) throws SQLException {
         Connection cx = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             cx = getCx();
-            logStatement(SQL_READ_EMAILS);
             ps = cx.prepareStatement(SQL_READ_EMAILS);
-            set(ps, 1, jabberId.getUsername());
+            ps.setString(1, jabberId.getUsername());
+            ps.setBoolean(2, verified);
             rs = ps.executeQuery();
-            final List<ProfileEMail> emails = new ArrayList<ProfileEMail>();
+            final List<EMail> emails = new ArrayList<EMail>();
             while (rs.next()) {
                 emails.add(extractEMail(rs));
             }
@@ -202,7 +202,7 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    ProfileEMail extractEMail(final ResultSet rs) throws SQLException {
-        return null;
+    EMail extractEMail(final ResultSet rs) throws SQLException {
+        return EMailBuilder.parse(rs.getString("EMAIL"));
     }
 }

@@ -73,9 +73,9 @@ public class ProfileModel extends AbstractModel {
         synchronized(implLock) { return impl.read(jabberId); }
     }
 
-    public List<ProfileEMail> readEMails(final JabberId userId) {
+    public List<EMail> readEmails(final JabberId userId) {
         synchronized (implLock) {
-            return impl.readEMails(userId);
+            return impl.readEmails(userId);
         }
     }
 

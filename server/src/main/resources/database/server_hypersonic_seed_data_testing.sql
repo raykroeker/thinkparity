@@ -19,78 +19,100 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('thinkparity', '<vCard xmlns="vcard-temp"><FN>thinkParity Solutions Inc.</FN><N><FAMILY>thinkParity Solutions Inc.</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('thinkparity', 'thinkParity@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('thinkparity', 'thinkParity@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('thinkparity', 'What is my username?', 'thinkparity');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('rkroeker', '<vCard xmlns="vcard-temp"><FN>Raymond Kroeker</FN><N><FAMILY>Kroeker</FAMILY><GIVEN>Raymond</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('rkroeker', 'raymond@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('rkroeker', 'raymond@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('rkroeker', 'What is my username?', 'rkroeker');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ahalaby','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('ahalaby', '<vCard xmlns="vcard-temp"><FN>Avi Halaby</FN><N><FAMILY>Halaby</FAMILY><GIVEN>Avi</GIVEN></N><ORG><ORGNAME>Epiphyte Corporation Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('ahalaby', 'avi@epiphyte.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('ahalaby', 'avi@epiphyte.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('ahalaby', 'What is my username?', 'ahalaby');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rwaterhouse','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('rwaterhouse', '<vCard xmlns="vcard-temp"><FN>Randy Waterhouse</FN><N><FAMILY>Waterhouse</FAMILY><GIVEN>Randy</GIVEN></N><ORG><ORGNAME>Epiphyte Corporation Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('rwaterhouse', 'randy@epiphyte.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('rwaterhouse', 'randy@epiphyte.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('rwaterhouse', 'What is my username?', 'rwaterhouse');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ashaftoe','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('ashaftoe', '<vCard xmlns="vcard-temp"><FN>Amy Shaftoe</FN><N><FAMILY>Shaftoe</FAMILY><GIVEN>Amy</GIVEN></N><ORG><ORGNAME>Semper Marine Group</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('ashaftoe', 'amy@sempermarine.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('ashaftoe', 'amy@sempermarine.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('ashaftoe', 'What is my username?', 'ashaftoe');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('brussell','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('brussell', '<vCard xmlns="vcard-temp"><FN>Bertrand Russell</FN><N><FAMILY>Russell</FAMILY><GIVEN>Bertrand</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('brussell', 'bertrand@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('brussell', 'bertrand@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('brussell', 'What is my username?', 'brussell');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('gdengo','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('gdengo', '<vCard xmlns="vcard-temp"><FN>Goto Dengo</FN><N><FAMILY>Dengo</FAMILY><GIVEN>Goto</GIVEN></N><ORG><ORGNAME>Goto Engineering Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('gdengo', 'goto@gotoengineering.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('gdengo', 'goto@gotoengineering.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('gdengo', 'What is my username?', 'gdengo');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('junit', '<vCard xmlns="vcard-temp"><FN>JUnit thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('junit', 'junit@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('junit', 'junit@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('junit', 'What is my username?', 'junit');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit.x','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('junit.x', '<vCard xmlns="vcard-temp"><FN>JUnit.X thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.X</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('junit.x', 'junit.x@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('junit.x', 'junit.x@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('junit.x', 'What is my username?', 'junit.x');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit.y','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('junit.y', '<vCard xmlns="vcard-temp"><FN>JUnit.Y thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.Y</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('junit.y', 'junit.y@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('junit.y', 'junit.y@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('junit.y', 'What is my username?', 'junit.y');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('junit.z','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('junit.z', '<vCard xmlns="vcard-temp"><FN>JUnit.Z thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.Z</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL)
-    values('junit.z', 'junit.z@thinkparity.com');
+insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
+    values('junit.z', 'junit.z@thinkparity.com', true);
+insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
+    values('junit.z', 'What is my username?', 'junit.z');
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('rkroeker', 'ahalaby@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());

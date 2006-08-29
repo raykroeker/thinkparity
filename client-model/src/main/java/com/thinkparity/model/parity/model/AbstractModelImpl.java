@@ -574,15 +574,24 @@ public abstract class AbstractModelImpl {
         try {
             getConfigurationHandler().create(ConfigurationKeys.USERNAME, encrypt(cipherKey, username));
             getConfigurationHandler().create(ConfigurationKeys.PASSWORD, encrypt(cipherKey, password));
+            return readCredentials();
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final BadPaddingException bpx) { throw new RuntimeException("", bpx); }
-        catch(final IOException iox) { throw new RuntimeException("", iox); }
-        catch(final IllegalBlockSizeException ibsx) { throw new RuntimeException("", ibsx); }
-        catch(final InvalidKeyException ikx) { throw new RuntimeException("", ikx); }
-        catch(final NoSuchAlgorithmException nsax) { throw new RuntimeException("", nsax); }
-        catch(final NoSuchPaddingException nspx) { throw new RuntimeException("", nspx); }
+    }
 
-        return readCredentials();
+    /**
+     * Delete the user credentials.
+     *
+     */
+    protected void deleteCredentials() {
+        assertIsSetCredentials();
+        try {
+            getConfigurationHandler().delete(ConfigurationKeys.USERNAME);
+            getConfigurationHandler().delete(ConfigurationKeys.PASSWORD);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -616,7 +625,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected Context getContext() { return context; }
 
-    /**
+	/**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
@@ -625,7 +634,7 @@ public abstract class AbstractModelImpl {
 		return ArtifactModel.getInternalModel(context);
 	}
 
-	/**
+    /**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -634,14 +643,14 @@ public abstract class AbstractModelImpl {
 		return AuditModel.getInternalModel(context);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
      */
     protected InternalContactModel getInternalContactModel() {
         return ContactModel.getInternalModel(context);
-    }
+    };
 
 	/**
      * Obtain the internal thinkParity container interface.
@@ -650,7 +659,7 @@ public abstract class AbstractModelImpl {
      */
     protected InternalContainerModel getInternalContainerModel() {
         return ContainerModel.getInternalModel(context);
-    };
+    }
 
 	/**
      * Obtain the internal parity document interface.
@@ -670,7 +679,7 @@ public abstract class AbstractModelImpl {
         return DownloadModel.getInternalModel(context);
     }
 
-	/**
+    /**
      * Obtain the internal parity library interface.
      *
      * @return The internal parity library interface.
@@ -952,21 +961,16 @@ public abstract class AbstractModelImpl {
         final String username = getConfigurationHandler().read(ConfigurationKeys.USERNAME);
         final String password = getConfigurationHandler().read(ConfigurationKeys.PASSWORD);
 
-        if(null == username || null == password) { return null; }
-        else {
+        if (null == username || null == password) {
+            return null;
+        } else {
             final Credentials credentials = new Credentials();
             try {
                 credentials.setPassword(decrypt(cipherKey, password));
                 credentials.setUsername(decrypt(cipherKey, username));
+                return credentials;
             }
-            catch(final BadPaddingException bpx) { throw new RuntimeException("", bpx); }
-            catch(final IOException iox) { throw new RuntimeException("", iox); }
-            catch(final IllegalBlockSizeException ibsx) { throw new RuntimeException("", ibsx); }
-            catch(final InvalidKeyException ikx) { throw new RuntimeException("", ikx); }
-            catch(final NoSuchAlgorithmException nsax) { throw new RuntimeException("", nsax); }
-            catch(final NoSuchPaddingException nspx) { throw new RuntimeException("", nspx); }
-
-            return credentials;
+            catch(final Throwable t) { throw translateError(t); }
         }
     }
 
@@ -1013,12 +1017,7 @@ public abstract class AbstractModelImpl {
             getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             getConfigurationHandler().update(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
         }
-        catch(final BadPaddingException bpx) { throw translateError(bpx); }
-        catch(final IOException iox) { throw translateError(iox); }
-        catch(final IllegalBlockSizeException ibsx) { throw translateError(ibsx); }
-        catch(final InvalidKeyException ikx) { throw translateError(ikx); }
-        catch(final NoSuchAlgorithmException nsax) { throw translateError(nsax); }
-        catch(final NoSuchPaddingException nspx) { throw translateError(nspx); }
+        catch(final Throwable t) { throw translateError(t); }
     }
 
     /**
@@ -1043,7 +1042,6 @@ public abstract class AbstractModelImpl {
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
     }
-
     /**
      * Determine whether or not a version exists.
      * 

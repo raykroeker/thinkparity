@@ -260,6 +260,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    /**
+     * Read the user profile's security question.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A security question <code>String</code>.
+     */
+    public String readProfileSecurityQuestion(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readProfileSecurityQuestion(userId);
+        }
+    }
+
 	/**
      * Read a thinkParity user from the server.
      * 
@@ -311,6 +324,22 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
         synchronized(getImplLock()) {
             getImpl().removeTeamMember(uniqueId, jabberId);
+        }
+    }
+
+    /**
+     * Reset the user's authentication credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param securityAnswer
+     *            A security question answer <code>String</code>.
+     * @return A new password.
+     */
+    public String resetProfilePassword(final JabberId userId,
+            final String securityAnswer) {
+        synchronized (getImplLock()) {
+            return getImpl().resetProfilePassword(userId, securityAnswer);
         }
     }
 

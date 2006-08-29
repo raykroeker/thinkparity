@@ -161,6 +161,9 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_REMOVE_EMAIL:
             action = new com.thinkparity.browser.platform.action.profile.RemoveEmail(browser);
             break;
+        case PROFILE_RESET_PASSWORD:
+            action = new com.thinkparity.browser.platform.action.profile.ResetPassword(browser);
+            break;
         case PROFILE_SIGN_UP:
             action = new com.thinkparity.browser.platform.action.profile.SignUp(browser);
             break;

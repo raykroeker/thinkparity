@@ -9,7 +9,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -65,17 +64,39 @@ public class ProfileModel extends AbstractModel {
     /**
      * Read a profile.
      * 
-     * @param jabberId
-     *            A jabber id.
-     * @return A profile.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Profile</code>.
      */
-    public Profile read(final JabberId jabberId) throws ParityServerModelException {
-        synchronized(implLock) { return impl.read(jabberId); }
+    public Profile read(final JabberId userId) {
+        synchronized (implLock) {
+            return impl.read(userId);
+        }
     }
 
+    /**
+     * Read all emails addresses for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;EMail&gt;</code>.
+     */
     public List<EMail> readEmails(final JabberId userId) {
         synchronized (implLock) {
             return impl.readEmails(userId);
+        }
+    }
+
+    /**
+     * Read a user's security question.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A users's security question <code>String</code>.
+     */
+    public String readSecurityQuestion(final JabberId userId) {
+        synchronized (implLock) {
+            return impl.readSecurityQuestion(userId);
         }
     }
 
@@ -90,6 +111,22 @@ public class ProfileModel extends AbstractModel {
     public void removeEmail(final JabberId userId, final EMail email) {
         synchronized (implLock) {
             impl.removeEmail(userId, email);
+        }
+    }
+
+    /**
+     * Reset a user's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param securityAnswer
+     *            The security question answer <code>String</code>.
+     * @return The user's new password.
+     */
+    public String resetPassword(final JabberId userId,
+            final String securityAnswer) {
+        synchronized (implLock) {
+            return impl.resetCredentials(userId, securityAnswer);
         }
     }
 
@@ -109,18 +146,4 @@ public class ProfileModel extends AbstractModel {
             impl.verifyEmail(userId, email, key);
         }
     }
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ProfileModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

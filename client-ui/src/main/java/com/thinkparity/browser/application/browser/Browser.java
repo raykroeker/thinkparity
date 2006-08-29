@@ -57,6 +57,7 @@ import com.thinkparity.browser.platform.action.document.Rename;
 import com.thinkparity.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.browser.platform.action.profile.AddEmail;
 import com.thinkparity.browser.platform.action.profile.RemoveEmail;
+import com.thinkparity.browser.platform.action.profile.ResetPassword;
 import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.action.profile.VerifyEmail;
 import com.thinkparity.browser.platform.application.ApplicationId;
@@ -323,18 +324,26 @@ public class Browser extends AbstractApplication {
         displayAvatar(WindowId.RENAME, AvatarId.DIALOG_RENAME);
     }
 
+    /**
+     * Display the update profile dialog.
+     *
+     */
+    public void displayResetProfilePasswordDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
+    }
+    
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);
     }
-    
+
     /** Display the container avatar tab. */
     public void displayTabContainerAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTAINER);
     }
 
-	/**
-     * Display the update profile dialog.
+    /**
+     * Display the reset profile password dialog.
      *
      */
     public void displayUpdateProfileDialog() {
@@ -1176,6 +1185,33 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the reset profile password action.
+     *
+     */
+    public void runResetProfilePassword() {
+        runResetProfilePassword(null);
+    }
+
+    /**
+     * Run the reset profile password action.
+     * 
+     * @param securityAnswer
+     *            The answer to the profile's security question.
+     */
+    public void runResetProfilePassword(final String securityAnswer) {
+        final Data data;
+        if (null == securityAnswer) {
+            data = new Data(1);
+            data.set(ResetPassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        } else {
+            data = new Data(2);
+            data.set(ResetPassword.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(ResetPassword.DataKey.SECURITY_ANSWER, securityAnswer);
+        }
+        invoke(ActionId.PROFILE_RESET_PASSWORD, data);
+    }
+  
+    /**
      * Run a search for an artifact on the criteria.
      * 
      * @param criteria
@@ -1211,7 +1247,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-  
+
     /**
      * Update the user's profile.
      * 
@@ -1244,10 +1280,6 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.NEW_PASSWORD_CONFIRM, newPasswordConfirm);
         }
         invoke(ActionId.PROFILE_UPDATE, data);
-    }
-
-    public void runResetProfilePassword() {
-        invoke(ActionId.PROFILE_RESET_PASSWORD, Data.emptyData());
     }
 
     /**

@@ -9,6 +9,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
@@ -42,6 +43,18 @@ abstract class AbstractXMPP {
     }
 
     /**
+     * Assert that the user id matched that of the authenticated user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @see #isAuthenticatedUser(JabberId)
+     */
+    protected void assertIsAuthenticatedUser(final JabberId userId) {
+        Assert.assertTrue("USER DOES NOT MATCH AUTHENTICATED USER",
+                isAuthenticatedUser(userId));
+    }
+
+    /**
      * Execute an xmpp method.
      * 
      * @param method
@@ -68,6 +81,17 @@ abstract class AbstractXMPP {
             assertContainsResult(response);
         }
         return response;
+    }
+
+    /**
+     * Determine if the user id is the authenticated user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user id matches the currently authenticated user.
+     */
+    protected Boolean isAuthenticatedUser(final JabberId userId) {
+        return xmppCore.getJabberId().equals(userId);
     }
 
     /**

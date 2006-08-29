@@ -24,36 +24,9 @@ import com.thinkparity.model.profile.ProfileEMail;
  */
 class ProfileModelImpl extends AbstractModelImpl {
 
-    /**
-     * Update the profile password.
-     * 
-     * @param password
-     *            The current password <code>String</code>.
-     * @param newPassword
-     *            The new password <code>String</code>.
-     */
-    void updatePassword(final String password,
-            final String newPassword) {
-        logApiId();
-        logVariable("password", "XXXXX");
-        logVariable("newPassword", "XXXXX");
-        try {
-            final Credentials credentials = readCredentials();
-            Assert.assertTrue("PASSWORD INCORRECT",
-                    password.equals(credentials.getPassword()));
-            // update local data
-            credentials.setPassword(newPassword);
-            updateCredentials(credentials);
-            // update remote data.
-            getInternalSessionModel().updateProfileCredentials(localUserId(),
-                    credentials);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /** The profile db io. */
     private final ProfileIOHandler profileIO;
+
 
     /**
      * Create ProfileModelImpl.
@@ -64,6 +37,17 @@ class ProfileModelImpl extends AbstractModelImpl {
     ProfileModelImpl(final Workspace workspace) {
         super(workspace);
         this.profileIO = IOFactory.getDefault().createProfileHandler();
+    }
+
+    /**
+     * Read the user's credentials.
+     * 
+     * @return The user's credentials.
+     */
+    @Override
+    protected Credentials readCredentials() {
+        logApiId();
+        return super.readCredentials();
     }
 
     /**
@@ -146,6 +130,21 @@ class ProfileModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the security question.
+     * 
+     * @return A security question.
+     */
+    String readSecurityQuestion() {
+        logApiId();
+        try {
+            final Profile profile = read();
+            return getInternalSessionModel().readProfileSecurityQuestion(profile.getId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Remove an email from a the profile.
      * 
      * @param emailId
@@ -168,6 +167,26 @@ class ProfileModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Reset the user's password.
+     *
+     */
+    void resetPassword(final String securityAnswer) {
+        logApiId();
+        try {
+            // update remote data.
+            final String resetPassword =
+                getInternalSessionModel().resetProfilePassword(localUserId(),
+                    securityAnswer);
+            // update local data
+            final Credentials credentials = readCredentials();
+            credentials.setPassword(resetPassword);
+            updateCredentials(credentials);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Update the logged in user's profile.
      * 
      * @param profile
@@ -184,6 +203,35 @@ class ProfileModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+
+    /**
+     * Update the profile password.
+     * 
+     * @param password
+     *            The current password <code>String</code>.
+     * @param newPassword
+     *            The new password <code>String</code>.
+     */
+    void updatePassword(final String password,
+            final String newPassword) {
+        logApiId();
+        logVariable("password", "XXXXX");
+        logVariable("newPassword", "XXXXX");
+        try {
+            final Credentials credentials = readCredentials();
+            Assert.assertTrue("PASSWORD INCORRECT",
+                    password.equals(credentials.getPassword()));
+            // update local data
+            credentials.setPassword(newPassword);
+            updateCredentials(credentials);
+            // update remote data.
+            getInternalSessionModel().updateProfileCredentials(localUserId(),
+                    credentials);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
 
     /**
      * Verify an email.
@@ -232,4 +280,5 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
         return read();
     }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Nov 28, 2005
+ * Created On: Nov 28, 2005
  */
 package com.thinkparity.server.model;
 
@@ -73,6 +73,22 @@ public abstract class AbstractModelImpl {
 
 
     /**
+     * Add a to email recipient to a mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws MessagingException
+     */
+    protected void addRecipient(final MimeMessage mimeMessage, final EMail email)
+            throws MessagingException {
+        mimeMessage.addRecipient(
+                Message.RecipientType.TO,
+                new InternetAddress(email.toString(), Boolean.TRUE));
+    }
+
+	/**
      * Assert that the actual and expected jabber id's are equal.
      * 
      * @param assertion
@@ -102,7 +118,19 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-	/**
+    /**
+     * Assert that the user id matched that of the authenticated user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @see #isAuthenticatedUser(JabberId)
+     */
+    protected void assertIsAuthenticatedUser(final JabberId userId) {
+        Assert.assertTrue("USER DOES NOT MATCH AUTHENTICATED USER",
+                isAuthenticatedUser(userId));
+    }
+
+    /**
 	 * Assert that the session user is the artifact key holder.
 	 * 
 	 * @param artifact
@@ -167,6 +195,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
+
     /**
      * Obtain the parity artifact interface.
      * 
@@ -177,7 +206,7 @@ public abstract class AbstractModelImpl {
 		return artifactModel;
 	}
 
-    /**
+	/**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -186,8 +215,7 @@ public abstract class AbstractModelImpl {
 		return ContactModel.getModel(session);
 	}
 
-
-    /**
+	/**
      * Obtain the parity document interface.
      * 
      * @return The parity document interface.
@@ -209,7 +237,7 @@ public abstract class AbstractModelImpl {
                     t.getMessage());
     }
 
-	/**
+    /**
 	 * Obtain the parity session interface.
 	 * 
 	 * @return The parity session interface.
@@ -229,7 +257,7 @@ public abstract class AbstractModelImpl {
 		return uModel;
 	}
 
-    /**
+	/**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -238,6 +266,17 @@ public abstract class AbstractModelImpl {
      * TODO Finish isActive implementation.
      */
     protected Boolean isActive(final JabberId jabberId) { return Boolean.TRUE; }
+
+    /**
+     * Determine if the user id is the authenticated user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user id matches the currently authenticated user.
+     */
+    protected Boolean isAuthenticatedUser(final JabberId userId) {
+        return session.getJabberId().equals(userId);
+    }
 
 	/**
 	 * Determine whether or not the user represented by the jabber id is
@@ -296,16 +335,18 @@ public abstract class AbstractModelImpl {
      *            A variable name.
      * @param value
      *            A variable.
+     * @return The value.
      */
-    protected final void logVariable(final String name, final Object value) {
+    protected final <T> T logVariable(final String name, final T value) {
         if(logger.isDebugEnabled()) {
             logger.debug(MessageFormat.format("{0}:{1}",
                     name,
                     Log4JHelper.render(logger, value)));
         }
+        return value;
     }
 
-    /**
+	/**
      * Send a notification to an artifact team. Note that the user this session
      * belongs to will *NOT* be notified. This eases data integrity concerns on
      * the network; for example if a team member is added and the person adding
@@ -378,7 +419,7 @@ public abstract class AbstractModelImpl {
 		else { enqueue(jid, iq); }
 	}
 
-	/**
+    /**
      * Translate an error into a parity unchecked error.
      * 
      * @param message
@@ -397,7 +438,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Save the iq in the parity offline queue.
 	 * 
 	 * @param jid
@@ -411,7 +452,7 @@ public abstract class AbstractModelImpl {
 		queueModel.enqueue(jid, iq);
 	}
 
-	/**
+    /**
 	 * Obtain a handle to the xmpp server's session manager.
 	 * @return The xmpp servers's session manager.
 	 */
@@ -426,6 +467,7 @@ public abstract class AbstractModelImpl {
 	 */
 	private XMPPServer getXMPPServer() { return XMPPServer.getInstance(); }
 
+
     /**
      * Determine whether or not the system account is the key holder.
      * 
@@ -438,6 +480,7 @@ public abstract class AbstractModelImpl {
             throws ParityServerModelException {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
     }
+
 
     /**
      * Read the team.
@@ -455,21 +498,5 @@ public abstract class AbstractModelImpl {
             team.add(s.getJabberId());
         }
         return team;
-    }
-
-    /**
-     * Add a to email recipient to a mime message.
-     * 
-     * @param mimeMessage
-     *            A <code>MimeMessage</code>.
-     * @param email
-     *            An <code>EMail</code>.
-     * @throws MessagingException
-     */
-    protected void addRecipient(final MimeMessage mimeMessage, final EMail email)
-            throws MessagingException {
-        mimeMessage.addRecipient(
-                Message.RecipientType.TO,
-                new InternetAddress(email.toString(), Boolean.TRUE));
     }
 }

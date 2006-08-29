@@ -9,6 +9,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
+import com.thinkparity.browser.application.browser.display.provider.dialog.profile.ResetPasswordProvider;
 import com.thinkparity.browser.application.browser.display.provider.dialog.profile.UpdateProvider;
 import com.thinkparity.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.contact.ContactProvider;
@@ -113,6 +114,9 @@ public class ProviderFactory {
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profile, containerModel, documentModel);
+            break;
+        case DIALOG_PROFILE_RESET_PASSWORD:
+            provider = new ResetPasswordProvider(profile, profileModel);
             break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProvider(profile, profileModel);

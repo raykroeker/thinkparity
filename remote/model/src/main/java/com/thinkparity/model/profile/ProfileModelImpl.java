@@ -13,6 +13,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.jivesoftware.messenger.user.UserManager;
+import org.jivesoftware.messenger.user.UserProvider;
+
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -24,7 +27,6 @@ import com.thinkparity.model.util.smtp.TransportManager;
 
 import com.thinkparity.server.ParityServerConstants.VCardFields;
 import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
@@ -38,6 +40,9 @@ import com.thinkparity.server.model.user.User;
  */
 class ProfileModelImpl extends AbstractModelImpl {
 
+    /** A jive user provider. */
+    private final UserProvider userProvider;
+
     /** User db io. */
     private final UserSql userSql;
 
@@ -49,6 +54,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     ProfileModelImpl(final Session session) {
         super(session);
+        this.userProvider = UserManager.getUserProvider();
         this.userSql = new UserSql();
     }
 
@@ -64,9 +70,8 @@ class ProfileModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("userId", userId);
         logVariable("email", email);
-        assertEquals("CAN ONLY ADD EMAIL TO PERSONAL PROFILE",
-                userId, session.getJabberId());
         try {
+            assertIsAuthenticatedUser(userId);
             // create remote data
             final VerificationKey key = VerificationKey.generate(email);
             userSql.createEmail(userId, email, key);
@@ -75,6 +80,71 @@ class ProfileModelImpl extends AbstractModelImpl {
             createVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
             TransportManager.deliver(mimeMessage);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Profile</code>.
+     */
+    Profile read(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final User user = getUserModel().readUser(userId);
+            final Element vCardElement = user.getVCard();
+    
+            final Profile profile = new Profile();
+            profile.setId(user.getId());
+            profile.setName((String) vCardElement.element("FN").getData());
+            profile.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
+            final Element titleElement = vCardElement.element(VCardFields.TITLE);
+            if (null != titleElement)
+                profile.setTitle((String) titleElement.getData());
+    
+            profile.setVCard(user.getVCard());
+            return logVariable("profile", profile);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read all emails addresses for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;EMail&gt;</code>.
+     */
+    List<EMail> readEmails(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return userSql.readEmails(userId, Boolean.TRUE);
+        } catch (final SQLException sqlx) {
+            throw translateError(sqlx);
+        }
+    }
+
+    /**
+     * Read a user's security question.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A users's security question <code>String</code>.
+     */
+    String readSecurityQuestion(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            return userSql.readProfileSecurityQuestion(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -92,9 +162,8 @@ class ProfileModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("userId", userId);
         logVariable("email", email);
-        assertEquals("CAN ONLY REMOVE EMAIL FROM PERSONAL PROFILE",
-                userId, session.getJabberId());
         try {
+            assertIsAuthenticatedUser(userId);
             // delete remote data
             userSql.deleteEmail(userId, email);
         } catch (final Throwable t) {
@@ -103,40 +172,29 @@ class ProfileModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read a profile.
+     * Reset a user's credentials.
      * 
-     * @param jabberId
-     *            A jabber id.
-     * @return A profile.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param securityAnswer
+     *            A security question answer <code>String</code>.
+     * @return The user's new password.
      */
-    Profile read(final JabberId jabberId) throws ParityServerModelException {
-        logApiId();
-        logVariable("jabberId", jabberId);
-        assertEquals("[CAN ONLY READ PERSONAL PROFILE]", session.getJabberId(), jabberId);
-        final User user = getUserModel().readUser(jabberId);
-        final Element vCardElement = user.getVCard();
-
-        final Profile profile = new Profile();
-        profile.setId(user.getId());
-        profile.setName((String) vCardElement.element("FN").getData());
-        profile.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
-        final Element titleElement = vCardElement.element(VCardFields.TITLE);
-        if (null != titleElement)
-            profile.setTitle((String) titleElement.getData());
-
-        profile.setVCard(user.getVCard());
-        return profile;
-    }
-
-    List<EMail> readEmails(final JabberId userId) {
+    String resetCredentials(final JabberId userId, final String securityAnswer) {
         logApiId();
         logVariable("userId", userId);
-        assertEquals("CAN ONLY READ PERSONAL PROFILE", session.getJabberId(), userId);
-
+        logVariable("securityAnswer", "XXXXX");
+        assertIsAuthenticatedUser(userId);
         try {
-            return userSql.readEmails(userId, Boolean.TRUE);
-        } catch (final SQLException sqlx) {
-            throw translateError(sqlx);
+            final String storedSecurityAnswer =
+                userSql.readProfileSecurityAnswer(userId);
+            Assert.assertTrue("SECURITY ANSWER DOES NOT MATCH",
+                    securityAnswer.equals(storedSecurityAnswer));
+            final String password = PasswordGenerator.generate();
+            userProvider.setPassword(userId.getUsername(), password);
+            return password;
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -155,9 +213,8 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         logVariable("email", email);
         logVariable("key", key);
-        assertEquals("CAN ONLY VERIFY PERSONAL PROFILE EMAIL",
-                userId, session.getJabberId());
         try {
+            assertIsAuthenticatedUser(userId);
             final VerificationKey verifiedKey = VerificationKey.generate(email);
             final EMail verifiedEmail = userSql.readEmail(userId, email,
                     verifiedKey);
@@ -169,6 +226,17 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * Create a verification message and attach it to the mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            A <code>VerificationKey</code>.
+     * @throws MessagingException
+     */
     private void createVerification(final MimeMessage mimeMessage,
             final EMail email, final VerificationKey key)
             throws MessagingException {

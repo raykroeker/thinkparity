@@ -5,10 +5,10 @@ package com.thinkparity.model.parity.model.profile;
 
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.profile.ProfileEMail;
@@ -105,6 +105,17 @@ public class ProfileModel {
         }
     }
 
+    /**
+     * Read the security question.
+     * 
+     * @return A security question.
+     */
+    public String readSecurityQuestion() {
+        synchronized (getImplLock()) {
+            return getImpl().readSecurityQuestion();
+        }
+    }
+
 	/**
      * Remove an email.
      * 
@@ -117,8 +128,27 @@ public class ProfileModel {
         }
     }
 
-	public void resetPassword() {
-        Assert.assertUnreachable("ProfileModel#resetPassword");
+    /**
+     * Reset the user's password.
+     * 
+     * @param securityAnswer
+     *            The security question answer <code>String</code>.
+     */
+	public void resetPassword(final String securityAnswer) {
+        synchronized (getImplLock()) {
+            getImpl().resetPassword(securityAnswer);
+        }
+    }
+
+    /**
+     * Read the user's credentials.
+     * 
+     * @return The user's credentials.
+     */
+    public Credentials readCredentials() {
+        synchronized (getImplLock()) {
+            return getImpl().readCredentials();
+        }
     }
 
     /**

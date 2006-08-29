@@ -133,18 +133,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			iq.setTo(jid);
 			iq.setFrom(session.getJID());
 			send(jid, iq);
-		}
-		catch(SQLException sqlx) {
-			logger.error("acceptKeyRequest(UUID,JID)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(UnauthorizedException ux) {
-			logger.error("acceptKeyRequest(UUID,JID)", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(RuntimeException rx) {
-			logger.error("acceptKeyRequest(UUID,JID)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -167,8 +157,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
             artifactSubscriptionSql.insert(artifact.getArtifactId(), username,
                     session.getJabberId());
             notifyTeamMemberAdded(get(uniqueId), user);
+        } catch(final Throwable t) {
+            throw translateError(t);
         }
-        catch(final Throwable t) { throw translateError(t); }
     }
 
     /**
@@ -203,10 +194,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			}
             // delete artifact
             artifactSql.delete(artifact.getArtifactId());
-		}
-		catch(final SQLException sqlx) { throw translateError(sqlx); }
-		catch(final RuntimeException rx) { throw translateError(rx); }
-		catch(final UnauthorizedException ux) { throw translateError(ux); }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
 	}
 
 	/**
@@ -224,18 +214,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.debug(uniqueId);
         logger.debug(versionId);
         logger.debug(receivedFrom);
+        try {
+            final IQConfirmReceipt iq = new IQConfirmReceipt();
+            iq.setUniqueId(uniqueId);
+            iq.setVersionId(versionId);
+            iq.setConfirmedBy(session.getJabberId());
+            iq.setFrom(session.getJID());
+            iq.setTo(receivedFrom.getJID());
 
-        final IQConfirmReceipt iq = new IQConfirmReceipt();
-        iq.setUniqueId(uniqueId);
-        iq.setVersionId(versionId);
-        iq.setConfirmedBy(session.getJabberId());
-        iq.setFrom(session.getJID());
-        iq.setTo(receivedFrom.getJID());
-
-        try { send(receivedFrom, iq); }
-        catch(final UnauthorizedException ux) {
-            logger.error("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT] [UNAUTHORIZED]", ux);
-            throw ParityErrorTranslator.translate(ux);
+            send(receivedFrom, iq);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -304,7 +293,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void deleteDraft(final UUID uniqueId) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
+        logVariable("uniqueId", uniqueId);
         try {
             final Artifact artifact = get(uniqueId);
             assertIsKeyHolder(artifact);
@@ -438,7 +427,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
     List<ArtifactSubscription> getSubscription(
 			final UUID uniqueId) throws ParityServerModelException {
         logApiId();
-		debugVariable("uniqueId", uniqueId);
+		logVariable("uniqueId", uniqueId);
 		try {
 			final Artifact artifact = get(uniqueId);
             if (null == artifact) {
@@ -532,8 +521,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("jabberId", jabberId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
         try {
             final Artifact artifact = get(uniqueId);
             final Integer artifactId = artifact.getArtifactId();

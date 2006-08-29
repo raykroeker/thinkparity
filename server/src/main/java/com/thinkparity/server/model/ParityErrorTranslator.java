@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserNotFoundException;
 
-import org.dom4j.DocumentException;
-
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -36,18 +34,6 @@ public class ParityErrorTranslator {
 	static {
 		singleton = new ParityErrorTranslator();
 		singletonLock = new Object();
-	}
-
-    /**
-	 * Create a parity error based upon a dom4j
-	 * 
-	 * @param dx
-	 *            The dom4j document exception.
-	 * @return The parity error.
-	 */
-	public static ParityServerModelException translate(
-			final DocumentException dx) {
-		synchronized(singletonLock) { return singleton.translateImpl(dx); }
 	}
 
 	/**
@@ -128,17 +114,6 @@ public class ParityErrorTranslator {
             final Throwable cause) {
 	    return new ParityModelException(errorId.toString(), cause);
     }
-
-	/**
-	 * Create a parity error based upon a dom4j document exception.
-	 * 
-	 * @param dx
-	 *            The dom4j document exception.
-	 * @return The parity error.
-	 */
-	private ParityServerModelException translateImpl(final DocumentException dx) {
-		return new ParityServerModelException(dx);
-	}
 
 	/**
 	 * Create a parity error based upon a java runtime error.

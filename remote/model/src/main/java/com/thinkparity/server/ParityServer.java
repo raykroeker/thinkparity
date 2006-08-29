@@ -137,7 +137,9 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.profile.AddEmail");
             initializeController("com.thinkparity.server.handler.profile.Read");
             initializeController("com.thinkparity.server.handler.profile.ReadEmails");
+            initializeController("com.thinkparity.server.handler.profile.ReadSecurityQuestion");
             initializeController("com.thinkparity.server.handler.profile.RemoveEmail");
+            initializeController("com.thinkparity.server.handler.profile.ResetPassword");
             initializeController("com.thinkparity.server.handler.profile.VerifyEmail");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
             initializeController("com.thinkparity.server.handler.user.ReadUsers");

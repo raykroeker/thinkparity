@@ -54,6 +54,20 @@ public class UserSql extends AbstractSql {
             .append("where JU.USERNAME=? and PUE.VERIFIED=?")
             .toString();
 
+    /** Sql to read the user profile's security answer. */
+    private static final String SQL_READ_PROFILE_SECURITY_ANSWER =
+            new StringBuffer("select PUP.SECURITYANSWER ")
+            .append("from PARITYUSERPROFILE PUP ")
+            .append("where PUP.USERNAME=?")
+            .toString();
+
+    /** Sql to read the user profile's security question. */
+    private static final String SQL_READ_PROFILE_SECURITY_QUESTION =
+            new StringBuffer("select PUP.SECURITYQUESTION ")
+            .append("from PARITYUSERPROFILE PUP ")
+            .append("where PUP.USERNAME=?")
+            .toString();
+
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_USERNAME =
             new StringBuffer("select JU.USERNAME ")
@@ -149,6 +163,62 @@ public class UserSql extends AbstractSql {
             return emails;
         }
         finally { close(cx, ps, rs); }
+    }
+
+    /**
+     * Read the user profile's security answer.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return The security question answer <code>String</code>.
+     * @throws SQLException
+     */
+    public String readProfileSecurityAnswer(final JabberId userId)
+            throws SQLException {
+        Connection cx = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            cx = getCx();
+            ps = cx.prepareStatement(SQL_READ_PROFILE_SECURITY_ANSWER);
+            ps.setString(1, userId.getUsername());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("SECURITYANSWER");
+            } else {
+                return null;
+            }
+        } finally {
+            close(cx, ps, rs);
+        }
+    }
+
+    /**
+     * Read the user profile's security answer.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return The security question answer <code>String</code>.
+     * @throws SQLException
+     */
+    public String readProfileSecurityQuestion(final JabberId userId)
+            throws SQLException {
+        Connection cx = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            cx = getCx();
+            ps = cx.prepareStatement(SQL_READ_PROFILE_SECURITY_QUESTION);
+            ps.setString(1, userId.getUsername());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("SECURITYQUESTION");
+            } else {
+                return null;
+            }
+        } finally {
+            close(cx, ps, rs);
+        }
     }
 
     /**

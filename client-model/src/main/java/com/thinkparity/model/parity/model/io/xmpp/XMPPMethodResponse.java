@@ -48,11 +48,15 @@ public class XMPPMethodResponse extends IQ {
     public String getChildElementXML() { return "NO SUCH CHILD XML"; }
 
     public byte[] readBytes(final String name) {
-        return (byte[]) result.get(name).javaValue;
+        return (byte[]) readResult(name);
     }
 
     public Calendar readResultCalendar(final String name) {
-        return (Calendar) result.get(name).javaValue;
+        return (Calendar) readResult(name);
+    }
+
+    public List<EMail> readResultEMails(final String name) {
+        return (List<EMail>) readResult(name);
     }
 
     /**
@@ -63,7 +67,7 @@ public class XMPPMethodResponse extends IQ {
      * @return A jabber id value.
      */
     public JabberId readResultJabberId(final String name) {
-        return (JabberId) result.get(name).javaValue;
+        return (JabberId) readResult(name);
     }
 
     /**
@@ -74,7 +78,7 @@ public class XMPPMethodResponse extends IQ {
      * @return The result value.
      */
     public List<Library> readResultLibraries(final String name) {
-        final List<Object> genericLibraries = (List<Object>) result.get(name).javaValue;
+        final List<Object> genericLibraries = (List<Object>) readResult(name);
         final List<Library> libraries = new LinkedList<Library>();
         for(final Object genericLibrary : genericLibraries)
             libraries.add((Library) genericLibrary);
@@ -82,7 +86,7 @@ public class XMPPMethodResponse extends IQ {
     }
 
     public Library.Type readResultLibraryType(final String name) {
-        return (Library.Type) result.get(name).javaValue;
+        return (Library.Type) readResult(name);
     }
 
     /**
@@ -93,11 +97,15 @@ public class XMPPMethodResponse extends IQ {
      * @return The result value.
      */
     public Long readResultLong(final String name) {
-        return (Long) result.get(name).javaValue;
+        return (Long) readResult(name);
+    }
+
+    public List<ProfileEMail> readResultProfileEMails(final String name) {
+        return (List<ProfileEMail>) readResult(name);
     }
 
     public List<Release> readResultReleases(final String name) {
-        final List<Object> genericReleases = (List<Object>) result.get(name).javaValue;
+        final List<Object> genericReleases = (List<Object>) readResult(name);
         final List<Release> releases = new LinkedList<Release>();
         for(final Object genericRelease : genericReleases) {
             releases.add((Release) genericRelease);
@@ -113,7 +121,7 @@ public class XMPPMethodResponse extends IQ {
      * @return The result value.
      */
     public String readResultString(final String name) {
-        return (String) result.get(name).javaValue;
+        return (String) readResult(name);
     }
 
     /**
@@ -124,19 +132,11 @@ public class XMPPMethodResponse extends IQ {
      * @return A list of strings.
      */
     public List<String> readResultStrings(final String name) {
-        return (List<String>) result.get(name).javaValue;
-    }
-
-    public List<EMail> readResultEMails(final String name) {
-        return (List<EMail>) result.get(name).javaValue;
-    }
-
-    public List<ProfileEMail> readResultProfileEMails(final String name) {
-        return (List<ProfileEMail>) result.get(name).javaValue;
+        return (List<String>) readResult(name);
     }
 
     public byte[] readSmallBytes(final String name) {
-        return (byte[]) result.get(name).javaValue;
+        return (byte[]) readResult(name);
     }
 
     /**
@@ -152,6 +152,21 @@ public class XMPPMethodResponse extends IQ {
     void writeResult(final String name, final Class javaType,
             final Object javaValue) {
         result.put(name, new Result(javaType, javaValue));
+    }
+
+    /**
+     * Read the result java value.
+     * 
+     * @param name
+     *            The result name.
+     * @return The result value.
+     */
+    private Object readResult(final String name) {
+        if (result.containsKey(name)) {
+            return result.get(name).javaValue;
+        } else {
+            return null;
+        }
     }
 
     /** Result container including the result data type as well as its value. */

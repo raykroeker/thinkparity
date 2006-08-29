@@ -80,6 +80,24 @@ public class User {
 	public Element getVCard() { return vCard; }
 
     /**
+     * Determine whether or not the user's organization is set.
+     * 
+     * @return True if the organization is set; false otherwise.
+     */
+    public Boolean isSetOrganization() {
+        return null != organization;
+    }
+
+    /**
+     * Determine whether or not the user's title is set.
+     * 
+     * @return True if the title is set; false otherwise.
+     */
+    public Boolean isSetTitle() {
+        return null != title;
+    }
+
+    /**
 	 * @param id The id to set.
 	 */
 	public void setId(final JabberId id) { this.id = id; }

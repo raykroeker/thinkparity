@@ -88,6 +88,9 @@ public class UpdateProfileAvatar extends Avatar {
         reloadOrganization(profile);
         reloadTitle(profile);
         reloadEmails(readProfileEmails());
+        reloadPassword();
+        reloadNewPassword();
+        reloadNewPasswordConfirm();
         emailJTextField.requestFocusInWindow();
     }
 
@@ -126,16 +129,13 @@ public class UpdateProfileAvatar extends Avatar {
         return SwingUtil.extract(organizationJTextField);
     }
 
+
     private List<ProfileEMail> extractInputSelectedEmails() {
         return model.getSelectedEmails(emailsJList);
     }
 
     private String extractInputTitle() {
         return SwingUtil.extract(titleJTextField);
-    }
-
-    private String extractPassword() {
-        return SwingUtil.extract(passwordJPasswordField);
     }
 
     private String extractNewPassword() {
@@ -146,6 +146,9 @@ public class UpdateProfileAvatar extends Avatar {
         return SwingUtil.extract(newPasswordConfirmJPasswordField);
     }
 
+    private String extractPassword() {
+        return SwingUtil.extract(passwordJPasswordField);
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -412,10 +415,6 @@ public class UpdateProfileAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void resetPasswordJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_resetPasswordJButtonActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_resetPasswordJButtonActionPerformed
-
     /**
      * Read the profile from the content provider.
      * 
@@ -455,6 +454,14 @@ public class UpdateProfileAvatar extends Avatar {
         }
     }
 
+    private void reloadNewPassword() {
+        newPasswordJPasswordField.setText("");
+    }
+
+    private void reloadNewPasswordConfirm() {
+        newPasswordConfirmJPasswordField.setText("");
+    }
+
     private void reloadOrganization(final Profile profile) {
         organizationJTextField.setText("");
         final String organization = profile.getOrganization();
@@ -462,7 +469,9 @@ public class UpdateProfileAvatar extends Avatar {
             organizationJTextField.setText(organization);
         }
     }
-
+    private void reloadPassword() {
+        passwordJPasswordField.setText("");
+    }
     private void reloadTitle(final Profile profile) {
         titleJTextField.setText("");
         final String title = profile.getTitle();
@@ -470,7 +479,6 @@ public class UpdateProfileAvatar extends Avatar {
             titleJTextField.setText(title);
         }
     }
-
     private void removeJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_removeJButtonActionPerformed
         final List<ProfileEMail> selectedEmails = extractInputSelectedEmails();
         for (final ProfileEMail selectedEmail : selectedEmails) {
@@ -478,7 +486,9 @@ public class UpdateProfileAvatar extends Avatar {
         }
         reloadEmails(readProfileEmails());
     }//GEN-LAST:event_removeJButtonActionPerformed
-
+    private void resetPasswordJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_resetPasswordJButtonActionPerformed
+        getController().runResetProfilePassword();
+    }//GEN-LAST:event_resetPasswordJButtonActionPerformed
     private void saveJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_saveJButtonActionPerformed
         if (isInputValid()) {
             final String name = extractInputName();
@@ -492,7 +502,6 @@ public class UpdateProfileAvatar extends Avatar {
             disposeWindow();
         }
     }//GEN-LAST:event_saveJButtonActionPerformed
-
     private ProfileEMailCell toDisplay(final ProfileEMail email) {
         final ProfileEMailCell display = new ProfileEMailCell();
         display.setEmail(email.getEmail());
@@ -501,7 +510,6 @@ public class UpdateProfileAvatar extends Avatar {
         display.setVerified(email.isVerified());
         return display;
     }
-
     private void verifyJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_verifyJButtonActionPerformed
         final List<ProfileEMail> selectedEmails = extractInputSelectedEmails();
         for (final ProfileEMail selectedEmail : selectedEmails) {
@@ -509,7 +517,7 @@ public class UpdateProfileAvatar extends Avatar {
         }
         reloadEmails(readProfileEmails());
     }//GEN-LAST:event_verifyJButtonActionPerformed
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField emailJTextField;
     private javax.swing.JList emailsJList;
@@ -520,5 +528,4 @@ public class UpdateProfileAvatar extends Avatar {
     private javax.swing.JPasswordField passwordJPasswordField;
     private javax.swing.JTextField titleJTextField;
     // End of variables declaration//GEN-END:variables
-
 }

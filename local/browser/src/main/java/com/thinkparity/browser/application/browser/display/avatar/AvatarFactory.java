@@ -14,6 +14,7 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.RenameA
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.ResetPasswordAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
@@ -79,11 +80,11 @@ public class AvatarFactory {
 
         case TAB_CONTAINER:
             avatar = new ContainerAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));            
+            avatar.setContentProvider(ProviderFactory.getProvider(id));            
             break;
         case TAB_CONTACT:
             avatar = new ContactAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
 			break;
 
         case DIALOG_CONFIRM:
@@ -101,16 +102,20 @@ public class AvatarFactory {
             break;
         case DIALOG_CONTACT_READ:
             avatar = new ReadContactAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 
         case DIALOG_CONTAINER_CREATE:
             avatar = new CreateContainerAvatar();
             break;
 
+        case DIALOG_PROFILE_RESET_PASSWORD:
+            avatar = new ResetPasswordAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
         case DIALOG_PROFILE_UPDATE:
             avatar = new UpdateProfileAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             avatar = new VerifyEMailAvatar();

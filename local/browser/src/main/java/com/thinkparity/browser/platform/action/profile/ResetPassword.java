@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.platform.action.profile;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
@@ -15,9 +16,13 @@ import com.thinkparity.model.parity.model.profile.ProfileModel;
  */
 public class ResetPassword extends AbstractAction {
 
+    /** The thinkParity browser application. */
+    private final Browser browser;
+
     /** Create ResetPassword. */
-    public ResetPassword() {
+    public ResetPassword(final Browser browser) {
         super(ActionId.PROFILE_RESET_PASSWORD);
+        this.browser = browser;
     }
 
     /**
@@ -25,7 +30,17 @@ public class ResetPassword extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        final ProfileModel profileModel = getProfileModel();
-        profileModel.resetPassword();
+        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
+
+        if (displayAvatar) {
+            browser.displayResetProfilePasswordDialog();
+        } else {
+            final String securityAnswer = (String) data.get(DataKey.SECURITY_ANSWER);
+
+            final ProfileModel profileModel = getProfileModel();
+            profileModel.resetPassword(securityAnswer);
+        }
     }
+
+    public enum DataKey { DISPLAY_AVATAR, SECURITY_ANSWER }
 }

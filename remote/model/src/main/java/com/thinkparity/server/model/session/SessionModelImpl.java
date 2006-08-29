@@ -8,12 +8,10 @@ import java.io.StringReader;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
-import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.queue.QueueItem;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
@@ -53,7 +51,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @throws ParityServerModelException
 	 */
-	void send(final QueueItem queueItem) throws ParityServerModelException {
+	void send(final QueueItem queueItem) {
         logApiId();
 		logger.debug(queueItem);
 		final JID jid = JIDBuilder.build(queueItem.getUsername());
@@ -63,18 +61,8 @@ class SessionModelImpl extends AbstractModelImpl {
 			final IQ iq = new IQ(queueItemDocument.getRootElement());
 			iq.setTo(jid);
 			send(jid, iq);
-		}
-		catch(final DocumentException dx) {
-			logger.error("Could not send queue item to:  " + jid, dx);
-			throw ParityErrorTranslator.translate(dx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not send queue item to:  " + jid, rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("Could not send queue item to:  " + jid, ux);
-			throw ParityErrorTranslator.translate(ux);
+		} catch (final Throwable t) {
+            throw translateError(t);
 		}
 	}
 

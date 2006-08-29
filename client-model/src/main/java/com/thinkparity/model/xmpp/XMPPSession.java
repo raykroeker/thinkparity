@@ -295,6 +295,15 @@ public interface XMPPSession {
     public List<EMail> readProfileEMails();
 
     /**
+     * Read the user profile's security question.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A security question <code>String</code>.
+     */
+    public String readProfileSecurityQuestion(final JabberId userId);
+
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -331,6 +340,17 @@ public interface XMPPSession {
      *            A jabber id.
      */
     public void removeTeamMember(final UUID uniqueId, final JabberId jabberId);
+
+    /**
+     * Reset a user's credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>
+     * @param securityAnswer
+     *            A security question answer <code>String</code>.
+     */
+    public String resetProfilePassword(final JabberId userId,
+            final String securityAnswer);
 
     /**
      * Send a container.

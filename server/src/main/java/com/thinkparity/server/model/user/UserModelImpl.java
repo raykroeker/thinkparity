@@ -16,8 +16,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.ParityErrorTranslator;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 
@@ -49,7 +47,7 @@ class UserModelImpl extends AbstractModelImpl {
 
     User readUser(final JabberId jabberId) {
         logApiId();
-		debugVariable("jabberId", jabberId);
+		logVariable("jabberId", jabberId);
         final Element vCard = vCardManager.getVCard(jabberId.getUsername());
         final String name = (String) vCard.element("FN").getData();
         final String organization = (String) vCard.element("ORG").element("ORGNAME").getData();
@@ -64,7 +62,7 @@ class UserModelImpl extends AbstractModelImpl {
 
     User readUser(final EMail email) {
         logApiId();
-        debugVariable("email", email);
+        logVariable("email", email);
         try {
             final String username = userSql.readUsername(email);
             if (null == username) {
@@ -79,8 +77,7 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-	List<User> readUsers(final List<JabberId> jabberIds)
-			throws ParityServerModelException {
+	List<User> readUsers(final List<JabberId> jabberIds) {
         logApiId();
 		try {
 			final List<User> users = new LinkedList<User>();
@@ -92,10 +89,8 @@ class UserModelImpl extends AbstractModelImpl {
 				users.add(user);
 			}
 			return users;
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not read users.", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch(final Throwable t) {
+            throw translateError(t);
 		}
 	}
 }

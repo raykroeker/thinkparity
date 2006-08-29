@@ -65,13 +65,13 @@ class ContainerModelImpl extends AbstractModelImpl {
             final Integer artifactCount, final JabberId publishedBy,
             final List<JabberId> publishedTo, final Calendar publishedOn) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("artifactCount", artifactCount);
-        debugVariable("publishedBy", publishedBy);
-        debugVariable("publishedTo", publishedTo);
-        debugVariable("publishedOn", publishedOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedTo", publishedTo);
+        logVariable("publishedOn", publishedOn);
         try {
             final IQWriter publishArtifact = createIQWriter("container:published");
             publishArtifact.writeUniqueId("uniqueId", uniqueId);
@@ -135,20 +135,20 @@ class ContainerModelImpl extends AbstractModelImpl {
             final byte[] artifactBytes, final List<JabberId> publishTo,
             final JabberId publishedBy, final Calendar publishedOn) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("artifactCount", artifactCount);
-        debugVariable("artifactIndex", artifactIndex);
-        debugVariable("artifactUniqueId", artifactUniqueId);
-        debugVariable("artifactVersionId", artifactVersionId);
-        debugVariable("artifactName", artifactName);
-        debugVariable("artifactType", artifactType);
-        debugVariable("artifactChecksum", artifactChecksum);
-        debugVariable("artifactBytes", artifactBytes);
-        debugVariable("publishTo", publishTo);
-        debugVariable("publishedBy", publishedBy);
-        debugVariable("publishedOn", publishedOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("artifactIndex", artifactIndex);
+        logVariable("artifactUniqueId", artifactUniqueId);
+        logVariable("artifactVersionId", artifactVersionId);
+        logVariable("artifactName", artifactName);
+        logVariable("artifactType", artifactType);
+        logVariable("artifactChecksum", artifactChecksum);
+        logVariable("artifactBytes", artifactBytes);
+        logVariable("publishTo", publishTo);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedOn", publishedOn);
         try {
             final IQWriter publishArtifact = createIQWriter("container:artifactpublished");
             publishArtifact.writeUniqueId("uniqueId", uniqueId);
@@ -197,13 +197,13 @@ class ContainerModelImpl extends AbstractModelImpl {
             final Integer artifactCount, final JabberId sentBy,
             final List<JabberId> sentTo, final Calendar sentOn) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("artifactCount", artifactCount);
-        debugVariable("sentBy", sentBy);
-        debugVariable("sentTo", sentTo);
-        debugVariable("sentOn", sentOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("sentBy", sentBy);
+        logVariable("sentTo", sentTo);
+        logVariable("sentOn", sentOn);
         try {
             final IQWriter sendArtifact = createIQWriter("container:sent");
             sendArtifact.writeUniqueId("uniqueId", uniqueId);
@@ -264,20 +264,20 @@ class ContainerModelImpl extends AbstractModelImpl {
             final byte[] artifactBytes, final List<JabberId> sendTo,
             final JabberId sentBy, final Calendar sentOn) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("artifactCount", artifactCount);
-        debugVariable("artifactIndex", artifactIndex);
-        debugVariable("artifactUniqueId", artifactUniqueId);
-        debugVariable("artifactVersionId", artifactVersionId);
-        debugVariable("artifactName", artifactName);
-        debugVariable("artifactType", artifactType);
-        debugVariable("artifactChecksum", artifactChecksum);
-        debugVariable("artifactBytes", artifactBytes);
-        debugVariable("sendTo", sendTo);
-        debugVariable("sentBy", sentBy);
-        debugVariable("sentOn", sentOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("artifactIndex", artifactIndex);
+        logVariable("artifactUniqueId", artifactUniqueId);
+        logVariable("artifactVersionId", artifactVersionId);
+        logVariable("artifactName", artifactName);
+        logVariable("artifactType", artifactType);
+        logVariable("artifactChecksum", artifactChecksum);
+        logVariable("artifactBytes", artifactBytes);
+        logVariable("sendTo", sendTo);
+        logVariable("sentBy", sentBy);
+        logVariable("sentOn", sentOn);
         try {
             final IQWriter sendArtifact = createIQWriter("container:artifactsent");
             sendArtifact.writeUniqueId("uniqueId", uniqueId);

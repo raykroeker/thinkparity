@@ -114,3 +114,11 @@ create table parityUserEmail (
   primary key (email),
   foreign key (username) references jiveUser(username)
 );
+
+create table parityUserProfile (
+    username varchar(32) not null,
+    securityQuestion varchar not null,
+    securityAnswer varchar not null,
+    primary key (username),
+    foreign key (username) references jiveUser(username)
+);

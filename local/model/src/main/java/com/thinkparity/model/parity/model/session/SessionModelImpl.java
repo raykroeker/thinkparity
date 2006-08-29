@@ -902,6 +902,26 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the user profile's security question.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A security question <code>String</code>.
+     */
+    String readProfileSecurityQuestion(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            synchronized (xmppHelper) {
+                return xmppHelper.getXMPPSession().readProfileSecurityQuestion(
+                        userId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read the logged in user's session.
      * 
      * @return The logged in user's session.
@@ -953,7 +973,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(userIds).iterator().next();
 	}
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -1025,7 +1045,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Remove an email from a user's profile.
      * 
      * @param userId
@@ -1059,6 +1079,30 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
+	/**
+     * Reset the user's authentication credentials.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param securityAnswer
+     *            A security question answer <code>String</code>.
+     * @return A new password.
+     */
+    String resetProfilePassword(final JabberId userId,
+            final String securityAnswer) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("securityAnswer", "XXXXX");
+        try {
+            synchronized (xmppHelper) {
+                return xmppHelper.getXMPPSession().resetProfilePassword(userId,
+                        securityAnswer);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Send a container version.
      * 
@@ -1089,7 +1133,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Send the parity log file. To be used in order to troubleshoot remote
 	 * problems.
 	 * 

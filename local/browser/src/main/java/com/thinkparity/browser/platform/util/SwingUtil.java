@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JList;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -35,9 +36,13 @@ public class SwingUtil {
 		singletonLock = new Object();
 	}
 
-	public static Boolean extract(final JCheckBox jCheckBox) {
-		synchronized(singletonLock) { return singleton.doExtract(jCheckBox); }
-	}
+    public static Boolean extract(final JCheckBox jCheckBox) {
+        synchronized(singletonLock) { return singleton.doExtract(jCheckBox); }
+    }
+
+    public static String extract(final JTextArea jTextArea) {
+        synchronized(singletonLock) { return singleton.doExtract(jTextArea); }
+    }
 
 	public static <T extends Object> List<T> extract(final JList jList) {
 		synchronized(singletonLock) { return singleton.doExtract(jList); }
@@ -74,9 +79,13 @@ public class SwingUtil {
         	&& (point.y < region.y + region.height);
 	}
 
-	private Boolean doExtract(final JCheckBox jCheckBox) {
-		return jCheckBox.isSelected();
-	}
+    private Boolean doExtract(final JCheckBox jCheckBox) {
+        return jCheckBox.isSelected();
+    }
+
+    private String doExtract(final JTextArea jTextArea) {
+        return doExtract(jTextArea.getText());
+    }
 
 	@SuppressWarnings("unchecked")
     private <T extends Object> List<T> doExtract(final JList jList) {

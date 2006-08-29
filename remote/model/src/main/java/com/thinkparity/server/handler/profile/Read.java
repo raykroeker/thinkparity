@@ -9,7 +9,6 @@ import com.thinkparity.model.profile.Profile;
 
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
-import com.thinkparity.server.model.ParityServerModelException;
 
 /**
  * @author raymond@thinkparity.com
@@ -31,8 +30,10 @@ public class Read extends AbstractController {
         if(null != profile) {
             writeJabberId(Xml.Profile.JABBER_ID, profile.getId());
             writeString(Xml.Profile.NAME, profile.getName());
-            writeString(Xml.Profile.ORGANIZATION, profile.getOrganization());
-            writeString(Xml.Profile.TITLE, profile.getTitle());
+            if (profile.isSetOrganization())
+                writeString(Xml.Profile.ORGANIZATION, profile.getOrganization());
+            if (profile.isSetTitle())
+                writeString(Xml.Profile.TITLE, profile.getTitle());
         }
     }
 
@@ -44,10 +45,6 @@ public class Read extends AbstractController {
      * @return A profile.
      */
     private Profile read(final JabberId jabberId) {
-        try { return getProfileModel().read(jabberId); }
-        catch(final ParityServerModelException psmx) {
-            logger.error(psmx);
-            throw new RuntimeException(psmx);
-        }
+        return getProfileModel().read(jabberId);
     }
 }

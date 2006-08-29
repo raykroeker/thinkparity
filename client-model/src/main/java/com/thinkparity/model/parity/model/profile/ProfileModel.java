@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.profile;
 
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.Context;
@@ -114,6 +115,10 @@ public class ProfileModel {
         synchronized (getImplLock()) {
             getImpl().removeEmail(emailId);
         }
+    }
+
+	public void resetPassword() {
+        Assert.assertUnreachable("ProfileModel#resetPassword");
     }
 
     /**

@@ -41,10 +41,6 @@ public class MainStatusAvatar extends Avatar {
 
     /** The offset size in the y direction. */
     private int resizeOffsetY;
-    
-    /** The search activation timer. */
-    private Timer resizeTimer = null;
-    private Boolean busy = Boolean.FALSE;
 
     /** Creates new form BrowserStatus */
     MainStatusAvatar() {
@@ -248,29 +244,10 @@ public class MainStatusAvatar extends Avatar {
     }
 
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseDragged
-        if (!busy) {
-            getController().resizeBrowserWindow(
-                    new Dimension(
-                            e.getPoint().x - resizeOffsetX,
-                            e.getPoint().y - resizeOffsetY)); 
-        }
-        
-        if (resizeTimer == null) {
-            resizeTimer = new Timer(50, new ActionListener() {
-                public void actionPerformed(final ActionEvent timerEvent) {
-                    resizeTimer.stop();
-                    busy = Boolean.FALSE;
-                }
-            });
-            resizeTimer.start();
-            busy = Boolean.TRUE;
-        }
-        else if (!busy) {
-            resizeTimer.restart();
-            busy = Boolean.TRUE;
-        }
-
-    }//GEN-LAST:event_resizeJLabelMouseDragged
+        getController().resizeBrowserWindow(
+                new Dimension(e.getPoint().x - resizeOffsetX, e.getPoint().y
+                        - resizeOffsetY)); 
+    }// GEN-LAST:event_resizeJLabelMouseDragged
 
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
         ((JLabel) e.getSource()).setCursor(new Cursor(Cursor.NW_RESIZE_CURSOR));
@@ -282,9 +259,6 @@ public class MainStatusAvatar extends Avatar {
     }//GEN-LAST:event_resizeJLabelMousePressed
     
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
-        if (resizeTimer != null) {
-            resizeTimer.stop();
-        }
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

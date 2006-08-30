@@ -27,8 +27,6 @@ class WindowSize {
 		REGISTRY = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
         // DIMENSION Confirmation Dialogue 300x125
         REGISTRY.put(AvatarId.DIALOG_CONFIRM, new Dimension(300, 125));
-        // DIMENSION Error Dialogue 500x500
-        REGISTRY.put(AvatarId.DIALOG_ERROR, new Dimension(550, 500));
         // DIMENSION Rename Dialogue 300x125
         REGISTRY.put(AvatarId.DIALOG_RENAME, new Dimension(300, 70));
 		// DIMENSION Platform Login Window 385x173

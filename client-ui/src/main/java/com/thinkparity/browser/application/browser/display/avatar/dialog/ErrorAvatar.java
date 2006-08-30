@@ -1,9 +1,6 @@
 /*
- * ErrorDialog.java
- *
  * Created on July 21, 2006, 12:08 PM
  */
-
 package com.thinkparity.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
@@ -11,6 +8,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.swing.AbstractAction;
+
+import com.thinkparity.codebase.swing.ClipboardUtils;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -21,22 +20,17 @@ import com.thinkparity.browser.platform.util.State;
 /**
  *
  * @author rob_masako@shaw.ca; raymond@thinkparity.com
+ * @version 1.1.2.3
  */
 public class ErrorAvatar extends Avatar {
     
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-    
+
     /** Creates new form ErrorDialog */
     public ErrorAvatar() {
         super("ErrorDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /**
-             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-             */
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
             }
@@ -63,6 +57,10 @@ public class ErrorAvatar extends Avatar {
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
+    private void copyDetailsJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_copyDetailsJButtonActionPerformed
+        ClipboardUtils.copy(errorJTextArea);
+    }//GEN-LAST:event_copyDetailsJButtonActionPerformed
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -71,12 +69,27 @@ public class ErrorAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JButton closeJButton;
-        javax.swing.JScrollPane errorJScrollPane;
 
-        closeJButton = new javax.swing.JButton();
         errorMessageJLabel = new javax.swing.JLabel();
         errorJScrollPane = new javax.swing.JScrollPane();
         errorJTextArea = new javax.swing.JTextArea();
+        copyDetailsJButton = new javax.swing.JButton();
+        closeJButton = new javax.swing.JButton();
+
+        errorMessageJLabel.setText("Default Error Message:  This text should not be seen.");
+        errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        errorJTextArea.setColumns(20);
+        errorJTextArea.setFont(errorMessageJLabel.getFont());
+        errorJTextArea.setRows(5);
+        errorJScrollPane.setViewportView(errorJTextArea);
+
+        copyDetailsJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ErrorDialog.CopyDetailsButton"));
+        copyDetailsJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                copyDetailsJButtonActionPerformed(e);
+            }
+        });
 
         closeJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ErrorDialog.Ok"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -85,24 +98,18 @@ public class ErrorAvatar extends Avatar {
             }
         });
 
-        errorJTextArea.setColumns(20);
-        errorJTextArea.setRows(5);
-        errorJScrollPane.setViewportView(errorJTextArea);
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .addContainerGap(303, Short.MAX_VALUE)
+                        .add(copyDetailsJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 220, Short.MAX_VALUE)
                         .add(closeJButton)))
                 .addContainerGap())
         );
@@ -110,11 +117,13 @@ public class ErrorAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(closeJButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(closeJButton)
+                    .add(copyDetailsJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -149,7 +158,7 @@ public class ErrorAvatar extends Avatar {
         } else {
             return (Object[]) ((Data) input).get(DataKey.ERROR_MESSAGE_ARGUMENTS);
         }
-    }
+    }   
 
     /**
      * Read the error message key from the input.
@@ -168,8 +177,18 @@ public class ErrorAvatar extends Avatar {
     private void reloadError() {
         errorJTextArea.setText("");
         final String error = readInputError();
-        if(null != error) { errorJTextArea.setText(error); }
+        if (null != error) {
+            errorJScrollPane.setVisible(true);
+            copyDetailsJButton.setVisible(true);
+
+            errorJTextArea.setText(error);
+            errorJTextArea.setCaretPosition(0);
+        } else {
+            errorJScrollPane.setVisible(false);
+            copyDetailsJButton.setVisible(false);
+        }
     }
+
     /**
      * Reload the error message label.
      *
@@ -188,11 +207,13 @@ public class ErrorAvatar extends Avatar {
         }
     }
 
+    /** Data keys. */
+    public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton copyDetailsJButton;
+    private javax.swing.JScrollPane errorJScrollPane;
     private javax.swing.JTextArea errorJTextArea;
     private javax.swing.JLabel errorMessageJLabel;
     // End of variables declaration//GEN-END:variables
-
-    /** Data keys. */
-    public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }   
 }

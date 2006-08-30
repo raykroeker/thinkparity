@@ -303,6 +303,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContactInvitation(com.thinkparity.model.xmpp.JabberId,
+     *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
+     * 
+     */
+    public void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
+        xmppContact.deleteInvitation(userId, invitedAs, deletedOn);
+    }
+
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#deleteDraft(java.util.UUID)
      */
     public void deleteDraft(final UUID uniqueId) {
@@ -310,6 +320,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
+	 * 
+	 */
+	public void extendInvitation(final JabberId userId, final EMail extendedTo,
+            final Calendar extendedOn) {
+		xmppContact.extendInvitation(userId, extendedTo, extendedOn);
+	}
+
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
 	 */
@@ -341,13 +360,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return keys;
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPCore#getConnection()
 	 * 
 	 */
 	public XMPPConnection getConnection() { return smackXMPPConnection; }
 
-	/**
+    /**
      * Obtain the connection's jabber id.
      * 
      * @return A jabber id.
@@ -357,15 +376,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
-	 * 
-	 */
-	public void extendInvitation(final JabberId userId, final EMail extendedTo,
-            final Calendar extendedOn) {
-		xmppContact.extendInvitation(userId, extendedTo, extendedOn);
-	}
-
-    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
@@ -475,7 +485,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.parity.model.container.ContainerVersion,
      *      java.util.Map, java.util.List, com.thinkparity.model.xmpp.JabberId,
      *      java.util.Calendar)
@@ -490,7 +500,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
      * 
      */
@@ -551,14 +561,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.read(getJabberId());
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#readProfileEMails()
      */
     public List<EMail> readProfileEMails() {
         return xmppProfile.readEMails(getJabberId());
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readProfileSecurityQuestion(com.thinkparity.model.xmpp.JabberId)
      */
     public String readProfileSecurityQuestion(final JabberId userId) {
@@ -573,7 +583,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(jabberIds);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
 	 * 
 	 */
@@ -581,7 +591,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppArtifact.removeListener(l);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
@@ -596,7 +606,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppPresenceListeners.remove(xmppPresenceListener);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
 	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
@@ -610,7 +620,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppExtensionListeners.remove(xmppExtensionListener);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
 	 */
 	public void removeListener(final XMPPSessionListener xmppSessionListener) {
@@ -631,7 +641,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppProfile.removeEmail(userId, email);
     }
 
-	/**
+    /**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId
@@ -643,7 +653,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.removeTeamMember(uniqueId, jabberId);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#resetProfileCredentials(com.thinkparity.model.xmpp.JabberId)
      */
     public String resetProfilePassword(final JabberId userId,
@@ -686,7 +696,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-	/**
+    /**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -724,7 +734,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	    xmppDocument.sendVersion(sendTo, uniqueId, versionId, name, content);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyResponse(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.session.KeyResponse,
 	 *      com.thinkparity.model.xmpp.user.User)
@@ -815,7 +825,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}	
 	}
 
-	/**
+    /**
 	 * Event handler for the connectionClosedOnerror event generated by the
 	 * smack connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionTerminated event.
@@ -924,7 +934,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-    /**
+	/**
 	 * Send a packet through the smack xmpp connection.
 	 * 
 	 * @param packet

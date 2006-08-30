@@ -26,8 +26,8 @@ public class AcceptInvitation extends AbstractController {
     public void service() {
         logApiId();
         acceptInvitation(
-                readJabberId(Xml.Contact.INVITED_BY),
-                readJabberId(Xml.Contact.ACCEPTED_BY),
+                readJabberId("acceptedBy"),
+                readJabberId("invitedBy"),
                 readCalendar(Xml.All.EXECUTED_ON));
     }
 

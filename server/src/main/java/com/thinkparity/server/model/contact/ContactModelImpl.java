@@ -44,9 +44,6 @@ class ContactModelImpl extends AbstractModelImpl {
 	/** The thinkParity contact io. */
 	private final ContactSql contactSql;
 
-    /** The thinkParity contact event generator. */
-    private final ContactEventGenerator eventGenerator;
-
     /** The thinkParity invitation io. */
 	private final InvitationSql invitationSql;
 
@@ -62,7 +59,6 @@ class ContactModelImpl extends AbstractModelImpl {
 	ContactModelImpl(final Session session) {
 		super(session);
 		this.contactSql = new ContactSql();
-        this.eventGenerator = new ContactEventGenerator();
 		this.invitationSql = new InvitationSql();
         this.userSql = new UserSql();
 	}
@@ -71,6 +67,8 @@ class ContactModelImpl extends AbstractModelImpl {
      * Accept the invitation. Create the contact relationships and notify the
      * invitor.
      * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
      * @param invitedAs
      *            The original invitation e-mail address.
      * @param invitedBy
@@ -80,18 +78,22 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param acceptedOn
      *            When the acceptance was made.
      */
-    void acceptInvitation(final JabberId invitedBy, final JabberId acceptedBy,
+    void acceptInvitation(final JabberId userId, final JabberId invitedBy,
             final Calendar acceptedOn) {
 		logApiId();
+		logVariable("userId", userId);
         logVariable("invitedBy", invitedBy);
-        logVariable("acceptedBy", acceptedBy);
         logVariable("acceptedOn", acceptedOn);
 		try {
-			contactSql.create(acceptedBy, invitedBy, session.getJabberId());
-			contactSql.create(invitedBy, acceptedBy, session.getJabberId());
+            assertIsAuthenticatedUser(userId);
+            // delete the invitation
+		    invitationSql.delete(invitedBy, userId);
+		    // create the contact relationships
+            contactSql.create(userId, invitedBy, userId);
+			contactSql.create(invitedBy, userId, userId);
 
 			final IQWriter notification = createIQWriter("invitationaccepted");
-            notification.writeJabberId("acceptedBy", acceptedBy);
+            notification.writeJabberId("acceptedBy", userId);
             notification.writeCalendar("acceptedOn", acceptedOn);
             final IQ notificationIQ = notification.getIQ();
             notificationIQ.setTo(invitedBy.getJID());
@@ -103,26 +105,36 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Decline the invitation. Send the invitee a notifiaction.
+     * Decline an invitation. Delete the invitation and send a notification
+     * (which will delete that invitation).
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param invitedBy
-     *            The invitor.
-     * @param declinedBy
-     *            The invitee.
+     *            Who invited the user.
+     * @param invitedAs
+     *            To which <code>EMail</code> the invitation was sent.
      * @param declinedOn
-     *            When the acceptance was made.
+     *            When the invitation was declined.
      */
-	void declineInvitation(final String invitedAs, final JabberId invitedBy,
-            final JabberId declinedBy, final Calendar declinedOn) {
+	void declineInvitation(final JabberId userId, final JabberId invitedBy,
+            final EMail invitedAs, final Calendar declinedOn) {
         logApiId();
+        logVariable("userId", userId);
         logVariable("invitedBy", invitedBy);
         logVariable("invitedAs", invitedAs);
-        logVariable("declinedBy", declinedBy);
         logVariable("declinedOn", declinedOn);
         try {
-            final IQ notification = eventGenerator.generateInvitationDeclined(
-                    invitedAs, declinedBy, declinedOn);
-            send(invitedBy, notification);
+            // delete the invitation
+            invitationSql.delete(invitedBy, userId);
+            // send notification
+            final IQWriter notification = createIQWriter("invitationdeclined");
+            notification.writeEMail("invitedAs", invitedAs);
+            notification.writeJabberId("declinedBy", userId);
+            notification.writeCalendar("declinedOn", declinedOn);
+            final IQ notificationIQ = notification.getIQ();
+            notificationIQ.setTo(invitedBy.getJID());
+            send(invitedBy, notificationIQ);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -157,15 +169,39 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * TODO create controller 0.25; read e-mail invitation data 0.25; delete
-     * e-mail invitation data 0.25;
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id.
+     * @param invitedAs
+     *            The <code>EMail</code> the invitation was sent to.
+     * @param deletedOn
+     *            The deletion date\time <code>Calendar<code>.
      */
-	void deleteInvitation(final JabberId userId, final JabberId invitedUserId) {
+	void deleteInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
         logApiId();
         logVariable("userId", userId);
-        logVariable("invitedUserId", invitedUserId);
+        logVariable("invitedAs", invitedAs);
+        logVariable("deletedOn", deletedOn);
 		try {
-            invitationSql.delete(userId, invitedUserId);
+		    final UserModel userModel = getUserModel();
+            final User invitedAsUser = userModel.readUser(invitedAs);
+            if (null == invitedAsUser) {
+                // delete remote data
+                invitationSql.deleteEmail(userId, invitedAs);
+            } else {
+                // delete remote data
+                invitationSql.delete(userId, invitedAsUser.getId());
+                // send notification
+                final IQWriter notification = createIQWriter("contact:invitationdeleted");
+                notification.writeEMail("invitedAs", invitedAs);
+                notification.writeJabberId("deletedBy", userId);
+                notification.writeCalendar("deletedOn", deletedOn);
+                final IQ notificationIQ = notification.getIQ();
+                notificationIQ.setTo(invitedAsUser.getId().getJID());
+                send(invitedAsUser.getId(), notificationIQ);
+            }
 		} catch(final Throwable t) {
 			throw translateError(t);
 		}
@@ -191,12 +227,16 @@ class ContactModelImpl extends AbstractModelImpl {
             final UserModel userModel = getUserModel();
             final User extendToUser = userModel.readUser(extendTo);
             if (null == extendToUser) {
+                // create remote data
+                invitationSql.createEmail(userId, extendTo);
                 // extend the invitation via SMTP
                 final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
                 createInvitation(mimeMessage, extendTo, userModel.readUser(userId));
                 addRecipient(mimeMessage, extendTo);
                 TransportManager.deliver(mimeMessage);
             } else {
+                // create remote data
+                invitationSql.create(userId, extendToUser.getId());
                 // extend the invitation within thinkParity
                 final IQWriter notification = createIQWriter("invitationextended");
                 notification.writeEMail("extendedTo", extendTo);

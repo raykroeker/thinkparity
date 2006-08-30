@@ -139,6 +139,19 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Handle the remote contact deleted event.
+     * 
+     * @param deletedBy
+     *            The deleted by user id <code>JabberId</code>.
+     * @param deletedOn
+     *            The deletion date <code>Calendar</code>
+     */
+    static void handleContactDeleted(final JabberId deletedBy,
+            final Calendar deletedOn) {
+        ContactModel.getInternalModel(sContext).handleContactDeleted(deletedBy, deletedOn);
+    }
+
+    /**
      * Handle the acceptance of an invitation.
      * 
      * @param acceptedBy
@@ -151,10 +164,6 @@ class SessionModelImpl extends AbstractModelImpl {
         ContactModel.getInternalModel(sContext).handleInvitationAccepted(acceptedBy, acceptedOn);
     }
 
-    static void handleContactDeleted(final JabberId deletedBy,
-            final Calendar deletedOn) {
-        ContactModel.getInternalModel(sContext).handleContactDeleted(deletedBy, deletedOn);
-    }
     /**
      * Handle the declination of an invitation.
      * 
@@ -169,6 +178,32 @@ class SessionModelImpl extends AbstractModelImpl {
             final JabberId declinedBy, final Calendar declinedOn) {
         ContactModel.getInternalModel(sContext).handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
     }
+
+    /**
+     * Handle the remote invitation deleted event.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
+     * @param deletedBy
+     *            By whom the invitation was deleted.
+     * @param deletedOn
+     *            When the invitation was deleted.
+     */
+    static void handleContactInvitationDeleted(final EMail invitedAs,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        ContactModel.getInternalModel(sContext).handleInvitationDeleted(invitedAs, deletedBy, deletedOn);
+    }
+
+    /**
+     * Create an incoming invitation for the user.
+     * 
+     * @param invitedBy
+     *            From whome the invitation was extended.
+     */
+	static void handleContactInvitationExtended(final EMail invitedAs,
+            final JabberId invitedBy, final Calendar invitedOn) {
+		ContactModel.getInternalModel(sContext).handleInvitationExtended(invitedAs, invitedBy, invitedOn);
+	}
 
     /**
      * Handle the artifact sent event for the container.
@@ -267,7 +302,7 @@ class SessionModelImpl extends AbstractModelImpl {
                 artifactCount, publishedBy, publishedTo, publishedOn);
     }
 
-    /**
+	/**
      * Handle the container sent event.
      * 
      * @param uniqueId
@@ -293,17 +328,6 @@ class SessionModelImpl extends AbstractModelImpl {
         containerModel.handleSent(uniqueId, versionId, name, artifactCount,
                 sentBy, sentOn, sentTo);
     }
-
-	/**
-     * Create an incoming invitation for the user.
-     * 
-     * @param invitedBy
-     *            From whome the invitation was extended.
-     */
-	static void handleInvitationExtended(final EMail invitedAs,
-            final JabberId invitedBy, final Calendar invitedOn) {
-		ContactModel.getInternalModel(sContext).handleInvitationExtended(invitedAs, invitedBy, invitedOn);
-	}
 
     /**
      * Handle the event that a new team member was added to the artifact.
@@ -687,6 +711,32 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The invitation <code>EMail</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("invitedAs", invitedAs);
+        logVariable("deletedOn", deletedOn);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.getXMPPSession().deleteContactInvitation(userId,
+                        invitedAs, deletedOn);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -700,7 +750,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Extend an invitation to a contact.
 	 * 
 	 * @param extendTo
@@ -763,7 +813,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(readCredentials());
     }
 
-    /**
+	/**
      * Establish a new xmpp session.
      * 
      * @param credentials
@@ -776,7 +826,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(environment, credentials);
     }
 
-	/**
+    /**
 	 * Terminate the current session.
 	 * 
 	 * @throws ParityException
@@ -853,7 +903,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Read the session user's contact info.
      * 
      * @return The user's contact info.
@@ -863,7 +913,7 @@ class SessionModelImpl extends AbstractModelImpl {
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
-	/**
+    /**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -964,7 +1014,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Read the session user's user info.
      * 
      * @return thinkParity user info.
@@ -1035,7 +1085,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Remove a presence listener from the session.
 	 * 
 	 * @param presenceListener
@@ -1071,7 +1121,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Remove an email from a user's profile.
      * 
      * @param userId
@@ -1088,7 +1138,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId

@@ -184,22 +184,6 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Handle the remote event generated when a contact is deleted.
-     * 
-     * @param deletedBy
-     *            By whom the contact was deleted <code>JabberId</code>.
-     * @param deletedOn
-     *            When the contact was deleted <code>Calendar</code>.
-     */
-    void handleContactDeleted(final JabberId deletedBy, final Calendar deletedOn) {
-        final Contact contact = read(deletedBy);
-        // delete data
-        contactIO.delete(contact.getLocalId());
-        // fire event
-        notifyContactDeleted(contact, remoteEventGenerator);
-    }
-
-    /**
      * Delete an outgoing invitation.
      * 
      * @param invitationId
@@ -208,10 +192,13 @@ class ContactModelImpl extends AbstractModelImpl {
     void deleteOutgoingInvitation(final Long invitationId) {
         logApiId();
         logVariable("invitationId", invitationId);
-        final OutgoingInvitation preDeletion = readOutgoingInvitation(invitationId);
+        final OutgoingInvitation invitation = readOutgoingInvitation(invitationId);
         contactIO.deleteOutgoingInvitation(invitationId);
+        // delete remote
+        getInternalSessionModel().deleteContactInvitation(localUserId(),
+                invitation.getEmail(), currentDateTime());
         // fire event
-        notifyOutgoingInvitationDeleted(preDeletion, localEventGenerator);
+        notifyOutgoingInvitationDeleted(invitation, localEventGenerator);
     }
 
     /**
@@ -229,6 +216,22 @@ class ContactModelImpl extends AbstractModelImpl {
                 createLocal(remoteContact);
             }
         }
+    }
+
+    /**
+     * Handle the remote event generated when a contact is deleted.
+     * 
+     * @param deletedBy
+     *            By whom the contact was deleted <code>JabberId</code>.
+     * @param deletedOn
+     *            When the contact was deleted <code>Calendar</code>.
+     */
+    void handleContactDeleted(final JabberId deletedBy, final Calendar deletedOn) {
+        final Contact contact = read(deletedBy);
+        // delete data
+        contactIO.delete(contact.getLocalId());
+        // fire event
+        notifyContactDeleted(contact, remoteEventGenerator);
     }
 
     /**
@@ -280,6 +283,42 @@ class ContactModelImpl extends AbstractModelImpl {
        // fire event(s)
        notifyOutgoingInvitationDeclined(invitation, remoteEventGenerator);
    }
+
+    /**
+     * Handle the remote contact invitation deleted remote event.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
+     * @param deletedBy
+     *            By whom the invitation was deleted.
+     * @param deletedOn
+     *            When the invitation was deleted.
+     */
+    void handleInvitationDeleted(final EMail invitedAs,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        logApiId();
+        logVariable("invitedAs", invitedAs);
+        logVariable("deletedBy", deletedBy);
+        logVariable("deletedOn", deletedOn);
+        try {
+            final List<IncomingInvitation> invitations = readIncomingInvitations();
+            final List<IncomingInvitation> deletedInvitations =
+                new ArrayList<IncomingInvitation>(invitations.size());
+            // delete local data
+            for (final IncomingInvitation invitation : invitations) {
+                if (invitation.getInvitedAs().equals(invitedAs)) {
+                    contactIO.deleteIncomingInvitation(invitation.getId());
+                    deletedInvitations.add(invitation);
+                }
+            }
+            // fire event
+            for (final IncomingInvitation deletedInvitation : deletedInvitations) {
+                notifyIncomingInvitationDeleted(deletedInvitation, remoteEventGenerator);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Handle the invitation extended remote event.
@@ -609,6 +648,25 @@ class ContactModelImpl extends AbstractModelImpl {
         synchronized (LISTENERS) {
             for (final ContactListener l : LISTENERS) {
                 l.incomingInvitationDeclined(eventGenerator.generate(incomingInvitation));
+            }
+        }
+    }
+
+    /**
+     * Fire a notification event that an incoming invitation has been deleted.
+     * 
+     * @param invitation
+     *            An invitation.
+     * @param eventGenerator
+     *            A contact event generator.
+     */
+    private void notifyIncomingInvitationDeleted(
+            final IncomingInvitation incomingInvitation,
+            final ContactEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for (final ContactListener l : LISTENERS) {
+                l.incomingInvitationDeleted(eventGenerator
+                        .generate(incomingInvitation));
             }
         }
     }

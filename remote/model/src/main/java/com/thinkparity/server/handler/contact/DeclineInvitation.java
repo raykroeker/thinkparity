@@ -5,10 +5,11 @@ package com.thinkparity.server.handler.contact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
+import com.thinkparity.server.model.contact.ContactModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,28 +25,18 @@ public class DeclineInvitation extends AbstractController {
      */
     @Override
     public void service() {
-        declineInvitation(
-                readString(Xml.Contact.INVITED_AS),
-                readJabberId(Xml.Contact.INVITED_BY),
-                readJabberId(Xml.Contact.DECLINED_BY),
-                readCalendar(Xml.All.EXECUTED_ON));
+        declineInvitation(readJabberId("declinedBy"),
+                readJabberId("invitedBy"), readEMail("invitedAs"),
+                readCalendar("executedOn"));
     }
 
     /**
-     * Decline an invitation.
+     * @see ContactModel#declineInvitation(JabberId, JabberId, EMail, Calendar)
      * 
-     * @param invitedAs
-     *            The original invitation e-mail address.
-     * @param invitedBy
-     *            Invited by.
-     * @param declinedBy
-     *            Declined by.
-     * @param declinedOn
-     *            Declined on.
      */
-    private void declineInvitation(final String invitedAs,
-            final JabberId invitedBy, final JabberId declinedBy,
+    private void declineInvitation(final JabberId userId,
+            final JabberId invitedBy, final EMail invitedAs,
             final Calendar declinedOn) {
-        getContactModel().declineInvitation(invitedAs, invitedBy, declinedBy, declinedOn);
+        getContactModel().declineInvitation(userId, invitedBy, invitedAs, declinedOn);
     }
 }

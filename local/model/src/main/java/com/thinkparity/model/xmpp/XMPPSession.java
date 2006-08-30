@@ -176,6 +176,19 @@ public interface XMPPSession {
     public void deleteContact(final JabberId userId, final JabberId contactId);
 
     /**
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The invitation <code>EMail</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn);
+
+    /**
      * Delete an artifact draft.
      * 
      * @param uniqueId
@@ -249,7 +262,7 @@ public interface XMPPSession {
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws SmackException;
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -260,7 +273,7 @@ public interface XMPPSession {
     public List<User> readArtifactTeam(final UUID artifactUniqueId)
             throws SmackException;
 
-	/**
+    /**
      * Read a contact.
      * 
      * @param contactId
@@ -294,14 +307,14 @@ public interface XMPPSession {
      */
 	public JabberId readKeyHolder(final UUID uniqueId);
 
-    /**
+	/**
      * Read the user's profile.
      * 
      * @return A profile.
      */
     public Profile readProfile() throws SmackException;
 
-	/**
+    /**
      * Read the user's profile emails addresses.
      * 
      * @return A list of profile emails addresses.
@@ -331,8 +344,8 @@ public interface XMPPSession {
     public void removeListener(final XMPPArtifactListener l);
 
     public void removeListener(final XMPPContactListener l);
-
     public void removeListener(final XMPPExtensionListener l);
+
     public void removeListener(final XMPPSessionListener l);
 
     /**

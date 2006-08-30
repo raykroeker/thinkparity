@@ -83,6 +83,23 @@ public class InternalContactModel extends ContactModel implements InternalModel 
     }
 
     /**
+     * Handle the remote contact invitation deleted remote event.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
+     * @param deletedBy
+     *            By whom the invitation was deleted.
+     * @param deletedOn
+     *            When the invitation was deleted.
+     */
+    public void handleInvitationDeleted(final EMail invitedAs,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleInvitationDeleted(invitedAs, deletedBy, deletedOn);
+        }
+    }
+
+    /**
      * Handle the invitation extended remote event.
      * 
      * @param invitedBy

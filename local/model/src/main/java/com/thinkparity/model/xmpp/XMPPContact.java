@@ -36,11 +36,11 @@ import com.thinkparity.model.xmpp.events.XMPPContactListener;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.10
  */
 class XMPPContact extends AbstractXMPP {
 
-    /** Contact remote event listeners. */
+    /** Remote event listeners. */
 	private static final List<XMPPContactListener> LISTENERS;
 
 	static {
@@ -92,6 +92,25 @@ class XMPPContact extends AbstractXMPP {
                         query.acceptedBy = readJabberId2();
                     } else if (isStartTag("acceptedOn")) {
                         query.acceptedOn = readCalendar2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contact:invitationdeleted", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleInvitationDeletedIQ query = new HandleInvitationDeletedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (!isComplete) {
+                    if (isStartTag("deletedBy")) {
+                        query.deletedBy = readJabberId2();
+                    } else if (isStartTag("deletedOn")) {
+                        query.deletedOn = readCalendar2();
+                    } else if (isStartTag("invitedAs")) {
+                        query.invitedAs = readEMail2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -218,6 +237,14 @@ class XMPPContact extends AbstractXMPP {
                     }
                 },
                 new PacketTypeFilter(HandleContactDeletedIQ.class));
+        // delete invitation
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        notifyInvitationDeleted((HandleInvitationDeletedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleInvitationDeletedIQ.class));
 	}
 
 	/**
@@ -252,6 +279,29 @@ class XMPPContact extends AbstractXMPP {
     }
 
     /**
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The invitation <code>EMail</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    void deleteInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("invitedAs", invitedAs);
+        logVariable("deletedOn", deletedOn);
+        final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteinvitation");
+        deleteInvitation.setParameter("userId", userId);
+        deleteInvitation.setParameter("invitedAs", invitedAs);
+        deleteInvitation.setParameter("deletedOn", deletedOn);
+        execute(deleteInvitation);
+    }
+
+	/**
      * Extend an invitation. If the email is registered within the thinkParity
      * community an invitation will be sent via thinkParity otherwise an
      * invitation will be sent via and email.
@@ -290,7 +340,7 @@ class XMPPContact extends AbstractXMPP {
 		return result.getContacts();
 	}
 
-	/**
+    /**
      * Read a contact.
      * 
      * @return A contact.
@@ -310,24 +360,10 @@ class XMPPContact extends AbstractXMPP {
     }
 
     /**
-     * Notify the LISTENERS that an invitation has been accepted.
+     * Fire a local event for the remote contact deleted event.
      * 
-     * @param acceptance
-     *            The invitation acceptance.
-     */
-    private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
-        synchronized (LISTENERS) {
-            for(final XMPPContactListener l : LISTENERS) {
-                l.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
-            }
-        }
-    }
-
-    /**
-     * Notify the LISTENERS that an invitation has been accepted.
-     * 
-     * @param acceptance
-     *            The invitation acceptance.
+     * @param query
+     *            The internet event query.
      */
     private void notifyContactDeleted(final HandleContactDeletedIQ query) {
         synchronized (LISTENERS) {
@@ -338,88 +374,89 @@ class XMPPContact extends AbstractXMPP {
     }
 
 	/**
-	 * Notify the LISTENERS that an invitation has been declined.
-	 * 
-	 * @param declination.
-	 *            The invitation declination.
-	 */
-	private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
-		synchronized (LISTENERS) {
-			for(final XMPPContactListener l : LISTENERS) {
-				l.handleInvitationDeclined(query.invitedAs, query.declinedBy,
-                        query.declinedOn);
-			}
-		}
-	}
+     * Fire a local event for the remote invitation accepted event.
+     * 
+     * @param query
+     *            The internet event query.
+     */
+    private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
+            }
+        }
+    }
 
     /**
-	 * Notify the LISTENERS that an invitation has been received.
-	 * 
-	 * @param invitation
-	 *            The invitation.
-	 */
+     * Fire a local event for the remote invitation declined event.
+     * 
+     * @param query
+     *            The internet event query.
+     */
+    private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleInvitationDeclined(query.invitedAs, query.declinedBy,
+                        query.declinedOn);
+            }
+        }
+    }
+
+    /**
+     * Fire a local event for the remote invitation deleted event.
+     * 
+     * @param query
+     *            The internet event query.
+     */
+    private void notifyInvitationDeleted(final HandleInvitationDeletedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleInvitationDeleted(query.invitedAs, query.deletedBy,
+                        query.deletedOn);
+            }
+        }
+    }
+
+    /**
+     * Fire a local event for the remote invitation extended event.
+     * 
+     * @param query
+     *            The internet event query.
+     */
 	private void notifyInvitationExtended(final HandleInvitationExtendedIQ query) {
 		synchronized (LISTENERS) {
 			for(final XMPPContactListener l : LISTENERS) {
-				l.handleInvitationExtended(query.invitedAs, query.invitedBy, query.invitedOn);
+				l.handleInvitationExtended(query.invitedAs, query.invitedBy,
+                        query.invitedOn);
 			}
 		}
 	}
 
-    /**
-     * <b>Title:</b>thinkParity XMPP Handle Invitation Accepted Query<br>
-     * <b>Description:</b>Provides a wrapper fr the invitation accepted remote
-     * event.<br>
-     */
+    private static class HandleContactDeletedIQ extends AbstractThinkParityIQ {
+        private JabberId deletedBy;
+        private Calendar deletedOn;
+    }
+
     private static class HandleInvitationAcceptedIQ extends AbstractThinkParityIQ {
-
-        /** The acceptor. */
         private JabberId acceptedBy;
-
-        /** The acceptance date. */
         private Calendar acceptedOn;
     }
 
-    /**
-     * <b>Title:</b>thinkParity XMPP Handle Invitation Declined Query<br>
-     * <b>Description:</b>Provides a wrapper fr the invitation declined remote
-     * event.<br>
-     */
     private static class HandleInvitationDeclinedIQ extends AbstractThinkParityIQ {
-
-        /** The declined user. */
         private JabberId declinedBy;
-
-        /** The declined date. */
         private Calendar declinedOn;
-
-        /** The original invitation e-mail address. */
         private EMail invitedAs;
     }
 
-    /**
-     * <b>Title:</b>thinkParity XMPP Handle Invitation Extended Query<br>
-     * <b>Description:</b>Provides a wrapper fr the invitation extended remote
-     * event.<br>
-     */
-    private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
-
-        /** The invitation e-mail address. */
-        private EMail invitedAs;
-
-        /** The inviter. */
-        private JabberId invitedBy;
-
-        /** The invitation date. */
-        private Calendar invitedOn;
-    }
-
-    private static class HandleContactDeletedIQ extends AbstractThinkParityIQ {
-
-        /** Who deleted the contact. */
+    private static class HandleInvitationDeletedIQ extends AbstractThinkParityIQ {
         private JabberId deletedBy;
-
-        /** When the contact was deleted. */
         private Calendar deletedOn;
+        private EMail invitedAs;
+    }
+
+    private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
+        private EMail invitedAs;
+        private JabberId invitedBy;
+        private Calendar invitedOn;
     }
 }

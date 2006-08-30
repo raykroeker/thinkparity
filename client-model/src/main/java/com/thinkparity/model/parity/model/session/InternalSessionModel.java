@@ -145,6 +145,23 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    /**
+     * Delete a contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The invitation <code>EMail</code>.
+     * @param deletedOn
+     *            The deletion <code>Calendar</code>.
+     */
+    public void deleteContactInvitation(final JabberId userId,
+            final EMail invitedAs, final Calendar deletedOn) {
+        synchronized (getImplLock()) {
+            getImpl().deleteContactInvitation(userId, invitedAs, deletedOn);
+        }
+    }
+
 	/**
      * Delete a draft for an artifact.
      * 

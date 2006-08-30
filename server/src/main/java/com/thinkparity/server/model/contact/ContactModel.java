@@ -51,58 +51,42 @@ public class ContactModel extends AbstractModel {
      * Accept an invitation. Create the contact relationship; and notify the
      * user.
      * 
-     * @param invitedAs
-     *            The original invitation e-mail.
+     * @param userId
+     *            The user id <code>JabberId</code>.
      * @param invitedBy
      *            By whom the invitation was sent.
-     * @param acceptedBy
-     *            By whom the invitation was accepted
      * @param acceptedOn
      *            When the invitation was accepted.
      */
-    public void acceptInvitation(final JabberId invitedBy,
-            final JabberId acceptedBy, final Calendar acceptedOn) {
+    public void acceptInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar acceptedOn) {
 		synchronized (implLock) {
-            impl.acceptInvitation(invitedBy, acceptedBy, acceptedOn);
+            impl.acceptInvitation(userId, invitedBy, acceptedOn);
 		}
 	}
 
     /**
-     * Decline the invitation. Send the invitee a notifiaction.
+     * Decline an invitation. Delete the invitation and send a notification
+     * (which will delete that invitation).
      * 
-     * @param invitedAs
-     *            The original invitation e-mail.
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param invitedBy
-     *            The invitor.
-     * @param declinedBy
-     *            The invitee.
+     *            Who invited the user.
+     * @param invitedAs
+     *            To which <code>EMail</code> the invitation was sent.
      * @param declinedOn
-     *            When the acceptance was made.
+     *            When the invitation was declined.
      */
-	public void declineInvitation(final String invitedAs,
-            final JabberId invitedBy, final JabberId declinedBy,
+	public void declineInvitation(final JabberId userId,
+            final JabberId invitedBy, final EMail invitedAs,
             final Calendar declinedOn) {
 		synchronized (implLock) {
-            impl.declineInvitation(invitedAs, invitedBy, declinedBy, declinedOn);
+            impl.declineInvitation(userId, invitedBy, invitedAs, declinedOn);
         }
 	}
 
     /**
-     * Delete a user's invitation.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedUserId
-     *            The invited user id <code>JabberId</code>.
-     */
-    public void deleteInvitation(final JabberId userId,
-            final JabberId invitedUserId) {
-        synchronized (implLock) {
-            impl.deleteInvitation(userId, invitedUserId);
-        }
-    }
-
-	/**
      * Delete a contact for a user.
      * 
      * @param userId
@@ -113,6 +97,21 @@ public class ContactModel extends AbstractModel {
     public void delete(final JabberId userId, final JabberId contactId) {
         synchronized (implLock) {
             impl.delete(userId, contactId);
+        }
+    }
+
+	/**
+     * Delete a user's invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedUserId
+     *            The invited user id <code>JabberId</code>.
+     */
+    public void deleteInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
+        synchronized (implLock) {
+            impl.deleteInvitation(userId, invitedAs, deletedOn);
         }
     }
 

@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
@@ -20,48 +21,84 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
  */
 public class InvitationSql extends AbstractSql {
 
-	private static final String SQL_CREATE =
-		new StringBuffer("insert into parityContactInvitation ")
-		.append("(invitationFrom,invitationTo,createdBy,updatedBy,updatedOn) ")
-		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
-		.toString();
+    /** Sql to create an invitation. */
+    private static final String SQL_CREATE =
+            new StringBuffer("insert into parityContactInvitation ")
+            .append("(invitationFrom,invitationTo,createdBy,updatedBy,updatedOn) ")
+            .append("values (?,?,?,?,CURRENT_TIMESTAMP)")
+            .toString();
 
-	private static final String SQL_DELETE =
-		new StringBuffer("delete from parityContactInvitation ")
-		.append("where invitationFrom=? and invitationTo=?")
-		.toString();
+    /** Sql to create an email invitation. */
+    private static final String SQL_CREATE_EMAIL =
+            new StringBuffer("insert into PARITYCONTACTEMAILINVITATION ")
+            .append("(INVITATIONFROM,INVITATIONTO,CREATEDBY,UPDATEDBY,UPDATEDON) ")
+            .append("values (?,?,?,?,CURRENT_TIMESTAMP)")
+            .toString();
 
-	private static final String SQL_READ =
-		new StringBuffer("select invitationFrom,invitationTo ")
-		.append("from parityContactInvitation ")
-		.append("where invitationFrom=? and invitationTo=?")
-		.toString();
+    /** Sql to delete an invitation. */
+    private static final String SQL_DELETE =
+            new StringBuffer("delete from parityContactInvitation ")
+            .append("where invitationFrom=? and invitationTo=?")
+            .toString();
 
-	/**
-	 * Create a InvitationSql.
-	 */
-	public InvitationSql() { super(); }
+    /** Sql to delete an email invitation. */
+    private static final String SQL_DELETE_EMAIL =
+            new StringBuffer("delete from PARITYCONTACTEMAILINVITATION ")
+            .append("where INVITATIONFROM=? and INVITATIONTO=?")
+            .toString();
 
-	public void create(final JabberId from, final JabberId to,
-			final JabberId createdBy) throws SQLException {
+    /** Sql to read an invitation. */
+    private static final String SQL_READ =
+            new StringBuffer("select invitationFrom,invitationTo ")
+            .append("from parityContactInvitation ")
+            .append("where invitationFrom=? and invitationTo=?")
+            .toString();
+
+    /** Create InvitationSql. */
+    public InvitationSql() { super(); }
+
+    public void create(final JabberId userId, final JabberId extendTo)
+            throws SQLException {
         logApiId();
-		logger.debug(from);
-		logger.debug(to);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		try {
-			cx = getCx();
+        logger.debug(userId);
+        logger.debug(extendTo);
+        Connection cx = null;
+        PreparedStatement ps = null;
+        try {
+            cx = getCx();
             logStatement(SQL_CREATE);
-			ps = cx.prepareStatement(SQL_CREATE);
-			set(ps, 1, from.getQualifiedUsername());
-			set(ps, 2, to.getQualifiedUsername());
-			set(ps, 3, createdBy);
-			set(ps, 4, createdBy);
-			if(1 != ps.executeUpdate())
-				throw new SQLException("Could not create invitation.");
-		}
-		finally { close(cx, ps); }
-	}
+            ps = cx.prepareStatement(SQL_CREATE);
+            set(ps, 1, userId.getUsername());
+            set(ps, 2, extendTo.getUsername());
+            set(ps, 3, userId.getUsername());
+            set(ps, 4, userId.getUsername());
+            if (1 != ps.executeUpdate())
+                throw new SQLException();
+            cx.commit();
+        } finally {
+            close(cx, ps);
+        }
+    }
+
+    public void createEmail(final JabberId userId, final EMail extendTo)
+            throws SQLException {
+        Connection cx = null;
+        PreparedStatement ps = null;
+        try {
+            cx = getCx();
+            logStatement(SQL_CREATE_EMAIL);
+            ps = cx.prepareStatement(SQL_CREATE_EMAIL);
+            ps.setString(1, userId.getUsername());
+            ps.setString(2, extendTo.toString());
+            ps.setString(3, userId.getUsername());
+            ps.setString(4, userId.getUsername());
+            if (1 != ps.executeUpdate())
+                throw new SQLException();
+            cx.commit();
+        } finally {
+            close(cx, ps);
+        }
+    }
 
 	public void delete(final JabberId from, final JabberId to)
 			throws SQLException {
@@ -74,13 +111,33 @@ public class InvitationSql extends AbstractSql {
 			cx = getCx();
             logStatement(SQL_DELETE);
 			ps = cx.prepareStatement(SQL_DELETE);
-			ps.setString(1, from.getQualifiedUsername());
-			ps.setString(2, to.getQualifiedUsername());
-			if(1 != ps.executeUpdate())
-				throw new SQLException("Could not delete invitation.");
+			ps.setString(1, from.getUsername());
+			ps.setString(2, to.getUsername());
+			if (1 != ps.executeUpdate())
+				throw new SQLException();
+            cx.commit();
+		} finally {
+            close(cx, ps);
 		}
-		finally { close(cx, ps); }
 	}
+
+    public void deleteEmail(final JabberId from, final EMail invitedAs)
+            throws SQLException {
+        logApiId();
+        Connection cx = null;
+        PreparedStatement ps = null;
+        try {
+            cx = getCx();
+            ps = cx.prepareStatement(SQL_DELETE_EMAIL);
+            ps.setString(1, from.getUsername());
+            ps.setString(2, invitedAs.toString());
+            if (1 != ps.executeUpdate())
+                throw new SQLException();
+            cx.commit();
+        } finally {
+            close(cx, ps);
+        }
+    }
 
 	public Invitation read(final JabberId from, final JabberId to) throws SQLException {
         logApiId();

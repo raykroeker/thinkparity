@@ -16,6 +16,8 @@ public interface XMPPContactListener {
             final Calendar acceptedOn);
     public void handleInvitationDeclined(final EMail invitedAs,
             final JabberId declinedBy, final Calendar declinedOn);
+    public void handleInvitationDeleted(final EMail invitedAs,
+            final JabberId deletedBy, final Calendar deletedOn);
     public void handleInvitationExtended(final EMail invitedAs,
             final JabberId invitedBy, final Calendar invitedOn);
 }

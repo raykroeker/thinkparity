@@ -3,9 +3,13 @@
  */
 package com.thinkparity.server.handler.contact;
 
+import java.util.Calendar;
+
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.handler.AbstractController;
+import com.thinkparity.server.model.contact.ContactModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -22,18 +26,15 @@ public class DeleteInvitation extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        deleteInvitation(readJabberId("userId"), readJabberId("invitedUserId"));
+        deleteInvitation(readJabberId("userId"), readEMail("invitedAs"),
+                readCalendar("deletedOn"));
     }
 
     /**
-     * Delete an extended invitation.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param invitedUserId
-     *            The invited user's id <code>JabberId</code>.
+     * @see ContactModel#deleteInvitation(JabberId, EMail, Calendar)
      */
-    private void deleteInvitation(final JabberId userId, final JabberId invitedUserId) {
-        getContactModel().deleteInvitation(userId, invitedUserId);
+    private void deleteInvitation(final JabberId userId, final EMail invitedAs,
+            final Calendar deletedOn) {
+        getContactModel().deleteInvitation(userId, invitedAs, deletedOn);
     }
 }

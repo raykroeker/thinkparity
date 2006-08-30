@@ -52,7 +52,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	private final XMPPExtensionListener xmppExtensionListener;
 
 	/** An xmpp presence listener. */
-	private final XMPPContactListener xmppPresenceListener;
+	private final XMPPContactListener xmppContactListener;
 
 	/** The xmpp session. */
 	private final XMPPSession xmppSession;
@@ -67,6 +67,10 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppArtifactListener = new XMPPArtifactListener() {
+            public void confirmReceipt(final UUID uniqueId,
+                    final Long versionId, final JabberId receivedFrom) {
+                handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
+            }
             public void handleDraftCreated(final UUID uniqueId,
                     final JabberId createdBy, final Calendar createdOn) {
                 SessionModelImpl.handleArtifactDraftCreated(uniqueId,
@@ -76,10 +80,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final JabberId deletedBy, final Calendar deletedOn) {
                 SessionModelImpl.handleArtifactDraftDeleted(uniqueId,
                         deletedBy, deletedOn);
-            }
-            public void confirmReceipt(final UUID uniqueId,
-                    final Long versionId, final JabberId receivedFrom) {
-                handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }
 			public void teamMemberAdded(final UUID uniqueId,
                     final JabberId jabberId) {
@@ -105,20 +105,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                         artifactUniqueId, artifactVersionId, artifactName,
                         artifactType, artifactChecksum, artifactBytes);
             }
-            public void handleSent(final UUID uniqueId, final Long versionId,
-                    final String name, final Integer artifactCount,
-                    final JabberId sentBy, final Calendar sentOn,
-                    final List<JabberId> sentTo) {
-                SessionModelImpl.handleContainerSent(uniqueId, versionId, name,
-                        artifactCount, sentBy, sentOn, sentTo);
-            }
-            public void handlePublished(final UUID uniqueId,
-                    final Long versionId, final String name,
-                    final Integer artifactCount, final JabberId publishedBy,
-                    final List<JabberId> publishedTo, final Calendar publishedOn) {
-                handleContainerPublished(uniqueId, versionId, name,
-                        artifactCount, publishedBy, publishedTo, publishedOn);
-            }
             public void handleArtifactSent(final JabberId sentBy,
                     final Calendar sentOn, final UUID containerUniqueId,
                     final Long containerVersionId, final String containerName,
@@ -132,6 +118,20 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                         containerArtifactCount, containerArtifactIndex,
                         artifactUniqueId, artifactVersionId, artifactName,
                         artifactType, artifactChecksum, artifactBytes);
+            }
+            public void handlePublished(final UUID uniqueId,
+                    final Long versionId, final String name,
+                    final Integer artifactCount, final JabberId publishedBy,
+                    final List<JabberId> publishedTo, final Calendar publishedOn) {
+                handleContainerPublished(uniqueId, versionId, name,
+                        artifactCount, publishedBy, publishedTo, publishedOn);
+            }
+            public void handleSent(final UUID uniqueId, final Long versionId,
+                    final String name, final Integer artifactCount,
+                    final JabberId sentBy, final Calendar sentOn,
+                    final List<JabberId> sentTo) {
+                SessionModelImpl.handleContainerSent(uniqueId, versionId, name,
+                        artifactCount, sentBy, sentOn, sentTo);
             }
         };
         this.xmppDocumentListener = new XMPPDocumentListener() {
@@ -161,23 +161,28 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 				Assert.assertUnreachable("SessionModelXMPPHelper$XMPPExtensionListener#keyRequested()");
 			}
 		};
-		this.xmppPresenceListener = new XMPPContactListener() {
-			public void handleInvitationAccepted(final JabberId acceptedBy,
-                    final Calendar acceptedOn) {
-				handleContactInvitationAccepted(acceptedBy, acceptedOn);
-			}
-			public void handleInvitationDeclined(final EMail invitedAs,
-                    final JabberId declinedBy, final Calendar declinedOn) {
-				handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
-			}
-			public void handleInvitationExtended(final EMail invitedAs,
-                    final JabberId invitedBy, final Calendar invitedOn) {
-				handleContactInvitationExtended(invitedAs, invitedBy, invitedOn);
-			}
-            public void handleContactDeleted(final JabberId deletedBy,
+		this.xmppContactListener = new XMPPContactListener() {
+			public void handleContactDeleted(final JabberId deletedBy,
                     final Calendar deletedOn) {
                 SessionModelImpl.handleContactDeleted(deletedBy, deletedOn);
             }
+			public void handleInvitationAccepted(final JabberId acceptedBy,
+                    final Calendar acceptedOn) {
+				SessionModelImpl.handleContactInvitationAccepted(acceptedBy, acceptedOn);
+			}
+			public void handleInvitationDeclined(final EMail invitedAs,
+                    final JabberId declinedBy, final Calendar declinedOn) {
+                SessionModelImpl.handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
+			}
+            public void handleInvitationDeleted(final EMail invitedAs,
+                    final JabberId deletedBy, final Calendar deletedOn) {
+                SessionModelImpl.handleContactInvitationDeleted(invitedAs,
+                        deletedBy, deletedOn);
+            }
+            public void handleInvitationExtended(final EMail invitedAs,
+                    final JabberId invitedBy, final Calendar invitedOn) {
+                SessionModelImpl.handleContactInvitationExtended(invitedAs, invitedBy, invitedOn);
+			}
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
 			public void sessionEstablished() { handleSessionEstablished(); }
@@ -191,7 +196,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         xmppSession.addListener(xmppContainerListener);
         xmppSession.addListener(xmppDocumentListener);
 		xmppSession.addListener(xmppExtensionListener);
-		xmppSession.addListener(xmppPresenceListener);
+		xmppSession.addListener(xmppContactListener);
 		xmppSession.addListener(xmppSessionListener);
 	}
 
@@ -390,38 +395,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 
-    private void handleContactInvitationAccepted(final JabberId acceptedBy,
-            final Calendar acceptedOn) {
-		try {
-            SessionModelImpl.handleContactInvitationAccepted(acceptedBy, acceptedOn);
-		} catch (final RuntimeException rx) {
-            unexpectedOccured(rx);
-        }
-	}
-
-    private void handleContactInvitationDeclined(final EMail invitedAs,
-            final JabberId declinedBy, final Calendar declinedOn) {
-		try {
-            SessionModelImpl.handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
-		} catch (final RuntimeException rx) {
-            unexpectedOccured(rx);
-		}
-	}
-
-	/**
-     * Handle the contact invitation extended remote event.
-     * 
-     * @param invitedBy
-     *            By whom the invitation was extended.
-     * @param invitedOn
-     *            When the invitation was extended.
-     */
-	private void handleContactInvitationExtended(final EMail invitedAs,
-            final JabberId invitedBy, final Calendar invitedOn) {
-		try { SessionModelImpl.handleInvitationExtended(invitedAs,invitedBy, invitedOn); }
-		catch(final RuntimeException rx) { unexpectedOccured(rx); }
-	}
-
 	/**
      * Handle the artifact published event for the container.
      * 
@@ -462,32 +435,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     }
 
     /**
-     * Handle the container published event.
-     * 
-     * @param uniqueId
-     *            The container unique id.
-     * @param versionId
-     *            The container version id.
-     * @param name
-     *            The container name.
-     * @param artifactCount
-     *            The container artifact count.
-     * @param publishedBy
-     *            The publisher.
-     * @param publishedTo
-     *            The publishees.
-     * @param publishedOn
-     *            The publish date.
-     */
-    private void handleContainerPublished(final UUID uniqueId,
-            final Long versionId, final String name,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
-        SessionModelImpl.handleContainerPublished(uniqueId, versionId, name,
-                artifactCount, publishedBy, publishedTo, publishedOn);
-    }
-
-    /**
      * Handle the artifact sent event for the container.
      * 
      * @param containerUniqueId
@@ -523,6 +470,32 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     artifactType, artifactChecksum, artifactBytes);
         }
         catch(final ParityException px) { unexpectedOccured(px); }
+    }
+
+    /**
+     * Handle the container published event.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     * @param versionId
+     *            The container version id.
+     * @param name
+     *            The container name.
+     * @param artifactCount
+     *            The container artifact count.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedTo
+     *            The publishees.
+     * @param publishedOn
+     *            The publish date.
+     */
+    private void handleContainerPublished(final UUID uniqueId,
+            final Long versionId, final String name,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        SessionModelImpl.handleContainerPublished(uniqueId, versionId, name,
+                artifactCount, publishedBy, publishedTo, publishedOn);
     }
 
     /**

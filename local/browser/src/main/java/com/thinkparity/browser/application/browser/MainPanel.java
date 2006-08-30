@@ -104,7 +104,7 @@ public class MainPanel extends AbstractJPanel {
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy = 0;
-        gbc.ipady = 19;
+        gbc.ipady = 28;
         gbc.weightx = 1.0;
         add(DisplayFactory.create(DisplayId.TITLE), gbc.clone());
 

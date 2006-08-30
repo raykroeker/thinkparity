@@ -31,8 +31,8 @@ import com.thinkparity.codebase.swing.Swing.Constants.Images;
  * @version 1.1
  */
 public class BrowserWindow extends AbstractJFrame {
-
-	/**
+    
+    /**
 	 * The size of the main window.
 	 * 
 	 * @see #getMainWindowSize()
@@ -50,10 +50,19 @@ public class BrowserWindow extends AbstractJFrame {
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
 			// DIMENSION BrowserWindow 450x587
-			mainWindowSize = new Dimension(450, 587);
+			mainWindowSize = new Dimension(Dimensions.BrowserWindow.MIN_SIZE);
 		}
 		return mainWindowSize;
 	}
+    
+    public void setMainWindowSize(final Dimension d) {
+        if (!mainWindowSize.equals(d)) {
+            mainWindowSize = new Dimension(d);
+            setMinimumSize(d);
+            setSize(d);
+            validate();
+        }
+    }
 
 	/** The main panel. */
 	public MainPanel mainPanel;
@@ -90,8 +99,9 @@ public class BrowserWindow extends AbstractJFrame {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         final Point location = persistence.get("location", new Point(100, 100));
         setLocation(location.x, location.y);
-        setMinimumSize(Dimensions.BrowserWindow.MIN_SIZE);
-        setSize(Dimensions.BrowserWindow.MIN_SIZE);
+        setResizable(true);
+        setMinimumSize(getMainWindowSize());
+        setSize(getMainWindowSize());
 		initComponents();
 	}
 
@@ -138,6 +148,7 @@ public class BrowserWindow extends AbstractJFrame {
         applyRenderingHints();
         debugGeometry();
         debugLookAndFeel();
+
 
         browser.displayMainTitleAvatar();
         browser.displayMainContentAvatar();

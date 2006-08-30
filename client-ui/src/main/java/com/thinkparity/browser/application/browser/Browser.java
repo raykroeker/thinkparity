@@ -898,7 +898,7 @@ public class Browser extends AbstractApplication {
         final Dimension newS = mainWindow.getSize();
         newS.width += s.width;
         newS.height += s.height;
-        mainWindow.setSize(newS);
+        mainWindow.setMainWindowSize(newS);
     }    
 
     /**

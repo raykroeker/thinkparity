@@ -56,7 +56,7 @@ public final class Constants {
         public static final FuzzyDateFormat FUZZY = new FuzzyDateFormat();
     }
 
-    /** Dimension constatns. */
+    /** Dimension constants. */
     public static final class Dimensions {
         public static final class BrowserWindow {
             public static final Dimension MIN_SIZE = new Dimension(450, 587);

@@ -215,7 +215,15 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public String getSecondaryText() {
-        return null;
+        if (isLocalDraft()) {
+            return ("me");           
+        }
+        else if (isDraft()) {
+            return ("someone else");
+        }
+        else {
+            return null;
+        }
     }    
 
     /**

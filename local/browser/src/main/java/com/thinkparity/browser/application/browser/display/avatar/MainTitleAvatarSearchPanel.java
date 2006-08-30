@@ -89,21 +89,21 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 7);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 11, 7);
         add(rightJLabel, gridBagConstraints);
 
         searchJTextField.setPreferredSize(new java.awt.Dimension(11, 20));
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                searchJTextFieldActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchJTextFieldActionPerformed(evt);
             }
         });
         searchJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                searchJTextFieldFocusGained(e);
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                searchJTextFieldFocusGained(evt);
             }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                searchJTextFieldFocusLost(e);
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                searchJTextFieldFocusLost(evt);
             }
         });
 
@@ -112,7 +112,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.ipadx = 82;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 11, 0);
         add(searchJTextField, gridBagConstraints);
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
@@ -121,7 +121,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 4, 11, 0);
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

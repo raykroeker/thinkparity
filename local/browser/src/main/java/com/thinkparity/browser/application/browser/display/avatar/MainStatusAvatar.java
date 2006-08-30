@@ -6,19 +6,23 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.border.TopBorder;
+import javax.swing.Timer;
 
 import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.Constants.Search;
 import com.thinkparity.browser.Constants.Colors.Browser;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.TopBorder;
 
 /**
  * <b>Title:</b>thinkParity Browser Status<br>
@@ -37,6 +41,10 @@ public class MainStatusAvatar extends Avatar {
 
     /** The offset size in the y direction. */
     private int resizeOffsetY;
+    
+    /** The search activation timer. */
+    private Timer resizeTimer = null;
+    private Boolean busy = Boolean.FALSE;
 
     /** Creates new form BrowserStatus */
     MainStatusAvatar() {
@@ -155,16 +163,19 @@ public class MainStatusAvatar extends Avatar {
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent e) {
-                resizeJLabelMouseDragged(e);
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                resizeJLabelMouseDragged(evt);
             }
         });
         resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                resizeJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                resizeJLabelMouseEntered(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                resizeJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                resizeJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                resizeJLabelMouseReleased(evt);
             }
         });
 
@@ -187,12 +198,14 @@ public class MainStatusAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(connectionJLabel)
                     .add(customJLabel))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(21, Short.MAX_VALUE)
+                .addContainerGap(33, Short.MAX_VALUE)
                 .add(resizeJLabel))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+
 
     /**
      * Reload the connection status message.
@@ -235,10 +248,28 @@ public class MainStatusAvatar extends Avatar {
     }
 
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseDragged
-        getController().resizeBrowserWindow(
-                new Dimension(
-                        e.getPoint().x - resizeOffsetX,
-                        e.getPoint().y - resizeOffsetY));
+        if (!busy) {
+            getController().resizeBrowserWindow(
+                    new Dimension(
+                            e.getPoint().x - resizeOffsetX,
+                            e.getPoint().y - resizeOffsetY)); 
+        }
+        
+        if (resizeTimer == null) {
+            resizeTimer = new Timer(50, new ActionListener() {
+                public void actionPerformed(final ActionEvent timerEvent) {
+                    resizeTimer.stop();
+                    busy = Boolean.FALSE;
+                }
+            });
+            resizeTimer.start();
+            busy = Boolean.TRUE;
+        }
+        else if (!busy) {
+            resizeTimer.restart();
+            busy = Boolean.TRUE;
+        }
+
     }//GEN-LAST:event_resizeJLabelMouseDragged
 
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
@@ -249,6 +280,12 @@ public class MainStatusAvatar extends Avatar {
         resizeOffsetX = e.getPoint().x;
         resizeOffsetY = e.getPoint().y;
     }//GEN-LAST:event_resizeJLabelMousePressed
+    
+    private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
+        if (resizeTimer != null) {
+            resizeTimer.stop();
+        }
+    }//GEN-LAST:event_resizeJLabelMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel connectionJLabel;

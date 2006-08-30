@@ -16,10 +16,7 @@ import com.thinkparity.server.handler.AbstractController;
  */
 public class DeclineInvitation extends AbstractController {
 
-	/**
-	 * Create a InviteContact.
-	 * 
-	 */
+	/** Create DeclineInvitation. */
 	public DeclineInvitation() { super("contact:declineinvitation"); }
 
 	/**

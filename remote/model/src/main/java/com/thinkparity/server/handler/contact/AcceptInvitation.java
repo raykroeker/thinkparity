@@ -16,10 +16,7 @@ import com.thinkparity.server.handler.AbstractController;
  */
 public class AcceptInvitation extends AbstractController {
 
-	/**
-	 * Create a InviteContact.
-	 * 
-	 */
+	/** Create AcceptInvitation. */
 	public AcceptInvitation() { super("contact:acceptinvitation"); }
 
 	/**

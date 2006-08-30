@@ -45,6 +45,14 @@ public interface ContactIOHandler {
     public void createOutgoingInvitation(final OutgoingInvitation outgoing);
 
     /**
+     * Delete a contact.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void delete(final Long contactId);
+
+    /**
      * Delete an incoming invitation.
      * 
      * @param invitationId
@@ -99,7 +107,7 @@ public interface ContactIOHandler {
      *            An e-mail address.
      * @return An outgoing invitation.
      */
-    public OutgoingInvitation readOutgoingInvitation(final Long invitationId);
+    public OutgoingInvitation readOutgoingInvitation(final EMail email);
 
     /**
      * Read an outgoing invitation.
@@ -108,7 +116,7 @@ public interface ContactIOHandler {
      *            An e-mail address.
      * @return An outgoing invitation.
      */
-    public OutgoingInvitation readOutgoingInvitation(final EMail email);
+    public OutgoingInvitation readOutgoingInvitation(final Long invitationId);
 
     /**
      * Read outgoing invitations.

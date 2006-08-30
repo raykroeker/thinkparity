@@ -7,6 +7,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.Icons;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -58,6 +59,10 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     private void contactsJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJLabelMouseClicked
+        if (2 == e.getClickCount()) {
+            /* NOCOMMIT */
+            ((ContactAvatar) new AvatarRegistry().get(AvatarId.TAB_CONTACT)).reload();
+        }
         setTab(MainTitleAvatar.Tab.CONTACT);
     }//GEN-LAST:event_contactsJLabelMouseClicked
 

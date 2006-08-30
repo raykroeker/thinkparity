@@ -166,6 +166,16 @@ public interface XMPPSession {
     public void deleteArtifact(final UUID uniqueId);
 
     /**
+     * Delete a contact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void deleteContact(final JabberId userId, final JabberId contactId);
+
+    /**
      * Delete an artifact draft.
      * 
      * @param uniqueId
@@ -174,13 +184,17 @@ public interface XMPPSession {
     public void deleteDraft(final UUID uniqueId);
 
     /**
-     * Invite a contact.
+     * Extend an invitation for a user.
      * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @throws SmackException
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendedTo
+     *            An <code>EMail</code> to extend the invitation to.
+     * @param extendedOn
+     *            The date <code>Calendar</code>.
      */
-	public void inviteContact(final EMail email) throws SmackException;
+    public void extendInvitation(final JabberId userId, final EMail extendedTo,
+            final Calendar extendedOn);
 
     /**
      * Determine if the user is logged in.

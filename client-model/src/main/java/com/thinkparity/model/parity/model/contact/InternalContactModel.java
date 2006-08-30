@@ -36,6 +36,21 @@ public class InternalContactModel extends ContactModel implements InternalModel 
     }
 
     /**
+     * Handle the remote event generated when a contact is deleted.
+     * 
+     * @param deletedBy
+     *            By whom the contact was deleted <code>JabberId</code>.
+     * @param deletedOn
+     *            When the contact was deleted <code>Calendar</code>.
+     */
+    public void handleContactDeleted(final JabberId deletedBy,
+            final Calendar deletedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleContactDeleted(deletedBy, deletedOn);
+        }
+    }
+
+    /**
      * Handle the invitation extended remote event.
      * 
      * @param acceptedBy

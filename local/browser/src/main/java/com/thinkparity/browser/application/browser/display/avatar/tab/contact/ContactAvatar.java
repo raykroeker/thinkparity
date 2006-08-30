@@ -101,7 +101,10 @@ public class ContactAvatar extends Avatar {
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
      *
      */
-    public void reload() {}
+    public void reload() {
+        /* NOCOMMIT */
+        model.reload();
+    }
 
     /**
      * Remove the search filter from the list.

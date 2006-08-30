@@ -132,6 +132,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
+     * Delete a contact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void deleteContact(final JabberId userId, final JabberId contactId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteContact(userId, contactId);
+        }
+    }
+
+	/**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -143,7 +157,17 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
+     * Extend an invitation to a contact.
+     * 
+     * @param extendTo
+     *            An <code>EMail</code> to invite.
+     */
+    public void extendInvitation(final EMail extendTo) {
+        synchronized(getImplLock()) { getImpl().extendInvitation(extendTo); }
+    }
+
+    /**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The logged in user.
@@ -152,18 +176,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	public User getLoggedInUser() throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUser(); }
 	}
-
-    /**
-     * Add a roster entry for the user. This will send a presence request to
-     * user.
-     * 
-     * @param user
-     *            The user to add to the roster.
-     * @throws ParityException
-     */
-    public void inviteContact(final EMail email) {
-        synchronized(getImplLock()) { getImpl().inviteContact(email); }
-    }
 
     /**
      * Publish a container version.
@@ -214,7 +226,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Read the user's contact list.
      * 
      * @return A list of contacts.
@@ -224,7 +236,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readContacts(); }
     }
 
-	/**
+    /**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId

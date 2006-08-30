@@ -21,9 +21,7 @@ import com.thinkparity.server.org.xmpp.packet.contact.IQReadContacts;
  */
 public class ReadContacts extends IQHandler {
 
-	/**
-	 * Create a ReadContacts.
-	 */
+	/** Create a ReadContacts. */
 	public ReadContacts() { super(IQAction.READCONTACTS); }
 
 	/**

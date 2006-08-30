@@ -5,6 +5,7 @@ package com.thinkparity.server.model;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
@@ -183,6 +185,11 @@ public abstract class AbstractModelImpl {
         return new IQWriter(iq);
     }
 
+    protected Calendar currentDateTime() {
+        return DateUtil.getInstance();
+    }
+
+
     /**
      * @deprecated Use {@link #logVariable(String, Object)} instead.
      * 
@@ -195,8 +202,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-
-    /**
+	/**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -224,7 +230,7 @@ public abstract class AbstractModelImpl {
         return DocumentModel.getModel(session);
     }
 
-	/**
+    /**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -237,7 +243,7 @@ public abstract class AbstractModelImpl {
                     t.getMessage());
     }
 
-    /**
+	/**
 	 * Obtain the parity session interface.
 	 * 
 	 * @return The parity session interface.
@@ -257,7 +263,7 @@ public abstract class AbstractModelImpl {
 		return uModel;
 	}
 
-	/**
+    /**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -267,7 +273,7 @@ public abstract class AbstractModelImpl {
      */
     protected Boolean isActive(final JabberId jabberId) { return Boolean.TRUE; }
 
-    /**
+	/**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId
@@ -294,14 +300,14 @@ public abstract class AbstractModelImpl {
 		else { return Boolean.FALSE; }
 	}
 
-	protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
+    protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		final ArtifactModel aModel = getArtifactModel();
 		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
 				session.getJID().getNode());
 	}
 
-    /** Log an api id. */
+	/** Log an api id. */
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
@@ -401,7 +407,7 @@ public abstract class AbstractModelImpl {
 		send(jabberId.getJID(), iq);
 	}
 
-	/**
+    /**
 	 * Route an IQ to a jive user. This will determine whether or not the user
 	 * is currently online; and if they are not; it will queue the request.
 	 * 
@@ -460,6 +466,7 @@ public abstract class AbstractModelImpl {
 		return getXMPPServer().getSessionManager();
 	}
 
+
     /**
 	 * Obtain a handle to the underlying xmpp server.
 	 * 
@@ -480,7 +487,6 @@ public abstract class AbstractModelImpl {
             throws ParityServerModelException {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
     }
-
 
     /**
      * Read the team.

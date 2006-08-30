@@ -15,7 +15,7 @@ import com.thinkparity.server.model.session.Session;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.7
  */
 public class ContactModel extends AbstractModel {
 
@@ -29,27 +29,25 @@ public class ContactModel extends AbstractModel {
 		return contactModel;
 	}
 
-    /**
-	 * Contact model implementation.
-	 * 
-	 */
+    /** Model implementation. */
 	private final ContactModelImpl impl;
 
-	/**
-	 * Synchronization lock for the implementation.
-	 */
+	/** Model implementation synchronization lock. */
 	private final Object implLock;
 
-	/**
-	 * Create a ArtifactModel.
-	 */
+    /**
+     * Create ContactModel.
+     * 
+     * @param session
+     *            The user's session.
+     */
 	private ContactModel(final Session session) {
 		super();
 		this.impl = new ContactModelImpl(session);
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Accept an invitation. Create the contact relationship; and notify the
      * user.
      * 
@@ -69,19 +67,7 @@ public class ContactModel extends AbstractModel {
 		}
 	}
 
-	/**
-	 * Create an invitation from the session user to the jabber id.
-	 * 
-	 * @param to
-	 *            To whom the invitation is extended.
-	 * @return An invitation or null if one does not exist.
-	 */
-	public Invitation createInvitation(final JabberId to)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.createInvitation(to); }
-	}
-
-	/**
+    /**
      * Decline the invitation. Send the invitee a notifiaction.
      * 
      * @param invitedAs
@@ -101,40 +87,77 @@ public class ContactModel extends AbstractModel {
         }
 	}
 
-	/**
-	 * Delete an invitation.
-	 * 
-	 * @param from
-	 *            From whom the invitation originated.
-	 * @throws ParityServerModelException
-	 */
-	public void deleteInvitation(final JabberId from)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.deleteInvitation(from); }
-	}
+    /**
+     * Delete a user's invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedUserId
+     *            The invited user id <code>JabberId</code>.
+     */
+    public void deleteInvitation(final JabberId userId,
+            final JabberId invitedUserId) {
+        synchronized (implLock) {
+            impl.deleteInvitation(userId, invitedUserId);
+        }
+    }
 
 	/**
+     * Delete a contact for a user.
      * 
-     * @param email
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
      */
-    public void invite(final EMail email, final Calendar invitedOn) {
-        synchronized(implLock) { impl.invite(email, invitedOn); }
+    public void delete(final JabberId userId, final JabberId contactId) {
+        synchronized (implLock) {
+            impl.delete(userId, contactId);
+        }
+    }
+
+	/**
+     * Extend an invitation. If the email is registered within the thinkParity
+     * community an invitation will be sent via thinkParity otherwise an
+     * invitation will be sent via and email.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendedTo
+     *            A <code>EMail</code> to invite.
+     * @param extendedOn
+     *            The date <code>Calendar</code> of the invitation.
+     */
+    public void extendInvitation(final JabberId userId, final EMail extendedTo,
+            final Calendar extendedOn) {
+        synchronized (implLock) {
+            impl.extendInvitation(userId, extendedTo, extendedOn);
+        }
     }
 
 	/**
      * Read the contact info for the jabber id.
      * 
-     * @param jabberId
-     *            The jabber id.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
      * @return The contact info.
-     * @throws ParityServerModelException
      */
-	public Contact readContact(final JabberId jabberId) {
-		synchronized(implLock) { return impl.readContact(jabberId); }
+	public Contact readContact(final JabberId contactId) {
+		synchronized (implLock) {
+            return impl.readContact(contactId);
+		}
 	}
 
+    /**
+     * Read all contacts.
+     * 
+     * @return A <code>List&lt;Contact&gt;</code>.
+     * @throws ParityServerModelException
+     */
 	public List<Contact> readContacts() throws ParityServerModelException {
-		synchronized(implLock) { return impl.readContacts(); }
+		synchronized (implLock) {
+            return impl.readContacts();
+		}
 	}
 
 	/**
@@ -145,8 +168,9 @@ public class ContactModel extends AbstractModel {
 	 * @return The invitation.
 	 * @throws ParityServerModelException
 	 */
-	public Invitation readInvitation(final JabberId from)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.readInvitation(from); }
+	public Invitation readInvitation(final JabberId from) {
+		synchronized (implLock) {
+            return impl.readInvitation(from);
+		}
 	}
 }

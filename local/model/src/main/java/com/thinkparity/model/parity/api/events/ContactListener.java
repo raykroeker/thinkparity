@@ -8,19 +8,13 @@ package com.thinkparity.model.parity.api.events;
  * @version 1.1.2.1
  */
 public interface ContactListener {
+    public void contactDeleted(final ContactEvent e);
     public void incomingInvitationAccepted(final ContactEvent e);
-
     public void incomingInvitationCreated(final ContactEvent e);
-
     public void incomingInvitationDeclined(final ContactEvent e);
-
     public void incomingInvitationDeleted(final ContactEvent e);
-
     public void outgoingInvitationAccepted(final ContactEvent e);
-
     public void outgoingInvitationCreated(final ContactEvent e);
-
     public void outgoingInvitationDeclined(final ContactEvent e);
-
     public void outgoingInvitationDeleted(final ContactEvent e);
 }

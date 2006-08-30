@@ -1,5 +1,5 @@
 /*
- * Nov 29, 2005
+ * Created On: Nov 29, 2005
  */
 package com.thinkparity.server.model.contact;
 
@@ -15,8 +15,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
@@ -25,47 +23,48 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
+import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
+import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
-import com.thinkparity.server.org.xmpp.packet.contact.IQInviteContact;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.5
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.10
  */
 class ContactModelImpl extends AbstractModelImpl {
 
-	/**
-	 * Contact sql interface.
-	 * 
-	 */
+	/** The thinkParity contact io. */
 	private final ContactSql contactSql;
 
-    /** A contact event generator. */
+    /** The thinkParity contact event generator. */
     private final ContactEventGenerator eventGenerator;
 
-    /**
-	 * Invitation sql interface.
-	 * 
-	 */
+    /** The thinkParity invitation io. */
 	private final InvitationSql invitationSql;
 
+    /** The thinkParity user io. */
+    private final UserSql userSql;
+
     /**
-	 * Create a ArtifactModelImpl.
+	 * Create ContactModelImpl.
 	 * 
+     * @param session
+     *            The user's session.
 	 */
 	ContactModelImpl(final Session session) {
 		super(session);
 		this.contactSql = new ContactSql();
         this.eventGenerator = new ContactEventGenerator();
 		this.invitationSql = new InvitationSql();
+        this.userSql = new UserSql();
 	}
 
     /**
@@ -91,40 +90,15 @@ class ContactModelImpl extends AbstractModelImpl {
 			contactSql.create(acceptedBy, invitedBy, session.getJabberId());
 			contactSql.create(invitedBy, acceptedBy, session.getJabberId());
 
-            final IQ notification =
-                eventGenerator.generateInvitationAccepted(acceptedBy, acceptedOn);
-            send(invitedBy, notification);
+			final IQWriter notification = createIQWriter("invitationaccepted");
+            notification.writeJabberId("acceptedBy", acceptedBy);
+            notification.writeCalendar("acceptedOn", acceptedOn);
+            final IQ notificationIQ = notification.getIQ();
+            notificationIQ.setTo(invitedBy.getJID());
+            send(invitedBy, notificationIQ);
 		}
 		catch(final Throwable t) {
             throw translateError(t);
-		}
-	}
-
-    Invitation createInvitation(final JabberId to) throws ParityServerModelException {
-        logApiId();
-		logger.debug(to);
-		try {
-			final Invitation invitation = invitationSql.read(session.getJabberId(), to);
-			// if an invitation already exists we do nothing
-			if(null == invitation) {
-				invitationSql.create(session.getJabberId(), to, session.getJabberId());
-
-				// send the invitation
-				final IQ iq = new IQInviteContact(session.getJabberId());
-				iq.setTo(to.getJID());
-				iq.setFrom(session.getJID());
-				send(to, iq);
-				return invitationSql.read(session.getJabberId(), to);
-			}
-			else { return invitation; }
-		}
-		catch(final SQLException sqlx) {
-			logger.error("Could not create invitation:  " + to, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("Could not create invitation:  " + to, ux);
-			throw ParityErrorTranslator.translate(ux);
 		}
 	}
 
@@ -155,51 +129,82 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * TODO create controller 0.25; delete contact data 0.25; delete distributed
-     * contact 0.25
+     * Delete a contact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
      */
-    void delete(final JabberId jabberId) {}
+    void delete(final JabberId userId, final JabberId contactId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("contactId", contactId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            contactSql.delete(userId, contactId);
+            contactSql.delete(contactId, userId);
+            
+            final IQWriter notification = createIQWriter("contactdeleted");
+            notification.writeJabberId("deletedBy", userId);
+            notification.writeCalendar("deletedOn", currentDateTime());
+            final IQ notificationIQ = notification.getIQ();
+            notificationIQ.setTo(contactId.getJID());
+            send(contactId, notificationIQ);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * TODO create controller 0.25; read e-mail invitation data 0.25; delete
      * e-mail invitation data 0.25;
      */
-	void deleteInvitation(final JabberId from)
-			throws ParityServerModelException {
+	void deleteInvitation(final JabberId userId, final JabberId invitedUserId) {
         logApiId();
-		logger.debug(from);
-		try { invitationSql.delete(from, session.getJabberId()); }
-		catch(final SQLException sqlx) {
-			logger.error("Could not delete inviataion:  " + from, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
+        logVariable("userId", userId);
+        logVariable("invitedUserId", invitedUserId);
+		try {
+            invitationSql.delete(userId, invitedUserId);
+		} catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
-    /**
-     * TODO read user for e-mail 0.5; create e-mail invitation data 0.5; create
-     * invitation data 0.5; create distributed invitation 0.5
+	/**
+     * Extend an invitation for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendedTo
+     *            An <code>EMail</code> to extend the invitation to.
+     * @param extendedOn
+     *            The date <code>Calendar</code>.
      */
-	void invite(final EMail email, final Calendar invitedOn) {
+	void extendInvitation(final JabberId userId, final EMail extendTo,
+            final Calendar extendedOn) {
         logApiId();
-        logVariable("email", email);
-        logVariable("invitedOn", invitedOn);
+        logVariable("userId", userId);
+        logVariable("extendTo", extendTo);
+        logVariable("extendedOn", extendedOn);
         try {
             final UserModel userModel = getUserModel();
-            final User invitee = userModel.readUser(email);
-            if (null == invitee) {
+            final User extendToUser = userModel.readUser(extendTo);
+            if (null == extendToUser) {
+                // extend the invitation via SMTP
                 final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
-                try {
-                    final User user = getUserModel().readUser(session.getJabberId());
-                    createInvitation(mimeMessage, email, user);
-                    addRecipient(mimeMessage, email);
-                }
-                catch(final MessagingException mx) { throw translateError(mx); }
+                createInvitation(mimeMessage, extendTo, userModel.readUser(userId));
+                addRecipient(mimeMessage, extendTo);
                 TransportManager.deliver(mimeMessage);
             } else {
-                final IQ notification =
-                    eventGenerator.generateInvitationExtended(
-                            email, session.getJabberId(), invitedOn);
-                send(invitee.getId(), notification);
+                // extend the invitation within thinkParity
+                final IQWriter notification = createIQWriter("invitationextended");
+                notification.writeEMail("extendedTo", extendTo);
+                notification.writeJabberId("extendedBy", userId);
+                notification.writeCalendar("extendedOn", extendedOn);
+                final IQ notificationIQ = notification.getIQ();
+                notificationIQ.setTo(extendToUser.getId().getJID());
+                send(extendToUser.getId(), notificationIQ);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -218,6 +223,7 @@ class ContactModelImpl extends AbstractModelImpl {
             contact.setName((String) vCardElement.element("FN").getData());
             contact.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
             contact.setVCard(user.getVCard());
+            contact.addAllEmails(userSql.readEmails(contactId, Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {
             throw translateError(t);
@@ -246,14 +252,13 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    Invitation readInvitation(final JabberId from)
-			throws ParityServerModelException {
+    Invitation readInvitation(final JabberId from) {
         logApiId();
 		logger.debug(from);
-		try { return invitationSql.read(from, session.getJabberId()); }
-		catch(final SQLException sqlx) {
-			logger.error("Could not read invitation:  " + from, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
+		try {
+            return invitationSql.read(from, session.getJabberId());
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 

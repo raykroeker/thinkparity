@@ -10,6 +10,11 @@ package com.thinkparity.model.parity.api.events;
 public class ContactAdapter implements ContactListener {
 
     /**
+     * @see com.thinkparity.model.parity.api.events.ContactListener#contactDeleted(com.thinkparity.model.parity.api.events.ContactEvent)
+     */
+    public void contactDeleted(final ContactEvent e) {}
+
+    /**
      * @see com.thinkparity.model.parity.api.events.ContactListener#incomingInvitationAccepted(com.thinkparity.model.parity.api.events.ContactEvent)
      */
     public void incomingInvitationAccepted(final ContactEvent e) {}

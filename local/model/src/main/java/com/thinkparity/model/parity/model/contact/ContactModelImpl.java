@@ -43,17 +43,6 @@ class ContactModelImpl extends AbstractModelImpl {
     /** A list of contact event listeners. */
     private static final List<ContactListener> LISTENERS = new LinkedList<ContactListener>();
 
-    /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[Contact]").append(" ").append(api);
-    }
-
     /** The contact db io. */
     private final ContactIOHandler contactIO;
 
@@ -149,7 +138,7 @@ class ContactModelImpl extends AbstractModelImpl {
         outgoing.setCreatedOn(currentDateTime());
         outgoing.setEmail(email);
         contactIO.createOutgoingInvitation(outgoing);
-        getInternalSessionModel().inviteContact(email);
+        getInternalSessionModel().extendInvitation(email);
         // fire event
         final OutgoingInvitation postCreation = contactIO.readOutgoingInvitation(email);
         notifyOutgoingInvitationCreated(postCreation, localEventGenerator);
@@ -183,9 +172,31 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A contact.
      */
     void delete(final JabberId contactId) {
-        logger.info(getApiId("[DELETE]"));
-        logger.debug(contactId);
-        logger.warn(getApiId("[DELETE] [NOT YET IMPLEMENTED]"));
+        logApiId();
+        logVariable("contactId", contactId);
+        final Contact contact = read(contactId);
+        // delete local
+        contactIO.delete(contact.getLocalId());
+        // delete remote
+        getInternalSessionModel().deleteContact(localUserId(), contactId);
+        // fire event
+        notifyContactDeleted(contact, localEventGenerator);
+    }
+
+    /**
+     * Handle the remote event generated when a contact is deleted.
+     * 
+     * @param deletedBy
+     *            By whom the contact was deleted <code>JabberId</code>.
+     * @param deletedOn
+     *            When the contact was deleted <code>Calendar</code>.
+     */
+    void handleContactDeleted(final JabberId deletedBy, final Calendar deletedOn) {
+        final Contact contact = read(deletedBy);
+        // delete data
+        contactIO.delete(contact.getLocalId());
+        // fire event
+        notifyContactDeleted(contact, remoteEventGenerator);
     }
 
     /**
@@ -250,22 +261,6 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create the local contact data.
-     * 
-     * @param contact
-     *            A contact.
-     * @return The new contact.
-     */
-    private Contact createLocal(final Contact contact) {
-        // create the contact data
-        final InternalUserModel userModel = getInternalUserModel();
-        final User user = userModel.readLazyCreate(contact.getId());
-        contact.setLocalId(user.getLocalId());
-        contactIO.create(contact);
-        return contactIO.read(contact.getId());
-    }
-
-    /**
      * Handle the invitation declined remote event.
      * 
      * @param declinedBy
@@ -294,24 +289,21 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    void handleInvitationExtended(final EMail invitedAs,
-            final JabberId invitedBy, final Calendar invitedOn) {
+    void handleInvitationExtended(final EMail extendedTo,
+            final JabberId extendedBy, final Calendar extendedOn) {
         logApiId();
-        logVariable("invitedAs", invitedAs);
-        logVariable("invitedBy", invitedBy);
-        logVariable("invitedOn", invitedOn);
+        logVariable("extendedTo", extendedTo);
+        logVariable("extendedBy", extendedBy);
+        logVariable("extendedOn", extendedOn);
         // create user data
         final InternalUserModel userModel = getInternalUserModel();
-        User invitedByUser = userModel.read(invitedBy);
-        if (null == invitedByUser) {
-            invitedByUser = userModel.create(invitedBy);
-        }
+        final User extendedByUser = userModel.readLazyCreate(extendedBy);
         final IncomingInvitation incoming = new IncomingInvitation();
         incoming.setCreatedBy(localUser().getLocalId());
         incoming.setCreatedOn(currentDateTime());
-        incoming.setInvitedAs(invitedAs);
-        incoming.setInvitedBy(invitedByUser.getId());
-        contactIO.createIncomingInvitation(incoming, invitedByUser);
+        incoming.setInvitedAs(extendedTo);
+        incoming.setInvitedBy(extendedByUser.getId());
+        contactIO.createIncomingInvitation(incoming, extendedByUser);
         // fire event
         final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
         notifyIncomingInvitationCreated(postCreation, localEventGenerator);
@@ -529,6 +521,39 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     private void assertDoesNotExist(final Object assertion, final EMail email) {
         Assert.assertIsNull(assertion, read(email));
+    }
+
+    /**
+     * Create the local contact data.
+     * 
+     * @param contact
+     *            A contact.
+     * @return The new contact.
+     */
+    private Contact createLocal(final Contact contact) {
+        // create the contact data
+        final InternalUserModel userModel = getInternalUserModel();
+        final User user = userModel.readLazyCreate(contact.getId());
+        contact.setLocalId(user.getLocalId());
+        contactIO.create(contact);
+        return contactIO.read(contact.getId());
+    }
+
+    /**
+     * Fire a notification event that a contact was deleted.
+     * 
+     * @param contact
+     *            A contact.
+     * @param eventGenerator
+     *            A contact event generator.
+     */
+    private void notifyContactDeleted(final Contact contact,
+            final ContactEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for (final ContactListener l : LISTENERS) {
+                l.contactDeleted(eventGenerator.generate(contact));
+            }
+        }
     }
 
     /**

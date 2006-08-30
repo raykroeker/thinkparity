@@ -192,6 +192,11 @@ public class ContactAvatarModel {
         return Boolean.FALSE;
     }
 
+    /* NOCOMMIT */
+    void reload() {
+        initModel();
+    }
+
     /**
      * Remove the search filter.
      * 

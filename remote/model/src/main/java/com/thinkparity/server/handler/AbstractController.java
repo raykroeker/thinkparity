@@ -17,6 +17,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.profile.ProfileEMail;
@@ -143,6 +144,25 @@ public abstract class AbstractController extends
                     StackUtil.getCallerClassName().toUpperCase(),
                     StackUtil.getCallerMethodName().toUpperCase()));
         }
+    }
+
+    /**
+     * Log a named variable. Note that the logging renderer will be used only
+     * for the value.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     * @return The value.
+     */
+    protected final <T> T logVariable(final String name, final T value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
+        return value;
     }
 
     /**

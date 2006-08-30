@@ -151,6 +151,10 @@ class SessionModelImpl extends AbstractModelImpl {
         ContactModel.getInternalModel(sContext).handleInvitationAccepted(acceptedBy, acceptedOn);
     }
 
+    static void handleContactDeleted(final JabberId deletedBy,
+            final Calendar deletedOn) {
+        ContactModel.getInternalModel(sContext).handleContactDeleted(deletedBy, deletedOn);
+    }
     /**
      * Handle the declination of an invitation.
      * 
@@ -662,6 +666,27 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
 	/**
+     * Delete a contact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    void deleteContact(final JabberId userId, final JabberId contactId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("contactId", contactId);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.getXMPPSession().deleteContact(userId, contactId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -675,25 +700,26 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
-	 * Invite a contact.
+	/**
+	 * Extend an invitation to a contact.
 	 * 
-	 * @param email
-	 *            An e-mail address.
+	 * @param extendTo
+	 *            An <code>EMail</code> to invite.
 	 */
-	void inviteContact(final EMail email) {
+	void extendInvitation(final EMail extendTo) {
         logApiId();
-        logVariable("email", email);
+        logVariable("extendTo", extendTo);
 		try {
 		    synchronized (xmppHelper) {
-		        xmppHelper.getXMPPSession().inviteContact(email);
+		        xmppHelper.getXMPPSession().extendInvitation(localUserId(),
+                        extendTo, currentDateTime());
 		    }
 		} catch(final Throwable t) {
 			throw translateError(t);
 		}
 	}
 
-	/**
+    /**
 	 * Determine whether or not a user is logged in.
 	 * 
 	 * @return True if the user is logged in, false otherwise.
@@ -750,7 +776,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(environment, credentials);
     }
 
-    /**
+	/**
 	 * Terminate the current session.
 	 * 
 	 * @throws ParityException
@@ -767,7 +793,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Publish a container.
      * 
      * @param container
@@ -837,7 +863,7 @@ class SessionModelImpl extends AbstractModelImpl {
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
-    /**
+	/**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -853,7 +879,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read the artifact key holder from the server.
      * 
      * @param artifactId
@@ -957,7 +983,7 @@ class SessionModelImpl extends AbstractModelImpl {
 
     }
 
-    /**
+	/**
      * Read a single user.
      * 
      * @param jabberId
@@ -1027,7 +1053,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Remove a session listener from the session.
 	 * 
 	 * @param sessionListener
@@ -1062,7 +1088,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId
@@ -1079,7 +1105,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Reset the user's authentication credentials.
      * 
      * @param userId

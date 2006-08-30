@@ -19,7 +19,17 @@ public class EMailFormatException extends IllegalArgumentException {
 	 */
 	private static final long serialVersionUID = 1;
 
-	/**
+    /**
+     * Create a EMailFormatException.
+     * 
+     * @param email
+     *            The malformed e-mail address.
+     */
+    EMailFormatException(final String email) {
+        super(email);
+    }
+
+    /**
      * Create a EMailFormatException.
      * 
      * @param error
@@ -27,7 +37,7 @@ public class EMailFormatException extends IllegalArgumentException {
      * @param email
      *            The malformed e-mail address.
      */
-	EMailFormatException(final String error, final String email) {
-		super(error + ":  "  + email);
-	}
+    EMailFormatException(final String error, final String email) {
+        super(error + ":  "  + email);
+    }
 }

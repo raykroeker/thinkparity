@@ -126,7 +126,8 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.artifact.RemoveTeamMember");
             initializeController("com.thinkparity.server.handler.contact.AcceptInvitation");
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
-            initializeController("com.thinkparity.server.handler.contact.InviteContact");
+            initializeController("com.thinkparity.server.handler.contact.Delete");
+            initializeController("com.thinkparity.server.handler.contact.ExtendInvitation");
             initializeController("com.thinkparity.server.handler.contact.Read");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
             initializeController("com.thinkparity.server.handler.container.Publish");

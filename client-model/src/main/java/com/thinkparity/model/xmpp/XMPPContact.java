@@ -7,8 +7,6 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -40,42 +38,43 @@ import com.thinkparity.model.xmpp.events.XMPPContactListener;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPContact {
+class XMPPContact extends AbstractXMPP {
 
-	private static final List<XMPPContactListener> listeners;
-
-	private static final Object listenersLock;
+    /** Contact remote event listeners. */
+	private static final List<XMPPContactListener> LISTENERS;
 
 	static {
-		listeners = new LinkedList<XMPPContactListener>();
-		listenersLock = new Object();
+		LISTENERS = new LinkedList<XMPPContactListener>();
 
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contactdeleted", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
-                final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
-
+                setParser2(parser);
+                final HandleContactDeletedIQ query = new HandleContactDeletedIQ();
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Contact.INVITED_AS)) {
-                        next(1);
-                        query.invitedAs = readEMail();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.INVITED_AS)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Contact.INVITED_BY)) {
-                        next(1);
-                        query.invitedBy = readJabberId();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.INVITED_BY)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Contact.INVITED_ON)) {
-                        next(1);
-                        query.invitedOn = readCalendar();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.INVITED_ON)) {
-                        next(1);
+                    if (isStartTag("deletedBy")) {
+                        query.deletedBy = readJabberId2();
+                    } else if (isStartTag("deletedOn")) {
+                        query.deletedOn = readCalendar2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    if (isStartTag("extendedTo")) {
+                        query.invitedAs = readEMail2();
+                    } else if (isStartTag("extendedBy")) {
+                        query.invitedBy = readJabberId2();
+                    } else if (isStartTag("extendedOn")) {
+                        query.invitedOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -85,24 +84,14 @@ class XMPPContact {
         });
 		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationaccepted", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
+                setParser2(parser);
                 final HandleInvitationAcceptedIQ query = new HandleInvitationAcceptedIQ();
-
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Contact.ACCEPTED_BY)) {
-                        next(1);
-                        query.acceptedBy = readJabberId();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.ACCEPTED_BY)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Contact.ACCEPTED_ON)) {
-                        next(1);
-                        query.acceptedOn = readCalendar();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.ACCEPTED_ON)) {
-                        next(1);
+                    if (isStartTag("acceptedBy")) {
+                        query.acceptedBy = readJabberId2();
+                    } else if (isStartTag("acceptedOn")) {
+                        query.acceptedOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -147,38 +136,24 @@ class XMPPContact {
 	}
 
 	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger logger;
-
-	/**
-	 * The core xmpp functionality.
-	 * 
-	 */
-	private final XMPPCore xmppCore;
-
-	/**
 	 * Create a XMPPContact.
 	 * 
 	 */
 	XMPPContact(final XMPPCore xmppCore) {
-		super();
-		this.logger = Logger.getLogger(getClass());
-		this.xmppCore = xmppCore;
+		super(xmppCore);
 	}
 
 	/**
      * Accept the contact invitation.
      * 
      * @param invitedBy
-     *            By whome the invitation was extended.
+     *            By whom the invitation was extended.
      * @throws SmackException
      */
 	void accept(final JabberId invitedBy)
             throws SmackException {
-		logger.info("[XMPP] [CONTACT] [ACCEPT INVITATION]");
-        logger.debug(invitedBy);
+		logApiId();
+        logVariable("invitedBy", invitedBy);
 		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
         accept.setParameter(Xml.Contact.INVITED_BY, invitedBy);
         accept.setParameter(Xml.Contact.ACCEPTED_BY, xmppCore.getJabberId());
@@ -192,17 +167,20 @@ class XMPPContact {
 	 *            The contact listener.
 	 */
 	void addListener(final XMPPContactListener l) {
-		logger.info("addListener(XMPPContactListener)");
-		logger.debug(l);
+		logApiId();
+		logVariable("l", l);
 		Assert.assertNotNull("Cannot add a null contact listener.", l);
-		synchronized(listenersLock) {
-			if(listeners.contains(l)) { return; }
-			listeners.add(l);
+		synchronized (LISTENERS) {
+			if (LISTENERS.contains(l)) {
+                return;
+			} else {
+			    LISTENERS.add(l);
+            }
 		}
 	}
 
 	/**
-	 * Add required listeners to the xmpp connection.
+	 * Add required LISTENERS to the xmpp connection.
 	 * 
 	 * @param xmppConnection
 	 *            The xmpp connection.
@@ -224,14 +202,22 @@ class XMPPContact {
 					}
 				},
 				new PacketTypeFilter(HandleInvitationAcceptedIQ.class));
-		// decline invitation
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
-						notifyInvitationDeclined((HandleInvitationDeclinedIQ) packet);
-					}
-				},
-				new PacketTypeFilter(HandleInvitationDeclinedIQ.class));
+        // decline invitation
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        notifyInvitationDeclined((HandleInvitationDeclinedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleInvitationDeclinedIQ.class));
+        // delete contact
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        notifyContactDeleted((HandleContactDeletedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleContactDeletedIQ.class));
 	}
 
 	/**
@@ -250,19 +236,44 @@ class XMPPContact {
         decline.execute(xmppCore.getConnection());
 	}
 
-	/**
-     * Invite a contact.
+    /**
+     * Delete a contact.
      * 
-     * @param email
-     *            An e-mail address.
-     * @throw SmackException
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
      */
-	void invite(final EMail email) throws SmackException {
-		logger.info("[XMPP] [CONTACT] [INVITE]");
-		logger.debug(email);
-        final XMPPMethod method = new XMPPMethod("contact:invite");
-        method.setParameter(Xml.Contact.EMAIL, email);
-        method.execute(xmppCore.getConnection());
+    void delete(final JabberId userId, final JabberId contactId) {
+        final XMPPMethod delete = new XMPPMethod("contact:delete");
+        delete.setParameter("userId", userId);
+        delete.setParameter("contactId", contactId);
+        execute(delete);
+    }
+
+    /**
+     * Extend an invitation. If the email is registered within the thinkParity
+     * community an invitation will be sent via thinkParity otherwise an
+     * invitation will be sent via and email.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param extendedTo
+     *            A <code>EMail</code> to invite.
+     * @param extendedOn
+     *            The date <code>Calendar</code> of the invitation.
+     */
+	void extendInvitation(final JabberId userId, final EMail extendedTo,
+            final Calendar extendedOn) {
+		logApiId();
+        logVariable("userId", userId);
+        logVariable("extendedTo", extendedTo);
+        logVariable("extendedOn", extendedOn);
+        final XMPPMethod extendInvitation = new XMPPMethod("contact:extendinvitation");
+        extendInvitation.setParameter("userId", userId);
+        extendInvitation.setParameter("extendedTo", extendedTo);
+        extendInvitation.setParameter("extendedOn", extendedOn);
+        execute(extendInvitation);
 	}
 
 	/**
@@ -271,7 +282,7 @@ class XMPPContact {
      * @return The list of contacts for the user.
      */
 	List<Contact> read() throws SmackException {
-		logger.info("[XMPP] [CONTACT] [READ CONTACTS]");
+		logApiId();
 		final IQ iq = new IQReadContacts();
 		iq.setType(IQ.Type.GET);
 		final IQReadContactsResult result =
@@ -285,10 +296,10 @@ class XMPPContact {
      * @return A contact.
      */
     Contact read(final JabberId contactId) throws XMPPException {
-        final XMPPMethod method = new XMPPMethod("contact:read");
-        method.setParameter(Xml.Contact.JABBER_ID, contactId);
-        final XMPPMethodResponse response = method.execute(xmppCore.getConnection());
-        xmppCore.assertContainsResult("RESPONSE IS EMPTY", response);
+        final XMPPMethod read = new XMPPMethod("contact:read");
+        read.setParameter(Xml.Contact.JABBER_ID, contactId);
+        final XMPPMethodResponse response = execute(read, Boolean.TRUE);
+
         final Contact contact = new Contact();
         contact.setId(response.readResultJabberId(Xml.Contact.JABBER_ID));
         contact.setName(response.readResultString(Xml.Contact.NAME));
@@ -298,29 +309,43 @@ class XMPPContact {
         return contact;
     }
 
-	/**
-	 * Notify the listeners that an invitation has been accepted.
-	 * 
-	 * @param acceptance
-	 *            The invitation acceptance.
-	 */
-	private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
-		synchronized (listenersLock) {
-			for(final XMPPContactListener l : listeners) {
-				l.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
-			}
-		}
-	}
+    /**
+     * Notify the LISTENERS that an invitation has been accepted.
+     * 
+     * @param acceptance
+     *            The invitation acceptance.
+     */
+    private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
+            }
+        }
+    }
+
+    /**
+     * Notify the LISTENERS that an invitation has been accepted.
+     * 
+     * @param acceptance
+     *            The invitation acceptance.
+     */
+    private void notifyContactDeleted(final HandleContactDeletedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleContactDeleted(query.deletedBy, query.deletedOn);
+            }
+        }
+    }
 
 	/**
-	 * Notify the listeners that an invitation has been declined.
+	 * Notify the LISTENERS that an invitation has been declined.
 	 * 
 	 * @param declination.
 	 *            The invitation declination.
 	 */
 	private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
-		synchronized (listenersLock) {
-			for(final XMPPContactListener l : listeners) {
+		synchronized (LISTENERS) {
+			for(final XMPPContactListener l : LISTENERS) {
 				l.handleInvitationDeclined(query.invitedAs, query.declinedBy,
                         query.declinedOn);
 			}
@@ -328,14 +353,14 @@ class XMPPContact {
 	}
 
     /**
-	 * Notify the listeners that an invitation has been received.
+	 * Notify the LISTENERS that an invitation has been received.
 	 * 
 	 * @param invitation
 	 *            The invitation.
 	 */
 	private void notifyInvitationExtended(final HandleInvitationExtendedIQ query) {
-		synchronized (listenersLock) {
-			for(final XMPPContactListener l : listeners) {
+		synchronized (LISTENERS) {
+			for(final XMPPContactListener l : LISTENERS) {
 				l.handleInvitationExtended(query.invitedAs, query.invitedBy, query.invitedOn);
 			}
 		}
@@ -389,4 +414,12 @@ class XMPPContact {
         private Calendar invitedOn;
     }
 
+    private static class HandleContactDeletedIQ extends AbstractThinkParityIQ {
+
+        /** Who deleted the contact. */
+        private JabberId deletedBy;
+
+        /** When the contact was deleted. */
+        private Calendar deletedOn;
+    }
 }

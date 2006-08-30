@@ -296,6 +296,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContact(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.xmpp.JabberId)
+     */
+    public void deleteContact(final JabberId userId, final JabberId contactId) {
+        xmppContact.delete(userId, contactId);
+    }
+
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#deleteDraft(java.util.UUID)
      */
     public void deleteDraft(final UUID uniqueId) {
@@ -353,8 +360,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public void inviteContact(final EMail email) throws SmackException {
-		xmppContact.invite(email);
+	public void extendInvitation(final JabberId userId, final EMail extendedTo,
+            final Calendar extendedOn) {
+		xmppContact.extendInvitation(userId, extendedTo, extendedOn);
 	}
 
     /**

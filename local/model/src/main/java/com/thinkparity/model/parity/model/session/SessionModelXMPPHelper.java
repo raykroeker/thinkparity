@@ -174,6 +174,10 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final JabberId invitedBy, final Calendar invitedOn) {
 				handleContactInvitationExtended(invitedAs, invitedBy, invitedOn);
 			}
+            public void handleContactDeleted(final JabberId deletedBy,
+                    final Calendar deletedOn) {
+                SessionModelImpl.handleContactDeleted(deletedBy, deletedOn);
+            }
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
 			public void sessionEstablished() { handleSessionEstablished(); }

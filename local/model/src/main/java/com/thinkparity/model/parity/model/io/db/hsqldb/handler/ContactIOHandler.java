@@ -53,6 +53,20 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("values (?,?)")
             .toString();
 
+    /** Sql to delete a contact. */
+    private static final String SQL_DELETE =
+            new StringBuffer("delete ")
+            .append("from CONTACT ")
+            .append("where CONTACT_ID=?")
+            .toString();
+
+    /** Sql to delete contact email relationship. */
+    private static final String SQL_DELETE_CONTACT_EMAIL_REL =
+            new StringBuffer("delete ")
+            .append("from CONTACT_EMAIL_REL ")
+            .append("where CONTACT_ID=?")
+            .toString();
+
     /** Sql to delete an incoming invitation. */
     private static final String SQL_DELETE_INCOMING_INVITATION =
             new StringBuffer("delete from CONTACT_INVITATION_INCOMING ")
@@ -85,7 +99,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("where U.JABBER_ID=?")
             .toString();
 
-
     /** Sql to read contact e-mail addresses. */
     private static final String SQL_READ_EMAIL =
             new StringBuffer("select E.EMAIL ")
@@ -94,6 +107,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join EMAIL E on CER.EMAIL_ID=E.EMAIL_ID ")
             .append("where C.CONTACT_ID=?")
             .toString();
+
 
     /** Sql to read an incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATION =
@@ -107,7 +121,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where CII.CONTACT_INVITATION_ID=?")
             .toString();
-   
+
     /** Sql to read all incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATIONS =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -131,7 +145,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where E.EMAIL=?")
             .toString();
-
+   
     /** Sql to read an outgoing invitation by its id. */
     private static final String SQL_READ_OUTGOING_INVITATION_BY_ID =
             new StringBuffer("select U.JABBER_ID,CI.CREATED_BY,CI.CREATED_ON,")
@@ -210,10 +224,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setString(2, contact.getVCard().toXML());
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE CONTACT]", "[CREATE CONTACT] [COULD NOT CREATE CONTACT]"));
-
-            for(final EMail email : contact.getEmails())
+            for (final EMail email : contact.getEmails()) {
                 emailIO.create(session, email);
-
+            }
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -276,10 +289,33 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#delete()
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#delete(java.lang.Long)
      */
-    public void delete() {
-        throw Assert.createNotYetImplemented("ContactIOHandler#delete");
+    public void delete(final Long contactId) {
+        final Session session = openSession();
+        try {
+            final List<EMail> emails = readEmails(contactId);
+            final int emailsCount = emails.size();
+            for (final EMail email : emails) {
+                emailIO.delete(session, emailIO.readId(session, email));
+            }
+
+            session.prepareStatement(SQL_DELETE_CONTACT_EMAIL_REL);
+            session.setLong(1, contactId);
+            if (emailsCount != session.executeUpdate())
+                throw new HypersonicException("COULD NOT DELETE CONTACT EMAILS");
+
+            session.prepareStatement(SQL_DELETE);
+            session.setLong(1, contactId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT DELETE CONTACT");
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -408,6 +444,22 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readInvitation(java.lang.String)
+     * 
+     */
+    public OutgoingInvitation readOutgoingInvitation(final EMail email) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_OUTGOING_INVITATION_BY_EMAIL);
+            session.setEMail(1, email);
+            session.executeQuery();
+            if(session.nextResult()) { return extractOutgoingInvitation(session); }
+            else { return null; }
+        }
+        finally { session.close(); }
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readOutgoingInvitation(java.lang.Long)
      */
     public OutgoingInvitation readOutgoingInvitation(Long invitationId) {
@@ -424,22 +476,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
         } finally {
             session.close();
         }
-    }
-
-    /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readInvitation(java.lang.String)
-     * 
-     */
-    public OutgoingInvitation readOutgoingInvitation(final EMail email) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_OUTGOING_INVITATION_BY_EMAIL);
-            session.setEMail(1, email);
-            session.executeQuery();
-            if(session.nextResult()) { return extractOutgoingInvitation(session); }
-            else { return null; }
-        }
-        finally { session.close(); }
     }
 
     /**

@@ -46,7 +46,7 @@ public class EMailBuilder {
      */
 	protected EMail doParse(final String s) throws EMailFormatException {
 		if (null == s) {
-            throw new NullPointerException("CODEBASE EMAIL IS NULL");
+            throw new EMailFormatException("CODEBASE EMAIL IS NULL");
 		}
 		final int indexOfAt = s.indexOf('@');
 		if (-1 == indexOfAt) {

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
@@ -16,9 +17,6 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
@@ -70,6 +68,9 @@ import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
+
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.index.IndexHit;
@@ -864,6 +865,36 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		mainWindow.setLocation(newL);
 	}
+    
+    /**
+     * Move and resize the browser window.
+     * (See moveBrowserWindow, resizeBrowserWindow)
+     *
+     * @param l
+     *            The new relative location of the window.
+     * @param s
+     *            The new browser's relative size.
+     * 
+     */
+    public void moveAndResizeBrowserWindow(final Point l, final Dimension s) {
+        final Point newL = mainWindow.getLocation();
+        newL.x += l.x;
+        newL.y += l.y;
+        final Dimension newS = mainWindow.getSize();
+        newS.width += s.width;
+        newS.height += s.height;
+        mainWindow.setMainWindowSizeAndLocation(newL, newS);
+    }
+    
+    /**
+     * Set the cursor.
+     * 
+     * @param cursor
+     *          The cursor to use.
+     */
+    public void setCursor(Cursor cursor) {
+        mainWindow.getContentPane().setCursor(cursor);
+    }
 
 	/**
      * Call <code>toFront()</code> on the browser's main window.
@@ -899,7 +930,7 @@ public class Browser extends AbstractApplication {
         newS.width += s.width;
         newS.height += s.height;
         mainWindow.setMainWindowSize(newS);
-    }    
+    }
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)

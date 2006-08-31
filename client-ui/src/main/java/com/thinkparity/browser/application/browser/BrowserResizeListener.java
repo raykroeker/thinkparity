@@ -20,16 +20,19 @@ public class BrowserResizeListener extends MouseInputAdapter {
     /** The glass pane. */
     private final Component glassPane;
     
-    /** The content pane. */
+    /** The menu pane. */
+    private final Component menuPane;
     
+    /** The content pane. */   
     private final Component contentPane;
         
     /**
      * Create a browser resize listener.
      */
-    public BrowserResizeListener(Component glassPane, Component contentPane) {
+    public BrowserResizeListener(Component glassPane, Component menuPane, Component contentPane) {
         super();
         this.glassPane = glassPane;
+        this.menuPane = menuPane;
         this.contentPane = contentPane;
     }
 
@@ -62,22 +65,37 @@ public class BrowserResizeListener extends MouseInputAdapter {
     }
     
     private void redispatchMouseEvent(java.awt.event.MouseEvent e) {
-        Point glassPanePoint = e.getPoint();
-        Point containerPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, contentPane);
+        final Point glassPanePoint = e.getPoint();
+        final Point containerPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, contentPane);
         
-        // If containerPoint.y<0 then we're not in the content pane.
-        if (containerPoint.y >= 0) {
+        // If containerPoint.y<0 then we're in the menu pane, otherwise, in the content pane.
+        if (containerPoint.y < 0 ) {
+            final Point menuPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, menuPane);
+            
             // Find out what component the mouse event is over.
-            Component component = SwingUtilities.getDeepestComponentAt(
-                    contentPane, containerPoint.x, containerPoint.y);
+            final Component component = SwingUtilities.getDeepestComponentAt(
+                    menuPane, menuPoint.x, menuPoint.y);
             if (component != null) {
-                Point componentPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, component);
-                component.dispatchEvent(
-                        new MouseEvent(component, e.getID(), e.getWhen(), e.getModifiers(),
-                                       componentPoint.x, componentPoint.y, e.getClickCount(),
-                                       e.isPopupTrigger(), e.getButton()));
+                final Point componentPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, component);
+                redispatchMouseEventToComponent(component, componentPoint, e);
             }
         }
+        else {
+            // Find out what component the mouse event is over.
+            final Component component = SwingUtilities.getDeepestComponentAt(
+                    contentPane, containerPoint.x, containerPoint.y);
+            if (component != null) {
+                final Point componentPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, component);
+                redispatchMouseEventToComponent(component, componentPoint, e);
+            }
+        }
+    }
+    
+    private void redispatchMouseEventToComponent(Component component, Point componentPoint, java.awt.event.MouseEvent e) {
+        component.dispatchEvent(
+                new MouseEvent(component, e.getID(), e.getWhen(), e.getModifiers(),
+                               componentPoint.x, componentPoint.y, e.getClickCount(),
+                               e.isPopupTrigger(), e.getButton()));
     }
     
     

@@ -78,13 +78,7 @@ public class BrowserWindow extends AbstractJFrame {
 		super("BrowserWindow");
 		this.browser = browser;
 		this.logger = Logger.getLogger(getClass());
-        this.persistence = PersistenceFactory.getPersistence(getClass());
-        
-        // Add support for resizing the Browser
-        getGlassPane().addMouseListener(new BrowserResizeListener(getGlassPane(),getContentPane()));
-        getGlassPane().addMouseMotionListener(new BrowserResizeListener(getGlassPane(),getContentPane()));
-        getGlassPane().setVisible(true);
-        
+        this.persistence = PersistenceFactory.getPersistence(getClass());       
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent e) {
@@ -92,6 +86,12 @@ public class BrowserWindow extends AbstractJFrame {
                 browser.hibernate();
             }});
         initMenu();
+        
+        // Add support for resizing the Browser
+/*        getGlassPane().addMouseListener(new BrowserResizeListener(getGlassPane(), getJMenuBar(), getContentPane()));
+        getGlassPane().addMouseMotionListener(new BrowserResizeListener(getGlassPane(), getJMenuBar(), getContentPane()));
+        getGlassPane().setVisible(true);    */   
+        
 		setIconImage(Images.WINDOW_ICON_IMAGE);
 		setTitle(getString("Title"));
 		setUndecorated(true);

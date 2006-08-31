@@ -9,13 +9,13 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.codebase.swing.GradientPainter;
-
 import com.thinkparity.browser.Constants.Images;
 import com.thinkparity.browser.Constants.Colors.Browser;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 

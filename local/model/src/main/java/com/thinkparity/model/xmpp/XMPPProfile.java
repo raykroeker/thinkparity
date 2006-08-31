@@ -200,4 +200,26 @@ class XMPPProfile extends AbstractXMPP {
         verifyEmail.setParameter("key", key);
         execute(verifyEmail);
     }
+
+    /**
+     * Update the profile.
+     * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
+     * @param profile
+     *            The user's <code>Profile</code>.
+     */
+    void update(final JabberId userId, final Profile profile) {
+        logApiId();
+        logVariable("profile", profile);
+        assertIsAuthenticatedUser(userId);
+
+        final XMPPMethod update = new XMPPMethod("profile:update");
+        update.setParameter("userId", userId);
+        update.setParameter("name", profile.getName());
+        update.setParameter("organization", profile.getOrganization());
+        update.setParameter("title", profile.getTitle());
+        update.setParameter("vcard", profile.getVCard().toXML());
+        execute(update);
+    }
 }

@@ -40,8 +40,6 @@ import com.thinkparity.server.org.xmpp.packet.IQCloseArtifact;
 import com.thinkparity.server.org.xmpp.packet.IQDenyKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQConfirmReceipt;
-import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberAdded;
-import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberRemoved;
 import com.thinkparity.server.org.xmpp.packet.document.IQReactivateDocument;
 
 /**
@@ -566,107 +564,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		catch(final RuntimeException rx) {
 			logger.error("requestKey(Artifact)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-    /**
-	 * SubscribeUser a user to an artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact to subscribe the user to.
-	 * @throws ParityServerModelException
-	 */
-	void subscribe(final Artifact artifact) throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifact);
-		try {
-			final Integer artifactId = artifact.getArtifactId();
-			final String username = session.getJID().getNode();
-			final Integer rowCount =
-				artifactSubscriptionSql.selectCount(artifactId, username);
-			if(1 == rowCount) {
-				final StringBuffer warning =
-					new StringBuffer("subscribe(User,Artifact):  ")
-						.append("User already has a subscription.");
-				logger.warn(warning);
-			}
-			else {
-				final List<ArtifactSubscription> subscrtipions =
-					getSubscription(artifact.getArtifactUUID());
-				artifactSubscriptionSql.insert(artifactId, username, session.getJabberId());
-				// notify all team members re:  the new team member
-				for(final ArtifactSubscription subscription : subscrtipions) {
-					final IQ iq = new IQNotifyTeamMemberAdded(
-							artifact.getArtifactUUID(),
-							getContactModel().readContact(session.getJabberId()));
-					iq.setTo(subscription.getJabberId().getJID());
-					iq.setFrom(session.getJabberId().getJID());
-					send(subscription.getJabberId(), iq);
-				}
-			}
-		}
-		catch(final SQLException sqlx) {
-			logger.error("[RMODEL] [ARTIFACT] [SUBSCRIBE] [SQL ERROR]", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("[RMODEL] [ARTIFACT] [SUBSCRIBE] [AUTHORIZATION ERROR]", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[RMODEL] [ARTIFACT] [SUBSCRIBE] [UNKNOWN ERROR]", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
-	 * Unsubscribe a user from an artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact to unsubscribe the user from.
-	 * @throws ParityServerModelException
-	 */
-	void unsubscribe(final Artifact artifact) throws ParityServerModelException {
-		logApiId();
-		logger.debug(artifact);
-		try {
-			final Integer artifactId = artifact.getArtifactId();
-			final String username = session.getJID().getNode();
-			final Integer rowCount =
-				artifactSubscriptionSql.selectCount(artifactId, username);
-			if(0 == rowCount) {
-				final StringBuffer warning =
-					new StringBuffer("[RMODEL] [ARTIFACT] [UNSUBSCRIBE USER]")
-						.append("[NO EXISTING SUBSCRIPTION]");
-				logger.warn(warning);
-			}
-			else {
-				artifactSubscriptionSql.delete(artifactId, username);
-
-				// notify all remaining team members re:  the removed team member
-				final List<ArtifactSubscription> subscrtipions =
-					getSubscription(artifact.getArtifactUUID());
-				for(final ArtifactSubscription subscription : subscrtipions) {
-					final IQ iq = new IQNotifyTeamMemberRemoved(
-							artifact.getArtifactUUID(),
-							getContactModel().readContact(session.getJabberId()));
-					iq.setTo(subscription.getJabberId().getJID());
-					iq.setFrom(session.getJabberId().getJID());
-					send(subscription.getJabberId(), iq);
-				}
-			}
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("[RMODEL] [ARTIFACT] [UNSUBSCRIBE USER] [UNAUTHORIZED]", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(final SQLException sqlx) {
-			logger.error("[RMODEL] [ARTIFACT] [UNSUBSCRIBE USER] [SQL ERROR]", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[RMODEL] [ARTIFACT] [UNSUBSCRIBE USER] [UNKNOWN ERROR]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

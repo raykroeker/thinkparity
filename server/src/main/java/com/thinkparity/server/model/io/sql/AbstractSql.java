@@ -18,7 +18,6 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.Artifact;
 
 /**
@@ -61,10 +60,8 @@ public abstract class AbstractSql {
      */
     protected final void debugVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[0] [{1}:{2}]",
-                    Logging.SQL_LOG_ID,
-                    name,
-                    Log4JHelper.render(logger, value)));
+            logger.debug(MessageFormat.format("[{0}:{1}]",
+                    name, Log4JHelper.render(logger, value)));
         }
     }
 
@@ -75,10 +72,9 @@ public abstract class AbstractSql {
     /** Log an api id. */
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    Logging.SQL_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase()));
+            logger.info(MessageFormat.format("[{0}] [{1}]",
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName()));
         }
     }
 
@@ -90,11 +86,7 @@ public abstract class AbstractSql {
      */
     protected final void logStatement(final String statement) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}] [{1}] [{2}] [STATEMENT] [{3}]",
-                    Logging.SQL_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase(),
-                    statement));
+            logger.debug(MessageFormat.format("[Sql:{0}]", statement));
         }
     }
 
@@ -107,8 +99,7 @@ public abstract class AbstractSql {
     protected final void logStatementParameter(final Integer index,
             final Object value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}] [STATEMENT PARAMETERS] [{1}:{2}]",
-                    Logging.SQL_LOG_ID,
+            logger.debug(MessageFormat.format("[Sql variable index:{1} value{2}]",
                     index, value));
         }
     }

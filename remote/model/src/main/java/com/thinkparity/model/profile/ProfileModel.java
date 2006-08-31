@@ -131,6 +131,25 @@ public class ProfileModel extends AbstractModel {
     }
 
     /**
+     * Update a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param name
+     *            A user's name <code>String</code>.
+     * @param organization
+     *            A user's organization <code>String</code>.
+     * @param title
+     *            A user's title <code>String</code>.
+     */
+    public void update(final JabberId userId, final String name,
+            final String organization, final String title) {
+        synchronized (implLock) {
+            impl.update(userId, name, organization, title);
+        }
+    }
+
+    /**
      * Verify an email in a user's profile.
      * 
      * @param userId

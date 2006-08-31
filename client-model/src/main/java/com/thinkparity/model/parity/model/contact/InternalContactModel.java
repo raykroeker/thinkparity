@@ -51,6 +51,21 @@ public class InternalContactModel extends ContactModel implements InternalModel 
     }
 
     /**
+     * Handle the remote event generated when a contact is updated.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     * @param updatedOn
+     *            When the contact was updated <code>Calendar</code>.
+     */
+    public void handleContactUpdated(final JabberId contactId,
+            final Calendar updatedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleContactUpdated(contactId, updatedOn);
+        }
+    }
+
+    /**
      * Handle the invitation extended remote event.
      * 
      * @param acceptedBy

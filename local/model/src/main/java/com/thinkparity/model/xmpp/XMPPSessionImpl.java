@@ -136,13 +136,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		});
 	}
 
-	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#acceptInvitation(com.thinkparity.model.xmpp.JabberId)
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#acceptContactInvitation(com.thinkparity.model.xmpp.JabberId,
+     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
      * 
      */
-	public void acceptInvitation(final JabberId invitedBy)
-            throws SmackException {
-		xmppContact.accept(invitedBy);
+    public void acceptContactInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar acceptedOn) {
+		xmppContact.acceptInvitation(userId, invitedBy, acceptedOn);
 	}
 
 	/**
@@ -516,20 +517,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *            A contact id.
      * @return A contact.
      */
-    public Contact readContact(final JabberId contactId) throws SmackException {
-        try {
-            return xmppContact.read(contactId);
-        } catch (final XMPPException xmppx) {
-            throw XMPPErrorTranslator.translate(xmppx);
-        }
+    public Contact readContact(final JabberId userId, final JabberId contactId) {
+        return xmppContact.read(userId, contactId);
     }
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
-	public List<Contact> readContacts() throws SmackException {
-		return xmppContact.read();
+	public List<Contact> readContacts(final JabberId userId) {
+		return xmppContact.read(userId);
 	}
 
 	/**
@@ -774,8 +771,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#updateProfile(com.thinkparity.model.parity.model.profile.Profile)
      */
-    public void updateProfile(final Profile profile) {
-        xmppUser.updateProfile(profile);
+    public void updateProfile(final JabberId userId, final Profile profile) {
+        xmppProfile.update(userId, profile);
     }
 
 	/**

@@ -7,8 +7,8 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
+import com.thinkparity.server.model.contact.ContactModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -26,23 +26,16 @@ public class AcceptInvitation extends AbstractController {
     public void service() {
         logApiId();
         acceptInvitation(
-                readJabberId("acceptedBy"),
+                readJabberId("userId"),
                 readJabberId("invitedBy"),
-                readCalendar(Xml.All.EXECUTED_ON));
+                readCalendar("acceptedOn"));
     }
 
     /**
-     * Accept an invitation.
-     * 
-     * @param invitedBy
-     *            The original invitation creator.
-     * @param acceptedBy
-     *            The invitation acceptor.
-     * @param acceptedOn
-     *            When the invitation was accepted.
+     * @see ContactModel#acceptInvitation(JabberId, JabberId, Calendar)
      */
-    private void acceptInvitation(final JabberId invitedBy,
-            final JabberId acceptedBy, final Calendar acceptedOn) {
-        getContactModel().acceptInvitation(invitedBy, acceptedBy, acceptedOn);
+    private void acceptInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar acceptedOn) {
+        getContactModel().acceptInvitation(userId, invitedBy, acceptedOn);
     }
 }

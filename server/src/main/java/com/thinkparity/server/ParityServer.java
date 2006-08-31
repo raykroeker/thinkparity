@@ -18,8 +18,6 @@ import org.jivesoftware.messenger.container.Plugin;
 import org.jivesoftware.messenger.container.PluginManager;
 import org.jivesoftware.messenger.handler.IQHandler;
 
-import com.thinkparity.server.ParityServerConstants.Logging;
-
 /**
  * thinkParity Remote Model Plugin
  * 
@@ -90,22 +88,21 @@ public class ParityServer implements Plugin {
     private void initializeController(final String controllerName) {
         try { controllers.add((IQHandler) Class.forName(controllerName).newInstance()); }
         catch(final ClassNotFoundException cnfx) {
-            logger.fatal(Logging.PLUGIN_LOG_ID, cnfx);
+            logger.fatal(cnfx);
         }
         catch(final IllegalAccessException iax) {
-            logger.fatal(Logging.PLUGIN_LOG_ID, iax);
+            logger.fatal(iax);
         }
         catch(final InstantiationException ix) {
-            logger.fatal(Logging.PLUGIN_LOG_ID, ix);
+            logger.fatal(ix);
         }
         catch(final Throwable t) {
-            logger.fatal(Logging.PLUGIN_LOG_ID, t);
+            logger.fatal(t);
         }
         final IQHandler controller = controllers.get(controllers.size() - 1);
         iqRouter.addHandler(controller);
-        logger.info(MessageFormat.format("[{0}] [{1}]",
-                Logging.PLUGIN_LOG_ID,
-                controller.getInfo().getNamespace().toUpperCase()));
+        logger.info(MessageFormat.format("[{0}]",
+                controller.getInfo().getNamespace()));
     }
 
     /**
@@ -130,7 +127,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.contact.DeleteInvitation");
             initializeController("com.thinkparity.server.handler.contact.ExtendInvitation");
             initializeController("com.thinkparity.server.handler.contact.Read");
-            initializeController("com.thinkparity.server.handler.contact.ReadContacts");
+            initializeController("com.thinkparity.server.handler.contact.ReadIds");
             initializeController("com.thinkparity.server.handler.container.Publish");
             initializeController("com.thinkparity.server.handler.container.PublishArtifact");
             initializeController("com.thinkparity.server.handler.container.Send");
@@ -142,6 +139,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.profile.ReadSecurityQuestion");
             initializeController("com.thinkparity.server.handler.profile.RemoveEmail");
             initializeController("com.thinkparity.server.handler.profile.ResetPassword");
+            initializeController("com.thinkparity.server.handler.profile.Update");
             initializeController("com.thinkparity.server.handler.profile.VerifyEmail");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
             initializeController("com.thinkparity.server.handler.user.ReadUsers");

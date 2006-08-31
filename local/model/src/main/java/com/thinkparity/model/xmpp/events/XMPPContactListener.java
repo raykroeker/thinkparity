@@ -12,6 +12,8 @@ import com.thinkparity.model.xmpp.JabberId;
 public interface XMPPContactListener {
     public void handleContactDeleted(final JabberId deletedBy,
             final Calendar deletedOn);
+    public void handleContactUpdated(final JabberId contactId,
+            final Calendar updatedOn);
 	public void handleInvitationAccepted(final JabberId acceptedBy,
             final Calendar acceptedOn);
     public void handleInvitationDeclined(final EMail invitedAs,

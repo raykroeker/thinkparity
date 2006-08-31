@@ -206,6 +206,19 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Handle the remote contact updated event.
+     * 
+     * @param contactId
+     *            The contact id <code>JabberId</code>.
+     * @param updatedOn
+     *            The update date <code>Calendar</code>
+     */
+    static void handleContactUpdated(final JabberId contactId,
+            final Calendar updatedOn) {
+        ContactModel.getInternalModel(sContext).handleContactUpdated(contactId, updatedOn);
+    }
+
+    /**
      * Handle the artifact sent event for the container.
      * 
      * @param containerUniqueId
@@ -485,29 +498,34 @@ class SessionModelImpl extends AbstractModelImpl {
      *            A contact id.
      * @return A contact.
      */
-    public Contact readContact(final JabberId contactId) {
+    public Contact readContact(final JabberId userId, final JabberId contactId) {
         logApiId();
         logVariable("contactId", contactId);
         try {
             synchronized (xmppHelper) {
-                return xmppHelper.readContact(contactId);
+                return xmppHelper.getXMPPSession().readContact(userId, contactId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
-	 * Accept an invitation to the user's contact list.
-	 * 
-	 * @param jabberId
-	 *            The user's jabber id.
-	 * @throws ParityException
-	 */
-	void acceptInvitation(final JabberId invitedBy) {
+    /**
+     * Accept the contact invitation.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedBy
+     *            The invited by user id <code>JabberId</code>.
+     * @param acceptedOn
+     *            When the user accepted <code>Calendar</code>.
+     */
+    void acceptContactInvitation(final JabberId userId, final JabberId invitedBy,
+            final Calendar acceptedOn) {
 	    try {
 	        synchronized (xmppHelper) {
-                xmppHelper.acceptInvitation(invitedBy);
+                xmppHelper.getXMPPSession().acceptContactInvitation(userId,
+                        invitedBy, acceptedOn);
 	        }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -919,10 +937,10 @@ class SessionModelImpl extends AbstractModelImpl {
      * @return A set of contacts.
      * @throws ParityException
      */
-	List<Contact> readContacts() {
+	List<Contact> readContacts(final JabberId userId) {
 		try {
 		    synchronized(xmppHelper) {
-		        return xmppHelper.readContacts(); 
+		        return xmppHelper.getXMPPSession().readContacts(userId);
 		    }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1231,18 +1249,20 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Update the user's profile.
+     * Update a user's profile.
      * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
      * @param profile
      *            The user's <code>Profile</code>.
-     * @throws ParityException
      */
-    void updateProfile(final Profile profile) {
+    void updateProfile(final JabberId userId, final Profile profile) {
         logApiId();
+        logVariable("userId", userId);
         logVariable("profile", profile);
         try {
             synchronized (xmppHelper) {
-                xmppHelper.getXMPPSession().updateProfile(profile);
+                xmppHelper.getXMPPSession().updateProfile(userId, profile);
             }
         } catch (final Throwable t) {
             throw translateError(t);

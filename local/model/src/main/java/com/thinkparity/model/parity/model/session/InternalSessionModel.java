@@ -43,15 +43,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	}
 
     /**
-     * Accept an invitation to the user's contact list.
+     * Accept the contact invitation.
      * 
-     * @param jabberId
-     *            The user's jabber id.
-     * @throws ParityException
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param invitedBy
+     *            The invited by user id <code>JabberId</code>.
+     * @param acceptedOn
+     *            When the user accepted <code>Calendar</code>.
      */
-    public void acceptInvitation(final JabberId invitedBy) {
+    public void acceptContactInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar acceptedOn) {
         synchronized (getImplLock()) {
-            getImpl().acceptInvitation(invitedBy);
+            getImpl().acceptContactInvitation(userId, invitedBy, acceptedOn);
         }
     }
 
@@ -237,9 +241,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            A contact id.
      * @return A contact.
      */
-    public Contact readContact(final JabberId contactId) {
+    public Contact readContact(final JabberId userId, final JabberId contactId) {
         synchronized (getImplLock()) {
-            return getImpl().readContact(contactId);
+            return getImpl().readContact(userId, contactId);
         }
     }
 
@@ -249,8 +253,8 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A list of contacts.
      * @throws ParityException
      */
-    public List<Contact> readContactList() {
-        synchronized(getImplLock()) { return getImpl().readContacts(); }
+    public List<Contact> readContactList(final JabberId userId) {
+        synchronized(getImplLock()) { return getImpl().readContacts(userId); }
     }
 
     /**
@@ -396,14 +400,16 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
-     * Update the local user's profile.
+     * Update the a user's profile.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param profile
      *            The user's profile.
      */
-    public void updateProfile(final Profile profile) {
+    public void updateProfile(final JabberId userId, final Profile profile) {
         synchronized (getImplLock()) {
-            getImpl().updateProfile(profile);
+            getImpl().updateProfile(userId, profile);
         }
     }
 

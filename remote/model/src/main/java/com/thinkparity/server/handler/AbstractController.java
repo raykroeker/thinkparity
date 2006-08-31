@@ -1,12 +1,13 @@
 /*
  * Created On: Jun 22, 2006 2:51:33 PM
- * $Id$
  */
 package com.thinkparity.server.handler;
 
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
+
+import org.apache.log4j.Logger;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.util.JiveProperties;
@@ -26,7 +27,6 @@ import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.ParityServerConstants.JivePropertyNames;
-import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.container.ContainerModel;
@@ -37,7 +37,7 @@ import com.thinkparity.server.model.session.Session;
  * <b>Description:</b>An abstraction of an xmpp controller.
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.9
  */
 public abstract class AbstractController extends
         com.thinkparity.codebase.controller.AbstractController {
@@ -57,11 +57,20 @@ public abstract class AbstractController extends
     /** A custom iq writer. */
     private IQWriter iqWriter;
 
+    /** An apache logger. */
+    private final Logger logger;
+
     /** A thinkParity profile interface. */
     private ProfileModel profileModel;
 
+    /** A thinkParity user session. */
+    private Session session;
+
     /** Create AbstractController. */
-    public AbstractController(final String action) { super(action); }
+    public AbstractController(final String action) {
+        super(action);
+        this.logger = Logger.getLogger(getClass());
+    }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#createReader(org.xmpp.packet.IQ)
@@ -83,27 +92,32 @@ public abstract class AbstractController extends
      * @see com.thinkparity.codebase.controller.AbstractController#handleIQ(org.xmpp.packet.IQ)
      */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-        final Session session = new Session() {
-            private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
-            private final JiveProperties jiveProperties = JiveProperties.getInstance();
-
-            public JabberId getJabberId() {
-                return jabberId;
-            }
-
-            public JID getJID() {
-                return iq.getFrom();
-            }
-
-            public String getXmppDomain() {
-                return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
-            }
-        };
-        this.artifactModel = ArtifactModel.getModel(session);
-        this.contactModel = ContactModel.getModel(session);
-        this.containerModel = ContainerModel.getModel(session);
-        this.profileModel = ProfileModel.getModel(session);
-        return super.handleIQ(iq);
+        synchronized (IQHandler.SERIALIZER) {
+            this.session = new Session() {
+                private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
+                private final JiveProperties jiveProperties = JiveProperties.getInstance();
+    
+                public JabberId getJabberId() {
+                    return jabberId;
+                }
+    
+                public JID getJID() {
+                    return iq.getFrom();
+                }
+    
+                public String getXmppDomain() {
+                    return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
+                }
+            };
+            this.artifactModel = ArtifactModel.getModel(session);
+            this.contactModel = ContactModel.getModel(session);
+            this.containerModel = ContainerModel.getModel(session);
+            this.profileModel = ProfileModel.getModel(session);
+            logVariable("iq", iq);
+            final IQ response = super.handleIQ(iq);
+            logVariable("response", response);
+            return response;
+        }
     }
 
     /**
@@ -130,6 +144,19 @@ public abstract class AbstractController extends
     protected ContainerModel getContainerModel() { return containerModel; }
 
     /**
+     * Obtain an error id.
+     * 
+     * @return An error id.
+     */
+    protected final Object getErrorId(final Throwable t) {
+        return MessageFormat.format("{{0}] [{1}] [{2}] - [{3}]",
+                    session.getJabberId().getUsername(),
+                    StackUtil.getFrameClassName(2),
+                    StackUtil.getFrameMethodName(2),
+                    t.getMessage());
+    }
+
+    /**
      * Obtain the thinkParity profile interface.
      * 
      * @return A thinkParity profile interface.
@@ -140,9 +167,9 @@ public abstract class AbstractController extends
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    Logging.CONTROLLER_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase()));
+                    session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName()));
         }
     }
 
@@ -158,9 +185,9 @@ public abstract class AbstractController extends
      */
     protected final <T> T logVariable(final String name, final T value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
+            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
+                    session.getJabberId().getUsername(),
+                    name, Log4JHelper.render(logger, value)));
         }
         return value;
     }

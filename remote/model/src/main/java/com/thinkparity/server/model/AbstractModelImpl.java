@@ -35,7 +35,6 @@ import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.artifact.ArtifactSubscription;
@@ -54,9 +53,7 @@ import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
  */
 public abstract class AbstractModelImpl {
 
-    /**
-	 * Handle to a parity server logger.
-	 */
+    /** An apache logger. */
 	protected final Logger logger;
 
     /**
@@ -72,7 +69,6 @@ public abstract class AbstractModelImpl {
         this.logger = Logger.getLogger(getClass());
 		this.session = session;
 	}
-
 
     /**
      * Add a to email recipient to a mime message.
@@ -189,19 +185,6 @@ public abstract class AbstractModelImpl {
         return DateUtil.getInstance();
     }
 
-
-    /**
-     * @deprecated Use {@link #logVariable(String, Object)} instead.
-     * 
-     */
-    protected final void debugVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
-        }
-    }
-
 	/**
      * Obtain the parity artifact interface.
      * 
@@ -237,9 +220,9 @@ public abstract class AbstractModelImpl {
      */
     protected final Object getErrorId(final Throwable t) {
         return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                    Logging.MODEL_LOG_ID,
-                    StackUtil.getFrameClassName(2).toUpperCase(),
-                    StackUtil.getFrameMethodName(2).toUpperCase(),
+                    session.getJabberId().getUsername(),
+                    StackUtil.getFrameClassName(2),
+                    StackUtil.getFrameMethodName(2),
                     t.getMessage());
     }
 
@@ -311,9 +294,9 @@ public abstract class AbstractModelImpl {
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    Logging.MODEL_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase()));
+                    session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName()));
         }
     }
 
@@ -326,9 +309,9 @@ public abstract class AbstractModelImpl {
     protected final void logApiId(final Object message) {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}] [{3}]",
-                    Logging.MODEL_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase(),
+                    session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(),
                     message));
         }
     }
@@ -345,9 +328,9 @@ public abstract class AbstractModelImpl {
      */
     protected final <T> T logVariable(final String name, final T value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
+            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
+                    session.getJabberId().getUsername(),
+                    name, Log4JHelper.render(logger, value)));
         }
         return value;
     }
@@ -401,9 +384,10 @@ public abstract class AbstractModelImpl {
 	 *            The iq.
 	 */
 	protected void send(final JabberId jabberId, final IQ iq)
-			throws ParityServerModelException, UnauthorizedException {
+            throws UnauthorizedException {
 	    logApiId();
-		logger.debug(jabberId);
+		logVariable("jabberId", jabberId);
+        logVariable("iq", iq);
 		send(jabberId.getJID(), iq);
 	}
 
@@ -417,10 +401,10 @@ public abstract class AbstractModelImpl {
 	 *            The iq.
 	 */
 	protected void send(final JID jid, final IQ iq)
-			throws ParityServerModelException, UnauthorizedException {
+            throws UnauthorizedException {
         logApiId();
-		logger.debug(jid);
-		logger.debug(iq);
+		logVariable("jid", jid);
+        logVariable("iq", iq);
 		if(isOnline(jid)) { getSessionManager().getSession(jid).process(iq); }
 		else { enqueue(jid, iq); }
 	}
@@ -452,8 +436,7 @@ public abstract class AbstractModelImpl {
 	 * @param iq
 	 *            The iq packet.
 	 */
-	private void enqueue(final JID jid, final IQ iq)
-			throws ParityServerModelException {
+	private void enqueue(final JID jid, final IQ iq) {
 		final QueueModel queueModel = QueueModel.getModel(session);
 		queueModel.enqueue(jid, iq);
 	}

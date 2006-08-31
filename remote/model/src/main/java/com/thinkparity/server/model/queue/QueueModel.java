@@ -60,8 +60,7 @@ public class QueueModel extends AbstractModel {
 	 * @return The created queue item.
 	 * @throws ParityServerModelException
 	 */
-	public QueueItem enqueue(final JID jid, final IQ iq)
-			throws ParityServerModelException {
+	public QueueItem enqueue(final JID jid, final IQ iq) {
 		synchronized(implLock) { return impl.enqueue(jid, iq); }
 	}
 

@@ -58,6 +58,7 @@ public class ContactSql extends AbstractSql {
 			set(ps, 4, createdBy);
 			if(1 != ps.executeUpdate())
 				throw new SQLException("Could not create contact.");
+            cx.commit();
 		}
 		finally { close(cx, ps); }
 	}
@@ -78,7 +79,15 @@ public class ContactSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public List<JabberId> read(final JabberId username) throws SQLException {
+    /**
+     * Read a list of contact ids for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;JabberId&gt;</code>.
+     * @throws SQLException
+     */
+	public List<JabberId> readIds(final JabberId userId) throws SQLException {
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -86,7 +95,7 @@ public class ContactSql extends AbstractSql {
 			cx = getCx();
             logStatement(SQL_READ);
 			ps = cx.prepareStatement(SQL_READ);
-			ps.setString(1, username.getUsername());
+			ps.setString(1, userId.getUsername());
 			rs = ps.executeQuery();
 			final List<JabberId> contacts = new LinkedList<JabberId>();
 			while(rs.next()) { contacts.add(extractJabberId(rs)); }

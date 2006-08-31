@@ -19,7 +19,6 @@ import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPContainerListener;
@@ -42,17 +41,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	/** An xmpp artifact event listener. */
 	private final XMPPArtifactListener xmppArtifactListener;
 
+    /** An xmpp presence listener. */
+	private final XMPPContactListener xmppContactListener;
+
     /** An xmpp container event listener. */
     private final XMPPContainerListener xmppContainerListener;
 
-    /** An xmpp document event listener. */
+	/** An xmpp document event listener. */
     private final XMPPDocumentListener xmppDocumentListener;
 
 	/**An xmpp extension listener. */
 	private final XMPPExtensionListener xmppExtensionListener;
-
-	/** An xmpp presence listener. */
-	private final XMPPContactListener xmppContactListener;
 
 	/** The xmpp session. */
 	private final XMPPSession xmppSession;
@@ -166,11 +165,15 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final Calendar deletedOn) {
                 SessionModelImpl.handleContactDeleted(deletedBy, deletedOn);
             }
+			public void handleContactUpdated(final JabberId contactId,
+                    final Calendar updatedOn) {
+                SessionModelImpl.handleContactUpdated(contactId, updatedOn);
+            }
 			public void handleInvitationAccepted(final JabberId acceptedBy,
                     final Calendar acceptedOn) {
 				SessionModelImpl.handleContactInvitationAccepted(acceptedBy, acceptedOn);
 			}
-			public void handleInvitationDeclined(final EMail invitedAs,
+            public void handleInvitationDeclined(final EMail invitedAs,
                     final JabberId declinedBy, final Calendar declinedOn) {
                 SessionModelImpl.handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
 			}
@@ -198,17 +201,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.addListener(xmppExtensionListener);
 		xmppSession.addListener(xmppContactListener);
 		xmppSession.addListener(xmppSessionListener);
-	}
-
-    /**
-	 * Accept an invitation to the user's contact list.
-	 * 
-	 * @param jabberId
-	 *            The user's jabber id.
-	 * @throws SmackException
-	 */
-	void acceptInvitation(final JabberId jabberId) throws SmackException {
-		xmppSession.acceptInvitation(jabberId);
 	}
 
     /**
@@ -307,27 +299,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void processOfflineQueue() throws SmackException {
 		xmppSession.processOfflineQueue();
-	}
-
-    /**
-     * Read a contact.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @return A contact.
-     */
-    Contact readContact(final JabberId contactId) throws SmackException {
-        return xmppSession.readContact(contactId);
-    }
-
-    /**
-	 * Read the logged in user's contacts.
-	 * 
-	 * @return A list of contacts.
-	 * @throws SmackException
-	 */
-	List<Contact> readContacts() throws SmackException {
-		return xmppSession.readContacts();
 	}
 
 	/**

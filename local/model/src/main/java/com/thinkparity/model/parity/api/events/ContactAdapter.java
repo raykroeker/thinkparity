@@ -15,6 +15,11 @@ public class ContactAdapter implements ContactListener {
     public void contactDeleted(final ContactEvent e) {}
 
     /**
+     * @see com.thinkparity.model.parity.api.events.ContactListener#contactUpdated(com.thinkparity.model.parity.api.events.ContactEvent)
+     */
+    public void contactUpdated(final ContactEvent e) {}
+
+    /**
      * @see com.thinkparity.model.parity.api.events.ContactListener#incomingInvitationAccepted(com.thinkparity.model.parity.api.events.ContactEvent)
      */
     public void incomingInvitationAccepted(final ContactEvent e) {}

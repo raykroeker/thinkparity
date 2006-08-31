@@ -37,32 +37,23 @@ import com.thinkparity.migrator.Library;
  */
 public class Session {
 
-    /**
-	 * An apache logger.
-	 * 
-	 */
+    /** An apache logger. */
 	protected final Logger logger;
 
-    /**
-	 * The sql connection.
-	 * 
-	 */
+    /** The sql connection. */
 	private final Connection connection;
 
-	/**
-	 * The session id.
-	 * 
-	 */
+	/** The session id. */
 	private final JVMUniqueId id;
 
-	/**
+    /**
 	 * A prepared statement.
 	 * 
 	 * @see #prepareStatement(String)
 	 */
 	private PreparedStatement preparedStatement;
 
-	/**
+    /**
 	 * A result set.
 	 * 
 	 */
@@ -91,13 +82,13 @@ public class Session {
 		SessionManager.close(this);
 	}
 
-    public void commit() {
+	public void commit() {
 		assertOpen("commit()");
 		try { connection.commit(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	/**
+    /**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
@@ -158,7 +149,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
+	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
 		debugSql(columnName);
@@ -221,7 +212,7 @@ public class Session {
         }
     }
 
-	public EMail getEMail(final String columnName) {
+    public EMail getEMail(final String columnName) {
         assertOpen("getCalendar(String)");
         assertOpenResult("getCalendar(String)");
         try {
@@ -285,7 +276,7 @@ public class Session {
 		finally { close(resultSet); }
 	}
 
-    /**
+	/**
      * Obtain the input stream from the result.
      * 
      * @param columnName
@@ -317,7 +308,7 @@ public class Session {
         }
     }
 
-	public Long getLong(final String columnName) {
+    public Long getLong(final String columnName) {
 		assertOpen("getLong(String)");
 		assertOpenResult("getLong(String)");
 		debugSql(columnName);
@@ -486,7 +477,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setCalendar(final Integer index, final Calendar calendar) {
+	public void setCalendar(final Integer index, final Calendar calendar) {
 		assertOpen("setCalendar(Integer,Calendar)");
 		assertPreparedStatement("setCalendar(Integer,Calendar)");
 		debugSql(calendar, index);
@@ -497,7 +488,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setEMail(final Integer index, final EMail email) {
+    public void setEMail(final Integer index, final EMail email) {
         assertOpen("setEMail(Integer,EMail)");
         assertPreparedStatement("setEMail(Integer,EMail)");
         debugSql(email, index);
@@ -548,7 +539,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setMetaDataAsString(final Integer index, final MetaData metaData) {
+	public void setMetaDataAsString(final Integer index, final MetaData metaData) {
 		assertOpen("setMetaDataAsString(Integer,MetaData)");
 		assertPreparedStatement("setMetaDataAsString(Integer,MetaData)");
 		debugSql(null == metaData ? null : metaData.toString(), index);
@@ -556,7 +547,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setQualifiedUsername(final Integer index,
+    public void setQualifiedUsername(final Integer index,
 			final JabberId jabberId) {
 		assertOpen("Database session is not open.");
 		assertPreparedStatement("Prepared statement has not been set.");
@@ -565,7 +556,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setStateAsInteger(final Integer index, final ArtifactState state) {
+	public void setStateAsInteger(final Integer index, final ArtifactState state) {
 		assertOpen("setStateAsInteger(Integer,ArtifactState)");
 		assertPreparedStatement("setStateAsInteger(Integer,ArtifactState)");
 		debugSql(null == state ? null : state.toString(), index);
@@ -605,7 +596,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final AuditEventType type) {
+    public void setTypeAsInteger(final Integer index, final AuditEventType type) {
 		assertOpen("setTypeAsInteger(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,AuditEventType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -613,7 +604,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final Library.Type type) {
+	public void setTypeAsInteger(final Integer index, final Library.Type type) {
         assertOpen("setTypeAsInteger(Integer,Library.Type)");
         assertPreparedStatement("setTypeAsInteger(Integer,Library.Type)");
         debugSql(null == type ? null : type.getId(), index);
@@ -637,7 +628,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setTypeAsString(final Integer index, final ArtifactType type) {
+    public void setTypeAsString(final Integer index, final ArtifactType type) {
 		assertOpen("setTypeAsString(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeString(Integer,ArtifactType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -653,7 +644,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsString(final Integer index, final Enum<?> type) {
+	public void setTypeAsString(final Integer index, final Enum<?> type) {
 		assertOpen("setTypeAsString(Integer,Enum<?>)");
 		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -669,7 +660,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setTypeAsString(final Integer index, final MetaDataType type) {
+    public void setTypeAsString(final Integer index, final MetaDataType type) {
 		assertOpen("setType(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeString(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -704,7 +695,6 @@ public class Session {
 		try { return connection.getMetaData(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
-
 
 	private void assertOpen(final String caller) {
 		if(null == connection) {
@@ -745,12 +735,12 @@ public class Session {
 		else { debugSql((String) null, null); }
 	}
 
-    private void debugSql(final byte[] bytes, final Integer sqlIndex) {
-        debugSql(null == bytes ? null : bytes.length, sqlIndex);
-    }
-
     private void debugSql(final Boolean value, final Integer index) {
         debugSql(null == value ? null : value.toString(), index);
+    }
+
+    private void debugSql(final byte[] bytes, final Integer sqlIndex) {
+        debugSql(null == bytes ? null : bytes.length, sqlIndex);
     }
 
     private void debugSql(final Calendar calendar, final Integer sqlIndex) {

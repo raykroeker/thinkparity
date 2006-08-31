@@ -71,6 +71,17 @@ public class XMPPMethodResponse extends IQ {
     }
 
     /**
+     * Read a result list of jabber ids.
+     * 
+     * @param name
+     *            The result name.
+     * @return A list of jabber ids.
+     */
+    public List<JabberId> readResultJabberIds(final String name) {
+        return (List<JabberId>) readResult(name);
+    }
+
+    /**
      * Read a result value.
      * 
      * @param name

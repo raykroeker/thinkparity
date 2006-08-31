@@ -19,6 +19,8 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public interface ContactIOHandler {
 
+    public List<EMail> readEmails(final Long contactId);
+
     /**
      * Create a contact.
      * 
@@ -26,6 +28,16 @@ public interface ContactIOHandler {
      *            A contact.
      */
     public void create(final Contact contact);
+
+    /**
+     * Create an email.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void createEmail(final Long contactId, final EMail email);
 
     /**
      * Create an incoming invitation.
@@ -51,6 +63,16 @@ public interface ContactIOHandler {
      *            A contact id <code>JabberId</code>.
      */
     public void delete(final Long contactId);
+
+    /**
+     * Delete an email.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void deleteEmail(final Long contactId, final EMail email);
 
     /**
      * Delete an incoming invitation.
@@ -124,4 +146,12 @@ public interface ContactIOHandler {
      * @return A list of outgoing invitation.
      */
     public List<OutgoingInvitation> readOutgoingInvitations();
+
+    /**
+     * Update a contact.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     */
+    public void update(final Contact contact);
 }

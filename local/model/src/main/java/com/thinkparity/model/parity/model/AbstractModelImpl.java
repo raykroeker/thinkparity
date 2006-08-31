@@ -447,6 +447,14 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
+    /**
+     * Assert the user is online.
+     *
+     */
+    protected void assertOnline() {
+        assertOnline("USER NOT ONLINE");
+    }
+
     protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }

@@ -1,6 +1,5 @@
 /*
  * Created On: May 10, 2006 2:38:59 PM
- * $Id$
  */
 package com.thinkparity.codebase.controller;
 
@@ -28,13 +27,10 @@ import com.thinkparity.codebase.xmpp.IQWriter;
  * All state is convened in the IQ as well as the Session.
  * 
  * @author raykroeker@gmail.com
- * @version $Revision$
+ * @version 1.1.2.8
  */
 public abstract class AbstractController extends
 		org.jivesoftware.messenger.handler.IQHandler {
-
-    /** An apache logger. */
-	protected final Logger logger;
 
 	/** The info. */
 	private final IQHandlerInfo info;
@@ -56,7 +52,6 @@ public abstract class AbstractController extends
 		this.info = new IQHandlerInfo(
                 Xml.NAME,
                 Xml.NAMESPACE + ":" + action);
-        this.logger = Logger.getLogger(getClass());
 	}
 
     /**
@@ -82,20 +77,18 @@ public abstract class AbstractController extends
 
     /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-        logger.info("[RMIGRATOR] [CONTROLLER] [HANDLE IQ]");
-        logger.debug(iq);
         iqReader = createReader(iq);
-
+        
         final IQ response = createResponse(iq);
         iqWriter = createWriter(response);
 
-        try { service(); }
-        catch(final Throwable t) {
-            logger.error("[RMIGRATOR] [CONTROLLER] [UNKNOWN ERROR]", t);
+        try {
+            service();
+        } catch (final Throwable t) {
+            Logger.getLogger(getClass()).fatal(getErrorId(t), t);
             return createErrorResponse(iq, t);
         }
 
-        logger.debug(response);
         return response;
     }
 
@@ -112,6 +105,13 @@ public abstract class AbstractController extends
         response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
         return response;
     }
+
+    /**
+     * Obtain an error id.
+     * 
+     * @return An error id.
+     */
+    protected abstract Object getErrorId(final Throwable t);
 
     /**
      * Read a byte array parameter.
@@ -133,6 +133,10 @@ public abstract class AbstractController extends
      */
     protected final Calendar readCalendar(final String name) {
         return iqReader.readCalendar(name);
+    }
+
+    protected final EMail readEMail(final String name) {
+        return iqReader.readEMail(name);
     }
 
     /**
@@ -193,10 +197,6 @@ public abstract class AbstractController extends
         return iqReader.readString(name);
     }
 
-    protected final EMail readEMail(final String name) {
-        return iqReader.readEMail(name);
-    }
-
     /**
      * Write a byte array to the response query.
      * 
@@ -246,6 +246,22 @@ public abstract class AbstractController extends
      */
     protected final void writeJabberId(final String name, final JabberId value) {
         iqWriter.writeJabberId(name, value);
+    }
+
+
+    /**
+     * Write a list of string values to the response query.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            The element values.
+     */
+    protected final void writeJabberIds(final String parentName,
+            final String name, final List<JabberId> values) {
+        iqWriter.writeJabberIds(parentName, name, values);
     }
 
     /**

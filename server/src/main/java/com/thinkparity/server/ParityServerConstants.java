@@ -3,7 +3,6 @@
  */
 package com.thinkparity.server;
 
-import com.thinkparity.codebase.Application;
 
 /**
  * @author raykroeker@gmail.com
@@ -34,14 +33,6 @@ public interface ParityServerConstants {
     /** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String XMPP_DOMAIN = "xmpp.domain";
-    }
-
-    /** Logging constants. */
-    public static final class Logging {
-        public static final Object CONTROLLER_LOG_ID = Application.DESDEMONA + "] [CONTROLLER";
-        public static final Object MODEL_LOG_ID = Application.DESDEMONA + "] [MODEL";
-        public static final Object PLUGIN_LOG_ID = Application.DESDEMONA + "] [PLUGIN";
-        public static final Object SQL_LOG_ID = Application.DESDEMONA + "] [SQL IO";
     }
 
     /** Xml constants. */

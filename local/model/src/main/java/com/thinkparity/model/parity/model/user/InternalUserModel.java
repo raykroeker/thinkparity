@@ -58,5 +58,4 @@ public class InternalUserModel extends UserModel implements InternalModel {
             return getImpl().readLazyCreate(userId);
         }
     }
-
 }

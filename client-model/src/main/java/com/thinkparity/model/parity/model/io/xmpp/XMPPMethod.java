@@ -29,6 +29,7 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.Service;
@@ -93,7 +94,9 @@ public class XMPPMethod extends IQ {
         // create a collector for the response
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
         // send the internet query
+        logVariable("preSendPacket", DateUtil.getInstance());
         xmppConnection.sendPacket(this);
+        logVariable("postSendPacket", DateUtil.getInstance());
 
         // this sleep has been inserted because when packets are sent within
         // x milliseconds of each other, they tend to get swallowed by the
@@ -103,13 +106,33 @@ public class XMPPMethod extends IQ {
 
         // the timeout is used because the timeout is not expected to be long;
         // and it helps debug non-implemented responses
-        try { return ((XMPPMethodResponse) idCollector.nextResult()); }
-        catch(final ClassCastException ccx) {
+        logVariable("preResponseCollected", DateUtil.getInstance());
+        try {
+            return (XMPPMethodResponse) idCollector.nextResult();
+        } catch (final ClassCastException ccx) {
             throw new XMPPException(
                     MessageFormat.format("[XMPP] [XMPP METHOD] [REMOTE METHOD NOT AVAILABLE] [{0}]", name), ccx);
+        } finally {
+            // re-set the parameters post execution
+            logVariable("postResponseCollected", DateUtil.getInstance());
+            parameters.clear();
         }
-        // re-set the parameters post execution
-        finally { parameters.clear(); }
+    }
+
+    /**
+     * Log a variable.  Note that only the variable value will be rendered.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     */
+    protected void logVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
     }
 
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */

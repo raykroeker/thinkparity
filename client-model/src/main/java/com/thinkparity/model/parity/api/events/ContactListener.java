@@ -9,6 +9,7 @@ package com.thinkparity.model.parity.api.events;
  */
 public interface ContactListener {
     public void contactDeleted(final ContactEvent e);
+    public void contactUpdated(final ContactEvent e);
     public void incomingInvitationAccepted(final ContactEvent e);
     public void incomingInvitationCreated(final ContactEvent e);
     public void incomingInvitationDeclined(final ContactEvent e);

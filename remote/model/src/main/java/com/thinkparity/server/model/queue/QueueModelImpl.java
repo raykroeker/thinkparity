@@ -51,8 +51,7 @@ class QueueModelImpl extends AbstractModelImpl {
 	 * @return The enqueued item.
 	 * @throws ParityServerModelException
 	 */
-	QueueItem enqueue(final JID jid, final IQ iq)
-			throws ParityServerModelException {
+	QueueItem enqueue(final JID jid, final IQ iq) {
         logApiId();
 		logger.debug(jid);
 		logger.debug(iq);
@@ -62,14 +61,8 @@ class QueueModelImpl extends AbstractModelImpl {
 			final Integer queueId = queueSql.insert(
 					username, message, session.getJabberId());
 			return queueSql.select(queueId);
-		}
-		catch(SQLException sqlx) {
-			logger.error("enqueue(JID,String)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("enqueue(JID,String)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 

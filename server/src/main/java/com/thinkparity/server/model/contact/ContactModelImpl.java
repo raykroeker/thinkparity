@@ -3,7 +3,6 @@
  */
 package com.thinkparity.server.model.contact;
 
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +14,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.jivesoftware.messenger.vcard.VCardManager;
+import org.jivesoftware.messenger.vcard.VCardProvider;
+
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
@@ -25,9 +27,8 @@ import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
 import com.thinkparity.model.xmpp.IQWriter;
 
+import com.thinkparity.server.ParityServerConstants.VCardFields;
 import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.ParityErrorTranslator;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
 import com.thinkparity.server.model.io.sql.user.UserSql;
@@ -50,6 +51,9 @@ class ContactModelImpl extends AbstractModelImpl {
     /** The thinkParity user io. */
     private final UserSql userSql;
 
+    /** A jive vcard provider. */
+    private final VCardProvider vcardProvider;
+
     /**
 	 * Create ContactModelImpl.
 	 * 
@@ -61,6 +65,7 @@ class ContactModelImpl extends AbstractModelImpl {
 		this.contactSql = new ContactSql();
 		this.invitationSql = new InvitationSql();
         this.userSql = new UserSql();
+        this.vcardProvider = VCardManager.getProvider();
 	}
 
     /**
@@ -251,45 +256,48 @@ class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-	Contact readContact(final JabberId contactId) {
+	List<Contact> read(final JabberId userId) {
         logApiId();
+        logVariable("userId", userId);
+        assertIsAuthenticatedUser(userId);
+		try {
+			final List<JabberId> contactIds = contactSql.readIds(userId);
+			final List<Contact> contacts = new LinkedList<Contact>();
+			for (final JabberId contactId : contactIds) {
+				contacts.add(read(userId, contactId));
+			}
+			return contacts;
+		} catch (final Throwable t) {
+			throw translateError(t);
+		}
+	}
+
+    Contact read(final JabberId userId, final JabberId contactId) {
+        logApiId();
+        logVariable("userId", userId);
 		logVariable("contactId", contactId);
+        assertIsAuthenticatedUser(userId);
 		try {
 		    final User user = getUserModel().readUser(contactId);
-            final Element vCardElement = user.getVCard();
 
+            final Element vcard = vcardProvider.loadVCard(contactId.getUsername());
             final Contact contact = new Contact();
             contact.setId(user.getId());
-            contact.setName((String) vCardElement.element("FN").getData());
-            contact.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
-            contact.setVCard(user.getVCard());
+            contact.setName((String) vcard.element("FN").getData());
+            final Element orgElement = vcard.element("ORG");
+            if (null != orgElement) {
+                contact.setOrganization((String) orgElement.element("ORGNAME").getData());
+            }
+            final Element titleElement = vcard.element(VCardFields.TITLE);
+            if (null != titleElement) {
+                contact.setTitle((String) titleElement.getData());
+            }
+            contact.setVCard(vcard);
             contact.addAllEmails(userSql.readEmails(contactId, Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {
             throw translateError(t);
         }
-	}
-
-    List<Contact> readContacts() throws ParityServerModelException {
-        logApiId();
-		try {
-			final UserModel userModel = getUserModel();
-			final List<JabberId> contactIds = contactSql.read(session.getJabberId());
-			final List<User> users = userModel.readUsers(contactIds);
-			final List<Contact> contacts = new LinkedList<Contact>();
-			Contact contact;
-			for(final User user : users) {
-				contact = new Contact();
-				contact.setId(user.getId());
-				contact.setVCard(user.getVCard());
-				contacts.add(contact);
-			}
-			return contacts;
-		}
-		catch(final SQLException sqlx) {
-			logger.error("Could not read contacts:  " + session.getJabberId(), sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
 	}
 
     Invitation readInvitation(final JabberId from) {

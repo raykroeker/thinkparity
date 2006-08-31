@@ -3,13 +3,13 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
@@ -28,9 +28,7 @@ import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.model.smackx.packet.contact.IQReadContacts;
 import com.thinkparity.model.smackx.packet.contact.IQReadContactsProvider;
-import com.thinkparity.model.smackx.packet.contact.IQReadContactsResult;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 
@@ -56,6 +54,23 @@ class XMPPContact extends AbstractXMPP {
                         query.deletedBy = readJabberId2();
                     } else if (isStartTag("deletedOn")) {
                         query.deletedOn = readCalendar2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contact:contactupdated", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleContactUpdatedIQ query = new HandleContactUpdatedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    if (isStartTag("contactId")) {
+                        query.contactId = readJabberId2();
+                    } else if (isStartTag("updatedOn")) {
+                        query.updatedOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -162,21 +177,27 @@ class XMPPContact extends AbstractXMPP {
 		super(xmppCore);
 	}
 
-	/**
+    /**
      * Accept the contact invitation.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param invitedBy
-     *            By whom the invitation was extended.
-     * @throws SmackException
+     *            The invited by user id <code>JabberId</code>.
+     * @param acceptedOn
+     *            When the user accepted <code>Calendar</code>.
      */
-	void accept(final JabberId invitedBy)
-            throws SmackException {
+	void acceptInvitation(final JabberId userId, final JabberId invitedBy,
+            final Calendar acceptedOn) {
 		logApiId();
+        logVariable("userId", userId);
         logVariable("invitedBy", invitedBy);
+        logVariable("acceptedOn", acceptedOn);
 		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
-        accept.setParameter(Xml.Contact.INVITED_BY, invitedBy);
-        accept.setParameter(Xml.Contact.ACCEPTED_BY, xmppCore.getJabberId());
-		accept.execute(xmppCore.getConnection());
+        accept.setParameter("userId", userId);
+        accept.setParameter("invitedBy", invitedBy);
+        accept.setParameter("acceptedOn", acceptedOn);
+		execute(accept);
 	}
 
 	/**
@@ -245,6 +266,14 @@ class XMPPContact extends AbstractXMPP {
                     }
                 },
                 new PacketTypeFilter(HandleInvitationDeletedIQ.class));
+        // update contact
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        notifyContactUpdated((HandleContactUpdatedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleContactUpdatedIQ.class));
 	}
 
 	/**
@@ -327,33 +356,46 @@ class XMPPContact extends AbstractXMPP {
 	}
 
 	/**
-     * Read the contacts.
+     * Read a user's contacts.
      * 
      * @return The list of contacts for the user.
      */
-	List<Contact> read() throws SmackException {
+	List<Contact> read(final JabberId userId) {
 		logApiId();
-		final IQ iq = new IQReadContacts();
-		iq.setType(IQ.Type.GET);
-		final IQReadContactsResult result =
-			(IQReadContactsResult) xmppCore.sendAndConfirmPacket(iq);
-		return result.getContacts();
+        logVariable("userId", userId);
+        assertIsAuthenticatedUser(userId);
+
+		final XMPPMethod readIds = new XMPPMethod("contact:readids");
+        readIds.setParameter("userId", userId);
+        final XMPPMethodResponse response = execute(readIds, Boolean.TRUE);
+        final List<JabberId> contactIds = response.readResultJabberIds("contactIds");
+        final List<Contact> contacts = new ArrayList<Contact>(contactIds.size());
+        for (final JabberId contactId : contactIds) {
+            contacts.add(read(userId, contactId));
+        }
+        return contacts;
 	}
 
     /**
-     * Read a contact.
+     * Read a user's contact.
      * 
      * @return A contact.
      */
-    Contact read(final JabberId contactId) throws XMPPException {
+    Contact read(final JabberId userId, final JabberId contactId) {
+        logApiId();
+        logVariable("userId", userId);
+        assertIsAuthenticatedUser(userId);
+
         final XMPPMethod read = new XMPPMethod("contact:read");
-        read.setParameter(Xml.Contact.JABBER_ID, contactId);
+        read.setParameter("userId", userId);
+        read.setParameter("contactId", contactId);
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
 
         final Contact contact = new Contact();
         contact.setId(response.readResultJabberId(Xml.Contact.JABBER_ID));
         contact.setName(response.readResultString(Xml.Contact.NAME));
         contact.setOrganization(response.readResultString(Xml.Contact.ORGANIZATION));
+        contact.setTitle(response.readResultString("title"));
         contact.setVCard(VCardBuilder.createVCard(response.readResultString(Xml.Contact.VCARD)));
         contact.addAllEmails(response.readResultEMails("emails"));
         return contact;
@@ -369,6 +411,20 @@ class XMPPContact extends AbstractXMPP {
         synchronized (LISTENERS) {
             for(final XMPPContactListener l : LISTENERS) {
                 l.handleContactDeleted(query.deletedBy, query.deletedOn);
+            }
+        }
+    }
+
+    /**
+     * Fire a local event for the remote contact updated event.
+     * 
+     * @param query
+     *            The internet event query.
+     */
+    private void notifyContactUpdated(final HandleContactUpdatedIQ query) {
+        synchronized (LISTENERS) {
+            for(final XMPPContactListener l : LISTENERS) {
+                l.handleContactUpdated(query.contactId, query.updatedOn);
             }
         }
     }
@@ -435,6 +491,11 @@ class XMPPContact extends AbstractXMPP {
     private static class HandleContactDeletedIQ extends AbstractThinkParityIQ {
         private JabberId deletedBy;
         private Calendar deletedOn;
+    }
+
+    private static class HandleContactUpdatedIQ extends AbstractThinkParityIQ {
+        private JabberId contactId;
+        private Calendar updatedOn;
     }
 
     private static class HandleInvitationAcceptedIQ extends AbstractThinkParityIQ {

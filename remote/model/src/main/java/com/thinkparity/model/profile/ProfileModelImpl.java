@@ -13,10 +13,13 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserManager;
 import org.jivesoftware.messenger.user.UserProvider;
+import org.jivesoftware.messenger.vcard.VCardManager;
 
 import org.dom4j.Element;
+import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -24,9 +27,11 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
+import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.ParityServerConstants.VCardFields;
 import com.thinkparity.server.model.AbstractModelImpl;
+import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
@@ -40,11 +45,17 @@ import com.thinkparity.server.model.user.User;
  */
 class ProfileModelImpl extends AbstractModelImpl {
 
+    /** Contact db io. */
+    private final ContactSql contactSql;
+
     /** A jive user provider. */
     private final UserProvider userProvider;
 
     /** User db io. */
     private final UserSql userSql;
+
+    /** A jive vcard provider. */
+    private final VCardManager vcardManager;
 
     /**
      * Create ProfileModelImpl.
@@ -54,7 +65,9 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     ProfileModelImpl(final Session session) {
         super(session);
+        this.contactSql = new ContactSql();
         this.userProvider = UserManager.getUserProvider();
+        this.vcardManager = VCardManager.getInstance();
         this.userSql = new UserSql();
     }
 
@@ -166,6 +179,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             // delete remote data
             userSql.deleteEmail(userId, email);
+            notifyContactUpdated(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -198,6 +212,51 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
+    void update(final JabberId userId, final String name,
+            final String organization, final String title) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("name", name);
+        logVariable("organization", organization);
+        logVariable("title", title);
+        try {
+            // save vcard
+            final Element vcard = vcardManager.getVCard(userId.getUsername());
+            vcard.element("FN").setText(name);
+            Element orgElement = vcard.element("ORG");
+            Element orgNameElement = null;
+            if (null != organization) {
+                if (null == orgElement) {
+                    orgElement = vcard.addElement("ORG");
+                }
+                orgNameElement = orgElement.element("ORGNAME");
+                if (null == orgNameElement) {
+                    orgNameElement = orgElement.addElement("ORGNAME");
+                }
+                orgNameElement.setText(organization);
+            } else {
+                if (null != orgElement) {
+                    vcard.remove(orgElement);
+                }
+            }
+            Element titleElement = vcard.element(VCardFields.TITLE);
+            if (null != title) {
+                if (null == titleElement) {
+                    titleElement = vcard.addElement(VCardFields.TITLE);
+                }
+                titleElement.setText(title);
+            } else {
+                if (null != titleElement) {
+                    vcard.remove(titleElement);
+                }
+            }
+            vcardManager.setVCard(userId.getUsername(), logVariable("vcard", vcard));
+            notifyContactUpdated(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Verify an email in a user's profile.
      * 
@@ -221,6 +280,8 @@ class ProfileModelImpl extends AbstractModelImpl {
             Assert.assertNotNull("VERIFICATION KEY INCORRECT", verifiedEmail);
             Assert.assertTrue("VERIFICATION KEY INCORRECT", email.equals(verifiedEmail));
             userSql.verifyEmail(userId, verifiedEmail, verifiedKey);
+            // notify all contacts
+            notifyContactUpdated(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -249,5 +310,28 @@ class ProfileModelImpl extends AbstractModelImpl {
         final Multipart verification = new MimeMultipart();
         verification.addBodyPart(verificationBody);
         mimeMessage.setContent(verification);
+    }
+
+    /**
+     * Fire the contact updated event for a user. All contacts for that user
+     * will be updated.
+     * 
+     * @param userId
+     *            A user id.
+     * @throws SQLException
+     * @throws UnauthorizedException
+     */
+    private void notifyContactUpdated(final JabberId userId)
+            throws SQLException, UnauthorizedException {
+        // fire notification that the user has been updated
+        final List<JabberId> contactIds = contactSql.readIds(userId);
+        final IQWriter notification = createIQWriter("contact:contactupdated");
+        notification.writeJabberId("contactId", userId);
+        notification.writeCalendar("updatedOn", currentDateTime());
+        final IQ notificationIQ = notification.getIQ();
+        for (final JabberId contactId : contactIds) {
+            notificationIQ.setTo(contactId.getJID());
+            send(contactId, notificationIQ);
+        }
     }
 }

@@ -32,6 +32,13 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("values (?,?)")
             .toString();
 
+    /** Sql to create contact email relationship. */
+    private static final String SQL_CREATE_EMAIL_REL =
+            new StringBuffer("insert into CONTACT_EMAIL_REL ")
+            .append("(CONTACT_ID,EMAIL_ID) ")
+            .append("values (?,?)")
+            .toString();
+
     /** Sql to create an incoming invitation. */
     private static final String SQL_CREATE_INCOMING_INVITATION =
             new StringBuffer("insert into CONTACT_INVITATION_INCOMING ")
@@ -61,10 +68,10 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .toString();
 
     /** Sql to delete contact email relationship. */
-    private static final String SQL_DELETE_CONTACT_EMAIL_REL =
+    private static final String SQL_DELETE_EMAIL_REL =
             new StringBuffer("delete ")
             .append("from CONTACT_EMAIL_REL ")
-            .append("where CONTACT_ID=?")
+            .append("where CONTACT_ID=? and EMAIL_ID=?")
             .toString();
 
     /** Sql to delete an incoming invitation. */
@@ -108,7 +115,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("where C.CONTACT_ID=?")
             .toString();
 
-
     /** Sql to read an incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATION =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -122,6 +128,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("where CII.CONTACT_INVITATION_ID=?")
             .toString();
 
+
     /** Sql to read all incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATIONS =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -133,7 +140,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .toString();
-   
+
     /** Sql to read an outgoing contact invitation. */
     private static final String SQL_READ_OUTGOING_INVITATION_BY_EMAIL =
             new StringBuffer("select U.JABBER_ID,CI.CREATED_BY,CI.CREATED_ON,")
@@ -157,7 +164,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where CI.CONTACT_INVITATION_ID=?")
             .toString();
-
+   
     /** Sql to read an outgoing invitation's e-mail id. */
     private static final String SQL_READ_OUTGOING_INVITATION_EMAIL_ID =
             new StringBuffer("select EMAIL_ID ")
@@ -177,6 +184,13 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
             .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID")
+            .toString();
+
+    /** Sql to update a contact. */
+    private static final String SQL_UPDATE =
+            new StringBuffer("update CONTACT ")
+            .append("set CONTACT_VCARD=? ")
+            .append("where CONTACT_ID=?")
             .toString();
 
     /**
@@ -206,10 +220,14 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** The email db io. */
     private final EmailIOHandler emailIO;
 
+    /** A user db io. */
+    private final UserIOHandler userIO;
+
     /** Create ContactIOHandler. */
     public ContactIOHandler() {
         super();
         this.emailIO = new EmailIOHandler();
+        this.userIO = new UserIOHandler();
     }
 
     /**
@@ -224,9 +242,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setString(2, contact.getVCard().toXML());
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE CONTACT]", "[CREATE CONTACT] [COULD NOT CREATE CONTACT]"));
-            for (final EMail email : contact.getEmails()) {
-                emailIO.create(session, email);
-            }
+
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -234,6 +250,27 @@ public class ContactIOHandler extends AbstractIOHandler implements
             throw hx;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#createEmail(java.lang.Long, com.thinkparity.codebase.email.EMail)
+     */
+    public void createEmail(final Long contactId, final EMail email) {
+        final Session session = openSession();
+        try {
+            final Long emailId = emailIO.create(session, email);
+            session.prepareStatement(SQL_CREATE_EMAIL_REL);
+            session.setLong(1, contactId);
+            session.setLong(2, emailId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT CREATE EMAIL");
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -294,21 +331,32 @@ public class ContactIOHandler extends AbstractIOHandler implements
     public void delete(final Long contactId) {
         final Session session = openSession();
         try {
-            final List<EMail> emails = readEmails(contactId);
-            final int emailsCount = emails.size();
-            for (final EMail email : emails) {
-                emailIO.delete(session, emailIO.readId(session, email));
-            }
-
-            session.prepareStatement(SQL_DELETE_CONTACT_EMAIL_REL);
-            session.setLong(1, contactId);
-            if (emailsCount != session.executeUpdate())
-                throw new HypersonicException("COULD NOT DELETE CONTACT EMAILS");
-
             session.prepareStatement(SQL_DELETE);
             session.setLong(1, contactId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT DELETE CONTACT");
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#deleteEmail(java.lang.Long, com.thinkparity.codebase.email.EMail)
+     */
+    public void deleteEmail(final Long contactId, final EMail email) {
+        final Session session = openSession();
+        try {
+            final Long emailId = emailIO.readId(session, email);
+            session.prepareStatement(SQL_DELETE_EMAIL_REL);
+            session.setLong(1, contactId);
+            session.setLong(2, emailId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT DELETE EMAIL");
+            emailIO.delete(session, emailId);
             session.commit();
         } catch (final HypersonicException hx) {
             session.rollback();
@@ -392,6 +440,29 @@ public class ContactIOHandler extends AbstractIOHandler implements
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read a list of e-mail addresses for a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A list of e-mail addresses.
+     */
+    public List<EMail> readEmails(final Long contactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAIL);
+            session.setLong(1, contactId);
+            session.executeQuery();
+            final List<EMail> emails = new ArrayList<EMail>();
+            while (session.nextResult()) {
+                emails.add(emailIO.extractEMail(session));
+            }
+            return emails;
         } finally {
             session.close();
         }
@@ -496,6 +567,28 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#update(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.xmpp.contact.Contact)
+     */
+    public void update(final Contact contact) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE);
+            session.setString(1, contact.getVCard().toXML());
+            session.setLong(2, contact.getLocalId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT UPDATE CONTACT");
+
+            userIO.update(session, contact);
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
      * Extract a contact from the database session.
      * 
      * @param session
@@ -556,7 +649,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         session.setLong(1, invitation.getCreatedBy());
         session.setCalendar(2, invitation.getCreatedOn());
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("CREATE INVITATIOn", "COULD NOT CREATE INVITATION"));
+            throw new HypersonicException("COULD NOT CREATE INVITATION");
         invitation.setId(session.getIdentity());
     }
 
@@ -588,28 +681,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
         invitation.setCreatedBy(session.getLong("CREATED_BY"));
         invitation.setCreatedOn(session.getCalendar("CREATED_ON"));
         invitation.setId(session.getLong("CONTACT_INVITATION_ID"));
-    }
-
-    /**
-     * Read a list of e-mail addresses for a contact.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @return A list of e-mail addresses.
-     */
-    private List<EMail> readEmails(final Long contactId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_EMAIL);
-            session.setLong(1, contactId);
-            session.executeQuery();
-            final List<EMail> emails = new ArrayList<EMail>();
-            while (session.nextResult()) {
-                emails.add(emailIO.extractEMail(session));
-            }
-            return emails;
-        }
-        finally { session.close(); }
     }
 
     /**

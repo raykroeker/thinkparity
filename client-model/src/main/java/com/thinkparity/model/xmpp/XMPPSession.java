@@ -41,14 +41,17 @@ import com.thinkparity.model.xmpp.user.User;
 public interface XMPPSession {
 
     /**
-     * Accept an invitation.
+     * Accept the contact invitation.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param invitedBy
-     *            The original invitor.
-     * @throws SmackException
+     *            The invited by user id <code>JabberId</code>.
+     * @param acceptedOn
+     *            When the user accepted <code>Calendar</code>.
      */
-    public void acceptInvitation(final JabberId invitedBy)
-            throws SmackException;
+    public void acceptContactInvitation(final JabberId userId,
+            final JabberId invitedBy, final Calendar acceptedOn);
 
     /**
      * Add an xmpp artifact event listener.
@@ -274,21 +277,24 @@ public interface XMPPSession {
             throws SmackException;
 
     /**
-     * Read a contact.
+     * Read a user's contact.
      * 
+     * @param userId
+     *            A user id.
      * @param contactId
      *            A contact id.
      * @return A contact.
      */
-    public Contact readContact(final JabberId contactId) throws SmackException;
+    public Contact readContact(final JabberId userId, final JabberId contactId);
 
     /**
-     * Read the logged in user's contacts.
+     * Read a user's contacts.
      * 
-     * @return The logge in user's contacts.
-     * @throws SmackException
+     * @param userId
+     *            A user id.
+     * @return A list of contacts.
      */
-    public List<Contact> readContacts() throws SmackException;
+    public List<Contact> readContacts(final JabberId userId);
 
     /**
      * Read the logged in user.
@@ -405,10 +411,12 @@ public interface XMPPSession {
     /**
      * Update the user's profile.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param profile
      *            The user's <code>Profile</code>.
      */
-    public void updateProfile(final Profile profile);
+    public void updateProfile(final JabberId userId, final Profile profile);
 
     /**
      * Update a user's credentials.

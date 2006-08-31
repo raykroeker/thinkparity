@@ -11,18 +11,13 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.Constants.VCardFields;
 import com.thinkparity.model.Constants.Xml.Service;
-import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersProvider;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersResult;
 import com.thinkparity.model.xmpp.user.User;
 import com.thinkparity.model.xmpp.user.UserNameBuilder;
-import com.thinkparity.model.xmpp.user.UserNameTokenizer;
 
 /**
  * @author raykroeker@gmail.com
@@ -96,37 +91,4 @@ class XMPPUser extends AbstractXMPP {
 			(IQReadUsersResult) xmppCore.sendAndConfirmPacket(iq);
 		return result.getUsers();
 	}
-
-    /**
-     * Update the user's profile.
-     * 
-     * @param profile
-     *            The user's <code>Profile</code>.
-     */
-    void updateProfile(final Profile profile) {
-        logApiId();
-        logVariable("profile", profile);
-        try {
-            final JabberId jabberId = xmppCore.getJabberId();
-            Assert.assertTrue(
-                    "CAN ONLY UPDATE YOUR OWN PROFILE",
-                    jabberId.equals(profile.getId()));
-            
-            final VCard smackVCard = new VCard();
-            smackVCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
-
-            final UserNameTokenizer nameTokenizer = new UserNameTokenizer(profile.getName());
-            smackVCard.setFirstName(nameTokenizer.getGiven());
-            if(nameTokenizer.isSetMiddle())
-                smackVCard.setMiddleName(nameTokenizer.getMiddle());
-            smackVCard.setLastName(nameTokenizer.getFamily());
-            smackVCard.setOrganization(profile.getOrganization());
-            smackVCard.setField(VCardFields.TITLE, profile.getTitle());
-
-            smackVCard.save(xmppCore.getConnection());
-        }
-        catch(final XMPPException xmppx) {
-            throw translateError(xmppx);
-        }
-    }
 }

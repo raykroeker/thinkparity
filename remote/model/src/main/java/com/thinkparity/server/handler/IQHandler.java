@@ -25,13 +25,14 @@ import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.server.ParityServerConstants.JivePropertyNames;
-import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
@@ -53,6 +54,16 @@ import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
  */
 public abstract class IQHandler extends
 		org.jivesoftware.messenger.handler.IQHandler {
+
+    /**
+     * A synchronization lock used to serialize all incoming iq handler
+     * requests.
+     */
+    static final Object SERIALIZER;
+
+    static {
+        SERIALIZER = new Object();
+    }
 
     /**
 	 * Handle to an apache logger.
@@ -78,43 +89,94 @@ public abstract class IQHandler extends
 	/** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
 	public IQHandlerInfo getInfo() { return iqHandlerInfo; }
 
+    /** The current session. */
+    private Session session;
+
 	/**
 	 * @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
 	 * 
 	 */
 	public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-		logger.debug(iq);
-		try {
-			final Session session = new Session() {
-                private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
-                private final JiveProperties jiveProperties = JiveProperties.getInstance();
-
-                public JabberId getJabberId() {
-                    return jabberId;
-                }
-
-                public JID getJID() {
-                    return iq.getFrom();
-                }
-
-                public String getXmppDomain() {
-                    return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
-                }
-			};
-			logger.debug(session);
-			final IQ resultIQ = handleIQ(iq, session);
-			logger.debug(resultIQ);
-			return resultIQ;
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("handleIQ(IQ)", ux);
-			throw ux;
-		}
-		catch(final Throwable t) {
-			logger.error("handleIQ(IQ)", t);
-			return translate(iq, "An un-expected error has occured.", t);
-		}
+        synchronized (SERIALIZER) {
+    		try {
+    			this.session = new Session() {
+                    private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
+                    private final JiveProperties jiveProperties = JiveProperties.getInstance();
+    
+                    public JabberId getJabberId() {
+                        return jabberId;
+                    }
+    
+                    public JID getJID() {
+                        return iq.getFrom();
+                    }
+    
+                    public String getXmppDomain() {
+                        return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
+                    }
+    			};
+                logVariable("iq", iq);
+    			final IQ resultIQ = handleIQ(iq, session);
+                logVariable("resultIQ", resultIQ);
+    			return resultIQ;
+    		} catch(final Throwable t) {
+                Logger.getLogger(getClass()).fatal(getErrorId(t), t);
+                return createErrorResponse(iq, t);
+    		}
+        }
 	}
+
+    /**
+     * Log a named variable. Note that the logging renderer will be used only
+     * for the value.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     * @return The value.
+     */
+    protected final <T> T logVariable(final String name, final T value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
+                    session.getJabberId().getUsername(),
+                    name, Log4JHelper.render(logger, value)));
+        }
+        return value;
+    }
+
+    /**
+     * Obtain an error id.
+     * 
+     * @return An error id.
+     */
+    protected final Object getErrorId(final Throwable t) {
+        return MessageFormat.format("{{0}] [{1}] [{2}] - [{3}]",
+                    session.getJabberId().getUsername(),
+                    StackUtil.getFrameClassName(2),
+                    StackUtil.getFrameMethodName(2),
+                    t.getMessage());
+    }
+
+    /**
+     * Create an error response for the query, for the error.
+     * 
+     * @param iq
+     *            The internet query.
+     * @param x
+     *            The error.
+     * @return The error response.
+     */
+    private IQ createErrorResponse(final IQ iq, final Throwable t) {
+        final IQ errorResult = IQ.createResultIQ(iq);
+
+        final PacketError packetError = new PacketError(
+                PacketError.Condition.internal_server_error,
+                PacketError.Type.cancel, StringUtil.printStackTrace(t));
+
+        errorResult.setError(packetError);
+        return errorResult;
+    }
 
 	/**
 	 * Handle an iq query.
@@ -252,9 +314,9 @@ public abstract class IQHandler extends
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    Logging.CONTROLLER_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase()));
+                    session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName()));
         }
     }
 

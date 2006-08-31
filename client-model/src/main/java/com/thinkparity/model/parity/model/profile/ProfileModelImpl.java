@@ -198,7 +198,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         try {
             // update local data
             profileIO.update(profile);
-            getInternalSessionModel().updateProfile(profile);
+            getInternalSessionModel().updateProfile(localUserId(), profile);
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
@@ -34,6 +35,7 @@ public class BrowserWindow extends AbstractJFrame {
     
     /**
 	 * The size of the main window.
+     * The variable is here so it persists.
 	 * 
 	 * @see #getMainWindowSize()
 	 */
@@ -47,34 +49,25 @@ public class BrowserWindow extends AbstractJFrame {
 	 * 
 	 * @return The size of the main window.
 	 */
-	public static Dimension getMainWindowSize() {
+	private static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
 			// DIMENSION BrowserWindow 450x587
-			mainWindowSize = new Dimension(Dimensions.BrowserWindow.MIN_SIZE);
+			mainWindowSize = new Dimension(Dimensions.BrowserWindow.DEFAULT_SIZE);
 		}
 		return mainWindowSize;
 	}
     
-    public void setMainWindowSize(final Dimension d) {
-        if (!mainWindowSize.equals(d)) {
-            mainWindowSize = new Dimension(d);
-            setMinimumSize(d);
-            setSize(d);
-            validate();
-        }
-    }
+    /** The browser application. */
+	private final Browser browser;
+    
+    /** An apache logger. */
+	protected final Logger logger;
 
 	/** The main panel. */
 	public MainPanel mainPanel;
 
-    /** An apache logger. */
-	protected final Logger logger;
-
-	/** A parity persistence. */
+    /** A parity persistence. */
     protected final Persistence persistence;
-
-	/** The browser application. */
-	private final Browser browser;
 
 	/**
 	 * Create a BrowserWindow.
@@ -86,6 +79,12 @@ public class BrowserWindow extends AbstractJFrame {
 		this.browser = browser;
 		this.logger = Logger.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
+        
+        // Add support for resizing the Browser
+        getGlassPane().addMouseListener(new BrowserResizeListener(getGlassPane(),getContentPane()));
+        getGlassPane().addMouseMotionListener(new BrowserResizeListener(getGlassPane(),getContentPane()));
+        getGlassPane().setVisible(true);
+        
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent e) {
@@ -98,6 +97,8 @@ public class BrowserWindow extends AbstractJFrame {
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         final Point location = persistence.get("location", new Point(100, 100));
+        location.x = (location.x < 0 ? 0 : location.x );
+        location.y = (location.y < 0 ? 0 : location.y );
         setLocation(location.x, location.y);
         setResizable(true);
         setMinimumSize(getMainWindowSize());
@@ -105,7 +106,7 @@ public class BrowserWindow extends AbstractJFrame {
 		initComponents();
 	}
 
-    /**
+	/**
 	 * Obtain a display.
 	 * 
 	 * @param displayId
@@ -124,6 +125,23 @@ public class BrowserWindow extends AbstractJFrame {
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
 
     /**
+	 * Add the main panel to the window.
+	 * 
+	 */
+	private void initComponents() {
+		mainPanel = new MainPanel();
+		add(mainPanel);
+	}
+
+	/**
+     * Add the menu to the window.
+     */
+    private void initMenu() {
+        final JMenuBar menuBar = new BrowserMenuBar(browser);
+        setJMenuBar(menuBar);
+    }
+
+    /**
      * Open the main window.
      * 
      * @return The main window.
@@ -137,7 +155,12 @@ public class BrowserWindow extends AbstractJFrame {
         catch(final InterruptedException ix) { throw new RuntimeException(ix); }
         catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
     }
-
+    
+    /** Persist any window state. */
+    private void persist() {
+        persistence.set("location", getLocation());
+    }
+    
     /**
      * Re open the main window.
      * 
@@ -149,33 +172,82 @@ public class BrowserWindow extends AbstractJFrame {
         debugGeometry();
         debugLookAndFeel();
 
-
         browser.displayMainTitleAvatar();
         browser.displayMainContentAvatar();
         browser.displayMainStatusAvatar();
 
         browser.displayTabContainerAvatar();
     }
-    
+
     /**
-     * Add the menu to the window.
+     * Set the window size.
+     * 
+     * @param d
+     *            The new dimensions.
      */
-    private void initMenu() {
-        final JMenuBar menuBar = new BrowserMenuBar(browser);
-        setJMenuBar(menuBar);
+	public void setMainWindowSize(final Dimension d) {
+        final Dimension dFinal = new Dimension(d);
+        
+        // Honour the minimum window size.
+        if (dFinal.getWidth() < Dimensions.BrowserWindow.MIN_SIZE.getWidth()) {
+            dFinal.width = (int)Dimensions.BrowserWindow.MIN_SIZE.getWidth();
+        }
+        if (dFinal.getHeight() < Dimensions.BrowserWindow.MIN_SIZE.getHeight()) {
+            dFinal.height = (int)Dimensions.BrowserWindow.MIN_SIZE.getHeight();
+        }
+        
+        if (!getSize().equals(dFinal)) {
+            setMinimumSize(dFinal);
+            setSize(dFinal);
+            mainWindowSize.setSize(dFinal);
+            validate();
+        }
     }
 
-	/**
-	 * Add the main panel to the window.
-	 * 
-	 */
-	private void initComponents() {
-		mainPanel = new MainPanel();
-		add(mainPanel);
-	}
-
-	/** Persist any window state. */
-    private void persist() {
-        persistence.set("location", getLocation());
+    /**
+     * Set the window size and location.
+     * 
+     * @param p
+     *            The new location.
+     * @param d
+     *            The new dimensions.
+     */
+	public void setMainWindowSizeAndLocation(final Point p, final Dimension d) {
+        final Point pFinal = new Point(p);
+        final Dimension dFinal = new Dimension(d);
+       
+        // Honour the minimum window size. When going below the size limit in
+        // either x or y, limit both the resize and the move in that direction.
+        if (dFinal.getWidth() < Dimensions.BrowserWindow.MIN_SIZE.getWidth()) {
+            if (pFinal.x != getLocation().x) {
+                pFinal.x += (dFinal.getWidth() - Dimensions.BrowserWindow.MIN_SIZE.getWidth());
+            }
+            dFinal.width = (int)Dimensions.BrowserWindow.MIN_SIZE.getWidth();
+        }
+        if (dFinal.getHeight() < Dimensions.BrowserWindow.MIN_SIZE.getHeight()) {
+            if (pFinal.y != getLocation().y) {
+                pFinal.y += (dFinal.getHeight() - Dimensions.BrowserWindow.MIN_SIZE.getHeight()); 
+            }
+            dFinal.height = (int)Dimensions.BrowserWindow.MIN_SIZE.getHeight();
+        }
+        
+        final Boolean move = !getLocation().equals(pFinal);
+        final Boolean resize = !getSize().equals(dFinal);
+        
+        if (resize) {
+            if (move) { // Move and resize
+                setBounds(pFinal.x, pFinal.y, (int)dFinal.getWidth(), (int)dFinal.getHeight());
+            }
+            else {      // Resize only                
+                setSize(dFinal);
+            }
+            setMinimumSize(dFinal);
+            mainWindowSize.setSize(dFinal);
+            validate();
+        }
+        else if (move) {
+            // Move only
+            setLocation(pFinal);
+        }
     }
 }

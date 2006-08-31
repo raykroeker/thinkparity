@@ -59,8 +59,14 @@ public final class Constants {
     /** Dimension constants. */
     public static final class Dimensions {
         public static final class BrowserWindow {
-            public static final Dimension MIN_SIZE = new Dimension(450, 587);
+            public static final Dimension MIN_SIZE = new Dimension(150, 150);
+            public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
         }
+    }
+    
+    /** Window resize constants. */
+    public static final class Resize {
+        public static final Integer EDGE_PIXEL_BUFFER = 7;
     }
 
     /** Parity directories. */

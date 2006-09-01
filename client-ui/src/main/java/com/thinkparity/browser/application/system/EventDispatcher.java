@@ -7,9 +7,6 @@ import com.thinkparity.model.parity.api.events.DocumentAdapter;
 import com.thinkparity.model.parity.api.events.DocumentEvent;
 import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
-import com.thinkparity.model.parity.api.events.SystemMessageEvent;
-import com.thinkparity.model.parity.api.events.SystemMessageListener;
-import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * The system application's event dispatcher.  
@@ -27,9 +24,6 @@ class EventDispatcher {
 
     /** The session listener. */
     private SessionListener sessionListener;
-
-	/** The system message listener. */
-	private SystemMessageListener systemMessageListener;
 
 	/**
 	 * Create an EventDispatcher.
@@ -53,9 +47,6 @@ class EventDispatcher {
 
         systemApplication.getSessionModel().removeListener(sessionListener);
         sessionListener = null;
-
-		systemApplication.getSystemMessageModel().removeListener(systemMessageListener);
-		systemMessageListener = null;
 	}
 
     /**
@@ -69,9 +60,6 @@ class EventDispatcher {
 
         sessionListener = createSessionListener();
         systemApplication.getSessionModel().addListener(sessionListener);
-
-		systemMessageListener = createSystemMessageListener();
-		systemApplication.getSystemMessageModel().addListener(systemMessageListener);
 	}
 
 	/**
@@ -130,18 +118,4 @@ class EventDispatcher {
             }
         };
     }
-
-	/**
-	 * Create a system message listener.
-	 * 
-	 * @return The system message listener.
-	 */
-	private SystemMessageListener createSystemMessageListener() {
-		return new SystemMessageListener() {
-			public void systemMessageCreated(
-					final SystemMessageEvent systemMessageEvent) {
-				systemApplication.fireSystemMessageCreated((SystemMessage) systemMessageEvent.getSource());
-			}
-		};
-	}
 }

@@ -10,11 +10,8 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.platform.AbstractFactory;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
@@ -42,13 +39,6 @@ public class PopupItemFactory extends AbstractFactory {
     /** A singleton instance. */
     private static PopupItemFactory SINGLETON;
     
-    static {
-        final UIDefaults defaults = UIManager.getDefaults();
-        defaults.put("MenuItem.selectionBackground", BrowserConstants.SelectionBackground);
-        defaults.put("MenuItem.selectionForeground", BrowserConstants.SelectionForeground);
-        defaults.put("MenuItem.font", BrowserConstants.Fonts.DefaultFont);
-    }
-
     /**
      * Obtain an instance of a browser popup item factory
      * 

@@ -24,7 +24,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatarModel;
+import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
@@ -66,7 +66,7 @@ public class ImportTxHandler extends TransferHandler {
     private final Browser browser;
     
     /** The model */
-    private ContainerAvatarModel containerAvatarModel;
+    private ContainerModel containerModel;
     
     /** The list we are droping on. */
     private final JList jList;
@@ -82,10 +82,10 @@ public class ImportTxHandler extends TransferHandler {
      *            The model backing the container avatar.
      */
     public ImportTxHandler(final Browser browser, final JList jList,
-            final ContainerAvatarModel containerAvatarModel) {
+            final ContainerModel containerModel) {
         super();
         this.browser = browser;
-        this.containerAvatarModel = containerAvatarModel;
+        this.containerModel = containerModel;
         this.jList = jList;
         this.logger = Logger.getLogger(getClass());
     }
@@ -172,7 +172,7 @@ public class ImportTxHandler extends TransferHandler {
         }
         
         // Get the list of documents in this package.
-        final List <String> existingDocuments = containerAvatarModel.getDocumentNames(cellContainer);
+        final List <String> existingDocuments = containerModel.getDocumentNames(cellContainer);
         
         // Determine the list of files to add and/or update. Check if the user
         // is trying to drag folders. Create two lists, one for adding and one
@@ -218,7 +218,7 @@ public class ImportTxHandler extends TransferHandler {
         // of the document since we used existingDocuments.contains() above.
         if (foundFilesToUpdate) {
             for (final File file : updateFileList) {
-                final Long documentId = containerAvatarModel.getDocumentId(cellContainer, file.getName());
+                final Long documentId = containerModel.getDocumentId(cellContainer, file.getName());
                 if (documentId != null) {
                     runUpdateDocumentDraft(documentId, file);
                 }
@@ -299,7 +299,7 @@ public class ImportTxHandler extends TransferHandler {
      *		A file.
      */
     private void runUpdateDocumentDraft(final Long documentId, final File file) {
-        if (containerAvatarModel.isDraftModified(documentId)) {
+        if (containerModel.isDraftModified(documentId)) {
             if (browser.confirm("ConfirmOverwriteWorking",
 		    new Object[] { file.getName() })) {
                 browser.runUpdateDocumentDraft(documentId, file);

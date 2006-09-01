@@ -25,7 +25,6 @@ import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
@@ -370,10 +369,6 @@ public abstract class AbstractAction {
 	 */
 	protected String getString(final String localKey, final Object[] arguments) {
 		return localization.getString(localKey, arguments);
-	}
-
-    protected SystemMessageModel getSystemMessageModel() {
-		return modelFactory.getSystemMessageModel(getClass());
 	}
 
     /**

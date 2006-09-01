@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.platform.util.model;
 
+import com.thinkparity.model.parity.model.archive.ArchiveModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
@@ -10,7 +11,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.install.InstallModel;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -37,71 +37,74 @@ public class ModelFactory {
      */
 	public static ModelFactory getInstance() { return INSTANCE; }
 
-    /** The parity artifact interface. */
-	private ArtifactModel artifactModel;
-    
-    /** The parity container (package) interface. */
-    private ContainerModel containerModel;   
-    
-    /** The parity document interface. */
-	private DocumentModel documentModel;
-      
-    /** The parity contact interface. */
-    private ContactModel contactModel;  
+    /** A thinkParity archive interface. */
+    private ArchiveModel archiveModel;
 
-    /** The parity download interface. */
+    /** A thinkParity artifact interface. */
+    private ArtifactModel artifactModel;
+    
+    /** A thinkParity contact interface. */
+    private ContactModel contactModel;   
+    
+    /** A thinkParity container interface. */
+    private ContainerModel containerModel;
+      
+    /** A thinkParity document interface. */
+	private DocumentModel documentModel;  
+
+    /** A thinkParity download interface. */
     private DownloadModel download;
 
-    /** The parity index interface. */
+    /** A thinkParity index interface. */
 	private IndexModel indexModel;
 
-    /** The parity install interface. */
+    /** A thinkParity install interface. */
     private InstallModel install;
 
     /** Flag indicating whether or not the factory is initialized. */
 	private boolean isInitialized;
 
-    /** The parity preferences. */
+    /** The thinkParity preferences. */
 	private Preferences preferences;
 
-    /** The thinkParity profile interface. */
+    /** A thinkParity profile interface. */
     private ProfileModel profile;
 
-    /** The parity release interface. */
+    /** A thinkParity release interface. */
     private ReleaseModel release;
 
-    /** The parity session interface. */
+    /** A thinkParity session interface. */
 	private SessionModel sessionModel;
 
-    /** The parity system message interface. */
-	private SystemMessageModel systemMessageModel;
-
-	/** The parity user interface. */
+	/** A thinkParity user interface. */
     private UserModel uModel;
 
-    /** The parity workspace. */
+    /** The thinkParity workspace. */
 	private Workspace workspace;
 
-    /** The parity workspace interface. */
+    /** A thinkParity workspace interface. */
 	private WorkspaceModel workspaceModel;
 
-	/** Create a ModelFactory. */
-    // [Singleton,Factory]
+	/** Create ModelFactory. */
 	private ModelFactory() {
 		super();
 		this.isInitialized = false;
 	}
 
-	public ArtifactModel getArtifactModel(final Class clasz) {
-		return artifactModel;
-	}
+    public ArchiveModel getArchiveModel(final Class clasz) {
+        return archiveModel;
+    }
     
-    public ContainerModel getContainerModel(final Class clasz) {
-        return containerModel;
+    public ArtifactModel getArtifactModel(final Class clasz) {
+        return artifactModel;
+    }
+    
+    public ContactModel getContactModel(final Class clasz) {
+        return contactModel;
     }
 
-	public ContactModel getContactModel(final Class clasz) {
-        return contactModel;
+	public ContainerModel getContainerModel(final Class clasz) {
+        return containerModel;
     }
     
     public DocumentModel getDocumentModel(final Class clasz) {
@@ -156,13 +159,6 @@ public class ModelFactory {
 		return sessionModel;
 	}
 
-    public SystemMessageModel getSystemMessageModel(final Class clasz) {
-		if(null == systemMessageModel) {
-			systemMessageModel = SystemMessageModel.getModel();
-		}
-		return systemMessageModel;
-	}
-
 	/**
      * Obtain a parity user interface.
      *
@@ -190,6 +186,7 @@ public class ModelFactory {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
+            archiveModel = ArchiveModel.getModel();
 			artifactModel = ArtifactModel.getModel();
             containerModel = ContainerModel.getModel();            
 			documentModel = DocumentModel.getModel();

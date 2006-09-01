@@ -17,9 +17,6 @@ public class Open extends AbstractAction {
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-	/** The browser application. */
-	private final Browser browser;
-
 	/**
      * Create Open.
      * 
@@ -28,7 +25,6 @@ public class Open extends AbstractAction {
      */
 	public Open(final Browser browser) {
 		super(ActionId.DOCUMENT_OPEN);
-		this.browser = browser;
 	}
 
 	/**
@@ -38,9 +34,6 @@ public class Open extends AbstractAction {
 	public void invoke(final Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
-		getArtifactModel().applyFlagSeen(documentId);
-
-		browser.fireDocumentUpdated(documentId, Boolean.FALSE);
 	}
 
 	/** Data keys. */

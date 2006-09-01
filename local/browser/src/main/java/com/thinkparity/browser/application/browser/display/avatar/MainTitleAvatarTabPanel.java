@@ -7,8 +7,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.Icons;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
+import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 
@@ -60,19 +59,11 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     private void contactsJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJLabelMouseClicked
-        if (2 == e.getClickCount()) {
-            /* NOCOMMIT */
-            ((ContactAvatar) new AvatarRegistry().get(AvatarId.TAB_CONTACT)).reload();
-        }
-        setTab(MainTitleAvatar.Tab.CONTACT);
+        setMainTitleAvatarInput(MainTitleAvatar.Tab.CONTACT);
     }//GEN-LAST:event_contactsJLabelMouseClicked
 
     private void containersJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_containersJLabelMouseClicked
-        if (2 == e.getClickCount()) {
-            /* NOCOMMIT */
-            ((ContainerAvatar) new AvatarRegistry().get(AvatarId.TAB_CONTAINER)).reload();
-        }
-        setTab(MainTitleAvatar.Tab.CONTAINER);
+        setMainTitleAvatarInput(MainTitleAvatar.Tab.CONTAINER);
     }//GEN-LAST:event_containersJLabelMouseClicked
 
     /** This method is called from within the constructor to
@@ -174,6 +165,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         reloadDisplayTab();
         reloadDisplayName();
     }
+
     /**
      * Reload the name label.
      * 
@@ -184,27 +176,36 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             nameJLabel.setText(profile.getName());
         }
     }
+
     /**
      * Reload the tab images; and display the correct avatar in the browser.
      * 
      */
     private void reloadDisplayTab() {
-        if(null != tab) {
-            switch(tab) {
-            case CONTACT:
-                contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
-                containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
-                mainTitleAvatar.getController().displayTabContactAvatar();
-                break;
-            case CONTAINER:
-                contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
-                containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
-                mainTitleAvatar.getController().displayTabContainerAvatar();
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN TAB");
-            }
+        switch(tab) {
+        case CONTACT:
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
+            break;
+        case CONTAINER:
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
+            break;
+        default:
+            Assert.assertUnreachable("UNKNOWN TAB");
         }
+    }
+
+    /**
+     * Set the tab porition of the main title avatar's input.
+     * 
+     * @param tab
+     *            A tab.
+     */
+    private void setMainTitleAvatarInput(final MainTitleAvatar.Tab tab) {
+        final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
+        data.set(MainTitleAvatar.DataKey.TAB, tab);
+        mainTitleAvatar.setInput(data);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

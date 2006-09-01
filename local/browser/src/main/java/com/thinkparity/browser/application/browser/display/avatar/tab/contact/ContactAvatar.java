@@ -11,7 +11,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -35,8 +34,6 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -61,6 +58,8 @@ public class ContactAvatar extends Avatar {
     
     /** Variables used to modify behavior of selection. */
     private Integer selectedIndex = -1;
+
+    /** Flag indicating whether or not we want to select the last index. */
     private Boolean selectingLastIndex = Boolean.FALSE;
     
     /** Create a BrowserContactsAvatar. */
@@ -71,20 +70,6 @@ public class ContactAvatar extends Avatar {
         setLayout(new GridBagLayout());   // Layout manager for this container
         setResizeEdges(Resizer.FormLocation.MIDDLE);  
         initComponents();
-    }
-
-    /**
-     * Apply the search results to filter the contacts list.
-     * 
-     * @param searchResult
-     *            The search results.
-     * 
-     * @see #searchFilter
-     * @see #applyFilter(Filter)
-     * @see #removeSearchFilter()
-     */
-    public void applySearchFilter(final List<IndexHit> searchResult) {
-        model.applySearchFilter(searchResult);
     }
 
     /**
@@ -104,17 +89,25 @@ public class ContactAvatar extends Avatar {
      *
      */
     public void reload() {
-        /* NOCOMMIT */
-        model.reload();
+        final String searchExpression = getInputSearchExpression();
+        if (null == searchExpression) {
+            model.removeSearch();
+        } else {
+            model.applySearch(searchExpression);
+        }
     }
 
     /**
-     * Remove the search filter from the list.
-     *
-     * @see #applySearchFilter(List)
+     * Obtain the input search expression.
+     * 
+     * @return A search expression <code>String</code>.
      */
-    public void removeSearchFilter() {
-        model.removeSearchFilter();
+    private String getInputSearchExpression() {
+        if (null == input) {
+            return null;
+        } else {
+            return (String) ((Data) input).get(DataKey.SEARCH_EXPRESSION);
+        }
     }
 
     /**
@@ -123,9 +116,6 @@ public class ContactAvatar extends Avatar {
      */
     public void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
-        if(0 < jList.getModel().getSize()) {
-            setSelectedIndex(0);
-        }
     }
     
     /**
@@ -228,6 +218,17 @@ public class ContactAvatar extends Avatar {
         });
         
         jList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(final MouseEvent e) {
+                if(2 == e.getClickCount()) {
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    // Don't process double click if it is on white space below the last contact
+                    final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                    if(SwingUtil.regionContains(cellBounds, p)){                  
+                        model.triggerDoubleClick((TabCell) jList.getSelectedValue());
+                    }
+                }
+            }
             public void mousePressed(final MouseEvent e) {
                 // If selectingLastIndex is true then the selection was interrupted. Don't
                 // perform the selection if the user clicked below the last entry, otherwise
@@ -247,17 +248,6 @@ public class ContactAvatar extends Avatar {
                         jList.setSelectedIndex(listIndex);
                     }
                     selectingLastIndex = Boolean.FALSE;  
-                }
-            }
-            public void mouseClicked(final MouseEvent e) {
-                if(2 == e.getClickCount()) {
-                    final Point p = e.getPoint();
-                    final Integer listIndex = jList.locationToIndex(p);
-                    // Don't process double click if it is on white space below the last contact
-                    final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                    if(SwingUtil.regionContains(cellBounds, p)){                  
-                        model.triggerDoubleClick((TabCell) jList.getSelectedValue());
-                    }
                 }
             }
             public void mouseReleased(final MouseEvent e) {
@@ -346,4 +336,6 @@ public class ContactAvatar extends Avatar {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
         jPopupMenu.show(invoker, x, y);
     }   
+
+    public enum DataKey { SEARCH_EXPRESSION }
 }

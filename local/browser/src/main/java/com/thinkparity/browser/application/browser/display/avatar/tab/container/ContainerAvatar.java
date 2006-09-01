@@ -6,7 +6,6 @@ package com.thinkparity.browser.application.browser.display.avatar.tab.container
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -31,12 +30,6 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.index.IndexHit;
 
 /**
  * The containers avatar displays the list of containers (packages)
@@ -79,26 +72,6 @@ public class ContainerAvatar extends Avatar {
         initComponents();
     }
 
-    /**
-     * Apply the search results to filter the main list.
-     * 
-     * @param searchResult
-     *            The search results.
-     * 
-     * @see #searchFilter
-     * @see #applyFilter(Filter)
-     * @see #removeSearchFilter()
-     */
-    public void applySearchFilter(final List<IndexHit> searchResult) {
-        throw Assert
-                .createNotYetImplemented("ContainerAvatar#applySearchFilter");
-    }
-
-    /** Clear all filters. */
-    public void clearFilters() {
-        throw Assert.createNotYetImplemented("ContainerAvatar#clearFilters");
-    }
-    
     /** Debug the model. */
     public void debug() {
         model.debug();
@@ -117,53 +90,31 @@ public class ContainerAvatar extends Avatar {
     public State getState() { return null; }
     
     /**
-     * Determine whether or not the filter is enabled.
-     *
-     * @return True if it is; false otherwise.
-     */
-    public Boolean isFilterEnabled() {
-        throw Assert.createNotYetImplemented("ContainerAvatar#isFilterEnabled");
-    }
-
-    /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
      *
      */
     public void reload() {
-        /* NOCOMMIT */
-        model.reload();
+        final String searchExpression = getInputSearchExpression();
+        if (null == searchExpression) {
+            model.removeSearch();
+        } else {
+            model.applySearch(searchExpression);
+        }
     }
 
     /**
-     * Remove the key holder filter.
-     *
-     * @see #applyKeyHolderFilter(Boolean)
-     */
-    public void removeKeyHolderFilter() {
-        throw Assert
-                .createNotYetImplemented("ContainerAvatar#removeKeyHolderFilter");
-    }
-
-    /**
-     * Remove the search filter from the list.
-     *
-     * @see #applySearchFilter(List)
-     */
-    public void removeSearchFilter() {
-        throw Assert
-                .createNotYetImplemented("ContainerAvatar#removeSearchFilter");
-    }
-
-    /**
-     * Remove the state filter from the list.
+     * Obtain the input search expression.
      * 
-     * @see #applyStateFilter(ArtifactState)
+     * @return A search expression <code>String</code>.
      */
-    public void removeStateFilter() {
-        throw Assert
-                .createNotYetImplemented("ContainerAvatar#removeStateFilter");
+    private String getInputSearchExpression() {
+        if (null == input) {
+            return null;
+        } else {
+            return (String) ((Data) input).get(DataKey.SEARCH_EXPRESSION);
+        }
     }
-    
+
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)
      * 
@@ -438,4 +389,6 @@ public class ContainerAvatar extends Avatar {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
         jPopupMenu.show(invoker, x, y);
     }    
+
+    public enum DataKey { SEARCH_EXPRESSION }
 }

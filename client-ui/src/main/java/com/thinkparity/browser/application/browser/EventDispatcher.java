@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.application.browser;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.api.events.*;
 
 /**
@@ -26,9 +24,6 @@ class EventDispatcher {
 
 	/** A thinkParity session interface listener.*/
 	private SessionListener sessionListener;
-
-    /** A thinkParity system message interface listener. */
-	private SystemMessageListener systemMessageListener;
 
 	/**
      * Create an EventDispatcher.
@@ -54,9 +49,6 @@ class EventDispatcher {
         
 		browser.getSessionModel().removeListener(sessionListener);
 		sessionListener = null;
-
-		browser.getSystemMessageModel().removeListener(systemMessageListener);
-		systemMessageListener = null;
 	}
 
 	/**
@@ -72,9 +64,6 @@ class EventDispatcher {
         
 		sessionListener = createSessionListener();
 		browser.getSessionModel().addListener(sessionListener);
-
-		systemMessageListener = createSystemMessageListener();
-		browser.getSystemMessageModel().addListener(systemMessageListener);
 	}
     
     private ContactListener createContactListener() {
@@ -172,15 +161,4 @@ class EventDispatcher {
             }
         };
     }
-
-
-    private SystemMessageListener createSystemMessageListener() {
-		return new SystemMessageListener() {
-			public void systemMessageCreated(
-					final SystemMessageEvent systemMessageEvent) {
-				throw Assert
-                        .createNotYetImplemented("EventDispatcher$SystemMessageListener#systemMessageCreated");
-			}
-		};
-	}
 }

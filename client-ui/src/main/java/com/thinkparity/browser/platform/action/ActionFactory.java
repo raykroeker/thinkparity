@@ -88,9 +88,6 @@ public class ActionFactory extends AbstractFactory {
 		case CONTACT_READ:
             action = new com.thinkparity.browser.platform.action.contact.Read(browser);
             break;
-        case CONTACT_SEARCH:
-            action = new com.thinkparity.browser.platform.action.contact.Search(browser);
-            break;
 
 		case CONTAINER_ADD_DOCUMENT:
             action = new com.thinkparity.browser.platform.action.container.AddDocument(browser);
@@ -115,9 +112,6 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.browser.platform.action.container.RevertDocument(browser);
-            break;
-        case CONTAINER_SEARCH:
-            action = new com.thinkparity.browser.platform.action.container.Search(browser);
             break;
         case CONTAINER_SHARE:
             action = new com.thinkparity.browser.platform.action.container.Share(browser);

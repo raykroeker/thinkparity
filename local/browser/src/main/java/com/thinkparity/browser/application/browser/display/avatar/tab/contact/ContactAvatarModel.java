@@ -7,10 +7,8 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
@@ -28,10 +26,7 @@ import com.thinkparity.model.parity.model.contact.ContactInvitation;
 import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.FilterChain;
 import com.thinkparity.model.parity.model.filter.UserFilterManager;
-import com.thinkparity.model.parity.model.filter.user.SearchUser;
-import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
@@ -42,28 +37,11 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class ContactAvatarModel {
 
-    /**
-     * Collection of all filters used by the contacts model. In the case of
-     * contacts, there are no filters that apply, only search.
-     * 
-     */
-    private static final Map<FilterKey, Filter<User>> CONTACT_FILTERS;
-
-    static {
-        CONTACT_FILTERS = new HashMap<FilterKey, Filter<User>>(FilterKey
-                .values().length, 1.0F);
-        CONTACT_FILTERS.put(FilterKey.SEARCH, new SearchUser(
-                new LinkedList<IndexHit>()));
-    }
-
     /** An apache logger. */
     protected final Logger logger;
 
     /** The application. */
     private final Browser browser;
-
-    /** The filter that is used to filter contacts to produce visibleContacts. */
-    private final FilterChain<User> contactFilter;
 
     /** A list of all contacts. */
     private final List<ContactCell> contacts;
@@ -80,6 +58,21 @@ public class ContactAvatarModel {
     /** A list of outgoing invitations. */
     private final List<OutgoingInvitationCell> outgoingInvitations;
 
+    /**
+     * The user input search expression.
+     * 
+     * @see #applySearch(String)
+     */
+    private String searchExpression;
+
+    /**
+     * A list of contact ids matching the search criteria.
+     * 
+     * @see #applySearch(List)
+     * @see #removeSearch()
+     */
+    private List<JabberId> searchResults;
+
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
 
@@ -91,7 +84,6 @@ public class ContactAvatarModel {
         super();
         this.browser = browser;
         this.contacts = new ArrayList<ContactCell>(50);
-        this.contactFilter = new FilterChain<User>();
         this.incomingInvitations = new ArrayList<IncomingInvitationCell>(50);
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
@@ -100,24 +92,29 @@ public class ContactAvatarModel {
     }
 
     /**
-     * Apply a search filter to the list of visible contacts.
+     * Apply the user's search to the contact list.
      * 
-     * @param searchResult
-     *            The search result to filter by.
+     * @param searchExpression
+     *            A search expression <code>String</code>.
      * 
-     * @see #removeSearchFilter()
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #removeSearch()
      */
-    void applySearchFilter(final List<IndexHit> searchResult) {
-        final SearchUser search = (SearchUser) CONTACT_FILTERS
-                .get(FilterKey.SEARCH);
-        search.setResults(searchResult);
-
-        applyContactFilter(search);
-        syncModel();
+    void applySearch(final String searchExpression) {
+        // if the parameter search expression matches the member search
+        // expression there is no need to search
+        if (searchExpression.equals(this.searchExpression)) {
+            return;
+        } else {
+            this.searchExpression = searchExpression;
+            this.searchResults = readSearchResults();
+            syncModel();
+        }
     }
 
     /**
-     * Debug the contact filter.
+     * Debug the contact avatar.
      * 
      */
     void debug() {
@@ -157,8 +154,6 @@ public class ContactAvatarModel {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
                         + mc.getText() + "]");
             }
-
-            contactFilter.debug(logger);
         }
     }
 
@@ -183,28 +178,22 @@ public class ContactAvatarModel {
     }
 
     /**
-     * Determine whether the contact list is currently filtered. (Search doesn't
-     * count.)
+     * Remove the search.
      * 
-     * @return True if the contact list is filtered; false otherwise.
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #applySearch(String)
      */
-    Boolean isContactListFiltered() {
-        return Boolean.FALSE;
-    }
-
-    /* NOCOMMIT */
-    void reload() {
-        initModel();
-    }
-
-    /**
-     * Remove the search filter.
-     * 
-     * @see #applySearchFilter(List)
-     */
-    void removeSearchFilter() {
-        removeContactFilter(CONTACT_FILTERS.get(FilterKey.SEARCH));
-        syncModel();
+    void removeSearch() {
+        // if the member search expression is already null; then there is no
+        // search applied -> do nothing
+        if (null == searchExpression) {
+            return;
+        } else {
+            searchExpression = null;
+            searchResults = null;
+            syncModel();
+        }
     }
 
     /**
@@ -268,6 +257,23 @@ public class ContactAvatarModel {
     }
 
     /**
+     * Trigger a double click event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    void triggerDoubleClick(final TabCell mainCell) {
+        debug();
+        if(browser.getPlatform().isDevelopmentMode()) {
+            logger.debug("Opening contact " + mainCell.getText());
+        }
+        if(mainCell instanceof ContactCell) {
+            final ContactCell cc = (ContactCell) mainCell;
+            browser.runReadContact(cc.getId()); // Jabber ID
+        }
+    }
+
+    /**
      * Synchronize the contacts with the list. The content provider is queried
      * for the contact and if it can be obtained; it will either be added to or
      * updated in the list. If it cannot be found; it will be removed from the
@@ -286,23 +292,6 @@ public class ContactAvatarModel {
      * for(final JabberId contactId : contactIds) {
      * syncContactInternal(contactId, remote); } syncModel(); }
      */
-
-    /**
-     * Trigger a double click event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    void triggerDoubleClick(final TabCell mainCell) {
-        debug();
-        if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("Opening contact " + mainCell.getText());
-        }
-        if(mainCell instanceof ContactCell) {
-            final ContactCell cc = (ContactCell) mainCell;
-            browser.runReadContact(cc.getId()); // Jabber ID
-        }
-    }
 
     /**
      * Trigger a popup event for the cell.
@@ -325,18 +314,6 @@ public class ContactAvatarModel {
         if(mainCell instanceof ContactCell) {
             final ContactCell cc = (ContactCell) mainCell;
             browser.selectContact(cc.getId());
-        }
-    }
-
-    /**
-     * Apply the specified filter.
-     * 
-     * @param filter
-     *            The contact filter.
-     */
-    private void applyContactFilter(final Filter<User> filter) {
-        if(!contactFilter.containsFilter(filter)) {
-            contactFilter.addFilter(filter);
         }
     }
 
@@ -399,8 +376,7 @@ public class ContactAvatarModel {
      */
     private List<ContactCell> readContacts() {
         final List<ContactCell> list = new LinkedList<ContactCell>();
-        final Contact[] array = (Contact[]) contentProvider
-                .getElements(0, null);
+        final Contact[] array = (Contact[]) contentProvider.getElements(0, null);
         for (final Contact contact : array) {
             list.add(toDisplay(contact));
         }
@@ -425,8 +401,8 @@ public class ContactAvatarModel {
      */
     private List<IncomingInvitationCell> readIncomingInvitations() {
         final List<IncomingInvitationCell> list = new LinkedList<IncomingInvitationCell>();
-        final IncomingInvitation[] array = (IncomingInvitation[]) contentProvider
-                .getElements(1, null);
+        final IncomingInvitation[] array =
+            (IncomingInvitation[]) contentProvider.getElements(1, null);
         for (final IncomingInvitation incomingInvitation : array) {
             list.add(toDisplay(incomingInvitation));
         }
@@ -451,10 +427,24 @@ public class ContactAvatarModel {
      */
     private List<OutgoingInvitationCell> readOutgoingInvitations() {
         final List<OutgoingInvitationCell> list = new LinkedList<OutgoingInvitationCell>();
-        final OutgoingInvitation[] array = (OutgoingInvitation[]) contentProvider
-                .getElements(2, null);
+        final OutgoingInvitation[] array =
+            (OutgoingInvitation[]) contentProvider.getElements(2, null);
         for (final OutgoingInvitation outgoingInvitation : array) {
             list.add(toDisplay(outgoingInvitation));
+        }
+        return list;
+    }
+
+    /**
+     * Search for a list of contact jabber ids through the content provider.
+     * 
+     * @return A list of contact ids.
+     */
+    private List<JabberId> readSearchResults() {
+        final List<JabberId> list = new LinkedList<JabberId>();
+        final JabberId[] array = (JabberId[]) contentProvider.getElements(3, searchExpression);
+        for (final JabberId contactId : array) {
+            list.add(contactId);
         }
         return list;
     }
@@ -468,18 +458,6 @@ public class ContactAvatarModel {
      */
     private User readUser(final JabberId jabberId) {
         return (User) contentProvider.getElement(3, jabberId);
-    }
-
-    /**
-     * Remove a contact filter.
-     * 
-     * @param filter
-     *            The contact filter.
-     */
-    private void removeContactFilter(final Filter<User> filter) {
-        if(contactFilter.containsFilter(filter)) {
-            contactFilter.removeFilter(filter);
-        }
     }
 
     /**
@@ -585,19 +563,20 @@ public class ContactAvatarModel {
     }
 
     /**
-     * Filter the list of contacts. Update the visible cell list with contacts.
-     * Update the model with the visible cell list.
+     * Create a final list of contact cells and invitation cells. Apply the
+     * search results to the list.
      * 
      */
     private void syncModel() {
         debug();
 
-        // filter contacts
+        // search filtered contacts
         final List<ContactCell> filteredContacts = cloneContacts();
         final List<OutgoingInvitationCell> filteredOutgoingInvitations = cloneInvitations(outgoingInvitations);
         final List<IncomingInvitationCell> filteredIncomingInvitations = cloneInvitations(incomingInvitations);
-        UserFilterManager.filter(filteredContacts, contactFilter);
-        // TODO Filter the invitations
+        if (null != searchExpression && null != searchResults) {
+            UserFilterManager.filter(filteredContacts, new SearchFilter(searchResults));
+        }
 
         // update all visible cells
         visibleCells.clear();
@@ -694,8 +673,35 @@ public class ContactAvatarModel {
         }
     }
 
-    /** A key to locate filters. */
-    private enum FilterKey {
-        SEARCH
+    /**
+     * <b>Title:</b>thinkParity Contact Search Filter<br>
+     * <b>Description:</b>Provides the capability to filter the contact cells
+     * that do not match the search results.
+     */
+    private class SearchFilter implements Filter<User> {
+
+        /** The search results. */
+        private final List<JabberId> searchResults;
+
+        /**
+         * Create SearchFilter.
+         * 
+         * @param searchResults
+         *            A <code>List&lt;JabberId&gt;</code>.
+         */
+        private SearchFilter(final List<JabberId> searchResults) {
+            this.searchResults = searchResults;
+        }
+
+        /**
+         * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(java.lang.Object)
+         */
+        public Boolean doFilter(final User o) {
+            for (final JabberId searchResult : searchResults) {
+                if (searchResult.equals(o.getId()))
+                    return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        }
     }
 }

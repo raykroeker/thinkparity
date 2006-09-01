@@ -46,6 +46,9 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
     /** An outgoing invitations provider. */
     private final FlatContentProvider outgoingInvitationsProvider;
 
+    /** A contact id list provider (search). */
+    private final FlatContentProvider searchResultsProvider;
+
     /** An array of single providers. */
     private final SingleContentProvider[] singleProviders;
 
@@ -105,6 +108,14 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
                 return contactModel.readOutgoingInvitations().toArray(new OutgoingInvitation[] {});
             }
         };
+        this.searchResultsProvider = new FlatContentProvider(profile) {
+            @Override
+            public Object[] getElements(final Object input) {
+                Assert.assertNotNull("NULL INPUT", input);
+                Assert.assertOfType("INPUT IS OF WRONG TYPE", String.class, input);
+                return contactModel.search((String) input).toArray(new JabberId[] {});
+            }
+        };
         this.userProvider = new SingleContentProvider(profile) {
             @Override
             public Object getElement(Object input) {
@@ -115,7 +126,7 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         };
         this.flatProviders = new FlatContentProvider[] {
                 contactsProvider, incomingInvitationsProvider,
-                outgoingInvitationsProvider };
+                outgoingInvitationsProvider, searchResultsProvider };
         this.singleProviders = new SingleContentProvider[] {
                 contactProvider, incomingInvitationProvider,
                 outgoingInvitationProvider, userProvider };

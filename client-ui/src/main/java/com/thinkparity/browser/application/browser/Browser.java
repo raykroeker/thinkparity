@@ -18,6 +18,9 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
@@ -69,11 +72,7 @@ import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -130,31 +129,28 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Set the search results in the search filter and apply it to the current
-     * list.
+     * Apply a search expression to a given tab.
      * 
-     * @param searchResult
-     *            The search results.
+     * @param expression
+     *            The search expression <code>String</code>.
      */
-	public void applySearchFilter(final List<IndexHit> searchResult) {
+	public void applySearch(final String expression) {
+	    final Data data = new Data(1);
         switch(getMainTitleAvatarTab()) {
-        case CONTAINER:
-            getTabContainerAvatar().applySearchFilter(searchResult);            
-            break;
         case CONTACT:
-            getTabContactAvatar().applySearchFilter(searchResult);
+            if (null != expression)
+                data.set(ContactAvatar.DataKey.SEARCH_EXPRESSION, expression);
+            setInput(AvatarId.TAB_CONTACT, data);
+            break;
+        case CONTAINER:
+            if (null != expression)
+                data.set(ContainerAvatar.DataKey.SEARCH_EXPRESSION, expression);
+            setInput(AvatarId.TAB_CONTAINER, data);
             break;
         default:
             Assert.assertUnreachable("UNKNOWN TAB");
         }
 	}
-
-    /**
-     * Clear the non-search filters for the containers list.
-     *
-     * @see #removeSearchFilter()
-     */
-    public void clearFilters() { getTabContainerAvatar().clearFilters(); }
 
     /** Close the main window. */
     public void closeBrowserWindow() {
@@ -174,7 +170,7 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
         return confirm(input);
     }
-
+    
     /**
      * Open a confirmation dialog.
      * 
@@ -195,7 +191,7 @@ public class Browser extends AbstractApplication {
      *
      */
 	public void debugMain() { getTabContainerAvatar().debug(); }
-    
+
     /**
      * Display the invite dialogue.
      *
@@ -217,7 +213,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-
+    
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -236,7 +232,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -246,7 +242,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-
+    
     /**
      * Display an error dialog.
      *
@@ -259,7 +255,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-    
+
     /**
      * Display an error dialog
      * 
@@ -324,7 +320,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_RENAME, input);
         displayAvatar(WindowId.RENAME, AvatarId.DIALOG_RENAME);
     }
-
+    
     /**
      * Display the update profile dialog.
      *
@@ -332,7 +328,7 @@ public class Browser extends AbstractApplication {
     public void displayResetProfilePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
     }
-    
+
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);
@@ -363,7 +359,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
     }
-
+    
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
@@ -380,7 +376,7 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-    
+
     /**
      * Notify the application that a contact has been added.
      * 
@@ -413,7 +409,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Notify the application a container has been closed.
      * 
@@ -430,7 +426,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });
     }
-    
+
     /**
      * Notify the application a container confirmation has been received.
      *
@@ -462,7 +458,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Notify the application that a container has been deleted.
      * 
@@ -502,7 +498,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
      * Notify the application that a document has been deleted.
      * 
@@ -559,7 +555,7 @@ public class Browser extends AbstractApplication {
                 public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-
+    
     /**
      * Notify the application a team member has been added to the container.
      *
@@ -573,7 +569,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-    
+
     /**
      * Notify the application a team member has been removed from the document.
      *
@@ -742,7 +738,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /**
+	/**
      * Notify the application that an outgoing contact invitation has been
      * deleted.
      * 
@@ -804,19 +800,19 @@ public class Browser extends AbstractApplication {
 	 */
 	public Long getSelectedContainerId() { return session.getSelectedContainerId(); }
 
-	/**
+    /**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
 	 */
 	public Object getSelectedSystemMessage() { return null; }
-
+    
     /**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
-    
+
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
@@ -830,19 +826,9 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
 
-    /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
+	/** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
-    }
-
-	/**
-     * Determine whether or not the main avatar's filter is enabled.
-     * 
-     * @return True if it is; false otherwise.
-     */
-    public Boolean isFilterEnabled() {
-        if(null == getTabContainerAvatar()) { return Boolean.FALSE; }
-        return getTabContainerAvatar().isFilterEnabled();
     }
 
 	/**
@@ -851,19 +837,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void minimize() {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
-	}
-
-	/**
-	 * Move the browser window.
-	 * 
-	 * @param l
-	 *            The new relative location of the window.
-	 */
-	public void moveBrowserWindow(final Point l) {
-		final Point newL = mainWindow.getLocation();
-		newL.x += l.x;
-		newL.y += l.y;
-		mainWindow.setLocation(newL);
 	}
     
     /**
@@ -887,37 +860,23 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Set the cursor.
-     * 
-     * @param cursor
-     *          The cursor to use.
-     */
-    public void setCursor(Cursor cursor) {
-        mainWindow.getContentPane().setCursor(cursor);
-    }
+	 * Move the browser window.
+	 * 
+	 * @param l
+	 *            The new relative location of the window.
+	 */
+	public void moveBrowserWindow(final Point l) {
+		final Point newL = mainWindow.getLocation();
+		newL.x += l.x;
+		newL.y += l.y;
+		mainWindow.setLocation(newL);
+	}
 
 	/**
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
-
-	/**
-     * Remove the search filter from the current list.
-     *
-     */
-    public void removeSearchFilter() {
-        switch(getMainTitleAvatarTab()) {
-        case CONTACT:
-            getTabContactAvatar().removeSearchFilter();
-            break;
-        case CONTAINER:
-            getTabContainerAvatar().removeSearchFilter();
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
-        }
-    }
 
     /**
      * Resize the browser window.
@@ -1243,28 +1202,6 @@ public class Browser extends AbstractApplication {
     }
   
     /**
-     * Run a search for an artifact on the criteria.
-     * 
-     * @param criteria
-     *            The search criteria.
-     */
-	public void runSearch(final String expression) {
-	    final Data data = new Data(1);
-        switch(getMainTitleAvatarTab()) {
-        case CONTACT:
-            data.set(com.thinkparity.browser.platform.action.contact.Search.DataKey.EXPRESSION, expression);
-            runSearchContact(data);
-            break;
-        case CONTAINER:
-            data.set(com.thinkparity.browser.platform.action.container.Search.DataKey.EXPRESSION, expression);
-            runSearchContainer(data);
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
-        }
-	}
-
-    /**
      * Update the document with the file.
      * 
      * @param documentId
@@ -1351,8 +1288,8 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void saveState(final State state) {}
-    
-	/**
+
+    /**
      * Select a contact.
      * 
      * @param contactId
@@ -1366,8 +1303,8 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }
     }
-
-    /**
+    
+	/**
      * Select a container.
      * 
      * @param containerId
@@ -1380,6 +1317,16 @@ public class Browser extends AbstractApplication {
         if(null != oldSelection && !oldSelection.equals(containerId)) {
             clearStatus();
         }        
+    }
+
+    /**
+     * Set the cursor.
+     * 
+     * @param cursor
+     *          The cursor to use.
+     */
+    public void setCursor(Cursor cursor) {
+        mainWindow.getContentPane().setCursor(cursor);
     }
 
     /**
@@ -1663,27 +1610,6 @@ public class Browser extends AbstractApplication {
     private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         mainWindow.reOpen();
-    }
-
-
-	/**
-     * Run the search action for the contact tab.
-     * 
-     * @param data
-     *            The action data.
-     */
-    private void runSearchContact(final Data data) {
-        invoke(ActionId.CONTACT_SEARCH, data);
-    }
-
-    /**
-     * Run the search action for the container tab.
-     * 
-     * @param data
-     *            The action data.
-     */
-    private void runSearchContainer(final Data data) {
-        invoke(ActionId.CONTAINER_SEARCH, data);
     }
 
     /**

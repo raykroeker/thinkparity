@@ -26,8 +26,11 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.containe
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
+import com.thinkparity.model.parity.model.filter.Filter;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -59,16 +62,30 @@ public class ContainerAvatarModel {
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
+    /**
+     * The user input search expression.
+     * 
+     * @see #applySearch(String)
+     */
+    private String searchExpression;
+
+    /**
+     * A list of contact ids matching the search criteria.
+     * 
+     * @see #applySearch(List)
+     * @see #removeSearch()
+     */
+    private List<Long> searchResults;
+
     /** A map of the container cells to a list of their respective versions. */
     private final Map<ContainerCell, List<ContainerVersionCell>> versionCells;
 
     /** A map of the container version to the draft documents. */
     private final Map<ContainerVersionCell, List<ContainerVersionDocumentCell>> versionDocumentCells;
-    
 
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
-
+    
     /**
      * Create BrowserContainersModel.
      * 
@@ -86,7 +103,7 @@ public class ContainerAvatarModel {
         this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
     }
-    
+
     /**
      * Get the container cell, given the container id.
      * 
@@ -177,7 +194,27 @@ public class ContainerAvatarModel {
     }
 
     /**
-     * Debug the container filter.
+     * Apply the user's search to the contact list.
+     * 
+     * @param searchExpression
+     *            A search expression <code>String</code>.
+     * 
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #removeSearch()
+     */
+    void applySearch(final String searchExpression) {
+        if (searchExpression.equals(this.searchExpression)) {
+            return;
+        } else {
+            this.searchExpression = searchExpression;
+            this.searchResults = readSearchResults();
+            syncModel();
+        }
+    }
+
+    /**
+     * Debug the container avatar.
      *
      */
     void debug() {
@@ -220,6 +257,25 @@ public class ContainerAvatarModel {
         return visibleCells.contains(cellContainer);
     }
     
+    /**
+     * Remove the search.
+     * 
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #applySearch(String)
+     */
+    void removeSearch() {
+        // if the member search expression is already null; then there is no
+        // search applied -> do nothing
+        if (null == searchExpression) {
+            return;
+        } else {
+            searchExpression = null;
+            searchResults = null;
+            syncModel();
+        }
+    }
+
     /**
      * Set the content provider. This will initialize the model with documents
      * via the provider.
@@ -411,11 +467,6 @@ public class ContainerAvatarModel {
         syncModel();
     }
 
-    /* NOCOMMIT */
-    void reload() {
-        initModel();
-    }
-
     /**
      * Read a container from the provider.
      * 
@@ -461,6 +512,20 @@ public class ContainerAvatarModel {
      */
     private Boolean readIsDraftModified(final Long documentId) {
         return (Boolean) contentProvider.getElement(2, documentId);
+    }
+
+    /**
+     * Search for a list of container ids through the content provider.
+     * 
+     * @return A list of container ids.
+     */
+    private List<Long> readSearchResults() {
+        final List<Long> list = new LinkedList<Long>();
+        final Long[] array = (Long[]) contentProvider.getElements(3, searchExpression);
+        for (final Long containerId : array) {
+            list.add(containerId);
+        }
+        return list;
     }
 
     /**
@@ -607,14 +672,20 @@ public class ContainerAvatarModel {
     }
 
     /**
-     * Filter the list of containers. Update the visible cell list with containers
-     * as well as the documents. Update the model with the visible cell list.
+     * Create the final list of container cells; container draft cells; draft
+     * document cells; container version cells and container version document
+     * cells. The search filter is also applied here.
      * 
      */
     private void syncModel() {
         debug();
-        // filter containers
+
+        // searc filtered containers
         final List<ContainerCell> filteredContainers = cloneContainers();
+        if (null != searchExpression && null != searchResults) {
+            ArtifactFilterManager.filter(filteredContainers, new SearchFilter(searchResults));
+        }
+        
         // update all visible cells
         visibleCells.clear();
         for (final ContainerCell cc : filteredContainers) {
@@ -703,5 +774,37 @@ public class ContainerAvatarModel {
             documentCells.add(new DraftDocumentCell(draft, document));
         }
         return documentCells;
+    }
+
+    /**
+     * <b>Title:</b>thinkParity Container Search Filter<br>
+     * <b>Description:</b>Provides the capability to filter the container cells
+     * that do not match the search results.
+     */
+    private class SearchFilter implements Filter<Artifact> {
+
+        /** The search results. */
+        private final List<Long> searchResults;
+
+        /**
+         * Create SearchFilter.
+         * 
+         * @param searchResults
+         *            A <code>List&lt;Long&gt;</code>.
+         */
+        private SearchFilter(final List<Long> searchResults) {
+            this.searchResults = searchResults;
+        }
+
+        /**
+         * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(java.lang.Object)
+         */
+        public Boolean doFilter(final Artifact o) {
+            for (final Long searchResult : searchResults) {
+                if (searchResult.equals(o.getId()))
+                    return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        }
     }
 }

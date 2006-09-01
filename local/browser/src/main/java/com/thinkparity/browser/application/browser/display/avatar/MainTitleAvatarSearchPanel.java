@@ -18,6 +18,7 @@ import com.thinkparity.codebase.swing.border.TopBottomBorder;
 import com.thinkparity.browser.Constants.Colors;
 import com.thinkparity.browser.Constants.Images;
 import com.thinkparity.browser.Constants.Search;
+import com.thinkparity.browser.platform.util.SwingUtil;
 
 /**
  *
@@ -52,6 +53,15 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
                 g2.dispose();
             }
         }
+    }
+
+    /**
+     * Apply a search.
+     * 
+     */
+    private void applySearch() {
+        mainTitleAvatar.getController().applySearch(
+                SwingUtil.extract(searchJTextField));
     }
 
     /** This method is called from within the constructor to
@@ -140,14 +150,14 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
      * re-sets the timer.
      * 
      * @param e
-     *            The document even.
+     *            The document event.
      */
     private void searchFieldUpdated(final DocumentEvent e) {
         if (searchActivationTimer == null) {
             searchActivationTimer= new Timer(Search.ACTIVATION_DELAY, new ActionListener() {
                 public void actionPerformed(final ActionEvent timerEvent) {
                     searchActivationTimer.stop();
-                    mainTitleAvatar.getController().runSearch(searchJTextField.getText());
+                    applySearch();
                 }
             });
             searchActivationTimer.start();
@@ -168,7 +178,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         if (searchActivationTimer != null) {
             searchActivationTimer.stop();
         }
-        mainTitleAvatar.getController().runSearch(searchJTextField.getText());
+        applySearch();
     }//GEN-LAST:event_searchJTextFieldActionPerformed
 
     /**

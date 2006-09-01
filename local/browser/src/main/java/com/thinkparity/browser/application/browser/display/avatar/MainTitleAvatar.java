@@ -9,13 +9,14 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.event.MouseInputAdapter;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.GradientPainter;
+
 import com.thinkparity.browser.Constants.Images;
 import com.thinkparity.browser.Constants.Colors.Browser;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-
-import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 
@@ -179,7 +180,20 @@ public class MainTitleAvatar extends Avatar {
      *
      */
     private void reloadTab() {
-        tabPanel.setTab(getInputTab());
+        final MainTitleAvatar.Tab tab = getInputTab();
+        if (null != tab) {
+            tabPanel.setTab(tab);
+            switch (tab) {
+            case CONTACT:
+                getController().displayTabContactAvatar();
+                break;
+            case CONTAINER:
+                getController().displayTabContainerAvatar();
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN TAB");
+            }
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

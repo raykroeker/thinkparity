@@ -51,6 +51,9 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /** Contains containers; container versions; version documents. */
     private final FlatContentProvider[] flatProviders;
 
+    /** A container id list provider (search). */
+    private final FlatContentProvider searchResultsProvider;
+
     /** Containers the container; is draft modified; and draft providers. */
     private final SingleContentProvider[] singleProviders;
 
@@ -119,7 +122,17 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 return containerModel.readDraft((Long) input);
             }
         };
-        this.flatProviders = new FlatContentProvider[] {containers, versions, versionDocuments};
+        this.searchResultsProvider = new FlatContentProvider(profile) {
+            @Override
+            public Object[] getElements(final Object input) {
+                Assert.assertNotNull("NULL INPUT", input);
+                Assert.assertOfType("INPUT IS OF WRONG TYPE", String.class, input);
+                return containerModel.search((String) input).toArray(new Long[] {});
+            }
+        };
+        this.flatProviders = new FlatContentProvider[] {
+                containers, versions, versionDocuments, searchResultsProvider
+        };
         this.singleProviders = new SingleContentProvider[] {containerProvider, draftProvider, documentIsDraftModifiedProvider};
     }
 
@@ -150,6 +163,22 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
+     * Obtain a displayable version of a container.
+     * 
+     * @param container
+     *          The container
+     * @param ctrModel
+     *          The parity container interface.
+     * @param dModel
+     *          The parity document interface.
+     *          
+     * @return The displayable container.
+     */
+    private ContainerCell toDisplay(final Container container) {
+        return null == container ? null : new ContainerCell(container);
+    }
+
+    /**
      * Create a dislplay for a list of container versions.
      * 
      * @param container
@@ -168,20 +197,39 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-     * Obtain a displayable version of a container.
+     * Create a display document for a version.
      * 
-     * @param container
-     *          The container
-     * @param ctrModel
-     *          The parity container interface.
-     * @param dModel
-     *          The parity document interface.
-     *          
-     * @return The displayable container.
+     * @param version
+     *            A display version.
+     * @param document
+     *            A document.
+     * @return A display document.
      */
-    private ContainerCell toDisplay(final Container container) {
-        return null == container ? null : new ContainerCell(container);
+    private ContainerVersionDocumentCell toDisplay(
+            final ContainerVersionCell version, final Document document) {
+        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(version, document);
+        return display;
     }
+
+    /**
+     * Create an array of display documents for a version.
+     * 
+     * @param version
+     *            A display version.
+     * @param versionDocuments
+     *            A list of documents.
+     * @return An array of display documents.
+     */
+    private ContainerVersionDocumentCell[] toDisplay(
+            final ContainerVersionCell version,
+            final List<Document> documents) {
+        final List<ContainerVersionDocumentCell> list =
+            new ArrayList<ContainerVersionDocumentCell>(documents.size());
+        for(final Document document : documents) {
+            list.add(toDisplay(version, document));
+        }
+        return list.toArray(new ContainerVersionDocumentCell[] {});
+    }      
 
     /**
      * Obtain a displayable version of a list of containers.
@@ -202,40 +250,5 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             display.add(toDisplay(container));
         }
         return display.toArray(new ContainerCell[] {});      
-    }
-
-    /**
-     * Create a display document for a version.
-     * 
-     * @param version
-     *            A display version.
-     * @param document
-     *            A document.
-     * @return A display document.
-     */
-    private ContainerVersionDocumentCell toDisplay(
-            final ContainerVersionCell version, final Document document) {
-        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(version, document);
-        return display;
-    }      
-
-    /**
-     * Create an array of display documents for a version.
-     * 
-     * @param version
-     *            A display version.
-     * @param versionDocuments
-     *            A list of documents.
-     * @return An array of display documents.
-     */
-    private ContainerVersionDocumentCell[] toDisplay(
-            final ContainerVersionCell version,
-            final List<Document> documents) {
-        final List<ContainerVersionDocumentCell> list =
-            new ArrayList<ContainerVersionDocumentCell>(documents.size());
-        for(final Document document : documents) {
-            list.add(toDisplay(version, document));
-        }
-        return list.toArray(new ContainerVersionDocumentCell[] {});
     }
 }

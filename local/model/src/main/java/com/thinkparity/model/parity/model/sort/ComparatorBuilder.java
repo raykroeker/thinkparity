@@ -23,33 +23,42 @@ public class ComparatorBuilder {
 	 */
 	public ComparatorBuilder() { super(); }
 
-	/**
-	 * Create a name comparator.
-	 * 
-	 * @param isAscending
-	 *            Flag indicating whether or not the sort is ascending or
-	 *            descending.
-	 * @return The name comparator.
-	 */
-	public Comparator<Artifact> createByName(final Boolean isAscending) {
-		return new NameComparator(isAscending);
-	}
-
-    public Comparator<HistoryItem> createIdAscending() {
-        return new HistoryItemIdComparator(Boolean.TRUE);
+    /**
+     * Create a name comparator in ascending order.
+     * 
+     * @return The name comparator.
+     */
+    public Comparator<Artifact> createByName() {
+        return new NameComparator(Boolean.TRUE);
     }
 
-    public Comparator<HistoryItem> createIdDescending() {
-        return new HistoryItemIdComparator(Boolean.FALSE);
+    /**
+     * Create a name comparator.
+     * 
+     * @param isAscending
+     *            Flag indicating whether or not the sort is ascending or
+     *            descending.
+     * @return The name comparator.
+     */
+    public Comparator<Artifact> createByName(final Boolean isAscending) {
+        return new NameComparator(isAscending);
     }
 
-	public Comparator<HistoryItem> createDateAscending() {
+    public Comparator<HistoryItem> createDateAscending() {
 		return new HistoryItemDateComparator(Boolean.TRUE);
 	}
 
-	public Comparator<HistoryItem> createDateDescending() {
+    public Comparator<HistoryItem> createDateDescending() {
 		return new HistoryItemDateComparator(Boolean.FALSE);
 	}
+
+	public Comparator<HistoryItem> createIdAscending() {
+        return new HistoryItemIdComparator(Boolean.TRUE);
+    }
+
+	public Comparator<HistoryItem> createIdDescending() {
+        return new HistoryItemIdComparator(Boolean.FALSE);
+    }
 
 	public Comparator<SystemMessage> createSystemMessageDefault() {
 		if(null == systemMessageDefault) {

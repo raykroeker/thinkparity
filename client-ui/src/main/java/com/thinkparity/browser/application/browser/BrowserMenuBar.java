@@ -21,6 +21,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
+import com.thinkparity.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.profile.Update;
@@ -47,6 +48,9 @@ public class BrowserMenuBar extends JMenuBar {
     
     /** Used to drag the window by this avatar. */
     private final MouseInputAdapter mouseInputAdapter;
+    
+    /** The Resizer */
+    private final Resizer resizer;
     
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
@@ -101,16 +105,19 @@ public class BrowserMenuBar extends JMenuBar {
         this.browser = browser;
         this.localization = new JFrameLocalization("BrowserWindow.Menu");        
         this.popupItemFactory = PopupItemFactory.getInstance();
+        this.resizer = new Resizer(browser, this, Resizer.FormLocation.TOP);
        
         // Support moving the dialog
         this.mouseInputAdapter = new MouseInputAdapter() {
             int offsetX;
             int offsetY;
             public void mouseDragged(final MouseEvent e) {
-                browser.moveBrowserWindow(
-                        new Point(
-                                e.getPoint().x - offsetX,
-                                e.getPoint().y - offsetY));
+                if (!resizer.isResizeDragging()) {
+                    browser.moveBrowserWindow(
+                            new Point(
+                                    e.getPoint().x - offsetX,
+                                    e.getPoint().y - offsetY));
+                }
             }
             public void mousePressed(MouseEvent e) {
                 offsetX = e.getPoint().x;

@@ -318,8 +318,8 @@ public abstract class Avatar extends AbstractJPanel {
     }
     
     /**
-     * These get and set methods are used by classes that intend to do
-     * their own resizing. (For example, the bottom right resize control.)
+     * These get and set methods are used by classes that intend to do their
+     * own mouse dragging. (For example, the bottom right resize control.)
      */
     public Boolean isResizeDragging() {
         return resizer.isResizeDragging();

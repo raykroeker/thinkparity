@@ -183,6 +183,7 @@ public class Resizer {
     
     private void adjustCursor(ResizeDirection resizeDirection) {
         final Cursor cursor;
+        Boolean defaultCursor = Boolean.FALSE;
         
         switch (resizeDirection) {
         case NW:
@@ -211,10 +212,18 @@ public class Resizer {
             break;
         default:
             cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+            defaultCursor = Boolean.TRUE;
             break;
         }
         
-        browser.setCursor(cursor);
+        if (defaultCursor) {
+            component.setCursor(null);
+            browser.setCursor(null);
+        }
+        else {
+            component.setCursor(cursor);
+            browser.setCursor(cursor);
+        }
     }
     
     private void formMouseDragged(java.awt.event.MouseEvent evt) {
@@ -222,6 +231,16 @@ public class Resizer {
         final double oldHeight = component.getSize().getHeight();
         
         switch (resizeDirection) {
+        case NW:
+            browser.moveAndResizeBrowserWindow(
+                    new Point(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY),
+                    new Dimension(resizeOffsetX - evt.getPoint().x, resizeOffsetY - evt.getPoint().y));
+            break;
+        case NE:
+            browser.moveAndResizeBrowserWindow(
+                    new Point(0, evt.getPoint().y - resizeOffsetY),
+                    new Dimension(evt.getPoint().x - resizeOffsetX, resizeOffsetY - evt.getPoint().y));
+            break;
         case SW:
             browser.moveAndResizeBrowserWindow(
                     new Point(evt.getPoint().x - resizeOffsetX, 0),
@@ -277,7 +296,8 @@ public class Resizer {
     private void formMouseExited(java.awt.event.MouseEvent evt) {
         if (!dragging) {
             resizeDirection = ResizeDirection.NONE;
-            browser.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            component.setCursor(null);
+            browser.setCursor(null);
         }
     }
 
@@ -326,7 +346,7 @@ public class Resizer {
             initialized = Boolean.TRUE;
         }
     }
-    
+      
     private enum ResizeDirection { E, N, NE, NONE, NW, S, SE, SW, W }
     public enum FormLocation { NO_EDGE, TOP, MIDDLE, BOTTOM, LEFT, RIGHT }
 }

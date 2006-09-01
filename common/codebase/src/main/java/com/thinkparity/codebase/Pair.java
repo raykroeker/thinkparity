@@ -8,7 +8,13 @@ package com.thinkparity.codebase;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Pair extends Duality {
+public class Pair<T, U> {
+
+    /** A first object. */
+    private T one;
+
+    /** A second object. */
+    private U two;
 
 	/**
      * Create a Pair.
@@ -18,29 +24,45 @@ public class Pair extends Duality {
      * @param second
      *            The second object.
      */
-	public Pair(final Object first, final Object second) {
-		super(first, second);
+	public Pair(final T object1, final U object2) {
+		super();
+        this.one = object1;
+        this.two = object2;
 	}
 
-	/**
-	 * @see com.thinkparity.codebase.Duality#getFirst()
-	 * 
-	 */
-	public Object getFirst() { return super.getFirst(); }
+    /**
+     * Obtain the one
+     *
+     * @return The T.
+     */
+    public T getOne() {
+        return one;
+    }
 
-	/**
-	 * @see com.thinkparity.codebase.Duality#getSecond()
-	 * 
-	 */
-	public Object getSecond() { return super.getSecond(); }
+    /**
+     * Set one.
+     *
+     * @param one The T.
+     */
+    public void setOne(final T object1) {
+        this.one = object1;
+    }
 
-	/**
-	 * @see com.thinkparity.codebase.Duality#getFirstLabel()
-	 */
-	protected String getFirstLabel() { return null; }
+    /**
+     * Obtain the two
+     *
+     * @return The U.
+     */
+    public U getTwo() {
+        return two;
+    }
 
-	/**
-	 * @see com.thinkparity.codebase.Duality#getSecondLabel()
-	 */
-	protected String getSecondLabel() { return null; }
+    /**
+     * Set two.
+     *
+     * @param two The U.
+     */
+    public void setTwo(final U object2) {
+        this.two = object2;
+    }
 }

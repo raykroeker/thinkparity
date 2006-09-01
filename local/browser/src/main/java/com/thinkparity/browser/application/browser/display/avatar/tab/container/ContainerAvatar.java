@@ -146,7 +146,7 @@ public class ContainerAvatar extends Avatar {
      *            Indicates whether the container should be selected.
      */
     public void syncContainer(final Long containerId, final Boolean remote, final Boolean select) {
-        final ContainerCell selectedContainer = getSelectedContainer();
+        final TabCell selectedCell = getSelectedCell();
         model.syncContainer(containerId, remote);
         // If "select" then attempt to select and expand this container,
         // otherwise select the previously selected container
@@ -158,7 +158,7 @@ public class ContainerAvatar extends Avatar {
             }
         }
         else {
-            setSelectedCell(selectedContainer);
+            setSelectedCell(selectedCell);
         }
     }
     
@@ -174,9 +174,9 @@ public class ContainerAvatar extends Avatar {
      */
     public void syncDocument(final Long containerId, final Long documentId,
             final Boolean remote) {
-        final ContainerCell selectedContainer = getSelectedContainer();
+        final TabCell selectedCell = getSelectedCell();
         model.syncDocument(containerId, documentId, remote);
-        setSelectedCell(selectedContainer);
+        setSelectedCell(selectedCell);
     }
 
     /**
@@ -188,21 +188,21 @@ public class ContainerAvatar extends Avatar {
      *            Indicates whether the sync is the result of a remote event.
      */
     public void syncDocument(final Long documentId, final Boolean remote) {
-        final ContainerCell selectedContainer = getSelectedContainer();
+        final TabCell selectedCell = getSelectedCell();
         model.syncDocument(documentId, remote);
-        setSelectedCell(selectedContainer);
+        setSelectedCell(selectedCell);
     }
     /**
-     * Obtain the selected container from the list.
+     * Obtain the selected cell from the list.
      * 
-     * @return The selected container.
+     * @return The selected cell.
      */
-    private ContainerCell getSelectedContainer() {
+    private TabCell getSelectedCell() {
         final TabCell mc = (TabCell) jList.getSelectedValue();
-        if(mc instanceof ContainerCell) {
+/*        if(mc instanceof ContainerCell) {
             return (ContainerCell) mc;
-        }
-        return null;
+        }*/
+        return mc;
     }
 
     /**
@@ -362,8 +362,15 @@ public class ContainerAvatar extends Avatar {
      * @param cc
      *            The container cell.
      */
-    private void setSelectedCell(final ContainerCell cc) {
-        if (model.isContainerVisible(cc)) {
+    private void setSelectedCell(final TabCell cc) {
+        if (cc instanceof ContainerCell) {
+            if (model.isContainerVisible((ContainerCell)cc)) {
+                // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
+                selectedIndex = -1;
+                jList.setSelectedValue(cc, true);
+            }
+        }
+        else {
             // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
             selectedIndex = -1;
             jList.setSelectedValue(cc, true);

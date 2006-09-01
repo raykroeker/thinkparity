@@ -255,7 +255,7 @@ public class MainCellImageCache {
         INFO("Invisible20x20.png"),
         NODE_NOCHILDREN("Invisible9x9.png"),
         
-        NODE_COLLAPSED("Invisible9x9.png"),
+        NODE_COLLAPSED("MainCellExpand.png"),
         NODE_EXPANDED("MainCellCollapse.png"),
 
         NODE_SEL_COLLAPSED("MainCellExpand.png"),

@@ -29,6 +29,7 @@ import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.Rename;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
+import com.thinkparity.model.parity.model.container.ContainerDraft.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -206,29 +207,45 @@ public class DraftDocumentCell extends Document implements TabCell  {
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e, final int x,
             final int y) {
-        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();       
+        final ArtifactState state = draft.getState(getId());
 
         final Data openData = new Data(1);
         openData.set(Open.DataKey.DOCUMENT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
+        
+        jPopupMenu.addSeparator();
 
         final Data renameData = new Data(1);
         renameData.set(Rename.DataKey.DOCUMENT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_RENAME, renameData));
-
+        
+        if (state == ArtifactState.MODIFIED) {
+            final Data revertData = new Data(2);
+            revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REVERT_DOCUMENT, renameData));
+        }
+        
+        if (state == ArtifactState.REMOVED) {
+            final Data removeData = new Data(2);
+            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_UNDELETE_DOCUMENT, renameData));
+        }
+        
+        if (state != ArtifactState.REMOVED) {
+            final Data removeData = new Data(2);
+            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
+        }
+       
         jPopupMenu.addSeparator();
-
-        final Data revertData = new Data(2);
-        revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-        revertData.set(RevertDocument.DataKey.DOCUMENT_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REVERT_DOCUMENT, revertData));
-
-        final Data removeData = new Data(1);
-        removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-        removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
+        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));
+        
         jPopupMenu.show(invoker, x, y);
-
     }
 
     /**

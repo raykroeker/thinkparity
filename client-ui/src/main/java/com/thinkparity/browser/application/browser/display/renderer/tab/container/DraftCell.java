@@ -242,6 +242,7 @@ public class DraftCell extends ContainerDraft implements TabCell  {
         
         if(connection == Connection.ONLINE) {
             jPopupMenu.addSeparator();
+            
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
@@ -251,9 +252,10 @@ public class DraftCell extends ContainerDraft implements TabCell  {
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
         }
         
-/*        jPopupMenu.addSeparator();
+        jPopupMenu.addSeparator();
+        
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));*/
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));
         
         jPopupMenu.show(invoker, x, y);
     }

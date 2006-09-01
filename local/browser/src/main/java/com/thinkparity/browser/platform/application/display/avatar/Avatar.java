@@ -11,15 +11,16 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.AbstractJPanel;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJPanel;
 
 /**
  * @author raykroeker@gmail.com
@@ -49,6 +50,9 @@ public abstract class Avatar extends AbstractJPanel {
 
 	/** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
+    
+    /** The Resizer */
+    private final Resizer resizer;
 
 	/**
 	 * The avatar's scrolling policy.
@@ -101,6 +105,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
+        this.resizer = new Resizer(getController(), this);
 	}
 
 	/**
@@ -119,6 +124,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
+        this.resizer = new Resizer(getController(), this);
 	}
 
 	/**
@@ -303,6 +309,24 @@ public abstract class Avatar extends AbstractJPanel {
 			}
 		}
 	}
+    
+    /**
+     * Set the behavior of resizing.
+     */
+    public void setResizeEdges(Resizer.FormLocation formLocation) {
+        resizer.setResizeEdges(formLocation);        
+    }
+    
+    /**
+     * These get and set methods are used by classes that intend to do
+     * their own resizing. (For example, the bottom right resize control.)
+     */
+    public Boolean isResizeDragging() {
+        return resizer.isResizeDragging();
+    }
+    public void setResizeDragging(Boolean dragging) {
+        resizer.setResizeDragging(dragging);
+    }
 
     /**
 	 * The scrolling policy for the avatar.

@@ -24,6 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
@@ -68,6 +69,7 @@ public class ContactAvatar extends Avatar {
         this.model = new ContactAvatarModel(getController());
         this.popupItemFactory = PopupItemFactory.getInstance();
         setLayout(new GridBagLayout());   // Layout manager for this container
+        setResizeEdges(Resizer.FormLocation.MIDDLE);  
         initComponents();
     }
 

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.application.browser;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
@@ -85,13 +84,7 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
-        initMenu();
-        
-        // Add support for resizing the Browser
-/*        getGlassPane().addMouseListener(new BrowserResizeListener(getGlassPane(), getJMenuBar(), getContentPane()));
-        getGlassPane().addMouseMotionListener(new BrowserResizeListener(getGlassPane(), getJMenuBar(), getContentPane()));
-        getGlassPane().setVisible(true);    */   
-        
+        initMenu();       
 		setIconImage(Images.WINDOW_ICON_IMAGE);
 		setTitle(getString("Title"));
 		setUndecorated(true);

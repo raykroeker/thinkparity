@@ -26,6 +26,9 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
 
     /** Used to drag the window by this avatar. */
     private final MouseInputAdapter mouseInputAdapter;
+        
+    /** The Resizer */
+    private final Resizer resizer;
 
     /**
      * Create MainTitleAvatarAbstractPanel.
@@ -35,14 +38,17 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
      */
     protected MainTitleAvatarAbstractPanel(final String l18nContext) {
         super(l18nContext);
+        this.resizer = new Resizer(null, this);
         this.mouseInputAdapter = new MouseInputAdapter() {
             int offsetX;
             int offsetY;
             public void mouseDragged(final MouseEvent e) {
-                mainTitleAvatar.getController().moveBrowserWindow(
-                        new Point(
-                                e.getPoint().x - offsetX,
-                                e.getPoint().y - offsetY));
+                if (!resizer.isResizeDragging()) {                
+                    mainTitleAvatar.getController().moveBrowserWindow(
+                            new Point(
+                                    e.getPoint().x - offsetX,
+                                    e.getPoint().y - offsetY));
+                }
             }
             public void mousePressed(final MouseEvent e) {
                 offsetX = e.getPoint().x;
@@ -67,7 +73,15 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
      *
      * @param mainTitleAvatar The MainTitleAvatar.
      */
-    public void setMainTitleAvatar(final MainTitleAvatar mainTitleAvatar) {
+    protected void setMainTitleAvatar(final MainTitleAvatar mainTitleAvatar) {
         this.mainTitleAvatar = mainTitleAvatar;
+        resizer.setBrowser(mainTitleAvatar.getController());
+    }
+    
+    /**
+     * Set the behavior of resizing.
+     */
+    protected void setResizeEdges(Resizer.FormLocation formLocation) {
+        resizer.setResizeEdges(formLocation);        
     }
 }

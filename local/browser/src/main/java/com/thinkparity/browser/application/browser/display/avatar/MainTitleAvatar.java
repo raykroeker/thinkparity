@@ -38,10 +38,12 @@ public class MainTitleAvatar extends Avatar {
             int offsetX;
             int offsetY;
             public void mouseDragged(final MouseEvent e) {
-                getController().moveBrowserWindow(
-                        new Point(
-                                e.getPoint().x - offsetX,
-                                e.getPoint().y - offsetY));
+                if (!isResizeDragging()) {
+                    getController().moveBrowserWindow(
+                            new Point(
+                                    e.getPoint().x - offsetX,
+                                    e.getPoint().y - offsetY));
+                }
             }
             public void mousePressed(MouseEvent e) {
                 offsetX = e.getPoint().x;
@@ -50,6 +52,7 @@ public class MainTitleAvatar extends Avatar {
         };
         addMouseListener(mouseInputAdapter);
         addMouseMotionListener(mouseInputAdapter);
+        setResizeEdges(Resizer.FormLocation.MIDDLE);
         initComponents();
     }
 
@@ -149,8 +152,9 @@ public class MainTitleAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(tabPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 235, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(16, 16, 16)
-                .add(searchPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 182, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
+                .add(searchPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

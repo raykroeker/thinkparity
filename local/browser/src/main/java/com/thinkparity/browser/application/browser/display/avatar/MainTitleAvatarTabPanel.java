@@ -34,6 +34,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /** Creates new form BrowserTitleTabs */
     public MainTitleAvatarTabPanel() {
         super("BrowserTitleTabs");
+        setResizeEdges(Resizer.FormLocation.LEFT);
         initComponents();
     }
 

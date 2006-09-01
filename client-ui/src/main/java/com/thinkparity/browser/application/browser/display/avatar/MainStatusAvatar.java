@@ -11,6 +11,7 @@ import com.thinkparity.browser.Constants.Colors;
 import com.thinkparity.browser.Constants.Colors.Browser;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -24,14 +25,21 @@ import com.thinkparity.codebase.swing.border.TopBorder;
  * 
  * @author raymond@thinkparity.com
  */
-public class MainStatusAvatar extends EdgeAvatar {
+public class MainStatusAvatar extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** The resize offset size in the x direction. */
+    private int resizeOffsetX;    
+    
+    /** The resize offset size in the y direction. */
+    private int resizeOffsetY;
 
     /** Creates new form BrowserStatus */
     MainStatusAvatar() {
-        super(FormLocation.BOTTOM, AvatarId.MAIN_STATUS.toString());
+        super(AvatarId.MAIN_STATUS.toString());
+        setResizeEdges(Resizer.FormLocation.BOTTOM);
         initComponents();
     }
 
@@ -235,7 +243,7 @@ public class MainStatusAvatar extends EdgeAvatar {
     }// GEN-LAST:event_resizeJLabelMouseDragged
 
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
-        if (!dragging) {
+        if (!isResizeDragging()) {
             getController().setCursor(new Cursor(Cursor.SE_RESIZE_CURSOR));
         }
     }//GEN-LAST:event_resizeJLabelMouseEntered
@@ -243,11 +251,11 @@ public class MainStatusAvatar extends EdgeAvatar {
     private void resizeJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMousePressed
         resizeOffsetX = e.getPoint().x;
         resizeOffsetY = e.getPoint().y;
-        dragging = Boolean.TRUE;
+        setResizeDragging(Boolean.TRUE);
     }//GEN-LAST:event_resizeJLabelMousePressed
     
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
-        dragging = Boolean.FALSE;
+        setResizeDragging(Boolean.FALSE);
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

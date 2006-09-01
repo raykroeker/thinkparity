@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 /**
  * A filter chain is an ordered set of filters linked together.
  * 
@@ -77,16 +75,6 @@ public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter
 	public Boolean containsFilter(final Filter<T> filter) {
 		return chain.contains(filter);
 	}
-
-    /**
-     * Debug the filter chain to the logger.
-     * 
-     * @param logger
-     *            An apache logger.
-     */
-    public void debug(final Logger logger) {
-        for(final Filter<T> filter : chain) { filter.debug(logger); }
-    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(T)

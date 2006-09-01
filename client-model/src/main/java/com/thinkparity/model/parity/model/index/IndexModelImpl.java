@@ -3,33 +3,18 @@
  */
 package com.thinkparity.model.parity.model.index;
 
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.index.IndexFilterManager;
-import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;
-import com.thinkparity.model.parity.model.index.lucene.FieldBuilder;
-import com.thinkparity.model.parity.model.index.lucene.QueryHit;
-import com.thinkparity.model.parity.model.index.lucene.Searcher;
+import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.index.contact.ContactIndexImpl;
+import com.thinkparity.model.parity.model.index.container.ContainerIndexImpl;
+import com.thinkparity.model.parity.model.index.document.DocumentIndexImpl;
+import com.thinkparity.model.parity.model.index.document.DocumentIndexEntry;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * @author raykroeker@gmail.com
@@ -37,62 +22,14 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class IndexModelImpl extends AbstractModelImpl {
 
-	/** An artifact contacts index field builder. */
-	private static final FieldBuilder IDX_ARTIFACT_CONTACTS;
+    /** A contact index implementation. */
+    private final IndexImpl<Contact, JabberId> contactIndex;
 
-	/** An artifact id index field builder. */
-	private static final FieldBuilder IDX_ARTIFACT_ID;
+    /** A container index implementation. */
+    private final IndexImpl<Container, Long> containerIndex;
 
-    /** An artifact name index field builder. */
-    private static final FieldBuilder IDX_ARTIFACT_NAME;
-
-    /** An artifact type index field builder. */
-    private static final FieldBuilder IDX_ARTIFACT_TYPE;
-
-	static {
-		IDX_ARTIFACT_ID = new FieldBuilder()
-                .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("ARTIFACT.ARTIFACT_ID")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_ARTIFACT_NAME = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("ARTIFACT.ARTIFACT_NAME")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_ARTIFACT_TYPE = new FieldBuilder()
-                .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("ARTIFACT.ARTIFACT_TYPE")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-		IDX_ARTIFACT_CONTACTS = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("ARTIFACT.CONTACTS")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-	}
-
-	/** Index filter for containers. */
-    private final Filter<? super IndexHit> containerFilter;
-
-    /** Index filter for documents. */
-    private final Filter<? super IndexHit> documentFilter;
-
-	/**
-	 * The index analyzer to use when creating/updating index entries.
-	 * 
-	 */
-	private final Analyzer indexAnalyzer;
-
-    /**
-	 * Index hit builder.  Is responsible for converting a query hit to an index
-	 * hit.
-	 * 
-	 */
-	private final IndexHitBuilder indexHitBuilder;
+    /** A document index implementation. */
+    private final IndexImpl<DocumentIndexEntry, Long> documentIndex;
 
     /**
 	 * Create a IndexModelImpl.
@@ -102,100 +39,147 @@ class IndexModelImpl extends AbstractModelImpl {
 	 */
 	IndexModelImpl(final Workspace workspace) {
 		super(workspace);
-        this.containerFilter = new com.thinkparity.model.parity.model.filter.index.Container();
-        this.documentFilter = new com.thinkparity.model.parity.model.filter.index.Document();
-		this.indexAnalyzer = new StandardAnalyzer();
-		this.indexHitBuilder = new IndexHitBuilder();
+        this.containerIndex = new ContainerIndexImpl(context, workspace);
+        this.documentIndex = new DocumentIndexImpl(context, workspace);
+        this.contactIndex = new ContactIndexImpl(context, workspace);
 	}
 
 	/**
-     * Create an index entry for the container.
+     * Delete a contact from the index.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    public void deleteContact(final JabberId contactId) {
+        logApiId();
+        logVariable("contactId", contactId);
+        try {
+            final Contact c = getInternalContactModel().read(contactId);
+            contactIndex.delete(c);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Delete a container from the index.
      * 
      * @param containerId
-     *            The container id.
-     * @param containerName
-     *            The container name.
+     *            A container id <code>Long</code>.
      */
-    void createContainer(final Long containerId, final String containerName) {
+    public void deleteContainer(final Long containerId) {
         logApiId();
         logVariable("containerId", containerId);
-        logVariable("containerName", containerName);
         try {
-            final Set<User> team = getInternalArtifactModel().readTeam(containerId);
-    
-            final DocumentBuilder documentBuilder = new DocumentBuilder(6);
-            documentBuilder.append(IDX_ARTIFACT_ID.setValue(containerId).toField())
-                .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.CONTAINER).toField())
-                .append(IDX_ARTIFACT_NAME.setValue(containerName).toField())
-                .append(IDX_ARTIFACT_CONTACTS.setValue(team).toField());
-
-            index(documentBuilder.toDocument());
+            final Container c = getInternalContainerModel().read(containerId);
+            containerIndex.delete(c);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
 	/**
-	 * Create an index entry for an artifact.
-	 * 
-	 * @param containerArtifactIndex
-	 *            The artifact index entry.
-	 */
-	void createDocument(final Long documentId, final String documentName) {
+     * Delete a document from the index.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    void deleteDocument(final Long documentId) {
+        logApiId();
+        logVariable("documentId", documentId);
+        try {
+            final Document d = getInternalDocumentModel().get(documentId);
+            documentIndex.delete(new DocumentIndexEntry(d));
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create a index entry for a contact.
+     * 
+     * @param contactId
+     *            A contact id <code>JabberId</code>.
+     */
+    void indexContact(final JabberId contactId) {
+        logApiId();
+        logVariable("contactId", contactId);
+        try {
+            final Contact contact = getInternalContactModel().read(contactId);
+            contactIndex.index(contact);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create an index entry for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void indexContainer(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        try {
+            final Container container = getInternalContainerModel().read(containerId);
+            containerIndex.index(container);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create an index entry for a document.
+     * 
+     * @parma containerId A container id ,code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+	void indexDocument(final Long containerId, final Long documentId) {
 		logApiId();
         logVariable("documentId", documentId);
-        logVariable("documentName", documentName);
+        logVariable("containerId", containerId);
         try {
-    		final Set<User> documentTeam = getInternalArtifactModel().readTeam(documentId);
-    		final DocumentBuilder db = new DocumentBuilder(6);
-    		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
-                .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.DOCUMENT).toField())
-    			.append(IDX_ARTIFACT_NAME.setValue(documentName).toField())
-    			.append(IDX_ARTIFACT_CONTACTS.setValue(documentTeam).toField());
-    		index(db.toDocument());
+            final Document document = getInternalDocumentModel().get(documentId);
+            documentIndex.index(new DocumentIndexEntry(containerId, document));
         } catch (final Throwable t) {
             throw translateError(t);
         }
 	}
 
-	/**
-     * Delete an index entry for an artifact.
+    /**
+     * Search the contact index.
      * 
-     * @param artifactId
-     *            The artifact id.
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;JabberId&gt;</code>.
      */
-	void deleteArtifactIndex(final Long artifactId) {
-		logApiId();
-		logVariable("artifactId", artifactId);
-		IndexReader indexReader = null;
-		try {
-            indexReader = openIndexReader();
-			final Field idField = IDX_ARTIFACT_ID.toSearchField();
-			final Term idTerm = new Term(idField.name(), artifactId.toString());
-			Assert.assertTrue("COULD NOT DELETE ARTIFACT FROM INDEX",
-					1 == indexReader.deleteDocuments(idTerm));
-		} catch(final Throwable t) {
+    List<JabberId> searchContacts(final String expression) {
+        logApiId();
+        logVariable("expression", expression);
+        try {
+            return contactIndex.search(expression);
+        } catch (final Throwable t) {
             throw translateError(t);
-		} finally {
-            if (null != indexReader) {
-                try {
-                    closeIndexReader(indexReader);
-                } catch(final Throwable t) {
-                    throw translateError(t);
-                }
-            }
-		}
-	}
+        }
+    }
 
     /**
      * Search the container index.
      * 
      * @param expression
      *            The search expression.
-     * @return A list of index hits representing containers.
+     * @return A <code>List&lt;Long&gt;</code>.
      */
-    List<IndexHit> searchContainers(final String expression) {
-        return searchArtifacts(expression, containerFilter);
+    List<Long> searchContainers(final String expression) {
+        logApiId();
+        logVariable("expression", expression);
+        try {
+            return containerIndex.search(expression);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -203,139 +187,15 @@ class IndexModelImpl extends AbstractModelImpl {
      * 
      * @param expression
      *            The search expression.
-     * @return A list of index hits representing documents.
+     * @return A A <code>List&lt;Document&gt;</code>.
      */
-	List<IndexHit> searchDocuments(final String expression) {
-        return searchArtifacts(expression, documentFilter);
-	}
-
-    /**
-     * Close the index reader.
-     * 
-     * @param indexReader
-     *            The index reader.
-     * @throws IOException
-     */
-	private void closeIndexReader(final IndexReader indexReader)
-            throws IOException {
-	    indexReader.close();
-		getIndexDirectory().close();
-	}
-
-	/**
-     * Close the index writer.
-     * 
-     * @param indexWriter
-     *            The index writer.
-     * @throws IOException
-     */
-	private void closeIndexWriter(final IndexWriter indexWriter)
-            throws IOException {
-		indexWriter.close();
-		getIndexDirectory().close();
-	}
-
-	/**
-     * Obtain the lucene index directory.
-     * 
-     * @return The lucene index directory.
-     * @throws IOException
-     */
-	private Directory getIndexDirectory() throws IOException {
-		return FSDirectory.getDirectory(workspace.getIndexDirectory(), false);
-	}
-
-	/**
-     * Index a lucene document.
-     * 
-     * @param document
-     *            The lucene document.
-     * @throws IOException
-     *             If the document could not be indexed.
-     */
-	private void index(final Document document) throws IOException {
-		final IndexWriter indexWriter = openIndexWriter();
-		try {
-			indexWriter.addDocument(document);
-			indexWriter.optimize();
-		} finally {
-            closeIndexWriter(indexWriter);
-		}
-	}
-
-	/**
-	 * Create a lucene index reader.
-	 * 
-	 * @return A lucene index reader.
-	 * @throws IOException
-	 *             If the index reader cannot be opened.
-	 */
-	private IndexReader openIndexReader() throws IOException {
-		return IndexReader.open(getIndexDirectory());
-	}
-
-	/**
-	 * Create a lucene index writer.
-	 * 
-	 * @return The lucene index writer.
-	 * @throws IOException
-	 *             If the index writer cannot be created.
-	 * @see #indexAnalyzer
-	 */
-	private IndexWriter openIndexWriter() throws IOException {
-		final Directory directory = getIndexDirectory();
-
-		final Boolean doCreate;
-		if(0 == directory.list().length) { doCreate = Boolean.TRUE; }
-		else { doCreate = Boolean.FALSE; }		
-
-		return new IndexWriter(directory, indexAnalyzer, doCreate);
-	}
-
-	/**
-     * Search the index.
-     * 
-     * @param expression
-     *            A search expression.
-     * @param filter
-     *            A result filter.
-     * @return A list of index hits.
-     */
-    private List<IndexHit> searchArtifacts(final String expression,
-            final Filter<? super IndexHit> filter) {
+	List<Long> searchDocuments(final String expression) {
         logApiId();
         logVariable("expression", expression);
-        logVariable("filter", filter);
-        IndexReader indexReader = null;
         try {
-            indexReader = openIndexReader();
-            final List<Field> fields = new LinkedList<Field>();
-            fields.add(IDX_ARTIFACT_NAME.toSearchField());
-            fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
-    
-            final Searcher searcher =
-                new Searcher(logger, indexAnalyzer, indexReader,
-                        IDX_ARTIFACT_ID.toSearchField(), fields,
-                        IDX_ARTIFACT_TYPE.toSearchField());
-            final List<QueryHit> queryHits = searcher.search(expression);
-    
-            final List<IndexHit> indexHits = new LinkedList<IndexHit>();
-            for(final QueryHit queryHit : queryHits) {
-                indexHits.add(indexHitBuilder.toIndexHit(queryHit));
-            }
-            IndexFilterManager.filter(indexHits, filter);
-            return indexHits;
+            return documentIndex.search(expression);
         } catch (final Throwable t) {
             throw translateError(t);
         }
-        finally {
-            if (null != indexReader) {
-                try {
-                    closeIndexReader(indexReader);
-                } catch(final Throwable t) {
-                    throw translateError(t);
-                }
-            }
-        }
-    }
+	}
 }

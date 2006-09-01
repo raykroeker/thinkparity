@@ -4,7 +4,7 @@
 package com.thinkparity.model.parity.model.index.lucene;
 
 import java.util.Calendar;
-import java.util.Set;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.lucene.document.DateTools;
@@ -13,6 +13,8 @@ import org.apache.lucene.document.Field;
 import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.user.TeamMember;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -117,7 +119,7 @@ public class FieldBuilder {
         return this;
     }
 
-	/**
+    /**
 	 * Set the field value.
 	 * 
 	 * @param c
@@ -132,17 +134,29 @@ public class FieldBuilder {
 	}
 
 	/**
+     * Set the field value.
+     * 
+     * @param jabberId
+     *            A <code>JabberId</code>.
+     * @return A reference to this <code>FieldBuilder</code>.
+     */
+    public FieldBuilder setValue(final JabberId jabberId) {
+        this.value = jabberId.getQualifiedJabberId();
+        return this;
+    }
+
+	/**
 	 * Set the field value.
 	 * 
 	 * @param users
 	 *            The field value.
 	 * @return A reference to this object.
 	 */
-	public FieldBuilder setValue(final Set<User> users) {
+	public FieldBuilder setValue(final List<TeamMember> teamMembers) {
 		final StringBuffer buffer = new StringBuffer();
-		for(final User user : users) {
+		for(final TeamMember teamMember : teamMembers) {
 			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
-			buffer.append(tokenize(user));
+			buffer.append(tokenize(teamMember));
 		}
 		this.value = buffer.toString();
 		return this;
@@ -215,23 +229,37 @@ public class FieldBuilder {
 		return new Field(name, "", store, index, termVector);
 	}
 
-	/**
-	 * Tokenize a user's name\organization.
-	 * 
-	 * @param user
-	 *            The user.
-	 * @return A comma separated list.
-	 */
-	private String tokenize(final User user) {
+    /**
+     * Tokenize a team member's name\organization\title.
+     * 
+     * @param teamMember
+     *            A thinkParity <code>TeamMember</code>.
+     * @return A comma separated list.
+     */
+	private String tokenize(final TeamMember teamMember) {
+        return tokenize((User) teamMember);
+    }
+
+    /**
+     * Tokenize a user's name\organization\title.
+     * 
+     * @param user
+     *            A thinkParity <code>User</code>.
+     * @return A comma separated list.
+     */
+    private String tokenize(final User user) {
         final StringBuffer buffer = new StringBuffer();
         final StringTokenizer nameTokenizer = new StringTokenizer(user.getName(), " ");
         while(nameTokenizer.hasMoreTokens()) {
             if(0 < buffer.length()) { buffer.append(Separator.Comma); }
             buffer.append(nameTokenizer.nextToken());
         }
-		if(user.isSetOrganization()) {
+		if (user.isSetOrganization()) {
 			buffer.append(Separator.Comma).append(user.getOrganization());
 		}
+        if (user.isSetTitle()) {
+            buffer.append(Separator.Comma).append(user.getTitle());
+        }
 		return buffer.toString();
 	}
 }

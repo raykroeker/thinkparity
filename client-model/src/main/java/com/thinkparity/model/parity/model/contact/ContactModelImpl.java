@@ -622,6 +622,23 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Search for contacts.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;JabberId&gt;</code>.
+     */
+    List<JabberId> search(final String expression) {
+        logApiId();
+        logVariable("expression", expression);
+        try {
+            return getIndexModel().searchContacts(expression);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Assert that no contact with the given e-mail address exists.
      * 
      * @param assertion
@@ -649,6 +666,7 @@ class ContactModelImpl extends AbstractModelImpl {
         for (final EMail email : contact.getEmails()) {
             contactIO.createEmail(contact.getLocalId(), email);
         }
+        getIndexModel().indexContact(contact.getId());
         return contactIO.read(contact.getId());
     }
 

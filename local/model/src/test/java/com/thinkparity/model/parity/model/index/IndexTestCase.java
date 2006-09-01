@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.index;
 
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
@@ -28,8 +30,9 @@ abstract class IndexTestCase extends ModelTestCase {
     protected static void assertNotNull(final String assertion,
             final IndexHit indexHit) {
         assertNotNull(assertion + " [INDEX HIT IS NULL]", (Object) indexHit);
-        assertNotNull(assertion + " [INDEX HIT ID IS NULL]", indexHit.getId());
-        assertNotNull(assertion + " [INDEX HIT TYPE IS NULL]", indexHit.getType());
+        throw Assert.createNotYetImplemented("IndexTestCase#assertNotNull");
+//        assertNotNull(assertion + " [INDEX HIT ID IS NULL]", indexHit.getId());
+//        assertNotNull(assertion + " [INDEX HIT TYPE IS NULL]", indexHit.getType());
     }
 
     /**

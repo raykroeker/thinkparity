@@ -32,7 +32,6 @@ import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
-import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -70,9 +69,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
 
-    /** A document indexor. */
-	private final DocumentIndexor indexor;
-
     /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
@@ -95,7 +91,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
-		this.indexor = new DocumentIndexor(getContext());
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
         this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
 	}
@@ -115,30 +110,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			if(DocumentModelImpl.LISTENERS.contains(l)) { return; }
 			DocumentModelImpl.LISTENERS.add(l);
 		}
-	}
-
-	/**
-	 * @param documentId
-	 * @return
-	 * @throws ParityException
-	 */
-	File archive(final Long documentId) throws ParityException {
-		return archive(documentId, ProgressIndicator.emptyIndicator());
-	}
-
-	/**
-	 * 
-	 * @param documentId
-	 * @param progressIndicator
-	 * @return
-	 * @throws ParityException
-	 */
-	File archive(final Long documentId,
-			final ProgressIndicator progressIndicator) throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [ARCHIVE]");
-		logger.debug(documentId);
-		logger.debug(progressIndicator);
-        throw Assert.createNotYetImplemented("DocumentModelImpl#archive(Long,ProgressIndicator)");
 	}
 
     /**
@@ -857,7 +828,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         revertDraft(documentId, readLatestVersion(documentId).getVersionId());
     }
 
-	/**
+    /**
      * Update the working version of a document. Note that the content stream is
      * not closed.
      * 
@@ -926,8 +897,6 @@ class DocumentModelImpl extends AbstractModelImpl {
             aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
             // audit creation
             auditor.create(document.getId(), createdBy, document.getCreatedOn());
-            // index document
-            indexor.create(document.getId(), document.getName());
             // create local file
             final LocalFile localFile = getLocalFile(document);
             localFile.write(StreamUtil.read(content));
@@ -1001,7 +970,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
 	}
 
-    /**
+	/**
      * Delete only the local document data.
      * 
      * @param document
@@ -1020,7 +989,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			documentIO.deleteVersion(version.getArtifactId(), version.getVersionId());
         }
         // delete  index
-        indexor.delete(documentId);
+        getIndexModel().deleteDocument(documentId);
         // delete document
         final LocalFile localFile = getLocalFile(document);
 		localFile.delete();
@@ -1028,7 +997,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(documentId);
     }
 
-	/**
+    /**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -1051,7 +1020,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return new LocalFile(workspace, document, version);
 	}
 
-    /**
+	/**
      * Fire confirmation received.
      *
      * @param document
@@ -1069,7 +1038,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1085,7 +1054,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Fire document deleted.
 	 * 
 	 * @param document
@@ -1101,7 +1070,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Fire key request accepted.
      * 
      * @param user

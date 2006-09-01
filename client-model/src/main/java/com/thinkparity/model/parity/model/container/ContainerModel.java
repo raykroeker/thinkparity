@@ -91,7 +91,7 @@ public class ContainerModel {
         synchronized(implLock) { impl.addListener(listener); }
     }
 
-	/**
+    /**
      * Create a container.
      * 
      * @param name
@@ -113,7 +113,7 @@ public class ContainerModel {
         synchronized(getImplLock()) { return getImpl().createDraft(containerId); }
     }
 
-    /**
+	/**
      * Delete a container.
      * 
      * @param containerId
@@ -459,7 +459,7 @@ public class ContainerModel {
         }
     }
 
-	/**
+    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -472,7 +472,7 @@ public class ContainerModel {
         }
     }
 
-    /**
+	/**
      * Read a container version.
      * 
      * @param containerId
@@ -596,6 +596,19 @@ public class ContainerModel {
     public void revertDocument(final Long containerId, final Long documentId) {
         synchronized (getImplLock()) {
             getImpl().revertDocument(containerId, documentId);
+        }
+    }
+
+    /**
+     * Search for containers.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    public List<Long> search(final String expression) {
+        synchronized (getImplLock()) {
+            return getImpl().search(expression);
         }
     }
 

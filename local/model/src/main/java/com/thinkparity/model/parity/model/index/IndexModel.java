@@ -3,18 +3,13 @@
  */
 package com.thinkparity.model.parity.model.index;
 
-import java.util.List;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1.2.4
+ * @version 1.1.2.5
  */
 public class IndexModel extends AbstractModel {
 
@@ -40,16 +35,10 @@ public class IndexModel extends AbstractModel {
 		return new IndexModel(workspace);
 	}
 
-	/**
-	 * Implementation.
-	 * 
-	 */
+	/** Implementation. */
 	private final IndexModelImpl impl;
 
-	/**
-	 * Implementation synchronization lock.
-	 * 
-	 */
+	/** Implementation synchronization lock. */
 	private final Object implLock;
 
 	/**
@@ -60,40 +49,6 @@ public class IndexModel extends AbstractModel {
 		this.impl = new IndexModelImpl(workspace);
 		this.implLock = new Object();
 	}
-
-	/**
-     * @deprecated => [{@link IndexModel#searchContainers(String)}|{@link IndexModel#searchDocuments(String)}]
-     * 
-     */
-    @Deprecated
-    public List<IndexHit> searchArtifact(final String expression) {
-        throw Assert.createUnreachable("IndexModel#searchArtifact(java.lang.String) => [IndexModel.searchContainers(java.lang.String) | IndexModel.searchDocuments(java.lang.String)]");
-    }
-
-    /**
-     * Search the index for containers containing the expression.
-     * 
-     * @param expression
-     *            The search expression.
-     * @return A list of index hits.
-     * @throws ParityException
-     */
-    public List<IndexHit> searchContainers(final String expression) {
-        synchronized(implLock) { return impl.searchContainers(expression); }
-    }
-
-    /**
-     * Search the index for documents containing the expression.
-     * 
-     * @param expression
-     *            The search expression.
-     * @return A list of index hits.
-     * @throws ParityException
-     */
-    public List<IndexHit> searchDocuments(final String expression)
-            throws ParityException {
-        synchronized(implLock) { return impl.searchDocuments(expression); }
-    }
 
 	/**
 	 * Obtain the implementation.

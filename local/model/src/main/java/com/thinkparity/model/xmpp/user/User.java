@@ -1,5 +1,5 @@
 /*
- * May 14, 2005
+ * Created On: May 14, 2005
  */
 package com.thinkparity.model.xmpp.user;
 
@@ -7,14 +7,17 @@ import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
- * Represents a parity user.
+ * <b>Title:</b>thinkParity User<br>
+ * <b>Description:</b>A thinkParity user. The user represents each and and
+ * every user in the system. It consists of a login, name; organization and
+ * title which are shared with everyone (the login only by the software).<br>
  * 
  * @author raykroeker@gmail.com
- * @version 1.2.2.13
+ * @version 1.2.2.14
  */
 public class User {
 
-    /** thinkParity user. */
+    /** The thinkParity user. */
     public static final User THINK_PARITY;
 
 	static final String NAME_SEP = " ";
@@ -51,39 +54,49 @@ public class User {
 	}
 
     /**
-	 * Obtain the user's id.
-	 * 
-	 * @return The user's jabber id.
-	 */
-	public JabberId getId() { return id; }
+     * Obtain the user's id.
+     * 
+     * @return The user's jabber id.
+     */
+    public JabberId getId() {
+        return id;
+    }
 
     /**
      * Obtain the user's local id.
      * 
      * @return The local id.
      */
-	public Long getLocalId() { return localId; }
+    public Long getLocalId() {
+        return localId;
+    }
 
     /**
 	 * Obtain the user's name.
 	 * 
 	 * @return The user's name.
 	 */
-	public String getName() { return name; }
+	public String getName() {
+        return name;
+	}
 
 	/**
 	 * Obtain the user's organization.
 	 * 
 	 * @return Returns the organization.
 	 */
-	public String getOrganization() { return organization; }
+	public String getOrganization() {
+        return organization;
+	}
 
 	/**
 	 * Obtain the simple username of the user.
 	 * 
 	 * @return The simple username; without the domain\resource suffix.
 	 */
-	public String getSimpleUsername() { return id.getUsername(); }
+	public String getSimpleUsername() {
+        return id.getUsername();
+	}
 
 	/**
      * Obtain the title
@@ -99,7 +112,9 @@ public class User {
 	 * 
 	 * @return The username of the user.
 	 */
-	public String getUsername() { return id.getQualifiedUsername(); }
+	public String getUsername() {
+        return id.getQualifiedUsername();
+	}
 
     /**
      * @see java.lang.Object#hashCode()
@@ -112,7 +127,18 @@ public class User {
      * 
      * @return True if the organization is set.
      */
-    public Boolean isSetOrganization() { return null != organization; }
+    public Boolean isSetOrganization() {
+        return null != organization;
+    }
+
+    /**
+     * Determine if the user's title is set.
+     * 
+     * @return True if the title is set; false otherwise.
+     */
+    public Boolean isSetTitle() {
+        return null != title;
+    }
 
     /**
 	 * Set the user's id.
@@ -120,7 +146,9 @@ public class User {
 	 * @param id
 	 *            The user's jabber id.
 	 */
-	public void setId(final JabberId id) { this.id = id; }
+	public void setId(final JabberId id) {
+        this.id = id;
+	}
 
     /**
      * Set the user's local id.
@@ -128,7 +156,9 @@ public class User {
      * @param localId
      *            A local id.
      */
-    public void setLocalId(final Long localId) { this.localId = localId; }
+    public void setLocalId(final Long localId) {
+        this.localId = localId;
+    }
 
     /**
 	 * Set the user's name.
@@ -136,7 +166,9 @@ public class User {
 	 * @param name
 	 *            The user's name.
 	 */
-	public void setName(final String name) { this.name = name; }
+	public void setName(final String name) {
+        this.name = name;
+	}
 
     /**
      * Set the user's name.

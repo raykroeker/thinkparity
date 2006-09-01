@@ -54,6 +54,8 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.download.InternalDownloadModel;
+import com.thinkparity.model.parity.model.index.IndexModel;
+import com.thinkparity.model.parity.model.index.InternalIndexModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicUtil;
 import com.thinkparity.model.parity.model.io.handler.ConfigurationIOHandler;
@@ -430,14 +432,6 @@ public abstract class AbstractModelImpl {
     }
 
 	/**
-	 * Assert that the calling method has not yet been implemented.
-	 *
-	 */
-	protected void assertNYI() {
-		Assert.assertNotYetImplemented("The calling method has not yet been implemented.");
-	}
-
-	/**
      * Assert the user is online.
      *
      * @param assertion
@@ -685,6 +679,10 @@ public abstract class AbstractModelImpl {
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(context);
+    }
+
+    protected InternalIndexModel getIndexModel() {
+        return IndexModel.getInternalModel(context);
     }
 
     /**

@@ -31,6 +31,7 @@ import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.UserFilterManager;
 import com.thinkparity.model.parity.model.filter.artifact.DefaultFilter;
 import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
+import com.thinkparity.model.parity.model.index.InternalIndexModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
@@ -103,9 +104,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     /** The default container version filter. */
     private final Filter<? super ArtifactVersion> defaultVersionFilter;
 
-    /** A container index writer. */
-    private final ContainerIndexor indexor;
-
     /** A local event generator. */
     private final ContainerEventGenerator localEventGenerator;
 
@@ -132,7 +130,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         this.defaultUserFilter = new com.thinkparity.model.parity.model.filter.user.DefaultFilter();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = new com.thinkparity.model.parity.model.filter.container.DefaultVersionFilter();
-        this.indexor = new ContainerIndexor(getContext());
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
     }
@@ -151,7 +148,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(documentId);
         assertDraftExists(getApiId("[ADD DOCUMENT] [DRAFT DOES NOT EXIST]"), containerId);
         containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
-
+        getIndexModel().indexDocument(containerId, documentId);
         final Container postAdditionContainer = read(containerId);        
         final ContainerDraft postAdditionDraft = readDraft(containerId);
         final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
@@ -213,7 +210,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             auditor.create(container.getId(), localUserId(), currentDateTime);
     
             // index
-            indexor.create(container.getId(), container.getName());
+            getIndexModel().indexContainer(container.getId());
     
             // create team
             final TeamMember teamMember = createTeam(container.getId());
@@ -433,7 +430,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 artifactModel.createRemoteInfo(container.getId(), publishedBy, container.getCreatedOn());
     
                 // index
-                indexor.create(container.getId(), container.getName());
+                getIndexModel().indexContainer(container.getId());
             }
 
             // handle the artifact by specific type
@@ -560,7 +557,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 artifactModel.createRemoteInfo(container.getId(), sentBy, container.getCreatedOn());
     
                 // index
-                indexor.create(container.getId(), container.getName());
+                getIndexModel().indexContainer(container.getId());
             }
     
             // handle the artifact by specific type
@@ -1519,6 +1516,26 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Search for containers.
+     * 
+     * @param expression
+     *            A search expression <code>String</code>.
+     * @return A <code>List&lt;Long&gt;</code>.
+     */
+    List<Long> search(final String expression) {
+        logApiId();
+        logVariable("expression", expression);
+        try {
+            final InternalIndexModel indexModel = getIndexModel();
+            final List<Long> containerIds = indexModel.searchContainers(expression);
+            containerIds.addAll(indexModel.searchDocuments(expression));
+            return containerIds;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Share a version of the container with a list of users.
      * 
      * @param containerId
@@ -1862,7 +1879,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             containerIO.deleteVersion(containerId, version.getVersionId());
         }
         // delete the index
-        indexor.delete(containerId);
+        getIndexModel().deleteContainer(containerId);
         // delete the container
         containerIO.delete(containerId);
     }
@@ -1922,6 +1939,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         finally { inputStream.close(); }
     }
 
+
     /**
      * Handle the receipt of a document.
      * 
@@ -1952,7 +1970,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
         finally { inputStream.close(); }
     }
-
 
     /**
      * Determine if the container has been distributed. If a container is

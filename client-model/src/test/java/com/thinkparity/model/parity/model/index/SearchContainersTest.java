@@ -19,7 +19,7 @@ import com.thinkparity.model.parity.model.container.ContainerModel;
 public class SearchContainersTest extends IndexTestCase {
 
     /** Test name. */
-    private static final String NAME = "[LMODEL] [INDEX] [TEST SEARCH CONTAINERS]";
+    private static final String NAME = "TEST SEARCH CONTAINERS";
 
 	/** Test datum. */
 	private Fixture datum;
@@ -32,13 +32,14 @@ public class SearchContainersTest extends IndexTestCase {
      *
      */
     public void testSearch() {
-        final List<IndexHit> indexHits = datum.iModel.searchContainers(datum.expression);
+        final List<Long> containerIds =
+            datum.containerModel.search(datum.container.getName());
 
-        assertNotNull(NAME, indexHits);
-        assertTrue(NAME + " [NO CONTAINERS RETURNED]", indexHits.size() > 0);
+        assertNotNull(NAME, containerIds);
+        assertTrue(NAME + " [NO CONTAINERS RETURNED]", containerIds.size() > 0);
         Container container;
-        for(final IndexHit indexHit : indexHits) {
-            container = datum.cModel.read(indexHit.getId());
+        for(final Long containerId : containerIds) {
+            container = datum.containerModel.read(containerId);
             assertNotNull(NAME, container);
         }
 	}
@@ -50,12 +51,11 @@ public class SearchContainersTest extends IndexTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         login();
-        final ContainerModel cModel = getContainerModel();
-        final IndexModel iModel = getIndexModel();
+        final ContainerModel containerModel = getContainerModel();
 
         final String containerName = NAME.replaceAll("\\[|\\]", "");
         final Container container = createContainer(containerName);
-		datum = new Fixture(cModel, container.getName(), iModel);
+		datum = new Fixture(containerModel, container);
 	}
 
 	/**
@@ -70,14 +70,12 @@ public class SearchContainersTest extends IndexTestCase {
 
     /** Test datum definition. */
 	private class Fixture {
-        private final ContainerModel cModel;
-		private final String expression;
-		private final IndexModel iModel;
-		private Fixture(final ContainerModel cModel, final String expression,
-                final IndexModel iModel) {
-            this.cModel = cModel;
-			this.expression = expression;
-			this.iModel = iModel;
+        private final Container container;
+		private final ContainerModel containerModel;
+		private Fixture(final ContainerModel containerModel,
+                final Container container) {
+            this.containerModel = containerModel;
+			this.container = container;
 		}
 	}
 }

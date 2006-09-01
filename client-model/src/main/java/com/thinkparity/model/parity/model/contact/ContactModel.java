@@ -54,7 +54,7 @@ public class ContactModel {
     /** The model implementation synchronization lock. */
 	private final Object implLock;
 
-	/**
+    /**
 	 * Create ContactModel.
 	 *
 	 * @param workspace
@@ -66,7 +66,7 @@ public class ContactModel {
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Accept the incoming invitation.
      * 
      * @param invitationId
@@ -90,7 +90,7 @@ public class ContactModel {
         }
     }
 
-	/**
+    /**
      * Create an e-mail contact invitation.
      * 
      * @param email
@@ -124,7 +124,7 @@ public class ContactModel {
         synchronized(implLock) { impl.delete(contactId); }
     }
 
-    /**
+	/**
      * Delete an outgoing invitation.
      * 
      * @param invitationId
@@ -249,7 +249,6 @@ public class ContactModel {
         }
     }
 
-
     /**
      * Read a list of incoming invitations.
      * 
@@ -261,6 +260,7 @@ public class ContactModel {
             return getImpl().readIncomingInvitations(filter);
         }
     }
+
 
     /**
      * Read an outgoing invitation.
@@ -298,7 +298,6 @@ public class ContactModel {
         }
     }
 
-
     /**
      * Read a list of outgoing invitations.
      * 
@@ -311,6 +310,7 @@ public class ContactModel {
             return getImpl().readOutgoingInvitations(comparator, filter);
         }
     }
+
 
     /**
      * Read a list of outgoing invitations.
@@ -333,6 +333,19 @@ public class ContactModel {
     public void removeListener(final ContactListener listener) {
         synchronized (getImplLock()) {
             getImpl().removeListener(listener);
+        }
+    }
+
+    /**
+     * Search for contacts.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return A <code>List&lt;JabberId&gt;</code>.
+     */
+    public List<JabberId> search(final String expression) {
+        synchronized (getImplLock()) {
+            return getImpl().search(expression);
         }
     }
 

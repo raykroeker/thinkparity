@@ -146,8 +146,11 @@ class LocalFile {
 			openWin32();
 			break;
 		case LINUX:
+		case OSX:
+		    Assert.assertNotYetImplemented("UNSUPPORTED OS");
+            break;
 		default:
-			Assert.assertNotYetImplemented("launchFile(File)");
+            Assert.assertUnreachable("UNKNOWN OS");
 			break;
 		}
 	}

@@ -92,18 +92,19 @@ public class TabCellRenderer extends AbstractJPanel implements
         }
         setBorder(cell.getBorder(index));
         
+        // Note the constants 42 and 0.35 just happens to look good.
+        final Integer widthToUse = list.getParent().getWidth() - 42;       
         if (null == cell.getSecondaryText()) {
-            westSize = 395-inset;
             eastSize = 5;
         } else {
-            westSize = 250-inset;
-            eastSize = 150;
+            eastSize = (int) (0.35 * (double)widthToUse);
         }
+        westSize = widthToUse - eastSize - inset;
 
         westTextJLabel.setFont(cell.getTextFont());
         westTextJLabel.setForeground(cell.getTextForeground());
         westTextJLabel.setText(cell.getText());
-        // The preferred size must subtract the inset to that the position
+        // The preferred size must subtract the inset so that the position
         // of the east text does not change when you expand and increase the inset.
         westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
         

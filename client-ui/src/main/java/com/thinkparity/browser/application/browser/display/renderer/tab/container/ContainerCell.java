@@ -100,8 +100,11 @@ public class ContainerCell extends Container implements TabCell  {
     /** A flag indicating whether or not the cell is urgent. */
     private Boolean urgent = Boolean.FALSE;
     
+    /** The draft owner. */
+    private String draftOwner = null;
+    
     /** Create CellContainer. */
-    public ContainerCell(final Container container) {
+    public ContainerCell(final Container container, final String draftOwner) {
         super();
         setCreatedBy(container.getCreatedBy());
         setCreatedOn(container.getCreatedOn());
@@ -121,6 +124,7 @@ public class ContainerCell extends Container implements TabCell  {
         this.popupItemFactory = PopupItemFactory.getInstance();
         this.seen = contains(ArtifactFlag.SEEN);
         this.urgent = Boolean.FALSE;
+        this.draftOwner = draftOwner;
     }
 
     /**
@@ -215,15 +219,7 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public String getSecondaryText() {
-        if (isLocalDraft()) {
-            return ("me");           
-        }
-        else if (isDraft()) {
-            return ("someone else");
-        }
-        else {
-            return null;
-        }
+        return draftOwner;
     }    
 
     /**

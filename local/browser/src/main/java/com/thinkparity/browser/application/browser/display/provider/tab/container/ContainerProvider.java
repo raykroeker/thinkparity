@@ -7,8 +7,6 @@ package com.thinkparity.browser.application.browser.display.provider.tab.contain
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
@@ -16,7 +14,10 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.containe
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
@@ -80,7 +81,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         this.containerProvider = new SingleContentProvider(profile) {
             public Object getElement(final Object input) {
                 final Long containerId = (Long) input;
-                return toDisplay(containerModel.read(containerId));
+                return toDisplay(containerModel.read(containerId), containerModel);
             }
         };
         this.versions = new FlatContentProvider(profile) {
@@ -93,7 +94,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         };
         this.containers = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
-                return toDisplay(containerModel.read(), containerModel, documentModel);
+                return toDisplay(containerModel.read(), containerModel);
             }            
         };
         this.documentIsDraftModifiedProvider = new SingleContentProvider(profile) {
@@ -169,17 +170,25 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      *          The container
      * @param ctrModel
      *          The parity container interface.
-     * @param dModel
-     *          The parity document interface.
      *          
      * @return The displayable container.
      */
-    private ContainerCell toDisplay(final Container container) {
-        return null == container ? null : new ContainerCell(container);
+    private ContainerCell toDisplay(final Container container,
+            final ContainerModel ctrModel) {
+        if (null == container) {
+            return null;
+        } else {
+            String draftOwner = null;
+            if (container.isDraft() || container.isLocalDraft()) {
+                final ContainerDraft containerDraft = ctrModel.readDraft(container.getId());
+                draftOwner = containerDraft.getOwner().getName();
+            }
+            return new ContainerCell(container, draftOwner);
+        }
     }
 
     /**
-     * Create a dislplay for a list of container versions.
+     * Create a displayable list of container versions.
      * 
      * @param container
      *            A container.
@@ -238,16 +247,14 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      *          The containers
      * @param ctrModel
      *          The parity container interface.
-     * @param dModel
-     *          The parity document interface.
      *          
      * @return The displayable containers.
      */
     private ContainerCell[] toDisplay(final List<Container> containers,
-            final ContainerModel ctrModel, final DocumentModel dModel) {
+            final ContainerModel ctrModel) {
         final List<ContainerCell> display = new ArrayList<ContainerCell>();
         for(final Container container : containers) {
-            display.add(toDisplay(container));
+            display.add(toDisplay(container, ctrModel));
         }
         return display.toArray(new ContainerCell[] {});      
     }

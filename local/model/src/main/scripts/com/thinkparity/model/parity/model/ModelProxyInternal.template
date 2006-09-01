@@ -9,7 +9,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity ${proxyInternal.name} Internal Model<br>
- * <b>Description:</b>
+ * <b>Description:</b><br>
  *
  * @author ${environment.author}
  * @version ${proxyInternal.version}
@@ -22,7 +22,7 @@ ${proxyInternal.classModifier}class ${proxyInternal.className} extends ${proxyIn
      * @param workspace
      *		A thinkParity workspace.
      * @param context
-     *		A thinkParity internal context.
+     *		A thinkParity model context.
      */
     ${proxyInternal.className}(final Workspace workspace, final Context context) {
         super(workspace);

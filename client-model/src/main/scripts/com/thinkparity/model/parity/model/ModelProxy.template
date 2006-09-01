@@ -9,7 +9,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity ${proxy.name} Model<br>
- * <b>Description:</b>
+ * <b>Description:</b><br>
  *
  * @author ${environment.author}
  * @version ${proxy.version}
@@ -17,11 +17,11 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 ${proxy.classModifier}class ${proxy.className} {
 
 	/**
-	 * Create ${proxyInternal.article} ${proxyInternal.name} interface.
+	 * Create a thinkParity ${proxyInternal.name} interface.
 	 * 
 	 * @param context
-	 *            A thinkParity internal context.
-	 * @return The internal ${proxyInternal.name} interface.
+	 *            A thinkParity model context.
+	 * @return A thinkParity ${proxyInternal.name} interface.
 	 */
 	public static ${proxyInternal.className} getInternalModel(final Context context) {
 		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
@@ -29,9 +29,9 @@ ${proxy.classModifier}class ${proxy.className} {
 	}
 
 	/**
-	 * Create ${proxy.article} ${proxy.name} interface.
+	 * Create a thinkParity ${proxy.name} interface.
 	 * 
-	 * @return The ${proxy.name} interface.
+	 * @return A thinkParity ${proxy.name} interface.
 	 */
 	public static ${proxy.className} getModel() {
 		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();

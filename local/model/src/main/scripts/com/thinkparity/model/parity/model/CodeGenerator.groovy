@@ -8,9 +8,11 @@ class Environment {
 	public final String author;
 	public final String generatedOn;
 	public final String model;
+	// [generate,regenerate]
 	public final String target;
 	private final File java;
 	private final File scripts;
+	public final String version;
 
 	public Environment(final String[] args) {
 		this.author = "CreateModel.groovy";
@@ -25,6 +27,7 @@ class Environment {
 		this.scripts = new File(user, new StringBuffer("src")
 				.append(File.separator).append("main")
 				.append(File.separator).append("scripts").toString());
+		this.version = "1.1.2.1";
 	}
 
 	public File getJava() { return java; }
@@ -43,6 +46,7 @@ abstract class ModelClass {
 
 	public final String classModifier;
 	public final String article;
+	public final String startArticle
 	public final String className;
 	public final String interfaceClassNames;
 	public final String name;
@@ -60,6 +64,7 @@ abstract class ModelClass {
 		this.interfaceClassNames = interfaceClassNames;
 		this.name = modelGenerator.getName();
 		this.packageName = "com.thinkparity.model.parity.model." + modelGenerator.getName().toLowerCase();
+		this.startArticle = modelGenerator.getStartArticle();
 		this.superClassName = superClassName;
 		this.version = version;
 	}
@@ -119,43 +124,43 @@ abstract class ModelClass {
 }
 
 class Model extends ModelClass {
-    public Model(final ModelGenerator modelGenerator) {
+    public Model(final ModelGenerator modelGenerator, final String version) {
         super(modelGenerator,
                 "public ",
                 modelGenerator.getName(),
                 "",
                 "",
-                "");
+                version);
     }
 }
 class ModelProxy extends ModelClass {
-	public ModelProxy(final ModelGenerator modelGenerator) {
+	public ModelProxy(final ModelGenerator modelGenerator, final String version) {
 		super(modelGenerator,
 		        "public ",
 		        modelGenerator.getName() + "Model",
 		        "",
 		        "",
-		        "");
+		        version);
 	}
 }
 class ModelProxyImpl extends ModelClass {
-	public ModelProxyImpl(final ModelGenerator modelGenerator) {
+	public ModelProxyImpl(final ModelGenerator modelGenerator, final String version) {
 		super(modelGenerator,
 		        "",
 		        modelGenerator.getName() + "ModelImpl",
 		        "AbstractModelImpl",
 		        "",
-		        "");
+		        version);
 	}
 }
 class ModelProxyInternal extends ModelClass {
-	public ModelProxyInternal(final ModelGenerator modelGenerator) {
+	public ModelProxyInternal(final ModelGenerator modelGenerator, final String version) {
 		super(modelGenerator,
 		        "public ",
 		        "Internal" + modelGenerator.getName() + "Model",
 		        modelGenerator.getName() + "Model",
 		        "InternalModel",
-		        "");
+		        version);
 	}
 }
 
@@ -171,10 +176,10 @@ class ModelGenerator {
 	public ModelGenerator(final Environment environment) {
 		this.environment = environment;
 		this.name = environment.model;
-		this.model = new Model(this);
-		this.proxy = new ModelProxy(this);
-		this.proxyImpl = new ModelProxyImpl(this);
-		this.proxyInternal = new ModelProxyInternal(this);
+		this.model = new Model(this, environment.version);
+		this.proxy = new ModelProxy(this, environment.version);
+		this.proxyImpl = new ModelProxyImpl(this, environment.version);
+		this.proxyInternal = new ModelProxyInternal(this, environment.version);
 	}
 
 	private Map createBinding() {
@@ -207,6 +212,24 @@ class ModelGenerator {
 		proxyInternal.write(binding);
 	}
 
+	public String getStartArticle() {
+	    final char firstChar = getName().toLowerCase().charAt(0);
+	    switch(firstChar) {
+		    case 'a':
+		        return "An";
+		    case 'e':
+		        return "An";
+		    case 'i':
+		        return "An";
+		    case 'o':
+		        return "An";
+		    case 'u':
+		        return "An";
+        	default:
+        		return "A";
+	    }
+	}
+
 	public String getArticle() {
 	    final char firstChar = getName().toLowerCase().charAt(0);
 	    switch(firstChar) {
@@ -220,7 +243,8 @@ class ModelGenerator {
 		        return "an";
 		    case 'u':
 		        return "an";
-        	default: return "a";
+        	default:
+        		return "a";
 	    }
 	}
 

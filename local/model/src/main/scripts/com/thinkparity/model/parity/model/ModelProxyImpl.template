@@ -8,23 +8,12 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * <b>Title:</b>thinkParity ${proxyImpl.name} Model Implementation</br>
- * <b>Description:</b>
+ * <b>Description:</b><br>
  *
  * @author ${environment.author}
  * @version ${proxyImpl.version}
  */
 ${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
-
-   /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[${proxyImpl.name}]").append(" ").append(api);
-    }
 
     /**
      * Create ${proxyImpl.className}.

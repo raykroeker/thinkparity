@@ -19,7 +19,7 @@ import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
@@ -49,6 +49,9 @@ public class DraftCell extends ContainerDraft implements TabCell  {
 
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
+    
+    /** Flag to indicate if there are documents. */
+    private Boolean haveDocuments = Boolean.FALSE;    
 
     /** An image cache. */
     private final MainCellImageCache imageCache;
@@ -65,9 +68,11 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     public DraftCell(final ContainerCell containerDisplay, final ContainerDraft draft) {
         super();
         setContainerId(draft.getContainerId());
+        this.haveDocuments = Boolean.FALSE;
         for(final Document document : draft.getDocuments()) {
             addDocument(document);
             putState(document, draft.getState(document));
+            this.haveDocuments = Boolean.TRUE;
         }
         this.container = containerDisplay;
         this.localization = new MainCellL18n("MainCellContainerDraft");
@@ -122,10 +127,12 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * 
      */
     public ImageIcon getNodeIcon() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_EXPANDED);
+        if (!haveDocuments) {
+            return imageCache.read(ContainerIcon.NODE_NOCHILDREN);            
+        } else if (isExpanded()) {
+            return imageCache.read(ContainerIcon.NODE_EXPANDED);
         } else {
-            return imageCache.read(DocumentIcon.NODE_DEFAULT);
+            return imageCache.read(ContainerIcon.NODE_COLLAPSED);
         }
     }
 
@@ -134,10 +141,12 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * 
      */
     public ImageIcon getNodeIconSelected() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED);
+        if (!haveDocuments) {
+            return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
+        } else if (isExpanded()) {
+            return imageCache.read(ContainerIcon.NODE_SEL_EXPANDED);
         } else {
-            return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT);
+            return imageCache.read(ContainerIcon.NODE_SEL_COLLAPSED);
         }
     }
 
@@ -211,7 +220,12 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * @param expanded
      *            The expanded flag.
      */
-    public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
+    public void setExpanded(final Boolean expanded) {
+        this.expanded = expanded;
+        if (!haveDocuments) {
+            this.expanded = Boolean.FALSE;
+        }
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
@@ -227,6 +241,7 @@ public class DraftCell extends ContainerDraft implements TabCell  {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
         
         if(connection == Connection.ONLINE) {
+            jPopupMenu.addSeparator();
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
@@ -235,6 +250,11 @@ public class DraftCell extends ContainerDraft implements TabCell  {
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
         }
+        
+/*        jPopupMenu.addSeparator();
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));*/
+        
         jPopupMenu.show(invoker, x, y);
     }
 }

@@ -28,7 +28,7 @@ public class Resizer {
     private FormLocation formLocation;
     
     /** Flag to indicate if currently dragging. */
-    private Boolean dragging = Boolean.FALSE;
+    private static Boolean dragging = Boolean.FALSE;
     
     /** Flag to indicate if initialized. */
     private Boolean initialized = Boolean.FALSE;
@@ -101,8 +101,8 @@ public class Resizer {
     public Boolean isResizeDragging() {
         return dragging;
     }
-    public void setResizeDragging(Boolean dragging) {
-        this.dragging = dragging;
+    public void setResizeDragging(Boolean newValue) {
+        Resizer.dragging = newValue;
     }
        
     private void initResize(java.awt.event.MouseEvent e) {
@@ -293,30 +293,39 @@ public class Resizer {
         }
     }
     
+    private void formMouseMoved(java.awt.event.MouseEvent evt) {
+        if (!dragging) {
+            initResize(evt);
+        }
+    }
+    
     private void formMouseExited(java.awt.event.MouseEvent evt) {
         if (!dragging) {
             resizeDirection = ResizeDirection.NONE;
             component.setCursor(null);
             browser.setCursor(null);
         }
-    }
-
-    private void formMouseMoved(java.awt.event.MouseEvent evt) {
-        if (!dragging) {
-            initResize(evt);
-        }
-    }
-
+    }    
+    
     private void formMousePressed(java.awt.event.MouseEvent evt) {
         resizeOffsetX = evt.getPoint().x;
         resizeOffsetY = evt.getPoint().y;
         if (resizeDirection != ResizeDirection.NONE) {
             dragging = Boolean.TRUE;
         }
-    }
-    
+    }   
+       
     private void formMouseReleased(java.awt.event.MouseEvent evt) {
         dragging = Boolean.FALSE;
+        
+        // Sometimes when the mouse is released it is not over the
+        // component anymore, for example, when minimizing beyond
+        // the minimum size of the dialog. For this reason it is
+        // best to reset the cursor rather than hope for the 
+        // mouse exit event.
+        resizeDirection = ResizeDirection.NONE;
+        component.setCursor(null);
+        browser.setCursor(null);
     }
     
     private void initComponents() {

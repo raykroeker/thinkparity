@@ -22,9 +22,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
-
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
@@ -40,9 +37,13 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.CreateDraft;
 import com.thinkparity.browser.platform.action.container.Delete;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
+
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca
@@ -104,7 +105,7 @@ public class ContainerCell extends Container implements TabCell  {
     private String draftOwner = null;
     
     /** Create CellContainer. */
-    public ContainerCell(final Container container, final String draftOwner) {
+    public ContainerCell(final Container container, final ContainerDraft containerDraft) {
         super();
         setCreatedBy(container.getCreatedBy());
         setCreatedOn(container.getCreatedOn());
@@ -124,7 +125,11 @@ public class ContainerCell extends Container implements TabCell  {
         this.popupItemFactory = PopupItemFactory.getInstance();
         this.seen = contains(ArtifactFlag.SEEN);
         this.urgent = Boolean.FALSE;
-        this.draftOwner = draftOwner;
+        if (null==containerDraft) {
+            this.draftOwner = null;
+        } else {
+            this.draftOwner = containerDraft.getOwner().getName();
+        }
     }
 
     /**

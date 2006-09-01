@@ -56,6 +56,15 @@ public class MainCellImageCache {
                             ImageIOUtil.readIcon(ci.iconName));
                 }
             }
+            for(final ContainerIcon ci : ContainerIcon.values()) {
+                if(!ICON_CACHE.containsKey(ci.iconName)) {
+                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
+                            "[CACHING " + ci.iconName + "]");
+                    ICON_CACHE.put(
+                            ci.iconName,
+                            ImageIOUtil.readIcon(ci.iconName));
+                }
+            }
             for(final DocumentIcon di : DocumentIcon.values()) {
                 if(!ICON_CACHE.containsKey(di.iconName)) {
                     slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
@@ -127,6 +136,18 @@ public class MainCellImageCache {
      * @see ImageIOUtil#readIcon(java.lang.String)
      */
     public ImageIcon read(final ContactIcon icon) {
+        return (ImageIcon) read(ICON_CACHE, icon.iconName);
+    }
+    
+    /**
+     * Read a container icon from the cache.
+     * 
+     * @param icon
+     *            The icon.
+     * @return The icon.
+     * @see ImageIOUtil#readIcon(java.lang.String)
+     */
+    public ImageIcon read(final ContainerIcon icon) {
         return (ImageIcon) read(ICON_CACHE, icon.iconName);
     }
 
@@ -225,6 +246,32 @@ public class MainCellImageCache {
          *            The icon file name.
          */
         private ContactIcon(final String iconName) {
+            this.iconName = iconName;
+        }        
+    }
+    
+    /** All container cell icons. */
+    public enum ContainerIcon {
+        INFO("Invisible20x20.png"),
+        NODE_NOCHILDREN("Invisible9x9.png"),
+        
+        NODE_COLLAPSED("Invisible9x9.png"),
+        NODE_EXPANDED("MainCellCollapse.png"),
+
+        NODE_SEL_COLLAPSED("MainCellExpand.png"),
+        NODE_SEL_EXPANDED("MainCellCollapse.png");
+
+        
+        /** The icon file name. */
+        private final String iconName;
+
+        /**
+         * Create a ContactIcon.
+         * 
+         * @param iconName
+         *            The icon file name.
+         */
+        private ContainerIcon(final String iconName) {
             this.iconName = iconName;
         }        
     }

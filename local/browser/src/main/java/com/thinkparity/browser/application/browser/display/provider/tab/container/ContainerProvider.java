@@ -178,12 +178,8 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         if (null == container) {
             return null;
         } else {
-            String draftOwner = null;
-            if (container.isDraft() || container.isLocalDraft()) {
-                final ContainerDraft containerDraft = ctrModel.readDraft(container.getId());
-                draftOwner = containerDraft.getOwner().getName();
-            }
-            return new ContainerCell(container, draftOwner);
+            final ContainerDraft containerDraft = ctrModel.readDraft(container.getId());
+            return new ContainerCell(container, containerDraft);
         }
     }
 

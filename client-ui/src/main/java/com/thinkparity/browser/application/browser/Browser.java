@@ -329,6 +329,11 @@ public class Browser extends AbstractApplication {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
     }
 
+    /** Display the archive avatar tab. */
+    public void displayTabArchiveAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.TAB_ARCHIVE);
+    }
+
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);

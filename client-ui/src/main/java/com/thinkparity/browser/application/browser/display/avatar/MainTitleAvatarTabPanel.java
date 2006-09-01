@@ -3,9 +3,12 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import javax.swing.Icon;
+import javax.swing.JLabel;
+
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.browser.Constants.Icons;
+import com.thinkparity.browser.Constants.Icons.BrowserTitle;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.platform.action.Data;
 
@@ -58,13 +61,61 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         reloadDisplay();
     }
 
+    private void archiveJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseClicked
+        selectTab(MainTitleAvatar.Tab.ARCHIVE);
+    }//GEN-LAST:event_archiveJLabelMouseClicked
+
+    private void archiveJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseEntered
+        highlightTab(MainTitleAvatar.Tab.ARCHIVE, archiveJLabel, BrowserTitle.ARCHIVE_TAB_ROLLOVER);
+    }//GEN-LAST:event_archiveJLabelMouseEntered
+
+    private void archiveJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseExited
+        unhighlightTab(MainTitleAvatar.Tab.ARCHIVE, archiveJLabel, BrowserTitle.ARCHIVE_TAB);
+    }//GEN-LAST:event_archiveJLabelMouseExited
+
     private void contactsJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJLabelMouseClicked
-        setMainTitleAvatarInput(MainTitleAvatar.Tab.CONTACT);
+        selectTab(MainTitleAvatar.Tab.CONTACT);
     }//GEN-LAST:event_contactsJLabelMouseClicked
 
+    private void contactsJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseEntered
+        highlightTab(MainTitleAvatar.Tab.CONTACT, contactsJLabel, BrowserTitle.CONTACTS_TAB_ROLLOVER);
+    }//GEN-LAST:event_contactsJLabelMouseEntered
+
+    private void contactsJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseExited
+        unhighlightTab(MainTitleAvatar.Tab.CONTACT, contactsJLabel, BrowserTitle.CONTACTS_TAB);
+    }//GEN-LAST:event_contactsJLabelMouseExited
+
     private void containersJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_containersJLabelMouseClicked
-        setMainTitleAvatarInput(MainTitleAvatar.Tab.CONTAINER);
+        selectTab(MainTitleAvatar.Tab.CONTAINER);
     }//GEN-LAST:event_containersJLabelMouseClicked
+
+    private void containersJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseEntered
+        highlightTab(MainTitleAvatar.Tab.CONTAINER, containersJLabel, BrowserTitle.CONTAINERS_TAB_ROLLOVER);
+    }//GEN-LAST:event_containersJLabelMouseEntered
+
+    private void containersJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseExited
+        unhighlightTab(MainTitleAvatar.Tab.CONTAINER, containersJLabel, BrowserTitle.CONTAINERS_TAB);
+    }//GEN-LAST:event_containersJLabelMouseExited
+
+    /**
+     * Highlight a tab. If the tab is not selected; the label's icon will be
+     * set to that provided.
+     * 
+     * @param tab
+     *            A tab.
+     * @param jLabel
+     *            A <code>JLabel</code> representing the tab.
+     * @param icon
+     *            An <code>Icon</code>.
+     * @see #unhighlightTab(com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatar.Tab,
+     *      JLabel, Icon)
+     */
+    private void highlightTab(final MainTitleAvatar.Tab tab,
+            final JLabel jLabel, final Icon icon) {
+        if (this.tab != tab) {
+            jLabel.setIcon(icon);
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -78,6 +129,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         containersJLabel = new javax.swing.JLabel();
         contactsJLabel = new javax.swing.JLabel();
 
+        archiveJLabel = new javax.swing.JLabel();
         nameJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -86,14 +138,14 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTabSelected.png")));
         containersJLabel.setMaximumSize(new java.awt.Dimension(78, 20));
         containersJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                containersJLabelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                containersJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                containersJLabelMouseExited(e);
             }
         });
 
@@ -105,14 +157,14 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
         contactsJLabel.setMaximumSize(new java.awt.Dimension(78, 18));
         contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                contactsJLabelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                contactsJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                contactsJLabelMouseExited(e);
             }
         });
 
@@ -121,8 +173,30 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(contactsJLabel, gridBagConstraints);
 
+        archiveJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ArchiveTab.png")));
+        archiveJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                archiveJLabelMouseClicked(e);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                archiveJLabelMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                archiveJLabelMouseExited(e);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(archiveJLabel, gridBagConstraints);
+
         nameJLabel.setFont(Fonts.DefaultFontBold);
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -130,30 +204,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(nameJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
-    private void containersJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseExited
-        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTAINER)) {
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);            
-        }
-    }//GEN-LAST:event_containersJLabelMouseExited
-
-    private void containersJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseEntered
-        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTAINER)) {
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_ROLLOVER);
-        }
-    }//GEN-LAST:event_containersJLabelMouseEntered
-
-    private void contactsJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseExited
-        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTACT)) {
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);            
-        }
-    }//GEN-LAST:event_contactsJLabelMouseExited
-
-    private void contactsJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseEntered
-        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTACT)) {
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_ROLLOVER);
-        }
-    }//GEN-LAST:event_contactsJLabelMouseEntered
 
     /**
      * Reload the display.  This will examine the current tab; then call the
@@ -183,13 +233,23 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     private void reloadDisplayTab() {
         switch(tab) {
+        case ARCHIVE:
+            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB_SELECTED);
+
+            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB);
+            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB);
+            break;
         case CONTACT:
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
+            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB_SELECTED);
+
+            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB);
+            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB);
             break;
         case CONTAINER:
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
+            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB_SELECTED);
+
+            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB);
+            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB);
             break;
         default:
             Assert.assertUnreachable("UNKNOWN TAB");
@@ -197,18 +257,40 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
-     * Set the tab porition of the main title avatar's input.
+     * Select a tab.  Here we set the input in the main title avatar to contain
+     * the selected tab.
      * 
      * @param tab
      *            A tab.
      */
-    private void setMainTitleAvatarInput(final MainTitleAvatar.Tab tab) {
+    private void selectTab(final MainTitleAvatar.Tab tab) {
         final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
         data.set(MainTitleAvatar.DataKey.TAB, tab);
         mainTitleAvatar.setInput(data);
     }
 
+    /**
+     * Unhighlight a tab. If the tab is not selected; the label's icon will be
+     * set to that provided.
+     * 
+     * @param tab
+     *            A tab.
+     * @param jLabel
+     *            A <code>JLabel</code> representing the tab.
+     * @param icon
+     *            An <code>Icon</code>.
+     * @see #highlightTab(com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatar.Tab,
+     *      JLabel, Icon)
+     */
+    private void unhighlightTab(final MainTitleAvatar.Tab tab,
+            final JLabel jLabel, final Icon icon) {
+        if (this.tab != tab) {
+            jLabel.setIcon(icon);
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel archiveJLabel;
     private javax.swing.JLabel contactsJLabel;
     private javax.swing.JLabel containersJLabel;
     private javax.swing.JLabel nameJLabel;

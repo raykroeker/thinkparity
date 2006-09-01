@@ -84,17 +84,23 @@ public final class Constants {
 
     public static final class Icons {
         public static final class BrowserTitle {
+            public static final Icon ARCHIVE_TAB =
+                ImageIOUtil.readIcon("BrowserTitle_ArchiveTab.png");
+            public static final Icon ARCHIVE_TAB_ROLLOVER =
+                ImageIOUtil.readIcon("BrowserTitle_ArchiveTabRollover.png");
+            public static final Icon ARCHIVE_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_ArchiveTabSelected.png");
             public static final Icon CONTACTS_TAB =
                 ImageIOUtil.readIcon("BrowserTitle_ContactsTab.png");
-        public static final Icon CONTACTS_TAB_ROLLOVER =
+            public static final Icon CONTACTS_TAB_ROLLOVER =
                 ImageIOUtil.readIcon("BrowserTitle_ContactsTabRollover.png");
-        public static final Icon CONTACTS_TAB_SELECTED =
+            public static final Icon CONTACTS_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_ContactsTabSelected.png");
-        public static final Icon CONTAINERS_TAB =
+            public static final Icon CONTAINERS_TAB =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTab.png");
-        public static final Icon CONTAINERS_TAB_ROLLOVER =
+            public static final Icon CONTAINERS_TAB_ROLLOVER =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTabRollover.png");
-        public static final Icon CONTAINERS_TAB_SELECTED =
+            public static final Icon CONTAINERS_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
         }
     }

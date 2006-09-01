@@ -27,17 +27,6 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class UserProfileAvatar extends Avatar {
 
-    /**
-     * Obtain a logging api id.
-     * 
-     * @param api
-     *            The api.
-     * @return A logging api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getAvatarId(AvatarId.DIALOG_PROFILE_UPDATE).append(" ").append(api);
-    }
-
     private String name;
 
     private String organization;
@@ -79,8 +68,8 @@ public class UserProfileAvatar extends Avatar {
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object) */
     public void setInput(final Object input) {
-        Assert.assertNotNull(getApiId("[SET INPUT]"), input);
-        Assert.assertOfType(getApiId("[SET INPUT]"), Profile.class, input);
+        Assert.assertNotNull("NULL INPUT", input);
+        Assert.assertOfType("INPUT IS OF WRONG TYPE", Profile.class, input);
         this.input = input;
     }
 

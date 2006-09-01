@@ -17,6 +17,7 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.contain
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.ResetPasswordAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.tab.archive.ArchiveAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
@@ -78,6 +79,10 @@ public class AvatarFactory {
 		    avatar = new MainTitleAvatar();
 		    break;
 
+        case TAB_ARCHIVE:
+            avatar = new ArchiveAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
         case TAB_CONTAINER:
             avatar = new ContainerAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));            

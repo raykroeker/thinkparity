@@ -23,9 +23,17 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  * @version 1.1.2.7
  */
 public final class Constants {
-
+    
     /** Colour constants. */
     public static final class Colors {
+        public static final class Swing {
+            public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
+            public static final Color LIST_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_SELECTION_BG = new Color(215, 231, 244, 255);
+            public static final Color MENU_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(215, 231, 244, 255);
+            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
+        }
         public static final class Browser {
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
@@ -47,6 +55,10 @@ public final class Constants {
             public static final class UpdateProfile {
                 public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
                 public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
+            }
+            public static final class TabCell {
+                public static final Color TEXT = Color.BLACK;
+                public static final Color TEXT_CLOSED = Color.BLACK;
             }
         }
     }

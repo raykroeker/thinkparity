@@ -4,7 +4,6 @@
 package com.thinkparity.browser.application.browser.display.avatar.tab.contact;
 
 import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -16,6 +15,7 @@ import javax.swing.ListModel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.contact.ContactCell;
@@ -35,7 +35,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author rob_masako@shaw.ca; raymond@thinkparity.com
  * @version $Revision$
  */
-public class ContactAvatarModel {
+public class ContactModel extends TabModel {
 
     /** An apache logger. */
     protected final Logger logger;
@@ -45,9 +45,6 @@ public class ContactAvatarModel {
 
     /** A list of all contacts. */
     private final List<ContactCell> contacts;
-
-    /** The content provider. */
-    private CompositeFlatSingleContentProvider contentProvider;
 
     /** A list of incoming invitations. */
     private final List<IncomingInvitationCell> incomingInvitations;
@@ -80,9 +77,9 @@ public class ContactAvatarModel {
      * Create a BrowserContactsModel.
      * 
      */
-    ContactAvatarModel(final Browser browser) {
+    ContactModel() {
         super();
-        this.browser = browser;
+        this.browser = getBrowser();
         this.contacts = new ArrayList<ContactCell>(50);
         this.incomingInvitations = new ArrayList<IncomingInvitationCell>(50);
         this.jListModel = new DefaultListModel();
@@ -101,7 +98,8 @@ public class ContactAvatarModel {
      * @see #searchResults
      * @see #removeSearch()
      */
-    void applySearch(final String searchExpression) {
+    @Override
+    protected void applySearch(final String searchExpression) {
         // if the parameter search expression matches the member search
         // expression there is no need to search
         if (searchExpression.equals(this.searchExpression)) {
@@ -109,7 +107,7 @@ public class ContactAvatarModel {
         } else {
             this.searchExpression = searchExpression;
             this.searchResults = readSearchResults();
-            syncModel();
+            synchronize();
         }
     }
 
@@ -117,8 +115,9 @@ public class ContactAvatarModel {
      * Debug the contact avatar.
      * 
      */
-    void debug() {
-        if(browser.getPlatform().isDevelopmentMode()) {
+    @Override
+    protected void debug() {
+        if (logger.isDebugEnabled()) {
             logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] ["
                     + contacts.size() + " CONTACTS]");
             logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] ["
@@ -162,7 +161,8 @@ public class ContactAvatarModel {
      * 
      * @return The swing list model.
      */
-    ListModel getListModel() {
+    @Override
+    protected ListModel getListModel() {
         return jListModel;
     }
 
@@ -184,7 +184,8 @@ public class ContactAvatarModel {
      * @see #searchResults
      * @see #applySearch(String)
      */
-    void removeSearch() {
+    @Override
+    protected void removeSearch() {
         // if the member search expression is already null; then there is no
         // search applied -> do nothing
         if (null == searchExpression) {
@@ -192,21 +193,8 @@ public class ContactAvatarModel {
         } else {
             searchExpression = null;
             searchResults = null;
-            syncModel();
+            synchronize();
         }
-    }
-
-    /**
-     * Set the content provider. This will initialize the model with contacts
-     * via the provider.
-     * 
-     * @param contentProvider
-     *            The content provider.
-     */
-    void setContentProvider(
-            final CompositeFlatSingleContentProvider contentProvider) {
-        this.contentProvider = contentProvider;
-        initModel();
     }
 
     /**
@@ -223,7 +211,7 @@ public class ContactAvatarModel {
      */
     void syncContact(final JabberId contactId, final Boolean remote) {
         syncContactInternal(contactId, remote);
-        syncModel();
+        synchronize();
     }
 
     /**
@@ -238,7 +226,7 @@ public class ContactAvatarModel {
         syncInvitationInternal(invitationId,
                 readIncomingInvitation(invitationId), incomingInvitations,
                 remote);
-        syncModel();
+        synchronize();
     }
 
     /**
@@ -253,7 +241,7 @@ public class ContactAvatarModel {
         syncInvitationInternal(invitationId,
                 readOutgoingInvitation(invitationId), outgoingInvitations,
                 remote);
-        syncModel();
+        synchronize();
     }
 
     /**
@@ -262,36 +250,14 @@ public class ContactAvatarModel {
      * @param mainCell
      *            The main cell.
      */
-    void triggerDoubleClick(final TabCell mainCell) {
+    @Override
+    protected void triggerDoubleClick(final TabCell tabCell) {
         debug();
-        if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("Opening contact " + mainCell.getText());
-        }
-        if(mainCell instanceof ContactCell) {
-            final ContactCell cc = (ContactCell) mainCell;
-            browser.runReadContact(cc.getId()); // Jabber ID
+        if(tabCell instanceof ContactCell) {
+            final ContactCell cc = (ContactCell) tabCell;
+            browser.runReadContact(cc.getId());
         }
     }
-
-    /**
-     * Synchronize the contacts with the list. The content provider is queried
-     * for the contact and if it can be obtained; it will either be added to or
-     * updated in the list. If it cannot be found; it will be removed from the
-     * list.
-     * 
-     * @param contactIds
-     *            The contact ids.
-     * @param remote
-     *            Whether or not the reload is the result of a remote event or
-     *            not.
-     * @see #syncContactInternal(JabberId, Boolean)
-     * @see #syncModel()
-     */
-    /*
-     * void syncContacts(final List<JabberId> contactIds, final Boolean remote) {
-     * for(final JabberId contactId : contactIds) {
-     * syncContactInternal(contactId, remote); } syncModel(); }
-     */
 
     /**
      * Trigger a popup event for the cell.
@@ -299,22 +265,9 @@ public class ContactAvatarModel {
      * @param mainCell
      *            The main cell.
      */
-    void triggerPopup(final TabCell tabCell, final Component invoker,
-            final MouseEvent e, final int x, final int y) {
-        tabCell.triggerPopup(browser.getConnection(), invoker, e, x, y);
-    }
-
-    /**
-     * Trigger a selection event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    void triggerSelection(final TabCell mainCell) {
-        if(mainCell instanceof ContactCell) {
-            final ContactCell cc = (ContactCell) mainCell;
-            browser.selectContact(cc.getId());
-        }
+    protected void triggerPopup(final TabCell tabCell, final Component invoker,
+            final java.awt.event.MouseEvent e) {
+        tabCell.triggerPopup(browser.getConnection(), invoker, e);
     }
 
     /**
@@ -346,14 +299,15 @@ public class ContactAvatarModel {
      * <li>Synchronize the data with the model.
      * <ol>
      */
-    private void initModel() {
+    @Override
+    protected void initialize() {
         contacts.clear();
         contacts.addAll(readContacts());
         incomingInvitations.clear();
         incomingInvitations.addAll(readIncomingInvitations());
         outgoingInvitations.clear();
         outgoingInvitations.addAll(readOutgoingInvitations());
-        syncModel();
+        synchronize();
     }
 
     /**
@@ -364,8 +318,7 @@ public class ContactAvatarModel {
      * @return The contact.
      */
     private ContactCell readContact(final JabberId contactId) {
-        final Contact contact = (Contact) contentProvider.getElement(0,
-                contactId);
+        final Contact contact = (Contact) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, contactId);
         return null == contact ? null : toDisplay(contact);
     }
 
@@ -376,7 +329,7 @@ public class ContactAvatarModel {
      */
     private List<ContactCell> readContacts() {
         final List<ContactCell> list = new LinkedList<ContactCell>();
-        final Contact[] array = (Contact[]) contentProvider.getElements(0, null);
+        final Contact[] array = (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
         for (final Contact contact : array) {
             list.add(toDisplay(contact));
         }
@@ -390,7 +343,7 @@ public class ContactAvatarModel {
      */
     private IncomingInvitationCell readIncomingInvitation(
             final Long invitationId) {
-        return toDisplay((IncomingInvitation) contentProvider.getElement(1,
+        return toDisplay((IncomingInvitation) ((CompositeFlatSingleContentProvider) contentProvider).getElement(1,
                 invitationId));
     }
 
@@ -402,7 +355,7 @@ public class ContactAvatarModel {
     private List<IncomingInvitationCell> readIncomingInvitations() {
         final List<IncomingInvitationCell> list = new LinkedList<IncomingInvitationCell>();
         final IncomingInvitation[] array =
-            (IncomingInvitation[]) contentProvider.getElements(1, null);
+            (IncomingInvitation[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(1, null);
         for (final IncomingInvitation incomingInvitation : array) {
             list.add(toDisplay(incomingInvitation));
         }
@@ -416,7 +369,7 @@ public class ContactAvatarModel {
      */
     private OutgoingInvitationCell readOutgoingInvitation(
             final Long invitationId) {
-        return toDisplay((OutgoingInvitation) contentProvider.getElement(2,
+        return toDisplay((OutgoingInvitation) ((CompositeFlatSingleContentProvider) contentProvider).getElement(2,
                 invitationId));
     }
 
@@ -428,7 +381,7 @@ public class ContactAvatarModel {
     private List<OutgoingInvitationCell> readOutgoingInvitations() {
         final List<OutgoingInvitationCell> list = new LinkedList<OutgoingInvitationCell>();
         final OutgoingInvitation[] array =
-            (OutgoingInvitation[]) contentProvider.getElements(2, null);
+            (OutgoingInvitation[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(2, null);
         for (final OutgoingInvitation outgoingInvitation : array) {
             list.add(toDisplay(outgoingInvitation));
         }
@@ -442,7 +395,7 @@ public class ContactAvatarModel {
      */
     private List<JabberId> readSearchResults() {
         final List<JabberId> list = new LinkedList<JabberId>();
-        final JabberId[] array = (JabberId[]) contentProvider.getElements(3, searchExpression);
+        final JabberId[] array = (JabberId[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(3, searchExpression);
         for (final JabberId contactId : array) {
             list.add(contactId);
         }
@@ -457,7 +410,7 @@ public class ContactAvatarModel {
      * @return A user.
      */
     private User readUser(final JabberId jabberId) {
-        return (User) contentProvider.getElement(3, jabberId);
+        return (User) ((CompositeFlatSingleContentProvider) contentProvider).getElement(3, jabberId);
     }
 
     /**
@@ -473,7 +426,7 @@ public class ContactAvatarModel {
      *            not.
      * 
      * @see #syncContact(JabberId, Boolean)
-     * @see #syncModel()
+     * @see #synchronize()
      */
     private void syncContactInternal(final JabberId contactId,
             final Boolean remote) {
@@ -567,7 +520,8 @@ public class ContactAvatarModel {
      * search results to the list.
      * 
      */
-    private void syncModel() {
+    @Override
+    protected void synchronize() {
         debug();
 
         // search filtered contacts

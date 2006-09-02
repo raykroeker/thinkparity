@@ -14,6 +14,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
+
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
@@ -29,9 +32,6 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.contact.Delete;
 import com.thinkparity.browser.platform.action.contact.Read;
-
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -234,8 +234,7 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e, final int x,
-            final int y) {
+            final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         final Data readData = new Data(1);
@@ -245,6 +244,6 @@ public class ContactCell extends Contact implements TabCell {
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTACT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE, deleteData));
-        jPopupMenu.show(invoker, x, y);
+        jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

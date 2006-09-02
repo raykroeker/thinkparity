@@ -113,17 +113,11 @@ public interface TabCell {
 
     /**
      * Trigger a connection sensitive popup menu for the cell.
-     * 
      * @param invoker
      *            The invoker component.
      * @param e
-     *            The mouse event.
-     * @param x
      *            The x position.
-     * @param y
-     *            The y position.
      */
     public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e, final int x,
-            final int y);
+            final Component invoker, final MouseEvent e);
 }

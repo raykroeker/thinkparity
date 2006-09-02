@@ -312,9 +312,10 @@ public class ContainerCell extends Container implements TabCell  {
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(java.awt.Component, java.awt.event.MouseEvent, int, int)
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(java.awt.Component, java.awt.event.MouseEvent, MouseEvent)
      */
-    public void triggerPopup(final Connection connection, final Component invoker, final MouseEvent e, final int x, final int y) {
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         if (!isDraft()) {
@@ -350,6 +351,6 @@ public class ContainerCell extends Container implements TabCell  {
             jPopupMenu.add(idJMenuItem);
             jPopupMenu.add(uidJMenuItem);
         }
-        jPopupMenu.show(invoker, x, y);
+        jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

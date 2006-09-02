@@ -4,7 +4,6 @@
 package com.thinkparity.browser.application.browser.display.avatar.tab.container;
 
 import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import javax.swing.ListModel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerCell;
@@ -36,7 +36,7 @@ import com.thinkparity.model.parity.model.filter.Filter;
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public class ContainerAvatarModel {
+public class ContainerModel extends TabModel {
 
     /** An apache logger. */
     protected final Logger logger;
@@ -50,9 +50,6 @@ public class ContainerAvatarModel {
     /** A map of document ids to container ids. */
     private final Map<Long, Long> containerIdLookup;
 
-    /** The content provider. */
-    private CompositeFlatSingleContentProvider contentProvider;
-
     /** A map of the container cells to their draft. */
     private final Map<ContainerCell, DraftCell> draftCells;
 
@@ -60,7 +57,7 @@ public class ContainerAvatarModel {
     private final Map<DraftCell, List<DraftDocumentCell>> draftDocumentCells;
 
     /** The swing list model. */
-    private final DefaultListModel jListModel;
+    private final DefaultListModel listModel;
 
     /**
      * The user input search expression.
@@ -90,18 +87,66 @@ public class ContainerAvatarModel {
      * Create BrowserContainersModel.
      * 
      */
-    ContainerAvatarModel(final Browser browser) {
+    ContainerModel() {
         super();
-        this.browser = browser;
+        this.browser = getBrowser();
         this.containerCells = new LinkedList<ContainerCell>();
         this.containerIdLookup = new HashMap<Long, Long>(50, 0.75F);
         this.draftCells = new HashMap<ContainerCell, DraftCell>(50, 0.75F);
         this.draftDocumentCells = new HashMap<DraftCell, List<DraftDocumentCell>>(50, 0.75F);
         this.versionCells = new HashMap<ContainerCell, List<ContainerVersionCell>>(50, 0.75F);
-        this.jListModel = new DefaultListModel();
+        this.listModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
         this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
+    }
+
+    /**
+     * Apply the user's search to the contact list.
+     * 
+     * @param searchExpression
+     *            A search expression <code>String</code>.
+     * 
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #removeSearch()
+     */
+    @Override
+    public void applySearch(final String searchExpression) {
+        if (searchExpression.equals(this.searchExpression)) {
+            return;
+        } else {
+            this.searchExpression = searchExpression;
+            this.searchResults = readSearchResults();
+            synchronize();
+        }
+    }
+
+    /**
+     * Debug the container avatar.
+     *
+     */
+    @Override
+    public void debug() {
+        if(browser.getPlatform().isDevelopmentMode()) {
+            logger.debug(getDebugId("[{0} VISIBLE CELLS]", visibleCells.size()));
+            logger.debug(getDebugId("[{0} MODEL ELEMENTS]", listModel.size()));
+            // containers
+            logger.debug(getDebugId("[{0} CONTAINERS]", containerCells.size()));
+            for(final ContainerCell mcContainer : containerCells) {
+                logger.debug(getDebugId("  [{0}]", mcContainer.getName()));
+                // drafts
+                final DraftCell draft = draftCells.get(mcContainer);
+                logger.debug(getDebugId("    [{0}]", null == draft ? "NO DRAFT INCLUDED" : "DRAFT INCLUDED"));
+                if(null != draft) {
+                    final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(draft);
+                    logger.debug(getDebugId("      [{0} DRAFT DOCUMENTS]", draftDocuments.size()));
+                }
+                // versions
+                final List<ContainerVersionCell> containerVersions = this.versionCells.get(mcContainer);
+                logger.debug(getDebugId("    [{0} VERSIONS]", null == containerVersions ? 0 : containerVersions.size()));
+            }
+        }
     }
 
     /**
@@ -194,77 +239,14 @@ public class ContainerAvatarModel {
     }
 
     /**
-     * Apply the user's search to the contact list.
-     * 
-     * @param searchExpression
-     *            A search expression <code>String</code>.
-     * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #removeSearch()
-     */
-    void applySearch(final String searchExpression) {
-        if (searchExpression.equals(this.searchExpression)) {
-            return;
-        } else {
-            this.searchExpression = searchExpression;
-            this.searchResults = readSearchResults();
-            syncModel();
-        }
-    }
-
-    /**
-     * Debug the container avatar.
-     *
-     */
-    void debug() {
-        if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug(getDebugId("[{0} VISIBLE CELLS]", visibleCells.size()));
-            logger.debug(getDebugId("[{0} MODEL ELEMENTS]", jListModel.size()));
-            // containers
-            logger.debug(getDebugId("[{0} CONTAINERS]", containerCells.size()));
-            for(final ContainerCell mcContainer : containerCells) {
-                logger.debug(getDebugId("  [{0}]", mcContainer.getName()));
-                // drafts
-                final DraftCell draft = draftCells.get(mcContainer);
-                logger.debug(getDebugId("    [{0}]", null == draft ? "NO DRAFT INCLUDED" : "DRAFT INCLUDED"));
-                if(null != draft) {
-                    final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(draft);
-                    logger.debug(getDebugId("      [{0} DRAFT DOCUMENTS]", draftDocuments.size()));
-                }
-                // versions
-                final List<ContainerVersionCell> containerVersions = this.versionCells.get(mcContainer);
-                logger.debug(getDebugId("    [{0} VERSIONS]", null == containerVersions ? 0 : containerVersions.size()));
-            }
-        }
-    }
-
-    /**
-     * Obtain the swing list model.
-     * 
-     * @return The swing list model.
-     */
-    ListModel getListModel() { return jListModel; }
-
-    /**
-     * Determine if the container is visible.
-     * 
-     * @param cellContainer
-     *            The display container.
-     * @return True if the container is visible; false otherwise.
-     */
-    Boolean isContainerVisible(final ContainerCell cellContainer) {
-        return visibleCells.contains(cellContainer);
-    }
-    
-    /**
      * Remove the search.
      * 
      * @see #searchExpression
      * @see #searchResults
      * @see #applySearch(String)
      */
-    void removeSearch() {
+    @Override
+    public void removeSearch() {
         // if the member search expression is already null; then there is no
         // search applied -> do nothing
         if (null == searchExpression) {
@@ -272,160 +254,18 @@ public class ContainerAvatarModel {
         } else {
             searchExpression = null;
             searchResults = null;
-            syncModel();
+            synchronize();
         }
     }
 
     /**
-     * Set the content provider. This will initialize the model with documents
-     * via the provider.
-     * 
-     * @param contentProvider
-     *            The content provider.
+     * @see com.thinkparity.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
-    void setContentProvider(
-            final CompositeFlatSingleContentProvider contentProvider) {
-        this.contentProvider = contentProvider;
-        initModel();
+    @Override
+    public ListModel getListModel() {
+        return listModel;
     }
-
-    /**
-     * Synchronize the container with the list.
-     * Called, for example, if a new container is added.
-     * The content provider is queried for the container and if it can be obtained,
-     * it will either be added to or updated in the list. If it cannot be found,
-     * it will be removed from the list.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            Whether or not the reload is the result of a remote event or
-     *            not.
-     */
-    void syncContainer(final Long containerId, final Boolean remote) {
-        syncContainerInternal(containerId, remote);
-        syncModel();
-    }
-
-    /**
-     * Synchronized a document in the model.
-     * 
-     * @param documentId
-     *            A document id.
-     * @param remote
-     *            A remote event indicator.
-     */
-    void syncDocument(final Long documentId, final Boolean remote) {
-        final Long containerId = containerIdLookup.get(documentId);
-        syncDocument(containerId, documentId, remote);
-    }
-
-    /**
-     * Synchronize the document in the container list.
-     * Called, for example, if a new document is created in the container (ie. draft).
-     * This will move the container to the top, and also expand the container & draft.
-     * 
-     * @param documentId
-     *            The document id.           
-     * @param remote
-     *            Indicates whether the sync is the result of a remote event
-     */
-    void syncDocument(final Long containerId, final Long documentId,
-            final Boolean remote) {
-        syncDocumentInternal(containerId, documentId, remote);
-        syncModel();
-    }
-
-    /**
-     * Trigger a double click event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    void triggerDoubleClick(final TabCell mainCell) {
-        debug();
-        if (mainCell instanceof ContainerCell) {
-            triggerExpand(mainCell);
-        }
-        else if (mainCell instanceof DraftCell) {
-            triggerExpand(mainCell);
-        }
-        else if (mainCell instanceof ContainerVersionCell) {
-            triggerExpand(mainCell);
-        }
-        else if (mainCell instanceof DraftDocumentCell) {
-            final DraftDocumentCell draftDocument = (DraftDocumentCell) mainCell;
-            browser.runOpenDocument(draftDocument.getId());
-        }
-        else if (mainCell instanceof ContainerVersionDocumentCell) {
-        }
-    }
-
-    /**
-     * Trigger the expansion of the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    void triggerExpand(final TabCell mainCell) {
-        if (mainCell instanceof ContainerCell) {
-            final ContainerCell cc = (ContainerCell) mainCell;
-            if(isExpanded(cc)) {
-                cc.setExpanded(Boolean.FALSE);
-            }
-            else {
-                cc.setExpanded(Boolean.TRUE);
-            }
-            syncModel();
-        }
-        else if (mainCell instanceof DraftCell) {
-            final DraftCell draft = (DraftCell) mainCell;
-            if(isExpanded(draft)) {
-                draft.setExpanded(Boolean.FALSE);
-            }
-            else {
-                draft.setExpanded(Boolean.TRUE);
-            }
-            syncModel();            
-        }
-        else if (mainCell instanceof ContainerVersionCell) {
-            final ContainerVersionCell cv = (ContainerVersionCell) mainCell;
-            if(isExpanded(cv)) {
-                cv.setExpanded(Boolean.FALSE);
-            }
-            else {
-                cv.setExpanded(Boolean.TRUE);
-            }
-            syncModel();             
-        }
-    }
-
-    /**
-     * Trigger a popup event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    void triggerPopup(final TabCell mainCell, final Component invoker,
-            final MouseEvent e, final int x, final int y) {
-        mainCell.triggerPopup(browser.getConnection(), invoker, e, x, y);
-    }
-
-    /**
-     * Perform a shallow clone of the containers list.
-     * 
-     * @return A copy of the containers list.
-     */
-    private List<ContainerCell> cloneContainers() {
-        final List<ContainerCell> clone = new LinkedList<ContainerCell>();
-        clone.addAll(containerCells);
-        return clone;
-    }
-
-    private Object getDebugId(final String message, final Object ... arguments) {
-        return new StringBuffer("[CONTAINER LIST] ").append(MessageFormat.format(message, arguments));
-    }
-
+    
     /**
      * Initialize the document model
      * <ol>
@@ -435,7 +275,8 @@ public class ContainerAvatarModel {
      * <li>Synchronize the data with the model.
      * <ol>
      */
-    private void initModel() {
+    @Override
+    protected void initialize() {
         // read the containers from the provider into the list.
         containerCells.clear();
         containerCells.addAll(readContainers());
@@ -464,7 +305,230 @@ public class ContainerAvatarModel {
                 versionDocumentCells.put(version, versionDocuments);
             }
         }
-        syncModel();
+        synchronize();
+    }
+
+    /**
+     * Create the final list of container cells; container draft cells; draft
+     * document cells; container version cells and container version document
+     * cells. The search filter is also applied here.
+     * 
+     */
+    @Override
+    protected void synchronize() {
+        debug();
+
+        // searc filtered containers
+        final List<ContainerCell> filteredContainers = cloneContainers();
+        if (null != searchExpression && null != searchResults) {
+            ArtifactFilterManager.filter(filteredContainers, new SearchFilter(searchResults));
+        }
+        
+        // update all visible cells
+        visibleCells.clear();
+        for (final ContainerCell cc : filteredContainers) {
+            visibleCells.add(cc);
+            if (cc.isExpanded()) {
+                // if a draft exists display it
+                final DraftCell containerDraft = draftCells.get(cc);
+                if (null != containerDraft) {
+                    visibleCells.add(containerDraft);
+                    if (containerDraft.isExpanded()) {
+                        // add draft documents
+                        final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(containerDraft);
+                        if (null != draftDocuments) {
+                            visibleCells.addAll(draftDocuments);
+                        }                        
+                    }
+                }
+                // if versions exist display them
+                final List<ContainerVersionCell> containerVersions = this.versionCells.get(cc);
+                if (null != containerVersions) {
+                    for (final ContainerVersionCell cv : containerVersions) {
+                        visibleCells.add(cv);
+                        if (cv.isExpanded()) {
+                            // add version documents
+                            final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(cv);
+                            if (null != versionDocuments) {
+                                visibleCells.addAll(versionDocuments);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // add visible cells not in the model; as well as update cell
+        // locations
+        for(final TabCell mc : visibleCells) {
+            if(!listModel.contains(mc)) {
+                listModel.add(visibleCells.indexOf(mc), mc);
+            }
+            else {
+                // Always replace the element in the jList Model. The value of the
+                // expanded flag may have changed in syncContainerInternal().
+                listModel.removeElement(mc);
+                listModel.add(visibleCells.indexOf(mc), mc);
+            }
+        }
+
+        // prune cells
+        final TabCell[] mcModel = new TabCell[listModel.size()];
+        listModel.copyInto(mcModel);
+        for(final TabCell mc : mcModel) {
+            if(!visibleCells.contains(mc)) { listModel.removeElement(mc); }
+        }
+        debug();
+    }
+
+    /**
+     * Determine if the container is visible.
+     * 
+     * @param cellContainer
+     *            The display container.
+     * @return True if the container is visible; false otherwise.
+     */
+    Boolean isContainerVisible(final ContainerCell cellContainer) {
+        return visibleCells.contains(cellContainer);
+    }
+
+    /**
+     * Synchronize the container with the list.
+     * Called, for example, if a new container is added.
+     * The content provider is queried for the container and if it can be obtained,
+     * it will either be added to or updated in the list. If it cannot be found,
+     * it will be removed from the list.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event or
+     *            not.
+     */
+    void syncContainer(final Long containerId, final Boolean remote) {
+        syncContainerInternal(containerId, remote);
+        synchronize();
+    }
+
+    /**
+     * Synchronized a document in the model.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param remote
+     *            A remote event indicator.
+     */
+    void syncDocument(final Long documentId, final Boolean remote) {
+        final Long containerId = containerIdLookup.get(documentId);
+        syncDocument(containerId, documentId, remote);
+    }
+
+    /**
+     * Synchronize the document in the container list.
+     * Called, for example, if a new document is created in the container (ie. draft).
+     * This will move the container to the top, and also expand the container & draft.
+     * 
+     * @param documentId
+     *            The document id.           
+     * @param remote
+     *            Indicates whether the sync is the result of a remote event
+     */
+    void syncDocument(final Long containerId, final Long documentId,
+            final Boolean remote) {
+        syncDocumentInternal(containerId, documentId, remote);
+        synchronize();
+    }
+
+    /**
+     * Trigger a double click event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    @Override
+    protected void triggerDoubleClick(final TabCell tabCell) {
+        debug();
+        if (tabCell instanceof ContainerCell) {
+            triggerExpand(tabCell);
+        }
+        else if (tabCell instanceof DraftCell) {
+            triggerExpand(tabCell);
+        }
+        else if (tabCell instanceof ContainerVersionCell) {
+            triggerExpand(tabCell);
+        }
+        else if (tabCell instanceof DraftDocumentCell) {
+            final DraftDocumentCell draftDocument = (DraftDocumentCell) tabCell;
+            browser.runOpenDocument(draftDocument.getId());
+        }
+        else if (tabCell instanceof ContainerVersionDocumentCell) {
+        }
+    }
+
+    /**
+     * Trigger the expansion of the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    @Override
+    protected void triggerExpand(final TabCell mainCell) {
+        if (mainCell instanceof ContainerCell) {
+            final ContainerCell cc = (ContainerCell) mainCell;
+            if(isExpanded(cc)) {
+                cc.setExpanded(Boolean.FALSE);
+            }
+            else {
+                cc.setExpanded(Boolean.TRUE);
+            }
+            synchronize();
+        }
+        else if (mainCell instanceof DraftCell) {
+            final DraftCell draft = (DraftCell) mainCell;
+            if(isExpanded(draft)) {
+                draft.setExpanded(Boolean.FALSE);
+            }
+            else {
+                draft.setExpanded(Boolean.TRUE);
+            }
+            synchronize();            
+        }
+        else if (mainCell instanceof ContainerVersionCell) {
+            final ContainerVersionCell cv = (ContainerVersionCell) mainCell;
+            if(isExpanded(cv)) {
+                cv.setExpanded(Boolean.FALSE);
+            }
+            else {
+                cv.setExpanded(Boolean.TRUE);
+            }
+            synchronize();             
+        }
+    }
+
+    /**
+     * Trigger a popup event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    protected void triggerPopup(final TabCell tabCell, final Component invoker,
+            final java.awt.event.MouseEvent e) {
+        tabCell.triggerPopup(browser.getConnection(), invoker, e);
+    }
+
+    /**
+     * Perform a shallow clone of the containers list.
+     * 
+     * @return A copy of the containers list.
+     */
+    private List<ContainerCell> cloneContainers() {
+        final List<ContainerCell> clone = new LinkedList<ContainerCell>();
+        clone.addAll(containerCells);
+        return clone;
+    }
+
+    private Object getDebugId(final String message, final Object ... arguments) {
+        return new StringBuffer("[CONTAINER LIST] ").append(MessageFormat.format(message, arguments));
     }
 
     /**
@@ -475,7 +539,7 @@ public class ContainerAvatarModel {
      * @return The container.
      */
     private ContainerCell readContainer(final Long containerId) {
-        return (ContainerCell) contentProvider.getElement(0, containerId);
+        return (ContainerCell) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, containerId);
     }
 
     /**
@@ -485,7 +549,7 @@ public class ContainerAvatarModel {
      */
     private List<ContainerCell> readContainers() {
         final List<ContainerCell> l = new LinkedList<ContainerCell>();
-        final ContainerCell[] a = (ContainerCell[]) contentProvider.getElements(0, null);
+        final ContainerCell[] a = (ContainerCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
         for(final ContainerCell c : a) { l.add(c); }
         return l;
     }
@@ -498,7 +562,7 @@ public class ContainerAvatarModel {
      * @return A display cell for a draft.
      */
     private DraftCell readDraft(final ContainerCell container) {
-        final ContainerDraft draft = (ContainerDraft) contentProvider.getElement(1, container.getId());
+        final ContainerDraft draft = (ContainerDraft) ((CompositeFlatSingleContentProvider) contentProvider).getElement(1, container.getId());
         return toDisplay(container, draft);
     }
 
@@ -511,7 +575,7 @@ public class ContainerAvatarModel {
      * @return True if the draft has been modified; false otherwise.
      */
     private Boolean readIsDraftModified(final Long documentId) {
-        return (Boolean) contentProvider.getElement(2, documentId);
+        return (Boolean) ((CompositeFlatSingleContentProvider) contentProvider).getElement(2, documentId);
     }
 
     /**
@@ -521,7 +585,7 @@ public class ContainerAvatarModel {
      */
     private List<Long> readSearchResults() {
         final List<Long> list = new LinkedList<Long>();
-        final Long[] array = (Long[]) contentProvider.getElements(3, searchExpression);
+        final Long[] array = (Long[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(3, searchExpression);
         for (final Long containerId : array) {
             list.add(containerId);
         }
@@ -538,7 +602,7 @@ public class ContainerAvatarModel {
     private List<ContainerVersionDocumentCell> readVersionDocuments(
             final ContainerVersionCell version) {
         final List<ContainerVersionDocumentCell> l = new LinkedList<ContainerVersionDocumentCell>();
-        final ContainerVersionDocumentCell[] a = (ContainerVersionDocumentCell[]) contentProvider.getElements(2, version);
+        final ContainerVersionDocumentCell[] a = (ContainerVersionDocumentCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(2, version);
         for(final ContainerVersionDocumentCell c : a) { l.add(c); }
         return l;
     }
@@ -553,7 +617,7 @@ public class ContainerAvatarModel {
     private List<ContainerVersionCell> readVersions(
             final ContainerCell container) {
         final List<ContainerVersionCell> l = new LinkedList<ContainerVersionCell>();
-        final ContainerVersionCell[] a = (ContainerVersionCell[]) contentProvider.getElements(1, container);
+        final ContainerVersionCell[] a = (ContainerVersionCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(1, container);
         for(final ContainerVersionCell c : a) { l.add(c); }
         return l;
     }
@@ -573,7 +637,7 @@ public class ContainerAvatarModel {
      *            not.
      * 
      * @see #syncContainer(Long, Boolean)
-     * @see #syncModel()
+     * @see #synchronize()
      */
     private void syncContainerInternal(final Long containerId,
             final Boolean remote) {
@@ -642,7 +706,7 @@ public class ContainerAvatarModel {
      *            not.
      * 
      * @see #syncDocument(Long, Boolean)
-     * @see #syncModel()
+     * @see #synchronize()
      */
     private void syncDocumentInternal(final Long containerId,
             final Long documentId, final Boolean remote) {
@@ -669,78 +733,6 @@ public class ContainerAvatarModel {
             }
             versionDocumentCells.put(version, readVersionDocuments(version));
         }
-    }
-
-    /**
-     * Create the final list of container cells; container draft cells; draft
-     * document cells; container version cells and container version document
-     * cells. The search filter is also applied here.
-     * 
-     */
-    private void syncModel() {
-        debug();
-
-        // searc filtered containers
-        final List<ContainerCell> filteredContainers = cloneContainers();
-        if (null != searchExpression && null != searchResults) {
-            ArtifactFilterManager.filter(filteredContainers, new SearchFilter(searchResults));
-        }
-        
-        // update all visible cells
-        visibleCells.clear();
-        for (final ContainerCell cc : filteredContainers) {
-            visibleCells.add(cc);
-            if (cc.isExpanded()) {
-                // if a draft exists display it
-                final DraftCell containerDraft = draftCells.get(cc);
-                if (null != containerDraft) {
-                    visibleCells.add(containerDraft);
-                    if (containerDraft.isExpanded()) {
-                        // add draft documents
-                        final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(containerDraft);
-                        if (null != draftDocuments) {
-                            visibleCells.addAll(draftDocuments);
-                        }                        
-                    }
-                }
-                // if versions exist display them
-                final List<ContainerVersionCell> containerVersions = this.versionCells.get(cc);
-                if (null != containerVersions) {
-                    for (final ContainerVersionCell cv : containerVersions) {
-                        visibleCells.add(cv);
-                        if (cv.isExpanded()) {
-                            // add version documents
-                            final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(cv);
-                            if (null != versionDocuments) {
-                                visibleCells.addAll(versionDocuments);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // add visible cells not in the model; as well as update cell
-        // locations
-        for(final TabCell mc : visibleCells) {
-            if(!jListModel.contains(mc)) {
-                jListModel.add(visibleCells.indexOf(mc), mc);
-            }
-            else {
-                // Always replace the element in the jList Model. The value of the
-                // expanded flag may have changed in syncContainerInternal().
-                jListModel.removeElement(mc);
-                jListModel.add(visibleCells.indexOf(mc), mc);
-            }
-        }
-
-        // prune cells
-        final TabCell[] mcModel = new TabCell[jListModel.size()];
-        jListModel.copyInto(mcModel);
-        for(final TabCell mc : mcModel) {
-            if(!visibleCells.contains(mc)) { jListModel.removeElement(mc); }
-        }
-        debug();
     }
 
     /**

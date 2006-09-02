@@ -17,11 +17,11 @@ import com.thinkparity.browser.application.browser.display.provider.tab.contact.
 import com.thinkparity.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 
+import com.thinkparity.model.parity.model.archive.ArchiveModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -53,6 +53,9 @@ public class ProviderFactory {
 	/** A thinkParity artifact interface. */
 	protected final ArtifactModel artifactModel;
 
+    /** A thinkParity archive interface. */
+    protected final ArchiveModel archiveModel;
+
     /** A thinkParity contact interface. */
     protected final ContactModel contactModel;
 
@@ -68,9 +71,6 @@ public class ProviderFactory {
 	/** A thinkParity session interface. */
 	protected final SessionModel sessionModel;
 
-    /** A thinkParity system message interface. */
-	protected final SystemMessageModel systemMessageModel;
-
     /** A thinkParity user interface. */
     protected final UserModel userModel;
 
@@ -84,13 +84,13 @@ public class ProviderFactory {
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
+        this.archiveModel = modelFactory.getArchiveModel(getClass());
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.contactModel = modelFactory.getContactModel(getClass());
         this.containerModel = modelFactory.getContainerModel(getClass());
 		this.documentModel = modelFactory.getDocumentModel(getClass());
         this.profileModel = modelFactory.getProfileModel(getClass());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
-		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
         this.userModel = modelFactory.getUserModel(getClass());
 
 		this.logger = Logger.getLogger(getClass());
@@ -111,7 +111,7 @@ public class ProviderFactory {
             provider = new ReadContactProvider(profile, contactModel);
             break;
         case TAB_ARCHIVE:
-            provider = new ArchiveProvider(profile);
+            provider = new ArchiveProvider(profile, archiveModel);
             break;
         case TAB_CONTACT:
             provider = new ContactProvider(profile, contactModel, userModel);

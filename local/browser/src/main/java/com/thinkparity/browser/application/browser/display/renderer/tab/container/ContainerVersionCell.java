@@ -211,8 +211,7 @@ public class ContainerVersionCell extends ContainerVersion implements
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e, final int x,
-            final int y) {
+            final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         if (Connection.ONLINE == connection) {
@@ -221,7 +220,6 @@ public class ContainerVersionCell extends ContainerVersion implements
             shareData.set(Share.DataKey.VERSION_ID, getVersionId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));        
         }
-
-        jPopupMenu.show(invoker, x, y);
+        jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

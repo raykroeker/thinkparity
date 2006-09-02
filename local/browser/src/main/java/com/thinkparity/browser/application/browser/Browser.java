@@ -32,6 +32,7 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.RenameA
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -136,15 +137,13 @@ public class Browser extends AbstractApplication {
      */
 	public void applySearch(final String expression) {
 	    final Data data = new Data(1);
+	    if (null != expression)
+	        data.set(TabAvatar.DataKey.SEARCH_EXPRESSION, expression);
         switch(getMainTitleAvatarTab()) {
         case CONTACT:
-            if (null != expression)
-                data.set(ContactAvatar.DataKey.SEARCH_EXPRESSION, expression);
             setInput(AvatarId.TAB_CONTACT, data);
             break;
         case CONTAINER:
-            if (null != expression)
-                data.set(ContainerAvatar.DataKey.SEARCH_EXPRESSION, expression);
             setInput(AvatarId.TAB_CONTAINER, data);
             break;
         default:
@@ -185,12 +184,6 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
     }
-    
-    /**
-     * Debug the main list.
-     *
-     */
-	public void debugMain() { getTabContainerAvatar().debug(); }
 
     /**
      * Display the invite dialogue.
@@ -1441,6 +1434,7 @@ public class Browser extends AbstractApplication {
 
 		display.setAvatar(nextAvatar);
 		display.displayAvatar();
+nextAvatar.reload();
 		display.revalidate();
 		display.repaint();
 	}

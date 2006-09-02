@@ -231,8 +231,7 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e, final int x,
-            final int y) {
+            final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         final Data addDocumentData = new Data(1);
@@ -251,12 +250,9 @@ public class DraftCell extends ContainerDraft implements TabCell  {
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
         }
-        
         jPopupMenu.addSeparator();
-        
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));
-        
-        jPopupMenu.show(invoker, x, y);
+        jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

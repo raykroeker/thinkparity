@@ -144,16 +144,14 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e, final int x,
-            final int y) {
+            final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         switch(connection) {
         case ONLINE:
             final Data deleteData = new Data(1);
             deleteData.set(DeleteOutgoingInvitation.DataKey.INVITATION_ID, getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE_OUTGOING_INVITATION, deleteData));
-
-            jPopupMenu.show(invoker, x, y);
+            jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
         case OFFLINE:
             break;

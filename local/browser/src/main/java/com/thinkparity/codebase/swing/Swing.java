@@ -6,8 +6,11 @@ package com.thinkparity.codebase.swing;
 
 import java.awt.image.BufferedImage;
 
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
+import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
@@ -26,6 +29,17 @@ public class Swing {
      */
     public static void init() {
         System.setProperty("sun.awt.noerasebackground", "true");
+
+        final UIDefaults defaults = UIManager.getDefaults();
+
+        defaults.put("List.selectionBackground", Colors.Swing.LIST_SELECTION_BG);
+        defaults.put("List.selectionForeground", Colors.Swing.LIST_SELECTION_FG);
+        defaults.put("Menu.font", BrowserConstants.Fonts.DefaultFont);
+        defaults.put("Menu.selectionBackground", Colors.Swing.MENU_SELECTION_BG);
+        defaults.put("Menu.selectionForeground", Colors.Swing.MENU_SELECTION_FG);
+        defaults.put("MenuItem.font", BrowserConstants.Fonts.DefaultFont);
+        defaults.put("MenuItem.selectionBackground", Colors.Swing.MENU_ITEM_SELECTION_BG);
+        defaults.put("MenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
 
         try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
         catch(final Throwable t) { throw new RuntimeException(t); }

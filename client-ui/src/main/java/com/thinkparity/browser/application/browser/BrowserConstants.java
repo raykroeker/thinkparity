@@ -23,12 +23,6 @@ public final class BrowserConstants {
 	
 	public static final Float PHI = 1.618033988F;
 
-	public static final Color SelectionBackground =
-        new Color(215, 231, 244, 255);
-
-	public static final Color SelectionForeground =
-        Color.BLACK;
-
     // COLOR WHITE
 	public static final Color TitleForeground = Color.WHITE;
 

@@ -37,7 +37,6 @@ import com.thinkparity.model.parity.api.events.ContactListener;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
@@ -193,15 +192,6 @@ public abstract class AbstractApplication implements Application {
 	 * 
 	 */
 	public ApplicationStatus getStatus() { return status; }
-
-	/**
-	 * Obtain the parity system message interface.
-	 * 
-	 * @return The parity system message interface.
-	 */
-	public SystemMessageModel getSystemMessageModel() {
-		return platform.getModelFactory().getSystemMessageModel(getClass());
-	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#removeListener(com.thinkparity.browser.platform.application.ApplicationListener)

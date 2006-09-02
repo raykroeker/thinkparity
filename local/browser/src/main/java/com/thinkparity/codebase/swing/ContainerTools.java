@@ -5,13 +5,12 @@ package com.thinkparity.codebase.swing;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.text.MessageFormat;
 
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Logger;
-
-import com.thinkparity.codebase.StringUtil.Separator;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,22 +18,18 @@ import com.thinkparity.codebase.StringUtil.Separator;
  */
 class ContainerTools {
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
+	/** An apache logger. */
 	final Logger logger;
 
-	/**
-	 * The container.
-	 * 
-	 */
+	/** A container. */
 	private final Container container;
 
 	/**
-	 * Create a ContainerTools.
-	 * 
-	 */
+     * Create ContainerTools.
+     * 
+     * @param container
+     *            The <code>Container</code> to analyze.
+     */
 	ContainerTools(final Container container) {
 		super();
 		this.container = container;
@@ -45,82 +40,60 @@ class ContainerTools {
 	 * Debug all components of the container.
 	 *
 	 */
-	void debugComponents() {
-		if(logger.isDebugEnabled()) { debugComponents(container); }
-	}
-
-	/**
-	 * Debug the geometry of the container up to the root.
-	 * 
-	 */
-	void debugGeometry() {
-		if(logger.isDebugEnabled()) { debugGeometry(container); }
-	}
-
-	/**
-	 * Debug the look and feel of the container.
-	 *
-	 */
-	void debugLookAndFeel() {
-		if(logger.isDebugEnabled()) {
-			final StringBuffer message =
-				new StringBuffer("[BROWSER2] [JAVAX] [DEBUG LnF] [")
-				.append(container.getClass().getSimpleName())
-				.append("] [lnf:")
-				.append(UIManager.getLookAndFeel().getClass().getName())
-				.append("] [i lnf:");
-			boolean isFirst = true;
-			for(final LookAndFeelInfo lnfi : UIManager.getInstalledLookAndFeels()) {
-				if(isFirst) { isFirst = false; }
-				else { message.append(","); }
-				message.append(lnfi.getClassName());
-			}
-			logger.debug(message.append("]"));
+	void debug() {
+		if (logger.isDebugEnabled()) {
+		    for (final LookAndFeelInfo lnfi :
+                    UIManager.getInstalledLookAndFeels()) {
+		        logger.debug(lnfi.getClassName());
+		        debug(0, container);
+            }
 		}
 	}
 
-	/**
-	 * Debug all components of a container recursively.
-	 * 
-	 * @param container
-	 *            The container to debug.
-	 */
-	private void debugComponents(final Container container) {
-		final Component[] components = container.getComponents();
-		final StringBuffer message =
-			new StringBuffer("[BROWSER2] [JAVAX] [DEBUG COMPONENTS] [")
-			.append(container.getClass().getSimpleName())
-			.append("] [c:");
-		boolean isFirst = true;
-		for(final Component c : components) {
-			if(isFirst) { isFirst = false; }
-			else { message.append(Separator.Comma); }
-			if(c instanceof Container) { debugComponents((Container) c); }
-			message.append(c.getClass().getSimpleName());
-		}
-		logger.debug(message.append("]"));
-	}
-
-	/**
-	 * Debug the geometry of the container up to the root.
-	 * 
-	 * @param container
-	 *            The container to debug the geometry for.
-	 */
-	private void debugGeometry(final Container container) {
-		final String message =
-			new StringBuffer("[BROWSER2] [JAVAX] [DEBUG GEOMETRY] [")
-			.append(container.getClass().getSimpleName())
-			.append("] [l:")
-			.append(container.getLocation())
-			.append("] [b:")
-			.append(container.getBounds())
-			.append("] [i:")
-			.append(container.getInsets())
-			.append("]")
-			.toString();
-		logger.debug(message);
-		Container parent = container.getParent();
-		if(null != parent) { debugGeometry(parent); }
-	}
+    /**
+     * Debug the container.
+     * 
+     * @param depth
+     *            The depth of the container.
+     * @param container
+     *            A container.
+     */
+    private void debug(final Integer depth, final Container container) {
+        final Component[] components = container.getComponents();
+        final StringBuffer offset = new StringBuffer();
+        for (int i = 0; i < depth; i++)
+            offset.append("   ");
+        logger.debug(
+                MessageFormat.format("{0}[{1}]",
+                        offset, container.getClass().getSimpleName()));
+        logger.debug(
+                MessageFormat.format("{0}\t[{1}] [{2}]",
+                        offset, "l", container.getLocation()));
+        logger.debug(
+                MessageFormat.format("{0}\t[{1}] [{2}]",
+                        offset, "b", container.getBounds()));
+        logger.debug(
+                MessageFormat.format("{0}\t[{1}] [{2}]",
+                        offset, "i", ((Container) container).getInsets()));
+        for (final Component component : components) {
+            offset.setLength(0);
+            for (int i = 0; i < depth; i++)
+                offset.append("   ");
+            logger.debug(
+                    MessageFormat.format("{0}[{1}]",
+                            offset, component.getClass().getSimpleName()));
+            logger.debug(
+                    MessageFormat.format("{0}\t[{1}] [{2}]",
+                            offset, "l", component.getLocation()));
+            logger.debug(
+                    MessageFormat.format("{0}\t[{1}] [{2}]",
+                            offset, "b", component.getBounds()));
+            if (component instanceof Container) {
+                logger.debug(
+                        MessageFormat.format("{0}\t[{1}] [{2}]",
+                                offset, "i", ((Container) component).getInsets()));
+                debug(depth + 1, (Container) component);
+            }
+        }
+    }
 }

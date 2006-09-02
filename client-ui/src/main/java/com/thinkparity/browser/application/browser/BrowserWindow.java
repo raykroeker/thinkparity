@@ -162,8 +162,7 @@ public class BrowserWindow extends AbstractJFrame {
     void reOpen() {
         setVisible(true);
         applyRenderingHints();
-        debugGeometry();
-        debugLookAndFeel();
+        debug();
 
         browser.displayMainTitleAvatar();
         browser.displayMainContentAvatar();

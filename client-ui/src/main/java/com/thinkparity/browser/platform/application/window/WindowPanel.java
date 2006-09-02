@@ -62,7 +62,9 @@ class WindowPanel extends AbstractJPanel {
      * @see com.thinkparity.codebase.swing.AbstractJPanel#debugGeometry()
      * 
      */
-	public void debugGeometry() { super.debugGeometry(); }
+	public void debug() {
+        super.debug();
+	}
 
 	/**
 	 * Add an avatar to the main panel.

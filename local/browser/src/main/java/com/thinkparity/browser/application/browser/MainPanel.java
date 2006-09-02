@@ -51,9 +51,11 @@ public class MainPanel extends AbstractJPanel {
 	 * @see com.thinkparity.codebase.swing.AbstractJPanel#debugGeometry()
 	 * 
 	 */
-	public void debugGeometry() {
-		super.debugGeometry();
-		for(Display d : displayMap.values()) { d.debugGeometry(); }
+	public void debug() {
+		super.debug();
+		for (final Display d : displayMap.values()) {
+            d.debug();
+		}
 	}
 
 	/**

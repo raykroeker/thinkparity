@@ -67,22 +67,12 @@ public abstract class AbstractJFrame extends JFrame {
 	}
 
 	/**
-	 * Debug all components of the JFrame.
+	 * Debug the container.
 	 *
 	 */
-	protected void debugComponents() { containerTools.debugComponents(); }
-
-	/**
-	 * Debug the geometry of the JFrame.
-	 * 
-	 */
-	protected void debugGeometry() { containerTools.debugGeometry(); }
-
-	/**
-	 * Debug the look and feel.
-	 *
-	 */
-	protected void debugLookAndFeel() { containerTools.debugLookAndFeel(); }
+	protected void debug() {
+        containerTools.debug();
+	}
 
 	/**
 	 * @see JFrameLocalization#getString(String)

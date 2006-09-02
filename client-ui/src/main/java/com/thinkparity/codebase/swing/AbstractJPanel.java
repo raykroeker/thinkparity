@@ -84,10 +84,9 @@ public class AbstractJPanel extends JPanel {
 	 */
 	private final MouseAdapter debugMouseAdapter = new MouseAdapter() {
 		public void mouseClicked(final MouseEvent e) {
-			if(2 == e.getClickCount()) {
-				if(e.isShiftDown()) {
-					debugGeometry();
-					debugComponents();
+			if (2 == e.getClickCount()) {
+				if (e.isShiftDown()) {
+					debug();
 				}
 			}
 		}
@@ -124,14 +123,7 @@ public class AbstractJPanel extends JPanel {
 	 * recursive if the component is an AbstractJPanel implementation.
 	 * 
 	 */
-	public void debugComponents() { containerTools.debugComponents(); }
-
-	/**
-	 * Debug the geometry of the JPanel. This includes the location; bounds and
-	 * insets.
-	 * 
-	 */
-	public void debugGeometry() { containerTools.debugGeometry(); }
+	public void debug() { containerTools.debug(); }
 
 	/**
 	 * Determine whether the user input for the frame is valid.

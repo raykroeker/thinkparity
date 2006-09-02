@@ -226,6 +226,18 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         return SwingUtil.regionContains(tabCellBounds, e.getPoint());
     }
 
+    /**
+     * Set the selection to the point.
+     * 
+     * @param p
+     *            A <code>Point</code>.
+     */
+    private void setSelectedPoint(final Point p) {
+        final int clickIndex = tabJList.locationToIndex(p);
+        if (-1 != clickIndex)
+            tabJList.setSelectedIndex(clickIndex);
+    }
+
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
         if (1 == e.getClickCount()) {
             // first; we grab the index of the list item of the event
@@ -258,6 +270,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     private void tabJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseReleased
         if (e.isPopupTrigger()) {
+            setSelectedPoint(e.getPoint());
             // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
             // If click in the blank area below the last entry in the list then trigger a popup that
             // allows the user to create a container.

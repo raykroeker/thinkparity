@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -16,7 +17,6 @@ import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.user.User;

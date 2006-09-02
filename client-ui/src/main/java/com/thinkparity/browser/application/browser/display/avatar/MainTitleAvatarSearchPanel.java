@@ -13,12 +13,12 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBottomBorder;
 
 import com.thinkparity.browser.Constants.Colors;
 import com.thinkparity.browser.Constants.Images;
 import com.thinkparity.browser.Constants.Search;
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 /**
  *

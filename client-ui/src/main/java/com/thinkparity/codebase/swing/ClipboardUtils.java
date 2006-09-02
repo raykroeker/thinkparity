@@ -11,7 +11,6 @@ import java.awt.datatransfer.Transferable;
 
 import javax.swing.JTextArea;
 
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 /**
  * @author raymond@thinkparity.com

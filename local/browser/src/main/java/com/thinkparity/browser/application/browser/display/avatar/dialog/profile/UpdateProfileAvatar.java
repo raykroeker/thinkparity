@@ -11,6 +11,7 @@ import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -18,7 +19,6 @@ import com.thinkparity.browser.application.browser.display.renderer.dialog.profi
 import com.thinkparity.browser.application.browser.display.renderer.dialog.profile.ProfileEMailCellRenderer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.profile.ProfileEMail;

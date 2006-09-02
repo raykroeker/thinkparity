@@ -21,6 +21,7 @@ import javax.swing.TransferHandler;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.browser.application.browser.Browser;
@@ -29,7 +30,6 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 import com.thinkparity.browser.platform.Platform.Connection;
-import com.thinkparity.browser.platform.util.SwingUtil;
 import com.thinkparity.browser.platform.util.model.ArtifactUtil;
 
 /**

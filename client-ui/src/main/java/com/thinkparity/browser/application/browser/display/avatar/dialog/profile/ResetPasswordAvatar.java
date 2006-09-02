@@ -3,11 +3,12 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.dialog.profile;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.model.session.Credentials;
 

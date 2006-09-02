@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.TransferHandler;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.Resizer;
@@ -19,7 +21,6 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.SwingUtil;
 
 /**
  * @author raymond@thinkparity.com

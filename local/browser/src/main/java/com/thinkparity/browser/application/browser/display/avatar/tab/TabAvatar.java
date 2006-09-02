@@ -188,6 +188,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 15;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         add(headerJLabel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
@@ -211,6 +212,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

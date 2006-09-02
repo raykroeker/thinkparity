@@ -82,7 +82,7 @@ public class ContainerModel extends TabModel {
 
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
-    
+
     /**
      * Create BrowserContainersModel.
      * 

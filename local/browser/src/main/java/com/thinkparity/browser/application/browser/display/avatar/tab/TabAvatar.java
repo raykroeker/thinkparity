@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import javax.swing.TransferHandler;
+import javax.swing.event.ListSelectionEvent;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -42,6 +43,9 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     /** The avatar id. */
     private final AvatarId id;
+
+    /** The <code>JList</code>'s selection event. */
+    private ListSelectionEvent listSelectionEvent;
 
     /** Create TabAvatar */
     protected TabAvatar(final AvatarId id, final T model) {
@@ -196,9 +200,17 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         tabJList.setModel(model.getListModel());
         tabJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabJList.setCellRenderer(new TabCellRenderer());
+        tabJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                tabJListValueChanged(e);
+            }
+        });
         tabJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 tabJListMouseClicked(e);
+            }
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                tabJListMousePressed(e);
             }
             public void mouseReleased(java.awt.event.MouseEvent e) {
                 tabJListMouseReleased(e);
@@ -217,6 +229,26 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tabJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMousePressed
+        final int lastVisibleIndex = tabJList.getLastVisibleIndex();
+        if (-1 == lastVisibleIndex) {
+            return;
+        } else {
+            final int locationIndex = tabJList.locationToIndex(e.getPoint());
+            final Rectangle locationBounds =
+                tabJList.getCellBounds(locationIndex, locationIndex);
+            if (!SwingUtil.regionContains(locationBounds, e.getPoint())) {
+                if (null != listSelectionEvent) {
+                    tabJList.setSelectedIndex(listSelectionEvent.getFirstIndex());
+                }
+            }
+        }
+    }//GEN-LAST:event_tabJListMousePressed
+
+    private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_tabJListValueChanged
+        listSelectionEvent = e;
+    }//GEN-LAST:event_tabJListValueChanged
 
     /**
      * Determine if the mouse event occured below the cell in an x-y plane.

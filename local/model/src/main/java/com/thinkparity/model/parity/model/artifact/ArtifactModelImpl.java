@@ -30,7 +30,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ArtifactModelImpl extends AbstractModelImpl {
+class ArtifactModelImpl extends AbstractModelImpl {
 
     /**
      * Obtain a logging api id.
@@ -73,10 +73,9 @@ public class ArtifactModelImpl extends AbstractModelImpl {
      * occured) that row will be replaced.
      * 
      * @param artifactId
-     *            The artifact id.
-     * @param user
-     *            The user.
-     * @throws ParityException
+     *            The artifact id <code>Long</code>.
+     * @param userId
+     *            The user id <code>JabberId</code>.
      */
 	TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
 	    logApiId();
@@ -101,7 +100,7 @@ public class ArtifactModelImpl extends AbstractModelImpl {
      * 
      * @param artifactId
      *            An artifact id.
-     * @param user
+     * @param userId
      *            A local user id.
      * @return A team member.
      */
@@ -135,15 +134,6 @@ public class ArtifactModelImpl extends AbstractModelImpl {
 		applyFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-    /**
-     * Audit the confirmation receipt of the artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param receivedBy
-     *            By whom the artifact was received.
-     * @throws ParityException
-     */
     void auditConfirmationReceipt(final Long artifactId, final Long versionId,
             final JabberId createdBy, final Calendar createdOn,
             final JabberId receivedFrom) throws ParityException {

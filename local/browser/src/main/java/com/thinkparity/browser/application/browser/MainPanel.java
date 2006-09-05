@@ -13,6 +13,7 @@ import java.util.Map;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.browser.Constants.Dimensions.BrowserWindow;
 import com.thinkparity.browser.application.browser.display.DisplayFactory;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.platform.application.display.Display;
@@ -108,7 +109,7 @@ public class MainPanel extends AbstractJPanel {
         gbc.gridy = 0;
         gbc.ipady = 28;
         gbc.weightx = 1.0;
-        add(DisplayFactory.create(DisplayId.TITLE), gbc.clone());
+        add(createDisplay(DisplayId.TITLE, BrowserWindow.Display.TITLE_HEIGHT), gbc.clone());
 
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.BOTH;
@@ -122,6 +123,20 @@ public class MainPanel extends AbstractJPanel {
         gbc.gridy++;
         gbc.ipady = 0;
         gbc.weighty = 0.0;
-        add(DisplayFactory.create(DisplayId.STATUS), gbc.clone());
+        add(createDisplay(DisplayId.STATUS, BrowserWindow.Display.STATUS_HEIGHT), gbc.clone());
+    }
+
+    /**
+     * Create a display.
+     * 
+     * @param id
+     *            A <code>DisplayId</code>.
+     * @param height
+     *            The height of the display <code>int</code>.
+     * @return A <code>Display</code>.
+     */
+    private Display createDisplay(final DisplayId id, final int height) {
+        final Display display = DisplayFactory.create(id);
+        return display;
     }
 }

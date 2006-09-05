@@ -102,6 +102,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 0, 11, 7);
         add(rightJLabel, gridBagConstraints);
 
+        searchJTextField.setMinimumSize(new java.awt.Dimension(11, 20));
         searchJTextField.setPreferredSize(new java.awt.Dimension(11, 20));
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

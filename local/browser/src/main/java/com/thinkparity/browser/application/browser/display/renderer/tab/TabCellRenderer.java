@@ -94,16 +94,12 @@ public class TabCellRenderer extends AbstractJPanel implements
         // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.
         final Integer widthToUse = list.getParent().getWidth() - 42;
-        final String s = "ROB -- " + list.getParent().getWidth();
-        System.out.println(s);
         if (null == cell.getSecondaryText()) {
             eastSize = 5;
         } else {
             eastSize = (int) (0.35 * (double)widthToUse);
         }
         westSize = widthToUse - eastSize - inset;
-        final String s2 = "  West " + westSize + " East " + eastSize;
-        System.out.println(s2);
 
         westTextJLabel.setFont(cell.getTextFont());
         westTextJLabel.setForeground(cell.getTextForeground());

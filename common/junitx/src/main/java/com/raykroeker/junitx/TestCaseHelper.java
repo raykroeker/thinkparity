@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.StringUtil;
+
 /**
  * @author raykroeker@gmail.com
  */
@@ -87,10 +89,7 @@ public class TestCaseHelper {
 	 * @return The failure message.
 	 */
 	static String createFailMessage(final Throwable t) {
-		final StringWriter stringWriter = new StringWriter();
-		t.fillInStackTrace();
-		t.printStackTrace(new PrintWriter(stringWriter));
-		return stringWriter.toString();
+		return StringUtil.printStackTrace(t);
 	}
 
 	/**

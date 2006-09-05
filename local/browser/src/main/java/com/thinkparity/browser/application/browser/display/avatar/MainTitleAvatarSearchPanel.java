@@ -48,7 +48,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
             final Graphics2D g2 = (Graphics2D) g.create();
             try {
                 final Point leftLocation = leftJLabel.getLocation();
-                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 4, leftLocation.y - 4, null);
+                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 6, leftLocation.y - 7, null);
             } finally {
                 g2.dispose();
             }

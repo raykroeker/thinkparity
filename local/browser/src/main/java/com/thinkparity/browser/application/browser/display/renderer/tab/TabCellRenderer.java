@@ -13,6 +13,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.ComponentUI;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.browser.Constants.Colors;
@@ -89,20 +91,23 @@ public class TabCellRenderer extends AbstractJPanel implements
         }
         setBorder(cell.getBorder(index));
         
+        // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.
-        final Integer widthToUse = list.getParent().getWidth() - 42;       
+        final Integer widthToUse = list.getParent().getWidth() - 42;
+        final String s = "ROB -- " + list.getParent().getWidth();
+        System.out.println(s);
         if (null == cell.getSecondaryText()) {
             eastSize = 5;
         } else {
             eastSize = (int) (0.35 * (double)widthToUse);
         }
         westSize = widthToUse - eastSize - inset;
+        final String s2 = "  West " + westSize + " East " + eastSize;
+        System.out.println(s2);
 
         westTextJLabel.setFont(cell.getTextFont());
         westTextJLabel.setForeground(cell.getTextForeground());
         westTextJLabel.setText(cell.getText());
-        // The preferred size must subtract the inset so that the position
-        // of the east text does not change when you expand and increase the inset.
         westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
         
         eastTextJLabel.setFont(cell.getTextFont());

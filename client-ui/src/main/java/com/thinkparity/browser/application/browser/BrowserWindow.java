@@ -89,10 +89,12 @@ public class BrowserWindow extends AbstractJFrame {
 		setTitle(getString("Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        final Point location = persistence.get("location", new Point(100, 100));
+        final Point location = persistence.get("location", new Point(100, 100));      
         location.x = (location.x < 0 ? 0 : location.x );
         location.y = (location.y < 0 ? 0 : location.y );
         setLocation(location.x, location.y);
+        final Dimension size = persistence.get("size", getMainWindowSize());
+        mainWindowSize.setSize(size);        
         setResizable(true);
         setMinimumSize(getMainWindowSize());
         setSize(getMainWindowSize());
@@ -152,6 +154,7 @@ public class BrowserWindow extends AbstractJFrame {
     /** Persist any window state. */
     private void persist() {
         persistence.set("location", getLocation());
+        persistence.set("size", getMainWindowSize());
     }
     
     /**

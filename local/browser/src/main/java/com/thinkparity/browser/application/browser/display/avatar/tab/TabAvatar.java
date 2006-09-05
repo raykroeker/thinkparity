@@ -261,20 +261,11 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         // perform the selection if the user clicked below the last entry, otherwise
         // proceed with the selection.
         if (selectingLastIndex) {
-            Boolean allowSelection = Boolean.TRUE;
-            final Point p = e.getPoint();
-            final Integer listIndex = tabJList.locationToIndex(p);
-            if (listIndex != -1) {
-                final Rectangle cellBounds = tabJList.getCellBounds(listIndex, listIndex);
-                if (!SwingUtil.regionContains(cellBounds,p)) {
-                    allowSelection = Boolean.FALSE;
-                }
+            if (isMouseEventWithinCell(e)) { 
+                selectedIndex = tabJList.locationToIndex(e.getPoint());                        
+                tabJList.setSelectedIndex(selectedIndex);
             }
-            if (allowSelection) {
-                selectedIndex = listIndex;                        
-                tabJList.setSelectedIndex(listIndex);
-            }
-            selectingLastIndex = Boolean.FALSE;  
+            selectingLastIndex = Boolean.FALSE; 
         }
     }//GEN-LAST:event_tabJListMousePressed
 
@@ -318,7 +309,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             // first; we grab the index of the list item of the event
             // second; we grab the bounds of the list item's icon
             // third; we check to see that the icon was clicked and if it was
-            //      we trigger expand.
+            //      we trigger expand.           
             final Point p = e.getPoint();
             final Integer listIndex = tabJList.locationToIndex(p);
             final Integer selectedIndex = tabJList.getSelectedIndex();
@@ -336,8 +327,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         } else if (2 == e.getClickCount()) {
             if (isMouseEventWithinCell(e)) {  
                 triggerDoubleClick(getSelectedCell());
-            }
-            else {
+            } else {
                 triggerDoubleClick();
             }
         }
@@ -351,21 +341,11 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             // If there are no containers then expect getSelectedIndex() to return -1.
             // If there are 1 or more containers and the user clicks below the final entry then expect
             // locationToIndex() to return the last entry.
-            final Point p = e.getPoint();
-            final Integer listIndex = tabJList.locationToIndex(p);
-            final Integer listSelectedIndex = tabJList.getSelectedIndex();
-            if (listSelectedIndex==-1) {  // No entries in the list
-                triggerPopup(tabJList, e);
-            }
-            else { // Check if the click is below the bottom entry in the list
-                final Rectangle cellBounds = tabJList.getCellBounds(listIndex, listIndex);
-                if (SwingUtil.regionContains(cellBounds,p)) {
-                    setSelectedIndex(listIndex);
-                    triggerPopup(getSelectedCell(), e);
-                }
-                else {   // Below the bottom entry
-                    triggerPopup(tabJList, e);
-                }
+            if (isMouseEventWithinCell(e)) {
+                setSelectedIndex(tabJList.locationToIndex(e.getPoint()));
+                triggerPopup(getSelectedCell(), e);
+            } else {
+                triggerPopup(tabJList, e);             
             }
         }
     }//GEN-LAST:event_tabJListMouseReleased

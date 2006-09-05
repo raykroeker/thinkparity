@@ -5,7 +5,9 @@ package com.raykroeker.junitx;
 
 import java.io.File;
 import java.util.Properties;
+import java.text.MessageFormat;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
@@ -63,7 +65,10 @@ public class Log4JConfigurator {
 		properties.setProperty("log4j.appender.html.File", htmlFile.getAbsolutePath());
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				System.out.println("[" + JUnitX.getShortName() + "] Log file:" + htmlFile.getAbsolutePath());
+				Logger.getLogger(Log4JConfigurator.class).info(
+                        MessageFormat.format("{0} {1}",
+                                JUnitX.getShortName(),
+                                htmlFile.getAbsolutePath()));
 			}
 		});
 	}

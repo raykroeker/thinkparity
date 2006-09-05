@@ -229,12 +229,10 @@ public class FileSystemHelper extends AbstractModelImplHelper {
             targetFile = new File(target, sourceFile.getName());
             if(targetFile.exists()) {
                 Assert.assertTrue(
-                        MessageFormat.format(
-                                "[FILE SYSTEM HELPER] [SYNC DIR] [CANNOT DELETE TARGET] [{0}]",
+                        MessageFormat.format("CANNOT DELETE TARGET:  {0}",
                                 new Object[] {targetFile.getAbsolutePath()}),
                                 targetFile.delete());
             }
-            System.out.println("Copying file " + sourceFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
             FileUtil.copy(sourceFile, targetFile);
         }
     }

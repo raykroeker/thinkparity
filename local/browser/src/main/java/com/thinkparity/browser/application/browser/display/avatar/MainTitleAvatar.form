@@ -14,8 +14,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="tabPanel" min="-2" pref="235" max="-2" attributes="1"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="searchPanel" pref="182" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <Component id="searchPanel" pref="160" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

@@ -72,7 +72,7 @@ public final class Constants {
     public static final class Dimensions {
         public static final class BrowserWindow {
             public static final class Display {
-                public static final Integer TITLE_HEIGHT = 76;
+                public static final Integer TITLE_HEIGHT = 48;
                 public static final Integer STATUS_HEIGHT = 34;
             }
             public static final Dimension MIN_SIZE = new Dimension(150, 150);

@@ -6,7 +6,7 @@
         <head>
         <title>thinkParity Style Violations</title>
         </head>
-        <body bgcolor="#FFFFEF">
+        <body>
             <p><b>thinkParity Code Style Results</b></p>
             <table border="1" cellspacing="0" cellpadding="2" width="100%">
                 <tr>
@@ -27,6 +27,10 @@
             </table>
             <hr align="center" width="95%" size="1"/>
             <table border="1" cellspacing="0" cellpadding="2" width="100%">
+                <tr>
+                    <th>Line Number</th>
+                    <th>Error Message</th>
+                </tr>
                 <xsl:apply-templates/>
             </table>
         </body>
@@ -35,13 +39,9 @@
 
     <xsl:template match="file[error]">
         <tr>
-            <th colspan="2"><xsl:value-of select="@name"/></th>
+            <td colspan="2"><xsl:value-of select="@name"/></td>
         </tr>
-        <tr>
-            <th>Line Number</th>
-            <th>Error Message</th>
-        </tr>
-            <xsl:apply-templates select="error"/>
+        <xsl:apply-templates select="error"/>
     </xsl:template>
 
     <xsl:template match="error">

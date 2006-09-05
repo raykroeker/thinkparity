@@ -65,11 +65,11 @@ public class BrowserMenuBar extends JMenuBar {
     private static final Icon MIN_ROLLOVER_ICON;
     
     static {
-        CLOSE_ICON = ImageIOUtil.readIcon("CloseButton.png");
-        CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("CloseButtonRollover.png");
+        CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
+        CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
 
-        MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
-        MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
+        MIN_ICON = ImageIOUtil.readIcon("BrowserTitle_Minimize.png");
+        MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MinimizeRollover.png");
     }
 
     /**
@@ -164,7 +164,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
     
     private JLabel getMinimizeButton() {
-        javax.swing.JLabel minimizeJLabel = new JLabel(ImageIOUtil.readIcon("MinimizeButton.png"));
+        javax.swing.JLabel minimizeJLabel = new JLabel(ImageIOUtil.readIcon("BrowserTitle_Minimize.png"));
         minimizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeJLabelMouseClicked(evt);
@@ -181,7 +181,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
     
     private JLabel getCloseButton() {
-        javax.swing.JLabel closeJLabel = new JLabel(ImageIOUtil.readIcon("CloseButton.png"));
+        javax.swing.JLabel closeJLabel = new JLabel(ImageIOUtil.readIcon("BrowserTitle_Close.png"));
         closeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeJLabelMouseClicked(evt);

@@ -29,8 +29,8 @@ public class BrowserColourButton extends JButton {
     private static final Color COLOR_ROLLOVER;
     
     static {
-        COLOR_NORMAL = new Color(247,234,202);
-        COLOR_ROLLOVER = new Color(235,222,192);  // 95%
+        COLOR_NORMAL = new Color(247, 234, 202);
+        COLOR_ROLLOVER = new Color(255, 234, 175);
     }
     private Color currentColor = COLOR_NORMAL;
     

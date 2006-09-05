@@ -29,9 +29,9 @@ public final class Constants {
         public static final class Swing {
             public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
             public static final Color LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(215, 231, 244, 255);
+            public static final Color MENU_SELECTION_BG = new Color(205, 206, 206, 255);
             public static final Color MENU_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(215, 231, 244, 255);
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(205, 206, 206, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
         }
         public static final class Browser {

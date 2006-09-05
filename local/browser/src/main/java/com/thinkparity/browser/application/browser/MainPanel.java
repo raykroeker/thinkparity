@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Hashtable;
@@ -137,6 +138,10 @@ public class MainPanel extends AbstractJPanel {
      */
     private Display createDisplay(final DisplayId id, final int height) {
         final Display display = DisplayFactory.create(id);
+        final Dimension size = display.getPreferredSize();
+        size.height = height;
+        display.setMinimumSize(size);
+        display.setPreferredSize(size);
         return display;
     }
 }

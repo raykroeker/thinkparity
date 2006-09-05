@@ -20,6 +20,7 @@ import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.raykroeker.junitx.TestCase;
+import com.raykroeker.junitx.TestSession;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
@@ -31,6 +32,12 @@ import com.thinkparity.server.model.artifact.ArtifactModel;
  * @version $Revision$
  */
 public abstract class ModelTestCase extends TestCase {
+
+    static {
+        final TestSession testSession = getTestSession();
+        final File log4jFile = new File(testSession.getSessionDirectory(), "desdemona.log4j");
+        System.setProperty("thinkparity.log4j.file", log4jFile.getAbsolutePath());
+    }
 
     /**
      * Create ModelTestCase.

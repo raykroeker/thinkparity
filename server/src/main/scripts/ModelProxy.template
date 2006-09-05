@@ -16,9 +16,9 @@ import com.thinkparity.server.model.session.Session;
 ${proxy.classModifier}class ${proxy.className} extends AbstractModel {
 
 	/**
-	 * Create ${proxy.article} ${proxy.name} interface.
+	 * Obtain a thinkParity ${proxy.name} interface.
 	 * 
-	 * @return The ${proxy.name} interface.
+	 * @return A thinkParity ${proxy.name} interface.
 	 */
 	public static ${proxy.className} getModel(final Session session) {
 		return new ${proxy.className}(session);

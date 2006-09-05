@@ -29,7 +29,7 @@ import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.ParityServerConstants.VCardFields;
+import com.thinkparity.server.Constants.VCardFields;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.user.UserSql;
@@ -143,6 +143,24 @@ class ProfileModelImpl extends AbstractModelImpl {
             return userSql.readEmails(userId, Boolean.TRUE);
         } catch (final SQLException sqlx) {
             throw translateError(sqlx);
+        }
+    }
+
+    /**
+     * Read all features for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Feature&gt</code>.
+     */
+    List<Feature> readFeatures(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return userSql.readFeatures(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 

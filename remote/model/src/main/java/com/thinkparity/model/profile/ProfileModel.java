@@ -88,6 +88,19 @@ public class ProfileModel extends AbstractModel {
     }
 
     /**
+     * Read all features for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Feature&gt</code>.
+     */
+    public List<Feature> readFeatures(final JabberId userId) {
+        synchronized (implLock) {
+            return impl.readFeatures(userId);
+        }
+    }
+
+    /**
      * Read a user's security question.
      * 
      * @param userId

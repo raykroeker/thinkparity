@@ -3,8 +3,6 @@
  */
 package com.thinkparity.server.handler;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -27,12 +25,11 @@ import org.xmpp.packet.PacketError;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.server.ParityServerConstants.JivePropertyNames;
+import com.thinkparity.server.Constants.JivePropertyNames;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
@@ -411,20 +408,9 @@ public abstract class IQHandler extends
 	protected IQ translate(final IQ iq, final String errorMessage,
 			final Throwable t) {
 		final IQ errorResult = IQ.createResultIQ(iq);
-		final String text = new StringBuffer(errorMessage)
-			.append(Separator.SystemNewLine)
-			.append(createTrace(t))
-			.toString();
 		errorResult.setError(new PacketError(
 				PacketError.Condition.internal_server_error,
-				PacketError.Type.cancel, text));
+				PacketError.Type.cancel, StringUtil.printStackTrace(t)));
 		return errorResult;
-	}
-
-	private String createTrace(final Throwable t) {
-		final StringWriter stringWriter = new StringWriter();
-		t.fillInStackTrace();
-		t.printStackTrace(new PrintWriter(stringWriter));
-		return stringWriter.toString();
 	}
 }

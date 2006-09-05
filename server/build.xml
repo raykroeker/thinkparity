@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project name="desdemona" default="help" basedir=".">
+<project name="desdemona" default="help" basedir="."
+        xmlns:cs="antlib:com.puppycrawl.tools.checkstyle">
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- build configuration -->
@@ -14,11 +15,12 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
+    <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.release.dir" value="${target.dir}/release"/>
@@ -43,7 +45,6 @@
 		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
 		<pathelement location="${basedir}/vendor/messenger/2.3.1/mail.jar"/>
     </path>
-
     <!-- test-classpath -->
     <path id="project.test-classpath">
         <path refid="project.classpath"/>
@@ -54,6 +55,50 @@
 
         <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
+    </path>
+    <!-- xdoclet classpath -->
+    <path id="xdoclet.classpath">
+        <pathelement location="${target.classes.dir}/common/xdoclet"/>
+
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-beanutils-1.7.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-collections-3.1.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-20050813.225330.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-define-1.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-jsl-1.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-xml-20050823.222913.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jexl-1.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-logging-1.0.4.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/dom4j-1.6.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/generama-1.2.1.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/jaxen-1.1-beta-4.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/log4j-1.2.13.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/nanocontainer-1.0-beta-3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/nanocontainer-ant-1.0-beta-3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/picocontainer-1.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/qdox-20051211.114207.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/saxpath-1.0-FCS.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/velocity-1.4.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/xdoclet-2.0.4.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/xerces-2.4.0.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-actionscript-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-beaninfo-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-castor-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-ejb-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-externalizer-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-hibernate-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-interfaceextractor-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-jdo-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-jmx-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-junit-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-plugin-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-portlet-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-qtags-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-struts-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-tapestry-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-web-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-webwork-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-xtags-1.0.3.jar"/>
+        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-xwork-1.0.3.jar"/>
     </path>
 
     <!-- checkout -->
@@ -76,6 +121,45 @@
         </move>
     </target>
 
+    <!-- analyze the source -->
+    <target name="analyze" depends="init">
+        <cs:checkstyle config="checkstyle-rules.xml"
+            failureProperty="checkstyle.didFail" failOnViolation="false">
+            <formatter type="xml" tofile="target/analyze-report/checkstyle.xml"/>
+            <!-- common/codebase -->   
+            <fileset dir="common/codebase/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/junitx -->   
+            <fileset dir="common/junitx/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/migrator -->   
+            <fileset dir="common/migrator/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/model -->   
+            <fileset dir="common/model/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/xdoclet -->   
+            <fileset dir="common/xdoclet/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- remote/codebase -->   
+            <fileset dir="remote/codebase/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- remote/model -->   
+            <fileset dir="remote/model/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+        </cs:checkstyle>
+        <style in="target/analyze-report/checkstyle.xml"
+                out="target/analyze-report/index.html"
+                style="checkstyle-format.xsl"/>
+    </target>
+
     <!-- update -->
     <target name="update">
         <echo message="${cvs.cvsroot}"/>
@@ -89,7 +173,7 @@
 	</target>
 
     <!-- compile -->
-	<target name="compile" depends="init,process-resources">
+	<target name="compile" depends="init,process-resources,generate">
         <!-- if the compile.debug is not set; use true as a default otherwise
              use the value itself -->
         <condition property="compile.innerDebug" value="${compile.debug}" else="true">
@@ -118,6 +202,49 @@
 		</javac>
 	</target>
 
+    <target name="generate-compile">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+
+        <!-- common/xdoclet -->
+		<javac srcdir="common/xdoclet/src/main/java"
+                destdir="${target.classes.dir}/common/xdoclet" debug="${compile.innerDebug}">
+			<classpath refid="xdoclet.classpath"/>
+		</javac>
+    </target>
+
+    <target name="generate-process-resources">
+        <!-- common/xdoclet -->
+        <copy todir="${target.classes.dir}/common/xdoclet">
+            <fileset dir="${basedir}/common/xdoclet/src/main/resources"/>
+        </copy>
+    </target>
+
+    <target name="generate" depends="generate-process-resources,generate-compile">
+        <taskdef name="xdoclet" classname="org.xdoclet.ant.XDocletTask"
+                classpathref="xdoclet.classpath"/>
+        <xdoclet>
+            <fileset dir="remote/model/src/main/java">
+                <include name="**/*.java"/>
+                <!--
+                    note that qdox does not support enums with constructors and
+                    or methods
+                    http://jira.codehaus.org/browse/QDOX-94
+                -->
+                <exclude name="com/thinkparity/model/artifact/ArtifactType.java"/>
+                <exclude name="com/thinkparity/server/handler/IQAction.java"/>
+                <exclude name="com/thinkparity/server/model/artifact/Artifact.java"/>
+                <exclude name="com/thinkparity/server/org/dom4j/ElementName.java"/>
+                <exclude name="com/thinkparity/server/org/dom4j/NamespaceName.java"/>
+            </fileset>
+            <component classname="org.xdoclet.plugin.jivehandler.JiveHandlerPlugin"
+                destdir="target/generated/remote/model"/>
+        </xdoclet>
+    </target>
+
     <!-- print help -->
     <target name="help">
         <echo>
@@ -128,6 +255,7 @@ Targets:
     checkout                    Checkout all source from ${cvs.branch}.
     clean                       Delete output.
     compile                     Compile source.
+    generate                    Generate source.
     javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
     release                     Create a release package.
@@ -154,6 +282,7 @@ Examples:
         <!-- target/classes/* -->
         <mkdir dir="${target.classes.dir}/common/codebase"/>
         <mkdir dir="${target.classes.dir}/common/model"/>
+        <mkdir dir="${target.classes.dir}/common/xdoclet"/>
         <mkdir dir="${target.classes.dir}/remote/codebase"/>
         <mkdir dir="${target.classes.dir}/remote/model"/>
 
@@ -162,6 +291,7 @@ Examples:
         <mkdir dir="${target.test-classes.dir}/remote/model"/>
 
         <mkdir dir="${target.test-sessions.dir}"/>
+        <mkdir dir="${target.analyze-report.dir}"/>
 	</target>
 
     <!-- document the source -->
@@ -232,6 +362,9 @@ Examples:
                 <include name="plugin.xml"/>
                 <include name="readme.html"/>
             </fileset>
+            <fileset dir="${basedir}/target/generated/remote/model">
+                <include name="jive-handlers.xml"/>   
+            </fileset>   
         </copy>
         <!-- ${target.release.plugin.dir}/classes -->
         <copy todir="${target.release.plugin.dir}/classes">
@@ -336,6 +469,9 @@ Examples:
 
     <!-- process test resources -->
     <target name="test-process-resources">
+        <copy todir="${target.test-classes.dir}/remote/model">
+            <fileset dir="${basedir}/remote/model/src/test/resources"/>
+        </copy>
         <copy todir="${target.test-classes.dir}/common/junitx/">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
         </copy>

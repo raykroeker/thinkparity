@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.Constants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
 /**

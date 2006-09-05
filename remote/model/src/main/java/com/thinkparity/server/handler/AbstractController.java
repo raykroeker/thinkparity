@@ -26,7 +26,7 @@ import com.thinkparity.model.profile.ProfileModel;
 import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.ParityServerConstants.JivePropertyNames;
+import com.thinkparity.server.Constants.JivePropertyNames;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.container.ContainerModel;

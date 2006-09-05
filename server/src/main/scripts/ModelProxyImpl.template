@@ -15,17 +15,6 @@ import com.thinkparity.server.model.session.Session;
  */
 ${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
 
-   /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[${proxyImpl.name}]").append(" ").append(api);
-    }
-
     /**
      * Create ${proxyImpl.className}.
      *

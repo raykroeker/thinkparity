@@ -19,5 +19,9 @@
             <property name="format" value="\.printStackTrace"/>
             <property name="message" value="Cannot use x.printStackTrace()."/>
         </module>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="NOCOMMIT"/>
+            <property name="message" value="The &quot;NOCOMMIT&quot; compiler tag left in."/>
+        </module>
     </module>
 </module>

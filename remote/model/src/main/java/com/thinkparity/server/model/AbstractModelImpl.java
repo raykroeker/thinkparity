@@ -33,6 +33,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
+import com.thinkparity.model.archive.ArchiveModel;
 import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.model.artifact.Artifact;
@@ -60,6 +61,13 @@ public abstract class AbstractModelImpl {
 	 * Handle to the user's session.
 	 */
 	protected final Session session;
+
+    /** Create AbstractModelImpl. */
+    protected AbstractModelImpl() {
+        super();
+        this.logger = Logger.getLogger(getClass());
+        this.session = null;
+    }
 
     /**
 	 * Create an AbstractModelImpl.
@@ -294,7 +302,7 @@ public abstract class AbstractModelImpl {
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    session.getJabberId().getUsername(),
+                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName()));
         }
@@ -389,31 +397,12 @@ public abstract class AbstractModelImpl {
 		logVariable("jabberId", jabberId);
         logVariable("iq", iq);
 		send(jabberId.getJID(), iq);
-	}
-
-    /**
-	 * Route an IQ to a jive user. This will determine whether or not the user
-	 * is currently online; and if they are not; it will queue the request.
-	 * 
-	 * @param jid
-	 *            The jive user id.
-	 * @param iq
-	 *            The iq.
-	 */
-	protected void send(final JID jid, final IQ iq)
-            throws UnauthorizedException {
-        logApiId();
-		logVariable("jid", jid);
-        logVariable("iq", iq);
-		if(isOnline(jid)) { getSessionManager().getSession(jid).process(iq); }
-		else { enqueue(jid, iq); }
+		backup(jabberId, iq);
 	}
 
     /**
      * Translate an error into a parity unchecked error.
      * 
-     * @param message
-     *            An error message.
      * @param t
      *            An error.
      */
@@ -426,6 +415,18 @@ public abstract class AbstractModelImpl {
             logger.error(errorId, t);
             return ParityErrorTranslator.translateUnchecked(session, errorId, t);
         }
+    }
+
+    /**
+     * Backup a query for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param query
+     *            A query <code>IQ</code>.
+     */
+    private void backup(final JabberId userId, final IQ query) {
+        getArchiveModel().backup(query);
     }
 
     /**
@@ -442,13 +443,21 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Obtain a thinkParity archive interface.
+     * 
+     * @return A thinkParity archive interface.
+     */
+    private ArchiveModel getArchiveModel() {
+        return ArchiveModel.getModel(session);
+    }
+
+    /**
 	 * Obtain a handle to the xmpp server's session manager.
 	 * @return The xmpp servers's session manager.
 	 */
 	private SessionManager getSessionManager() {
 		return getXMPPServer().getSessionManager();
 	}
-
 
     /**
 	 * Obtain a handle to the underlying xmpp server.
@@ -471,6 +480,7 @@ public abstract class AbstractModelImpl {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
     }
 
+
     /**
      * Read the team.
      * 
@@ -488,4 +498,24 @@ public abstract class AbstractModelImpl {
         }
         return team;
     }
+
+    /**
+	 * Route an IQ to a jive user. This will determine whether or not the user
+	 * is currently online; and if they are not; it will queue the request.
+	 * 
+	 * @param jid
+	 *            The jive user id.
+	 * @param iq
+	 *            The iq.
+	 */
+	private void send(final JID jid, final IQ iq) throws UnauthorizedException {
+        logApiId();
+		logVariable("jid", jid);
+        logVariable("iq", iq);
+		if (isOnline(jid)) {
+            getSessionManager().getSession(jid).process(iq);
+		} else {
+            enqueue(jid, iq);
+		}
+	}
 }

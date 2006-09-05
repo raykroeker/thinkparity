@@ -8,11 +8,7 @@ package com.thinkparity.server;
  * @author raykroeker@gmail.com
  * @version 1.1.2.9
  */
-public interface ParityServerConstants {
-
-    public static final class VCardFields {
-        public static final String TITLE = "TITLE";
-    }
+public interface Constants {
 
     /** Internet Constants */
     public static final class Internet {
@@ -25,18 +21,23 @@ public interface ParityServerConstants {
         }
     }
 
-	/** Jabber Constants */
+    /** Jabber Constants */
     public static final class Jabber {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.dyndns.org/parity";
     }
 
-    /** Jive Messenger Property Names */
+	/** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }
 
+    public static final class VCardFields {
+        public static final String TITLE = "TITLE";
+    }
+
     /** Xml constants. */
 	public static final class Xml {
+        public static final String DEFAULT_ENCODING = "ISO-8859-1";
         public static final class All {
             public static final String EXECUTED_ON = "executedOn";
         }

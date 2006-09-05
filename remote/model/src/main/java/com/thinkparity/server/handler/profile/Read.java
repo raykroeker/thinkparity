@@ -7,7 +7,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.profile.Profile;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.Constants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
 /**

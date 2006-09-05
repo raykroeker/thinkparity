@@ -19,20 +19,61 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.server.model.io.hsqldb.HypersonicConnectionProvider;
+import com.thinkparity.server.model.io.hsqldb.HypersonicException;
+import com.thinkparity.server.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.server.model.io.hsqldb.HypersonicSessionManager;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractSql {
+public abstract class AbstractSql implements HypersonicConnectionProvider {
 
 	/** An apache logger. */
-	protected Logger logger;
+	protected static final  Logger logger;
 
-	/** Create AbstractSql. */
+    static {
+        logger = Logger.getLogger(AbstractSql.class);
+    }
+
+    /**
+     * Obtain an error id.
+     * 
+     * @return An error id.
+     */
+    protected static final Object getErrorId(final Throwable t) {
+        return MessageFormat.format("[{0}] [{1}] - [{2}]",
+                    StackUtil.getFrameClassName(2),
+                    StackUtil.getFrameMethodName(2),
+                    t.getMessage());
+    }
+
+    protected static final HypersonicException translateError(final Throwable t) {
+        if (HypersonicException.class.isAssignableFrom(t.getClass())) {
+            return (HypersonicException) t;
+        }
+        else {
+            final Object errorId = getErrorId(t);
+            logger.error(errorId, t);
+            return new HypersonicException(t);
+        }
+    }
+
+    /** Create AbstractSql. */
 	protected AbstractSql() {
         super();
-        this.logger = Logger.getLogger(getClass());
+    }
+
+	/**
+     * @see com.thinkparity.server.model.io.hsqldb.HypersonicConnectionProvider#getConnection()
+     */
+    public Connection getConnection() {
+        try {
+            return getCx();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     protected void close(final Connection cx, final PreparedStatement ps)
@@ -110,6 +151,15 @@ public abstract class AbstractSql {
 	}
 
 	/**
+     * Open a hypersonic session.
+     * 
+     * @return A <code>HypersonicSession</code>.
+     */
+    protected HypersonicSession openSession() {
+        return HypersonicSessionManager.openSession(this, StackUtil.getCaller());
+    }
+
+	/**
 	 * Prepare a statement for execution for a connection.
 	 * 
 	 * @param cx
@@ -175,7 +225,7 @@ public abstract class AbstractSql {
 		ps.setString(index, jabberId.getUsername());
 	}
 
-	/**
+    /**
 	 * Set a variable in a prepared statement to a string value.
 	 * 
 	 * @param ps

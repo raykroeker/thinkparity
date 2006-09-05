@@ -21,6 +21,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.xmpp.IQWriter;
 
@@ -32,13 +33,8 @@ import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
-import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
-import com.thinkparity.server.org.xmpp.packet.IQAcceptKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQArtifact;
 import com.thinkparity.server.org.xmpp.packet.IQArtifactFlag;
-import com.thinkparity.server.org.xmpp.packet.IQCloseArtifact;
-import com.thinkparity.server.org.xmpp.packet.IQDenyKeyRequest;
-import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQConfirmReceipt;
 import com.thinkparity.server.org.xmpp.packet.document.IQReactivateDocument;
 
@@ -47,13 +43,6 @@ import com.thinkparity.server.org.xmpp.packet.document.IQReactivateDocument;
  * @version 1.1.2.5
  */
 class ArtifactModelImpl extends AbstractModelImpl {
-
-    /**
-	 * Assertion statement used when comparing the current key holder with
-	 * the current session.
-	 */
-	private static final String ASSERT_KEYHOLDER_SESSION =
-		"Cannot accept key request if the user is not the current keyholder.";
 
     /** Artifact sql io. */
 	private final ArtifactSql artifactSql;
@@ -79,7 +68,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * made safely.
 	 * 
 	 * @param currentState The artifact's current state.
-	 * @param intentedState
+	 * @param intendedState
 	 *            The artifact's intended state.
 	 * 
 	 * @throws NotTrueAssertion
@@ -101,38 +90,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					Artifact.State.DELETED == intendedState);
 			break;
 		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
-		}
-	}
-
-	/**
-	 * Accept the key request.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @param jid
-	 *            The requestor jive id.
-	 * @throws ParityServerModelException
-	 */
-	void acceptKeyRequest(final UUID artifactUniqueId, final JID jid)
-			throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifactUniqueId);
-		logger.debug(jid);
-		try {
-			assertEquals(
-					ASSERT_KEYHOLDER_SESSION,
-					getKeyHolder(artifactUniqueId), session.getJID());
-			final Artifact artifact = get(artifactUniqueId);
-			final Integer artifactId = artifact.getArtifactId();
-			final String username = jid.getNode();
-			artifactSql.updateKeyHolder(artifactId, username, session.getJabberId());
-			// send the requestor an acceptance packet
-			final IQ iq = new IQAcceptKeyRequest(artifactUniqueId, session.getJID());
-			iq.setTo(jid);
-			iq.setFrom(session.getJID());
-			send(jid, iq);
-		} catch (final Throwable t) {
-			throw translateError(t);
 		}
 	}
 
@@ -159,43 +116,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
-
-    /**
-	 * Close an artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws ParityServerModelException
-	 */
-	void close(final UUID artifactUniqueId) throws ParityServerModelException {
-		logApiId();
-		logger.debug(artifactUniqueId);
-		final Artifact artifact = get(artifactUniqueId);
-		assertIsKeyHolder(artifact);
-		try {
-			updateState(artifact, Artifact.State.CLOSED);
-			final IQ close = new IQCloseArtifact(artifactUniqueId);
-
-			final List<ArtifactSubscription> subscription = getSubscription(artifactUniqueId);
-			JID jid;
-			for(final ArtifactSubscription s : subscription) {
-				jid = JIDBuilder.build(s.getUsername());
-                // fire distributed close events; save ourselves
-				if(!jid.equals(session.getJID())) {
-					close.setTo(jid);
-					close.setFrom(session.getJID());
-					send(jid, close);
-				}
-                // delete subscription
-                artifactSubscriptionSql.delete(
-                        artifact.getArtifactId(), s.getUsername());
-			}
-            // delete artifact
-            artifactSql.delete(artifact.getArtifactId());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-	}
 
 	/**
      * Confirm an artifact receipt.
@@ -229,7 +149,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Create an artifact.
 	 * 
-	 * @param artifactUniqueId
+	 * @param uniqueId
 	 *            The artifact id.
 	 * @return The new artifact.
 	 * @throws ParityServerModelException
@@ -304,51 +224,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
-	 * Deny the key request for the artifact from the jid.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @param jid
-	 *            The requestor's jive id.
-	 * @throws ParityServerModelException
-	 */
-	void denyKeyRequest(final UUID artifactUniqueId, final JID jid)
-			throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifactUniqueId);
-		logger.debug(jid);
-		try {
-			// send the requestor a denial
-			final IQ iq = new IQDenyKeyRequest(artifactUniqueId, session.getJID());
-			iq.setTo(jid);
-			iq.setFrom(session.getJID());
-			send(jid, iq);
-		}
-		catch(UnauthorizedException ux) {
-			logger.error("denyKeyRequest(UUID,JID)", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(RuntimeException rx) {
-			logger.error("denyKeyRequest(UUID,JID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
     /**
-	 * ArtifactFlag the artifact.
+	 * Flag an artifact.
 	 * 
-	 * @param artifactId
-	 *            The artifact to flag.
-	 * @param flag
-	 *            The flag to apply.
+	 * @param artifact
+	 *            An <code>Artifact</code>.
+	 * @param artifactFlag
+	 *            A <code>ParityObjectFlag</code>.
 	 * @throws ParityServerModelException
 	 */
-	void flag(final Artifact artifact, final ParityObjectFlag artifactFlag)
-			throws ParityServerModelException {
+	void flag(final Artifact artifact, final ParityObjectFlag artifactFlag) {
         logApiId();
-		logger.debug(artifact);
-		logger.debug(artifactFlag);
+		logVariable("artifact", artifact);
+        logVariable("artifactFlag", artifactFlag);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
 			final Collection<ArtifactSubscription> subscriptions =
@@ -360,20 +248,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			for(ArtifactSubscription subscription : subscriptions) {
 				iq = createFlag(artifactUniqueId, artifactFlag, subscription);
 				// send the parity iq
-				send(iq.getTo(), iq);
+				send(JabberIdBuilder.parseJID(iq.getTo()), iq);
 			}
-		}
-		catch(SQLException sqlx) {
-			logger.error("flag(Artifact,ArtifactFlag)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(UnauthorizedException ux) {
-			logger.error("flag(Artifact,ArtifactFlag)", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(RuntimeException rx) {
-			logger.error("flag(Artifact,ArtifactFlag)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -382,7 +260,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param artifactUniqueId
 	 *            An artifact unique id.
-	 * @throws ParityServerModelException
 	 */
 	Artifact get(final UUID artifactUniqueId) {
         logApiId();
@@ -398,8 +275,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param artifactUniqueId
 	 *            The artifact unique id.
-	 * @param jid
-	 *            The new keyholder's jid.
 	 * @return The previous keyholder's JID.
 	 * @throws ParityServerModelException
 	 */
@@ -535,38 +410,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
             }
             final User user = getUserModel().readUser(jabberId);
             notifyTeamMemberRemoved(artifact, user);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final Throwable t) { throw translateError(t); }
     }
-
-	/**
-	 * Request the key from the artifact's key holder. If the key holder is
-	 * currently online; the request will be routed to them; otherwise it will
-	 * be queued until the user comes online.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws ParityServerModelException
-	 */
-	void requestKey(final UUID artifactUniqueId) throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifactUniqueId);
-		try {
-			final JID keyHolderJID = getKeyHolder(artifactUniqueId);
-			final IQ iq = new IQKeyRequest(artifactUniqueId);
-			iq.setTo(keyHolderJID);
-			iq.setFrom(session.getJID());
-			send(keyHolderJID, iq);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("requestKey(Artifact)", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("requestKey(Artifact)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
 
 	/**
 	 * Create a flag iq packet to send to a subscription.
@@ -615,13 +462,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return assertion.toString();
 	}
 
-    /**
-     * Notify an artifact's team a draft was created.
+	/**
+     * Notify the team a a draft was created.
      * 
-     * @param teamIds
-     *            A list of team members.
-     * @param eventGenerator
-     *            An artifact event generator.
+     * @param artifact
+     *            The <code>Artifact</code>.
+     * @param createdBy
+     *            The draft creator <code>JabberId</code>.
+     * @param createdOn
+     *            The draft creation <code>Calendar</code>.
+     * @throws ParityServerModelException
+     * @throws UnauthorizedException
      */
     private void notifyDraftCreated(final Artifact artifact,
             final JabberId createdBy, final Calendar createdOn)
@@ -634,12 +485,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Notify an artifact's team a draft was created.
-     * 
-     * @param teamIds
-     *            A list of team members.
-     * @param eventGenerator
-     *            An artifact event generator.
+     * Notify an artifact's team a draft was deleted.
+     * @param artifact An <code>Artifact</code>.
+     * @param deletedBy The <code>JabberId</code> of the deleting user.
+     * @param deletedOn When the draft was deleted.
+     * @throws ParityServerModelException
+     * @throws UnauthorizedException
      */
     private void notifyDraftDeleted(final Artifact artifact,
             final JabberId deletedBy, final Calendar deletedOn)
@@ -655,11 +506,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * Notify an artifact's team; a team member was added.
      * 
      * @param artifact
-     *            An artifact.
+     *            An <code>Artifact</code>.
      * @param user
-     *            A user.
-     * @param eventGenerator
-     *            An event generator.
+     *            A <code>User</code>.
      * @throws ParityServerModelException
      * @throws UnauthorizedException
      */
@@ -675,11 +524,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * Notify an artifact's team; a team member was removed.
      * 
      * @param artifact
-     *            An artifact.
+     *            An <code>Artifact</code>.
      * @param user
-     *            A user.
-     * @param eventGenerator
-     *            An event generator.
+     *            A <code>user</code>.
      * @throws ParityServerModelException
      * @throws UnauthorizedException
      */
@@ -691,21 +538,4 @@ class ArtifactModelImpl extends AbstractModelImpl {
         notification.writeJabberId("jabberId", user.getId());
         notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
     }
-
-    /**
-	 * Update the artifact's state.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 * @param newState
-	 *            The new state.
-	 * @throws NotTrueAssertion
-	 *             If the state movement is illegal.
-	 */
-	private void updateState(final Artifact artifact,
-			final Artifact.State newState) throws SQLException {
-		assertStateTransition(artifact.getArtifactState(), newState);
-		artifactSql.updateState(artifact.getArtifactId(),
-				artifact.getArtifactState(), newState, session.getJabberId());
-	}
 }

@@ -5,7 +5,7 @@ package com.thinkparity.server.handler.artifact;
 
 import java.util.UUID;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.Constants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
 /** 

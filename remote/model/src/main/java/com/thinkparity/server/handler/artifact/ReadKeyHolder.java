@@ -10,7 +10,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.Constants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;

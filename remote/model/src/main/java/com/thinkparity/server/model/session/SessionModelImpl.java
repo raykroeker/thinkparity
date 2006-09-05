@@ -11,6 +11,8 @@ import org.dom4j.io.SAXReader;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.queue.QueueItem;
@@ -60,7 +62,7 @@ class SessionModelImpl extends AbstractModelImpl {
 				readXml(queueItem.getQueueMessage());
 			final IQ iq = new IQ(queueItemDocument.getRootElement());
 			iq.setTo(jid);
-			send(jid, iq);
+			send(JabberIdBuilder.parseJID(jid), iq);
 		} catch (final Throwable t) {
             throw translateError(t);
 		}

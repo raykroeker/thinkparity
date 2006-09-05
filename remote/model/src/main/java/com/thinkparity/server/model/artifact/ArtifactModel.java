@@ -7,8 +7,6 @@ package com.thinkparity.server.model.artifact;
 import java.util.List;
 import java.util.UUID;
 
-import org.xmpp.packet.JID;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
@@ -51,20 +49,6 @@ public class ArtifactModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-	/**
-	 * Accept the key request for the artifact from the jid.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @param jid
-	 *            The requestor's jive id.
-	 * @throws ParityServerModelException
-	 */
-	public void acceptKeyRequest(final UUID artifactUniqueId, final JID jid)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.acceptKeyRequest(artifactUniqueId, jid); }
-	}
-
     /**
      * Add a user to an artifact's team.
      * 
@@ -76,18 +60,6 @@ public class ArtifactModel extends AbstractModel {
 	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
         synchronized(implLock) { impl.addTeamMember(uniqueId, jabberId); }
     }
-
-    /**
-	 * Close an artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws ParityServerModelException
-	 */
-	public void close(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.close(artifactUniqueId); }
-	}
 
 	/**
      * Confrim receipt of an artifact.
@@ -143,32 +115,19 @@ public class ArtifactModel extends AbstractModel {
     }
 
     /**
-	 * Deny the key request for the artifact from the jid.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @param jid
-	 *            The requestor's jive id.
-	 * @throws ParityServerModelException
-	 */
-	public void denyKeyRequest(final UUID artifactUniqueId, final JID jid)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.denyKeyRequest(artifactUniqueId, jid); }
-	}
-
-	/**
-	 * ArtifactFlag the artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact to flag.
-	 * @param flag
-	 *            The flag to apply.
-	 * @throws ParityServerModelException
-	 */
+     * Flag an artifact.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param artifactFlag
+     *            A <code>ParityObjectFlag</code>.
+     * @throws ParityServerModelException
+     */
 	public void flag(final Artifact artifact,
-			final ParityObjectFlag artifactFlag)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.flag(artifact, artifactFlag); }
+            final ParityObjectFlag artifactFlag) {
+		synchronized (implLock) {
+            impl.flag(artifact, artifactFlag);
+		}
 	}
 
 	/**
@@ -176,7 +135,6 @@ public class ArtifactModel extends AbstractModel {
 	 * 
 	 * @param artifactUniqueId
 	 *            An artifact unique id.
-	 * @throws ParityServerModelException
 	 */
 	public Artifact get(final UUID artifactUniqueId) {
 		synchronized(implLock) { return impl.get(artifactUniqueId); }
@@ -222,18 +180,4 @@ public class ArtifactModel extends AbstractModel {
             impl.removeTeamMember(uniqueId, jabberId);
         }
     }
-
-	/**
-	 * Request the key from the artifact's key holder. If the key holder is
-	 * currently online; the request will be routed to them; otherwise it will
-	 * be queued until the user comes online.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws ParityServerModelException
-	 */
-	public void requestKey(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.requestKey(artifactUniqueId); }
-	}
 }

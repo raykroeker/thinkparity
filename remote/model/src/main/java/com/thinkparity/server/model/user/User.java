@@ -8,7 +8,7 @@ import org.dom4j.Element;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.ParityServerConstants.Jabber;
+import com.thinkparity.server.Constants.Jabber;
 
 /**
  * @author raymond@thinkparity.com

@@ -12,7 +12,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.model.EventGenerator;
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.Constants.Xml;
 
 /**
  * @author raymond@thinkparity.com

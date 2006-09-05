@@ -10,7 +10,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -105,8 +104,8 @@ public class ContactModel extends AbstractModel {
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param invitedUserId
-     *            The invited user id <code>JabberId</code>.
+     * @param invitedAs
+     *            The <code>Email</code> the invitation was created for.
      */
     public void deleteInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
@@ -165,10 +164,9 @@ public class ContactModel extends AbstractModel {
 	/**
 	 * Read the invitation.
 	 * 
-	 * @param to
-	 *            To whom the invitation is addressed.
+	 * @param from
+	 *            From whom the invitation is sent.
 	 * @return The invitation.
-	 * @throws ParityServerModelException
 	 */
 	public Invitation readInvitation(final JabberId from) {
 		synchronized (implLock) {

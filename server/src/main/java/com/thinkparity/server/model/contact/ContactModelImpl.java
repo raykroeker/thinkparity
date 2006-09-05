@@ -27,7 +27,7 @@ import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.ParityServerConstants.VCardFields;
+import com.thinkparity.server.Constants.VCardFields;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;

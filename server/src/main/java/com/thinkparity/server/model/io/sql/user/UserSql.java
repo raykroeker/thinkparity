@@ -14,8 +14,10 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.model.profile.Feature;
 import com.thinkparity.model.profile.VerificationKey;
 
+import com.thinkparity.server.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.server.model.io.sql.AbstractSql;
 
 /**
@@ -30,7 +32,7 @@ public class UserSql extends AbstractSql {
             .append("(username,email,verified,verificationKey) ")
             .append("values (?,?,?,?)")
             .toString();
-
+        
     /** Sql to delete an email address. */
     private static final String SQL_DELETE_EMAIL =
             new StringBuffer("delete from PARITYUSEREMAIL ")
@@ -52,6 +54,15 @@ public class UserSql extends AbstractSql {
             .append("from parityUserEmail PUE ")
             .append("inner join jiveUser JU on PUE.USERNAME = JU.USERNAME ")
             .append("where JU.USERNAME=? and PUE.VERIFIED=?")
+            .toString();
+
+    /** Read all custom features for the user. */
+    private static final String SQL_READ_FEATURES =
+            new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
+            .append("from jiveUser JU ")
+            .append("inner join PARITY_USER_FEATURE_REL PUFR on JU.USERNAME=PUFR.USERNAME ")
+            .append("inner join PARITY_FEATURE PF on PUFR.FEATURE_ID=PF.FEATURE_ID ")
+            .append("where JU.USERNAME=?")
             .toString();
 
     /** Sql to read the user profile's security answer. */
@@ -163,6 +174,29 @@ public class UserSql extends AbstractSql {
             return emails;
         }
         finally { close(cx, ps, rs); }
+    }
+
+    public List<Feature> readFeatures(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FEATURES);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            final List<Feature> features = new ArrayList<Feature>();
+            while (session.nextResult()) {
+                features.add(extractFeature(session));
+            }
+            return features;
+        } finally {
+            session.close();
+        }
+    }
+
+    Feature extractFeature(final HypersonicSession session) {
+        final Feature feature = new Feature();
+        feature.setId(session.getLong("FEATURE_ID"));
+        feature.setName(session.getString("FEATURE_NAME"));
+        return feature;
     }
 
     /**

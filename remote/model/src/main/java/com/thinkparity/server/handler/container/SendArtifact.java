@@ -11,7 +11,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.artifact.ArtifactType;
 
-import com.thinkparity.server.ParityServerConstants.Xml.Service;
+import com.thinkparity.server.Constants.Xml.Service;
 import com.thinkparity.server.handler.AbstractController;
 
 /**

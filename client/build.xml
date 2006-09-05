@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project name="ophelia" default="help" basedir=".">
+<project name="ophelia" default="help" basedir="."
+        xmlns:cs="antlib:com.puppycrawl.tools.checkstyle">
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- build configuration -->
@@ -20,6 +21,7 @@
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
+    <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
     <property name="target.release.dir" value="${target.dir}/release"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
@@ -46,7 +48,7 @@
         <include name="jdic/0.9.1/tray.dll"/>
     </fileset>   
 
-    <!-- compile classpath -->
+    <!-- classpath -->
 	<path id="project.classpath">
 		<pathelement location="${target.classes.dir}/common/codebase"/>
 		<pathelement location="${target.classes.dir}/common/migrator"/>
@@ -66,8 +68,7 @@
 		<pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
 		<pathelement location="${basedir}/vendor/jdic/0.9.1/jdic.jar"/>
 	</path>
-
-    <!-- test classpath (test compile and test run) -->
+    <!-- test classpath -->
     <path id="project.test-classpath">
         <path refid="project.classpath"/>
    
@@ -247,6 +248,7 @@ Options:
     -Dcompile.debug=true,false  Generate compiler debug info.
                                 Default:true
 Targets:
+    analyze                     Analyze the source.   
     checkout                    Checkout all source.
     checkout.ide                Checkout ide configuration files.
     clean                       Delete output.
@@ -290,8 +292,48 @@ Examples:
 		<mkdir dir="${target.test-classes.dir}/local/model"/>
 		<mkdir dir="${target.test-classes.dir}/local/thinkparity"/>
 		<mkdir dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.analyze-report.dir}"/>      
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
+
+    <!-- analyze the source -->
+    <target name="analyze" depends="init">
+        <cs:checkstyle config="sun_checks.xml"
+            failureProperty="checkstyle.didFail" failOnViolation="false">
+            <formatter type="xml" tofile="target/analyze-report/checkstyle.xml"/>
+            <!-- common/codebase -->   
+            <fileset dir="common/codebase/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/junitx -->   
+            <fileset dir="common/junitx/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/migrator -->   
+            <fileset dir="common/migrator/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- common/model -->   
+            <fileset dir="common/model/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- local/model -->   
+            <fileset dir="local/browser/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- local/model -->   
+            <fileset dir="local/model/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+            <!-- local/thinkparity -->   
+            <fileset dir="local/thinkparity/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
+        </cs:checkstyle>
+        <style in="target/analyze-report/checkstyle.xml"
+                out="target/analyze-report/checkstyle.html"
+                style="checkstyle-noframes-sorted.xsl"/>
+    </target>
 
     <!-- document the source -->
     <target name="javadoc">

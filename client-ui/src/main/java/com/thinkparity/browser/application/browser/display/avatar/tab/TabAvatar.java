@@ -43,9 +43,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     /** The avatar id. */
     private final AvatarId id;
-
-    /** The <code>JList</code>'s selection event. */
-    private ListSelectionEvent listSelectionEvent;
     
     /** Variables used to modify behavior of selection. */
     private Integer selectedIndex = -1;
@@ -156,9 +153,11 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *            A <code>TabCell</code>.
      */
     protected void setSelectedCell(final TabCell tabCell) {
-        // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
-        selectedIndex = -1;
-        tabJList.setSelectedValue(tabCell, true);
+        if (tabCell != getSelectedCell()) {
+            // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
+            selectedIndex = -1;
+            tabJList.setSelectedValue(tabCell, true);
+        }
     }
     
     /**
@@ -168,21 +167,10 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *              The JList index to select.
      */
     private void setSelectedIndex(final Integer index) {
-        // Set selectedIndex to -1 so the ListSelectionListener behaves correctly        
-        selectedIndex = -1;
-        tabJList.setSelectedIndex(index);
-    }
-    
-    /**
-     * Set the selection to the point.
-     * 
-     * @param p
-     *            A <code>Point</code>.
-     */
-    private void setSelectedPoint(final Point p) {
-        final int clickIndex = tabJList.locationToIndex(p);
-        if (-1 != clickIndex) {
-            setSelectedIndex(clickIndex);
+        if (index != getSelectedIndex()) {
+            // Set selectedIndex to -1 so the ListSelectionListener behaves correctly        
+            selectedIndex = -1;
+            tabJList.setSelectedIndex(index);
         }
     }
 
@@ -288,20 +276,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
             selectingLastIndex = Boolean.FALSE;  
         }
-        
-/*        final int lastVisibleIndex = tabJList.getLastVisibleIndex();
-        if (-1 == lastVisibleIndex) {
-            return;
-        } else {
-            final int locationIndex = tabJList.locationToIndex(e.getPoint());
-            final Rectangle locationBounds =
-                tabJList.getCellBounds(locationIndex, locationIndex);
-            if (!SwingUtil.regionContains(locationBounds, e.getPoint())) {
-                if (null != listSelectionEvent) {
-                    tabJList.setSelectedIndex(listSelectionEvent.getFirstIndex());
-                }
-            }
-        }*/
     }//GEN-LAST:event_tabJListMousePressed
 
     private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_tabJListValueChanged
@@ -325,14 +299,18 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }//GEN-LAST:event_tabJListValueChanged
 
     /**
-     * Determine if the mouse event occured below the cell in an x-y plane.
+     * Determine if the mouse event occured on or below the cell in an x-y plane.
      * 
-     * @return True if the mouse event occured below the cell.
+     * @return True if the mouse event occurred in the cell.
      */
-    private boolean isSelectionWithinCell(final java.awt.event.MouseEvent e) {
-        final int tabCellIndex = tabJList.getSelectedIndex();
-        final Rectangle tabCellBounds = tabJList.getCellBounds(tabCellIndex, tabCellIndex);
-        return SwingUtil.regionContains(tabCellBounds, e.getPoint());
+    private boolean isMouseEventWithinCell(final java.awt.event.MouseEvent e) {
+        final Integer tabCellIndex = tabJList.locationToIndex(e.getPoint());
+        if (tabCellIndex == -1) {  // Will be -1 if the model is empty
+            return false;
+        } else {
+            final Rectangle tabCellBounds = tabJList.getCellBounds(tabCellIndex, tabCellIndex);
+            return SwingUtil.regionContains(tabCellBounds, e.getPoint());
+        }
     }
 
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
@@ -356,11 +334,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
                 }
           }
         } else if (2 == e.getClickCount()) {
-            final Point p = e.getPoint();
-            final Integer listIndex = tabJList.locationToIndex(p);
-            // Don't process double click if it is on white space below the last document
-            final Rectangle cellBounds = tabJList.getCellBounds(listIndex, listIndex);
-            if(SwingUtil.regionContains(cellBounds, p)){  
+            if (isMouseEventWithinCell(e)) {  
                 triggerDoubleClick(getSelectedCell());
             }
             else {
@@ -393,20 +367,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
                     triggerPopup(tabJList, e);
                 }
             }
-        
-/*        if (e.isPopupTrigger()) {
-            setSelectedPoint(e.getPoint());
-            // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
-            // If click in the blank area below the last entry in the list then trigger a popup that
-            // allows the user to create a container.
-            final TabCell selectedCell = getSelectedCell();
-            if (null == selectedCell) {
-                triggerPopup(tabJList, e);
-            } else if (isSelectionWithinCell(e)) {
-                triggerPopup(selectedCell, e);
-            } else {
-                triggerPopup(tabJList, e);
-            }*/
         }
     }//GEN-LAST:event_tabJListMouseReleased
 

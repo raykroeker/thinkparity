@@ -27,6 +27,7 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.AddDocument;
 import com.thinkparity.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.browser.platform.action.container.PrintDraft;
 import com.thinkparity.browser.platform.action.container.Publish;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
@@ -252,7 +253,9 @@ public class DraftCell extends ContainerDraft implements TabCell  {
         }
         jPopupMenu.addSeparator();
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));
+        final Data printData = new Data(1);
+        printData.set(PrintDraft.DataKey.CONTAINER_ID, getContainerId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

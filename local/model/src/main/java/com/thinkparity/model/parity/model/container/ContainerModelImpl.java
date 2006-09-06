@@ -11,6 +11,7 @@ import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Printer;
 import com.thinkparity.model.Constants.IO;
 import com.thinkparity.model.Constants.Versioning;
 import com.thinkparity.model.artifact.ArtifactType;
@@ -734,6 +735,57 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // fire event
         notifyContainerShared(read(containerId), readVersion(containerId,
                 versionId), remoteEventGenerator);
+    }
+
+    /**
+     * Print a container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    void printVersion(final Long containerId, final Long versionId,
+            final Printer printer) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("printer", printer);
+        try {
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final List<DocumentVersion> documentVersions =
+                containerIO.readDocumentVersions(containerId, versionId);
+            for (final DocumentVersion documentVersion : documentVersions) {
+                documentModel.printVersion(documentVersion.getArtifactId(),
+                        documentVersion.getVersionId(), printer);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+    /**
+     * Print a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    void printDraft(final Long containerId, final Printer printer) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("printer", printer);
+        try {
+            final ContainerDraft draft = readDraft(containerId);
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            for (final Document document : draft.getDocuments()) {
+                documentModel.printDraft(document.getId(), printer);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

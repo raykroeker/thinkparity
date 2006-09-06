@@ -10,6 +10,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Printer;
 import com.thinkparity.model.Constants.Compression;
 import com.thinkparity.model.Constants.Encoding;
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -589,6 +590,53 @@ class DocumentModelImpl extends AbstractModelImpl {
     }
 
 	/**
+     * Print a document draft.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param printer
+     *            A document printer.
+     */
+    void printDraft(final Long documentId, final Printer printer) {
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("printer", printer);
+        try {
+            final Document document = read(documentId);
+            final LocalFile localFile = getLocalFile(document);
+            printer.print(localFile.createTempClone(workspace));
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
+     * Print a document version.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A document version id.
+     * @param printer
+     *            A document printer.
+     */
+    void printVersion(final Long documentId, final Long versionId,
+            final Printer printer) {
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("versionId", versionId);
+        logVariable("printer", printer);
+        try {
+            final Document document = read(documentId);
+            final DocumentVersion version = readVersion(documentId, versionId);
+            final LocalFile localFile = getLocalFile(document, version);
+            printer.print(localFile.createTempClone(workspace));
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
      * Read a document.
      * 
      * @param documentId
@@ -601,7 +649,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         return documentIO.get(documentId);
     }
 
-	/**
+    /**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -618,7 +666,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read a list of audit events for a document.
      * 
      * @param documentId
@@ -746,7 +794,8 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+    
+	/**
 	 * Remove a document listener.
 	 * 
 	 * @param l
@@ -762,7 +811,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Rename a document.
      *
      * @param documentId
@@ -794,8 +843,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    
-	void requestKey(final Long documentId, final JabberId requestedBy)
+    void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
 		logger.debug(documentId);
@@ -813,7 +861,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
 
-	/**
+    /**
      * Revert a document draft to a version.
      * 
      * @param documentId
@@ -862,7 +910,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         Assert.assertTrue(assertion, isDraftModified(documentId));
     }
 
-    /**
+	/**
      * Create a document.
      * 
      * @param uniqueId
@@ -970,7 +1018,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
 	}
 
-	/**
+    /**
      * Delete only the local document data.
      * 
      * @param document
@@ -997,7 +1045,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(documentId);
     }
 
-    /**
+	/**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -1054,7 +1102,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Fire document deleted.
 	 * 
 	 * @param document

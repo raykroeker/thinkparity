@@ -4,21 +4,18 @@
  */
 package com.thinkparity.browser.platform.action.container;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public class UndeleteDocument extends AbstractAction {
-
-    /** The thinkParity browser application. */
-    private final Browser browser;
 
     /**
      * Create Export.
@@ -28,7 +25,6 @@ public class UndeleteDocument extends AbstractAction {
      */
     public UndeleteDocument(final Browser browser) {
         super(ActionId.CONTAINER_UNDELETE_DOCUMENT);
-        this.browser = browser;
     }
 
     /**
@@ -38,6 +34,4 @@ public class UndeleteDocument extends AbstractAction {
     public void invoke(final Data data) {
         Assert.assertNotYetImplemented("Undelete Document");     
     }
-
-
 }

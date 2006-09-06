@@ -17,9 +17,6 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class Export extends AbstractAction {
 
-    /** The thinkParity browser application. */
-    private final Browser browser;
-
     /**
      * Create Export.
      * 
@@ -28,7 +25,6 @@ public class Export extends AbstractAction {
      */
     public Export(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT);
-        this.browser = browser;
     }
 
     /**

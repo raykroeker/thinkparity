@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Printer;
 import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
@@ -29,7 +30,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class DocumentModel {
 
-	/**
+    /**
 	 * Obtain a handle to an internal document model.
 	 * 
 	 * @param context
@@ -72,7 +73,7 @@ public class DocumentModel {
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Add a document listener.  If the listener is already registered
      * nothing is done.
      *
@@ -83,7 +84,6 @@ public class DocumentModel {
 		synchronized(implLock) { impl.addListener(l); }
 	}
 
-
     /**
      * @deprecated =>
      *             {@link com.thinkparity.model.parity.model.container.ContainerModel#archive(java.lang.Long)}
@@ -92,6 +92,7 @@ public class DocumentModel {
     public File archive(final Long documentId) {
         throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long)");
     }
+
 
     /**
      * @deprecated =>
@@ -112,7 +113,7 @@ public class DocumentModel {
         throw Assert.createUnreachable("DocumentModel#close(java.lang.Long) => ContainerModel#close(java.lang.Long)");
     }
 
-	/**
+    /**
      * Create a document and attach it to a container. This will take a name,
      * and input stream of a file and create a document.
      * 
@@ -141,7 +142,7 @@ public class DocumentModel {
 		}
 	}
 
-    /**
+	/**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentId
@@ -152,7 +153,7 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.read(documentId); }
 	}
 
-	/**
+    /**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId
@@ -166,7 +167,7 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.readVersion(documentId, versionId); }
 	}
 
-    /**
+	/**
 	 * Obtain the content for a specific version.
 	 * 
 	 * @param documentId
@@ -194,7 +195,7 @@ public class DocumentModel {
         synchronized(implLock) { return impl.isDraftModified(documentId); }
     }
 
-	/**
+    /**
 	 * Obtain a list of document versions for a document.
 	 * 
 	 * @param documentId
@@ -251,6 +252,37 @@ public class DocumentModel {
 	}
 
 	/**
+     * Print a document draft.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param printer
+     *            A document printer.
+     */
+	public void printDraft(final Long documentId, final Printer printer) {
+	    synchronized (getImplLock()) {
+            getImpl().printDraft(documentId, printer);
+        }
+    }
+
+	/**
+     * Print a document version.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A document version id.
+     * @param printer
+     *            A document printer.
+     */
+    public void printVersion(final Long documentId, final Long versionId,
+            final Printer printer) {
+        synchronized (getImplLock()) {
+            getImpl().printVersion(documentId, versionId, printer);
+        }
+    }
+
+    /**
 	 * Read the document's history.
 	 * 
 	 * @param documentId
@@ -261,7 +293,7 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.readHistory(documentId); }
 	}
 
-	/**
+    /**
 	 * Read the document's history.
 	 * 
 	 * @param documentId
@@ -296,7 +328,7 @@ public class DocumentModel {
         }
     }
 
-    /**
+	/**
      * Read the document's history.
      * 
      * @param documentId
@@ -333,7 +365,7 @@ public class DocumentModel {
 		synchronized(implLock) { impl.removeListener(l); }
 	}
 
-    /**
+	/**
      * Rename a document.
      *
      * @param documentId
@@ -345,7 +377,7 @@ public class DocumentModel {
         synchronized(implLock) { impl.rename(documentId, documentName); }
     }
 
-	/**
+    /**
      * Update the draft of a document.
      * 
      * @param documentId
@@ -359,7 +391,7 @@ public class DocumentModel {
         }
     }
 
-	/**
+    /**
 	 * Obtain the implementation.
 	 * 
 	 * @return The implementation.

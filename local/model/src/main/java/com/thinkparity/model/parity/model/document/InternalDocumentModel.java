@@ -183,7 +183,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	/**
+    /**
      * Read a document.
      * 
      * @param documentId

@@ -200,6 +200,9 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
         final Data openData = new Data(1);
         openData.set(Open.DataKey.DOCUMENT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
+//        final Data printData = new Data(2);
+//        printData.set(PrintVersion.DataKey.DOCUMENT_ID, getId());
+//        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_VERSION, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

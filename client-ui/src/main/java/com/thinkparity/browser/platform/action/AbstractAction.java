@@ -28,6 +28,7 @@ import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
+import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -276,7 +277,7 @@ public abstract class AbstractAction {
         for(final Object o : list) { files.add((File) o); }
         return files;
     }
-    
+
     /**
      * Convert the data element found at the given key to a list of jabber ids.
      * 
@@ -292,9 +293,9 @@ public abstract class AbstractAction {
         final List<JabberId> jabberIds = new ArrayList<JabberId>();
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
-    }  
-
-	/**
+    }
+    
+    /**
      * Convert the data element found at the given key to a list of users.
      * 
      * @param data
@@ -309,18 +310,18 @@ public abstract class AbstractAction {
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;
-    }   
-    
-    /**
+    }  
+
+	/**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}
-
-	/**
+	}   
+    
+    /**
      * Obtain the parity index interface.
      * 
      * @return The parity index interface.
@@ -337,7 +338,7 @@ public abstract class AbstractAction {
     protected ProfileModel getProfileModel() {
         return modelFactory.getProfileModel(getClass());
     }
-    
+
 	/**
      * Obtain the parity session interface.
      * 
@@ -346,7 +347,7 @@ public abstract class AbstractAction {
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
 	}
-
+    
 	/**
 	 * Obtain localized text.
 	 * 
@@ -371,13 +372,22 @@ public abstract class AbstractAction {
 		return localization.getString(localKey, arguments);
 	}
 
-    /**
+	/**
      * Obtain the thinkParity user interface.
      * 
      * @return A thinkParity user interface.
      */
     protected UserModel getUserModel() {
         return modelFactory.getUserModel(getClass());
+    }
+
+    /**
+     * Obtain the thinkParity workspace.
+     * 
+     * @return The thinkParity workspace.
+     */
+    protected Workspace getWorkspace() {
+        return modelFactory.getWorkspace(getClass());
     }
 
     /**

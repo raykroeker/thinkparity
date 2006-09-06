@@ -24,6 +24,7 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.container.PrintVersion;
 import com.thinkparity.browser.platform.action.container.Share;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
@@ -220,6 +221,10 @@ public class ContainerVersionCell extends ContainerVersion implements
             shareData.set(Share.DataKey.VERSION_ID, getVersionId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));        
         }
+        final Data printData = new Data(2);
+        printData.set(PrintVersion.DataKey.CONTAINER_ID, getArtifactId());
+        printData.set(PrintVersion.DataKey.VERSION_ID, getVersionId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_VERSION, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

@@ -26,6 +26,7 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.RemoveDocument;
 import com.thinkparity.browser.platform.action.container.RevertDocument;
 import com.thinkparity.browser.platform.action.document.Open;
+import com.thinkparity.browser.platform.action.document.PrintDraft;
 import com.thinkparity.browser.platform.action.document.Rename;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
@@ -241,7 +242,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
         }
        
         jPopupMenu.addSeparator();
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT, Data.emptyData()));
+        final Data printData = new Data(1);
+        printData.set(PrintDraft.DataKey.DOCUMENT_ID, getId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_DRAFT, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 

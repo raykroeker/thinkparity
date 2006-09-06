@@ -10,7 +10,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import javax.swing.TransferHandler;
-import javax.swing.event.ListSelectionEvent;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 

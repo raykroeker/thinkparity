@@ -13,8 +13,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.ComponentUI;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.browser.Constants.Colors;

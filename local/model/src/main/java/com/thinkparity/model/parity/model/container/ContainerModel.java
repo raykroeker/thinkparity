@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.container;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.model.Printer;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
@@ -132,6 +133,37 @@ public class ContainerModel {
     public void deleteDraft(final Long containerId) {
         synchronized (getImplLock()) {
             getImpl().deleteDraft(containerId);
+        }
+    }
+
+    /**
+     * Print a container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    public void printVersion(final Long containerId, final Long versionId,
+            final Printer printer) {
+        synchronized (getImplLock()) {
+            getImpl().printVersion(containerId, versionId, printer);
+        }
+    }
+
+    /**
+     * Print a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    public void printDraft(final Long containerId, final Printer printer) {
+        synchronized (getImplLock()) {
+            getImpl().printDraft(containerId, printer);
         }
     }
 
@@ -459,7 +491,7 @@ public class ContainerModel {
         }
     }
 
-    /**
+	/**
      * Read the team for the container.
      * 
      * @param containerId
@@ -472,7 +504,7 @@ public class ContainerModel {
         }
     }
 
-	/**
+    /**
      * Read a container version.
      * 
      * @param containerId
@@ -655,14 +687,14 @@ public class ContainerModel {
         }
     }
 
-    /**
+	/**
 	 * Obtain the model implementation.
 	 * 
 	 * @return The model implementation.
 	 */
 	protected ContainerModelImpl getImpl() { return impl; }
 
-	/**
+    /**
 	 * Obtain the model implementation synchronization lock.
 	 * 
 	 * @return The model implementation synchrnoization lock.

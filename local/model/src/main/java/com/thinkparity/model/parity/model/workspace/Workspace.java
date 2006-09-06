@@ -14,11 +14,24 @@ import java.io.IOException;
 public interface Workspace {
 
     /**
-     * Create a temporary file within the workspace.
+     * Create a temporary file within the workspace. The workspace will attempt
+     * to delete the file when thinkParity shuts down. If the jvm abrubpty
+     * exists the file will be deleted the next time the workspace is opened.
      * 
      * @return A new file.
      */
     public File createTempFile() throws IOException;
+
+    /**
+     * Create a temporary file within the workspace. The workspace will attempt
+     * to create a temporary file represents the artifact.
+     * 
+     * @param suffix
+     *            The suffix string to be used in generating the file's name.
+     * @return A temporary file.
+     * @throws IOException
+     */
+    public File createTempFile(final String suffix) throws IOException;
 
     /**
 	 * Obtain the data directory.

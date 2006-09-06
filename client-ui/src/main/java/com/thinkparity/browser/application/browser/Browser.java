@@ -175,6 +175,8 @@ public class Browser extends AbstractApplication {
      * 
      * @param messageKey
      *            The confirmation message localization key.
+     * @param messageArguments
+     *            A list of confirmation message arguments.
      * @return True if the user confirmed in the affirmative.
      */
     public Boolean confirm(final String messageKey,

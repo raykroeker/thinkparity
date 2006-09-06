@@ -34,7 +34,7 @@ class LocalFile {
 	 */
 	private static final Runtime myRuntime;
 
-	/** Windows wrapper dll. */
+    /** Windows wrapper dll. */
 	private static final String OPEN_PARAM_WIN32_DLL = "rundll32.exe";
 
 	/**
@@ -94,6 +94,27 @@ class LocalFile {
         this.logger = Logger.getLogger(getClass());
 		this.file = getFile(workspace, document, version);
 	}
+
+	/**
+     * Create a clone of the local file in the workspace's temp location.
+     * 
+     * @param workspace
+     *            The thinkParity workspace.
+     * @return A clone of the local file.
+     * @throws IOException
+     */
+    File createTempClone(final Workspace workspace) throws IOException {
+        final File tempFile = workspace.createTempFile(file.getName());
+        final FileOutputStream outputStream = new FileOutputStream(tempFile);
+        final InputStream inputStream = openStream();
+        try {
+            StreamUtil.copy(inputStream, outputStream, 1024);
+            return tempFile;
+        } finally {
+            inputStream.close();
+            outputStream.close();
+        }
+    }
 
 	/**
 	 * Delete the local file.

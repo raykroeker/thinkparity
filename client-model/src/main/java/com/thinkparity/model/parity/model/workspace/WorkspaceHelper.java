@@ -71,10 +71,20 @@ class WorkspaceHelper {
                     .append(StringUtil.searchAndReplace(caller.getClassName(), ".", "_"))
                     .append("#").append(caller.getMethodName())
                     .toString();
-                return File.createTempFile(Files.TEMP_FILE_PREFIX, tempFileSuffix, workspaceTempDirectory);
+                return File.createTempFile(Files.TEMP_FILE_PREFIX,
+                        tempFileSuffix, workspaceTempDirectory);
             }
 
 			/**
+             * @see com.thinkparity.model.parity.model.workspace.Workspace#createTempFile(com.thinkparity.model.parity.model.document.Document)
+             */
+            public File createTempFile(final String suffix) throws IOException {
+                initChild(workspaceDirectory, DirectoryNames.Workspace.TEMP);
+                return File.createTempFile(Files.TEMP_FILE_PREFIX, suffix,
+                        workspaceTempDirectory);
+            }
+
+            /**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataDirectory()
 			 * 
 			 */

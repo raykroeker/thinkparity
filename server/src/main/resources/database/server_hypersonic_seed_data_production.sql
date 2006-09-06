@@ -14,6 +14,8 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/production/hsqldb/calpurnia/db');
 insert into jiveProperty (NAME,PROPVALUE)
     values('com.thinkparity.calpurnia.db.username', 'sa');
+insert into PARITY_FEATURE (FEATURE_NAME)
+	values ('ARCHIVE');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);
@@ -23,6 +25,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('thinkparity', 'thinkParity@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('thinkparity', 'What is my username?', 'thinkparity');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('thinkparity', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('asahebjam','parity',0,0);
@@ -32,6 +36,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('asahebjam', 'asahebjam@gmail.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('asahebjam', 'What is my username?', 'asahebjam');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('asahebjam', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('omid','parity',0,0);
@@ -41,6 +47,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('omid', 'omid@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('omid', 'What is my username?', 'omid');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('omid', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('raymond','parity',0,0);
@@ -50,6 +58,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('raymond', 'raymond@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('raymond', 'What is my username?', 'raymond');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('raymond', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('robert','parity',0,0);
@@ -59,6 +69,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('robert', 'robert@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('robert', 'What is my username?', 'robert');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('robert', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('djohnson','parity',0,0);
@@ -68,6 +80,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('djohnson', 'djohnson@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('djohnson', 'What is my username?', 'djohnson');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('djohnson', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('emorrison','parity',0,0);
@@ -77,6 +91,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('emorrison', 'emorrison@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('emorrison', 'What is my username?', 'emorrison');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('emorrison', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kmfarland','parity',0,0);
@@ -86,6 +102,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kmfarland', 'kmfarland@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('kmfarland', 'What is my username?', 'kmfarland');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('kmfarland', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('strimnell','parity',0,0);
@@ -95,6 +113,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('strimnell', 'strimnell@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('strimnell', 'What is my username?', 'strimnell');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('strimnell', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kenjiro','parity',0,0);
@@ -104,6 +124,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kenjiro', 'kenjiro@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('kenjiro', 'What is my username?', 'kenjiro');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('kenjiro', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('masako','parity',0,0);
@@ -113,6 +135,8 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('masako', 'masako@thinkparity.com', true);
 insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('masako', 'What is my username?', 'masako');
+insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
+	values ('masako', 1000);
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('asahebjam', 'omid@thinkparity.dyndns.org', 'asahebjam', NOW(), 'asahebjam', NOW());

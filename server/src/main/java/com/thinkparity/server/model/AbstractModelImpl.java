@@ -308,7 +308,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
@@ -321,6 +321,17 @@ public abstract class AbstractModelImpl {
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName(),
                     message));
+        }
+    }
+
+	/** Log a trace id. */
+    protected final void logTraceId() {
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0}] [{1}] [{2}:{3}]",
+                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(),
+                    StackUtil.getCallerLineNumber()));
         }
     }
 

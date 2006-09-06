@@ -173,6 +173,18 @@ public abstract class AbstractController extends
         }
     }
 
+    /** Log a trace id. */
+    protected final void logTraceId() {
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0}] [{1}] [{2}:{3}]",
+                    session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(),
+                    StackUtil.getCallerLineNumber()));
+        }
+    }
+
+
     /**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.

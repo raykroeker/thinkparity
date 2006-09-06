@@ -23,5 +23,13 @@
             <property name="format" value="NOCOMMIT"/>
             <property name="message" value="The &quot;NOCOMMIT&quot; compiler tag left in."/>
         </module>
+
+        <!-- Checks for imports -->
+        <!-- See http://checkstyle.sf.net/config_import.html -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <!-- defaults to sun.* packages -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
     </module>
 </module>

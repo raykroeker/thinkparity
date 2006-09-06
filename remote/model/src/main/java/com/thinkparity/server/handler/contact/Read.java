@@ -25,15 +25,17 @@ public class Read extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        final Contact contact = read(readJabberId("userId"),
-                readJabberId("contactId"));
+        final Contact contact =
+            read(readJabberId("userId"), readJabberId("contactId"));
 
         if(null != contact) {
             writeEMails(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
             writeJabberId(Xml.Contact.JABBER_ID, contact.getId());
             writeString(Xml.Contact.NAME, contact.getName());
-            writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
-            writeString("title", contact.getTitle());
+            if (contact.isSetOrganization())
+                writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
+            if (contact.isSetTitle())
+                writeString("title", contact.getTitle());
             writeString(Xml.Contact.VCARD, contact.getVCard().asXML());
         }
     }

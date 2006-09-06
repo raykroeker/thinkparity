@@ -7,7 +7,8 @@ import java.io.InputStream;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import com.thinkparity.server.Constants.Xml;
+import com.thinkparity.model.Constants.Xml;
+
 
 /**
  * @author raymond@thinkparity.com

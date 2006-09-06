@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.profile;
 
-import com.thinkparity.server.model.user.User;
+import com.thinkparity.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Profile<br>

@@ -25,16 +25,16 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.model.AbstractModelImpl;
+import com.thinkparity.model.Constants.VCardFields;
+import com.thinkparity.model.io.sql.ContactSql;
+import com.thinkparity.model.io.sql.UserSql;
+import com.thinkparity.model.session.Session;
+import com.thinkparity.model.user.User;
 import com.thinkparity.model.util.smtp.MessageFactory;
 import com.thinkparity.model.util.smtp.TransportManager;
 import com.thinkparity.model.xmpp.IQWriter;
 
-import com.thinkparity.server.Constants.VCardFields;
-import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.io.sql.contact.ContactSql;
-import com.thinkparity.server.model.io.sql.user.UserSql;
-import com.thinkparity.server.model.session.Session;
-import com.thinkparity.server.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation</br>

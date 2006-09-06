@@ -13,7 +13,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.jivesoftware.util.EmailService;
 
-import com.thinkparity.server.Constants.Internet.Mail;
+import com.thinkparity.model.Constants.Internet.Mail;
+
 
 /**
  * <b>Title:</b>thinkParity Message Factory<br>

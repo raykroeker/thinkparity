@@ -8,8 +8,9 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.model.AbstractModel;
+import com.thinkparity.model.session.Session;
+
 
 /**
  * <b>Title:</b>thinkParity Profile Model<br>

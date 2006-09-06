@@ -5,8 +5,9 @@ package com.thinkparity.model.archive;
 
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.model.AbstractModelImpl;
+import com.thinkparity.model.session.Session;
+
 
 /**
  * <b>Title:</b>thinkParity Archive Model Implementation</br>
@@ -49,7 +50,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * databases.
      *
      */
-    public void start() {
+    void start() {
         logApiId();
     }
 
@@ -58,7 +59,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * databases.
      *
      */
-    public void stop() {
+    void stop() {
         logApiId();
     }
 }

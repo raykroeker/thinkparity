@@ -5,8 +5,9 @@ package com.thinkparity.model.archive;
 
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.model.AbstractModel;
+import com.thinkparity.model.session.Session;
+
 
 /**
  * <b>Title:</b>thinkParity Archive Model<br>

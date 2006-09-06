@@ -7,7 +7,8 @@ import java.util.List;
 
 import org.dom4j.Element;
 
-import com.thinkparity.server.model.user.User;
+import com.thinkparity.model.user.User;
+
 import com.thinkparity.server.org.dom4j.ElementBuilder;
 import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.dom4j.NamespaceName;

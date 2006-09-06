@@ -8,7 +8,8 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.model.contact.Contact;
+import com.thinkparity.model.contact.Contact;
+
 import com.thinkparity.server.org.dom4j.ElementBuilder;
 import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.dom4j.NamespaceName;

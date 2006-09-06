@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-    <class>com.thinkparity.server.JivePlugin</class>
+    <class>com.thinkparity.wildfire.JivePlugin</class>
 
     <name>${pom.name}</name>
     <description>Provides the core remote functionality for the thinkParity platform.</description>

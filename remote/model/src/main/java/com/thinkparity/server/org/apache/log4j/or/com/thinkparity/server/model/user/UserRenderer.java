@@ -5,7 +5,8 @@ package com.thinkparity.server.org.apache.log4j.or.com.thinkparity.server.model.
 
 import org.apache.log4j.or.ObjectRenderer;
 
-import com.thinkparity.server.model.user.User;
+import com.thinkparity.model.user.User;
+
 import com.thinkparity.server.org.apache.log4j.or.IRendererConstants;
 
 /**

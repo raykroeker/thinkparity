@@ -19,11 +19,11 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactModel;
+
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
-import com.thinkparity.server.model.ParityServerModelException;
-import com.thinkparity.server.model.artifact.Artifact;
-import com.thinkparity.server.model.artifact.ArtifactModel;
 
 /**
  * An abstraction of the parity remote model test case.

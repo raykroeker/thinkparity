@@ -5,7 +5,8 @@ package com.thinkparity.server.org.xmpp.packet.artifact;
 
 import java.util.List;
 
-import com.thinkparity.server.model.contact.Contact;
+import com.thinkparity.model.contact.Contact;
+
 import com.thinkparity.server.org.dom4j.NamespaceName;
 
 /**

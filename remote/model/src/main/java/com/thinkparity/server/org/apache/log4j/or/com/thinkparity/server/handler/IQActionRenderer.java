@@ -5,8 +5,8 @@ package com.thinkparity.server.org.apache.log4j.or.com.thinkparity.server.handle
 
 import org.apache.log4j.or.ObjectRenderer;
 
-import com.thinkparity.server.handler.IQAction;
 import com.thinkparity.server.org.apache.log4j.or.IRendererConstants;
+import com.thinkparity.wildfire.handler.IQAction;
 
 /**
  * @author raykroeker@gmail.com

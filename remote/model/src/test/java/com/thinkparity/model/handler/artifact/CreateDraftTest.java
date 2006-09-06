@@ -3,10 +3,6 @@
  */
 package com.thinkparity.model.handler.artifact;
 
-import org.jivesoftware.messenger.handler.IQHandler;
-
-import org.xmpp.packet.IQ;
-
 import com.raykroeker.junitx.TestCase;
 
 
@@ -18,9 +14,6 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
 
     private static final String NAME = "[HANDLER] [CREATE DRAFT TEST]";
 
-    /** Test datum. */
-    private Fixture datum;
-
     /** Create CreateDraftTest. */
     public CreateDraftTest() { super(NAME); }
 
@@ -29,16 +22,6 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
      *
      */
     public void testCreatDraft() {
-//        IQ iqResponse = null;
-//        try { iqResponse = datum.iqHandler.handleIQ(datum.iq); }
-//        catch(final UnauthorizedException ux) {
-//            fail(createFailMessage(NAME + " [UNAUTHORIZED]", ux));
-//        }
-//
-//        assertNotNull(NAME + " [RESPONSE IS NULL]", iqResponse);
-//        if(didFail(iqResponse)) {
-//            fail(createFailMessage(NAME  + " [RESPONSE FAILURE]", iqResponse));
-//        }
     }
 
     /**
@@ -47,7 +30,6 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-//        datum = new Fixture(handlerDatum.iq, new CreateDraft());
     }
 
     /**
@@ -56,15 +38,5 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-    }
-
-    /** Test datum definition. */
-    private class Fixture {
-        private final IQ iq;
-        private final IQHandler iqHandler;
-        private Fixture(final IQ iq, final IQHandler iqHandler) {
-            this.iq = iq;
-            this.iqHandler = iqHandler;
-        }
     }
 }

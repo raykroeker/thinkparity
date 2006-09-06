@@ -10,7 +10,6 @@ import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -68,7 +67,6 @@ public abstract class HandlerTestCase extends ModelTestCase {
         super.setUp();
         final IQ iq = new IQ(IQ.Type.get);
         iq.setChildElement(Xml.NAME, Xml.NAMESPACE);
-        iq.setFrom(ModelTestUser.getJUnit().getJabberId().getQualifiedJabberId());
         this.handlerDatum = new HandlerFixture(iq);
     }
 

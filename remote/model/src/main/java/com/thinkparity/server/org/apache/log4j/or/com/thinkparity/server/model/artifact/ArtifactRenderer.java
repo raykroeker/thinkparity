@@ -7,7 +7,8 @@ import java.util.Calendar;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.model.artifact.Artifact;
+
 import com.thinkparity.server.org.apache.log4j.or.IRendererConstants;
 
 /**

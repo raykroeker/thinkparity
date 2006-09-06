@@ -7,7 +7,8 @@ import java.util.Calendar;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-import com.thinkparity.server.model.queue.QueueItem;
+import com.thinkparity.model.queue.QueueItem;
+
 import com.thinkparity.server.org.apache.log4j.or.IRendererConstants;
 
 /**

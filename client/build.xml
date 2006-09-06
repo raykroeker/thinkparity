@@ -87,7 +87,11 @@
         <antcall target="test" inheritAll="true" inheritRefs="true"/>
         <antcall target="clean" inheritAll="true" inheritRefs="true"/>
         <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    </target>
 
+    <!-- release -->
+    <target name="release-impl">
         <!-- common/codebase -->
         <jar destfile="${target.classes.dir}/common/codebase.jar"
                 duplicate="fail" update="false" whenempty="fail">
@@ -408,7 +412,7 @@ Examples:
     <!-- unit test -->
 	<target name="test" depends="test-compile">
 		<junit fork="on" forkmode="once" reloading="false"
-		errorproperty="junit.didError" failureproperty="junit.didFail">
+		        errorproperty="junit.didError" failureproperty="junit.didFail">
 			<classpath refid="project.test-classpath"/>
 			<formatter type="brief" usefile="false"/>
 
@@ -488,5 +492,12 @@ Examples:
         <echo message="${cvs.cvsroot}"/>
         <cvs cvsroot="${cvs.cvsroot}"
             command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
+    </target>
+
+    <!-- quick release -->
+    <target name="quick-release">
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
     </target>
 </project>

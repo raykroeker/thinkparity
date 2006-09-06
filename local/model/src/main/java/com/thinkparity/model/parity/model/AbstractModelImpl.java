@@ -1154,7 +1154,7 @@ public abstract class AbstractModelImpl {
      * @return An error id.
      */
     private Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{1}] [{2}] - [{3}]",
+        return MessageFormat.format("[{0}] [{1}] - [{2}]",
                     StackUtil.getFrameClassName(2).toUpperCase(),
                     StackUtil.getFrameMethodName(2).toUpperCase(),
                     t.getMessage());

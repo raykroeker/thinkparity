@@ -33,6 +33,7 @@ public class UpdateTest extends ProfileTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        login();
         final InternalProfileModel profileModel = getInternalProfileModel();
         final Profile profile = profileModel.read();
         datum = new Fixture(profile, profileModel);
@@ -43,6 +44,8 @@ public class UpdateTest extends ProfileTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
+        datum = null;
+        logout();
         super.tearDown();
     }
 

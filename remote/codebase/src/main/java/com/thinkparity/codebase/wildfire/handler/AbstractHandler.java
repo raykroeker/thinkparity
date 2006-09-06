@@ -1,7 +1,7 @@
 /*
  * Created On: May 10, 2006 2:38:59 PM
  */
-package com.thinkparity.codebase.controller;
+package com.thinkparity.codebase.wildfire.handler;
 
 import java.util.Calendar;
 import java.util.List;
@@ -29,7 +29,7 @@ import com.thinkparity.codebase.xmpp.IQWriter;
  * @author raykroeker@gmail.com
  * @version 1.1.2.8
  */
-public abstract class AbstractController extends
+public abstract class AbstractHandler extends
 		org.jivesoftware.messenger.handler.IQHandler {
 
 	/** The info. */
@@ -42,12 +42,12 @@ public abstract class AbstractController extends
     private IQWriter iqWriter;
 
 	/**
-     * Create a AbstractController.
+     * Create AbstractHandler.
      * 
      * @param action
      *            The action the controller will handle.
      */
-	protected AbstractController(final String action) {
+	protected AbstractHandler(final String action) {
 		super(action);
 		this.info = new IQHandlerInfo(
                 Xml.NAME,

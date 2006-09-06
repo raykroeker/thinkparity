@@ -236,7 +236,7 @@
                 -->
                 <exclude name="com/thinkparity/model/artifact/Artifact.java"/>
                 <exclude name="com/thinkparity/model/artifact/ArtifactType.java"/>
-                <exclude name="com/thinkparity/server/handler/IQAction.java"/>
+                <exclude name="com/thinkparity/wildfire/handler/IQAction.java"/>
                 <exclude name="com/thinkparity/server/org/dom4j/ElementName.java"/>
                 <exclude name="com/thinkparity/server/org/dom4j/NamespaceName.java"/>
             </fileset>

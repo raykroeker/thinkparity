@@ -15,7 +15,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="REL_v1_0_RC12"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
@@ -469,9 +469,6 @@ Examples:
 
     <!-- process test resources -->
     <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}/remote/model">
-            <fileset dir="${basedir}/remote/model/src/test/resources"/>
-        </copy>
         <copy todir="${target.test-classes.dir}/common/junitx/">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
         </copy>

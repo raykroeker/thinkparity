@@ -15,10 +15,10 @@ import org.jivesoftware.smack.XMPPConnection;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.Constants.Jabber;
 import com.thinkparity.model.parity.model.session.Credentials;
-import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;

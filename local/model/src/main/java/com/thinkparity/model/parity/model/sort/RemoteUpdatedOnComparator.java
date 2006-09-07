@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.sort;
 
 import java.util.Calendar;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.Artifact;
 
 /**
  * Order by the artifact's remote updated on date\time.

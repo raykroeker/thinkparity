@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.xmpp.user;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * The user vCard contains user information as outlined in the vCard rfc.

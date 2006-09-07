@@ -12,8 +12,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.Credentials;
@@ -311,7 +312,7 @@ public interface XMPPSession {
      *            The artifact unique id.
      * @return A jabber id.
      */
-	public JabberId readKeyHolder(final UUID uniqueId);
+	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
 
 	/**
      * Read the user's profile.

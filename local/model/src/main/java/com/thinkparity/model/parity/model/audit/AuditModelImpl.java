@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.audit;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.audit.event.*;
@@ -12,7 +14,6 @@ import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

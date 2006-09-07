@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyListener;
@@ -14,7 +14,6 @@ import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -118,24 +117,6 @@ public class SessionModel extends AbstractModel {
 	 */
 	public Boolean isLoggedIn() {
 		synchronized(implLock) { return impl.isLoggedIn(); }
-	}
-
-	/**
-	 * Determine whether or not the logged in user is the artifact key holder.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return True if the logged in user is the artifact key holder; false
-	 *         otherwise.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the user is currently offline.
-	 */
-	public Boolean isLoggedInUserKeyHolder(final Long artifactId)
-			throws ParityException {
-		synchronized(implLock) {
-			return impl.isLoggedInUserKeyHolder(artifactId);
-		}
 	}
 
     /**

@@ -10,8 +10,8 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.index.AbstractIndexImpl;
 import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;
 import com.thinkparity.model.parity.model.index.lucene.FieldBuilder;

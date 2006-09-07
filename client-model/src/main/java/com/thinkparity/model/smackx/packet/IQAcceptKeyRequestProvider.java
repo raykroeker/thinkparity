@@ -13,9 +13,9 @@ import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com

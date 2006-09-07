@@ -8,13 +8,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.api.events.ContactListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

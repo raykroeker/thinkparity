@@ -10,13 +10,14 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.index.AbstractIndexImpl;
 import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;
 import com.thinkparity.model.parity.model.index.lucene.FieldBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

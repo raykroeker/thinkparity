@@ -10,9 +10,9 @@ import org.jivesoftware.smack.packet.IQ;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.CompressionUtil;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.smack.provider.IQParityProvider;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 

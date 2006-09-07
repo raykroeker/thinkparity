@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.filter.container;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.filter.AbstractFilter;
 
 /**

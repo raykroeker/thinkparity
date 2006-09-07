@@ -6,7 +6,8 @@ package com.thinkparity.model.smackx.packet.document;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 
 /**
  * An xmpp internet query result.

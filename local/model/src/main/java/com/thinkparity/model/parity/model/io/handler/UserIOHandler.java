@@ -3,7 +3,8 @@
  */
 package com.thinkparity.model.parity.model.io.handler;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.xmpp.user.User;
 
 /**

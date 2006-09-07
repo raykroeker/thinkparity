@@ -3,10 +3,11 @@
  */
 package com.thinkparity.model;
 
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 

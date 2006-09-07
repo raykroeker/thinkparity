@@ -28,6 +28,8 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
@@ -36,13 +38,13 @@ import com.thinkparity.model.Constants.ShutdownHookNames;
 import com.thinkparity.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.model.Constants.ThreadNames;
 import com.thinkparity.model.Constants.Versioning;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.ParityUncheckedException;
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.AuditModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
@@ -78,8 +80,6 @@ import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.util.Localization;
 import com.thinkparity.model.util.LocalizationContext;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 import com.thinkparity.migrator.Library;
@@ -846,8 +846,21 @@ public abstract class AbstractModelImpl {
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
         assertOnline("USER NOT ONLINE");
-        return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY) &&
-            getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        return artifactModel.isFlagApplied(artifactId, ArtifactFlag.KEY) &&
+            isRemoteKeyHolder(artifactModel.readUniqueId(artifactId));
+    }
+
+    /**
+     * Determine whether or not the local user is the remote key holder.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @return True if the user is the artifact key holder.
+     */
+    private Boolean isRemoteKeyHolder(final UUID uniqueId) {
+        return localUserId().equals(
+                getInternalSessionModel().readKeyHolder(localUserId(), uniqueId));
     }
 
     /**

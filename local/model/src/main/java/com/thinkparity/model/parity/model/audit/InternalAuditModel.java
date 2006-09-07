@@ -5,11 +5,12 @@ package com.thinkparity.model.parity.model.audit;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

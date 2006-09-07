@@ -29,6 +29,8 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.Constants.Xml;
@@ -36,8 +38,6 @@ import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.profile.ProfileEMail;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 import com.thinkparity.migrator.Library;
 

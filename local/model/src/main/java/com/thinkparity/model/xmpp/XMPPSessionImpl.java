@@ -23,11 +23,13 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.Constants.Jabber;
 import com.thinkparity.model.Constants.Xml.Service;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -137,8 +139,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
     /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#acceptContactInvitation(com.thinkparity.model.xmpp.JabberId,
-     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
+     * @see com.thinkparity.model.xmpp.XMPPSession#acceptContactInvitation(com.thinkparity.codebase.jabber.JabberId,
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
     public void acceptContactInvitation(final JabberId userId,
@@ -207,7 +209,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#addProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.profile.ProfileEMail)
+     * @see com.thinkparity.model.xmpp.XMPPSession#addProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.model.profile.ProfileEMail)
      */
     public void addProfileEmail(final JabberId userId, final EMail email) {
         xmppProfile.addEmail(userId, email);
@@ -215,7 +217,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#addTeamMember(java.util.UUID,
-     *      com.thinkparity.model.xmpp.JabberId)
+     *      com.thinkparity.codebase.jabber.JabberId)
      * 
      */
 	public void addTeamMember(final UUID uniqueId, final JabberId jabberId)
@@ -247,7 +249,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.model.xmpp.JabberId,
+     * @see com.thinkparity.model.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID, java.lang.Long)
      * 
      */
@@ -281,7 +283,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(java.lang.String,
-     *      com.thinkparity.model.xmpp.JabberId)
+     *      com.thinkparity.codebase.jabber.JabberId)
      * 
      */
     public void declineInvitation(final EMail invitedAs,
@@ -297,14 +299,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContact(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.xmpp.JabberId)
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContact(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.jabber.JabberId)
      */
     public void deleteContact(final JabberId userId, final JabberId contactId) {
         xmppContact.delete(userId, contactId);
     }
 
     /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContactInvitation(com.thinkparity.model.xmpp.JabberId,
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteContactInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
      * 
      */
@@ -321,7 +323,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.codebase.jabber.JabberId)
 	 * 
 	 */
 	public void extendInvitation(final JabberId userId, final EMail extendedTo,
@@ -331,7 +333,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
     /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
-	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
+	 *      com.thinkparity.model.artifact.ArtifactFlag)
 	 */
 	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException {
@@ -487,8 +489,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
     /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.parity.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List, com.thinkparity.model.xmpp.JabberId,
+     * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List, com.thinkparity.codebase.jabber.JabberId,
      *      java.util.Calendar)
      * 
      */
@@ -545,8 +547,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.model.xmpp.XMPPSession#readKeyHolder(java.util.UUID)
      * 
      */
-	public JabberId readKeyHolder(final UUID uniqueId) {
-		return xmppArtifact.readKeyHolder(uniqueId);
+	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
+		return xmppArtifact.readKeyHolder(userId, uniqueId);
 	}
 
 	/**
@@ -566,7 +568,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#readProfileSecurityQuestion(com.thinkparity.model.xmpp.JabberId)
+     * @see com.thinkparity.model.xmpp.XMPPSession#readProfileSecurityQuestion(com.thinkparity.codebase.jabber.JabberId)
      */
     public String readProfileSecurityQuestion(final JabberId userId) {
         return xmppProfile.readSecurityQuestion(userId);
@@ -632,7 +634,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#removeProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.model.xmpp.XMPPSession#removeProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.email.EMail)
      */
     public void removeProfileEmail(final JabberId userId, final EMail email) {
         xmppProfile.removeEmail(userId, email);
@@ -651,7 +653,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#resetProfileCredentials(com.thinkparity.model.xmpp.JabberId)
+     * @see com.thinkparity.model.xmpp.XMPPSession#resetProfileCredentials(com.thinkparity.codebase.jabber.JabberId)
      */
     public String resetProfilePassword(final JabberId userId,
             final String securityAnswer) {
@@ -776,7 +778,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#updateCredentials(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.parity.model.session.Credentials)
+     * @see com.thinkparity.model.xmpp.XMPPSession#updateCredentials(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.model.parity.model.session.Credentials)
      */
     public void updateProfileCredentials(final JabberId userId,
             final Credentials credentials) {
@@ -792,7 +794,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#verifyProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.codebase.email.EMail, java.lang.String)
+     * @see com.thinkparity.model.xmpp.XMPPSession#verifyProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.email.EMail, java.lang.String)
      */
     public void verifyProfileEmail(final JabberId userId, final EMail email, final String key) {
         xmppProfile.verifyEmail(userId, email, key);

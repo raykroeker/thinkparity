@@ -8,13 +8,13 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.model.contact.ContactInvitation;
 import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -427,7 +427,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#read(com.thinkparity.model.xmpp.JabberId)
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#read(com.thinkparity.codebase.jabber.JabberId)
      */
     public Contact read(final JabberId contactId) {
         final Session session = openSession();
@@ -567,7 +567,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#update(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.xmpp.contact.Contact)
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#update(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.model.xmpp.contact.Contact)
      */
     public void update(final Contact contact) {
         final Session session = openSession();

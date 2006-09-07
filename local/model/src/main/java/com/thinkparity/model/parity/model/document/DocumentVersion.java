@@ -4,7 +4,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 
 /**
  * <b>Title:</b>thinkParity Document Version<br>

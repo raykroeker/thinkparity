@@ -4,8 +4,9 @@
  */
 package com.thinkparity.model.smackx.packet.artifact;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.smackx.packet.IQArtifact;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

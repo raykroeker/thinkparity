@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.container;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
@@ -15,7 +17,6 @@ import com.thinkparity.model.parity.model.audit.event.CreateEvent;
 import com.thinkparity.model.parity.model.audit.event.PublishEvent;
 import com.thinkparity.model.parity.model.audit.event.ReactivateEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raymond@thinkparity.com

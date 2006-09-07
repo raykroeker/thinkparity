@@ -3,9 +3,10 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 
@@ -90,7 +91,7 @@ public class UserIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.UserIOHandler#read(com.thinkparity.model.xmpp.JabberId)
+     * @see com.thinkparity.model.parity.model.io.handler.UserIOHandler#read(com.thinkparity.codebase.jabber.JabberId)
      */
     public User read(final JabberId jabberId) {
         final Session session = openSession();

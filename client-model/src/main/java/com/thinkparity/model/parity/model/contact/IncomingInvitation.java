@@ -4,8 +4,8 @@
 package com.thinkparity.model.parity.model.contact;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raymond@thinkparity.com

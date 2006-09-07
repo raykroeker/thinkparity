@@ -12,9 +12,9 @@ import java.util.List;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Printer;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;

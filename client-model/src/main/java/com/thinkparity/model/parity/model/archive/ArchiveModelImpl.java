@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.artifact.DefaultFilter;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;

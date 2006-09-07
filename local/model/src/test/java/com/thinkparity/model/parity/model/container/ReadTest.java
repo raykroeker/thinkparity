@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.model.container.Container;
+
 /**
  * <b>Title:</b>thinkParity Container Read Test<br>
  * <b>Description:</b>thinkParity Container Read Test

@@ -17,17 +17,17 @@ import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 import com.thinkparity.migrator.Library;
 

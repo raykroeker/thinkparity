@@ -10,17 +10,20 @@ import java.io.InputStream;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.Printer;
 import com.thinkparity.model.Constants.IO;
 import com.thinkparity.model.Constants.Versioning;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.api.events.ContainerEvent.Source;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
@@ -44,7 +47,6 @@ import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -271,6 +273,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             draft.putState(document, ContainerDraft.ArtifactState.NONE);
         }
         containerIO.createDraft(draft);
+        getInternalArtifactModel().applyFlagKey(container.getId());
         // remote create
         getInternalSessionModel().createDraft(container.getUniqueId());
         // fire event
@@ -872,6 +875,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             for (final Contact contact : contacts)
                 artifactModel.addTeamMember(container.getId(), contact.getId());
+
+            // remove local key
+            artifactModel.removeFlagKey(container.getId());
 
             // build the publish to list then publish
             final List<JabberId> publishTo = new ArrayList<JabberId>();

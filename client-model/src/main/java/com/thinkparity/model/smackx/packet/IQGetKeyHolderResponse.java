@@ -7,7 +7,8 @@ import java.util.UUID;
 
 import org.jivesoftware.smack.packet.IQ;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 
 /**
  * A query to the parity server for the current artifact key holder.

@@ -22,11 +22,11 @@ import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * <b>Title:</b>thinkParity Abstract Internet Query<br>

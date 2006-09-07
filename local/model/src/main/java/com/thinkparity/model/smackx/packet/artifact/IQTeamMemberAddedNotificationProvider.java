@@ -13,8 +13,9 @@ import org.jivesoftware.smackx.provider.VCardProvider;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.model.smack.provider.IQParityProvider;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

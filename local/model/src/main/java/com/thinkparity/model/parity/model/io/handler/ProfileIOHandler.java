@@ -5,10 +5,11 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.model.io.IOHandler;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.profile.ProfileEMail;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raymond@thinkparity.com

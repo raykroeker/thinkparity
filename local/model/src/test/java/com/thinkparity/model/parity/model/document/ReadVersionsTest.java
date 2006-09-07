@@ -9,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 
 /**

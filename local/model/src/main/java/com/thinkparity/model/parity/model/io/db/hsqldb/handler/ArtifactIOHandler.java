@@ -5,16 +5,17 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import java.util.*;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactRemoteInfo;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -287,7 +288,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#createRemoteInfo(java.lang.Long,
-     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
 	public void createRemoteInfo(final Long artifactId,
@@ -606,7 +607,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 
 	/**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateRemoteInfo(java.lang.Long,
-     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
 	public void updateRemoteInfo(final Long artifactId,
@@ -632,7 +633,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateState(java.lang.Long, com.thinkparity.model.parity.model.artifact.ArtifactState)
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateState(java.lang.Long, com.thinkparity.model.artifact.ArtifactState)
      */
     public void updateState(final Long artifactId, final ArtifactState state) {
         final Session session = openSession();

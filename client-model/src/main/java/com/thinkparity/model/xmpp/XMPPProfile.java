@@ -12,6 +12,7 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.VCardBuilder;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;

@@ -6,8 +6,8 @@ package com.thinkparity.model.xmpp.events;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.xmpp.JabberId;
 
 public interface XMPPContactListener {
     public void handleContactDeleted(final JabberId deletedBy,

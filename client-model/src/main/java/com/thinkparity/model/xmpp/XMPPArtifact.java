@@ -18,6 +18,9 @@ import org.jivesoftware.smack.provider.ProviderManager;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.EventHandler;
 import com.thinkparity.model.Constants.Xml.Service;
@@ -296,15 +299,12 @@ class XMPPArtifact extends AbstractXMPP {
      *            The artifact unique id.
      * @return A jabber id.
      */
-    JabberId readKeyHolder(final UUID uniqueId) {
+    JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
         final XMPPMethod method = new XMPPMethod("artifact:readkeyholder");
-        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
+        method.setParameter("userId", userId);
+        method.setParameter("uniqueId", uniqueId);
         final XMPPMethodResponse result = method.execute(xmppCore.getConnection());
-        if (result.containsResult()) {
-            return result.readResultJabberId(Xml.User.JABBER_ID);
-        } else {
-            return null;
-        }
+        return result.readResultJabberId("keyHolder");
     }
 
     /**

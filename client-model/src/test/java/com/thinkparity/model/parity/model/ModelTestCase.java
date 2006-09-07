@@ -16,20 +16,21 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.contact.ContactModel;
-import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerHistoryItem;
 import com.thinkparity.model.parity.model.container.ContainerModel;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
@@ -54,7 +55,6 @@ import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -811,9 +811,11 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             logger.warn(getName() + " [USER ALREADY LOGGED IN]");
             logout();
         }
-    
-    	final ModelTestUser modelTestUser = getModelTestUser();
-    	getSessionModel().login(modelTestUser.getCredentials()); 
+    	getSessionModel().login(getLoginUser().getCredentials()); 
+    }
+
+    protected ModelTestUser getLoginUser() {
+        return getModelTestUser();
     }
 
     /**

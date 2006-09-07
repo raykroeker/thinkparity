@@ -6,11 +6,12 @@ package com.thinkparity.model.parity.model.document;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.event.*;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

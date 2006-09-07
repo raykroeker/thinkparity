@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.VCardBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.profile.ProfileEMail;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raymond@thinkparity.com

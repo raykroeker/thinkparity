@@ -5,9 +5,12 @@ package com.thinkparity.model.parity.model.container;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Create Draft Test<br>
@@ -32,25 +35,25 @@ public class CreateDraftTest extends ContainerTestCase {
      *
      */
     public void testCreateDraft() {
-        final ContainerDraft draft =  datum.containerModel.createDraft(datum.containerId);
+        final ContainerDraft draft =  datum.containerModel.createDraft(datum.container.getId());
 
         assertNotNull(NAME, draft);
         assertEquals(NAME + " [DRAFT ID DOES NOT MATCH EXPECTATION]",
-                datum.containerId, draft.getContainerId());
+                datum.container.getId(), draft.getContainerId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
 
         final ContainerVersion latestVersion =
-                datum.containerModel.readLatestVersion(datum.containerId);
+                datum.containerModel.readLatestVersion(datum.container.getId());
         final List<Document> latestVersionDocuments =
                 datum.containerModel.readDocuments(latestVersion.getArtifactId(), latestVersion.getVersionId());
         assertEquals(
                 "LATEST VERSION DOCUMENT LIST SIZE DOES NOT MATCH DRAFT DOCUMENT LIST SIZE",
                 latestVersionDocuments.size(), draft.getDocuments().size());
-        try {
-            assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
-                    getSessionModel().isLoggedInUserKeyHolder(datum.containerId));
-        }
-        catch(final ParityException px) { throw new RuntimeException(px); }
+        assertTrue(NAME + " [KEY FLAG IS NOT APPLIED]",
+                getArtifactModel().isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
+        assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
+                getInternalSessionModel().readKeyHolder(datum.loginUser.getId(),
+                        datum.container.getUniqueId()).equals(datum.loginUser.getId()));
     }
 
     /**
@@ -64,7 +67,7 @@ public class CreateDraftTest extends ContainerTestCase {
         final Container container = createContainer(NAME);
         addDocuments(container);
         publish(container);
-        datum = new Fixture(containerModel, container.getId());
+        datum = new Fixture(container, containerModel, getLoginUser().readUser());
         containerModel.addListener(datum);
     }
 
@@ -81,13 +84,16 @@ public class CreateDraftTest extends ContainerTestCase {
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
+        private final Container container;
         private final ContainerModel containerModel;
-        private final Long containerId;
         private Boolean didNotify;
-        private Fixture(final ContainerModel containerModel, final Long containerId) {
+        private final User loginUser;
+        private Fixture(final Container container,
+                final ContainerModel containerModel, final User loginUser) {
             this.containerModel = containerModel;
-            this.containerId = containerId;
+            this.container = container;
             this.didNotify = Boolean.FALSE;
+            this.loginUser = loginUser;
         }
         @Override
         public void draftCreated(ContainerEvent e) {

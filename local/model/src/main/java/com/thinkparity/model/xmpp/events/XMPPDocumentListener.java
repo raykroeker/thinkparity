@@ -6,7 +6,8 @@ package com.thinkparity.model.xmpp.events;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 
 /**
  * @author raykroeker@gmail.com

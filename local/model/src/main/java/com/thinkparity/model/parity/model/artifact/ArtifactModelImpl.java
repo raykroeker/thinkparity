@@ -11,7 +11,10 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.TrueAssertion;
+import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
@@ -23,7 +26,6 @@ import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -402,8 +404,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
     JabberId readKeyHolder(final Long artifactId) {
         logApiId();
         logVariable("artifactId", artifactId);
-        assertOnline(getApiId("[READ KEY HOLDER]"));
-        return getInternalSessionModel().readKeyHolder(readUniqueId(artifactId));
+        assertOnline();
+        return getInternalSessionModel().readKeyHolder(
+                localUserId(), readUniqueId(artifactId));
     }
 
     /**

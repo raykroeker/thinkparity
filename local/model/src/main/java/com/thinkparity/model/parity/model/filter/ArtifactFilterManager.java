@@ -7,8 +7,8 @@ package com.thinkparity.model.parity.model.filter;
 import java.util.Iterator;
 import java.util.List;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactVersion;
 
 /**
  * <b>Title:</b>thinkParity Model Artifact Filter Manager<br>

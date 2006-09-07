@@ -10,13 +10,13 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -299,17 +299,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void processOfflineQueue() throws SmackException {
 		xmppSession.processOfflineQueue();
-	}
-
-	/**
-	 * Obtain the artifact key holder.
-	 * 
-	 * @param uniqueId
-	 *            The artifact unique id.
-	 * @return A jabber id.
-	 */
-	JabberId readKeyHolder(final UUID uniqueId) {
-		return xmppSession.readKeyHolder(uniqueId);
 	}
 
 	/**

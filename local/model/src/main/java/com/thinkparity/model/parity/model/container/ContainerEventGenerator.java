@@ -5,6 +5,8 @@
 package com.thinkparity.model.parity.model.container;
 
 
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.user.TeamMember;

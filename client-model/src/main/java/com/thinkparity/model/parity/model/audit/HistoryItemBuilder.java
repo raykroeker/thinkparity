@@ -9,10 +9,10 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.l10n.L18n;
 
 import com.thinkparity.model.parity.model.audit.event.*;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

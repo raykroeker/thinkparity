@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.archive;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;

@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

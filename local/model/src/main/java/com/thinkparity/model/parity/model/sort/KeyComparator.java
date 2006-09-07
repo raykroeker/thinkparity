@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.parity.model.sort;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactFlag;
 
 
 /**

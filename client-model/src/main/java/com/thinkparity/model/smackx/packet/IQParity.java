@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.packet.IQ;
 
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 
 /**
  * Abstraction of an xmpp internet query. Used primarily to insert a logger and

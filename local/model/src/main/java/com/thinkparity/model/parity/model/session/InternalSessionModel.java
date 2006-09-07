@@ -11,17 +11,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -265,9 +265,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return The artifact key holder.
      * @throws ParityException
      */
-    public JabberId readKeyHolder(final UUID uniqueId) {
-        synchronized(getImplLock()) {
-            return getImpl().readKeyHolder(uniqueId);
+    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readKeyHolder(userId, uniqueId);
         }
     }
 

@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
@@ -475,7 +475,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createVersion(com.thinkparity.model.parity.model.container.ContainerVersion)
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createVersion(com.thinkparity.model.container.ContainerVersion)
      * 
      */
     public void createVersion(final ContainerVersion version) {

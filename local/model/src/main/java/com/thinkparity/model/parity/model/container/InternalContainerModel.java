@@ -7,12 +7,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>

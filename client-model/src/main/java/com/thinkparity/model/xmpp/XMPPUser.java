@@ -11,6 +11,8 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;

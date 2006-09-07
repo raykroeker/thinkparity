@@ -8,9 +8,12 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -39,6 +42,9 @@ public class PublishTest extends ContainerTestCase {
         final JabberId keyHolder =
             getInternalArtifactModel().readKeyHolder(datum.container.getId());
         assertEquals(NAME + " KEY HOLDER DOES NOT EQUAL EXPECTATION", User.THINK_PARITY.getId(), keyHolder);
+        // ensure the local key flag is not still there
+        assertTrue(NAME + " KEY FLAG STILL APPLIED",
+                !getArtifactModel().isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
         // ensure the local and remote team jive
         final List<TeamMember> localTeam =
             getInternalArtifactModel().readTeam2(datum.container.getId());

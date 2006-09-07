@@ -7,8 +7,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

@@ -64,15 +64,12 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      * @throws IOException
      */
     protected void delete(final Term term) throws IOException {
-        IndexReader indexReader = null;
+        final IndexReader indexReader = openIndexReader();
         try {
-            indexReader = openIndexReader();
             Assert.assertTrue("COULD NOT DELETE FROM INDEX",
                     1 == indexReader.deleteDocuments(term));
         } finally {
-            if (null != indexReader) {
-                closeIndexReader(indexReader);
-            }
+            closeIndexReader(indexReader);
         }
     }
 
@@ -129,10 +126,8 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      */
     protected List<U> search(final Field idField, final List<Field> fields,
             final String expression) throws IOException {
-        IndexReader indexReader = null;
+        final IndexReader indexReader = openIndexReader();
         try {
-            indexReader = openIndexReader();
-    
             final Searcher searcher =
                 new Searcher(indexAnalyzer, indexReader, idField, fields);
             final List<Hit> hits = searcher.search(expression);
@@ -143,9 +138,7 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
             }
             return indexHits;
         } finally {
-            if (null != indexReader) {
-                closeIndexReader(indexReader);
-            }
+            closeIndexReader(indexReader);
         }
     }
 

@@ -5,8 +5,8 @@ package com.thinkparity.model.parity.model.filter.artifact;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.filter.AbstractFilter;
 
 /**

@@ -7,8 +7,9 @@ package com.thinkparity.model.parity.model.container;
 import java.util.List;
 
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**

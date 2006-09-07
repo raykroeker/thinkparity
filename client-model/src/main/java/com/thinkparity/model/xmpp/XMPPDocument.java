@@ -16,6 +16,8 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.document.IQHandleReactivate;

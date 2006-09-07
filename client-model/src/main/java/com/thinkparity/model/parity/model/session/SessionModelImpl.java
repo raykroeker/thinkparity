@@ -7,10 +7,11 @@ import java.io.InputStream;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyListener;
@@ -22,7 +23,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -32,7 +32,6 @@ import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -797,31 +796,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
-	 * Determine whether or not the logged in user is the artifact key holder.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return True if the logged in user is the artifact key holder; false
-	 *         otherwise.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the user is offline.
-	 */
-	Boolean isLoggedInUserKeyHolder(final Long artifactId) {
-		logger.info("isLoggedInUserKeyHolder(Long)");
-		logger.debug(artifactId);
-		try {
-		    final UUID uniqueId = readArtifactUniqueId(artifactId);
-		    synchronized(xmppHelper) {
-				final JabberId keyHolder = xmppHelper.readKeyHolder(uniqueId);
-				return keyHolder.equals(localUserId());
-		    }
-		} catch (final Throwable t) {
-			throw translateError(t);
-		}
-	}
-
-    /**
      * Establish a new xmpp session.
      * 
      * @throws ParityException
@@ -955,12 +929,13 @@ class SessionModelImpl extends AbstractModelImpl {
      * @return The artifact key holder.
      * @throws ParityException
      */
-    JabberId readKeyHolder(final UUID uniqueId) {
+    JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
 		logApiId();
+        logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
 		try {
 		    synchronized (xmppHelper) {
-		        return xmppHelper.readKeyHolder(uniqueId);
+		        return xmppHelper.getXMPPSession().readKeyHolder(userId, uniqueId);
 		    }
 		} catch (final Throwable t) {
 			throw translateError(t);

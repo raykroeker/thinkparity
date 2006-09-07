@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * @author raykroeker@gmail.com

@@ -11,10 +11,10 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Field;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

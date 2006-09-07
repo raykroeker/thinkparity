@@ -20,6 +20,7 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.VCardBuilder;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.Service;

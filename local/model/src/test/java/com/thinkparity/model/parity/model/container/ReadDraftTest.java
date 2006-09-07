@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import com.thinkparity.model.container.Container;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1

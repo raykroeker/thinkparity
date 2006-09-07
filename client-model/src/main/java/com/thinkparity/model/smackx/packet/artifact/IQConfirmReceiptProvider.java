@@ -8,8 +8,9 @@ import java.util.UUID;
 import org.jivesoftware.smack.packet.IQ;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.model.smack.provider.IQParityProvider;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com

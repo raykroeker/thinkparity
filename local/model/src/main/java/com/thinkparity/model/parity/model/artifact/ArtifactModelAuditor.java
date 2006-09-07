@@ -5,13 +5,14 @@ package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent;
 import com.thinkparity.model.parity.model.audit.event.SendConfirmEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

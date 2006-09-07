@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.api.events.ContactEvent;
 import com.thinkparity.model.parity.api.events.ContactListener;
@@ -27,7 +28,6 @@ import com.thinkparity.model.parity.model.sort.contact.InvitationIdComparator;
 import com.thinkparity.model.parity.model.sort.contact.NameComparator;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 

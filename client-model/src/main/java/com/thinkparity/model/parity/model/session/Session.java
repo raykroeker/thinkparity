@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * <b>Title:</b>thinkParity User Session<br>

@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.xmpp.user;
 
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 /**
  * <b>Title:</b>thinkParity User<br>

@@ -5,7 +5,7 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.xmpp.XMPPSession;
 
 /**

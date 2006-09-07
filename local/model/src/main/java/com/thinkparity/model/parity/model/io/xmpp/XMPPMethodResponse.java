@@ -12,9 +12,9 @@ import java.util.Map;
 import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.profile.ProfileEMail;
-import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;

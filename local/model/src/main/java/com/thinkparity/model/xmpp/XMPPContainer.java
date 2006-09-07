@@ -23,6 +23,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.StreamUtil;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.Constants.Xml.Container.Method.Publish;
@@ -30,7 +31,7 @@ import com.thinkparity.model.Constants.Xml.Container.Method.PublishArtifact;
 import com.thinkparity.model.Constants.Xml.Container.Method.Send;
 import com.thinkparity.model.Constants.Xml.Container.Method.SendArtifact;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;

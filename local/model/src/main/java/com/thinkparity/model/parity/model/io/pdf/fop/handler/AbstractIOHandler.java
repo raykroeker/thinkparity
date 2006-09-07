@@ -14,7 +14,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants.DirectoryNames;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 
 /**
  * @author raykroeker@gmail.com

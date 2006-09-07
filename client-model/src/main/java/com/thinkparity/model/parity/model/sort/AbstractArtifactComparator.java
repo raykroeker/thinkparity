@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.Artifact;
 
 
 /**

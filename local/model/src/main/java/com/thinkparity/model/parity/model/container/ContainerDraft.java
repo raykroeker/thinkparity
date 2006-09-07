@@ -11,8 +11,8 @@ import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.user.TeamMember;
 

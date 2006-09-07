@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -20,7 +21,6 @@ import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.KeyResponseMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -317,7 +317,7 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#readPresenceRequest(com.thinkparity.model.xmpp.JabberId)
+	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#readPresenceRequest(com.thinkparity.codebase.jabber.JabberId)
 	 * 
 	 */
 	public ContactInvitationMessage readContactInvitation(

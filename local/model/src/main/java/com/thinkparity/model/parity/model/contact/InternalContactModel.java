@@ -7,11 +7,11 @@ package com.thinkparity.model.parity.model.contact;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * <b>Title:</b>thinkParity Contact Internal Model<br>

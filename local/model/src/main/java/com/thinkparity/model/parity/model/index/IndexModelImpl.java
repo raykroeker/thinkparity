@@ -5,15 +5,16 @@ package com.thinkparity.model.parity.model.index;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.index.contact.ContactIndexImpl;
 import com.thinkparity.model.parity.model.index.container.ContainerIndexImpl;
 import com.thinkparity.model.parity.model.index.document.DocumentIndexImpl;
 import com.thinkparity.model.parity.model.index.document.DocumentIndexEntry;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

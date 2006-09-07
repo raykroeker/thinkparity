@@ -5,8 +5,9 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 
 /**
  * @author raykroeker@gmail.com

@@ -7,12 +7,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -160,8 +162,8 @@ public class InternalArtifactModel extends ArtifactModel {
      *
      * @param artifactId
      *      An artifact id.
-     * @see InternalArtifactModel#addTeamMember(java.lang.Long,com.thinkparity.model.xmpp.JabberId)
-     * @see InternalArtifactModel#removeTeamMember(java.lang.Long,com.thinkparity.model.xmpp.JabberId)
+     * @see InternalArtifactModel#addTeamMember(java.lang.Long,com.thinkparity.codebase.jabber.JabberId)
+     * @see InternalArtifactModel#removeTeamMember(java.lang.Long,com.thinkparity.codebase.jabber.JabberId)
      */
     public void deleteTeam(final Long artifactId) {
         synchronized(getImplLock()) { getImpl().deleteTeam(artifactId); }

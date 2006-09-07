@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.message.system.ContactInvitationMessage;
 import com.thinkparity.model.parity.model.message.system.ContactInvitationResponseMessage;
@@ -12,7 +14,6 @@ import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.KeyResponseMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com

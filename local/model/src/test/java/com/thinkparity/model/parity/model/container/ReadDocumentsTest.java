@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.container;
 
 import java.util.List;
 
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**

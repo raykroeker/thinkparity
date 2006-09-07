@@ -18,9 +18,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
@@ -44,6 +41,7 @@ import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.browser.platform.action.contact.AcceptIncomingInvitation;
 import com.thinkparity.browser.platform.action.contact.CreateIncomingInvitation;
 import com.thinkparity.browser.platform.action.contact.DeclineIncomingInvitation;
@@ -73,6 +71,10 @@ import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.xmpp.JabberId;
 
@@ -376,6 +378,27 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
+    
+    /**
+     * Notify the application that an artifact has been seen.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param artifactType
+     *            The artifact type.
+     * @param remote
+     *            True if the action was the result of a remote event; false if
+     *            the action was a local event.  
+     */
+    public void fireArtifactFlagSeen(final Long artifactId,
+            final ArtifactType artifactType, final Boolean remote) {
+        if (artifactType == ArtifactType.CONTAINER) {
+            fireContainerUpdated(artifactId, remote);
+        }
+        else if (artifactType == ArtifactType.DOCUMENT) {
+            fireDocumentUpdated(artifactId, remote);
+        }
+    }
 
     /**
      * Notify the application that a contact has been added.
@@ -407,23 +430,6 @@ public class Browser extends AbstractApplication {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, Boolean.FALSE);
             }
-        });
-    }
-    
-    /**
-     * Notify the application a container has been closed.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            True if the closing was the result of a remote event; false if
-     *            the closing was a local event.
-     */
-    public void fireContainerClosed(final Long containerId, final Boolean remote) {
-        setStatus("ContainerClosed");
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });
     }
 
@@ -531,6 +537,23 @@ public class Browser extends AbstractApplication {
     public void fireContainerDraftCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftCreated");
         final Boolean select = Boolean.TRUE;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
+        });         
+    }
+    
+    /**
+     * Notify the application that the draft has been deleted.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            True if the action was the result of a remote event; false if
+     *            the action was a local event.   
+     */
+    public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
+        setStatus("ContainerDraftDeleted");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         
@@ -965,6 +988,19 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
+       
+    /**
+     * Run the apply flag seen action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void runApplyFlagSeenArtifact(final Long artifactId, final ArtifactType artifactType) {
+        final Data data = new Data(2);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, artifactId);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, artifactType);
+        invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
+    }
 
     /**
      * Run the add contact action.
@@ -1070,8 +1106,8 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }        
-    
+    }
+  
     /**
 	 * Run the open document action.
 	 *

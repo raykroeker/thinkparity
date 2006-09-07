@@ -26,6 +26,7 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.containe
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.document.Document;
@@ -280,7 +281,7 @@ public class ContainerModel extends TabModel {
         // read the containers from the provider into the list.
         containerCells.clear();
         containerCells.addAll(readContainers());
-        // drafts
+        // drafts and history
         draftCells.clear();
         versionCells.clear();
         draftDocumentCells.clear();
@@ -480,7 +481,10 @@ public class ContainerModel extends TabModel {
             }
             else {
                 cc.setExpanded(Boolean.TRUE);
-            }
+                
+                // Flag the container as having been seen
+                browser.runApplyFlagSeenArtifact(cc.getId(), ArtifactType.CONTAINER);
+            }           
             synchronize();
         }
         else if (mainCell instanceof DraftCell) {
@@ -633,8 +637,7 @@ public class ContainerModel extends TabModel {
      * @parem documentId
      *            The document id (or null if it is a container change only)
      * @param remote
-     *            Whether or not the reload is the result of a remote event or
-     *            not.
+     *            Whether or not the reload is the result of a remote event.
      * 
      * @see #syncContainer(Long, Boolean)
      * @see #synchronize()
@@ -654,36 +657,19 @@ public class ContainerModel extends TabModel {
                 }
             }
         }
-        // the container is not null; therefore it is either new; or updated
+        // The container is not null; therefore it is either new; or updated.
         else {
             // the container is new
             if(!containerCells.contains(container)) {
                 containerCells.add(0, container);
-                
-                // Get the draft
-                if(container.isDraft() && container.isLocalDraft()) {
-                    final DraftCell draft = readDraft(container);
-                    draftCells.put(container, draft);
-                    final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
-                    for(final DraftDocumentCell draftDocument : draftDocuments) {
-                        containerIdLookup.put(draftDocument.getId(), container.getId());
-                    }
-                    draftDocumentCells.put(draft, draftDocuments);
-                }
-                // Get the versions
-                final List<ContainerVersionCell> versions = readVersions(container);
-                versionCells.put(container, versions);
-                for(final ContainerVersionCell version : versions) {
-                    final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
-                    for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
-                        containerIdLookup.put(versionDocument.getId(), container.getId());
-                    }
-                    versionDocumentCells.put(version, readVersionDocuments(version));
-                }
             }
             // The container has been updated
             else {
                 final int index = containerCells.indexOf(container);
+                
+                // Preserve expanded state.
+                final Boolean isExpanded = containerCells.get(index).isExpanded();
+                container.setExpanded(isExpanded);
 
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
@@ -692,9 +678,69 @@ public class ContainerModel extends TabModel {
                 if(remote) { containerCells.add(0, container); }
                 else { containerCells.add(index, container); }
             }
+            
+            // Synchronize the draft and versions
+            syncDraftInternal(containerId, remote);
+            syncVersionInternal(containerId, remote);
         }
     }
-
+    
+    /**
+     * Synchronize the draft with the list.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event.
+     */
+    private void syncDraftInternal(final Long containerId, final Boolean remote) {
+        final ContainerCell container = readContainer(containerId);
+        
+        // Remove the draft cell and associated document cells
+        final DraftCell containerDraft = draftCells.get(container);
+        draftDocumentCells.remove(containerDraft);
+        draftCells.remove(container);
+        
+        // Add the draft and associated document cells
+        if (container.isDraft() && container.isLocalDraft()) {
+            final DraftCell draft = readDraft(container);
+            draftCells.put(container, draft);
+            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
+            for(final DraftDocumentCell draftDocument : draftDocuments) {
+                containerIdLookup.put(draftDocument.getId(), container.getId());
+            }
+            draftDocumentCells.put(draft, draftDocuments);
+        }
+    }
+    
+    /**
+     * Synchronize the versions with the list.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event.
+     */
+    private void syncVersionInternal(final Long containerId, final Boolean remote) {
+        final ContainerCell container = readContainer(containerId);
+        
+        // Remove the version cells and associated document cells
+        final List<ContainerVersionCell> containerVersions = versionCells.get(container);
+        versionDocumentCells.remove(containerVersions);
+        versionCells.remove(container);
+        
+        // Add the versions and associated document cells
+        final List<ContainerVersionCell> versions = readVersions(container);
+        versionCells.put(container, versions);
+        for(final ContainerVersionCell version : versions) {
+            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
+            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
+                containerIdLookup.put(versionDocument.getId(), container.getId());
+            }
+            versionDocumentCells.put(version, readVersionDocuments(version));
+        }
+    }
+    
     /**
      * Synchronize the container and document with the list. This method
      * is called when there is a change to documents in a container.
@@ -702,8 +748,7 @@ public class ContainerModel extends TabModel {
      * @parem documentId
      *            The document id.
      * @param remote
-     *            Whether or not the reload is the result of a remote event or
-     *            not.
+     *            Whether or not the reload is the result of a remote event.
      * 
      * @see #syncDocument(Long, Boolean)
      * @see #synchronize()

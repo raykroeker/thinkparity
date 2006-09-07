@@ -117,6 +117,13 @@ class EventDispatcher {
                 browser.fireContainerDeleted(e.getContainer().getId(), Boolean.FALSE);
             }
             @Override
+            public void containerShared(final ContainerEvent e) {
+            }
+            @Override
+            public void containerUpdated(final ContainerEvent e) {
+                browser.fireContainerUpdated(e.getContainer().getId(), e.isRemote());
+            }
+            @Override
             public void documentAdded(final ContainerEvent e) {
                 browser.fireContainerDocumentAdded(
                         e.getContainer().getId(), e.getDocument().getId());
@@ -126,8 +133,16 @@ class EventDispatcher {
                 browser.fireContainerDocumentRemoved(e.getDocument().getId());
             }
             @Override
+            public void draftCreated(final ContainerEvent e) {
+                browser.fireContainerDraftCreated(e.getContainer().getId(), e.isRemote());
+            }
+            @Override
+            public void draftDeleted(final ContainerEvent e) {
+                browser.fireContainerDraftDeleted(e.getContainer().getId(), e.isRemote());
+            }
+            @Override
             public void draftPublished(final ContainerEvent e) {
-                browser.fireContainerCreated(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerUpdated(e.getContainer().getId(), e.isRemote());
             }
             @Override
             public void teamMemberAdded(final ContainerEvent e) {

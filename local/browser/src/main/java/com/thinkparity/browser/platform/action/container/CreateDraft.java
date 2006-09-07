@@ -38,8 +38,7 @@ public class CreateDraft extends AbstractAction {
      */
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        getContainerModel().createDraft(containerId);
-        browser.fireContainerDraftCreated(containerId, Boolean.FALSE);          
+        getContainerModel().createDraft(containerId);        
     }
 
     public enum DataKey { CONTAINER_ID }

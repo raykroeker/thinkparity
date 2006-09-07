@@ -8,6 +8,8 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
+import com.thinkparity.model.artifact.ArtifactType;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -16,6 +18,9 @@ public class Open extends AbstractAction {
 
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** The browser application. */
+    private final Browser browser;
 
 	/**
      * Create Open.
@@ -25,6 +30,7 @@ public class Open extends AbstractAction {
      */
 	public Open(final Browser browser) {
 		super(ActionId.DOCUMENT_OPEN);
+        this.browser = browser;
 	}
 
 	/**
@@ -34,6 +40,9 @@ public class Open extends AbstractAction {
 	public void invoke(final Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
+        
+        // Flag the document as having been seen
+        browser.runApplyFlagSeenArtifact(documentId, ArtifactType.DOCUMENT);
 	}
 
 	/** Data keys. */

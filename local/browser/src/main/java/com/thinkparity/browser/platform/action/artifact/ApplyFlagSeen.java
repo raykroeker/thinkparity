@@ -8,15 +8,21 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
+import com.thinkparity.model.artifact.ArtifactType;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class ApplyFlagSeen extends AbstractAction {
+    
+    /** The browser application. */
+    private final Browser browser;
 
 	/** Create ApplyFlagSeen. */
 	public ApplyFlagSeen(final Browser browser) {
 		super(ActionId.ARTIFACT_APPLY_FLAG_SEEN);
+        this.browser = browser;
 	}
 
 	/**
@@ -25,9 +31,15 @@ public class ApplyFlagSeen extends AbstractAction {
 	 */
 	public void invoke(final Data data) {
 		final Long artifactId = (Long) data.get(DataKey.ARTIFACT_ID);
-		getArtifactModel().applyFlagSeen(artifactId);
+        final ArtifactType artifactType = (ArtifactType) data.get(DataKey.ARTIFACT_TYPE);
+        if (!getArtifactModel().hasBeenSeen(artifactId)) {
+		    getArtifactModel().applyFlagSeen(artifactId);
+        
+            // The "seen" flag does not impact the back end. Therefore it is OK to fire this event directly.
+            browser.fireArtifactFlagSeen(artifactId, artifactType, Boolean.FALSE);
+        }
 	}
 
 	/** Data keys. */
-	public enum DataKey { ARTIFACT_ID }
+	public enum DataKey { ARTIFACT_ID, ARTIFACT_TYPE }
 }

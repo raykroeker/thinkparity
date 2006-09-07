@@ -15,7 +15,7 @@ import com.thinkparity.browser.application.browser.display.provider.FlatContentP
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.archive.ArchiveCell;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.Artifact;
 
 /**
  * @author raymond@thinkparity.com

@@ -9,7 +9,7 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.model.ParityServerModelException;
 import com.thinkparity.model.artifact.ArtifactModel;
-import com.thinkparity.model.artifact.ParityObjectFlag;
+import com.thinkparity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.session.Session;
 
 import com.thinkparity.server.org.dom4j.ElementName;
@@ -46,9 +46,9 @@ public class FlagArtifact extends IQHandler {
 	 *            The iq.
 	 * @return The flag.
 	 */
-	private ParityObjectFlag extractFlag(final IQ iq) {
+	private ArtifactFlag extractFlag(final IQ iq) {
 		final Element childElement = iq.getChildElement();
 		final Element flagElement = getElement(childElement, ElementName.FLAG);
-		return ParityObjectFlag.valueOf((String) flagElement.getData());
+		return ArtifactFlag.valueOf((String) flagElement.getData());
 	}
 }

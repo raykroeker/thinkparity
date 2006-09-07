@@ -10,7 +10,6 @@ import org.jivesoftware.messenger.vcard.VCardManager;
 
 import org.dom4j.Element;
 
-import com.thinkparity.codebase.Constants.Jabber;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
@@ -70,7 +69,7 @@ class UserModelImpl extends AbstractModelImpl {
                 return null;
             } else {
                 final JabberId jabberId =
-                    JabberIdBuilder.build(username, session.getXmppDomain(), Jabber.RESOURCE);
+                    JabberIdBuilder.parseUsername(username);
                 return readUser(jabberId);
             }
         } catch(final Throwable t) {

@@ -63,7 +63,7 @@ class SessionModelImpl extends AbstractModelImpl {
 				readXml(queueItem.getQueueMessage());
 			final IQ iq = new IQ(queueItemDocument.getRootElement());
 			iq.setTo(jid);
-			send(JabberIdBuilder.parseJID(jid), iq);
+			send(JabberIdBuilder.parseQualifiedJabberId(jid.toBareJID()), iq);
 		} catch (final Throwable t) {
             throw translateError(t);
 		}

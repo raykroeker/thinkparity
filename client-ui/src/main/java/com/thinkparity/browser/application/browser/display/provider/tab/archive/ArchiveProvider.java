@@ -5,8 +5,8 @@ package com.thinkparity.browser.application.browser.display.provider.tab.archive
 
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.archive.ArchiveModel;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.profile.Profile;
 
 /**

@@ -21,6 +21,10 @@ public interface Constants {
         }
     }
 
+    public static final class Jdbc {
+        public static final String DRIVER = "org.hsqldb.jdbcDriver";
+    }
+
     /** Jabber Constants */
     public static final class Jabber {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.dyndns.org/parity";

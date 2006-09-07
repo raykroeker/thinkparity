@@ -13,16 +13,12 @@ import java.util.List;
 
 import org.jivesoftware.database.JiveID;
 
-import org.xmpp.packet.JID;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.artifact.ArtifactSubscription;
-
-import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -69,7 +65,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 	 */
 	public ArtifactSubscriptionSql() { super(); }
 
-    public void delete(final Integer artifactId, final String username)
+    public void delete(final Long artifactId, final String username)
 			throws SQLException {
         logApiId();
 		logger.debug(artifactId);
@@ -81,7 +77,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
             logStatement(DELETE);
 			ps = cx.prepareStatement(DELETE);
             logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
+			ps.setLong(1, artifactId);
             logStatementParameter(2, username);
 			ps.setString(2, username);
 			Assert.assertTrue("delete(Integer,String)", 1 == ps.executeUpdate());
@@ -89,7 +85,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public Boolean existSubscriptions(final Integer artifactId)
+	public Boolean existSubscriptions(final Long artifactId)
 			throws SQLException {
         logApiId();
 		logger.debug(artifactId);
@@ -101,7 +97,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
             logStatement(SQL_EXIST_SUBSCRIPTIONS);
 			ps = cx.prepareStatement(SQL_EXIST_SUBSCRIPTIONS);
             logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
+			ps.setLong(1, artifactId);
 			rs = ps.executeQuery();
 			rs.next();
 			if(0 < rs.getInt("SUBSCRIPTION_COUNT")) { return Boolean.TRUE; }
@@ -110,8 +106,8 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps, rs); }
 	}
 
-	public Integer insert(final Integer artifactId, final String username, final JabberId createdBy)
-			throws SQLException {
+	public Integer insert(final Long artifactId, final String username,
+            final JabberId createdBy) throws SQLException {
         logApiId();
 		logger.debug(artifactId);
 		logger.debug(username);
@@ -135,7 +131,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public ArtifactSubscription read(final Integer artifactId,
+	public ArtifactSubscription read(final Long artifactId,
             final JabberId jabberId) throws SQLException {
         logApiId();
         debugVariable("artifactId", artifactId);
@@ -149,7 +145,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
             ps = cx.prepareStatement(SQL_READ);
             logStatementParameter(1, artifactId);
             logStatementParameter(2, jabberId.getUsername());
-            ps.setInt(1, artifactId);
+            ps.setLong(1, artifactId);
             ps.setString(2, jabberId.getUsername());
             rs = ps.executeQuery();
             if(rs.next()) {
@@ -162,7 +158,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
         }
     }
 
-	public List<ArtifactSubscription> select(final Integer artifactId)
+	public List<ArtifactSubscription> select(final Long artifactId)
 			throws SQLException {
         logApiId();
 		logger.debug(artifactId);
@@ -174,7 +170,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
             logStatement(SELECT);
 			ps = cx.prepareStatement(SELECT);
             logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
+			ps.setLong(1, artifactId);
 			rs = ps.executeQuery();
 			final List<ArtifactSubscription> subscriptions =
 				new ArrayList<ArtifactSubscription>(7);
@@ -218,8 +214,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp(5));
 		final ArtifactSubscription as = new ArtifactSubscription(artifactId, artifactSubscriptionId,
 				createdOn, updatedOn, username);
-		final JID jid = JIDBuilder.build(username);
-		as.setJabberId(JabberIdBuilder.parseJID(jid));
+		as.setJabberId(JabberIdBuilder.parseUsername(username));
 		return as;
 	}
 }

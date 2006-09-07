@@ -49,8 +49,8 @@ class DocumentModelImpl extends AbstractModelImpl {
             iq.setUniqueId(uniqueId);
             iq.setVersionId(versionId);
             for(final JabberId sendToId : sendTo) {
-                iq.setFrom(session.getJID());
-                iq.setTo(sendToId.getJID());
+                setFrom(iq, session.getJabberId());
+                setTo(iq, sendToId);
 
                 send(sendToId, iq);
             }

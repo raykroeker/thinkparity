@@ -3,9 +3,8 @@
  */
 package com.thinkparity.model.archive;
 
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.model.AbstractModel;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.session.Session;
 
 
@@ -16,15 +15,15 @@ import com.thinkparity.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class ArchiveModel extends AbstractModel {
+public class ArchiveModel<T extends ArtifactVersion> extends AbstractModel {
 
 	/**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
      */
-    public static ArchiveModel getModel() {
-        return new ArchiveModel();
+    public static <U extends ArtifactVersion> ArchiveModel<U> getModel() {
+        return new ArchiveModel<U>();
     }
 
     /**
@@ -32,12 +31,12 @@ public class ArchiveModel extends AbstractModel {
 	 * 
 	 * @return The Archive interface.
 	 */
-	public static ArchiveModel getModel(final Session session) {
-		return new ArchiveModel(session);
+	public static <U extends ArtifactVersion> ArchiveModel<U> getModel(final Session session) {
+		return new ArchiveModel<U>(session);
 	}
 
 	/** The model implementation. */
-	private final ArchiveModelImpl impl;
+	private final ArchiveModelImpl<T> impl;
 
 	/** The model implementation synchronization lock. */
 	private final Object implLock;
@@ -45,7 +44,7 @@ public class ArchiveModel extends AbstractModel {
 	/** Create ArchiveModel. */
     protected ArchiveModel() {
         super();
-        this.impl = new ArchiveModelImpl();
+        this.impl = new ArchiveModelImpl<T>();
         this.implLock = new Object();
     }
 
@@ -57,7 +56,7 @@ public class ArchiveModel extends AbstractModel {
 	 */
 	protected ArchiveModel(final Session session) {
 		super();
-		this.impl = new ArchiveModelImpl(session);
+		this.impl = new ArchiveModelImpl<T>(session);
 		this.implLock = new Object();
 	}
 
@@ -78,9 +77,9 @@ public class ArchiveModel extends AbstractModel {
      * @param query
      *            An xmpp query <code>IQ</code>.
      */
-    public void backup(final IQ query) {
+    public void backup(final T version) {
         synchronized (implLock) {
-            impl.backup(query);
+            impl.backup(version);
         }
     }
 

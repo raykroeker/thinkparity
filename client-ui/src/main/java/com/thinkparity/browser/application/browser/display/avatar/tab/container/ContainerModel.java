@@ -26,8 +26,8 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.containe
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 
+import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;

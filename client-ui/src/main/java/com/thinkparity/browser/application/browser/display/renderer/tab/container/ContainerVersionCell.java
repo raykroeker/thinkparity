@@ -28,7 +28,7 @@ import com.thinkparity.browser.platform.action.container.PrintVersion;
 import com.thinkparity.browser.platform.action.container.Share;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
-import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.container.ContainerVersion;
 
 /**
  * @author raymond@thinkparity.com
@@ -77,7 +77,7 @@ public class ContainerVersionCell extends ContainerVersion implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     * @see com.thinkparity.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
@@ -187,7 +187,7 @@ public class ContainerVersionCell extends ContainerVersion implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     * @see com.thinkparity.model.artifact.Artifact#hashCode()
      * 
      */
     @Override

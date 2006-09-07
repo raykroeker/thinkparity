@@ -4,12 +4,13 @@
  */
 package com.thinkparity.browser.platform.action.contact;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

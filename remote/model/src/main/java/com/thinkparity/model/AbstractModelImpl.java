@@ -30,10 +30,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.archive.ArchiveModel;
 import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.artifact.ArtifactModel;
 import com.thinkparity.model.artifact.ArtifactSubscription;
@@ -145,9 +143,9 @@ public abstract class AbstractModelImpl {
 	 *             If the user is not the key holder.
 	 */
 	protected void assertIsKeyHolder(final Artifact artifact) {
-		Assert.assertTrue("User is not the key holder.",
-				artifact.getArtifactKeyHolder().equals(
-						session.getJID().getNode()));
+		Assert.assertTrue("USER NOT KEY HOLDER",
+				readKeyHolder(artifact.getUniqueId()).equals(
+						session.getJabberId()));
 	}
 
     /**
@@ -161,6 +159,17 @@ public abstract class AbstractModelImpl {
     protected void assertSystemIsKeyHolder(final Object assertion,
             final UUID uniqueId) throws ParityServerModelException {
         Assert.assertTrue(assertion, isSystemKeyHolder(uniqueId));
+    }
+
+    /**
+     * Backup a query for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param query
+     *            A query <code>IQ</code>.
+     */
+    protected void backup(final JabberId userId) {
     }
 
     /**
@@ -189,7 +198,7 @@ public abstract class AbstractModelImpl {
         return new IQWriter(iq);
     }
 
-    protected Calendar currentDateTime() {
+	protected Calendar currentDateTime() {
         return DateUtil.getInstance();
     }
 
@@ -212,7 +221,7 @@ public abstract class AbstractModelImpl {
 		return ContactModel.getModel(session);
 	}
 
-	/**
+    /**
      * Obtain the parity document interface.
      * 
      * @return The parity document interface.
@@ -221,7 +230,7 @@ public abstract class AbstractModelImpl {
         return DocumentModel.getModel(session);
     }
 
-    /**
+	/**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -244,7 +253,7 @@ public abstract class AbstractModelImpl {
 		return sModel;
 	}
 
-	/**
+    /**
      * Obtain the parity user interface.
      * 
      * @return The parity user interface.
@@ -254,7 +263,7 @@ public abstract class AbstractModelImpl {
 		return uModel;
 	}
 
-    /**
+	/**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -275,7 +284,7 @@ public abstract class AbstractModelImpl {
         return session.getJabberId().equals(userId);
     }
 
-	/**
+    /**
 	 * Determine whether or not the user represented by the jabber id is
 	 * currently online.
 	 * 
@@ -291,14 +300,11 @@ public abstract class AbstractModelImpl {
 		else { return Boolean.FALSE; }
 	}
 
-    protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		final ArtifactModel aModel = getArtifactModel();
-		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
-				session.getJID().getNode());
+	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
-	/** Log an api id. */
+    /** Log an api id. */
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
@@ -308,7 +314,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -354,7 +360,7 @@ public abstract class AbstractModelImpl {
         return value;
     }
 
-	/**
+    /**
      * Send a notification to an artifact team. Note that the user this session
      * belongs to will *NOT* be notified. This eases data integrity concerns on
      * the network; for example if a team member is added and the person adding
@@ -373,13 +379,13 @@ public abstract class AbstractModelImpl {
         final List<JabberId> team = readTeam(uniqueId);
         for(final JabberId teamMember : team) {
             if(!teamMember.equals(session.getJabberId())) {
-                notification.setTo(teamMember.getJID());
+                notification.setTo(getJID(teamMember));
                 send(teamMember, notification);
             }
         }
     }
 
-	/**
+    /**
      * Read the key holder.
      * 
      * @param uniqueId
@@ -387,13 +393,11 @@ public abstract class AbstractModelImpl {
      * @return The key holder jabber id.
      * @throws ParityServerModelException
      */
-    protected JabberId readKeyHolder(final UUID uniqueId)
-            throws ParityServerModelException {
-        final ArtifactModel aModel = getArtifactModel();
-        return JabberIdBuilder.parseJID(buildJID(aModel.get(uniqueId).getArtifactKeyHolder()));
+    protected JabberId readKeyHolder(final UUID uniqueId) {
+        return getArtifactModel().readKeyHolder(session.getJabberId(), uniqueId);
     }
 
-	/**
+    /**
 	 * Route an IQ to a jive user. This will determine whether or not the user
 	 * is currently online; and if they are not; it will queue the request.
 	 * 
@@ -407,9 +411,32 @@ public abstract class AbstractModelImpl {
 	    logApiId();
 		logVariable("jabberId", jabberId);
         logVariable("iq", iq);
-		send(jabberId.getJID(), iq);
-		backup(jabberId, iq);
+		send(getJID(jabberId), iq);
 	}
+
+	/**
+     * Set the from field in the query.
+     * 
+     * @param query
+     *            The xmpp query <code>IQ</code>.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    protected void setFrom(final IQ query, final JabberId userId) {
+        query.setFrom(getJID(userId));
+    }
+
+	/**
+     * Set the to field in the query.
+     * 
+     * @param query
+     *            The xmpp query <code>IQ</code>.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    protected void setTo(final IQ query, final JabberId userId) {
+        query.setTo(getJID(userId));
+    }
 
     /**
      * Translate an error into a parity unchecked error.
@@ -429,18 +456,6 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Backup a query for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param query
-     *            A query <code>IQ</code>.
-     */
-    private void backup(final JabberId userId, final IQ query) {
-        getArchiveModel().backup(query);
-    }
-
-    /**
 	 * Save the iq in the parity offline queue.
 	 * 
 	 * @param jid
@@ -454,12 +469,14 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
-     * Obtain a thinkParity archive interface.
+     * Create a JID from a jabber id.
      * 
-     * @return A thinkParity archive interface.
+     * @param jabberId
+     *            A <code>JabberId</code>.
+     * @return A <code>JID</code>.
      */
-    private ArchiveModel getArchiveModel() {
-        return ArchiveModel.getModel(session);
+    private final JID getJID(final JabberId jabberId) {
+        return JIDBuilder.buildQualified(jabberId.getQualifiedJabberId());
     }
 
     /**

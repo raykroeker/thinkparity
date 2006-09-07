@@ -16,9 +16,9 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.Printer;
-import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.container.Container;
+import com.thinkparity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.container.ContainerModel;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
 
 /**
  * @author rob_masako@shaw.ca

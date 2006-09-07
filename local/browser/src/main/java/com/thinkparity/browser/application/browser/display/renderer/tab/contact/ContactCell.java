@@ -87,7 +87,7 @@ public class ContactCell extends Contact implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     * @see com.thinkparity.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
@@ -208,7 +208,7 @@ public class ContactCell extends Contact implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     * @see com.thinkparity.model.artifact.Artifact#hashCode()
      * 
      */
     public int hashCode() { return super.hashCode(); }

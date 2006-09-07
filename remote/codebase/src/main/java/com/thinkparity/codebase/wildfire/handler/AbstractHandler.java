@@ -78,7 +78,7 @@ public abstract class AbstractHandler extends
     /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         iqReader = createReader(iq);
-        
+
         final IQ response = createResponse(iq);
         iqWriter = createWriter(response);
 

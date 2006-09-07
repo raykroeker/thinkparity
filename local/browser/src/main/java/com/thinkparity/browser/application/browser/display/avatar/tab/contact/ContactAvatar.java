@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.tab.TabAvatar;
@@ -15,7 +17,6 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * The contacts list avatar displays the list of contacts.

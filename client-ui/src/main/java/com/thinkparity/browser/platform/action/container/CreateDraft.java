@@ -16,12 +16,6 @@ import com.thinkparity.browser.platform.action.Data;
 public class CreateDraft extends AbstractAction {
 
     /**
-     * The browser application.
-     * 
-     */
-    private final Browser browser;
-
-    /**
      * Create a Create.
      * 
      * @param browser
@@ -29,7 +23,6 @@ public class CreateDraft extends AbstractAction {
      */
     public CreateDraft(final Browser browser) {
         super(ActionId.CONTAINER_CREATE_DRAFT);
-        this.browser = browser;
     }
 
     /**

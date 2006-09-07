@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.model.artifact.ParityObjectFlag;
+import com.thinkparity.model.artifact.ArtifactFlag;
 
 import com.thinkparity.server.org.dom4j.ElementBuilder;
 import com.thinkparity.server.org.dom4j.ElementName;
@@ -21,20 +21,20 @@ import com.thinkparity.server.org.dom4j.NamespaceName;
  * @author raykroeker@gmail.com
  * @version 1.1
  * @see IQArtifact
- * @see XMPPSessionImpl#flag(UUID, ParityObjectFlag)
+ * @see XMPPSessionImpl#flag(UUID, ArtifactFlag)
  */
 public class IQArtifactFlag extends IQArtifact {
 
 	/**
 	 * Flag to apply to the parity artifact.
 	 */
-	private final ParityObjectFlag artifactFlag;
+	private final ArtifactFlag artifactFlag;
 
 	/**
 	 * Create a IQArtifactFlag.
 	 */
 	public IQArtifactFlag(final UUID artifactUUID,
-			final ParityObjectFlag artifactFlag) {
+			final ArtifactFlag artifactFlag) {
 		super(Action.FLAG, artifactUUID);
 		this.artifactFlag = artifactFlag;
 		setType(IQ.Type.set);
@@ -56,5 +56,5 @@ public class IQArtifactFlag extends IQArtifact {
 	 * 
 	 * @return Returns the artifact flag.
 	 */
-	public ParityObjectFlag getArtifactFlag() { return artifactFlag; }
+	public ArtifactFlag getArtifactFlag() { return artifactFlag; }
 }

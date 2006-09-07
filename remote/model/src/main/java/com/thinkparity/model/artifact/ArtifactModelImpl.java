@@ -18,8 +18,6 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
@@ -63,36 +61,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		this.vCardManager = VCardManager.getInstance();
 	}
 
-	/**
-	 * Assert that the state transition from currentState to newState can be
-	 * made safely.
-	 * 
-	 * @param currentState The artifact's current state.
-	 * @param intendedState
-	 *            The artifact's intended state.
-	 * 
-	 * @throws NotTrueAssertion
-	 *             If the state cannot be moved.
-	 */
-	protected void assertStateTransition(final Artifact.State currentState,
-			final Artifact.State intendedState) {
-		switch(currentState) {
-		case ACTIVE:
-			// i can close it or delete it
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, new Artifact.State[] {Artifact.State.CLOSED, Artifact.State.DELETED}),
-					Artifact.State.CLOSED == intendedState || Artifact.State.DELETED == intendedState);
-			break;
-		case CLOSED:
-			// i can delete it
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, new Artifact.State[] {Artifact.State.DELETED}),
-					Artifact.State.DELETED == intendedState);
-			break;
-		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
-		}
-	}
-
     /**
      * Add a user to an artifact's team.
      * 
@@ -106,12 +74,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.debug(uniqueId);
         logger.debug(jabberId);
         try {
-            final Artifact artifact = get(uniqueId);
+            final Artifact artifact = read(uniqueId);
             final User user = getUserModel().readUser(jabberId);
             final String username = jabberId.getUsername();
-            artifactSubscriptionSql.insert(artifact.getArtifactId(), username,
+            artifactSubscriptionSql.insert(artifact.getId(), username,
                     session.getJabberId());
-            notifyTeamMemberAdded(get(uniqueId), user);
+            notifyTeamMemberAdded(read(uniqueId), user);
         } catch(final Throwable t) {
             throw translateError(t);
         }
@@ -138,7 +106,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             iq.setVersionId(versionId);
             iq.setConfirmedBy(session.getJabberId());
             iq.setFrom(session.getJID());
-            iq.setTo(receivedFrom.getJID());
+            setTo(iq, receivedFrom);
 
             send(receivedFrom, iq);
         } catch (final Throwable t) {
@@ -160,7 +128,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		try {
             final JabberId sessionJabberId = session.getJabberId();
 			artifactSql.insert(uniqueId, sessionJabberId.getUsername(),
-					Artifact.State.ACTIVE, session.getJabberId());
+					ArtifactState.ACTIVE, session.getJabberId());
 			final Artifact artifact = artifactSql.select(uniqueId);
 			return artifact;
 		}
@@ -185,9 +153,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.debug(uniqueId);
         try {
             assertSystemIsKeyHolder("[SYSTEM IS NOT KEY HOLDER]", uniqueId);
-            final Artifact artifact = get(uniqueId);
+            final Artifact artifact = read(uniqueId);
             artifactSql.updateKeyHolder(
-                    artifact.getArtifactId(), session.getJabberId().getUsername(),
+                    artifact.getId(), session.getJabberId().getUsername(),
                     session.getJabberId());
             notifyDraftCreated(artifact, session.getJabberId(), DateUtil
                     .getInstance());
@@ -213,11 +181,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("uniqueId", uniqueId);
         try {
-            final Artifact artifact = get(uniqueId);
+            final Artifact artifact = read(uniqueId);
             assertIsKeyHolder(artifact);
             final JabberId sessionJabberId = session.getJabberId();
-            artifactSql.updateKeyHolder(artifact.getArtifactId(),
-                    sessionJabberId.getUsername(), sessionJabberId);
+            artifactSql.updateKeyHolder(artifact.getId(), User.THINK_PARITY, sessionJabberId);
             notifyDraftDeleted(artifact, session.getJabberId(), DateUtil.getInstance());
         } catch (final Throwable t) {
             throw translateError(t);
@@ -230,25 +197,25 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param artifact
 	 *            An <code>Artifact</code>.
 	 * @param artifactFlag
-	 *            A <code>ParityObjectFlag</code>.
+	 *            A <code>ArtifactFlag</code>.
 	 * @throws ParityServerModelException
 	 */
-	void flag(final Artifact artifact, final ParityObjectFlag artifactFlag) {
+	void flag(final Artifact artifact, final ArtifactFlag artifactFlag) {
         logApiId();
 		logVariable("artifact", artifact);
         logVariable("artifactFlag", artifactFlag);
 		try {
-			final Integer artifactId = artifact.getArtifactId();
+			final Long artifactId = artifact.getId();
 			final Collection<ArtifactSubscription> subscriptions =
 				artifactSubscriptionSql.select(artifactId);
 
 			// send an IQFlag packet to each subscribed user
-			final UUID artifactUniqueId = artifact.getArtifactUUID();
+			final UUID artifactUniqueId = artifact.getUniqueId();
 			IQ iq;
 			for(ArtifactSubscription subscription : subscriptions) {
 				iq = createFlag(artifactUniqueId, artifactFlag, subscription);
 				// send the parity iq
-				send(JabberIdBuilder.parseJID(iq.getTo()), iq);
+				send(JabberIdBuilder.parseUsername(subscription.getUsername()), iq);
 			}
 		} catch(final Throwable t) {
 			throw translateError(t);
@@ -258,14 +225,15 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
-	 * @param artifactUniqueId
+	 * @param uniqueId
 	 *            An artifact unique id.
 	 */
-	Artifact get(final UUID artifactUniqueId) {
+	Artifact read(final UUID uniqueId) {
         logApiId();
-		logger.debug(artifactUniqueId);
-		try { return artifactSql.select(artifactUniqueId); }
-		catch(final Throwable t) {
+		logVariable("uniqueId", uniqueId);
+		try {
+            return artifactSql.select(uniqueId);
+		} catch (final Throwable t) {
             throw translateError(t);
 		}
 	}
@@ -283,7 +251,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(artifactUniqueId);
 		try {
 			final Artifact artifact = artifactSql.select(artifactUniqueId);
-			final Integer artifactId = artifact.getArtifactId();
+			final Long artifactId = artifact.getId();
 			final String previousKeyHolder = artifactSql.selectKeyHolder(artifactId);
 			return buildJID(previousKeyHolder);
 		}
@@ -302,11 +270,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("uniqueId", uniqueId);
 		try {
-			final Artifact artifact = get(uniqueId);
+			final Artifact artifact = read(uniqueId);
             if (null == artifact) {
                 return Collections.emptyList();
             } else {
-                return artifactSubscriptionSql.select(artifact.getArtifactId());
+                return artifactSubscriptionSql.select(artifact.getId());
             }
 		}
 		catch(final SQLException sqlx) {
@@ -354,7 +322,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 if(!jabberId.equals(session.getJabberId())) {
                     if(isActive(jabberId)) {
                         iq.setFrom(session.getJID());
-                        iq.setTo(jabberId.getJID());
+                        setTo(iq, jabberId);
                         send(jabberId, iq);
                     }
                 }
@@ -397,8 +365,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("uniqueId", uniqueId);
         logVariable("jabberId", jabberId);
         try {
-            final Artifact artifact = get(uniqueId);
-            final Integer artifactId = artifact.getArtifactId();
+            final Artifact artifact = read(uniqueId);
+            final Long artifactId = artifact.getId();
             final ArtifactSubscription subscription =
                 artifactSubscriptionSql.read(artifactId, jabberId);
             if(null != subscription) {
@@ -427,39 +395,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @return The flag iq packet.
 	 */
 	private IQArtifact createFlag(final UUID artifactUniqueId,
-			final ParityObjectFlag artifactFlag,
+			final ArtifactFlag artifactFlag,
 			final ArtifactSubscription subscription) {
 		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUniqueId, artifactFlag);
 		iqArtifactFlag.setTo(buildJID(subscription.getUsername()));
 		iqArtifactFlag.setFrom(session.getJID());
 		return iqArtifactFlag;
-	}
-
-	/**
-	 * Format an assertion statement for the state transition assertion.
-	 * 
-	 * @param currentState
-	 *            The artifact's current state.
-	 * @param intendedState
-	 *            The indented state to move to.
-	 * @param allowedStates
-	 *            The allowable states.
-	 * @return A formatted assertion message.
-	 */
-	private String formatAssertion(final Artifact.State currentState,
-			final Artifact.State intendedState,
-			final Artifact.State[] allowedStates) {
-		final StringBuffer assertion =
-			new StringBuffer("Cannot move artifact state.  ")
-			.append("Current State:  ").append(currentState)
-			.append("  Attempted State:  ").append(intendedState)
-			.append("  Allowed State(s):  ");
-		int index = 0;
-		for(final Artifact.State allowedState: allowedStates) {
-			if(0 != index++) { assertion.append(","); }
-			assertion.append(allowedState.toString());
-		}
-		return assertion.toString();
 	}
 
 	/**
@@ -478,10 +419,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
             final JabberId createdBy, final Calendar createdOn)
             throws ParityServerModelException, UnauthorizedException {
         final IQWriter notification = createIQWriter("artifact:draftcreated");
-        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("createdBy", createdBy);
         notification.writeCalendar("createdOn", createdOn);
-        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
+        notifyTeam(artifact.getUniqueId(), notification.getIQ());
     }
 
     /**
@@ -496,10 +437,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
             final JabberId deletedBy, final Calendar deletedOn)
             throws ParityServerModelException, UnauthorizedException {
         final IQWriter notification = createIQWriter("artifact:draftdeleted");
-        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("deletedBy", deletedBy);
         notification.writeCalendar("deletedOn", deletedOn);
-        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
+        notifyTeam(artifact.getUniqueId(), notification.getIQ());
     }
 
     /**
@@ -515,9 +456,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
     private void notifyTeamMemberAdded(final Artifact artifact, final User user)
             throws ParityServerModelException, UnauthorizedException {
         final IQWriter notification = createIQWriter("artifact:teammemberadded");
-        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("jabberId", user.getId());
-        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
+        notifyTeam(artifact.getUniqueId(), notification.getIQ());
     }
 
     /**
@@ -534,8 +475,29 @@ class ArtifactModelImpl extends AbstractModelImpl {
             final User user) throws ParityServerModelException,
             UnauthorizedException {
         final IQWriter notification = createIQWriter("artifact:teammemberremoved");
-        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("jabberId", user.getId());
-        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
+        notifyTeam(artifact.getUniqueId(), notification.getIQ());
+    }
+
+    /**
+     * Read the key holder for an artifact.
+     * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
+     * @param uniqueId
+     *            The artifact unique id <code>UUID</code>.
+     * @return The artifact key holder <code>JabberId</code>.
+     */
+    JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        assertIsAuthenticatedUser(userId);
+        try {
+            return artifactSql.readKeyHolder(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 }

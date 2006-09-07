@@ -11,7 +11,7 @@ insert into parityArtifactState (artifactStateId, artifactState) values (2, 'CLO
 insert into parityArtifactState (artifactStateId, artifactState) values (3, 'DELETED');
 
 create table parityArtifact (
-  artifactId integer not null,
+  artifactId bigint not null,
   artifactUUID varchar(255) not null,
   artifactKeyHolder varchar(32) not null,
   artifactStateId tinyint not null,
@@ -32,7 +32,7 @@ insert into jiveID (idType,id) values (1000, 1);
 
 create table parityArtifactSubscription (
   artifactSubscriptionId integer not null,
-  artifactId integer not null,
+  artifactId bigint not null,
   username varchar(32) not null,
   createdBy varchar(32) not null,
   createdOn timestamp default current_timestamp not null,

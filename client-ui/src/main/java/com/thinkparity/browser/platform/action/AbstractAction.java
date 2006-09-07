@@ -12,6 +12,7 @@ import javax.swing.Icon;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.application.browser.Browser;
@@ -29,7 +30,6 @@ import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

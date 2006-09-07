@@ -45,8 +45,8 @@ public class ArtifactRenderer implements ObjectRenderer {
 		else {
 			final Artifact a = (Artifact) o;
 			return new StringBuffer(PREFIX)
-				.append(ARTIFACT_ID).append(a.getArtifactId())
-				.append(ARTIFACT_UUID).append(a.getArtifactUUID())
+				.append(ARTIFACT_ID).append(a.getId())
+				.append(ARTIFACT_UUID).append(a.getUniqueId())
 				.append(CREATED_ON).append(doRender(a.getCreatedOn()))
 				.append(UPDATED_ON).append(doRender(a.getUpdatedOn()))
 				.append(IRendererConstants.SUFFIX).toString();

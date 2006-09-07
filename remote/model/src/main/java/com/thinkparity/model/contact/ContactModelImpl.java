@@ -101,7 +101,7 @@ class ContactModelImpl extends AbstractModelImpl {
             notification.writeJabberId("acceptedBy", userId);
             notification.writeCalendar("acceptedOn", acceptedOn);
             final IQ notificationIQ = notification.getIQ();
-            notificationIQ.setTo(invitedBy.getJID());
+            setTo(notificationIQ, invitedBy);
             send(invitedBy, notificationIQ);
 		}
 		catch(final Throwable t) {
@@ -138,7 +138,7 @@ class ContactModelImpl extends AbstractModelImpl {
             notification.writeJabberId("declinedBy", userId);
             notification.writeCalendar("declinedOn", declinedOn);
             final IQ notificationIQ = notification.getIQ();
-            notificationIQ.setTo(invitedBy.getJID());
+            setTo(notificationIQ, invitedBy);
             send(invitedBy, notificationIQ);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -166,7 +166,7 @@ class ContactModelImpl extends AbstractModelImpl {
             notification.writeJabberId("deletedBy", userId);
             notification.writeCalendar("deletedOn", currentDateTime());
             final IQ notificationIQ = notification.getIQ();
-            notificationIQ.setTo(contactId.getJID());
+            setTo(notificationIQ, contactId);
             send(contactId, notificationIQ);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -204,7 +204,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 notification.writeJabberId("deletedBy", userId);
                 notification.writeCalendar("deletedOn", deletedOn);
                 final IQ notificationIQ = notification.getIQ();
-                notificationIQ.setTo(invitedAsUser.getId().getJID());
+                setTo(notificationIQ, invitedAsUser.getId());
                 send(invitedAsUser.getId(), notificationIQ);
             }
 		} catch(final Throwable t) {
@@ -248,7 +248,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 notification.writeJabberId("extendedBy", userId);
                 notification.writeCalendar("extendedOn", extendedOn);
                 final IQ notificationIQ = notification.getIQ();
-                notificationIQ.setTo(extendToUser.getId().getJID());
+                setTo(notificationIQ, extendToUser.getId());
                 send(extendToUser.getId(), notificationIQ);
             }
         } catch (final Throwable t) {

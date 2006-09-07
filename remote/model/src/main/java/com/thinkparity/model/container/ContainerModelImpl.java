@@ -12,8 +12,10 @@ import org.xmpp.packet.IQ;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.AbstractModelImpl;
+import com.thinkparity.model.archive.ArchiveModel;
 import com.thinkparity.model.artifact.Artifact;
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.io.sql.ArtifactSql;
 import com.thinkparity.model.session.Session;
 import com.thinkparity.model.user.User;
@@ -83,13 +85,14 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeCalendar("publishedOn", publishedOn);
             for (final JabberId publishedToId : publishedTo) {
                 final IQ iq = publishArtifact.getIQ();
-                iq.setTo(publishedToId.getJID());
+                setTo(iq, publishedToId);
                 send(publishedToId, iq);
             }
 
-            final Artifact artifact = getArtifactModel().get(uniqueId);
-            artifactSql.updateKeyHolder(artifact.getArtifactId(),
+            final Artifact artifact = getArtifactModel().read(uniqueId);
+            artifactSql.updateKeyHolder(artifact.getId(),
                     User.THINK_PARITY.getId().getUsername(), publishedBy);
+            getContainerArchiveModel().backup(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -166,10 +169,10 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeCalendar("publishedOn", publishedOn);
             for (final JabberId publishToId : publishTo) {
                 final IQ iq = publishArtifact.getIQ();
-                iq.setTo(publishToId.getJID());
+                setTo(iq, publishToId);
                 send(publishToId, iq);
             }
-
+            getArtifactArchiveModel().backup(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -215,10 +218,10 @@ class ContainerModelImpl extends AbstractModelImpl {
             sendArtifact.writeCalendar("sentOn", sentOn);
             for (final JabberId sentToId : sentTo) {
                 final IQ iq = sendArtifact.getIQ();
-                iq.setTo(sentToId.getJID());
+                setTo(iq, sentToId);
                 send(sentToId, iq);
             }
-
+            getContainerArchiveModel().backup(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -295,12 +298,30 @@ class ContainerModelImpl extends AbstractModelImpl {
             sendArtifact.writeCalendar("sentOn", sentOn);
             for (final JabberId sendToId : sendTo) {
                 final IQ iq = sendArtifact.getIQ();
-                iq.setTo(sendToId.getJID());
+                setTo(iq, sendToId);
                 send(sendToId, iq);
             }
-
+            getArtifactArchiveModel().backup(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Obtain a thinkParity artifact archive interface.
+     * 
+     * @return A thinkParity artifact archive interface.
+     */
+    private ArchiveModel<ArtifactVersion> getArtifactArchiveModel() {
+        return ArchiveModel.<ArtifactVersion>getModel(session);
+    }
+
+    /**
+     * Obtain a thinkParity container archive interface.
+     * 
+     * @return A thinkParity container archive interface.
+     */
+    private ArchiveModel<ContainerVersion> getContainerArchiveModel() {
+        return ArchiveModel.<ContainerVersion>getModel(session);
     }
 }

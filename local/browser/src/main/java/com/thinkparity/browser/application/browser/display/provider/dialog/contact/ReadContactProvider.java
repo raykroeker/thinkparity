@@ -5,12 +5,12 @@
 package com.thinkparity.browser.application.browser.display.provider.dialog.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author rob_masako@shaw.ca

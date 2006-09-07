@@ -14,6 +14,8 @@ import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -27,7 +29,6 @@ import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.UserFilterManager;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 

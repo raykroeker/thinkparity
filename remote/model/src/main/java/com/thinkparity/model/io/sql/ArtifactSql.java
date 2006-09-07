@@ -7,8 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,12 +15,15 @@ import org.jivesoftware.database.JiveID;
 
 import org.xmpp.packet.JID;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.Artifact.State;
+import com.thinkparity.model.artifact.ArtifactState;
+import com.thinkparity.model.artifact.RemoteArtifact;
+import com.thinkparity.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.model.user.User;
 
 
 /**
@@ -59,6 +61,13 @@ public class ArtifactSql extends AbstractSql {
 		.append("from parityArtifact ")
 		.append("where artifactKeyHolder= ?").toString();
 
+	/** Sql to read the artifact key holder. */
+    private static final String SQL_READ_KEY_HOLDER =
+            new StringBuffer("select ARTIFACTKEYHOLDER ")
+            .append("from PARITYARTIFACT ")
+            .append("where ARTIFACTUUID=?")
+            .toString();
+
 	private static final String SQL_UPDATE_STATE =
 		new StringBuffer("update parityArtifact ")
 		.append("set artifactStateId=?,updatedOn=current_timestamp,")
@@ -78,7 +87,7 @@ public class ArtifactSql extends AbstractSql {
 	 */
 	public ArtifactSql() { super(); }
 
-	public void delete(final Integer artifactId) throws SQLException {
+	public void delete(final Long artifactId) throws SQLException {
         logApiId();
 		logger.debug(artifactId);
 		Connection cx = null;
@@ -88,14 +97,14 @@ public class ArtifactSql extends AbstractSql {
             logStatement(SQL_DELETE);
 			ps = cx.prepareStatement(SQL_DELETE);
             logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
+			ps.setLong(1, artifactId);
 			Assert.assertTrue("Unable to delete.", 1 == ps.executeUpdate());
 		}
 		finally { close(cx, ps); }
 	}
 
 	public Integer insert(final UUID artifactUUID,
-			final String artifactKeyHolder, final Artifact.State state,
+			final String artifactKeyHolder, final ArtifactState state,
 			final JabberId createdBy) throws SQLException {
 		logApiId();
 		logger.debug(artifactUUID);
@@ -125,45 +134,55 @@ public class ArtifactSql extends AbstractSql {
 
 	public List<Artifact> listForKeyHolder(final JID keyHolderJID)
 			throws SQLException {
-        logApiId();
-		logger.debug(keyHolderJID);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+	    final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SQL_LIST_FOR_KEY_HOLDER);
-			ps = cx.prepareStatement(SQL_LIST_FOR_KEY_HOLDER);
-			ps.setString(1, keyHolderJID.getNode());
-			rs = ps.executeQuery();
-
-			final List<Artifact> artifacts = new LinkedList<Artifact>();
-			while(rs.next()) { artifacts.add(extract(rs)); }
+			session.prepareStatement(SQL_LIST_FOR_KEY_HOLDER);
+			session.setString(1, keyHolderJID.getNode());
+			session.executeQuery();
+			final List<Artifact> artifacts = new ArrayList<Artifact>();
+			while (session.nextResult()) {
+                artifacts.add(extract(session));
+			}
 			return artifacts;
+		} finally {
+            session.close();
 		}
-		finally { close(cx, ps, rs); }
 	}
 
-	public Artifact select(final UUID artifactUUID) throws SQLException {
-        logApiId();
-		logger.debug(artifactUUID);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+    public JabberId readKeyHolder(final UUID uniqueId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_KEY_HOLDER);
+            session.setString(1, uniqueId.toString());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return JabberIdBuilder.parseUsername(
+                        session.getString("ARTIFACTKEYHOLDER"));
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    public Artifact select(final UUID artifactUUID) throws SQLException {
+        final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(SELECT);
-			ps = cx.prepareStatement(SELECT);
-            logStatementParameter(1, artifactUUID.toString());
-			ps.setString(1, artifactUUID.toString());
-			rs = ps.executeQuery();
-			if(rs.next()) { return extract(rs); }
-			else { return null; }
+			session.prepareStatement(SELECT);
+			session.setString(1, artifactUUID.toString());
+			session.executeQuery();
+			if (session.nextResult()) {
+                return extract(session);
+			} else {
+                return null;
+			}
+		} finally {
+            session.close();
 		}
-		finally { close(cx, ps, rs); }
 	}
 
-	public String selectKeyHolder(final Integer artifactId) throws SQLException {
+	public String selectKeyHolder(final Long artifactId) throws SQLException {
         logApiId();
 		logger.debug(artifactId);
 		Connection cx = null;
@@ -174,7 +193,7 @@ public class ArtifactSql extends AbstractSql {
             logStatement(SELECT_KEYHOLDER);
 			ps = cx.prepareStatement(SELECT_KEYHOLDER);
             logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
+			ps.setLong(1, artifactId);
 			rs = ps.executeQuery();
 			if(rs.next()) { return rs.getString(1); }
 			else { return null; }
@@ -182,9 +201,15 @@ public class ArtifactSql extends AbstractSql {
 		finally { close(cx, ps, rs); }
 	}
 
-	public void updateKeyHolder(final Integer artifactId,
-			final String artifactKeyHolder, final JabberId updatedBy)
-			throws SQLException {
+    public void updateKeyHolder(final Long artifactId,
+            final JabberId userId, final JabberId updatedBy)
+            throws SQLException {
+        updateKeyHolder(artifactId, userId.getUsername(), updatedBy);
+    }
+
+    public void updateKeyHolder(final Long artifactId,
+            final String artifactKeyHolder, final JabberId updatedBy)
+            throws SQLException {
         logApiId();
 		logger.debug(artifactId);
 		logger.debug(artifactKeyHolder);
@@ -198,15 +223,20 @@ public class ArtifactSql extends AbstractSql {
 			ps.setString(1, artifactKeyHolder);
 			set(ps, 2, updatedBy);
             logStatementParameter(3, artifactId);
-			ps.setInt(3, artifactId);
+			ps.setLong(3, artifactId);
 			Assert.assertTrue(
 					"updateKeyHolder(Integer,String)", 1 == ps.executeUpdate());
 		}
 		finally { close(cx, ps); }
 	}
 
-	public void updateState(final Integer artifactId, final State currentState,
-			final State newState, final JabberId updatedBy) throws SQLException {
+	public void updateKeyHolder(final Long artifactId, final User user,
+            final JabberId updatedBy) throws SQLException {
+        updateKeyHolder(artifactId, user.getId(), updatedBy);
+    }
+
+	public void updateState(final Integer artifactId, final ArtifactState currentState,
+			final ArtifactState newState, final JabberId updatedBy) throws SQLException {
         logApiId();
 		logger.debug(artifactId);
 		logger.debug(currentState);
@@ -226,14 +256,13 @@ public class ArtifactSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	private Artifact extract(final ResultSet rs) throws SQLException {
-		final Integer artifactId = rs.getInt("artifactId");
-		final UUID artifactUUID = UUID.fromString(rs.getString("artifactUUID"));
-		final String artifactKeyHolder = rs.getString("artifactKeyHolder");
-		final State artifactState = State.fromId(rs.getInt("artifactStateId"));
-		final Calendar createdOn = DateUtil.getInstance(rs.getTimestamp("createdOn"));
-		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp("updatedOn"));
-		return new Artifact(artifactId, artifactUUID, artifactKeyHolder,
-				artifactState, createdOn, updatedOn);
+	Artifact extract(final HypersonicSession session) {
+        final Artifact artifact = new RemoteArtifact();
+        artifact.setId(session.getLong("artifactId"));
+        artifact.setUniqueId(UUID.fromString(session.getString("artifactUUID")));
+        artifact.setState(ArtifactState.fromId(session.getInteger("artifactStateId")));
+        artifact.setCreatedOn(session.getCalendar("createdOn"));
+        artifact.setUpdatedOn(session.getCalendar("updatedOn"));
+        return artifact;
 	}
 }

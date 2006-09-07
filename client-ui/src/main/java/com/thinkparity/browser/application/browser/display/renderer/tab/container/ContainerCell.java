@@ -40,9 +40,9 @@ import com.thinkparity.browser.platform.action.container.Delete;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.artifact.ArtifactState;
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 
 /**
@@ -133,7 +133,7 @@ public class ContainerCell extends Container implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     * @see com.thinkparity.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
@@ -263,7 +263,7 @@ public class ContainerCell extends Container implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     * @see com.thinkparity.model.artifact.Artifact#hashCode()
      * 
      */
     public int hashCode() { return super.hashCode(); }

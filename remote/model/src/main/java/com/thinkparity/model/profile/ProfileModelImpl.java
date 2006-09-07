@@ -348,7 +348,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         notification.writeCalendar("updatedOn", currentDateTime());
         final IQ notificationIQ = notification.getIQ();
         for (final JabberId contactId : contactIds) {
-            notificationIQ.setTo(contactId.getJID());
+            setTo(notificationIQ, contactId);
             send(contactId, notificationIQ);
         }
     }

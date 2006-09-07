@@ -37,14 +37,14 @@ public class GetSubscription extends IQHandler {
 			throws ParityServerModelException, UnauthorizedException {
         logApiId();
 		final ArtifactModel artifactModel = getArtifactModel(session);
-		final Artifact artifact = artifactModel.get(extractUniqueId(iq));
+		final Artifact artifact = artifactModel.read(extractUniqueId(iq));
 		final List<ArtifactSubscription> subscriptions = artifactModel.getSubscription(extractUniqueId(iq));
 		return createResult(iq, session, artifact, subscriptions);
 	}
 
 	private IQ createResult(final IQ iq, final Session session,
 			final Artifact artifact, final List<ArtifactSubscription> subscriptions) {
-		final IQ result = new IQGetSubscription(artifact.getArtifactUUID(), subscriptions);
+		final IQ result = new IQGetSubscription(artifact.getUniqueId(), subscriptions);
 		result.setID(iq.getID());
 		result.setTo(session.getJID());
 		result.setFrom(session.getJID());

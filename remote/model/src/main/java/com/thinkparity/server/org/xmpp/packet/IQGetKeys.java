@@ -34,7 +34,7 @@ public class IQGetKeys extends IQArtifact {
 		final Element uuids = ElementBuilder.addElement(element, ElementName.UUIDS);
 		for(final Artifact artifact : artifacts) {
 			ElementBuilder.addElement(uuids,
-					ElementName.UUID, artifact.getArtifactUUID().toString());
+					ElementName.UUID, artifact.getUniqueId().toString());
 		}
 	}
 }

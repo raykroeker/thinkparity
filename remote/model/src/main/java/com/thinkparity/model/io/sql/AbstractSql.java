@@ -18,7 +18,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.model.artifact.ArtifactState;
 import com.thinkparity.model.io.hsqldb.HypersonicConnectionProvider;
 import com.thinkparity.model.io.hsqldb.HypersonicException;
 import com.thinkparity.model.io.hsqldb.HypersonicSession;
@@ -141,7 +141,7 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
     protected final void logStatementParameter(final Integer index,
             final Object value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[Sql variable index:{1} value{2}]",
+            logger.debug(MessageFormat.format("[Sql variable index:{0} value:{1}]",
                     index, value));
         }
     }
@@ -175,22 +175,38 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 		return cx.prepareStatement(sql);
 	}
 
-	/**
-	 * Set a variable in a prepared statement to an artifact state value.
-	 * 
-	 * @param ps
-	 *            The prepared statement.
-	 * @param index
-	 *            The index of the variable in the prepared statement.
-	 * @param state
-	 *            The artifact state.
-	 * @throws SQLException
-	 */
-	protected void set(final PreparedStatement ps, final Integer index,
-			final Artifact.State state) throws SQLException {
+    /**
+     * Set a variable in a prepared statement to an artifact state value.
+     * 
+     * @param ps
+     *            The prepared statement.
+     * @param index
+     *            The index of the variable in the prepared statement.
+     * @param state
+     *            The artifact state.
+     * @throws SQLException
+     */
+    protected void set(final PreparedStatement ps, final Integer index,
+            final ArtifactState state) throws SQLException {
         logStatementParameter(index, state.getId());
-		ps.setInt(index, state.getId());
-	}
+        ps.setInt(index, state.getId());
+    }
+    /**
+     * Set a variable in a prepared statement to an artifact state value.
+     * 
+     * @param ps
+     *            The prepared statement.
+     * @param index
+     *            The index of the variable in the prepared statement.
+     * @param state
+     *            The artifact state.
+     * @throws SQLException
+     */
+    protected void set(final PreparedStatement ps, final Integer index,
+            final Long longInteger) throws SQLException {
+        logStatementParameter(index, longInteger);
+        ps.setLong(index, longInteger);
+    }
 
 	/**
 	 * Set a variable in a prepared statement to an integer value.

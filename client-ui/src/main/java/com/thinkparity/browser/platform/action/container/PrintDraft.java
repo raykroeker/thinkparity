@@ -16,7 +16,7 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.Printer;
-import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 
 /**

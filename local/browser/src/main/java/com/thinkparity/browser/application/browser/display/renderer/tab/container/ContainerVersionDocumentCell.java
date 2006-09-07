@@ -68,7 +68,7 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     * @see com.thinkparity.model.artifact.Artifact#equals(java.lang.Object)
      */
     @Override
     public boolean equals(final Object obj) {
@@ -172,7 +172,7 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     * @see com.thinkparity.model.artifact.Artifact#hashCode()
      */
     @Override
     public int hashCode() {

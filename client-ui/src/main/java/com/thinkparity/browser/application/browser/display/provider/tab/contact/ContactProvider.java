@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.provider.tab.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
@@ -14,7 +15,6 @@ import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

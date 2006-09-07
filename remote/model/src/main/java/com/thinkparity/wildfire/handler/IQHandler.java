@@ -227,7 +227,7 @@ public abstract class IQHandler extends
 	 */
 	protected Artifact extractArtifact(final ArtifactModel artifactModel,
 			final IQ iq) throws ParityServerModelException {
-		return artifactModel.get(extractUniqueId(iq));
+		return artifactModel.read(extractUniqueId(iq));
 	}
 
 	protected JabberId extractJabberId(final IQ iq) {

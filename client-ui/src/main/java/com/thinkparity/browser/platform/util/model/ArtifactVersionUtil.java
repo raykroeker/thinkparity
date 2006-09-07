@@ -5,7 +5,7 @@ package com.thinkparity.browser.platform.util.model;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 
 /**

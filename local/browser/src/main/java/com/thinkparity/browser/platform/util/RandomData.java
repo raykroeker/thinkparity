@@ -8,8 +8,8 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
  * @author raykroeker@gmail.com

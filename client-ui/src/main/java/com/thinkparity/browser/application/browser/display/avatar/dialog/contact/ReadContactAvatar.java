@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.avatar.dialog.contac
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -14,7 +15,6 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**

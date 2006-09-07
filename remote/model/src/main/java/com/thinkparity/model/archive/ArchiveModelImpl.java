@@ -3,11 +3,9 @@
  */
 package com.thinkparity.model.archive;
 
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.model.AbstractModelImpl;
+import com.thinkparity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.session.Session;
-
 
 /**
  * <b>Title:</b>thinkParity Archive Model Implementation</br>
@@ -16,7 +14,7 @@ import com.thinkparity.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-class ArchiveModelImpl extends AbstractModelImpl {
+class ArchiveModelImpl<T extends ArtifactVersion> extends AbstractModelImpl {
 
     /** Create ArchiveModelImpl. */
     ArchiveModelImpl() {
@@ -24,15 +22,14 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Backup an xmpp query.
+     * Backup an artifact.
      * 
-     * @param query
-     *            An xmpp query <code>IQ</code>.
+     * @param artifact
+     *            An <code>Artifact</code>.
      */
-    void backup(final IQ query) {
+    void backup(final T version) {
         logApiId();
-        logVariable("query", query);
-        
+        logVariable("version", version);
     }
 
     /**

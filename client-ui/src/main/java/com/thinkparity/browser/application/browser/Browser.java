@@ -18,6 +18,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
@@ -71,12 +75,8 @@ import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * The controller is used to manage state as well as control display of the

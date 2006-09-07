@@ -36,7 +36,7 @@ public class ArtifactModel extends AbstractModel {
 	 */
 	private final ArtifactModelImpl impl;
 
-	/**
+    /**
 	 * Synchronization lock for the implementation.
 	 */
 	private final Object implLock;
@@ -50,7 +50,7 @@ public class ArtifactModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Add a user to an artifact's team.
      * 
      * @param uniqueId
@@ -62,7 +62,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(implLock) { impl.addTeamMember(uniqueId, jabberId); }
     }
 
-	/**
+    /**
      * Confrim receipt of an artifact.
      * 
      * @param uniqueId
@@ -103,7 +103,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(implLock) { impl.createDraft(uniqueId); }
     }
 
-    /**
+	/**
      * Delete a draft from an artifact.
      * 
      * @param uniqueId
@@ -121,24 +121,26 @@ public class ArtifactModel extends AbstractModel {
      * @param artifact
      *            An <code>Artifact</code>.
      * @param artifactFlag
-     *            A <code>ParityObjectFlag</code>.
+     *            A <code>ArtifactFlag</code>.
      * @throws ParityServerModelException
      */
 	public void flag(final Artifact artifact,
-            final ParityObjectFlag artifactFlag) {
+            final ArtifactFlag artifactFlag) {
 		synchronized (implLock) {
             impl.flag(artifact, artifactFlag);
 		}
 	}
 
-	/**
+    /**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param artifactUniqueId
 	 *            An artifact unique id.
 	 */
-	public Artifact get(final UUID artifactUniqueId) {
-		synchronized(implLock) { return impl.get(artifactUniqueId); }
+	public Artifact read(final UUID artifactUniqueId) {
+		synchronized (implLock) {
+            return impl.read(artifactUniqueId);
+		}
 	}
 
 	public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
@@ -164,9 +166,24 @@ public class ArtifactModel extends AbstractModel {
         }
     }
 
-    public List<Contact> readContacts(final UUID artifactUniqueId) {
+	public List<Contact> readContacts(final UUID artifactUniqueId) {
 		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
 	}
+
+    /**
+     * Read the key holder for an artifact.
+     * 
+     * @param userId
+     *            The user id <code>JabberId</code>.
+     * @param uniqueId
+     *            The artifact unique id <code>UUID</code>.
+     * @return The artifact key holder <code>JabberId</code>.
+     */
+    public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
+        synchronized (implLock) {
+            return impl.readKeyHolder(userId, uniqueId);
+        }
+    }
 
 	/**
      * Remove a user from an artifact's team.

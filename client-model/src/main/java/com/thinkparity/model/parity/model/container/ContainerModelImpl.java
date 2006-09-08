@@ -614,6 +614,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(containerId);
         final List<TeamMember> team = readTeam(containerId);
+        logVariable("team", team);
         draft.setOwner(team.get(indexOf(team, createdBy)));
         containerIO.createDraft(draft);
         // fire event

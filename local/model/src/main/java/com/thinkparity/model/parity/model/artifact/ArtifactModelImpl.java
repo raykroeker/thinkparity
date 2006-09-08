@@ -322,7 +322,15 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 final List<JabberId> remoteTeam =
                     getInternalSessionModel().readArtifactTeam(uniqueId);
                 for (final JabberId remoteUser : remoteTeam) {
-                    addTeamMember(artifactId, remoteUser);
+                    try {
+                        addTeamMember(artifactId, remoteUser);
+                    } catch (final TrueAssertion ta) {
+                        if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
+                            logWarning(ta);
+                        } else {
+                            throw ta;
+                        }
+                    }
                 }
             } else {
                 addTeamMember(artifactId, jabberId);

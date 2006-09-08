@@ -15,7 +15,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
@@ -37,6 +37,7 @@
     <path id="project.classpath">
         <pathelement location="${target.classes.dir}/common/codebase"/>
         <pathelement location="${target.classes.dir}/common/model"/>
+        <pathelement location="${target.classes.dir}/local/model"/>
 		<pathelement location="${target.classes.dir}/remote/codebase"/>
 		<pathelement location="${target.classes.dir}/remote/model"/>
 
@@ -51,6 +52,7 @@
 
         <pathelement location="${target.test-classes.dir}/common/codebase"/>
         <pathelement location="${target.test-classes.dir}/common/junitx"/>
+        <pathelement location="${target.test-classes.dir}/local/model"/>
         <pathelement location="${target.test-classes.dir}/remote/model"/>
 
         <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
@@ -146,6 +148,10 @@
             <fileset dir="common/xdoclet/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
+            <!-- local/model -->   
+            <fileset dir="local/model/src/main/java">
+                <include name="**/*.java"/>
+            </fileset>
             <!-- remote/codebase -->   
             <fileset dir="remote/codebase/src/main/java">
                 <include name="**/*.java"/>
@@ -188,6 +194,11 @@
         <!-- common/model -->
         <javac srcdir="common/model/src/main/java"
                 destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
+            <classpath refid="project.classpath"/>
+        </javac>
+        <!-- local/model -->
+        <javac srcdir="local/model/src/main/java"
+                destdir="${target.classes.dir}/local/model" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
         </javac>
         <!-- remote/codebase -->
@@ -302,6 +313,12 @@ Examples:
                 doctitle="thinkParity Common Codebase"
                 packagenames="com.thinkparity.*"
                 sourcepath="${basedir}/common/codebase/src/main/java"/>
+        <!-- local/model -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/model"
+                doctitle="thinkParity Local Model"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/model/src/main/java"/>
         <!-- remote/codebase -->
         <javadoc access="private" classpathref="project.classpath"
                 destdir="${target.javadoc.dir}/remote/codebase"
@@ -321,6 +338,10 @@ Examples:
         <!-- common/codebase -->
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
+        </copy>
+        <!-- local/model -->
+        <copy todir="${target.classes.dir}/local/model">
+            <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>
         <!-- remote/model -->
         <copy todir="${target.classes.dir}/remote/model">
@@ -379,11 +400,12 @@ Examples:
             <fileset file="${vendor.log4j.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
         </copy>
-        <!-- common/model:remote/model -->
+        <!-- common/model:local/model:remote/model -->
         <jar destfile="${target.release.plugin.dir}/lib/model.jar">
             <manifest>
             </manifest>
             <fileset dir="${target.classes.dir}/common/model"/>
+            <fileset dir="${target.classes.dir}/local/model"/>
             <fileset dir="${target.classes.dir}/remote/model"/>
         </jar>
         <!-- common/codebase:remote/codebase -->
@@ -421,6 +443,7 @@ Examples:
 		    <batchtest unless="test" todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
                 <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}/local/model" includes="**/*Test.class"/>
                 <fileset dir="${target.test-classes.dir}/remote/model" includes="**/*Test.class"/>
 			</batchtest>
 		</junit>
@@ -460,6 +483,11 @@ Examples:
                 destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
         </javac>
+        <!-- local/model -->
+        <javac srcdir="local/model/src/test/java"
+                destdir="${target.test-classes.dir}/local/model" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
         <!-- remote/model -->
         <javac srcdir="remote/model/src/test/java"
                 destdir="${target.test-classes.dir}/remote/model" debug="${compile.innerDebug}">
@@ -469,6 +497,9 @@ Examples:
 
     <!-- process test resources -->
     <target name="test-process-resources">
+        <copy todir="${target.test-classes.dir}/local/model/">
+            <fileset dir="${basedir}/local/model/src/test/resources"/>
+        </copy>
         <copy todir="${target.test-classes.dir}/common/junitx/">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
         </copy>

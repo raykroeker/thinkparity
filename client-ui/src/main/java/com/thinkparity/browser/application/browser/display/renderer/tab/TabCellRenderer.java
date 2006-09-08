@@ -87,7 +87,8 @@ public class TabCellRenderer extends AbstractJPanel implements
             nestedJPanel.setBackground(Color.WHITE);
             iconJLabel.setIcon(cell.getNodeIcon());
         }
-        setBorder(cell.getBorder(index));
+        final Boolean lastCell = (index == list.getModel().getSize()-1);
+        setBorder(cell.getBorder(index, lastCell));
         
         // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.

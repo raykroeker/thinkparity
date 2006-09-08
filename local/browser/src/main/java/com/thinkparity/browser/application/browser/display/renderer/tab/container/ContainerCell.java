@@ -7,6 +7,7 @@ package com.thinkparity.browser.application.browser.display.renderer.tab.contain
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -54,11 +55,11 @@ public class ContainerCell extends Container implements TabCell  {
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
 
-    /** The border for the top of the first container cell. */
-    private static final Border BORDER_TOP_0;
-
-    /** The border for the top of the rest of the container cells. */
-    private static final Border BORDER_TOP_N;
+    /** The border for the top of the container cell. */
+    private static final Border BORDER_TOP;
+    
+    /** The border insets for the top of the container cell. */
+    private static final Insets BORDER_TOP_INSETS;
 
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -70,9 +71,9 @@ public class ContainerCell extends Container implements TabCell  {
     private static final Integer TEXT_MAX_LENGTH;
     
     static {
+        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right     
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1,2);
-        BORDER_TOP_N = new TopBorder(Color.WHITE);
+        BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
 
         TEXT_FG = Color.BLACK;
         TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
@@ -166,14 +167,12 @@ public class ContainerCell extends Container implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder(final int index) {
-        final Border topBorder;
-        if (0 == index) {
-            topBorder = BORDER_TOP_0;
+    public Border getBorder(final int index, final Boolean lastCell) {             
+        if (lastCell) {
+            return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
         } else {
-            topBorder = BORDER_TOP_N;
+            return BORDER_TOP;
         }
-        return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
     }
 
     /**

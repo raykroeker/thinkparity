@@ -44,18 +44,21 @@ public class ContainerAvatar extends TabAvatar<ContainerModel> {
      */
     public void syncContainer(final Long containerId, final Boolean remote, final Boolean select) {
         final TabCell selectedCell = getSelectedCell();
+        final Integer selectedIndex = getSelectedIndex();
         model.syncContainer(containerId, remote);
         // If "select" then attempt to select and expand this container,
         // otherwise select the previously selected container
         if (select) {
             final TabCell container = model.getContainerCell(containerId);
             if (null!=container) {
-                model.triggerExpand(container);
+                model.triggerExpand(container, Boolean.TRUE);
                 setSelectedCell(container);
             }
         }
         else {
-            setSelectedCell(selectedCell);
+            if (!setSelectedCell(selectedCell)) {
+                setSelectedIndex(selectedIndex);
+            }
         }
     }
     

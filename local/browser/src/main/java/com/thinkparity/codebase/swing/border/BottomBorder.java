@@ -27,6 +27,11 @@ public class BottomBorder extends AbstractBorder {
 	 * 
 	 */
 	private final Color color;
+    
+    /**
+     * The border insets.
+     */
+    private final Insets insets;
 
 	/**
 	 * Create a black TopBorder.
@@ -35,7 +40,7 @@ public class BottomBorder extends AbstractBorder {
 	public BottomBorder() { this(Color.BLACK); }
 
 	/**
-	 * Create a TopBorder.
+	 * Create a BottomBorder.
 	 * 
 	 * @param color
 	 *            The border color.
@@ -43,14 +48,31 @@ public class BottomBorder extends AbstractBorder {
 	public BottomBorder(final Color color) {
 		super();
 		this.color = color;
+        this.insets = new Insets(0, 0, 1, 0);  // Offset bottom is 1
 	}
+    
+    /**
+     * Create a BottomBorder.
+     *
+     * @param color
+     *            The border color.
+     * @param Insets
+     *             The border insets.
+     */
+    public BottomBorder(final Color color, Insets insets) {
+        this(color);
+        this.insets.top = insets.top;
+        this.insets.left = insets.left;
+        this.insets.bottom = insets.bottom;
+        this.insets.right = insets.right;       
+    }
 
 	/**
 	 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
 	 * 
 	 */
 	public Insets getBorderInsets(Component c) {
-		return new Insets(0, 0, 1, 0);
+		return new Insets(insets.top, 0, insets.bottom, 0);
 	}
 
 	/**
@@ -59,8 +81,10 @@ public class BottomBorder extends AbstractBorder {
 	 * 
 	 */
 	public Insets getBorderInsets(Component c, Insets insets) {
-		insets.bottom = 1;
-		insets.top = insets.left = insets.right = 0;
+        insets.top = this.insets.top;
+        insets.left = 0;
+        insets.bottom = this.insets.bottom;
+        insets.right = 0;   
 		return insets;
 	}
 
@@ -88,7 +112,7 @@ public class BottomBorder extends AbstractBorder {
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		final Color oColor = g.getColor();
 		g.setColor(color);
-		g.drawLine(x, y + height -1, x + width - 1, y + height - 1);
+		g.drawLine(x + this.insets.left, y + height - 1, x + width - 1 - this.insets.right, y + height - 1);
 		g.setColor(oColor);
 	}
 }

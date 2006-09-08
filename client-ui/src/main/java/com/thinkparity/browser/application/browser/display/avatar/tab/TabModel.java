@@ -143,12 +143,23 @@ public abstract class TabModel {
     protected void triggerDoubleClick(final TabCell tabCell) {}
 
     /**
-     * Trigger an expand for a tab cell.
+     * Trigger an expand for a tab cell (ie. expand if collapsed,
+     * or collapse if expanded).
      * 
      * @param tabCell
      *            A <code>TabCell</code>.
      */
     protected void triggerExpand(final TabCell tabCell) {}
+    
+    /**
+     * Trigger an expand for a tab cell.
+     * 
+     * @param tabCell
+     *            A <code>TabCell</code>.
+     * @param expand
+     *            <code>Boolean</code> flag to expand or collapse.
+     */
+    protected void triggerExpand(final TabCell tabCell, final Boolean expand) {}
 
     /**
      * Trigger a popup menu for a tab cell.

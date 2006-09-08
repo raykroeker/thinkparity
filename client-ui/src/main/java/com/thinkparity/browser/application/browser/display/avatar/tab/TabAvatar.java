@@ -150,13 +150,19 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      * 
      * @param tabCell
      *            A <code>TabCell</code>.
+     * @return Success or failure.
      */
-    protected void setSelectedCell(final TabCell tabCell) {
+    protected Boolean setSelectedCell(final TabCell tabCell) {
         if (tabCell != getSelectedCell()) {
             // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
             selectedIndex = -1;
             tabJList.setSelectedValue(tabCell, true);
+            
+            if (getSelectedCell() != tabCell) {
+                return Boolean.FALSE;
+            }
         }
+        return Boolean.TRUE;
     }
     
     /**
@@ -165,7 +171,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      * @param index
      *              The JList index to select.
      */
-    private void setSelectedIndex(final Integer index) {
+    protected void setSelectedIndex(final Integer index) {
         if (index != getSelectedIndex()) {
             // Set selectedIndex to -1 so the ListSelectionListener behaves correctly        
             selectedIndex = -1;

@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.renderer.tab;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
@@ -37,7 +38,7 @@ public class DefaultTabCell implements TabCell {
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1,2);
+        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, new Insets(2,0,0,0));
         BORDER_TOP_N = new TopBorder(Color.WHITE);
     }
 
@@ -63,7 +64,7 @@ public class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder(final int index) {
+    public Border getBorder(final int index, final Boolean lastCell) {
         final Border topBorder;
         if (0 == index) {
             topBorder = BORDER_TOP_0;

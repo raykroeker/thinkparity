@@ -75,7 +75,7 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder(int index) {
+    public Border getBorder(int index, final Boolean lastCell) {
         return null;
     }
 

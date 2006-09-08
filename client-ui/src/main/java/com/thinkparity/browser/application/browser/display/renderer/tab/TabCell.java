@@ -41,11 +41,14 @@ public interface TabCell {
 
     /**
      * Obtain the border to be installed around the edge of the main cell.
-     * @param index TODO
+     * @param index
+     *          The index of this cell in the list model.
+     * @param lastCell
+     *          TRUE if this is the last cell in the list model.
      * 
      * @return A border.
      */
-    public Border getBorder(int index);
+    public Border getBorder(int index, Boolean lastCell);
 
     /**
      * Obtain the node icon.

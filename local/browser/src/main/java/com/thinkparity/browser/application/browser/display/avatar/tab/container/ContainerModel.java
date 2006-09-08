@@ -467,7 +467,8 @@ public class ContainerModel extends TabModel {
     }
 
     /**
-     * Trigger the expansion of the cell.
+     * Trigger the expansion of the cell (ie. expand if collapsed, or
+     * collapse if expanded.)
      * 
      * @param mainCell
      *            The main cell.
@@ -475,38 +476,55 @@ public class ContainerModel extends TabModel {
     @Override
     protected void triggerExpand(final TabCell mainCell) {
         if (mainCell instanceof ContainerCell) {
-            final ContainerCell cc = (ContainerCell) mainCell;
-            if(isExpanded(cc)) {
-                cc.setExpanded(Boolean.FALSE);
-            }
-            else {
-                cc.setExpanded(Boolean.TRUE);
-                
-                // Flag the container as having been seen
-                browser.runApplyFlagSeenArtifact(cc.getId(), ArtifactType.CONTAINER);
-            }           
-            synchronize();
+            final ContainerCell cell = (ContainerCell) mainCell;
+            triggerExpand(mainCell, !isExpanded(cell)); 
         }
         else if (mainCell instanceof DraftCell) {
-            final DraftCell draft = (DraftCell) mainCell;
-            if(isExpanded(draft)) {
-                draft.setExpanded(Boolean.FALSE);
-            }
-            else {
-                draft.setExpanded(Boolean.TRUE);
-            }
-            synchronize();            
+            final DraftCell cell = (DraftCell) mainCell;
+            triggerExpand(mainCell, !isExpanded(cell));          
         }
         else if (mainCell instanceof ContainerVersionCell) {
-            final ContainerVersionCell cv = (ContainerVersionCell) mainCell;
-            if(isExpanded(cv)) {
-                cv.setExpanded(Boolean.FALSE);
-            }
-            else {
-                cv.setExpanded(Boolean.TRUE);
-            }
-            synchronize();             
+            final ContainerVersionCell cell = (ContainerVersionCell) mainCell;
+            triggerExpand(mainCell, !isExpanded(cell));            
         }
+    }
+    
+    /**
+     * Trigger the expansion of the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     * @param expand
+     *            Boolean flag to expand or collapse.
+     */
+    @Override
+    protected void triggerExpand(final TabCell mainCell, final Boolean expand) {
+        if (mainCell instanceof ContainerCell) {
+            final ContainerCell cell = (ContainerCell) mainCell;
+            if (isExpanded(cell) != expand) {
+                cell.setExpanded(expand);
+                synchronize();
+                
+                if (expand) {
+                    // Flag the container as having been seen
+                    browser.runApplyFlagSeenArtifact(cell.getId(), ArtifactType.CONTAINER);
+                }
+            }      
+        }
+        else if (mainCell instanceof DraftCell) {
+            final DraftCell cell = (DraftCell) mainCell;
+            if (isExpanded(cell) != expand) {
+                cell.setExpanded(expand);
+                synchronize();
+            }          
+        }
+        else if (mainCell instanceof ContainerVersionCell) {
+            final ContainerVersionCell cell = (ContainerVersionCell) mainCell;
+            if (isExpanded(cell) != expand) {
+                cell.setExpanded(expand);
+                synchronize();
+            }              
+        }        
     }
 
     /**

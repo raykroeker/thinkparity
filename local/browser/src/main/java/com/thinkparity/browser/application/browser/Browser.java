@@ -536,7 +536,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDraftCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftCreated");
-        final Boolean select = Boolean.TRUE;
+        final Boolean select = !remote;  // Select if the local user did it.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         
@@ -553,7 +553,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftDeleted");
-        final Boolean select = Boolean.FALSE;
+        final Boolean select = !remote;  // Select if the local user did it.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         

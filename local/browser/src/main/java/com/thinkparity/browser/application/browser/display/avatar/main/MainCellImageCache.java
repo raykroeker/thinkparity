@@ -282,7 +282,7 @@ public class MainCellImageCache {
         INFO_IS_KEYHOLDER("Invisible20x20.png"),
         INFO_IS_NOT_KEYHOLDER("Lock.png"),
 
-        NODE_DEFAULT("Invisible9x9.png"),
+        NODE_DEFAULT("MainCellExpand.png"),
         NODE_EXPANDED("MainCellCollapse.png"),
 
         NODE_SEL_DEFAULT("MainCellExpand.png"),

@@ -6,14 +6,17 @@ package com.thinkparity.browser.application.browser.display.renderer.tab.contain
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 import com.thinkparity.browser.Constants.InsetFactors;
+import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
@@ -28,19 +31,36 @@ import com.thinkparity.browser.platform.action.container.PrintVersion;
 import com.thinkparity.browser.platform.action.container.Share;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
+
 import com.thinkparity.model.container.ContainerVersion;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerVersionCell extends ContainerVersion implements
-        TabCell {
+public class ContainerVersionCell extends ContainerVersion implements TabCell {
 
+    /** The border for the bottom of the container cell. */
+    private static final Border BORDER_BOTTOM;
+
+    /** The border for the top of the container cell. */
+    private static final Border BORDER_TOP;
+    
+    /** The border insets for the top of the container cell. */
+    private static final Insets BORDER_TOP_INSETS;
+    
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
-    static { TEXT_FG = Color.BLACK; }
+    static {
+        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right 
+        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP = new TopBorder(Color.WHITE, BORDER_TOP_INSETS);
+        
+        TEXT_FG = Color.BLACK;
+    }
 
     /** The container cell. */
     private final ContainerCell container;
@@ -106,8 +126,12 @@ public class ContainerVersionCell extends ContainerVersion implements
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder(final int index) {
-        return getParent().getBorder(index);
+    public Border getBorder(final int index, final Boolean lastCell) {
+        if (lastCell) {
+            return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
+        } else {
+            return BORDER_TOP;
+        }
     }
 
     /**

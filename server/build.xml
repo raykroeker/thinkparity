@@ -15,7 +15,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger lib/xdoclet"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/messenger lib/smack lib/smackx lib/xdoclet lib/xstream"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
@@ -36,6 +36,7 @@
     <!-- classpath -->
     <path id="project.classpath">
         <pathelement location="${target.classes.dir}/common/codebase"/>
+        <pathelement location="${target.classes.dir}/common/migrator"/>
         <pathelement location="${target.classes.dir}/common/model"/>
         <pathelement location="${target.classes.dir}/local/model"/>
 		<pathelement location="${target.classes.dir}/remote/codebase"/>
@@ -43,8 +44,12 @@
 
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
         <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
+		<pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
 		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
 		<pathelement location="${basedir}/vendor/messenger/2.3.1/mail.jar"/>
+		<pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
+		<pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
+		<pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
     </path>
     <!-- test-classpath -->
     <path id="project.test-classpath">
@@ -191,6 +196,11 @@
                 destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
         </javac>
+        <!-- common/migrator -->
+        <javac srcdir="common/migrator/src/main/java"
+                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
+            <classpath refid="project.classpath"/>
+        </javac>
         <!-- common/model -->
         <javac srcdir="common/model/src/main/java"
                 destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
@@ -292,8 +302,10 @@ Examples:
 	<target name="init">
         <!-- target/classes/* -->
         <mkdir dir="${target.classes.dir}/common/codebase"/>
+        <mkdir dir="${target.classes.dir}/common/migrator"/>
         <mkdir dir="${target.classes.dir}/common/model"/>
         <mkdir dir="${target.classes.dir}/common/xdoclet"/>
+        <mkdir dir="${target.classes.dir}/local/model"/>
         <mkdir dir="${target.classes.dir}/remote/codebase"/>
         <mkdir dir="${target.classes.dir}/remote/model"/>
 
@@ -404,6 +416,7 @@ Examples:
         <jar destfile="${target.release.plugin.dir}/lib/model.jar">
             <manifest>
             </manifest>
+            <fileset dir="${target.classes.dir}/common/migrator"/>
             <fileset dir="${target.classes.dir}/common/model"/>
             <fileset dir="${target.classes.dir}/local/model"/>
             <fileset dir="${target.classes.dir}/remote/model"/>

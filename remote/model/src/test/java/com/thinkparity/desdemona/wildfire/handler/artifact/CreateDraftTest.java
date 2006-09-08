@@ -1,7 +1,7 @@
 /*
  * Created On: Aug 2, 2006 9:17:00 AM
  */
-package com.thinkparity.model.handler.artifact;
+package com.thinkparity.desdemona.wildfire.handler.artifact;
 
 import com.raykroeker.junitx.TestCase;
 
@@ -25,7 +25,7 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
     }
 
     /**
-     * @see com.thinkparity.model.handler.artifact.ArtifactHandlerTestCase#setUp()
+     * @see com.thinkparity.desdemona.wildfire.handler.artifact.ArtifactHandlerTestCase#setUp()
      */
     @Override
     protected void setUp() throws Exception {
@@ -33,7 +33,7 @@ public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
     }
 
     /**
-     * @see com.thinkparity.model.handler.artifact.ArtifactHandlerTestCase#tearDown()
+     * @see com.thinkparity.desdemona.wildfire.handler.artifact.ArtifactHandlerTestCase#tearDown()
      */
     @Override
     protected void tearDown() throws Exception {

@@ -2,7 +2,7 @@
  * Created On: Tue Jun 06 2006 10:31 PDT
  * $Id$
  */
-package com.thinkparity.model;
+package com.thinkparity.desdemona.model;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

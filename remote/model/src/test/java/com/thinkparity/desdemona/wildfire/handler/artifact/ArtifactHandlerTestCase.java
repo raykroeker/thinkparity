@@ -1,9 +1,9 @@
 /*
  * Created On: Aug 2, 2006 9:15:03 AM
  */
-package com.thinkparity.model.handler.artifact;
+package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import com.thinkparity.model.handler.HandlerTestCase;
+import com.thinkparity.desdemona.wildfire.handler.HandlerTestCase;
 
 /**
  * @author raymond@thinkparity.com
@@ -15,13 +15,13 @@ abstract class ArtifactHandlerTestCase extends HandlerTestCase {
     ArtifactHandlerTestCase(String name) { super(name); }
 
     /**
-     * @see com.thinkparity.model.handler.HandlerTestCase#setUp()
+     * @see com.thinkparity.desdemona.wildfire.handler.HandlerTestCase#setUp()
      */
     @Override
     protected void setUp() throws Exception { super.setUp(); }
 
     /**
-     * @see com.thinkparity.model.handler.HandlerTestCase#tearDown()
+     * @see com.thinkparity.desdemona.wildfire.handler.HandlerTestCase#tearDown()
      */
     @Override
     protected void tearDown() throws Exception { super.tearDown(); }

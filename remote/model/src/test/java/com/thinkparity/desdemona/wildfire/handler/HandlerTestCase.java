@@ -1,7 +1,7 @@
 /*
  * Created On: Aug 2, 2006 9:14:42 AM
  */
-package com.thinkparity.model.handler;
+package com.thinkparity.desdemona.wildfire.handler;
 
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
@@ -9,7 +9,7 @@ import org.xmpp.packet.PacketError;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.desdemona.model.ModelTestCase;
 
 /**
  * @author raymond@thinkparity.com
@@ -60,7 +60,7 @@ public abstract class HandlerTestCase extends ModelTestCase {
     public HandlerTestCase(String name) { super(name); }
 
     /**
-     * @see com.thinkparity.model.ModelTestCase#setUp()
+     * @see com.thinkparity.desdemona.model.ModelTestCase#setUp()
      */
     @Override
     protected void setUp() throws Exception {
@@ -71,7 +71,7 @@ public abstract class HandlerTestCase extends ModelTestCase {
     }
 
     /**
-     * @see com.thinkparity.model.ModelTestCase#tearDown()
+     * @see com.thinkparity.desdemona.model.ModelTestCase#tearDown()
      */
     @Override
     protected void tearDown() throws Exception {

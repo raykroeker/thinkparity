@@ -236,9 +236,9 @@
                 -->
                 <exclude name="com/thinkparity/model/artifact/Artifact.java"/>
                 <exclude name="com/thinkparity/model/artifact/ArtifactType.java"/>
-                <exclude name="com/thinkparity/wildfire/handler/IQAction.java"/>
-                <exclude name="com/thinkparity/server/org/dom4j/ElementName.java"/>
-                <exclude name="com/thinkparity/server/org/dom4j/NamespaceName.java"/>
+                <exclude name="com/thinkparity/desdemona/wildfire/handler/IQAction.java"/>
+                <exclude name="com/thinkparity/desdemona/util/dom4j/ElementName.java"/>
+                <exclude name="com/thinkparity/desdemona/util/dom4j/NamespaceName.java"/>
             </fileset>
             <component classname="org.xdoclet.plugin.jivehandler.JiveHandlerPlugin"
                 destdir="target/generated/remote/model"/>
@@ -363,7 +363,7 @@ Examples:
                 <include name="readme.html"/>
             </fileset>
             <fileset dir="${basedir}/target/generated/remote/model">
-                <include name="jive-handlers.xml"/>   
+                <include name="wildfire-handlers.xml"/>   
             </fileset>   
         </copy>
         <!-- ${target.release.plugin.dir}/classes -->

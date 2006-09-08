@@ -1,7 +1,7 @@
 com.thinkparity.parity.mode:DEVELOPMENT
-pom.name=thinkParity Remote Model
-com.thinkparity.parity.name=thinkParity Remote Model
+pom.name=thinkParity Server (Desdemona)
+com.thinkparity.parity.name=thinkParity Server (Desdemona)
 pom.url=http://www.thinkparity.com
 
-com.thinkparity.parity.releaseId=1.0.0-RC7
-com.thinkparity.parity.version=1.0.0-RC7
+com.thinkparity.parity.releaseId=1.0.0-RC13
+com.thinkparity.parity.version=1.0.0-RC13

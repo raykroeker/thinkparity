@@ -30,7 +30,7 @@ public class JiveHandlerPlugin extends QDoxPlugin {
             final QDoxCapableMetadataProvider metadataProvider,
             final WriterMapper writerMapper) throws ClassNotFoundException {
         super(jellyTemplateEngine, metadataProvider, writerMapper);
-        setFilereplace("jive-handlers.xml");
+        setFilereplace("wildfire-handlers.xml");
         setMultioutput(false);
     }
 
@@ -41,7 +41,7 @@ public class JiveHandlerPlugin extends QDoxPlugin {
     public boolean shouldGenerate(final Object metadata) {
         final JavaClass javaClass = (JavaClass) metadata;
         final boolean isAHandler = javaClass.isA("org.jivesoftware.messenger.handler.IQHandler");
-        final boolean isAnAbstractController = javaClass.isA("com.thinkparity.wildfire.handler.AbstractHandler");
+        final boolean isAnAbstractController = javaClass.isA("com.thinkparity.desdemona.wildfire.handler.AbstractHandler");
         final boolean isAbstract = javaClass.isAbstract();
         final boolean isInterface = javaClass.isInterface();
         if (!isAbstract && !isInterface) {

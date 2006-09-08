@@ -20,10 +20,11 @@ import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactModel;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
+import com.thinkparity.desdemona.model.ParityServerModelException;
+import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 
 /**
  * An abstraction of the parity remote model test case.

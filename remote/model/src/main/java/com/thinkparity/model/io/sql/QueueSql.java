@@ -47,7 +47,7 @@ public class QueueSql extends AbstractSql {
 		.append("select queueId,username,queueMessageSize,queueMessage,")
 		.append("createdOn,updatedOn ")
 		.append("from parityQueue ")
-		.append("where username = ? order by createdOn desc").toString();
+		.append("where username = ? order by createdOn asc").toString();
 
 	/**
 	 * Create a QueueSql.

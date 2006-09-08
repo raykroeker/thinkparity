@@ -1,4 +1,5 @@
 .externalToolBuilders*
 target*
+.launch
 .classpath
 .project

@@ -130,7 +130,7 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
         try {
             final Searcher searcher =
                 new Searcher(indexAnalyzer, indexReader, idField, fields);
-            final List<Hit> hits = searcher.search(expression);
+            final List<Hit> hits = searcher.search(createFinalExpression(expression));
     
             final List<U> indexHits = new ArrayList<U>();
             for (final Hit hit : hits) {
@@ -166,6 +166,26 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
             throws IOException {
         indexWriter.close();
         getIndexDirectory().close();
+    }
+
+    /**
+     * Create a final search expression. This will prepend a wild-card character
+     * to the expression as well as append one.
+     * 
+     * @param expression
+     *            A search expression.
+     * @return The final search expression.
+     */
+    private String createFinalExpression(final String expression) {
+        if (null == expression) {
+            return null;
+        } else {
+            final StringBuffer expressionBuffer = new StringBuffer(expression.trim());
+            if (expression.charAt(expression.length() - 1) != '*') {
+                expressionBuffer.append('*');
+            }
+            return expressionBuffer.toString();
+        }
     }
 
     /**

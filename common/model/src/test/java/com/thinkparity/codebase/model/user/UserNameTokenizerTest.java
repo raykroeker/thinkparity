@@ -7,13 +7,13 @@ package com.thinkparity.codebase.model.user;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thinkparity.ophelia.OpheliaTestCase;
+import com.thinkparity.codebase.model.ModelTestCase;
 
 /**
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class UserNameTokenizerTest extends OpheliaTestCase {
+public class UserNameTokenizerTest extends ModelTestCase {
 
     private static final String NAME = "[LMODEL] [XMPP] [USER] [USER NAME TOKENIZER TEST]";
 

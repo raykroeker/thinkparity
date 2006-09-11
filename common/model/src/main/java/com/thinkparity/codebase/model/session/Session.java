@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 13, 2006 9:44:34 AM
  */
-package com.thinkparity.ophelia.model.session;
+package com.thinkparity.codebase.model.session;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -18,15 +18,7 @@ public final class Session {
     private JabberId jabberId;
 
     /** Create Session. */
-    Session() { super(); }
-
-    /**
-     * Set the jabber id.
-     * 
-     * @param jabberId
-     *            The jabber id.
-     */
-    void setJabberId(final JabberId jabberId) { this.jabberId = jabberId; }
+    public Session() { super(); }
 
     /**
      * Obtain the jabber id.
@@ -34,4 +26,14 @@ public final class Session {
      * @return The jabber id.
      */
     public JabberId getJabberId() { return jabberId; }
+
+    /**
+     * Set the jabber id.
+     * 
+     * @param jabberId
+     *            The jabber id.
+     */
+    public void setJabberId(final JabberId jabberId) {
+        this.jabberId = jabberId;
+    }
 }

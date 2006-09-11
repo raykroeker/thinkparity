@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
 
 

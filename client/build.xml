@@ -176,6 +176,7 @@
 
     <!-- checkout -->
     <target name="checkout">
+        <echo message="${cvs.compressionlevel}"/>
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>

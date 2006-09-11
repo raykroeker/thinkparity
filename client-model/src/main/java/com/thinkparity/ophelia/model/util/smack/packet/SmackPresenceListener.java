@@ -1,0 +1,22 @@
+/*
+ * May 14, 2005
+ */
+package com.thinkparity.ophelia.model.util.smack.packet;
+
+import org.jivesoftware.smack.PacketListener;
+
+/**
+ * XMPPContactListener This listener is used to translate presence packets into
+ * events required by the parity client. The currently required events are
+ * subscription requests by other parity users.
+ * 
+ * @author raykroeker@gmail.com
+ * @version 1.1
+ */
+public abstract class SmackPresenceListener implements PacketListener {
+
+	/**
+	 * Create an XMPPContactListener
+	 */
+	protected SmackPresenceListener() { super(); }
+}

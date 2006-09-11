@@ -1,7 +1,7 @@
 /*
  * Feb 1, 2006
  */
-package com.raykroeker.junitx;
+package com.thinkparity.codebase.junitx;
 
 import java.io.File;
 import java.util.Hashtable;

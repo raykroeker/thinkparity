@@ -1,7 +1,7 @@
 /*
  * Feb 1, 2006
  */
-package com.raykroeker.junitx;
+package com.thinkparity.codebase.junitx;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StringUtil;
+
 
 /**
  * @author raykroeker@gmail.com

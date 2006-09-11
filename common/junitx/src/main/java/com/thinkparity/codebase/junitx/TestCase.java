@@ -1,7 +1,7 @@
 /*
  * Feb 1, 2006
  */
-package com.raykroeker.junitx;
+package com.thinkparity.codebase.junitx;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+
 
 /**
  * The TestCase is an intermediate abstraction between the JUnit library's

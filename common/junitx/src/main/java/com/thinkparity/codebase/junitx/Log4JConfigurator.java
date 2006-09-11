@@ -1,7 +1,7 @@
 /*
  * Feb 1, 2006
  */
-package com.raykroeker.junitx;
+package com.thinkparity.codebase.junitx;
 
 import java.io.File;
 import java.util.Properties;
@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
 
 /**
  * The JUnit Log4J configurator initializes the logging framework prior to

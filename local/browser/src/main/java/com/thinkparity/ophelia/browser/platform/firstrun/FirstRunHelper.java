@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.session.Credentials;
 
 
 
@@ -21,7 +22,6 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.Credentials;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 

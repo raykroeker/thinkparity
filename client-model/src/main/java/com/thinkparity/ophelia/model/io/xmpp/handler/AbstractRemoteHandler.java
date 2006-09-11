@@ -5,10 +5,11 @@
 package com.thinkparity.ophelia.model.io.xmpp.handler;
 
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.ophelia.model.Constants.Connection;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPSessionManager;
-import com.thinkparity.ophelia.model.session.Credentials;
 
 /**
  * @author raymond@thinkparity.com

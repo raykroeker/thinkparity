@@ -5,7 +5,8 @@ package com.thinkparity.ophelia.model.io.xmpp;
 
 import java.util.Vector;
 
-import com.thinkparity.ophelia.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Credentials;
+
 
 /**
  * An xmpp session manager.

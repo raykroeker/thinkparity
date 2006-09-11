@@ -4,9 +4,10 @@
 package com.thinkparity.ophelia.model.session;
 
 
+import com.thinkparity.codebase.model.session.Credentials;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.session.Credentials;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**

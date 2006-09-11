@@ -27,14 +27,14 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Jabber;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
-import com.thinkparity.ophelia.model.session.Credentials;
-import com.thinkparity.ophelia.model.session.Environment;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.*;
 import com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener;
@@ -664,7 +664,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#updateCredentials(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.ophelia.model.session.Credentials)
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#updateCredentials(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.session.Credentials)
      */
     public void updateProfileCredentials(final JabberId userId,
             final Credentials credentials) {

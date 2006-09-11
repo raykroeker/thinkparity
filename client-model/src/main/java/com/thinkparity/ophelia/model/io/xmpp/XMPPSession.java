@@ -18,10 +18,10 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Credentials;
 
 
 import com.thinkparity.ophelia.model.Constants.Jabber;
-import com.thinkparity.ophelia.model.session.Credentials;
 
 /**
  * The parity bootstrap's io xmpp session.

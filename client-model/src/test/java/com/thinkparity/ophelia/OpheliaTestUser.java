@@ -5,10 +5,10 @@ package com.thinkparity.ophelia;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
 
-import com.thinkparity.ophelia.model.session.Credentials;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 

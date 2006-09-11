@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A filter chain is an ordered set of filters linked together.
- * 
+ * TODO Remove from model and reference codebase.
  * @author raykroeker@gmail.com
  * @version 1.1
  */

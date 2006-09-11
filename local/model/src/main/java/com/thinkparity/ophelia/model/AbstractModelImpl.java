@@ -37,6 +37,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 
@@ -67,8 +69,6 @@ import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
 import com.thinkparity.ophelia.model.message.SystemMessageModel;
 import com.thinkparity.ophelia.model.release.InternalReleaseModel;
 import com.thinkparity.ophelia.model.release.ReleaseModel;
-import com.thinkparity.ophelia.model.session.Credentials;
-import com.thinkparity.ophelia.model.session.Environment;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;

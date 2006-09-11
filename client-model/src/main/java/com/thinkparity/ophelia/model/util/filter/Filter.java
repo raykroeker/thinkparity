@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.util.filter;
 
 /**
+ * TODO Remove from model and reference codebase.
  * @author raykroeker@gmail.com
  * @version 1.1
  */

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 
@@ -10,7 +11,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.session.Credentials;
 
 /**
  * @author raymond@thinkparity.com

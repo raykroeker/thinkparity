@@ -51,7 +51,6 @@
     <!-- classpath -->
 	<path id="project.classpath">
 		<pathelement location="${target.classes.dir}/common/codebase"/>
-		<pathelement location="${target.classes.dir}/common/migrator"/>
 		<pathelement location="${target.classes.dir}/common/model"/>
 		<pathelement location="${target.classes.dir}/common/junitx"/>
 		<pathelement location="${target.classes.dir}/local/browser"/>
@@ -96,11 +95,6 @@
         <jar destfile="${target.classes.dir}/common/codebase.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}/common/codebase"/>
-        </jar>
-        <!-- common/migrator -->
-        <jar destfile="${target.classes.dir}/common/migrator.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/common/migrator"/>
         </jar>
         <!-- local/thinkparity -->
         <jar destfile="${target.classes.dir}/local/thinkparity.jar"
@@ -152,7 +146,6 @@
         <copy todir="${target.release.dir}/${release.version}/core">
             <fileset dir="${target.classes.dir}">
                 <include name="common/codebase.jar"/>
-                <include name="common/migrator.jar"/>
                 <include name="local/browser.jar"/>
                 <include name="local/model.jar"/>
             </fileset>
@@ -223,11 +216,6 @@
                 destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
 			<classpath refid="project.classpath"/>
         </javac>
-        <!-- commmon/migrator -->
-        <javac srcdir="common/migrator/src/main/java"
-                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-        </javac>
         <!-- local/thinkparity -->
         <javac srcdir="local/thinkparity/src/main/java"
                 destdir="${target.classes.dir}/local/thinkparity" debug="${compile.innerDebug}">
@@ -279,19 +267,16 @@ Examples:
     <!-- initialize output -->
 	<target name="init">
         <mkdir dir="${target.classes.dir}/common/codebase"/>
-        <mkdir dir="${target.classes.dir}/common/migrator"/>
         <mkdir dir="${target.classes.dir}/common/model"/>
         <mkdir dir="${target.classes.dir}/local/browser"/>
         <mkdir dir="${target.classes.dir}/local/model"/>
         <mkdir dir="${target.classes.dir}/local/thinkparity"/>
         <mkdir dir="${target.javadoc.dir}/common/codebase"/>
-        <mkdir dir="${target.javadoc.dir}/common/migrator"/>
         <mkdir dir="${target.javadoc.dir}/local/browser"/>
         <mkdir dir="${target.javadoc.dir}/local/model"/>
         <mkdir dir="${target.javadoc.dir}/local/thinkparity"/>
 		<mkdir dir="${target.test-classes.dir}/common/codebase"/>
 		<mkdir dir="${target.test-classes.dir}/common/junitx"/>
-		<mkdir dir="${target.test-classes.dir}/common/migrator"/>
 		<mkdir dir="${target.test-classes.dir}/local/browser"/>
 		<mkdir dir="${target.test-classes.dir}/local/model"/>
 		<mkdir dir="${target.test-classes.dir}/local/thinkparity"/>
@@ -311,10 +296,6 @@ Examples:
             </fileset>
             <!-- common/junitx -->   
             <fileset dir="common/junitx/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
-            <!-- common/migrator -->   
-            <fileset dir="common/migrator/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
             <!-- common/model -->   
@@ -347,12 +328,6 @@ Examples:
                 doctitle="thinkParity Common Codebase"
                 packagenames="com.thinkparity.*"
                 sourcepath="${basedir}/common/codebase/src/main/java"/>
-        <!-- common/migrator -->
-        <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}/common/migrator"
-                doctitle="thinkParity Common Migrator"
-                packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/migrator/src/main/java"/>
         <!-- local/thinkparity -->
         <javadoc access="private" classpathref="project.classpath"
                 destdir="${target.javadoc.dir}/local/thinkparity"
@@ -463,6 +438,11 @@ Examples:
         <!-- common/codebase -->
         <javac srcdir="common/codebase/src/test/java"
                 destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+        <!-- common/model -->
+        <javac srcdir="common/model/src/test/java"
+                destdir="${target.test-classes.dir}/common/model" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
         </javac>
         <!-- local/model -->

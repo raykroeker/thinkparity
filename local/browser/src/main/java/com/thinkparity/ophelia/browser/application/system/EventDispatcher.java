@@ -1,0 +1,121 @@
+/*
+ * Mar 18, 2006
+ */
+package com.thinkparity.ophelia.browser.application.system;
+
+import com.thinkparity.ophelia.model.events.DocumentAdapter;
+import com.thinkparity.ophelia.model.events.DocumentEvent;
+import com.thinkparity.ophelia.model.events.DocumentListener;
+import com.thinkparity.ophelia.model.events.SessionListener;
+
+/**
+ * The system application's event dispatcher.  
+ * 
+ * @author raykroeker@gmail.com
+ * @version 1.1
+ */
+class EventDispatcher {
+
+	/** The document listener. */
+	private DocumentListener documentListener;
+
+	/** The application. */
+	private final SystemApplication systemApplication;
+
+    /** The session listener. */
+    private SessionListener sessionListener;
+
+	/**
+	 * Create an EventDispatcher.
+	 * 
+	 * @param sysApp
+	 *            The system application.
+	 */
+	EventDispatcher(final SystemApplication systemApplication) {
+		super();
+		this.systemApplication = systemApplication;
+	}
+
+    /**
+     * End the event dispatcher. This will remove the document and system
+     * message listeners.
+     * 
+     */
+	void end() {
+		systemApplication.getDocumentModel().removeListener(documentListener);
+		documentListener = null;
+
+        systemApplication.getSessionModel().removeListener(sessionListener);
+        sessionListener = null;
+	}
+
+    /**
+     * Start the event dispatcher. This registers a document and system message
+     * listener.
+     * 
+     */
+	void start() {
+		documentListener = createDocumentListener();
+		systemApplication.getDocumentModel().addListener(documentListener);
+
+        sessionListener = createSessionListener();
+        systemApplication.getSessionModel().addListener(sessionListener);
+	}
+
+	/**
+	 * Create an update listener for the document model.
+	 * 
+	 * @return The creation listener.
+	 */
+	private DocumentListener createDocumentListener() {
+		return new DocumentAdapter() {
+            public void documentClosed(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentClosed(e.getDocument());
+            }
+            public void documentCreated(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentCreated(e.getUser(), e.getDocument());
+            }
+            public void documentUpdated(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentUpdated(e.getDocument());
+			}
+            public void keyRequestAccepted(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentKeyRequestAccepted(e.getUser(), e.getDocument());
+            }
+            public void keyRequestDeclined(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentKeyRequestDeclined(e.getUser(), e.getDocument());
+            }
+            public void keyRequested(final DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentKeyRequested(e.getUser(), e.getDocument());
+            }
+            public void documentReactivated(DocumentEvent e) {
+                if(e.isRemote())
+                    systemApplication.fireDocumentReactivated(e.getUser(), e.getDocument(), e.getDocumentVersion());
+            }
+            public void teamMemberAdded(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    systemApplication.fireDocumentTeamMemberAdded(e.getUser(), e.getDocument());
+                }
+            }
+		};
+	}
+
+    private SessionListener createSessionListener() {
+        return new SessionListener() {
+            public void sessionEstablished() {
+                systemApplication.fireConnectionOnline();
+            }
+            public void sessionTerminated() {
+                systemApplication.fireConnectionOffline();
+            }
+            public void sessionTerminated(final Throwable t) {
+                sessionTerminated();
+            }
+        };
+    }
+}

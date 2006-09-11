@@ -691,6 +691,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
             }
             publishedToUsers.add(userModel.read(publishedToId));
         }
+        // add the sender as well
+        if (!contains(localTeam, publishedBy)) {
+            artifactModel.addTeamMember(containerId, publishedBy);
+        }
         // create published to list
         containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
         // fire event

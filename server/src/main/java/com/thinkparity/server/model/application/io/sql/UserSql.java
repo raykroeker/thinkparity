@@ -13,8 +13,10 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.profile.VerificationKey;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.profile.Feature;
@@ -37,6 +39,21 @@ public class UserSql extends AbstractSql {
     private static final String SQL_DELETE_EMAIL =
             new StringBuffer("delete from PARITYUSEREMAIL ")
             .append("where USERNAME=? and EMAIL=?")
+            .toString();
+
+    /** Sql to read all users. */
+    private static final String SQL_READ =
+            new StringBuffer("select * ")
+            .append("from jiveUser JU ")
+            .append("order by JU.USERNAME")
+            .toString();
+
+    /** Sql to read a user. */
+    private static final String SQL_READ_BY_USER_ID =
+            new StringBuffer("select * ")
+            .append("from jiveUser JU ")
+            .append("where JU.USERNAME=? ")
+            .append("order by JU.USERNAME")
             .toString();
 
     /** Sql to read email addresses. */
@@ -133,6 +150,42 @@ public class UserSql extends AbstractSql {
         }
     }
 
+    /**
+     * Read a list of users.
+     * 
+     * @return A list of users.
+     */
+    public List<User> read() {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ);
+            session.executeQuery();
+            final List<User> users = new ArrayList<User>();
+            while (session.nextResult()) {
+                users.add(extract(session));
+            }
+            return users;
+        } finally {
+            session.close();
+        }
+    }
+
+    public User read(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_USER_ID);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extract(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
     public EMail readEmail(final JabberId userId, final EMail email,
             final VerificationKey key) throws SQLException {
         Connection cx = null;
@@ -190,13 +243,6 @@ public class UserSql extends AbstractSql {
         } finally {
             session.close();
         }
-    }
-
-    Feature extractFeature(final HypersonicSession session) {
-        final Feature feature = new Feature();
-        feature.setId(session.getLong("FEATURE_ID"));
-        feature.setName(session.getString("FEATURE_NAME"));
-        return feature;
     }
 
     /**
@@ -306,7 +352,27 @@ public class UserSql extends AbstractSql {
         }
     }
 
+    /**
+     * Extract the user information from the database session.
+     * 
+     * @param session
+     *            A db session.
+     * @return A user.
+     */
+    User extract(final HypersonicSession session) {
+        final User user = new User();
+        user.setId(JabberIdBuilder.parseUsername(session.getString("USERNAME")));
+        return user;
+    }
+
     EMail extractEMail(final ResultSet rs) throws SQLException {
         return EMailBuilder.parse(rs.getString("EMAIL"));
+    }
+
+    Feature extractFeature(final HypersonicSession session) {
+        final Feature feature = new Feature();
+        feature.setId(session.getLong("FEATURE_ID"));
+        feature.setName(session.getString("FEATURE_NAME"));
+        return feature;
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.dom4j.Element;
 
-import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.util.dom4j.ElementBuilder;
 import com.thinkparity.desdemona.util.dom4j.ElementName;

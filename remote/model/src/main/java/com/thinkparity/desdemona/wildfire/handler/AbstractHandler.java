@@ -20,8 +20,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
@@ -29,6 +29,7 @@ import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQReader;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 
@@ -43,14 +44,17 @@ import com.thinkparity.desdemona.util.xmpp.IQWriter;
 public abstract class AbstractHandler extends
         com.thinkparity.codebase.wildfire.handler.AbstractHandler {
 
-    /** A thinkParity artifact model interface. */
+    /** A thinkParity artifact interface. */
     private ArtifactModel artifactModel;
 
-    /** A thinkParity contact model interface. */
+    /** A thinkParity contact interface. */
     private ContactModel contactModel;
 
-    /** A thinkParity container model interface. */
+    /** A thinkParity container interface. */
     private ContainerModel containerModel;
+
+    /** A thinkParity user interface. */
+    private UserModel userModel;
 
     /** A custom iq reader. */
     private IQReader iqReader;
@@ -114,6 +118,7 @@ public abstract class AbstractHandler extends
             this.contactModel = ContactModel.getModel(session);
             this.containerModel = ContainerModel.getModel(session);
             this.profileModel = ProfileModel.getModel(session);
+            this.userModel = UserModel.getModel(session);
             logVariable("iq", iq);
             final IQ response = super.handleIQ(iq);
             logVariable("response", response);
@@ -122,27 +127,31 @@ public abstract class AbstractHandler extends
     }
 
     /**
-     * Obtain the artifact model.
+     * Obtain a thinkParity artifact interface.
      * 
-     * @return The artifact model.
-     * @see #handleIQ(IQ)
+     * @return A thinkParity artifact interface.
      */
-    protected ArtifactModel getArtifactModel() { return artifactModel; }
+    protected ArtifactModel getArtifactModel() {
+        return artifactModel;
+    }
 
     /**
-     * Obtain the contact model.
-     * @return The contact model.
-     * @see #handleIQ(IQ)
+     * Obtain a thinkParity contact interface.
+     * 
+     * @return A thinkParity contact interface.
      */
-    protected ContactModel getContactModel() { return contactModel; }
+    protected ContactModel getContactModel() {
+        return contactModel;
+    }
 
     /**
-     * Obtain the contianer model.
+     * Obtain a thinkParity container interface.
      * 
-     * @return The container model.
-     * @see #handleIQ(IQ)
+     * @return A thinkParity container interface.
      */
-    protected ContainerModel getContainerModel() { return containerModel; }
+    protected ContainerModel getContainerModel() {
+        return containerModel;
+    }
 
     /**
      * Obtain an error id.
@@ -158,11 +167,22 @@ public abstract class AbstractHandler extends
     }
 
     /**
-     * Obtain the thinkParity profile interface.
+     * Obtain a thinkParity profile interface.
      * 
      * @return A thinkParity profile interface.
      */
-    protected ProfileModel getProfileModel() { return profileModel; }
+    protected ProfileModel getProfileModel() {
+        return profileModel;
+    }
+
+    /**
+     * Obtain a thinkParity user interface.
+     * 
+     * @return A thinkParity user interface.
+     */
+    protected UserModel getUserModel() {
+        return userModel;
+    }
 
     /** Log an api id. */
     protected final void logApiId() {

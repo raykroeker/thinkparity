@@ -1,5 +1,5 @@
 /*
- * Mar 1, 2006
+ * Created On: Mar 1, 2006
  */
 package com.thinkparity.desdemona.model.user;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -56,17 +56,35 @@ public class UserModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-    public User readUser(final EMail email) {
+    /**
+     * Read a list of users.
+     * 
+     * @return A list of users.
+     */
+    public List<User> read() {
         synchronized (implLock) {
-            return impl.readUser(email);
+            return impl.read();
         }
     }
 
-	public User readUser(final JabberId jabberId) {
-		synchronized(implLock) { return impl.readUser(jabberId); }
+	public User read(final EMail email) {
+        synchronized (implLock) {
+            return impl.read(email);
+        }
+    }
+
+	public User read(final JabberId userId) {
+		synchronized(implLock) { return impl.read(userId); }
 	}
 
-	public List<User> readUsers(final List<JabberId> jabberIds) throws ParityServerModelException {
-		synchronized(implLock) { return impl.readUsers(jabberIds); }
+    public List<User> read(final List<JabberId> userIds) throws ParityServerModelException {
+		synchronized(implLock) { return impl.read(userIds); }
 	}
+
+    public void update(final JabberId userId, final String name,
+            final String organization, final String title) {
+        synchronized (implLock) {
+            impl.update(userId, name, organization, title);
+        }
+    }
 }

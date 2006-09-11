@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Writer <br>

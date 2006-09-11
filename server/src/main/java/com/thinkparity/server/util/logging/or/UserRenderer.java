@@ -6,7 +6,7 @@ package com.thinkparity.desdemona.util.logging.or;
 import org.apache.log4j.or.ObjectRenderer;
 
 
-import com.thinkparity.desdemona.model.user.User;
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * @author raykroeker@gmail.com

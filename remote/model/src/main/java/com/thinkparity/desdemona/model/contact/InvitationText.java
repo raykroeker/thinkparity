@@ -14,7 +14,7 @@ import com.thinkparity.codebase.http.LinkFactory;
 
 
 import com.thinkparity.desdemona.model.Version;
-import com.thinkparity.desdemona.model.user.User;
+import com.thinkparity.codebase.model.user.User;
 
 
 /**

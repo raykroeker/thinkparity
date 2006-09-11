@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.contact.Contact;
 
-
-import com.thinkparity.desdemona.model.contact.Contact;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 

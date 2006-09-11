@@ -9,12 +9,11 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.ParityServerModelException;
-import com.thinkparity.desdemona.model.contact.Contact;
 import com.thinkparity.desdemona.model.session.Session;
 
 
@@ -134,19 +133,7 @@ public class ArtifactModel extends AbstractModel {
 		}
 	}
 
-    /**
-	 * Obtain a handle to an artifact for a given artifact unique id.
-	 * 
-	 * @param artifactUniqueId
-	 *            An artifact unique id.
-	 */
-	public Artifact read(final UUID artifactUniqueId) {
-		synchronized (implLock) {
-            return impl.read(artifactUniqueId);
-		}
-	}
-
-	public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
+    public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		synchronized(implLock) { return impl.getSubscription(artifactUniqueId); }
 	}
@@ -169,11 +156,19 @@ public class ArtifactModel extends AbstractModel {
         }
     }
 
-	public List<Contact> readContacts(final UUID artifactUniqueId) {
-		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
+	/**
+	 * Obtain a handle to an artifact for a given artifact unique id.
+	 * 
+	 * @param artifactUniqueId
+	 *            An artifact unique id.
+	 */
+	public Artifact read(final UUID artifactUniqueId) {
+		synchronized (implLock) {
+            return impl.read(artifactUniqueId);
+		}
 	}
 
-    /**
+	/**
      * Read the key holder for an artifact.
      * 
      * @param userId
@@ -187,6 +182,12 @@ public class ArtifactModel extends AbstractModel {
             return impl.readKeyHolder(userId, uniqueId);
         }
     }
+
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
+		synchronized (implLock) {
+            return impl.readTeamIds(uniqueId);
+		}
+	}
 
 	/**
      * Remove a user from an artifact's team.

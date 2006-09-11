@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.dom4j.Element;
 
-import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 
 /**

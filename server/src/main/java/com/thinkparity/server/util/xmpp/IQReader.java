@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Reader <br>

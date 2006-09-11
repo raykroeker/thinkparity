@@ -7,7 +7,7 @@ import org.dom4j.Element;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;

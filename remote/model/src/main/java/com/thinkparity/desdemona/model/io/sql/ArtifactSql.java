@@ -19,12 +19,12 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactState;
 
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.desdemona.model.user.User;
+import com.thinkparity.codebase.model.user.User;
 
 
 /**

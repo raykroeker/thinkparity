@@ -3,7 +3,7 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
-import com.thinkparity.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.session.Session;

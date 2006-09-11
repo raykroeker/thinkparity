@@ -11,16 +11,16 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.user.User;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 
 

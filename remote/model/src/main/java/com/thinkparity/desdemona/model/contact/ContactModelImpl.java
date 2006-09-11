@@ -14,23 +14,18 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.jivesoftware.messenger.vcard.VCardManager;
-import org.jivesoftware.messenger.vcard.VCardProvider;
-
-import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.Constants.VCardFields;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.user.User;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
@@ -52,9 +47,6 @@ class ContactModelImpl extends AbstractModelImpl {
     /** The thinkParity user io. */
     private final UserSql userSql;
 
-    /** A jive vcard provider. */
-    private final VCardProvider vcardProvider;
-
     /**
 	 * Create ContactModelImpl.
 	 * 
@@ -66,7 +58,6 @@ class ContactModelImpl extends AbstractModelImpl {
 		this.contactSql = new ContactSql();
 		this.invitationSql = new InvitationSql();
         this.userSql = new UserSql();
-        this.vcardProvider = VCardManager.getProvider();
 	}
 
     /**
@@ -192,7 +183,7 @@ class ContactModelImpl extends AbstractModelImpl {
         logVariable("deletedOn", deletedOn);
 		try {
 		    final UserModel userModel = getUserModel();
-            final User invitedAsUser = userModel.readUser(invitedAs);
+            final User invitedAsUser = userModel.read(invitedAs);
             if (null == invitedAsUser) {
                 // delete remote data
                 invitationSql.deleteEmail(userId, invitedAs);
@@ -231,13 +222,13 @@ class ContactModelImpl extends AbstractModelImpl {
         logVariable("extendedOn", extendedOn);
         try {
             final UserModel userModel = getUserModel();
-            final User extendToUser = userModel.readUser(extendTo);
+            final User extendToUser = userModel.read(extendTo);
             if (null == extendToUser) {
                 // create remote data
                 invitationSql.createEmail(userId, extendTo);
                 // extend the invitation via SMTP
                 final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
-                createInvitation(mimeMessage, extendTo, userModel.readUser(userId));
+                createInvitation(mimeMessage, extendTo, userModel.read(userId));
                 addRecipient(mimeMessage, extendTo);
                 TransportManager.deliver(mimeMessage);
             } else {
@@ -279,21 +270,7 @@ class ContactModelImpl extends AbstractModelImpl {
 		logVariable("contactId", contactId);
         assertIsAuthenticatedUser(userId);
 		try {
-		    final User user = getUserModel().readUser(contactId);
-
-            final Element vcard = vcardProvider.loadVCard(contactId.getUsername());
-            final Contact contact = new Contact();
-            contact.setId(user.getId());
-            contact.setName((String) vcard.element("FN").getData());
-            final Element orgElement = vcard.element("ORG");
-            if (null != orgElement) {
-                contact.setOrganization((String) orgElement.element("ORGNAME").getData());
-            }
-            final Element titleElement = vcard.element(VCardFields.TITLE);
-            if (null != titleElement) {
-                contact.setTitle((String) titleElement.getData());
-            }
-            contact.setVCard(vcard);
+		    final Contact contact = inject(new Contact(), getUserModel().read(contactId));
             contact.addAllEmails(userSql.readEmails(contactId, Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {

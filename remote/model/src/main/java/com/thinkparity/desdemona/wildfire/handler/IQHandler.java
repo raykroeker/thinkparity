@@ -29,7 +29,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;

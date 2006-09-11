@@ -31,8 +31,9 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactSubscription;
@@ -41,7 +42,6 @@ import com.thinkparity.desdemona.model.document.DocumentModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.session.SessionModel;
-import com.thinkparity.desdemona.model.user.User;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
@@ -92,7 +92,7 @@ public abstract class AbstractModelImpl {
                 new InternetAddress(email.toString(), Boolean.TRUE));
     }
 
-	/**
+    /**
      * Assert that the actual and expected jabber id's are equal.
      * 
      * @param assertion
@@ -122,7 +122,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-    /**
+	/**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -198,7 +198,7 @@ public abstract class AbstractModelImpl {
         return new IQWriter(iq);
     }
 
-	protected Calendar currentDateTime() {
+    protected Calendar currentDateTime() {
         return DateUtil.getInstance();
     }
 
@@ -221,7 +221,7 @@ public abstract class AbstractModelImpl {
 		return ContactModel.getModel(session);
 	}
 
-    /**
+	/**
      * Obtain the parity document interface.
      * 
      * @return The parity document interface.
@@ -230,7 +230,7 @@ public abstract class AbstractModelImpl {
         return DocumentModel.getModel(session);
     }
 
-	/**
+    /**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -253,7 +253,7 @@ public abstract class AbstractModelImpl {
 		return sModel;
 	}
 
-    /**
+	/**
      * Obtain the parity user interface.
      * 
      * @return The parity user interface.
@@ -262,6 +262,25 @@ public abstract class AbstractModelImpl {
 		final UserModel uModel = UserModel.getModel(session);
 		return uModel;
 	}
+
+    /**
+     * Inject the fields of a user into a user type object.
+     * 
+     * @param <T>
+     *            A type of <code>User</code>.
+     * @param type
+     *            A <code>T</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>T</code>.
+     */
+    protected <T extends User> T inject(final T type, final User user) {
+        type.setId(user.getId());
+        type.setName(user.getName());
+        type.setOrganization(user.getOrganization());
+        type.setTitle(user.getTitle());
+        return logVariable("type", type);
+    }
 
 	/**
      * Determine if the user account is still active.

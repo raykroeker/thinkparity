@@ -27,6 +27,26 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('thinkparity', 'What is my username?', 'thinkparity');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('thinkparity', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.rkroeker','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.ahalaby','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.rwaterhouse','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.ashaftoe','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.brussell','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.gdengo','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.junit','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.junit.x','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.junit.y','parity',0,0);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.backup.junit.z','parity',0,0);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);

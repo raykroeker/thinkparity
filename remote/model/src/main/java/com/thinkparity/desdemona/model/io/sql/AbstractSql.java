@@ -18,7 +18,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.artifact.ArtifactState;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicConnectionProvider;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;

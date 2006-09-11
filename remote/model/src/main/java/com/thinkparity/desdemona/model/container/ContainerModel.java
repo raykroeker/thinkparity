@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;

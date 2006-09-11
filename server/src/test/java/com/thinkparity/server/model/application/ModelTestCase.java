@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;

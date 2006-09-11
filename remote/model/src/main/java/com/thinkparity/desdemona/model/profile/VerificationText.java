@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.email.EMail;
 
-import com.thinkparity.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.profile.VerificationKey;
 
 /** 
  * @author raymond@thinkparity.com

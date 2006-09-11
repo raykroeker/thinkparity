@@ -5,8 +5,7 @@ package com.thinkparity.desdemona.util.logging.or;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-
-import com.thinkparity.desdemona.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.Profile;
 
 /**
  * @author raymond@thinkparity.com
@@ -33,9 +32,7 @@ public class ProfileObjectRenderer extends AbstractObjectRenderer implements
                 .append(",name:").append(p.getName())
                 .append(",organization:").append(p.getOrganization())
                 .append(",title:").append(p.getTitle())
-                .append(",vcard:").append(render(p.getVCard()))
                 .toString();
         }
     }
-
 }

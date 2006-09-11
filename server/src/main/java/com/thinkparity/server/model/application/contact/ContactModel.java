@@ -8,11 +8,10 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
+import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
-
 
 /**
  * @author raykroeker@gmail.com

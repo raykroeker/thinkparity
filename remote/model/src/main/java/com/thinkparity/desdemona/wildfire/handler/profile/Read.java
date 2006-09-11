@@ -4,10 +4,8 @@
 package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.profile.Profile;
 
-
-import com.thinkparity.desdemona.model.Constants.Xml;
-import com.thinkparity.desdemona.model.profile.Profile;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
@@ -25,15 +23,16 @@ public class Read extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        final Profile profile = read(readJabberId("jabberId"));
+        final Profile profile =
+            logVariable("profile", read(readJabberId("userId")));
 
         if(null != profile) {
-            writeJabberId(Xml.Profile.JABBER_ID, profile.getId());
-            writeString(Xml.Profile.NAME, profile.getName());
+            writeJabberId("id", profile.getId());
+            writeString("name", profile.getName());
             if (profile.isSetOrganization())
-                writeString(Xml.Profile.ORGANIZATION, profile.getOrganization());
+                writeString("organization", profile.getOrganization());
             if (profile.isSetTitle())
-                writeString(Xml.Profile.TITLE, profile.getTitle());
+                writeString("title", profile.getTitle());
         }
     }
 

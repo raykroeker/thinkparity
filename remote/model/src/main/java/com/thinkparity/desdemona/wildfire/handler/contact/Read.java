@@ -4,10 +4,9 @@
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
+import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.desdemona.model.Constants.Xml;
-import com.thinkparity.desdemona.model.contact.Contact;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
@@ -37,7 +36,6 @@ public class Read extends AbstractHandler {
                 writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
             if (contact.isSetTitle())
                 writeString("title", contact.getTitle());
-            writeString(Xml.Contact.VCARD, contact.getVCard().asXML());
         }
     }
 

@@ -20,7 +20,7 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 /** 
  * @author raykroeker@gmail.com

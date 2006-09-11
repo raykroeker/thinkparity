@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 
 import com.thinkparity.desdemona.util.dom4j.ElementBuilder;
 import com.thinkparity.desdemona.util.dom4j.ElementName;

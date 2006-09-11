@@ -16,23 +16,21 @@ import javax.mail.internet.MimeMultipart;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserManager;
 import org.jivesoftware.messenger.user.UserProvider;
-import org.jivesoftware.messenger.vcard.VCardManager;
 
-import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.profile.VerificationKey;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.Constants.VCardFields;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.user.User;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
@@ -56,9 +54,6 @@ class ProfileModelImpl extends AbstractModelImpl {
     /** User db io. */
     private final UserSql userSql;
 
-    /** A jive vcard provider. */
-    private final VCardManager vcardManager;
-
     /**
      * Create ProfileModelImpl.
      *
@@ -69,7 +64,6 @@ class ProfileModelImpl extends AbstractModelImpl {
         super(session);
         this.contactSql = new ContactSql();
         this.userProvider = UserManager.getUserProvider();
-        this.vcardManager = VCardManager.getInstance();
         this.userSql = new UserSql();
     }
 
@@ -112,19 +106,10 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            final User user = getUserModel().readUser(userId);
-            final Element vCardElement = user.getVCard();
+            final User user = getUserModel().read(userId);
     
             final Profile profile = new Profile();
-            profile.setId(user.getId());
-            profile.setName((String) vCardElement.element("FN").getData());
-            profile.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
-            final Element titleElement = vCardElement.element(VCardFields.TITLE);
-            if (null != titleElement)
-                profile.setTitle((String) titleElement.getData());
-    
-            profile.setVCard(user.getVCard());
-            return logVariable("profile", profile);
+            return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -240,37 +225,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("organization", organization);
         logVariable("title", title);
         try {
-            // save vcard
-            final Element vcard = vcardManager.getVCard(userId.getUsername());
-            vcard.element("FN").setText(name);
-            Element orgElement = vcard.element("ORG");
-            Element orgNameElement = null;
-            if (null != organization) {
-                if (null == orgElement) {
-                    orgElement = vcard.addElement("ORG");
-                }
-                orgNameElement = orgElement.element("ORGNAME");
-                if (null == orgNameElement) {
-                    orgNameElement = orgElement.addElement("ORGNAME");
-                }
-                orgNameElement.setText(organization);
-            } else {
-                if (null != orgElement) {
-                    vcard.remove(orgElement);
-                }
-            }
-            Element titleElement = vcard.element(VCardFields.TITLE);
-            if (null != title) {
-                if (null == titleElement) {
-                    titleElement = vcard.addElement(VCardFields.TITLE);
-                }
-                titleElement.setText(title);
-            } else {
-                if (null != titleElement) {
-                    vcard.remove(titleElement);
-                }
-            }
-            vcardManager.setVCard(userId.getUsername(), logVariable("vcard", vcard));
+            getUserModel().update(userId, name, organization, title);
             notifyContactUpdated(userId);
         } catch (final Throwable t) {
             throw translateError(t);

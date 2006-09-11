@@ -3,8 +3,8 @@
  */
 package com.thinkparity.desdemona.model.artifact;
 
-import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 
 /**

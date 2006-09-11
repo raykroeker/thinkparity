@@ -3,7 +3,7 @@
  */
 package com.thinkparity.codebase;
 
-import com.raykroeker.junitx.TestCase;
+import com.thinkparity.codebase.junitx.TestCase;
 
 /**
  * Codebase abstract test case.

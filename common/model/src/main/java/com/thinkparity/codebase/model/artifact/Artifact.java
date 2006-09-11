@@ -1,14 +1,14 @@
 /*
  * Feb 18, 2005
  */
-package com.thinkparity.model.artifact;
+package com.thinkparity.codebase.model.artifact;
 
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.note.Note;
 
-import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.note.Note;
 
 /**
  * The parity object is the quintessential parity model object. It represents

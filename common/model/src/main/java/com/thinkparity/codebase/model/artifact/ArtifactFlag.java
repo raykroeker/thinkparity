@@ -1,7 +1,7 @@
 /*
  * Nov 14, 2005
  */
-package com.thinkparity.model.artifact;
+package com.thinkparity.codebase.model.artifact;
 
 import com.thinkparity.codebase.assertion.Assert;
 

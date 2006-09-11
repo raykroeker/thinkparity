@@ -1,7 +1,7 @@
 /*
  * Mar 25, 2006
  */
-package com.thinkparity.model.artifact;
+package com.thinkparity.codebase.model.artifact;
 
 import java.util.Calendar;
 

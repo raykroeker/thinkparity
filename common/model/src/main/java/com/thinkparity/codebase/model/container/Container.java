@@ -1,10 +1,10 @@
 /*
  * Generated On: Jun 27 06 12:13:12 PM
  */
-package com.thinkparity.model.container;
+package com.thinkparity.codebase.model.container;
 
-import com.thinkparity.model.artifact.Artifact;
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 /**
  * <b>Title:</b>thinkParity Container<br>
@@ -25,7 +25,7 @@ public class Container extends Artifact {
 	public Container() { super(); }
 
     /**
-     * @see com.thinkparity.model.artifact.Artifact#getType()
+     * @see com.thinkparity.codebase.model.artifact.Artifact#getType()
      * 
      */
     public ArtifactType getType() { return ArtifactType.CONTAINER; }

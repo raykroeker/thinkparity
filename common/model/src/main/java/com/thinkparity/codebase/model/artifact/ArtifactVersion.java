@@ -1,13 +1,14 @@
 /*
  * Apr 16, 2005
  */
-package com.thinkparity.model.artifact;
+package com.thinkparity.codebase.model.artifact;
 
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+
 
 /**
  * ArtifactVersion

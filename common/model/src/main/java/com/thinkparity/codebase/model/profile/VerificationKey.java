@@ -1,7 +1,7 @@
 /*
  * Created On: Aug 27, 2006 9:49:05 AM
  */
-package com.thinkparity.model.profile;
+package com.thinkparity.codebase.model.profile;
 
 import com.thinkparity.codebase.email.EMail;
 

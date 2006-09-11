@@ -2,9 +2,9 @@
  * Created On: Jun 29, 2006 11:30:39 AM
  * $Id$
  */
-package com.thinkparity.model.container;
+package com.thinkparity.codebase.model.container;
 
-import com.thinkparity.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 /**
  * <b>Title:</b>thinkParity Container Version<br>

@@ -2,7 +2,7 @@
  * Created On: Feb 19, 2006
  * $Id$
  */
-package com.thinkparity.model.artifact;
+package com.thinkparity.codebase.model.artifact;
 
 import com.thinkparity.codebase.assertion.Assert;
 

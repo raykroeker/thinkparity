@@ -1,7 +1,7 @@
 /*
  * Apr 25, 2005
  */
-package com.thinkparity.model.note;
+package com.thinkparity.codebase.model.note;
 
 /**
  * A parity note. Is a wrapper around a simple text string.

@@ -316,7 +316,7 @@ class XMPPArtifact extends AbstractXMPP {
         final XMPPMethod readTeam = new XMPPMethod("artifact:readteamids");
         readTeam.setParameter("uniqueId", uniqueId);
         final XMPPMethodResponse response = execute(readTeam, Boolean.TRUE);
-        return response.readResultJabberIds("teamMembers");
+        return response.readResultJabberIds("teamIds");
 	}
 
 	void removeListener(final XMPPArtifactListener l) {

@@ -516,11 +516,12 @@ public class Browser extends AbstractApplication {
      *            True if the action was the result of a remote event; false if
      *            the action was a local event.
      */
-    public void fireContainerDocumentRemoved(final Long documentId) {
+    public void fireContainerDocumentRemoved(final Long containerId,
+            final Long documentId) {
         setStatus("DocumentDeleted");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncDocument(documentId, Boolean.FALSE);
+                getTabContainerAvatar().syncDocument(containerId, documentId, Boolean.FALSE);
             }
         });
     }
@@ -627,16 +628,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Notify the browser that a document draft has been updated.
+     * Notify the browser that a document draft has been updated (ie. documents changed)
      * 
      * @param documentId
      *            A document id.
      */
-    public void fireDocumentDraftUpdated(final Long documentId) {
+    public void fireDocumentDraftUpdated(final Long containerId, final Long documentId) {
         setStatus("DocumentUpdated");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncDocument(documentId, Boolean.FALSE);
+                getTabContainerAvatar().syncDocument(containerId, documentId, Boolean.FALSE);
             }
         });
     }
@@ -1245,8 +1246,10 @@ public class Browser extends AbstractApplication {
      * @param file
      *            A file.
      */
-    public void runUpdateDocumentDraft(final Long documentId, final File file) {
-        final Data data = new Data(2);
+    public void runUpdateDocumentDraft(final Long containerId,
+            final Long documentId, final File file) {
+        final Data data = new Data(3);
+        data.set(UpdateDraft.DataKey.CONTAINER_ID, containerId);
         data.set(UpdateDraft.DataKey.DOCUMENT_ID, documentId);
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);

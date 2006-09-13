@@ -34,6 +34,7 @@ public class UpdateDraft extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final File file = (File) data.get(DataKey.FILE);
 
@@ -41,7 +42,7 @@ public class UpdateDraft extends AbstractAction {
             final InputStream content = new FileInputStream(file);
             try {
                 getDocumentModel().updateDraft(documentId, content);
-                browser.fireDocumentDraftUpdated(documentId);
+                browser.fireDocumentDraftUpdated(containerId, documentId);
             } finally {
                 content.close();
             }
@@ -49,5 +50,5 @@ public class UpdateDraft extends AbstractAction {
         catch(final IOException iox) { throw translateError(iox); }
     }
 
-    public enum DataKey { DOCUMENT_ID, FILE }
+    public enum DataKey { CONTAINER_ID, DOCUMENT_ID, FILE }
 }

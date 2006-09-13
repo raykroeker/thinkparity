@@ -133,7 +133,7 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder(final int index, final Boolean lastCell) {
+    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
         if (lastCell) {
             return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
         } else {
@@ -224,6 +224,14 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      */
     public String getToolTip() {
         return null;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
+     * 
+     */
+    public Boolean isFirstInGroup() {
+        return Boolean.FALSE;
     }
 
     /**

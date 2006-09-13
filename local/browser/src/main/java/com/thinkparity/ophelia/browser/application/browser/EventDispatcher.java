@@ -130,7 +130,7 @@ class EventDispatcher {
             }
             @Override
             public void documentRemoved(final ContainerEvent e) {
-                browser.fireContainerDocumentRemoved(e.getDocument().getId());
+                browser.fireContainerDocumentRemoved(e.getContainer().getId(), e.getDocument().getId());
             }
             @Override
             public void draftCreated(final ContainerEvent e) {

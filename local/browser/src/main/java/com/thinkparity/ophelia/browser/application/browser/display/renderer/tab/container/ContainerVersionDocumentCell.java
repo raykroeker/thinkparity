@@ -96,8 +96,8 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder(final int index, final Boolean lastCell) {
-        return getParent().getBorder(index, lastCell);
+    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
+        return getParent().getBorder(index, isFirstInGroup, lastCell);
     }
 
     /**
@@ -169,6 +169,14 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     public String getToolTip() {
         if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
         else { return null; }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
+     * 
+     */
+    public Boolean isFirstInGroup() {
+        return Boolean.FALSE;
     }
 
     /**

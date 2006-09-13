@@ -65,7 +65,7 @@ public class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder(final int index, final Boolean lastCell) {
+    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
         final Border topBorder;
         if (0 == index) {
             topBorder = BORDER_TOP_0;
@@ -137,6 +137,13 @@ public class DefaultTabCell implements TabCell {
     public String getToolTip() {
         return getText();
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
+     */
+    public Boolean isFirstInGroup() {
+        return Boolean.FALSE;
+    }   
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)

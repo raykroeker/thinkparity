@@ -43,12 +43,14 @@ public interface TabCell {
      * Obtain the border to be installed around the edge of the main cell.
      * @param index
      *          The index of this cell in the list model.
+     * @param isFirstInGroup
+     *          TRUE if this is the first cell in a logical group.
      * @param lastCell
      *          TRUE if this is the last cell in the list model.
      * 
      * @return A border.
      */
-    public Border getBorder(int index, Boolean lastCell);
+    public Border getBorder(int index, Boolean isFirstInGroup, Boolean lastCell);
 
     /**
      * Obtain the node icon.
@@ -113,6 +115,13 @@ public interface TabCell {
      * @return A string.
      */
     public String getToolTip();
+    
+    /**
+     * Determine if this cell is the first in a group of cells.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isFirstInGroup();
 
     /**
      * Trigger a connection sensitive popup menu for the cell.

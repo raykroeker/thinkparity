@@ -221,7 +221,7 @@ public class ImportTxHandler extends TransferHandler {
             for (final File file : updateFileList) {
                 final Long documentId = containerModel.getDocumentId(cellContainer, file.getName());
                 if (documentId != null) {
-                    runUpdateDocumentDraft(documentId, file);
+                    runUpdateDocumentDraft(cellContainer.getId(), documentId, file);
                 }
             }
         }
@@ -294,19 +294,21 @@ public class ImportTxHandler extends TransferHandler {
     /**
      * Run the update document draft action via the browser.
      * 
+     * @param containerId
+     *          A container id.
      * @param documentId
      *          A document id.
      * @param file
      *		A file.
      */
-    private void runUpdateDocumentDraft(final Long documentId, final File file) {
+    private void runUpdateDocumentDraft(final Long containerId, final Long documentId, final File file) {
         if (containerModel.isDraftModified(documentId)) {
             if (browser.confirm("ConfirmOverwriteWorking",
 		    new Object[] { file.getName() })) {
-                browser.runUpdateDocumentDraft(documentId, file);
+                browser.runUpdateDocumentDraft(containerId, documentId, file);
             }
         } else {
-            browser.runUpdateDocumentDraft(documentId, file);
+            browser.runUpdateDocumentDraft(containerId, documentId, file);
         }             
     }
     
@@ -375,7 +377,7 @@ public class ImportTxHandler extends TransferHandler {
         }
         
         // Replace the document
-        runUpdateDocumentDraft(draftDocument.getId(), updateFile);
+        runUpdateDocumentDraft(cellContainer.getId(), draftDocument.getId(), updateFile);
         return true;        
     }
 }

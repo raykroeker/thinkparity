@@ -75,7 +75,7 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder(int index, final Boolean lastCell) {
+    public Border getBorder(int index, final Boolean isFirstInGroup, final Boolean lastCell) {
         return null;
     }
 
@@ -151,6 +151,14 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
      */
     public String getToolTip() {
         return getText();
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
+     * 
+     */
+    public Boolean isFirstInGroup() {
+        return Boolean.FALSE;
     }
 
     /**

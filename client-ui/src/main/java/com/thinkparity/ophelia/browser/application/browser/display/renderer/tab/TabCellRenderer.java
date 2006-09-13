@@ -89,7 +89,7 @@ public class TabCellRenderer extends AbstractJPanel implements
             iconJLabel.setIcon(cell.getNodeIcon());
         }
         final Boolean lastCell = (index == list.getModel().getSize()-1);
-        setBorder(cell.getBorder(index, lastCell));
+        setBorder(cell.getBorder(index, cell.isFirstInGroup(), lastCell));
         
         // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.

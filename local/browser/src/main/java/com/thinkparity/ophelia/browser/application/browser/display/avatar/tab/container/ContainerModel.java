@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 import java.awt.Component;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,8 +19,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-
-
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
@@ -105,7 +104,7 @@ public class ContainerModel extends TabModel {
     }
 
     /**
-     * Apply the user's search to the contact list.
+     * Apply the user's search to the container list.
      * 
      * @param searchExpression
      *            A search expression <code>String</code>.
@@ -283,6 +282,7 @@ public class ContainerModel extends TabModel {
         // read the containers from the provider into the list.
         containerCells.clear();
         containerCells.addAll(readContainers());
+        sortContainers();
         // drafts and history
         draftCells.clear();
         versionCells.clear();
@@ -308,7 +308,27 @@ public class ContainerModel extends TabModel {
                 versionDocumentCells.put(version, versionDocuments);
             }
         }
+        
         synchronize();
+    }
+ 
+    /**
+     * Sort containers, and also set the "firstInGroup" flag for CellContainers.
+     */
+    private void sortContainers() {
+        Collections.sort(containerCells, new ContainerCellComparator());
+        
+        ContainerCell prevContainer = null;
+        for(final ContainerCell container : containerCells) {
+            container.setFirstInGroup(Boolean.FALSE);
+            if (prevContainer!=null) {
+                if ((prevContainer.isLocalDraft()!=container.isLocalDraft()) ||
+                    (prevContainer.isDraft()!=container.isDraft())) {
+                    container.setFirstInGroup(Boolean.TRUE);
+                }
+            }
+            prevContainer = container;
+        }
     }
 
     /**
@@ -321,7 +341,7 @@ public class ContainerModel extends TabModel {
     protected void synchronize() {
         debug();
 
-        // searc filtered containers
+        // search filtered containers
         final List<ContainerCell> filteredContainers = cloneContainers();
         if (null != searchExpression && null != searchResults) {
             ArtifactFilterManager.filter(filteredContainers, new SearchFilter(searchResults));
@@ -702,6 +722,9 @@ public class ContainerModel extends TabModel {
             // Synchronize the draft and versions
             syncDraftInternal(containerId, remote);
             syncVersionInternal(containerId, remote);
+            
+            // Sort the container list
+            sortContainers();
         }
     }
     
@@ -775,29 +798,8 @@ public class ContainerModel extends TabModel {
      */
     private void syncDocumentInternal(final Long containerId,
             final Long documentId, final Boolean remote) {
-        final ContainerCell container = readContainer(containerId);
-        // get the draft
-        if (container.isDraft() && container.isLocalDraft()) {
-            final DraftCell draft = readDraft(container);
-            draftCells.put(container, draft);
-            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
-            for(final DraftDocumentCell draftDocument : draftDocuments) {
-                containerIdLookup.put(draftDocument.getId(), container.getId());
-            }
-            draftDocumentCells.put(draft, draftDocuments);
-        }
-        // Get the versions
-        versionCells.clear();
-        final List<ContainerVersionCell> versions = readVersions(container);
-        versionCells.put(container, versions);
-        versionDocumentCells.clear();
-        for(final ContainerVersionCell version : versions) {
-            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
-            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
-                containerIdLookup.put(versionDocument.getId(), container.getId());
-            }
-            versionDocumentCells.put(version, readVersionDocuments(version));
-        }
+        // If there is a document change then only the draft cells needs updating.
+        syncDraftInternal(containerId, remote);
     }
 
     /**

@@ -58,6 +58,9 @@ public class ContainerCell extends Container implements TabCell  {
     /** The border for the top of the container cell. */
     private static final Border BORDER_TOP;
     
+    /** The border for the top of a group of container cells. */
+    private static final Border BORDER_GROUP_TOP;
+    
     /** The border insets for the top of the container cell. */
     private static final Insets BORDER_TOP_INSETS;
 
@@ -74,6 +77,7 @@ public class ContainerCell extends Container implements TabCell  {
         BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right     
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
+        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, BORDER_TOP_INSETS);
 
         TEXT_FG = Color.BLACK;
         TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
@@ -104,6 +108,9 @@ public class ContainerCell extends Container implements TabCell  {
     
     /** The draft owner. */
     private String draftOwner = null;
+    
+    /** A flag indicating if this cell is the first in a group. */
+    private Boolean firstInGroup = Boolean.FALSE;
     
     /** Create CellContainer. */
     public ContainerCell(final Container container, final ContainerDraft containerDraft) {
@@ -167,11 +174,18 @@ public class ContainerCell extends Container implements TabCell  {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder(final int index, final Boolean lastCell) {             
-        if (lastCell) {
-            return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
+    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) { 
+        final Border topBorder;
+        if (isFirstInGroup) {
+            topBorder = BORDER_GROUP_TOP;
         } else {
-            return BORDER_TOP;
+            topBorder = BORDER_TOP;
+        }
+            
+        if (lastCell) {
+            return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
+        } else {
+            return topBorder;
         }
     }
 
@@ -259,6 +273,24 @@ public class ContainerCell extends Container implements TabCell  {
     public String getToolTip() {
         if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
         else { return null; }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
+     * 
+     */
+    public Boolean isFirstInGroup() {
+        return firstInGroup;
+    }
+    
+    /**
+     * Set the cell to be the first in the group.
+     * 
+     * @param firstInGroup
+     *            The firstInGroup flag.
+     */
+    public void setFirstInGroup(Boolean firstInGroup) {
+        this.firstInGroup = firstInGroup;
     }
 
     /**

@@ -54,7 +54,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     private final FlatContentProvider[] flatProviders;
 
     /** A container id list provider (search). */
-    private final FlatContentProvider searchResultsProvider;
+    private final FlatContentProvider searchResults;
 
     /** Containers the container; is draft modified; and draft providers. */
     private final SingleContentProvider[] singleProviders;
@@ -124,7 +124,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 return containerModel.readDraft((Long) input);
             }
         };
-        this.searchResultsProvider = new FlatContentProvider(profile) {
+        this.searchResults = new FlatContentProvider(profile) {
             @Override
             public Object[] getElements(final Object input) {
                 Assert.assertNotNull("NULL INPUT", input);
@@ -133,7 +133,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             }
         };
         this.flatProviders = new FlatContentProvider[] {
-                containers, versions, versionDocuments, searchResultsProvider
+                containers, versions, versionDocuments, searchResults
         };
         this.singleProviders = new SingleContentProvider[] {containerProvider, draftProvider, documentIsDraftModifiedProvider};
     }

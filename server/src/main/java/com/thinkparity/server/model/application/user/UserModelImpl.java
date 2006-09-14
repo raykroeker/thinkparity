@@ -11,15 +11,18 @@ import org.jivesoftware.messenger.vcard.VCardManager;
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.VCardFields;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
-
 
 /**
  * @author raykroeker@gmail.com
@@ -48,11 +51,7 @@ class UserModelImpl extends AbstractModelImpl {
     List<User> read() {
         logApiId();
         try {
-            final List<User> users =  userSql.read();
-            for (final User user : users) {
-                inject(user, readVCard(user.getId()));
-            }
-            return users;
+            return read(FilterManager.createDefault());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -71,6 +70,21 @@ class UserModelImpl extends AbstractModelImpl {
                 return read(jabberId);
             }
         } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<User> read(final Filter<? super User> filter) {
+        logApiId();
+        logVariable("filter", filter);
+        try {
+            final List<User> users = userSql.read();
+            FilterManager.filter(users, filter);
+            for (final User user : users) {
+                inject(user, readVCard(user.getId()));
+            }
+            return users;
+        } catch (final Throwable t) {
             throw translateError(t);
         }
     }
@@ -98,6 +112,43 @@ class UserModelImpl extends AbstractModelImpl {
             throw translateError(t);
 		}
 	}
+
+    Credentials readArchiveCredentials(final JabberId archiveId) {
+        logApiId();
+        logVariable("archiveId", archiveId);
+        try {
+            return userSql.readArchiveCredentials(archiveId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<JabberId> readArchiveIds(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            return userSql.readArchiveIds(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
+     * Read all features for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Feature&gt</code>.
+     */
+    List<Feature> readFeatures(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            return userSql.readFeatures(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     void update(final JabberId userId, final String name,
             final String organization, final String title) {
@@ -142,7 +193,7 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Inject the user's vcard fields into the user object.
      * 
      * @param user
@@ -151,17 +202,21 @@ class UserModelImpl extends AbstractModelImpl {
      *            A user's vcard dom4j <code>Element</code>.
      */
     private User inject(final User user, final Element vcard) {
-        user.setName((String) vcard.element("FN").getData());
-        final Element organization = vcard.element("ORG");
-        if (null != organization) {
-            final Element organizationName = organization.element("ORGNAME");
-            if (null != organizationName) {
-                user.setOrganization((String) organizationName.getData());
+        if (null == vcard) {
+            logWarning("NULL VCARD");
+        } else {
+            user.setName((String) vcard.element("FN").getData());
+            final Element organization = vcard.element("ORG");
+            if (null != organization) {
+                final Element organizationName = organization.element("ORGNAME");
+                if (null != organizationName) {
+                    user.setOrganization((String) organizationName.getData());
+                }
             }
-        }
-        final Element title = vcard.element(VCardFields.TITLE);
-        if (null != title) {
-            user.setTitle((String) title.getData());
+            final Element title = vcard.element(VCardFields.TITLE);
+            if (null != title) {
+                user.setTitle((String) title.getData());
+            }
         }
         return user;
     }
@@ -190,4 +245,5 @@ class UserModelImpl extends AbstractModelImpl {
             throws Exception {
         vcardManager.setVCard(userId.getUsername(), vcard);
     }
+
 }

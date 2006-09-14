@@ -14,13 +14,12 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.codebase.model.profile.VerificationKey;
-
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.desdemona.model.profile.Feature;
-
 
 /**
  * @author raymond@thinkparity.com
@@ -34,13 +33,13 @@ public class UserSql extends AbstractSql {
             .append("(username,email,verified,verificationKey) ")
             .append("values (?,?,?,?)")
             .toString();
-        
+
     /** Sql to delete an email address. */
     private static final String SQL_DELETE_EMAIL =
             new StringBuffer("delete from PARITYUSEREMAIL ")
             .append("where USERNAME=? and EMAIL=?")
             .toString();
-
+        
     /** Sql to read all users. */
     private static final String SQL_READ =
             new StringBuffer("select * ")
@@ -48,9 +47,24 @@ public class UserSql extends AbstractSql {
             .append("order by JU.USERNAME")
             .toString();
 
+    /** Sql to read an archive user's credentials. */
+    private static final String SQL_READ_ARCHIVE_CREDENTIALS =
+            new StringBuffer("select USERNAME,PASSWORD ")
+            .append("from jiveUser JU ")
+            .append("where JU.USERNAME=?")
+            .toString();
+
+    /** Sql to read a user's archive ids. */
+    private static final String SQL_READ_ARCHIVE_IDS =
+            new StringBuffer("select PUAR.ARCHIVE_ID ")
+            .append("from PARITY_USER_ARCHIVE_REL ")
+            .append("where PUAR.USERNAME=? ")
+            .append("order by PUAR.ARCHIVE_ID asc")
+            .toString();
+
     /** Sql to read a user. */
     private static final String SQL_READ_BY_USER_ID =
-            new StringBuffer("select * ")
+            new StringBuffer("select JU.USERNAME ")
             .append("from jiveUser JU ")
             .append("where JU.USERNAME=? ")
             .append("order by JU.USERNAME")
@@ -181,6 +195,39 @@ public class UserSql extends AbstractSql {
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    public Credentials readArchiveCredentials(final JabberId archiveId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ARCHIVE_CREDENTIALS);
+            session.setString(1, archiveId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractCredentials(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    public List<JabberId> readArchiveIds(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ARCHIVE_IDS);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            final List<JabberId> archiveIds = new ArrayList<JabberId>();
+            while (session.nextResult()) {
+                archiveIds.add(JabberIdBuilder.parseUsername(
+                        session.getString("ARCHIVE_ID")));
+            }
+            return archiveIds;
         } finally {
             session.close();
         }
@@ -365,14 +412,18 @@ public class UserSql extends AbstractSql {
         return user;
     }
 
+    Credentials extractCredentials(final HypersonicSession session) {
+        final Credentials credentials = new Credentials();
+        credentials.setPassword(session.getString("PASSWORD"));
+        credentials.setUsername(session.getString("USERNAME"));
+        return credentials;
+    }
+
     EMail extractEMail(final ResultSet rs) throws SQLException {
         return EMailBuilder.parse(rs.getString("EMAIL"));
     }
 
     Feature extractFeature(final HypersonicSession session) {
-        final Feature feature = new Feature();
-        feature.setId(session.getLong("FEATURE_ID"));
-        feature.setName(session.getString("FEATURE_NAME"));
-        return feature;
+        return Feature.valueOf(session.getString("FEATURE"));
     }
 }

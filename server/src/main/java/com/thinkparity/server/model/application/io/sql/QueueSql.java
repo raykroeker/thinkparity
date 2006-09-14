@@ -17,8 +17,9 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.queue.QueueItem;
-
 
 /**
  * @author raykroeker@gmail.com
@@ -27,10 +28,10 @@ import com.thinkparity.desdemona.model.queue.QueueItem;
 @JiveID(1002)
 public class QueueSql extends AbstractSql {
 
-	private static final String DELETE =
+    private static final String DELETE =
 		"delete from parityQueue where queueId = ?";
 
-	private static final String INSERT =
+    private static final String INSERT =
 		new StringBuffer("insert into parityQueue ")
 		.append("(queueId,username,queueMessageSize,queueMessage,createdBy,")
 		.append("updatedBy,updatedOn) ")
@@ -49,10 +50,37 @@ public class QueueSql extends AbstractSql {
 		.append("from parityQueue ")
 		.append("where username = ? order by createdOn asc").toString();
 
+	/** Sql to create an event. */
+    private static final String SQL_CREATE_EVENT =
+            new StringBuffer("insert into PARITY_EVENT_QUEUE ")
+            .append("(USERNAME,EVENT_XML,EVENT_DATE) ")
+            .append("values (?,?,?)")
+            .toString();
+
 	/**
 	 * Create a QueueSql.
 	 */
 	public QueueSql() { super(); }
+
+	public void createEvent(final JabberId userId, final String eventXml,
+            final Calendar eventDate) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_EVENT);
+            session.setString(1, userId.getUsername());
+            session.setString(2, eventXml);
+            session.setCalendar(3, eventDate);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT CREATE QUEUE EVENT");
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
 
 	public void delete(final Integer queueId) throws SQLException {
         logApiId();

@@ -3,6 +3,8 @@ insert into jiveProperty (NAME,PROPVALUE)
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.domain', 'thinkparity.dyndns.org');
 insert into jiveProperty (NAME,PROPVALUE)
+    values ('xmpp.server.socket.port', '5271');
+insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.plain.port', '5226');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5227');
@@ -14,7 +16,7 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/development/hsqldb/calpurnia/db');
 insert into jiveProperty (NAME,PROPVALUE)
     values('com.thinkparity.calpurnia.db.username', 'sa');
-insert into PARITY_FEATURE (FEATURE_NAME)
+insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)

@@ -6,7 +6,6 @@ package com.thinkparity.desdemona.model.queue;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
-
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.session.Session;
@@ -21,7 +20,7 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class QueueModel extends AbstractModel {
 
-	/**
+    /**
 	 * Obtain a handle to a queue model.
 	 * 
 	 * @param session

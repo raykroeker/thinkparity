@@ -3,8 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import com.raykroeker.junitx.TestCase;
-
+import com.thinkparity.codebase.junitx.TestCase;
 
 /**
  * @author raymond@thinkparity.com

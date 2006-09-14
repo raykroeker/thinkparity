@@ -9,7 +9,6 @@ import java.util.Collection;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
-
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityErrorTranslator;
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -32,7 +31,7 @@ class QueueModelImpl extends AbstractModelImpl {
 	 */
 	private final QueueSql queueSql;
 
-	/**
+    /**
 	 * Create a QueueModelImpl.
 	 * 
 	 * @param session

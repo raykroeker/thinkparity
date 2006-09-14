@@ -149,7 +149,7 @@ public abstract class IQHandler extends
      * @return An error id.
      */
     protected final Object getErrorId(final Throwable t) {
-        return MessageFormat.format("{{0}] [{1}] [{2}] - [{3}]",
+        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
                     session.getJabberId().getUsername(),
                     StackUtil.getFrameClassName(2),
                     StackUtil.getFrameMethodName(2),

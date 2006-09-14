@@ -18,12 +18,10 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
-
+import com.thinkparity.codebase.junitx.TestCase;
+import com.thinkparity.codebase.junitx.TestSession;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
-import com.raykroeker.junitx.TestCase;
-import com.raykroeker.junitx.TestSession;
-import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 
 /**

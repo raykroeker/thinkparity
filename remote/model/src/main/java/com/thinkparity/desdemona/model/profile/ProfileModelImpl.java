@@ -23,9 +23,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.codebase.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.user.Feature;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;

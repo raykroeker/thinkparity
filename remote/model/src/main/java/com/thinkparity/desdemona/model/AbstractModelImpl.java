@@ -14,6 +14,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.messenger.SessionManager;
@@ -31,9 +32,8 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
-import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactSubscription;
@@ -377,6 +377,22 @@ public abstract class AbstractModelImpl {
                     name, Log4JHelper.render(logger, value)));
         }
         return value;
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param warning
+     *            A warning.
+     */
+    protected final void logWarning(final Object warning) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(MessageFormat.format("{0} {1}#{2} {3}",
+                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(),
+                    Log4JHelper.render(logger, warning)));
+        }
     }
 
     /**

@@ -29,7 +29,7 @@ public abstract class AbstractObjectRenderer {
      *            An <code>Object</code>.
      * @return A rendering of the object <code>String</code>.
      */
-    protected String render(final Object o) {
+    protected Object render(final Object o) {
         return Log4JHelper.render(logger, o);
     }
 }

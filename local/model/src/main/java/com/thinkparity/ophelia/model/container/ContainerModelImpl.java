@@ -882,6 +882,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 publishTo.add(teamMember.getId());
             publish(version, publishTo, localUserId(), currentDateTime);
 
+            // create the publish to list
+            final InternalUserModel userModel = getInternalUserModel();
+            final List<User> publishToUsers = new ArrayList<User>();
+            for (final JabberId publishToId : publishTo) {
+                publishToUsers.add(userModel.readLazyCreate(publishToId));
+            }
+            containerIO.createPublishedTo(container.getId(), version.getVersionId(), publishToUsers);
+
             // update remote team
             final InternalSessionModel sessionModel = getInternalSessionModel();
             for (final Contact contact : contacts)

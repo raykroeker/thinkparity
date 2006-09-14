@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +12,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -27,7 +23,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
-
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Publish;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.PublishArtifact;
@@ -35,9 +30,10 @@ import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Send;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.SendArtifact;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
 
 /**
  * <b>Title:</b>thinkParity XMPP Container <br>
@@ -49,14 +45,9 @@ import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContainerListener;
  * @version
  * @see XMPPCore
  */
-class XMPPContainer extends AbstractXMPP {
-
-    /** Container xmpp event LISTENERS. */
-    private static final List<XMPPContainerListener> LISTENERS;
+class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
     static {
-        LISTENERS = new ArrayList<XMPPContainerListener>();
-
         ProviderManager.addIQProvider(Service.NAME, Publish.EVENT_NAME, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
@@ -197,58 +188,48 @@ class XMPPContainer extends AbstractXMPP {
         super(xmppCore);
     }
 
+
     /**
-     * Add an xmpp container event listener.
-     * 
-     * @param l
-     *            The xmpp container event listener.
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
      */
-    void addListener(final XMPPContainerListener l) {
-        logApiId();
-        logVariable("l", l);
-        synchronized (LISTENERS) {
-            if (LISTENERS.contains(l)) {
-                return;
+    @Override
+    protected void addEventHandlers() {
+        addEventHandler(new XMPPEventHandler<HandleArtifactPublishedIQ>() {
+            public void handleEvent(final HandleArtifactPublishedIQ query) {
+                handleArtifactPublished(query);
             }
-            LISTENERS.add(l);
-        }
+        }, HandleArtifactPublishedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandlePublishedIQ>() {
+            public void handleEvent(final HandlePublishedIQ query) {
+                handlePublished(query);
+            }
+        }, HandlePublishedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleArtifactSentIQ>() {
+            public void handleEvent(final HandleArtifactSentIQ query) {
+                handleArtifactSent(query);
+            }
+        }, HandleArtifactSentIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleSentIQ>() {
+            public void handleEvent(final HandleSentIQ query) {
+                handleSent(query);
+            }
+        }, HandleSentIQ.class);
     }
 
     /**
-     * Add the requisite packet LISTENERS to the xmpp connection.
-     * 
-     * @param xmppConnection
-     *            The xmpp connection.
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
      */
-    void addPacketListeners(final XMPPConnection xmppConnection) {
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleArtifactPublished((HandleArtifactPublishedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleArtifactPublishedIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handlePublished((HandlePublishedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandlePublishedIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleArtifactSent((HandleArtifactSentIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleArtifactSentIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleSent((HandleSentIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleSentIQ.class));
+    @Override
+    protected boolean addListener(final ContainerListener listener) {
+        return super.addListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     */
+    @Override
+    protected boolean removeListener(final ContainerListener listener) {
+        return super.removeListener(listener);
     }
 
     /**
@@ -371,9 +352,9 @@ class XMPPContainer extends AbstractXMPP {
      *
      */
     private void handleArtifactPublished(final HandleArtifactPublishedIQ query) {
-        synchronized (LISTENERS) {
-            for(final XMPPContainerListener l : LISTENERS) {
-                l.handleArtifactPublished(query.publishedBy, query.publishedOn,
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.handleArtifactPublished(query.publishedBy, query.publishedOn,
                         query.containerUniqueId, query.containerVersionId,
                         query.containerName, query.containerArtifactCount,
                         query.containerArtifactIndex, query.artifactUniqueId,
@@ -381,7 +362,7 @@ class XMPPContainer extends AbstractXMPP {
                         query.artifactType, query.artifactChecksum,
                         query.artifactBytes);
             }
-        }
+        });
     }
 
     /**
@@ -389,9 +370,9 @@ class XMPPContainer extends AbstractXMPP {
      *
      */
     private void handleArtifactSent(final HandleArtifactSentIQ query) {
-        synchronized(LISTENERS) {
-            for(final XMPPContainerListener l : LISTENERS) {
-                l.handleArtifactSent(query.sentBy, query.sentOn,
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.handleArtifactSent(query.sentBy, query.sentOn,
                         query.containerUniqueId, query.containerVersionId,
                         query.containerName, query.containerArtifactCount,
                         query.containerArtifactIndex, query.artifactUniqueId,
@@ -399,17 +380,7 @@ class XMPPContainer extends AbstractXMPP {
                         query.artifactType, query.artifactChecksum,
                         query.artifactBytes);
             }
-        }
-    }
-
-    private void handleSent(final HandleSentIQ query) {
-        synchronized (LISTENERS) {
-            for (final XMPPContainerListener l : LISTENERS) {
-                l.handleSent(query.uniqueId, query.versionId, query.name,
-                        query.artifactCount, query.sentBy, query.sentOn,
-                        query.sentTo);
-            }
-        }
+        });
     }
 
     /**
@@ -417,13 +388,23 @@ class XMPPContainer extends AbstractXMPP {
      *
      */
     private void handlePublished(final HandlePublishedIQ query) {
-        synchronized (LISTENERS) {
-            for(final XMPPContainerListener l : LISTENERS) {
-                l.handlePublished(query.uniqueId, query.versionId, query.name,
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.handlePublished(query.uniqueId, query.versionId, query.name,
                         query.artifactCount, query.publishedBy,
                         query.publishedTo, query.publishedOn);
             }
-        }
+        });
+    }
+
+    private void handleSent(final HandleSentIQ query) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.handleSent(query.uniqueId, query.versionId, query.name,
+                        query.artifactCount, query.sentBy, query.sentOn,
+                        query.sentTo);
+            }
+        });
     }
 
     /**
@@ -432,7 +413,7 @@ class XMPPContainer extends AbstractXMPP {
      * event.
      * 
      * @see XMPPContainer#handleArtifactPublished(com.thinkparity.ophelia.model.util.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
-     * @see XMPPContainer#addPacketListeners(XMPPConnection)
+     * @see XMPPContainer#addEventListeners(XMPPConnection)
      */
     private static class HandleArtifactPublishedIQ extends HandleArtifactSentIQ {
 
@@ -452,7 +433,7 @@ class XMPPContainer extends AbstractXMPP {
      * event.
      * 
      * @see XMPPContainer#handleArtifactSent(com.thinkparity.ophelia.model.util.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
-     * @see XMPPContainer#addPacketListeners(XMPPConnection)
+     * @see XMPPContainer#addEventListeners(XMPPConnection)
      */
     private static class HandleArtifactSentIQ extends AbstractThinkParityIQ {
 
@@ -538,17 +519,11 @@ class XMPPContainer extends AbstractXMPP {
      */
     private static class HandleSentIQ extends AbstractThinkParityIQ {
 
-        /** The container unique id. */
-        private UUID uniqueId;
-
-        /** The container version. */
-        private Long versionId;
+        /** The artifact count in the container. */
+        private Integer artifactCount;
 
         /** The container name. */
         private String name;
-
-        /** The artifact count in the container. */
-        private Integer artifactCount;
 
         /** Who sent the container. */
         private JabberId sentBy;
@@ -558,6 +533,12 @@ class XMPPContainer extends AbstractXMPP {
 
         /** Who the container was sent to. */
         private List<JabberId> sentTo;
+
+        /** The container unique id. */
+        private UUID uniqueId;
+
+        /** The container version. */
+        private Long versionId;
 
         /** Create HandleSentIQ. */
         private HandleSentIQ() { super(); }

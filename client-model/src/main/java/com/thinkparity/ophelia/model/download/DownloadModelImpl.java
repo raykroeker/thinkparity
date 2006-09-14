@@ -10,7 +10,6 @@ import java.util.List;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
@@ -40,7 +39,7 @@ class DownloadModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD]");
         logger.debug(release);
         final List<Library> libraries = readLibraries(release.getId());
-        final DownloadHelper helper = new DownloadHelper(getContext(), release);
+        final DownloadHelper helper = new DownloadHelper(internalModelFactory, release);
         try {
             if(!helper.isStarted()) { helper.start(libraries); }
             helper.resume();
@@ -59,7 +58,7 @@ class DownloadModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [DOWNLOAD MODEL] [IS COMPLETE]");
         logger.debug(release);
         // check to see if the latest release has already been downloaded
-        final DownloadHelper download = new DownloadHelper(getContext(), release);
+        final DownloadHelper download = new DownloadHelper(internalModelFactory, release);
         try { return download.isComplete(); }
         catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
     }
@@ -71,7 +70,7 @@ class DownloadModelImpl extends AbstractModelImpl {
      */
     Release read() throws ParityException {
         final Release latest = readLatestRelease();
-        final DownloadHelper helper = new DownloadHelper(getContext(), latest);
+        final DownloadHelper helper = new DownloadHelper(internalModelFactory, latest);
         try { if(helper.isComplete()) { return latest; } else { return null; } }
         catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
     }

@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.model.events;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.util.EventListener;
 
 /**
  * <b>Title:</b>thinkParity Container Listener<br>
@@ -17,7 +18,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
  * @see ContainerEvent
  * @see ContainerModel#addListener
  */
-public interface ContainerListener {
+public interface ContainerListener extends EventListener {
 
     /**
      * A container was created.

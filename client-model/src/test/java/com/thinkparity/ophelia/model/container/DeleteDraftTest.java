@@ -5,8 +5,7 @@ package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
@@ -38,12 +37,12 @@ public class DeleteDraftTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final InternalContainerModel containerModel = getInternalContainerModel();
-        final Container container = createContainer(NAME);
-        addDocuments(container);
-        publish(container);
-        createContainerDraft(container);
+        login(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocuments(OpheliaTestUser.JUNIT, container);
+        publish(OpheliaTestUser.JUNIT, container);
+        createContainerDraft(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel);
         datum.containerModel.addListener(datum);
     }
@@ -55,7 +54,7 @@ public class DeleteDraftTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
 

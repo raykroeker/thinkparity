@@ -19,10 +19,10 @@ import com.thinkparity.ophelia.model.util.smack.SmackException;
  * @version 1.1
  */
 public interface XMPPCore {
+	public void assertContainsResult(final Object assertion,
+            final XMPPMethodResponse response);
 	public XMPPConnection getConnection();
-	public JabberId getJabberId();
+    public JabberId getJabberId();
     public Packet sendAndConfirmPacket(final Packet packet)
 			throws SmackException;
-    public void assertContainsResult(final Object assertion,
-            final XMPPMethodResponse response);
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.events.DocumentListener;
@@ -21,7 +20,6 @@ import com.thinkparity.ophelia.model.util.ProgressIndicator;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * The parity document interface.
@@ -34,12 +32,14 @@ public class DocumentModel {
     /**
 	 * Obtain a handle to an internal document model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            The parity context.
 	 * @return The internal document model.
 	 */
-	public static InternalDocumentModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static InternalDocumentModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		final InternalDocumentModel internalModel = new InternalDocumentModel(workspace, context);
 		return internalModel;
 	}
@@ -47,12 +47,12 @@ public class DocumentModel {
 	/**
 	 * Obtain a handle to a document model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return The handle to the model.
 	 */
-	public static DocumentModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		final DocumentModel documentModel = new DocumentModel(workspace);
-		return documentModel;
+	public static DocumentModel getModel(final Workspace workspace) {
+		return new DocumentModel(workspace);
 	}
 
 	/**

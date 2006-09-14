@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.workspace;
 
-import java.io.IOException;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -15,19 +13,6 @@ public class WorkspaceException extends RuntimeException {
     private static final long serialVersionUID = 1;
 
     /**
-     * Translate an io error into a workspace error.
-     * 
-     * @param message
-     *            The error message.
-     * @param iox
-     *            The io error.
-     */
-    static WorkspaceException translate(final String message,
-            final IOException iox) {
-        return new WorkspaceException(message, iox);
-    }
-
-    /**
      * Create a WorkspaceException.
      * 
      * @param message
@@ -35,7 +20,7 @@ public class WorkspaceException extends RuntimeException {
      * @param cause
      *            The error cause.
      */
-    private WorkspaceException(final String message, final IOException cause) {
+    public WorkspaceException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

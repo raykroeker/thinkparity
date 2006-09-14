@@ -59,8 +59,7 @@ public class InternalDocumentModel extends DocumentModel implements
      * @throws ParityException
      */
     public void confirmSend(final Long documentId, final Long versionId,
-            final JabberId confirmedBy)
-            throws ParityException {
+            final JabberId confirmedBy) {
         synchronized(getImplLock()) {
             getImpl().confirmSend(documentId, versionId, confirmedBy);
         }

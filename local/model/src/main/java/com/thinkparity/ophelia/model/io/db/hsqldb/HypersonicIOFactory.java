@@ -3,9 +3,13 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.io.IOFactory;
+import com.thinkparity.ophelia.model.io.db.hsqldb.handler.AbstractIOHandler;
 import com.thinkparity.ophelia.model.io.db.hsqldb.util.HypersonicValidator;
 import com.thinkparity.ophelia.model.io.handler.*;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -17,33 +21,36 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public class HypersonicIOFactory extends IOFactory {
 
 	/**
-	 * Create a HypersonicIOFactory [Concrete Factory]
-	 * 
-	 */
-	public HypersonicIOFactory(final Workspace workspace) {
-		super(workspace);
-		new HypersonicValidator(workspace).validate();
-	}
+     * Create a HypersonicIOFactory [Concrete Factory]
+     * 
+     */
+    public HypersonicIOFactory(final Workspace workspace) {
+        super(workspace);
+        new HypersonicValidator(workspace).validate();
+    }
 
     /**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#createArtifactHandler()
-	 * 
-	 */
-	public ArtifactIOHandler createArtifactHandler() {
-		return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.ArtifactIOHandler();
-	}
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createArtifactHandler()
+     * 
+     */
+    @Override
+    public ArtifactIOHandler createArtifactHandler() {
+        return (ArtifactIOHandler) createHandler("ArtifactIOHandler");
+    }
 
     /**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#createAuditHandler()
-	 * 
-	 */
-	public AuditIOHandler createAuditHandler() {
-		return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.AuditIOHandler();
-	}
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createAuditHandler()
+     * 
+     */
+    @Override
+    public AuditIOHandler createAuditHandler() {
+        return (AuditIOHandler) createHandler("AuditIOHandler");
+    }
 
     /** @see com.thinkparity.ophelia.model.io.IOFactory#createConfigurationHandler() */
+    @Override
     public ConfigurationIOHandler createConfigurationHandler() {
-        return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.ConfigurationIOHandler();
+        return (ConfigurationIOHandler) createHandler("ConfigurationIOHandler");
     }
 
     /**
@@ -51,72 +58,117 @@ public class HypersonicIOFactory extends IOFactory {
      */
     @Override
     public ContactIOHandler createContactHandler() {
-        return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.ContactIOHandler();
+        return (ContactIOHandler) createHandler("ContactIOHandler");
     }
 
     /**
      * @see com.thinkparity.ophelia.model.io.IOFactory#createContainerHandler()
      * 
      */
+    @Override
     public ContainerIOHandler createContainerHandler() {
-        return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.ContainerIOHandler();
+        return (ContainerIOHandler) createHandler("ContainerIOHandler");
     }
 
     /**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#createDocumentHandler()
-	 * 
-	 */
-	public DocumentIOHandler createDocumentHandler() {
-		return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.DocumentIOHandler();
-	}
-
-	/**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#createDocumentHistoryIOHandler()
-	 * 
-	 */
-	public DocumentHistoryIOHandler createDocumentHistoryIOHandler() { return null; }
-
-	/**
-     * @see com.thinkparity.ophelia.model.io.IOFactory#createLibraryHandler()
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createDocumentHandler()
+     * 
      */
-    public LibraryIOHandler createLibraryHandler() {
-        throw Assert.createNotYetImplemented("HypersonicIOFactory#createLibraryHandler");
+    @Override
+    public DocumentIOHandler createDocumentHandler() {
+        return (DocumentIOHandler) createHandler("DocumentIOHandler");
     }
 
-	/**
+    /**
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createDocumentHistoryIOHandler()
+     * 
+     */
+    @Override
+    public DocumentHistoryIOHandler createDocumentHistoryIOHandler() {
+        throw Assert
+                .createNotYetImplemented("HypersonicIOFactory#createDocumentHistoryIOHandler");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createLibraryHandler()
+     */
+    @Override
+    public LibraryIOHandler createLibraryHandler() {
+        throw Assert
+                .createNotYetImplemented("HypersonicIOFactory#createLibraryHandler");
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.IOFactory#createProfileHandler()
      */
     @Override
     public ProfileIOHandler createProfileHandler() {
-        return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.ProfileIOHandler();
+        return (ProfileIOHandler) createHandler("ProfileIOHandler");
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.IOFactory#createReleaseHandler()
      */
+    @Override
     public ReleaseIOHandler createReleaseHandler() {
-        throw Assert.createNotYetImplemented("HypersonicIOFactory#createReleaseHandler");
+        throw Assert
+                .createNotYetImplemented("HypersonicIOFactory#createReleaseHandler");
     }
 
     /**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#createSystemMessageHandler()
-	 * 
-	 */
-	public SystemMessageIOHandler createSystemMessageHandler() {
-		return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.SystemMessageIOHandler();
-	}
-
-	/**
-     * @see com.thinkparity.ophelia.model.io.IOFactory#createUserIOHandler()
-     *
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createSystemMessageHandler()
+     * 
      */
-    public UserIOHandler createUserIOHandler() {
-        return new com.thinkparity.ophelia.model.io.db.hsqldb.handler.UserIOHandler();
+    @Override
+    public SystemMessageIOHandler createSystemMessageHandler() {
+        return (SystemMessageIOHandler) createHandler("SystemMessageIOHandler");
     }
 
     /**
-	 * @see com.thinkparity.ophelia.model.io.IOFactory#initialize()
-	 * 
-	 */
-	public void initialize() {}
+     * @see com.thinkparity.ophelia.model.io.IOFactory#createUserIOHandler()
+     * 
+     */
+    @Override
+    public UserIOHandler createUserIOHandler() {
+        return (UserIOHandler) createHandler("UserIOHandler");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.IOFactory#initialize()
+     * 
+     */
+    @Override
+    public void initialize() {}
+
+    /**
+     * Create the handler.
+     * 
+     * @param simpleName
+     *            The handler class' simple name.
+     * @return The <code>AbstractIOHandler</code>.
+     */
+    private AbstractIOHandler createHandler(final String simpleName) {
+        try {
+            final String className =
+                    new StringBuffer("com.thinkparity.ophelia.model.io.db.hsqldb.handler.")
+                    .append(simpleName).toString();
+            final Class handlerClass = Class.forName(className);
+            final Class[] paramTypes = new Class[] { SessionManager.class };
+            final Object[] params = new Object[] { workspace.getSessionManager() };
+            final Constructor constructor = handlerClass.getConstructor(paramTypes);
+            final AbstractIOHandler handler =
+                (AbstractIOHandler) constructor.newInstance(params);
+            return handler;
+        } catch (final ClassNotFoundException cnfx) {
+            throw new HypersonicException(cnfx);            
+        } catch (final IllegalAccessException iax) {
+            throw new HypersonicException(iax);
+        } catch (final InstantiationException ix) {
+            throw new HypersonicException(ix);
+        } catch (final InvocationTargetException itx) {
+            throw new HypersonicException(itx);
+        } catch (final NoSuchMethodException nsmx) {
+            throw new HypersonicException(nsmx);
+        }
+    }
 }

@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
 
-
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
@@ -16,7 +15,7 @@ import com.thinkparity.ophelia.model.io.md.MetaData;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-abstract class AbstractIOHandler {
+public abstract class AbstractIOHandler {
 
 	/**
      * A log id.
@@ -43,7 +42,10 @@ abstract class AbstractIOHandler {
      */
     private ConfigurationIOHandler configurationIO;
 
-    /**
+    /** A hypersonic <code>SessionManager</code>. */
+    private final SessionManager sessionManager;
+
+	/**
      * The meta data io. Since the IO handler is an abstract io handler; it is
      * obtained using a lazy create pattern.
      * 
@@ -51,16 +53,19 @@ abstract class AbstractIOHandler {
      */
     private MetaDataIOHandler metaDataIO;
 
-	/**
-	 * Create a AbstractIOHandler.
-	 * 
-	 */
-	protected AbstractIOHandler() {
+    /**
+     * Create AbstractIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+	protected AbstractIOHandler(final SessionManager sessionManager) {
 		super();
 		this.logger = Logger.getLogger(getClass());
+        this.sessionManager = sessionManager;
 	}
 
-	/**
+    /**
 	 * Extract the meta data from the session.
 	 * 
 	 * @param session
@@ -83,7 +88,7 @@ abstract class AbstractIOHandler {
      */
     protected ConfigurationIOHandler getConfigurationIO() {
         if(null == configurationIO) {
-            configurationIO = new ConfigurationIOHandler();
+            configurationIO = new ConfigurationIOHandler(sessionManager);
         }
         return configurationIO;
     }
@@ -95,7 +100,7 @@ abstract class AbstractIOHandler {
      */
     protected MetaDataIOHandler getMetaDataIO() {
         if(null == metaDataIO) {
-            metaDataIO = new MetaDataIOHandler();
+            metaDataIO = new MetaDataIOHandler(sessionManager);
         }
         return metaDataIO;
     }
@@ -105,5 +110,7 @@ abstract class AbstractIOHandler {
 	 * 
 	 * @return The database session.
 	 */
-	protected Session openSession() { return SessionManager.openSession(StackUtil.getCaller()); }
+	protected Session openSession() {
+        return sessionManager.openSession(StackUtil.getCaller());
+	}
 }

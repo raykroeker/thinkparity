@@ -11,12 +11,10 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity Contact Model<br>
@@ -30,22 +28,25 @@ public class ContactModel {
     /**
 	 * Create a Contact interface.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            A thinkParity internal context.
 	 * @return The internal Contact interface.
 	 */
-	public static InternalContactModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static InternalContactModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		return new InternalContactModel(workspace, context);
 	}
 
     /**
 	 * Create a Contact interface.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return The Contact interface.
 	 */
-	public static ContactModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static ContactModel getModel(final Workspace workspace) {
 		return new ContactModel(workspace);
 	}
 

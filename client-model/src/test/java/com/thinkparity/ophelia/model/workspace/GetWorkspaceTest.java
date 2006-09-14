@@ -5,10 +5,8 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.util.Vector;
 
-
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * Test the workspace model getWorkspace api.
@@ -17,19 +15,6 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  * @version 1.1.2.1
  */
 public class GetWorkspaceTest extends ModelTestCase {
-
-	/**
-	 * Test data fixture.
-	 * 
-	 * @see GetWorkspaceTest#setUp()
-	 * @see GetWorkspaceTest#tearDown()
-	 */
-	private class Fixture {
-		private final WorkspaceModel workspaceModel;
-		private Fixture(final WorkspaceModel workspaceModel) {
-			this.workspaceModel = workspaceModel;
-		}
-	}
 
 	/**
 	 * Test data.
@@ -48,7 +33,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 		try {
 			Workspace workspace;
 			for(Fixture datum : data) {
-				workspace = datum.workspaceModel.getWorkspace();
+				workspace = datum.workspaceModel.getWorkspace(datum.testUser.getWorkspace().getWorkspaceDirectory());
 
 				assertNotNull(workspace);
 				assertNotNull(workspace.getDataDirectory());
@@ -66,7 +51,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new Vector<Fixture>(1);
-		data.add(new Fixture(getWorkspaceModel()));
+		data.add(new Fixture(OpheliaTestUser.JUNIT, getWorkspaceModel()));
 	}
 
 	/**
@@ -75,5 +60,21 @@ public class GetWorkspaceTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+	}
+
+	/**
+	 * Test data fixture.
+	 * 
+	 * @see GetWorkspaceTest#setUp()
+	 * @see GetWorkspaceTest#tearDown()
+	 */
+	private class Fixture {
+        private final OpheliaTestUser testUser;
+		private final WorkspaceModel workspaceModel;
+		private Fixture(final OpheliaTestUser testUser,
+                final WorkspaceModel workspaceModel) {
+            this.testUser = testUser;
+			this.workspaceModel = workspaceModel;
+		}
 	}
 }

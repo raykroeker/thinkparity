@@ -3,7 +3,10 @@
  */
 package com.thinkparity.ophelia.model.workspace;
 
+import java.io.File;
+
 import com.thinkparity.ophelia.model.AbstractModel;
+import com.thinkparity.ophelia.model.Context;
 
 /**
  * WorkspaceModel
@@ -20,15 +23,24 @@ import com.thinkparity.ophelia.model.AbstractModel;
  */
 public class WorkspaceModel extends AbstractModel {
 
-	/**
-	 * Obtain a handle to a workspace model.
-	 * 
-	 * @return The workspace model interface.
-	 */
-	public static WorkspaceModel getModel() {
-		final WorkspaceModel workspaceModel = new WorkspaceModel();
-		return workspaceModel;
-	}
+    /**
+     * Obtain a handle to a workspace model.
+     * 
+     * @return The workspace model interface.
+     */
+    public static InternalWorkspaceModel getInternalModel(final Context context) {
+        return new InternalWorkspaceModel(context);
+    }
+
+    /**
+     * Obtain a handle to a workspace model.
+     * 
+     * @return The workspace model interface.
+     */
+    public static WorkspaceModel getModel() {
+        final WorkspaceModel workspaceModel = new WorkspaceModel();
+        return workspaceModel;
+    }
 
 	/**
 	 * Internal implementation of the workspace model.
@@ -42,30 +54,52 @@ public class WorkspaceModel extends AbstractModel {
 	 */
 	private final Object implLock;
 
-	/**
+    /**
 	 * Create a WorkspaceModel
 	 */
-	private WorkspaceModel() {
+	protected WorkspaceModel() {
 		super();
 		impl = new WorkspaceModelImpl();
 		implLock = new Object();
 	}
 
-	/**
+    /**
 	 * Obtain the handle to a workspace.
 	 * 
 	 * @return The handle to the workspace.
 	 */
-	public Workspace getWorkspace() {
-		synchronized(implLock) { return impl.getWorkspace(); }
+	public Workspace getWorkspace(final File workspace) {
+		synchronized (getImplLock()) {
+            return getImpl().getWorkspace(workspace);
+		}
 	}
 
-    /**
+	/**
      * Determine if this is the first run of the workspace.
      * 
      * @return True if this is the first run of the workspace; false otherwise.
      */
-    public Boolean isFirstRun() {
-        synchronized(implLock) { return impl.isFirstRun(); }
+    public Boolean isFirstRun(final Workspace workspace) {
+        synchronized (getImplLock()) {
+            return getImpl().isFirstRun(workspace);
+        }
+    }
+
+	/**
+     * Obtain the workspace model implementation.
+     * 
+     * @return The workspace model implementation.
+     */
+    protected WorkspaceModelImpl getImpl() {
+        return impl;
+    }
+
+    /**
+     * Obtain the workspace model implementation synchronization lock.
+     * 
+     * @return The workspace model implementation synchronization lock.
+     */
+    protected Object getImplLock() {
+        return implLock;
     }
 }

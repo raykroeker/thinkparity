@@ -14,9 +14,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
@@ -236,10 +236,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("Where A.ARTIFACT_ID=?")
             .toString();
 
-	/**
-	 * Sql to update the remote info of an artifact.
-	 * 
-	 */
+	/** Sql to update the remote info of an artifact. */
 	private static final String SQL_UPDATE_REMOTE_INFO =
 		new StringBuffer("update ARTIFACT_REMOTE_INFO ")
 		.append("set UPDATED_BY=?,UPDATED_ON=? ")
@@ -280,11 +277,14 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
     private final UserIOHandler userIO;
 
 	/**
-	 * Create a ArtifactIOHandler.
-	 */
-	public ArtifactIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
+     * Create ArtifactIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+	public ArtifactIOHandler(final SessionManager sessionManager) {
+        super(sessionManager);
+        this.userIO = new UserIOHandler(sessionManager);
 	}
 
     /**

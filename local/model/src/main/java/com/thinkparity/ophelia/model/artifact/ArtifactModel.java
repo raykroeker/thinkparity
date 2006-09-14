@@ -11,7 +11,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
@@ -26,22 +25,25 @@ public class ArtifactModel extends AbstractModel {
 	/**
 	 * Obtain an internal artifact model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            The parity context.
 	 * @return An internal artifact model.
 	 */
-	public static InternalArtifactModel getInternalModel(final Context context) {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
+	public static InternalArtifactModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		return new InternalArtifactModel(context, workspace);
 	}
 
 	/**
 	 * Obtain an artifact model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return An artifact model.
 	 */
-	public static ArtifactModel getModel() {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
+	public static ArtifactModel getModel(final Workspace workspace) {
 		return new ArtifactModel(workspace);
 	}
 

@@ -14,8 +14,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.User;
 
-
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
@@ -42,16 +41,16 @@ public class PublishTest extends ContainerTestCase {
         assertTrue(NAME + " [DRAFT PUBLISHED EVENT NOT FIRED]", datum.didNotify);
         // ensure the system is the key holder again
         final JabberId keyHolder =
-            getInternalArtifactModel().readKeyHolder(datum.container.getId());
+            getArtifactModel(OpheliaTestUser.JUNIT).readKeyHolder(datum.container.getId());
         assertEquals(NAME + " KEY HOLDER DOES NOT EQUAL EXPECTATION", User.THINK_PARITY.getId(), keyHolder);
         // ensure the local key flag is not still there
         assertTrue(NAME + " KEY FLAG STILL APPLIED",
-                !getArtifactModel().isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
+                !getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
         // ensure the local and remote team jive
         final List<TeamMember> localTeam =
-            getInternalArtifactModel().readTeam2(datum.container.getId());
+            getArtifactModel(OpheliaTestUser.JUNIT).readTeam2(datum.container.getId());
         final List<JabberId> remoteTeam =
-            getInternalSessionModel().readArtifactTeamIds(datum.container.getUniqueId());
+            getSessionModel(OpheliaTestUser.JUNIT).readArtifactTeamIds(datum.container.getUniqueId());
         for (final TeamMember localTeamMember : localTeam) {
             Boolean didFindLocal = Boolean.FALSE;
             for (final JabberId remoteTeamMemberId : remoteTeam) {
@@ -84,11 +83,14 @@ public class PublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
-        final Container container = createContainer(NAME);
-        addDocuments(container);
-        final List<Contact> contacts = readContacts();
+        login(OpheliaTestUser.JUNIT);
+        login(OpheliaTestUser.JUNIT_X);
+        login(OpheliaTestUser.JUNIT_Y);
+        login(OpheliaTestUser.JUNIT_Z);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocument(OpheliaTestUser.JUNIT, container, getInputFiles()[0]);
+        final List<Contact> contacts = readContacts(OpheliaTestUser.JUNIT);
         datum = new Fixture(contacts, container, containerModel, new ArrayList<TeamMember>(0));
         containerModel.addListener(datum);
     }
@@ -100,7 +102,10 @@ public class PublishTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout();
+        logout(OpheliaTestUser.JUNIT_Z);
+        logout(OpheliaTestUser.JUNIT_Y);
+        logout(OpheliaTestUser.JUNIT_X);
+        logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
 

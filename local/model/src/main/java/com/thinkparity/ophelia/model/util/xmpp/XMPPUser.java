@@ -11,18 +11,18 @@ import org.jivesoftware.smack.packet.IQ;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.user.IQReadUsers;
 import com.thinkparity.ophelia.model.util.smackx.packet.user.IQReadUsersResult;
+import com.thinkparity.ophelia.model.util.xmpp.events.UserListener;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPUser extends AbstractXMPP {
+class XMPPUser extends AbstractXMPP<UserListener> {
 
     /**
 	 * Create a XMPPUser.

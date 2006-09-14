@@ -9,10 +9,9 @@ import java.util.Collection;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
-
-import com.thinkparity.ophelia.model.AbstractAuditor;
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityException;
+import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.KeyResponseDeniedEvent;
 import com.thinkparity.ophelia.model.audit.event.RequestKeyEvent;
 import com.thinkparity.ophelia.model.audit.event.SendEvent;
@@ -23,14 +22,36 @@ import com.thinkparity.ophelia.model.audit.event.SendEvent;
  */
 public class SessionModelAuditor extends AbstractAuditor {
 
+    /**
+     * Create SessionModelAuditor.
+     * 
+     * @param modelFactory
+     *            A thinkParity <code>InternalModelFactory</code>.
+     */
+    public SessionModelAuditor(final InternalModelFactory modelFactory) {
+        super(modelFactory);
+    }
+
 	/**
-	 * Create a SessionModelAuditor.
+	 * Audit the key response denied.
 	 * 
-	 * @param context
-	 *            The parity context.
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param createdBy
+	 *            The creator.
+	 * @param createdOn
+	 *            The creation date.
+	 * @param requestedBy
+	 *            The key requestor.
 	 */
-	SessionModelAuditor(final Context context) {
-		super(context);
+	void keyResponseDenied(final Long artifactId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId requestedBy)
+            throws ParityException {
+		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
+		event.setArtifactId(artifactId);
+		event.setCreatedOn(createdOn);
+
+		getInternalAuditModel().audit(event, createdBy, requestedBy);
 	}
 
 	void requestKey(final Long artifactId, final JabberId createdBy,
@@ -70,27 +91,5 @@ public class SessionModelAuditor extends AbstractAuditor {
         for(final User u : sentTo) {
             getInternalAuditModel().audit(sendEvent, createdBy, u.getId());
 		}
-	}
-
-	/**
-	 * Audit the key response denied.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param createdBy
-	 *            The creator.
-	 * @param createdOn
-	 *            The creation date.
-	 * @param requestedBy
-	 *            The key requestor.
-	 */
-	void keyResponseDenied(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId requestedBy)
-            throws ParityException {
-		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
-		event.setArtifactId(artifactId);
-		event.setCreatedOn(createdOn);
-
-		getInternalAuditModel().audit(event, createdBy, requestedBy);
 	}
 }

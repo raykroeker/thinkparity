@@ -6,8 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Container Read Latest Version Test<br>
@@ -40,10 +39,10 @@ public class ReadLatestVersionPostPublishTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final InternalContainerModel containerModel = getInternalContainerModel();
-        final Container container = createContainer(NAME);
-        publishContainer(container);
+        login(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        publishContainer(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel);
     }
 
@@ -52,7 +51,7 @@ public class ReadLatestVersionPostPublishTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         datum = null;
         super.tearDown();
     }

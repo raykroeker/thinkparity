@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
-import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 
 /**
@@ -44,8 +44,8 @@ public class ReadTest extends ContactTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		login();
-        final ContactModel cModel = getContactModel();
+		login(OpheliaTestUser.JUNIT);
+        final ContactModel cModel = getContactModel(OpheliaTestUser.JUNIT);
 		datum = new Fixture(cModel, 3);
 	}
 
@@ -54,7 +54,7 @@ public class ReadTest extends ContactTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		datum = null;
-		logout();
+		logout(OpheliaTestUser.JUNIT);
         super.tearDown();
 	}
 

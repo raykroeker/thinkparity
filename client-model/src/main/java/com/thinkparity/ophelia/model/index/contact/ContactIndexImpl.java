@@ -14,8 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.contact.Contact;
 
-
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
@@ -68,13 +67,14 @@ public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
     /**
      * Create ContactIndexImpl.
      * 
-     * @param context
-     *            A thinkParity model context.
      * @param workspace
-     *            A thinKParity workspace.
+     *            A thinkParity <code>Workspace</code>.
+     * @param modelFactory
+     *            A thinkParity <code>InternalModelFactory</code>.
      */
-    public ContactIndexImpl(final Context context, final Workspace workspace) {
-        super(context, workspace);
+    public ContactIndexImpl(final Workspace workspace,
+            final InternalModelFactory modelFactory) {
+        super(workspace, modelFactory);
     }
 
     /**

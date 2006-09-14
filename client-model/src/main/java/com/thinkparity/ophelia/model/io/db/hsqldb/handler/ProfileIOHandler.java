@@ -12,6 +12,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -98,11 +99,16 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     /** User db io. */
     private final UserIOHandler userIO;
 
-    /** Create ProfileIOHandler. */
-    public ProfileIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
-        this.emailIO = new EmailIOHandler();
+    /**
+     * Create ProfileIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+    public ProfileIOHandler(final SessionManager sessionManager) {
+        super(sessionManager);
+        this.userIO = new UserIOHandler(sessionManager);
+        this.emailIO = new EmailIOHandler(sessionManager);
     }
 
     /**

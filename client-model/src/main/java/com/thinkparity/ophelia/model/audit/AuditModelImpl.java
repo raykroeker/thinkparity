@@ -32,7 +32,7 @@ class AuditModelImpl extends AbstractModelImpl {
 	 */
 	AuditModelImpl(final Workspace workspace) {
 		super(workspace);
-		this.auditIO = IOFactory.getDefault().createAuditHandler();
+		this.auditIO = IOFactory.getDefault(workspace).createAuditHandler();
 	}
 
     void audit(final AddTeamMemberEvent event, final JabberId createdBy,

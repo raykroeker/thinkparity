@@ -3,20 +3,16 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.jivesoftware.smack.XMPPConnection;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
 
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPProfileListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ProfileListener;
 
 /**
  * <b>Title:</b>thinkParity XMPP Profile<br>
@@ -28,16 +24,9 @@ import com.thinkparity.ophelia.model.util.xmpp.events.XMPPProfileListener;
  * @version
  * @see XMPPCore
  */
-class XMPPProfile extends AbstractXMPP {
+class XMPPProfile extends AbstractXMPP<ProfileListener> {
 
-    /** Container xmpp event LISTENERS. */
-    private static final List<XMPPProfileListener> LISTENERS;
-
-    static {
-        LISTENERS = new ArrayList<XMPPProfileListener>();
-    }
-
-    /** Create XMPPContainer. */
+    /** Create XMPPProfile. */
     XMPPProfile(final XMPPCore xmppCore) {
         super(xmppCore);
     }
@@ -60,32 +49,6 @@ class XMPPProfile extends AbstractXMPP {
         addEmail.setParameter("email", email);
         execute(addEmail);
     }
-
-    /**
-     * Add an xmpp container event listener.
-     * 
-     * @param l
-     *            The xmpp container event listener.
-     */
-    void addListener(final XMPPProfileListener l) {
-        logApiId();
-        logVariable("l", l);
-        synchronized (LISTENERS) {
-            if (LISTENERS.contains(l)) {
-                return;
-            } else {
-                LISTENERS.add(l);
-            }
-        }
-    }
-
-    /**
-     * Add the requisite packet listeners to the xmpp connection.
-     * 
-     * @param xmppConnection
-     *            The xmpp connection.
-     */
-    void addPacketListeners(final XMPPConnection xmppConnection) {}
 
     /**
      * Read a profile.

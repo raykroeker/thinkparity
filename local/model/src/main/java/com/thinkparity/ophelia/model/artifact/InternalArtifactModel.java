@@ -10,7 +10,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -67,9 +66,8 @@ public class InternalArtifactModel extends ArtifactModel {
      */
     public void auditConfirmationReceipt(final Long artifactId,
             final Long versionId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom)
-            throws ParityException {
-        synchronized(getImplLock()) {
+            final Calendar createdOn, final JabberId receivedFrom) {
+        synchronized (getImplLock()) {
             getImpl().auditConfirmationReceipt(
                     artifactId, versionId, createdBy, createdOn, receivedFrom);
         }
@@ -108,11 +106,10 @@ public class InternalArtifactModel extends ArtifactModel {
      * @throws ParityException
      * @throws SmackException
      */
-	public void confirmReceipt(final JabberId receivedFrom,
-            final Long artifactId, final Long artifactVersionId)
-            throws ParityException, SmackException {
+	public void confirmReceipt(final Long artifactId,
+            final Long artifactVersionId) {
 	    synchronized(getImplLock()) {
-            getImpl().confirmReceipt(receivedFrom, artifactId, artifactVersionId);
+            getImpl().confirmReceipt(artifactId, artifactVersionId);
         }
     }
 
@@ -208,22 +205,6 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
 	/**
-     * Handle the remote event generated when a team member is added. This will
-     * download the user's info if required and create the team data locally.
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param jabberId
-     *            The user's jabber id.
-     */
-    public void handleTeamMemberAdded(final UUID uniqueId,
-            final JabberId jabberId) {
-        synchronized(getImplLock()) {
-            getImpl().handleTeamMemberAdded(uniqueId, jabberId);
-        }
-    }
-
-    /**
      * Handle the remote event generated when a draft is created.
      * 
      * @param uniqueId
@@ -239,7 +220,7 @@ public class InternalArtifactModel extends ArtifactModel {
             getImpl().handleDraftCreated(uniqueId, createdBy, createdOn);
         }
     }
-    
+
     /**
      * Handle the remote event generated when a draft is deleted.
      * 
@@ -254,6 +235,22 @@ public class InternalArtifactModel extends ArtifactModel {
             final JabberId deletedBy, final Calendar deletedOn) {
         synchronized (getImplLock()) {
             getImpl().handleDraftDeleted(uniqueId, deletedBy, deletedOn);
+        }
+    }
+    
+    /**
+     * Handle the remote event generated when a team member is added. This will
+     * download the user's info if required and create the team data locally.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            The user's jabber id.
+     */
+    public void handleTeamMemberAdded(final UUID uniqueId,
+            final JabberId jabberId) {
+        synchronized(getImplLock()) {
+            getImpl().handleTeamMemberAdded(uniqueId, jabberId);
         }
     }
 
@@ -282,32 +279,6 @@ public class InternalArtifactModel extends ArtifactModel {
     public Long readId(final UUID uniqueId) {
         synchronized(getImplLock()) { return getImpl().readId(uniqueId); }
     }
-
-    /**
-     * Read a key request.
-     * 
-     * @param keyRequestId
-     *            A key request id.
-     * @return A key request.
-     */
-    public KeyRequest readKeyRequest(final Long keyRequestId) {
-        synchronized(getImplLock()) {
-            return getImpl().readKeyRequest(keyRequestId);
-        }
-    }
-
-    /**
-	 * Obtain all pending key requests for the artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of key requests.
-	 */
-	public List<KeyRequest> readKeyRequests(final Long artifactId) {
-		synchronized(getImplLock()) {
-			return getImpl().readKeyRequests(artifactId);
-		}
-	}
 
     /**
      * Read the latest version id for an artifact.

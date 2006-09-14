@@ -7,8 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -41,8 +40,8 @@ public class UpdateDraftTest extends DocumentTestCase {
         super.setUp();
         final File inputFile = getInputFiles()[0];
         final File modFile = getModFiles()[0];
-        final DocumentModel documentModel = getDocumentModel();
-        final Document document = createDocument(inputFile);
+        final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+        final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
         datum = new Fixture(document, documentModel, new FileInputStream(modFile));
     }
 

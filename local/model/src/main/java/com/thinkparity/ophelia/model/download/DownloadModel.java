@@ -11,7 +11,6 @@ import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * The parity bootstrap download interface.
@@ -24,20 +23,23 @@ public class DownloadModel extends AbstractModel {
     /**
      * Obtain the parity bootstrap internal download interface.
      * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
      * @return The parity bootstrap internal download interface.
      */
-    public static InternalDownloadModel getInternalModel(final Context context) {
-        final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+    public static InternalDownloadModel getInternalModel(final Context context,
+            final Workspace workspace) {
         return new InternalDownloadModel(context, workspace);
     }
 
     /**
      * Obtain the parity bootstrap download interface.
      * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
      * @return The parity bootstrap download interface.
      */
-    public static DownloadModel getModel() {
-        final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+    public static DownloadModel getModel(final Workspace workspace) {
         return new DownloadModel(workspace);
     }
 

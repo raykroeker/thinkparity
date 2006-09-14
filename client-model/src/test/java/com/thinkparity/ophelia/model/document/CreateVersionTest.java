@@ -7,10 +7,7 @@ import java.io.File;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
-import com.thinkparity.ophelia.model.document.DocumentVersionContent;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.util.MD5Util;
 
 /**
@@ -63,8 +60,8 @@ public class CreateVersionTest extends DocumentTestCase {
 		super.setUp();
 		final File inputFile = getInputFiles()[0];
         final byte[] inputFileBytes = FileUtil.readBytes(inputFile);
-		final DocumentModel documentModel = getDocumentModel();
-        final Document document = createDocument(inputFile);
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+        final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
 		datum = new Fixture(document, inputFileBytes, MD5Util
                 .md5Hex(inputFileBytes), documentModel);
     }

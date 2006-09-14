@@ -10,10 +10,8 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity Profile Model<br>
@@ -27,22 +25,25 @@ public class ProfileModel {
     /**
 	 * Create a Profile interface.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            A thinkParity internal context.
 	 * @return The internal Profile interface.
 	 */
-	public static InternalProfileModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static InternalProfileModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		return new InternalProfileModel(workspace, context);
 	}
 
     /**
 	 * Create a Profile interface.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return The Profile interface.
 	 */
-	public static ProfileModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static ProfileModel getModel(final Workspace workspace) {
 		return new ProfileModel(workspace);
 	}
 

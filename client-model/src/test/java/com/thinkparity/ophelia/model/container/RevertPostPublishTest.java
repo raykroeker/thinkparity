@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.document.Document;
 
 /**
@@ -34,14 +34,14 @@ public class RevertPostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getInternalContainerModel();
-        final Container container = createContainer(NAME);
-        final Document document = addDocument(container, getInputFiles()[0]);
-        login();
-        publish(container);
-        createContainerDraft(container);
-        modifyDocument(document);
-        logout();
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        final Document document = addDocument(OpheliaTestUser.JUNIT, container, getInputFiles()[0]);
+        login(OpheliaTestUser.JUNIT);
+        publish(OpheliaTestUser.JUNIT, container);
+        createContainerDraft(OpheliaTestUser.JUNIT, container);
+        modifyDocument(OpheliaTestUser.JUNIT, document);
+        logout(OpheliaTestUser.JUNIT);
         datum = new Fixture(container, containerModel, document);
         datum.containerModel.addListener(datum);
     }

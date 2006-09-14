@@ -6,8 +6,7 @@ package com.thinkparity.ophelia.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model get api.
@@ -48,12 +47,12 @@ public class GetTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
-		final DocumentModel documentModel = getDocumentModel();
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		Document document;
 		Long documentId;
 		
 		for(File testFile : getInputFiles()) {
-			document = create(testFile);
+			document = create(OpheliaTestUser.JUNIT, testFile);
 			documentId = document.getId();
 
 			data.add(new Fixture(document, documentModel, documentId));

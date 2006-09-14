@@ -46,17 +46,17 @@ public class CreateTest extends ContainerTestCase {
         final ContainerDraft draft = datum.containerModel.readDraft(container.getId());
         assertNotNull(NAME, draft);
         assertEquals(NAME + " [DRAFT OWNER DOES NOT MATCH EXPECTATION]",
-                OpheliaTestUser.getJUnit().getJabberId() , draft.getOwner().getId());
+                OpheliaTestUser.JUNIT.getId() , draft.getOwner().getId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyDraftCreated);
 
         assertTrue(
                 NAME + " [FLAG KEY NOT APPLIED]",
-                getInternalArtifactModel().isFlagApplied(container.getId(), ArtifactFlag.KEY));
+                getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(container.getId(), ArtifactFlag.KEY));
 
         final List<TeamMember> team = datum.containerModel.readTeam(container.getId());
         assertEquals(NAME + " [TEAM SIZE DOES NOT MATCH EXPECTATION]", 1, team.size());
         assertEquals(NAME + " [TEAM MEMBER NOT MATCH EXPECTATION]",
-                OpheliaTestUser.getJUnit().readUser().getId(), team.get(0).getId());
+                OpheliaTestUser.JUNIT.getId(), team.get(0).getId());
     }
 
     /**
@@ -65,7 +65,7 @@ public class CreateTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        final ContainerModel cModel = getContainerModel();
+        final ContainerModel cModel = getContainerModel(OpheliaTestUser.JUNIT);
         datum = new Fixture(cModel, NAME);
         cModel.addListener(datum);
     }
@@ -75,7 +75,7 @@ public class CreateTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        getContainerModel().removeListener(datum);
+        getContainerModel(OpheliaTestUser.JUNIT).removeListener(datum);
         datum = null;
         super.tearDown();
     }

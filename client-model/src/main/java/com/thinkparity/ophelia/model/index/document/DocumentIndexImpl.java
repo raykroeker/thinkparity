@@ -10,8 +10,7 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
-
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
@@ -52,14 +51,18 @@ public class DocumentIndexImpl extends AbstractIndexImpl<DocumentIndexEntry, Lon
                 .setTermVector(Field.TermVector.NO);
     }
 
+
     /**
-     * Create ArtifactIndexImpl.
+     * Create DocumentIndexImpl.
      * 
-     * @param context
-     *            A thinkParity model context.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @param modelFactory
+     *            A thinkParity <code>InternalModelFactory</code>.
      */
-    public DocumentIndexImpl(final Context context, final Workspace workspace) {
-        super(context, workspace);
+    public DocumentIndexImpl(final Workspace workspace,
+            final InternalModelFactory modelFactory) {
+        super(workspace, modelFactory);
     }
 
     /**

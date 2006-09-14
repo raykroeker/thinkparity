@@ -7,10 +7,9 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.ophelia.model.AbstractAuditor;
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityException;
+import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
 import com.thinkparity.ophelia.model.audit.event.SendConfirmEvent;
 import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
@@ -21,15 +20,15 @@ import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
  */
 class ArtifactModelAuditor extends AbstractAuditor {
 
-	/**
-	 * Create a ArtifactModelAuditor.
-	 * 
-	 * @param context
-	 *            The parity context.
-	 */
-	public ArtifactModelAuditor(final Context context) {
-		super(context);
-	}
+    /**
+     * Create ArtifactModelAuditor.
+     * 
+     * @param modelFactory
+     *            A thinkParity <code>InternalModelFactory</code>.
+     */
+    public ArtifactModelAuditor(final InternalModelFactory modelFactory) {
+        super(modelFactory);
+    }
 
     /**
      * Audit the confirmation receipt of an artifact.

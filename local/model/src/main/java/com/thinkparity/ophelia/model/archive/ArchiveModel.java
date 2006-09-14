@@ -8,11 +8,9 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity Archive Model<br>
@@ -30,8 +28,8 @@ public class ArchiveModel {
 	 *            A thinkParity model context.
 	 * @return A thinkParity Archive interface.
 	 */
-	public static InternalArchiveModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static InternalArchiveModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		return new InternalArchiveModel(workspace, context);
 	}
 
@@ -40,8 +38,7 @@ public class ArchiveModel {
 	 * 
 	 * @return A thinkParity Archive interface.
 	 */
-	public static ArchiveModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static ArchiveModel getModel(final Workspace workspace) {
 		return new ArchiveModel(workspace);
 	}
 

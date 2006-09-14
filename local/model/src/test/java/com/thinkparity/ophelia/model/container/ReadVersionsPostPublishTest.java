@@ -8,7 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 
 
@@ -37,12 +37,12 @@ public class ReadVersionsPostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getInternalContainerModel();
-        final Container container = createContainer(NAME);
-        addDocuments(container);
-        login();
-        publish(container);
-        logout();
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocuments(OpheliaTestUser.JUNIT, container);
+        login(OpheliaTestUser.JUNIT);
+        publish(OpheliaTestUser.JUNIT, container);
+        logout(OpheliaTestUser.JUNIT);
         final List<ContainerVersion> versions = containerModel.readVersions(container.getId());
         datum = new Fixture(container, containerModel, versions);
         datum.containerModel.addListener(datum);

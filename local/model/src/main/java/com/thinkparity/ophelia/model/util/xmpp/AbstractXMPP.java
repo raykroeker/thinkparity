@@ -4,9 +4,15 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.Packet;
 
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -16,15 +22,21 @@ import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.ophelia.model.util.EventListener;
+import com.thinkparity.ophelia.model.util.EventNotifier;
+import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-abstract class AbstractXMPP {
+abstract class AbstractXMPP<T extends EventListener> {
 
     /** The xmpp core functionality. */
     protected final XMPPCore xmppCore;
+
+    /** The xmpp interfact implementation's listeners. */
+    private final List<T> listeners;
 
     /** An apache logger. */
     private final Logger logger;
@@ -32,8 +44,58 @@ abstract class AbstractXMPP {
     /** Create AbstractXMPP. */
     protected AbstractXMPP(final XMPPCore xmppCore) {
         super();
+        this.listeners = new ArrayList<T>();
         this.logger = Logger.getLogger(getClass());
         this.xmppCore = xmppCore;
+    }
+
+    /**
+     * Add an event handler for a remote xmpp event.
+     * 
+     * @param <U>
+     *            The internet query (event) type.
+     * @param eventHandler
+     *            An event handler.
+     * @param queryType
+     *            The query type.
+     */
+    protected <U extends AbstractThinkParityIQ> void addEventHandler(
+            final XMPPEventHandler<U> eventHandler,
+            final Class<? extends U> queryType) {
+        xmppCore.getConnection().addPacketListener(
+                new PacketListener() {
+                    @SuppressWarnings("unchecked")
+                    public void processPacket(final Packet packet) {
+                        try {
+                            eventHandler.handleEvent((U) packet);
+                        } catch (final Throwable t) {
+                            throw translateError(t);
+                        }
+                    }
+                },
+                new PacketTypeFilter(queryType));
+    }
+
+    /**
+     * Add event handlers for the xmpp implementation.
+     *
+     */
+    protected void addEventHandlers() {}
+
+    /**
+     * Add an xmpp event listener.
+     * 
+     * @param listener
+     *            An <code>XMPPEventListener</code>.
+     */
+    protected boolean addListener(final T listener) {
+        synchronized (listeners) {
+            if (listeners.contains(listener)) {
+                return false;
+            } else {
+                return listeners.add(listener);
+            }
+        }
     }
 
     /**
@@ -53,6 +115,16 @@ abstract class AbstractXMPP {
     protected void assertIsAuthenticatedUser(final JabberId userId) {
         Assert.assertTrue("USER DOES NOT MATCH AUTHENTICATED USER",
                 isAuthenticatedUser(userId));
+    }
+
+    /**
+     * Clear all xmpp event listeners.
+     *
+     */
+    protected void clearListeners() {
+        synchronized (listeners) {
+            listeners.clear();
+        }
     }
 
     /**
@@ -101,9 +173,18 @@ abstract class AbstractXMPP {
      */
     protected void logApiId() {
         if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0}#{1}",
+            logger.info(MessageFormat.format("{0} {1}#{2}",
+                    xmppCore.getJabberId().getUsername(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName()));
+        }
+    }
+
+    protected void logError(final Object message) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            logger.error(MessageFormat.format("{0} {1}",
+                    xmppCore.getJabberId().getUsername(),
+                    Log4JHelper.render(logger, message)));
         }
     }
 
@@ -115,10 +196,10 @@ abstract class AbstractXMPP {
      * @param value
      *            The variable value.
      */
-    protected <T> T logVariable(final String name, final T value) {
+    protected <V> V logVariable(final String name, final V value) {
         if (logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
+            logger.debug(MessageFormat.format("{0} {1}:{2}",
+                    xmppCore.getJabberId().getUsername(), name,
                     Log4JHelper.render(logger, value)));
         }
         return value;
@@ -131,7 +212,9 @@ abstract class AbstractXMPP {
      */
     protected void logWarning(final Object message) {
         if (Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(Log4JHelper.render(logger, message));
+            logger.warn(MessageFormat.format("{0} {1}",
+                    xmppCore.getJabberId().getUsername(),
+                    Log4JHelper.render(logger, message)));
         }
     }
 
@@ -145,7 +228,39 @@ abstract class AbstractXMPP {
      */
     protected void logWarning(final Object message, final Throwable t) {
         if (Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(Log4JHelper.render(logger, message), t);
+            logger.warn(MessageFormat.format("{0} {1}",
+                    xmppCore.getJabberId().getUsername(),
+                    Log4JHelper.render(logger, message)), t);
+        }
+    }
+
+    /**
+     * Notify all event listeners.
+     * 
+     * @param notifier
+     *            A thinkParity <code>EventNotifier</code>.
+     */
+    protected void notifyListeners(final EventNotifier<T> notifier) {
+        synchronized (listeners) {
+            for (final T listener : listeners) {
+                notifier.notifyListener(listener);
+            }
+        }
+    }
+
+    /**
+     * Remove an xmpp event listener.
+     * 
+     * @param listener
+     *            An <code>XMPPEventListener</code>.
+     */
+    protected boolean removeListener(final T listener) {
+        synchronized (listeners) {
+            if (listeners.contains(listener)) {
+                return listeners.remove(listener);
+            } else {
+                return false;
+            }
         }
     }
 
@@ -158,15 +273,24 @@ abstract class AbstractXMPP {
      * @return A <code>RuntimeException</code>
      */
     protected RuntimeException translateError(final Throwable t) {
-        if (Assertion.class.isAssignableFrom(t.getClass())) {
-            return (Assertion) t;
-        }
-        else {
+        if (XMPPUncheckedException.class.isAssignableFrom(t.getClass())) {
+            return (XMPPUncheckedException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
             final Object errorId = MessageFormat.format("{0}#{1} - {2}",
-                        StackUtil.getCallerClassName(),
-                        StackUtil.getCallerMethodName(), t.getLocalizedMessage());
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(), t.getLocalizedMessage());
+            logger.error(errorId, t);
+            return (Assertion) t;
+        } else {
+            final Object errorId = MessageFormat.format("{0}#{1} - {2}",
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName(), t.getLocalizedMessage());
             logger.error(errorId, t);
             return XMPPErrorTranslator.translateUnchecked(xmppCore, errorId, t);
         }
+    }
+
+    protected interface XMPPEventHandler<T extends AbstractThinkParityIQ> {
+        public void handleEvent(final T query);
     }
 }

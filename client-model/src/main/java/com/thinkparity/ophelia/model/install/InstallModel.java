@@ -10,7 +10,6 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -23,8 +22,7 @@ public class InstallModel extends AbstractModel {
      * 
      * @return The parity install interface.
      */
-    public static InstallModel getModel() {
-        final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+    public static InstallModel getModel(final Workspace workspace) {
         return new InstallModel(workspace);
     }
 

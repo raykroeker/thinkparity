@@ -29,7 +29,6 @@ public final class Constants {
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
         public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);
         public static final File INSTALL = new File(System.getProperty("parity.install"));
-        public static final File WORKSPACE = new File(System.getProperty("parity.workspace"));
     }
 
     public static final class DirectoryNames {

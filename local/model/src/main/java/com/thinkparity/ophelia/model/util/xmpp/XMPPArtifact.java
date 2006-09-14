@@ -4,15 +4,10 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 
@@ -21,30 +16,24 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.EventHandler;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.smackx.packet.artifact.IQConfirmArtifactReceipt;
-import com.thinkparity.ophelia.model.util.smackx.packet.artifact.IQConfirmReceiptProvider;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPArtifact extends AbstractXMPP {
-
-    private static final List<XMPPArtifactListener> LISTENERS;
+class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 
     static {
-		LISTENERS = new LinkedList<XMPPArtifactListener>();
-
         ProviderManager.addIQProvider(Service.NAME, EventHandler.Artifact.DRAFT_CREATED, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
@@ -83,7 +72,25 @@ class XMPPArtifact extends AbstractXMPP {
                 return query;
             }
         });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactconfirmreceipt", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleArtifactReceivedIQ query = new HandleArtifactReceivedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    if (isStartTag("uuid")) {
+                        query.uniqueId = readUniqueId2();
+                    } else if (isStartTag("versionid")) {
+                        query.versionId = readLong2();
+                    } else if (isStartTag("jid")) {
+                        query.receivedBy = readJabberId2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
         ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 final HandleTeamMemberAddedIQ query = new HandleTeamMemberAddedIQ();
@@ -154,17 +161,6 @@ class XMPPArtifact extends AbstractXMPP {
 		super(xmppCore);
 	}
 
-	void addListener(final XMPPArtifactListener l) {
-		logApiId();
-		logVariable("l", l);
-		synchronized (LISTENERS) {
-			if (LISTENERS.contains(l)) {
-                return;
-			} else {
-			    LISTENERS.add(l);
-            }
-		}
-	}
 
 	/**
 	 * Add the packet listeners to the connection.
@@ -172,43 +168,53 @@ class XMPPArtifact extends AbstractXMPP {
 	 * @param xmppConnection
 	 *            The xmpp connection.
 	 */
-	void addPacketListeners(final XMPPConnection xmppConnection) {
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleTeamMemberAdded((HandleTeamMemberAddedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleTeamMemberAddedIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleDraftCreated((HandleDraftCreatedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleDraftCreatedIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleDraftDeleted((HandleDraftDeletedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleDraftDeletedIQ.class));
-        xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        handleTeamMemberRemoved((HandleTeamMemberRemovedIQ) packet);
-                    }
-                },
-                new PacketTypeFilter(HandleTeamMemberRemovedIQ.class));
-		xmppConnection.addPacketListener(
-                new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        notifyArtifactConfirmation((IQConfirmArtifactReceipt) packet);
-                    }
-                },
-                new PacketTypeFilter(IQConfirmArtifactReceipt.class));
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
+     */
+    @Override
+    protected void addEventHandlers() {
+        addEventHandler(new XMPPEventHandler<HandleTeamMemberAddedIQ>() {
+            public void handleEvent(final HandleTeamMemberAddedIQ query) {
+                handleTeamMemberAdded(query);
+            }
+        }, HandleTeamMemberAddedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleDraftCreatedIQ>() {
+            public void handleEvent(final HandleDraftCreatedIQ query) {
+                handleDraftCreated(query);
+            }
+        }, HandleDraftCreatedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleDraftDeletedIQ>() {
+            public void handleEvent(final HandleDraftDeletedIQ query) {
+                handleDraftDeleted(query);
+            }
+        }, HandleDraftDeletedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleTeamMemberRemovedIQ>() {
+            public void handleEvent(final HandleTeamMemberRemovedIQ query) {
+                handleTeamMemberRemoved(query);
+            }
+        }, HandleTeamMemberRemovedIQ.class);
+        addEventHandler(new XMPPEventHandler<HandleArtifactReceivedIQ>() {
+            public void handleEvent(final HandleArtifactReceivedIQ query) {
+                handleArtifactReceived(query);
+            }
+        }, HandleArtifactReceivedIQ.class);
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     */
+    @Override
+    protected boolean addListener(final ArtifactListener listener) {
+        return super.addListener(listener);
+    }
+
+	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     */
+    @Override
+    protected boolean removeListener(final ArtifactListener listener) {
+        return super.removeListener(listener);
+    }
 
 	/**
      * Add a team member. This will create the team member relationship in the
@@ -240,18 +246,19 @@ class XMPPArtifact extends AbstractXMPP {
      * @param versionId
      *            The artifact version id.
      */
-	void confirmReceipt(final JabberId receivedFrom, final UUID uniqueId,
-            final Long versionId) throws SmackException {
+	void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy) {
 	    logApiId();
-        logVariable("receivedFrom", receivedFrom);
+        logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        final IQConfirmArtifactReceipt iq = new IQConfirmArtifactReceipt();
-        iq.setArtifactUUID(uniqueId);
-        iq.setArtifactVersionId(versionId);
-        iq.setRecievedFrom(receivedFrom);
-        iq.setType(IQ.Type.SET);
-        xmppCore.sendAndConfirmPacket(iq);
+        logVariable("receivedBy", receivedBy);
+        final XMPPMethod confirmReceipt = new XMPPMethod("artifact:confirmreceipt");
+        confirmReceipt.setParameter("userId", userId);
+        confirmReceipt.setParameter("uniqueId", uniqueId);
+        confirmReceipt.setParameter("versionId", versionId);
+        confirmReceipt.setParameter("receivedBy", receivedBy);
+        execute(confirmReceipt);
 	}
 
 	/**
@@ -268,7 +275,7 @@ class XMPPArtifact extends AbstractXMPP {
         method.execute(xmppCore.getConnection());
     }
 
-	/**
+    /**
      * Delete an artifact.
      * @param uniqueId An artifact unique id.
      */
@@ -280,7 +287,7 @@ class XMPPArtifact extends AbstractXMPP {
         delete.execute(xmppCore.getConnection());
     }
 
-    void deleteDraft(final UUID uniqueId) {
+	void deleteDraft(final UUID uniqueId) {
         logApiId();
         logVariable("uniqueId", uniqueId);
         final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
@@ -288,7 +295,7 @@ class XMPPArtifact extends AbstractXMPP {
         deleteDraft.execute(xmppCore.getConnection());
     }
 
-	/**
+    /**
      * Read the artifact key holder.
      * 
      * @param uniqueId
@@ -303,7 +310,8 @@ class XMPPArtifact extends AbstractXMPP {
         return result.readResultJabberId("keyHolder");
     }
 
-    /**
+
+	/**
      * Read the artifact team member ids.
      * 
      * @param uniqueId
@@ -319,19 +327,7 @@ class XMPPArtifact extends AbstractXMPP {
         return response.readResultJabberIds("teamIds");
 	}
 
-	void removeListener(final XMPPArtifactListener l) {
-		logApiId();
-		logVariable("l", l);
-		synchronized (LISTENERS) {
-			if (!LISTENERS.contains(l)) {
-                return;
-			} else {
-			    LISTENERS.remove(l);
-            }
-		}
-	}
-
-	/**
+    /**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId
@@ -349,22 +345,31 @@ class XMPPArtifact extends AbstractXMPP {
         method.execute(xmppCore.getConnection());
     }
 
+    private void handleArtifactReceived(final HandleArtifactReceivedIQ query) {
+        notifyListeners(new EventNotifier<ArtifactListener>() {
+            public void notifyListener(final ArtifactListener listener) {
+                listener.confirmReceipt(query.uniqueId, query.versionId,
+                        query.receivedBy);
+            }
+        });
+    }
+
     private void handleDraftCreated(final HandleDraftCreatedIQ query) {
-        synchronized (LISTENERS) {
-            for (final XMPPArtifactListener l : LISTENERS) {
-                l.handleDraftCreated(query.uniqueId, query.createdBy,
+        notifyListeners(new EventNotifier<ArtifactListener>() {
+            public void notifyListener(final ArtifactListener listener) {
+                listener.handleDraftCreated(query.uniqueId, query.createdBy,
                         query.createdOn);
             }
-        }
+        });
     }
 
     private void handleDraftDeleted(final HandleDraftDeletedIQ query) {
-        synchronized (LISTENERS) {
-            for (final XMPPArtifactListener l : LISTENERS) {
-                l.handleDraftDeleted(query.uniqueId, query.deletedBy,
+        notifyListeners(new EventNotifier<ArtifactListener>() {
+            public void notifyListener(final ArtifactListener listener) {
+                listener.handleDraftDeleted(query.uniqueId, query.deletedBy,
                         query.deletedOn);
             }
-        }
+        });
     }
 
     /**
@@ -374,11 +379,11 @@ class XMPPArtifact extends AbstractXMPP {
      *            The internet query.
      */
 	private void handleTeamMemberAdded(final HandleTeamMemberAddedIQ query) {
-		synchronized(LISTENERS) {
-			for(final XMPPArtifactListener l : LISTENERS) {
-				l.teamMemberAdded(query.uniqueId, query.jabberId);
+        notifyListeners(new EventNotifier<ArtifactListener>() {
+            public void notifyListener(final ArtifactListener listener) {
+				listener.teamMemberAdded(query.uniqueId, query.jabberId);
 			}
-		}
+		});
 	}
 
     /**
@@ -388,27 +393,20 @@ class XMPPArtifact extends AbstractXMPP {
      *            The internet query.
      */
     private void handleTeamMemberRemoved(final HandleTeamMemberRemovedIQ query) {
-        synchronized (LISTENERS) {
-            for(final XMPPArtifactListener l : LISTENERS) {
-                l.teamMemberRemoved(query.uniqueId, query.jabberId);
+        notifyListeners(new EventNotifier<ArtifactListener>() {
+            public void notifyListener(final ArtifactListener listener) {
+                listener.teamMemberRemoved(query.uniqueId, query.jabberId);
             }
-        }
+        });
     }
 
-    /**
-     * Receive a notifcation re a artifact confirmation receipt.
-     * 
-     * @param confirmationPacket
-     *            The confirmation packet.
-     */
-    private void notifyArtifactConfirmation(
-            final IQConfirmArtifactReceipt packet) {
-        synchronized(LISTENERS) {
-            for(final XMPPArtifactListener l : LISTENERS) {
-                l.confirmReceipt(packet.getArtifactUUID(),
-                        packet.getArtifactVersionId(), packet.getFromJabberId());
-            }
-        }
+    private static class HandleArtifactReceivedIQ extends AbstractThinkParityIQ {
+        /** Who is confirming receipt. */
+        private JabberId receivedBy;
+        /** The artifact unique id. */
+        private UUID uniqueId;
+        /** The artifact version id. */
+        private Long versionId;
     }
 
     /**
@@ -451,7 +449,7 @@ class XMPPArtifact extends AbstractXMPP {
         private HandleDraftDeletedIQ() { super(); }
 
     }
-
+    
     /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>
      * <b>Description:</b>Provides a wrapper for the team member added remote
@@ -464,7 +462,6 @@ class XMPPArtifact extends AbstractXMPP {
         /** The artifact unique id. */
         private UUID uniqueId;
     }
-    
     /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Removed Query<br>
      * <b>Description:</b>Provides a wrapper for the team member removed remote

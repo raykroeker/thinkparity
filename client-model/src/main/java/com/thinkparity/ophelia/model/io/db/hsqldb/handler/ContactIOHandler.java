@@ -12,12 +12,12 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -224,11 +224,16 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** A user db io. */
     private final UserIOHandler userIO;
 
-    /** Create ContactIOHandler. */
-    public ContactIOHandler() {
-        super();
-        this.emailIO = new EmailIOHandler();
-        this.userIO = new UserIOHandler();
+    /**
+     * Create ContactIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+    public ContactIOHandler(final SessionManager sessionManager) {
+        super(sessionManager);
+        this.emailIO = new EmailIOHandler(sessionManager);
+        this.userIO = new UserIOHandler(sessionManager);
     }
 
     /**

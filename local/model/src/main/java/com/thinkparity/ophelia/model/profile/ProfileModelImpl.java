@@ -38,7 +38,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     ProfileModelImpl(final Workspace workspace) {
         super(workspace);
-        this.profileIO = IOFactory.getDefault().createProfileHandler();
+        this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
     }
 
     /**

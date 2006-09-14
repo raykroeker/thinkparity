@@ -3,7 +3,12 @@
  */
 package com.thinkparity.ophelia.model;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +19,6 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -27,9 +31,9 @@ import com.thinkparity.ophelia.OpheliaTestCase;
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.artifact.KeyRequest;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -40,21 +44,19 @@ import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.document.DocumentVersionContent;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.library.InternalLibraryModel;
-import com.thinkparity.ophelia.model.library.LibraryModel;
 import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
-import com.thinkparity.ophelia.model.message.SystemMessage;
 import com.thinkparity.ophelia.model.message.SystemMessageModel;
+import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
+import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
+import com.thinkparity.ophelia.model.migrator.LibraryModel;
+import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.release.InternalReleaseModel;
-import com.thinkparity.ophelia.model.release.ReleaseModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserModel;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -66,32 +68,6 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  */
 public abstract class ModelTestCase extends OpheliaTestCase {
 
-    /** thinkParity context for the test suite. */
-    protected static final Context testContext;
-
-    static {
-        testContext = new Context(ModelTestCase.class);
-        // init user
-        final ProfileModel pModel = ProfileModel.getModel();
-        final SessionModel sessionModel = SessionModel.getModel();
-        final InternalUserModel userModel = UserModel.getInternalModel(testContext);
-        final ContactModel contactModel = ContactModel.getModel();
-        sessionModel.login(OpheliaTestUser.getJUnit().getCredentials());
-        try {
-            userModel.create(OpheliaTestUser.getX().getJabberId());
-            userModel.create(OpheliaTestUser.getY().getJabberId());
-            userModel.create(OpheliaTestUser.getZ().getJabberId());
-            contactModel.download();
-            pModel.read();
-        }
-        catch(final Throwable t) {
-            final StringWriter sw = new StringWriter();
-            t.printStackTrace(new PrintWriter(sw));
-            fail(sw.toString());
-        }
-        sessionModel.logout();
-    }
-
     /**
 	 * Assert that the document list provided contains the document.
 	 * 
@@ -102,7 +78,18 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected static void assertContains(final Collection<Document> documentList,
 			Document document) {
-		ModelTestCaseHelper.assertContains(documentList, document);
+        final StringBuffer actualIds = new StringBuffer("");
+        Boolean didContain = Boolean.FALSE;
+        int actualCounter = 0;
+        for(Document actual : documentList) {
+            if(actual.getId().equals(document.getId())) {
+                didContain = Boolean.TRUE;
+            }
+            actualIds.append(actualCounter == 0 ? "" : ",");
+            actualIds.append(actual.getId().toString());
+        }
+        ModelTestCase.assertTrue("expected:<" + document.getId() + " but was:<" + actualIds.toString(), didContain);
+
 	}
 
     /**
@@ -205,7 +192,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [DOCUMENT'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
     }
 
-	/**
+    /**
      * Assert that the expected version matches the actual one.
      * 
      * @param assertion
@@ -246,7 +233,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion, expected.getVersion(), actual.getVersion());
     }
 
-    /**
+	/**
 	 * Assert that the document list provided doesn't contain the document.
 	 * 
 	 * @param documentList
@@ -256,7 +243,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected static void assertNotContains(final Collection<Document> documentList,
 			Document document) {
-		ModelTestCaseHelper.assertNotContains(documentList, document);
+        final StringBuffer actualIds = new StringBuffer("");
+        Boolean didContain = Boolean.FALSE;
+        int actualCounter = 0;
+        for(Document actual : documentList) {
+            if(actual.getId().equals(document.getId())) {
+                didContain = Boolean.TRUE;
+            }
+            actualIds.append(actualCounter++ == 0 ? "" : ",");
+            actualIds.append(actual.getId().toString());
+        }
+        ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
 	}
 
     /**
@@ -459,48 +456,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
     }
 
-    /** The internal artifact model. */
-    private InternalArtifactModel artifactModel;
-
-	private InternalContainerModel iContainerModel;
-
-    private InternalDocumentModel iDocumentModel;
-
-    private InternalLibraryModel ilModel;
-
-	private InternalSessionModel internalSessionModel;
-
-	private InternalReleaseModel irModel;
-
-	private InternalUserModel iuModel;
-
-	private InternalSystemMessageModel messageModel;
-
-	/**
-	 * The parity preferences.
-	 * 
-	 */
-	private Preferences preferences;
-
-    private InternalProfileModel profileModel;
-
-    /**
-     * The session model.
-     * 
-     */
-    private SessionModel sessionModel;
-
-	/**
-	 * The parity workspace.
-	 * 
-	 */
-	private Workspace workspace;
-
-	/**
-	 * The workspace model.
-	 * 
-	 */
-	private WorkspaceModel workspaceModel;
+    /** A thinkParity context. */
+    protected Context context;
 
     /**
 	 * Create a ModelTestCase
@@ -520,10 +477,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @return A document.
      * @throws IOException
      */
-    protected Document addDocument(final Container container, final File inputFile)
-            throws IOException {
-        final Document document = createDocument(inputFile);
-        getContainerModel().addDocument(container.getId(), document.getId());
+    protected Document addDocument(final OpheliaTestUser testUser,
+            final Container container, final File inputFile) throws IOException {
+        logTrace("{0} - Creating document \"{1}\".", getName(), inputFile);
+        final Document document = createDocument(testUser, inputFile);
+        logTrace("{0} - Adding document \"{1}\" to container \"{2}\".", getName(),
+                inputFile, container.getName());
+        getContainerModel(testUser).addDocument(container.getId(), document.getId());
         return document;
     }
 
@@ -534,17 +494,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container.
      *            @return A list of documents.
      */
-    protected List<Document> addDocuments(final Container container)
-            throws IOException {
+    protected List<Document> addDocuments(final OpheliaTestUser testUser,
+            final Container container) throws IOException {
         final List<Document> documents = new ArrayList<Document>();
         for(final File inputFile : getInputFiles()) {
-            documents.add(addDocument(container, inputFile));
+            documents.add(addDocument(testUser, container, inputFile));
         }
         return documents;
-    }
-
-    protected void addTeam(final Container container) throws Exception {
-        addTeamToContainer(container.getId());
     }
 
     /**
@@ -554,11 +510,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A file.
      * @return A document.
      * @throws IOException
-     * @throws ParityException
      */
-    protected Document create(final File file) throws IOException,
-            ParityException {
-        return createDocument(file);
+    protected Document create(final OpheliaTestUser testUser, final File file)
+            throws IOException {
+        return createDocument(testUser, file);
     }
 
     /**
@@ -568,9 +523,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            The container name.
      * @return The container.
      */
-    protected Container createContainer(final String name)
-            throws ParityException {
-        return getInternalContainerModel().create(name);
+    protected Container createContainer(final OpheliaTestUser testUser,
+            final String name) {
+        final String containerName = MessageFormat.format(
+                "{0} - {1,date,yyyyMMdd.HHmm}", name,
+                currentDateTime().getTime());
+        logTrace("{0} - Creating container \"{2}\" for {1}.", getName(), testUser, containerName);
+        return getContainerModel(testUser).create(containerName);
     }
 
     /**
@@ -580,8 +539,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container.
      * @return A container draft.
      */
-    protected ContainerDraft createContainerDraft(final Container container) {
-        return createContainerDraft(container.getId());
+    protected ContainerDraft createContainerDraft(
+            final OpheliaTestUser testUser, final Container container) {
+        return createContainerDraft(testUser, container.getId());
     }
 
     /**
@@ -591,8 +551,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container id.
      * @return A container draft.
      */
-    protected ContainerDraft createContainerDraft(final Long containerId) {
-        return getInternalContainerModel().createDraft(containerId);
+    protected ContainerDraft createContainerDraft(
+            final OpheliaTestUser testUser, final Long containerId) {
+        return getContainerModel(testUser).createDraft(containerId);
     }
 
     /**
@@ -604,8 +565,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @throws IOException
      * @throws ParityException
      */
-    protected Document createDocument(final File inputFile) throws IOException {
-        return getDocumentModel().create(inputFile.getName(), new FileInputStream(inputFile));
+    protected Document createDocument(final OpheliaTestUser testUser,
+            final File inputFile) throws IOException {
+        return getDocumentModel(testUser).create(inputFile.getName(),
+                new FileInputStream(inputFile));
     }
 
     /**
@@ -615,18 +578,37 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A document.
      * @return A version.
      */
-    protected DocumentVersion createDocumentVersion(final Document document) {
-        return getDocumentModel().createVersion(document.getId());
+    protected DocumentVersion createDocumentVersion(
+            final OpheliaTestUser testUser, final Document document) {
+        return getDocumentModel(testUser).createVersion(document.getId());
     }
 
     /**
-	 * @see com.thinkparity.codebase.junitx.TestCase#createFailMessage(java.lang.Throwable)
-	 * 
-	 */
+     * @see com.thinkparity.codebase.junitx.TestCase#createFailMessage(java.lang.Throwable)
+     * 
+     */
 	protected String createFailMessage(Throwable t) {
 		testLogger.error("Failure", t);
 		return super.createFailMessage(t);
 	}
+
+    protected InternalArtifactModel getArtifactModel(
+            final OpheliaTestUser testUser) {
+        return ArtifactModel.getInternalModel(new Context(getClass()),
+                testUser.getWorkspace());
+    }
+
+    protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
+        return ContactModel.getInternalModel(context, testUser.getWorkspace());
+    }
+
+    protected InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
+        return ContainerModel.getInternalModel(new Context(getClass()), testUser.getWorkspace());
+    }
+
+    protected InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
+        return DocumentModel.getInternalModel(new Context(getClass()), testUser.getWorkspace());
+    }
 
     /**
 	 * Obtain a single test file.
@@ -652,67 +634,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return inputFiles;
 	}
 
-    protected InternalArtifactModel getInternalArtifactModel() {
-        if(null == artifactModel) {
-            artifactModel = ArtifactModel.getInternalModel(new Context(getClass()));
-        }
-        return artifactModel;
+    protected InternalLibraryModel getLibraryModel(final Workspace workspace) {
+        return LibraryModel.getInternalModel(new Context(getClass()), workspace);
     }
 
-    protected InternalContainerModel getInternalContainerModel() {
-        if(null == iContainerModel) {
-            iContainerModel = ContainerModel.getInternalModel(new Context(getClass()));
-        }
-        return iContainerModel;
-    }
-
-    protected InternalDocumentModel getInternalDocumentModel() {
-        if(null == iDocumentModel) {
-            return DocumentModel.getInternalModel(new Context(getClass()));
-        }
-        return iDocumentModel;
-    }
-
-    protected InternalLibraryModel getInternalLibraryModel() {
-        if(null == ilModel) {
-            ilModel = LibraryModel.getInternalModel(new Context(getClass()));
-        }
-        return ilModel;
-    }
-
-    protected InternalSystemMessageModel getInternalMessageModel() {
-        if(null == messageModel) {
-            messageModel = SystemMessageModel.getInternalModel(new Context(getClass()));
-        }
-        return messageModel;
-    }
-
-    protected InternalProfileModel getInternalProfileModel() {
-        if(null == profileModel) {
-            profileModel = ProfileModel.getInternalModel(new Context(getClass()));
-        }
-        return profileModel;
-    }
-
-    protected InternalReleaseModel getInternalReleaseModel() {
-        if(null == irModel) {
-            irModel = ReleaseModel.getInternalModel(new Context(getClass()));
-        }
-        return irModel;
-    }
-
-    protected InternalSessionModel getInternalSessionModel() {
-        if (null == internalSessionModel) {
-            internalSessionModel = SessionModel.getInternalModel(new Context(getClass()));
-        }
-        return internalSessionModel;
-    }
-
-    protected InternalUserModel getInternalUserModel() {
-        if(null == iuModel) {
-            iuModel = UserModel.getInternalModel(new Context(getClass()));
-        }
-        return iuModel;
+    protected InternalSystemMessageModel getMessageModel(final Workspace workspace) {
+        return SystemMessageModel.getInternalModel(new Context(getClass()), workspace);
     }
 
     protected File[] getModFiles() throws IOException {
@@ -721,52 +648,36 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modFiles;
     }
 
-    /**
-	 * Obtain the parity preferences.
-	 * 
-	 * @return The parity preferences.
-	 */
-	protected Preferences getPreferences() {
-		if(null == preferences) {
-			preferences = getWorkspace().getPreferences();
-		}
-		return preferences;
-	}
-
-	/**
-     * Obtain the session model.
-     * 
-     * @return The session model.
-     */
-    protected SessionModel getSessionModel() {
-    	if(null == sessionModel) {
-    		sessionModel = SessionModel.getModel();
-    	}
-    	return sessionModel;
+    protected InternalProfileModel getProfileModel(
+            final OpheliaTestUser testUser) {
+        return ProfileModel.getInternalModel(new Context(getClass()),
+                testUser.getWorkspace());
     }
 
-	/**
-	 * Obtain the parity workspace.
-	 * 
-	 * @return The parity workspace.
-	 */
-	protected Workspace getWorkspace() {
-		if(null == workspace) {
-			workspace = getWorkspaceModel().getWorkspace();
-		}
-		return workspace;
-	}
+	protected InternalReleaseModel getReleaseModel(
+            final OpheliaTestUser testUser) {
+        return ReleaseModel.getInternalModel(new Context(getClass()),
+                testUser.getWorkspace());
+    }
 
-	/**
+	protected InternalSessionModel getSessionModel(
+            final OpheliaTestUser testUser) {
+        return SessionModel.getInternalModel(new Context(getClass()),
+                testUser.getWorkspace());
+    }
+
+    protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
+        return UserModel.getInternalModel(new Context(getClass()),
+                testUser.getWorkspace());
+    }
+
+    /**
 	 * Obtain a handle to the parity workspace model.
 	 * 
 	 * @return A handle to the parity workspace model.
 	 */
 	protected WorkspaceModel getWorkspaceModel() {
-		if(null == workspaceModel) {
-			workspaceModel = WorkspaceModel.getModel();
-		}
-		return workspaceModel;
+		return WorkspaceModel.getModel();
 	}
 
     /**
@@ -774,7 +685,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * 
      * @return True if it is.
      */
-    protected Boolean isLoggedIn() { return getSessionModel().isLoggedIn(); }
+    protected Boolean isLoggedIn(final OpheliaTestUser testUser) {
+        return getSessionModel(testUser).isLoggedIn();
+    }
 
     /**
 	 * Determine if the parity error is generated by the model due to operating
@@ -806,23 +719,22 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * logged and the session is re-establihsed.
      * 
      */
-    protected void login() {
-        if(isLoggedIn()) {
-            logger.warn(getName() + " [USER ALREADY LOGGED IN]");
-            logout();
+    protected void login(final OpheliaTestUser testUser) {
+        logTrace("{0} - Logging in as {1}.", getName(), testUser);
+        if(isLoggedIn(testUser)) {
+            logWarning("{0} - User {1} already logged in.", testUser);
+            logout(testUser);
         }
-    	getSessionModel().login(getLoginUser().getCredentials()); 
-    }
-
-    protected OpheliaTestUser getLoginUser() {
-        return getModelTestUser();
+    	getSessionModel(testUser).login(testUser.getCredentials());
     }
 
     /**
      * Terminate an existing session.
      *
      */
-    protected void logout() { getSessionModel().logout(); }
+    protected void logout(final OpheliaTestUser testUser) {
+        getSessionModel(testUser).logout();
+    }
 
     /**
      * Modify a document.
@@ -833,7 +745,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @throws IOException
      * @see DocumentModel#updateDraft(Long, InputStream)
      */
-    protected void modifyDocument(final Document document) throws FileNotFoundException, IOException  {
+    protected void modifyDocument(final OpheliaTestUser testUser,
+            final Document document) throws FileNotFoundException, IOException {
         final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
         final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
         final File tempFile = File.createTempFile(prefix, suffix);
@@ -844,7 +757,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
         final InputStream content = new FileInputStream(tempFile);
         try {
-            getDocumentModel().updateDraft(document.getId(), content);
+            getDocumentModel(testUser).updateDraft(document.getId(), content);
         } finally {
             content.close();
         }
@@ -856,12 +769,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param container
      *            A container.
      */
-    protected void modifyDocuments(final Container container)
-            throws FileNotFoundException, IOException {
-        final ContainerModel containerModel = getContainerModel();
+    protected void modifyDocuments(final OpheliaTestUser testUser,
+            final Container container) throws FileNotFoundException,
+            IOException {
+        final ContainerModel containerModel = getContainerModel(testUser);
         final ContainerDraft draft = containerModel.readDraft(container.getId());
         for(final Document document : draft.getDocuments()) {
-            modifyDocument(document);
+            modifyDocument(testUser, document);
         }
     }
 
@@ -871,9 +785,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param container
      *            The container.
      */
-    protected void publish(final Container container) {
+    protected void publish(final OpheliaTestUser testUser,
+            final Container container) {
         final List<TeamMember> teamMembers = Collections.emptyList();
-        getContainerModel().publish(container.getId(), readContacts(), teamMembers);
+        final List<Contact> contacts = readContacts(testUser);
+        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
+                getName(), container.getName(), contacts, teamMembers);
+        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
     }
 
     /**
@@ -882,8 +800,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param container
      *            A container.
      */
-    protected void publishContainer(final Container container) {
-        publish(container);
+    protected void publishContainer(final OpheliaTestUser testUser,
+            final Container container) {
+        publish(testUser, container);
     }
 
     /**
@@ -891,8 +810,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * 
      * @return A list of contacts.
      */
-    protected List<Contact> readContacts() {
-        return getContactModel().read();
+    protected List<Contact> readContacts(final OpheliaTestUser testUser) {
+        return getContactModel(testUser).read();
     }
 
     /**
@@ -902,9 +821,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            An artifact.
      * @return A list of jabber ids.
      */
-    protected List<JabberId> readTeam(final Artifact artifact) {
+    protected List<JabberId> readTeam(final OpheliaTestUser testUser,
+            final Artifact artifact) {
         final List<JabberId> team = new ArrayList<JabberId>();
-        for(final User user : getArtifactModel().readTeam(
+        for(final User user : getArtifactModel(testUser).readTeam(
                 artifact.getId())) {
             team.add(user.getId());
         }
@@ -912,42 +832,19 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Request the key for the container from the user.
-     * 
-     * @param container
-     *            The container.
-     * @param testUser
-     *            The user.
-     * @return The key request.
-     */
-    protected KeyRequest requestKey(final Container container,
-            final OpheliaTestUser testUser) {
-        final SystemMessage systemMessage =
-                getInternalMessageModel().createKeyRequest(
-                        container.getId(), testUser.getJabberId());
-        return getInternalArtifactModel().readKeyRequest(systemMessage.getId());
-    }
-
-    /**
 	 * @see junit.framework.TestCase#setUp()
 	 * 
 	 */
-	protected void setUp() throws Exception { super.setUp(); }
+	protected void setUp() throws Exception {
+        super.setUp();
+        this.context = new Context(ModelTestCase.class);
+	}
 
     /**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown() throws Exception { super.tearDown(); }
-
-    private void addTeamToContainer(final Long containerId) throws Exception {
-        final ContainerModel containerModel = getInternalContainerModel();
-        final List<TeamMember> team = containerModel.readTeam(containerId);
-        final List<User> newTeam = new ArrayList<User>();
-        newTeam.addAll(team);
-        newTeam.add(OpheliaTestUser.getX().readUser());
-        newTeam.add(OpheliaTestUser.getY().readUser());
-        newTeam.add(OpheliaTestUser.getZ().readUser());
-//        getContainerModel().updateTeam(containerId, newTeam);
-        throw Assert.createNotYetImplemented("ModelTestCase#addTeamToContainer(Long)");
-    }
+	protected void tearDown() throws Exception {
+        super.tearDown();
+        this.context = null;
+	}
 }

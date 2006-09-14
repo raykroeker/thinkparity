@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
@@ -38,12 +38,12 @@ public class DeletePostPublishTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
-        final Container container = createContainer(NAME);
-        addDocuments(container);
-        modifyDocuments(container);
-        publish(container);
+        login(OpheliaTestUser.JUNIT);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocuments(OpheliaTestUser.JUNIT, container);
+        modifyDocuments(OpheliaTestUser.JUNIT, container);
+        publish(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel);
         datum.containerModel.addListener(datum);
     }
@@ -55,7 +55,7 @@ public class DeletePostPublishTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
 

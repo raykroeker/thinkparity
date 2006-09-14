@@ -17,22 +17,25 @@ public class IndexModel extends AbstractModel {
 	/**
 	 * Obtain an internal index model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            The parity context.
 	 * @return An internal index model.
 	 */
-	public static InternalIndexModel getInternalModel(final Context context) {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
+	public static InternalIndexModel getInternalModel(final Context context,
+            final Workspace workspace) {
 		return new InternalIndexModel(workspace, context);
 	}
 
 	/**
 	 * Obtain an index model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return The index model.
 	 */
-	public static IndexModel getModel() {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
+	public static IndexModel getModel(final Workspace workspace) {
 		return new IndexModel(workspace);
 	}
 

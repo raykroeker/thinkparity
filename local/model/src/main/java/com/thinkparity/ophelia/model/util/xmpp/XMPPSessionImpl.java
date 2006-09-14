@@ -1,5 +1,5 @@
 /*
- * Feb 6, 2005
+ * Created On: Feb 6, 2005
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
@@ -35,13 +35,13 @@ import com.thinkparity.ophelia.model.Constants.Jabber;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.*;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContainerListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPDocumentListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPSessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
 
 /**
  * XMPPSessionImpl
@@ -75,26 +75,23 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
 	}
 
-    private XMPPConnection smackXMPPConnection;
+    /** A list of the session listeners. */
+    private final List<SessionListener> listeners;
 
     /** The artifact xmpp interface. */
 	private final XMPPArtifact xmppArtifact;
 
+    /** The xmpp connection. */
+    private XMPPConnection xmppConnection;
+
     /** The contact xmpp interface. */
 	private final XMPPContact xmppContact;
 
-	/** The container xmpp interface. */
+    /** The container xmpp interface. */
     private final XMPPContainer xmppContainer;
 
-	/** The document xmpp interface. */
-    private final XMPPDocument xmppDocument;
-
-	private Vector<XMPPContactListener> xmppPresenceListeners;
-
-    /** The thinkParity xmpp profile interface. */
+	/** The thinkParity xmpp profile interface. */
     private final XMPPProfile xmppProfile;
-
-    private Vector<XMPPSessionListener> xmppSessionListeners;
 
     /**
 	 * The xmpp user interface.
@@ -102,30 +99,26 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	private final XMPPUser xmppUser;
 
-	/**
+    /**
 	 * Create a XMPPSessionImpl
 	 * 
 	 */
-	XMPPSessionImpl() {
+	public XMPPSessionImpl() {
 		logger.info("Jive Software:  Smack:  " + SmackConfiguration.getVersion());
-		this.xmppPresenceListeners = new Vector<XMPPContactListener>(10);
-		this.xmppSessionListeners = new Vector<XMPPSessionListener>(10);
-
+		this.listeners = new ArrayList<SessionListener>();
 		this.xmppArtifact = new XMPPArtifact(this);
         this.xmppContainer = new XMPPContainer(this);
-        this.xmppDocument = new XMPPDocument(this);
 		this.xmppContact = new XMPPContact(this);
         this.xmppProfile = new XMPPProfile(this);
 		this.xmppUser = new XMPPUser(this);
-
 		XMPPConnection.addConnectionListener(new ConnectionEstablishedListener() {
 			public void connectionEstablished(final XMPPConnection connection) {
-				doNotifyConnectionEstablished(connection);
+				handleConnectionEstablished(connection);
 			}
 		});
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#acceptContactInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
@@ -135,59 +128,51 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.acceptInvitation(userId, invitedBy, acceptedOn);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener)
      * 
      */
-	public void addListener(final XMPPArtifactListener l) {
-		xmppArtifact.addListener(l);
+	public void addListener(final ArtifactListener listener) {
+		xmppArtifact.addListener(listener);
 	}
 
 	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPContactListener)
 	 * 
 	 */
-	public void addListener(final XMPPContactListener l) {
-		xmppContact.addListener(l);
+	public void addListener(final ContactListener listener) {
+		xmppContact.addListener(listener);
 	}
 
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPContainerListener)
      * 
      */
-    public void addListener(final XMPPContainerListener l) {
-        xmppContainer.addListener(l);
+    public void addListener(final ContainerListener listener) {
+        xmppContainer.addListener(listener);
     }
 
 	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPDocumentListener)
-     * 
-     */
-    public void addListener(final XMPPDocumentListener l) {
-        xmppDocument.addListener(l);
-    }
-
-    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPSessionListener)
 	 */
-	public void addListener(final XMPPSessionListener xmppSessionListener) {
-		logger.info("addListener(XMPPSessionListener)");
-		logger.debug(xmppSessionListener);
-		Assert.assertNotNull("Cannot register a null session listener.",
-				xmppSessionListener);
-		Assert.assertTrue("Cannot re-register the same session listener.",
-				!xmppSessionListeners.contains(xmppSessionListener));
-		xmppSessionListeners.add(xmppSessionListener);
+	public void addListener(final SessionListener listener) {
+        synchronized (listeners) {
+            if (listeners.contains(listener)) {
+                return;
+            } else {
+                listeners.add(listener);
+            }
+        }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.model.profile.ProfileEMail)
      */
     public void addProfileEmail(final JabberId userId, final EMail email) {
         xmppProfile.addEmail(userId, email);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#addTeamMember(java.util.UUID,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -207,7 +192,19 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         Assert.assertTrue(assertion, response.containsResult());
     }
 
-    /**
+	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#clearListeners()
+     */
+    public void clearListeners() {
+        listeners.clear();
+        xmppArtifact.clearListeners();
+        xmppContact.clearListeners();
+        xmppContainer.clearListeners();
+        xmppProfile.clearListeners();
+        xmppUser.clearListeners();
+    }
+
+	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#closeArtifact(java.util.UUID)
 	 * 
 	 */
@@ -220,14 +217,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.Long)
-     * 
+     *      java.util.UUID, java.lang.Long,
+     *      com.thinkparity.codebase.jabber.JabberId)
      */
-    public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId) throws SmackException {
-        xmppArtifact.confirmReceipt(receivedFrom, uniqueId, versionId);
+    public void confirmArtifactReceipt(final JabberId userId,
+            final UUID uniqueId, final Long versionId, final JabberId receivedBy) {
+        xmppArtifact.confirmReceipt(userId, uniqueId, versionId, receivedBy);
     }
 
 	/**
@@ -244,7 +241,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createDraft(java.util.UUID)
      */
     public void createDraft(final UUID uniqueId) {
@@ -253,7 +250,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(uniqueId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#declineInvitation(java.lang.String,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -277,7 +274,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContact.delete(userId, contactId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContactInvitation(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
      * 
@@ -287,7 +284,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContact.deleteInvitation(userId, invitedAs, deletedOn);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteDraft(java.util.UUID)
      */
     public void deleteDraft(final UUID uniqueId) {
@@ -303,7 +300,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.extendInvitation(userId, extendedTo, extendedOn);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.codebase.model.artifact.ArtifactFlag)
 	 */
@@ -318,7 +315,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendPacket(iq);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#getArtifactKeys()
 	 * 
 	 */
@@ -339,92 +336,86 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#getConnection()
 	 * 
 	 */
-	public XMPPConnection getConnection() { return smackXMPPConnection; }
+	public XMPPConnection getConnection() { return xmppConnection; }
 
-    /**
+	/**
      * Obtain the connection's jabber id.
      * 
      * @return A jabber id.
      */
 	public JabberId getJabberId() {
-		return JabberIdBuilder.parseQualifiedJabberId(smackXMPPConnection.getUser());
+		return JabberIdBuilder.parseQualifiedJabberId(xmppConnection.getUser());
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
 		logger.info("isLoggedIn()");
-		return (null != smackXMPPConnection
-				&& smackXMPPConnection.isConnected()
-				&& smackXMPPConnection.isAuthenticated());
+		return (null != xmppConnection
+				&& xmppConnection.isConnected()
+				&& xmppConnection.isAuthenticated());
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#login(java.lang.String, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
 	public void login(final Environment environment,
             final Credentials credentials) throws SmackException {
-		logger.info("");
-		try {
-			if(Boolean.TRUE == isLoggedIn())
+	    assertIsReachable(environment);
+        try {
+			if (Boolean.TRUE == isLoggedIn())
 				logout();
-			if(Boolean.getBoolean("parity.insecure")) {
-				logger.warn("Non ssl connection to host");
-				smackXMPPConnection =
-                    new XMPPConnection(environment.getServerHost(),
+            switch (environment.getServerProtocol()) {
+            case XMPP:
+                xmppConnection = new XMPPConnection(environment.getServerHost(),
                             environment.getServerPort());
+                break;
+            case XMPPS:
+                xmppConnection =
+                    new SSLXMPPConnection(environment.getServerHost(), environment.getServerPort());
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN ENVIRONMENT PROTOCOL");
 			}
-			else { smackXMPPConnection =
-                new SSLXMPPConnection(environment.getServerHost(), environment.getServerPort()); }
 
-            // connection termination
-			smackXMPPConnection.addConnectionListener(new ConnectionListener() {
-			    public void connectionClosed() { doNotifyConnectionClosed(); }
-			    public void connectionClosedOnError(final Exception e) {
-			        doNotifyConnectionClosedOnError(e);
+            xmppConnection.addConnectionListener(new ConnectionListener() {
+			    public void connectionClosed() {
+                    handleConnectionClosed();
+			    }
+			    public void connectionClosedOnError(final Exception x) {
+			        handleConnectionClosed(x);
 			    }
 			});
-			// packet debugger
-			smackXMPPConnection.addPacketListener(
-					new PacketListener() {
-						public void processPacket(final Packet packet) {
-							logger.debug(packet);
-						}
-					},
-					new PacketFilter() {
-						public boolean accept(final Packet packet) { return true; }
-					});
-
-			// add the artifact listeners
-			xmppArtifact.addPacketListeners(smackXMPPConnection);
-			// add the contact listeners
-			xmppContact.addPacketListeners(smackXMPPConnection);
-            // add the container listeners
-            xmppContainer.addPacketListeners(smackXMPPConnection);
-            // add the document listeners
-            xmppDocument.addPacketListeners(smackXMPPConnection);
-            // add the profile listeners
-            xmppProfile.addPacketListeners(smackXMPPConnection);
-			// add the user listeners
-			xmppUser.addPacketListeners(smackXMPPConnection);
-
-			smackXMPPConnection.login(
+            xmppConnection.addPacketListener(new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        logger.debug(packet);
+                    }
+                }, new PacketFilter() {
+                    public boolean accept(final Packet packet) {
+                        return true;
+                    }
+                });
+			xmppArtifact.addEventHandlers();
+			xmppContact.addEventHandlers();
+            xmppContainer.addEventHandlers();
+			xmppUser.addEventHandlers();
+            xmppConnection.login(
                     credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
-		}
-		catch(final XMPPException xmppx) {
+		} catch (final XMPPException xmppx) {
 			logger.error("login(String,Integer,String,String)", xmppx);
 			throw XMPPErrorTranslator.translate(xmppx);
 		}
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logout()
 	 */
 	public void logout() throws SmackException {
 		logger.info("logout()");
-		smackXMPPConnection.close();
-		smackXMPPConnection = null;
+        clearListeners();
+        xmppConnection.close();
+        xmppConnection = null;
 	}
 
 	/**
@@ -437,7 +428,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#publish(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.List, com.thinkparity.codebase.jabber.JabberId,
      *      java.util.Calendar)
@@ -452,7 +443,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readArtifactTeamIds(java.util.UUID)
      */
 	public List<JabberId> readArtifactTeamIds(final UUID uniqueId) {
@@ -470,7 +461,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppContact.read(userId, contactId);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
@@ -478,13 +469,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppContact.read(userId);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
 	public User readCurrentUser() throws SmackException {
 		assertLoggedIn("[LMODEL] [XMPP] [READ CURRENT USER] [NO SESSION]");
-		final String qualifiedJabberId = smackXMPPConnection.getUser();
+		final String qualifiedJabberId = xmppConnection.getUser();
         final JabberId jabberId =
             JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
 		return xmppUser.read(jabberId);
@@ -507,7 +498,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.read(getJabberId());
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfileEMails()
      */
     public List<EMail> readProfileEMails() {
@@ -533,37 +524,36 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener)
 	 * 
 	 */
-	public void removeListener(final XMPPArtifactListener l) {
-		xmppArtifact.removeListener(l);
+	public void removeListener(final ArtifactListener listener) {
+		xmppArtifact.removeListener(listener);
 	}
 
 	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPContactListener)
 	 * 
 	 */
-	public void removeListener(final XMPPContactListener xmppPresenceListener) {
-		logger.info("removeListener(XMPPContactListener)");
-		logger.debug(xmppPresenceListener);
-		Assert.assertNotNull("Cannot un-register a null presence listener.",
-				xmppPresenceListener);
-		Assert.assertTrue(
-				"Cannot un-register a non-registered presence listener.",
-				xmppPresenceListeners.contains(xmppPresenceListener));
-		xmppPresenceListeners.remove(xmppPresenceListener);
+	public void removeListener(final ContactListener listener) {
+	    xmppContact.removeListener(listener);
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener)
+     */
+    public void removeListener(final ContainerListener listener) {
+        xmppContainer.removeListener(listener);
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPSessionListener)
 	 */
-	public void removeListener(final XMPPSessionListener xmppSessionListener) {
-		logger.info("removeListener(XMPPSessionListener)");
-		logger.debug(xmppSessionListener);
-		Assert.assertNotNull("Cannot un-register a null session listener.",
-				xmppSessionListener);
-		Assert.assertTrue(
-				"Cannot unregister a non-registered session listener.",
-				xmppSessionListeners.contains(xmppSessionListener));
-		xmppSessionListeners.remove(xmppSessionListener);
+	public void removeListener(final SessionListener listener) {
+        synchronized (listeners) {
+            if (listeners.contains(listener)) {
+                listeners.remove(listener);
+            } else {
+                return;
+            }
+        }
 	}
 
 	/**
@@ -573,7 +563,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppProfile.removeEmail(userId, email);
     }
 
-    /**
+	/**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId
@@ -593,7 +583,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.resetPassword(userId, securityAnswer);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#send(ContainerVersion, Map,
      *      User, JabberId, Calendar)
      *
@@ -609,7 +599,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-    /**
+	/**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -623,7 +613,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			throws SmackException {
 		final String packetId = packet.getPacketID();
         final PacketCollector collector =
-            smackXMPPConnection.createPacketCollector(new PacketIDFilter(packetId));
+            xmppConnection.createPacketCollector(new PacketIDFilter(packetId));
         sendPacket(packet);
         final Packet confirmationPacket = collector.nextResult();
         logger.debug(confirmationPacket);
@@ -636,17 +626,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return confirmationPacket;
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#sendDocument(java.util.Set,
-     *      java.util.UUID, java.lang.String, byte[])
-     * 
-     */
-	public void sendDocumentVersion(final Set<JabberId> sendTo,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] content) throws SmackException {
-	    xmppDocument.sendVersion(sendTo, uniqueId, versionId, name, content);
-	}
-
 	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#sendLogFileArchive(java.io.File)
 	 */
@@ -656,7 +635,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		logger.debug(logFileArchive);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#updateProfile(com.thinkparity.codebase.model.profile.Profile)
      */
     public void updateProfile(final JabberId userId, final Profile profile) {
@@ -671,7 +650,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         try {
             Assert.assertTrue("CAN ONLY UPDATE PROFILE CREDENTIALS",
                     userId.equals(getJabberId()));
-            final AccountManager accountManager = new AccountManager(smackXMPPConnection);
+            final AccountManager accountManager = new AccountManager(xmppConnection);
             accountManager.changePassword(credentials.getPassword());
         } catch (final Throwable t) {
             XMPPErrorTranslator.translateUnchecked(this,
@@ -687,6 +666,19 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
+     * Assert that the environment is online.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param environment
+     *            An environment.
+     */
+    protected void assertIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isReachable(),
+                "Environment {0} not reachable.", environment);
+    }
+
+	/**
 	 * Assert that the underlying connection is authenticated.
 	 * 
 	 * @param callerName
@@ -695,7 +687,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private void assertLoggedIn(final String callerName) {
 		Assert.assertTrue(
 				callerName,
-				smackXMPPConnection.isAuthenticated());
+                xmppConnection.isAuthenticated());
 	}
 
 	/**
@@ -703,14 +695,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionTerminated event.
 	 */
-	private void doNotifyConnectionClosed() {
-		for (Iterator<XMPPSessionListener> i = xmppSessionListeners.iterator(); i
-				.hasNext();) {
-			i.next().sessionTerminated();
-		}	
+	private void handleConnectionClosed() {
+	    notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionTerminated();
+            }
+        });
 	}
 
-    /**
+	/**
 	 * Event handler for the connectionClosedOnerror event generated by the
 	 * smack connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionTerminated event.
@@ -718,11 +711,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @param x
 	 *            <code>java.lang.Exception</code>
 	 */
-	private void doNotifyConnectionClosedOnError(final Exception x) {
-		for (Iterator<XMPPSessionListener> i = xmppSessionListeners.iterator(); i
-				.hasNext();) {
-			i.next().sessionTerminated(x);
-		}
+	private void handleConnectionClosed(final Exception x) {
+	    notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionTerminated(x);
+            }
+        });
 	}
 
     /**
@@ -733,11 +727,29 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @param xmppConnection
 	 *            <code>org.jivesoftware.smack.XMPPConnection</code>
 	 */
-	private void doNotifyConnectionEstablished(final XMPPConnection xmppConnection) {
-		for(final XMPPSessionListener l : xmppSessionListeners) {
-			l.sessionEstablished();
-		}
+	private void handleConnectionEstablished(final XMPPConnection xmppConnection) {
+        if (null != this.xmppConnection && this.xmppConnection.equals(xmppConnection)) {
+            notifyListeners(new EventNotifier<SessionListener>() {
+                public void notifyListener(final SessionListener listener) {
+                    listener.sessionEstablished();
+                }
+            });
+        }
 	}
+
+    /**
+     * Notify all session listeners.
+     * 
+     * @param notifier
+     *            A session listener notifier.
+     */
+    private void notifyListeners(final EventNotifier<SessionListener> notifier) {
+        synchronized (listeners) {
+            for (final SessionListener listener : listeners) {
+                notifier.notifyListener(listener);
+            }
+        }
+    }
 
     /**
 	 * Send a packet extension to a single user.
@@ -751,7 +763,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			final PacketExtension packetExtension) throws InterruptedException,
 			SmackException {
 		for(final User user : users) {
-			final Message message = smackXMPPConnection.createChat(
+			final Message message = xmppConnection.createChat(
 					user.getUsername()).createMessage();
 			message.addExtension(packetExtension);
 			logger.info("messageSize:" + message.toXML().length());
@@ -768,7 +780,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private void sendPacket(final Packet packet) throws SmackException {
 		logger.debug("packet");
 		logger.debug(packet);
-		smackXMPPConnection.sendPacket(packet);
+        xmppConnection.sendPacket(packet);
 		// this sleep has been inserted because when packets are sent within
 		// x milliseconds of each other, they tend to get swallowed by the
 		// smack library

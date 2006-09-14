@@ -24,7 +24,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.migrator.Library;
 
-
 import com.thinkparity.ophelia.model.audit.AuditEventType;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.io.md.MetaData;
@@ -46,30 +45,32 @@ public class Session {
 	/** The session id. */
 	private final JVMUniqueId id;
 
-    /**
-	 * A prepared statement.
-	 * 
-	 * @see #prepareStatement(String)
-	 */
+    /** The connection meta data. */
+    private DatabaseMetaData metaData;
+
+    /** The session's prepared statement. */
 	private PreparedStatement preparedStatement;
 
-    /**
-	 * A result set.
-	 * 
-	 */
+    /** The prepared statement's result set. */
 	private ResultSet resultSet;
 
-	/**
-	 * Create a Session.
-	 * 
-	 * @param connection
-	 *            The sql connection.
-	 */
-	Session(final Connection connection) {
+	/** The <code>SessionManager</code>. */
+    private final SessionManager sessionManager;
+
+    /**
+     * Create a Session.
+     * 
+     * @param sessionManager
+     *            The <code>SessionManager</code>.
+     * @param connection
+     *            The sql <code>Connection</code>.
+     */
+	Session(final SessionManager sessionManager, final Connection connection) {
 		super();
 		this.connection = connection;
 		this.logger = Logger.getLogger(getClass());
 		this.id = JVMUniqueId.nextId();
+        this.sessionManager = sessionManager;
 	}
 
 	public void close() {
@@ -79,7 +80,7 @@ public class Session {
 			connection.close();
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-		SessionManager.close(this);
+		sessionManager.close(this);
 	}
 
 	public void commit() {
@@ -320,6 +321,16 @@ public class Session {
         }
 	}
 
+	public void getMetaDataTables() {
+        assertOpen();
+        assertMetaData();
+        try {
+            resultSet = metaData.getTables(null, "PUBLIC", null, new String[] {"TABLE"});
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
 	public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
 		assertOpen("getMetaDataTypeFromInteger(String)");
 		assertOpenResult("getMetaDataTypeFromInteger(String)");
@@ -445,6 +456,21 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	/**
+	 * Obtain the database metadata.
+	 * 
+	 * @return The database metadata.
+	 * @throws HypersonicException
+	 */
+	public void openMetaData() {
+		assertOpen("getMetaData");
+		try {
+            metaData = connection.getMetaData();
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
+	}
+
 	public PreparedStatement prepareStatement(final String sql) {
 		assertOpen("prepareStatement(String)");
 		debugSql(sql);
@@ -469,7 +495,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setBytes(final Integer index, final byte[] bytes) {
+    public void setBytes(final Integer index, final byte[] bytes) {
 		assertOpen("setBytes(Integer,Byte[])");
 		assertPreparedStatement("setBytes(Integer,Byte[])");
 		debugSql(bytes, index);
@@ -488,7 +514,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setEMail(final Integer index, final EMail email) {
+	public void setEMail(final Integer index, final EMail email) {
         assertOpen("setEMail(Integer,EMail)");
         assertPreparedStatement("setEMail(Integer,EMail)");
         debugSql(email, index);
@@ -531,7 +557,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setLong(final Integer index, final Long longInteger) {
+    public void setLong(final Integer index, final Long longInteger) {
 		assertOpen("setLong(Integer,Long)");
 		assertPreparedStatement("setLong(Integer,Long)");
 		debugSql(longInteger, index);
@@ -556,7 +582,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setStateAsInteger(final Integer index, final ArtifactState state) {
+    public void setStateAsInteger(final Integer index, final ArtifactState state) {
 		assertOpen("setStateAsInteger(Integer,ArtifactState)");
 		assertPreparedStatement("setStateAsInteger(Integer,ArtifactState)");
 		debugSql(null == state ? null : state.toString(), index);
@@ -588,7 +614,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final ArtifactType type) {
+	public void setTypeAsInteger(final Integer index, final ArtifactType type) {
 		assertOpen("setTypeAsInteger(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,ArtifactType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -604,7 +630,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final Library.Type type) {
+    public void setTypeAsInteger(final Integer index, final Library.Type type) {
         assertOpen("setTypeAsInteger(Integer,Library.Type)");
         assertPreparedStatement("setTypeAsInteger(Integer,Library.Type)");
         debugSql(null == type ? null : type.getId(), index);
@@ -620,7 +646,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final SystemMessageType type) {
+	public void setTypeAsInteger(final Integer index, final SystemMessageType type) {
         assertOpen("setTypeAsInteger(Integer,SystemMessageType)");
         assertPreparedStatement("setTypeAsInteger(Integer,SystemMessageType)");
         debugSql(null == type ? null : type.getId(), index);
@@ -628,7 +654,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setTypeAsString(final Integer index, final ArtifactType type) {
+	public void setTypeAsString(final Integer index, final ArtifactType type) {
 		assertOpen("setTypeAsString(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeString(Integer,ArtifactType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -636,7 +662,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final AuditEventType type) {
+    public void setTypeAsString(final Integer index, final AuditEventType type) {
 		assertOpen("setTypeAsString(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsString(Integer,AuditEventType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -644,7 +670,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final Enum<?> type) {
+    public void setTypeAsString(final Integer index, final Enum<?> type) {
 		assertOpen("setTypeAsString(Integer,Enum<?>)");
 		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -652,7 +678,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsString(final Integer index, final Library.Type type) {
+	public void setTypeAsString(final Integer index, final Library.Type type) {
         assertOpen("setType(Integer,Library.Type)");
         assertPreparedStatement("setTypeString(Integer,Library.Type)");
         debugSql(null == type ? null : type.toString(), index);
@@ -660,7 +686,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setTypeAsString(final Integer index, final MetaDataType type) {
+	public void setTypeAsString(final Integer index, final MetaDataType type) {
 		assertOpen("setType(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeString(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -684,17 +710,14 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	/**
-	 * Obtain the database metadata.
-	 * 
-	 * @return The database metadata.
-	 * @throws HypersonicException
-	 */
-	DatabaseMetaData getMetaData() throws HypersonicException {
-		assertOpen("getMetaData");
-		try { return connection.getMetaData(); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-	}
+    private void assertMetaData() {
+        if (null == metaData)
+            throw new HypersonicException("META-DATA IS NULL");
+    }
+
+	private void assertOpen() {
+        assertOpen("CONNECTION IS NULL");
+    }
 
 	private void assertOpen(final String caller) {
 		if(null == connection) {
@@ -702,7 +725,7 @@ public class Session {
 		}
 	}
 
-	private void assertOpenResult(final String caller) {
+    private void assertOpenResult(final String caller) {
 		if(null == resultSet)
 			throw new HypersonicException("Result is closed:  " + caller);
 	}
@@ -727,7 +750,7 @@ public class Session {
 		close(resultSet);
 	}
 
-	private void debug(final String[] sql) {
+    private void debug(final String[] sql) {
 		if(null != sql) {
 			int index = 0;
 			for(final String s : sql) { debugSql(s, index++); }
@@ -743,7 +766,7 @@ public class Session {
         debugSql(null == bytes ? null : bytes.length, sqlIndex);
     }
 
-    private void debugSql(final Calendar calendar, final Integer sqlIndex) {
+	private void debugSql(final Calendar calendar, final Integer sqlIndex) {
 		debugSql(null == calendar ? null : DateUtil.format(calendar, DateImage.ISO), sqlIndex);
 	}
 
@@ -767,15 +790,15 @@ public class Session {
 		debugSql(sql, null);
 	}
 
-	private void debugSql(final String sql, final Integer sqlIndex) {
+    private void debugSql(final String sql, final Integer sqlIndex) {
         if(logger.isDebugEnabled()) {
             final String pattern;
             if(null == sqlIndex) {
-                pattern = "SQL Statement:{1}";
+                pattern = "SQL Statement:{0}";
             } else {
-                pattern = "SQL Variable:{0}:{1}";
+                pattern = "SQL Variable:{1}:{0}";
             }
-            logger.debug(MessageFormat.format(pattern, sqlIndex, sql));
+            logger.debug(MessageFormat.format(pattern, sql, sqlIndex));
             
         }
 	}

@@ -17,25 +17,26 @@ public class AuditModel extends AbstractModel {
 	/**
 	 * Obtain an internal audit model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            The parity model context.
 	 * @return An internal audit model.
 	 */
-	public static InternalAuditModel getInternalModel(final Context context) {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
-		final InternalAuditModel iAModel = new InternalAuditModel(workspace, context);
-		return iAModel;
+	public static InternalAuditModel getInternalModel(final Context context,
+            final Workspace workspace) {
+		return new InternalAuditModel(workspace, context);
 	}
 
 	/**
 	 * Obtain an audit model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @return An audit model.
 	 */
-	public static AuditModel getModel() {
-		final Workspace workspace = getWorkspaceModel().getWorkspace();
-		final AuditModel aModel = new AuditModel(workspace);
-		return aModel;
+	public static AuditModel getModel(final Workspace workspace) {
+		return new AuditModel(workspace);
 	}
 
 	/**

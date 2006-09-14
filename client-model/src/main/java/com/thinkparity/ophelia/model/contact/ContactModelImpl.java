@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.contact;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -15,7 +14,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
@@ -23,6 +21,7 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.util.filter.contact.DefaultInvitationFilter;
 import com.thinkparity.ophelia.model.util.filter.contact.FilterManager;
@@ -39,10 +38,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy; raymond@thinkparity.com
  * @version 1.1.2.12
  */
-class ContactModelImpl extends AbstractModelImpl {
-
-    /** A list of contact event listeners. */
-    private static final List<ContactListener> LISTENERS = new LinkedList<ContactListener>();
+class ContactModelImpl extends AbstractModelImpl<ContactListener> {
 
     /** The contact db io. */
     private final ContactIOHandler contactIO;
@@ -73,13 +69,31 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     ContactModelImpl(final Workspace workspace) {
         super(workspace);
-        this.contactIO = IOFactory.getDefault().createContactHandler();
+        this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
         this.defaultComparator = new NameComparator(Boolean.TRUE);
         this.defaultFilter = new DefaultFilter();
         this.defaultInvitationComparator = new InvitationIdComparator();
         this.defaultInvitationFilter = new DefaultInvitationFilter();
         this.localEventGenerator = new ContactEventGenerator(ContactEvent.Source.LOCAL);
         this.remoteEventGenerator = new ContactEventGenerator(ContactEvent.Source.REMOTE);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
+     * 
+     */
+    @Override
+    public boolean addListener(final ContactListener listener) {
+        return super.addListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     * 
+     */
+    @Override
+    protected boolean removeListener(final ContactListener listener) {
+        return super.removeListener(listener);
     }
 
     /**
@@ -107,24 +121,6 @@ class ContactModelImpl extends AbstractModelImpl {
             notifyIncomingInvitationAccepted(localContact, invitation, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
-        }
-    }
-
-    /**
-     * Add a contact listener.
-     * 
-     * @param listener
-     *            A contact listener.
-     */
-    void addListener(final ContactListener listener) {
-        logApiId();
-        logVariable("listener", listener);
-        Assert.assertNotNull("LISTENER IS NULL", listener);
-        synchronized (LISTENERS) {
-            if (LISTENERS.contains(listener)) {
-                return;
-            }
-            LISTENERS.add(listener);
         }
     }
 
@@ -605,24 +601,6 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Remove a contact listener.
-     * 
-     * @param listener
-     *            A contact listener.
-     */
-    void removeListener(final ContactListener listener) {
-        logApiId();
-        logVariable("listener", listener);
-        Assert.assertNotNull("[LISTENER IS NULL]", listener);
-        synchronized (LISTENERS) {
-            if (!LISTENERS.contains(listener)) {
-                return;
-            }
-            LISTENERS.remove(listener);
-        }
-    }
-
-    /**
      * Search for contacts.
      * 
      * @param expression
@@ -696,11 +674,11 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     private void notifyContactDeleted(final Contact contact,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.contactDeleted(eventGenerator.generate(contact));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.contactDeleted(eventGenerator.generate(contact));
             }
-        }
+        });
     }
 
     /**
@@ -713,11 +691,11 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     private void notifyContactUpdated(final Contact contact,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.contactUpdated(eventGenerator.generate(contact));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.contactUpdated(eventGenerator.generate(contact));
             }
-        }
+        });
     }
 
     /**
@@ -733,12 +711,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyIncomingInvitationAccepted(final Contact contact,
             final IncomingInvitation incomingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.incomingInvitationAccepted(eventGenerator.generate(contact,
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.incomingInvitationAccepted(eventGenerator.generate(contact,
                         incomingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -752,11 +730,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyIncomingInvitationCreated(
             final IncomingInvitation incomingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.incomingInvitationCreated(eventGenerator.generate(incomingInvitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.incomingInvitationCreated(eventGenerator
+                        .generate(incomingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -770,11 +749,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyIncomingInvitationDeclined(
             final IncomingInvitation incomingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.incomingInvitationDeclined(eventGenerator.generate(incomingInvitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.incomingInvitationDeclined(eventGenerator
+                        .generate(incomingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -788,12 +768,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyIncomingInvitationDeleted(
             final IncomingInvitation incomingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.incomingInvitationDeleted(eventGenerator
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.incomingInvitationDeleted(eventGenerator
                         .generate(incomingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -809,12 +789,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyOutgoingInvitationAccepted(final Contact contact,
             final OutgoingInvitation outgoingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.outgoingInvitationAccepted(eventGenerator.generate(contact,
-                        outgoingInvitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.outgoingInvitationAccepted(eventGenerator.generate(
+                        contact, outgoingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -828,11 +808,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyOutgoingInvitationCreated(
             final OutgoingInvitation outgoingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.outgoingInvitationCreated(eventGenerator.generate(outgoingInvitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.outgoingInvitationCreated(eventGenerator
+                        .generate(outgoingInvitation));
             }
-        }
+        });
     }
 
     /**
@@ -846,11 +827,11 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyOutgoingInvitationDeclined(
             final OutgoingInvitation invitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.outgoingInvitationDeclined(eventGenerator.generate(invitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.outgoingInvitationDeclined(eventGenerator.generate(invitation));
             }
-        }
+        });
     }
 
     /**
@@ -864,11 +845,12 @@ class ContactModelImpl extends AbstractModelImpl {
     private void notifyOutgoingInvitationDeleted(
             final OutgoingInvitation outgoingInvitation,
             final ContactEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContactListener l : LISTENERS) {
-                l.outgoingInvitationDeleted(eventGenerator.generate(outgoingInvitation));
+        notifyListeners(new EventNotifier<ContactListener>() {
+            public void notifyListener(final ContactListener listener) {
+                listener.outgoingInvitationDeleted(eventGenerator
+                        .generate(outgoingInvitation));
             }
-        }
+        });
     }
 
     /**

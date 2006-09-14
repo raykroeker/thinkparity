@@ -20,9 +20,7 @@ import org.apache.lucene.store.FSDirectory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-
-import com.thinkparity.ophelia.model.Context;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.index.lucene.Searcher;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -34,11 +32,11 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
 
-    /** A thinkParity model context. */
-    private final Context context;
-
     /** The index analyzer to use when creating/updating index entries. */
     private final Analyzer indexAnalyzer;
+
+    /** A thinkParity internal model factory. */
+    private final InternalModelFactory internalModelFactory;
 
     /** The thinkParity workspace. */
     private final Workspace workspace;
@@ -49,11 +47,11 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      * @param context
      *            A thinkParity model context.
      */
-    protected AbstractIndexImpl(final Context context, final Workspace workspace) {
+    protected AbstractIndexImpl(final Workspace workspace,
+            final InternalModelFactory internalModelFactory) {
         super();
-        this.context = context;
-        this.context.assertContextIsValid();
         this.indexAnalyzer = new StandardAnalyzer();
+        this.internalModelFactory = internalModelFactory;
         this.workspace = workspace;
     }
 
@@ -81,7 +79,7 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      *         <code>InternalArtifactModel</code>.
      */
     protected InternalArtifactModel getArtifactModel() {
-        return ArtifactModel.getInternalModel(context);
+        return internalModelFactory.getArtifactModel();
     }
 
     /**

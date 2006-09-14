@@ -5,9 +5,7 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model open version api.
@@ -40,10 +38,10 @@ public class OpenVersionTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final File inputFile = getInputFile("JUnitTestFramework.txt");
-		final DocumentModel documentModel = getDocumentModel();
-		final Document document = createDocument(inputFile);
-        modifyDocument(document);
-        final DocumentVersion version = createDocumentVersion(document);
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
+        modifyDocument(OpheliaTestUser.JUNIT, document);
+        final DocumentVersion version = createDocumentVersion(OpheliaTestUser.JUNIT, document);
 
 		datum = new Fixture(documentModel, version);
 	}

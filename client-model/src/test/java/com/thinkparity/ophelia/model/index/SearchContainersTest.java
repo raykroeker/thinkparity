@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 
 /**
@@ -51,11 +52,11 @@ public class SearchContainersTest extends IndexTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
+        login(OpheliaTestUser.JUNIT);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
 
         final String containerName = NAME.replaceAll("\\[|\\]", "");
-        final Container container = createContainer(containerName);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, containerName);
 		datum = new Fixture(containerModel, container);
 	}
 
@@ -65,7 +66,7 @@ public class SearchContainersTest extends IndexTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		datum = null;
-		logout();
+		logout(OpheliaTestUser.JUNIT);
 		super.tearDown();
 	}
 

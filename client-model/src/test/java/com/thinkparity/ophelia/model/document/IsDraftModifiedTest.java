@@ -3,8 +3,7 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 
 /**
@@ -39,9 +38,9 @@ public class IsDraftModifiedTest extends DocumentTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        final Document document = createDocument(getInputFiles()[0]);
-        modifyDocument(document);
-        datum = new Fixture(getDocumentModel(), document.getId(), Boolean.TRUE);
+        final Document document = createDocument(OpheliaTestUser.JUNIT, getInputFiles()[0]);
+        modifyDocument(OpheliaTestUser.JUNIT, document);
+        datum = new Fixture(getDocumentModel(OpheliaTestUser.JUNIT), document.getId(), Boolean.TRUE);
     }
 
     /**

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.artifact;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -16,17 +15,12 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.ophelia.model.message.KeyRequestMessage;
-import com.thinkparity.ophelia.model.message.SystemMessage;
-import com.thinkparity.ophelia.model.message.SystemMessageType;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
-import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -35,28 +29,11 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 class ArtifactModelImpl extends AbstractModelImpl {
 
-    /**
-     * Obtain a logging api id.
-     * 
-     * @param api
-     *            An api.
-     * @return An api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("ARTIFACT").append(" ").append(api);
-    }
+	/** Artifact persistance io. */
+	private final ArtifactIOHandler artifactIO;
 
-	/**
-	 * Artifact persistance io.
-	 * 
-	 */
-	public final ArtifactIOHandler artifactIO;
-
-	/**
-	 * The artifact model's auditor.
-	 * 
-	 */
-	protected final ArtifactModelAuditor auditor;
+	/** The artifact model's auditor. */
+    private final ArtifactModelAuditor auditor;
 
 	/**
 	 * Create a ArtifactModelImpl.
@@ -66,8 +43,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	ArtifactModelImpl(final Workspace workspace) {
 		super(workspace);
-		this.artifactIO = IOFactory.getDefault().createArtifactHandler();
-		this.auditor = new ArtifactModelAuditor(getContext());
+		this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
+		this.auditor = new ArtifactModelAuditor(internalModelFactory);
 	}
 
 	/**
@@ -139,9 +116,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
     void auditConfirmationReceipt(final Long artifactId, final Long versionId,
             final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedFrom) throws ParityException {
-        auditor.confirmationReceipt(artifactId, versionId, createdBy,
-                createdOn, receivedFrom);
+            final JabberId receivedFrom) {
+        try {
+            auditor.confirmationReceipt(artifactId, versionId, createdBy,
+                    createdOn, receivedFrom);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -165,18 +146,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /**
      * Confirm the reciept of an artifact.
      * 
-     * @param receivedFrom
-     *            From whom the artifact was received.
      * @param artifactId
      *            The artifact id.
      * @param versionId
      *            The artifact version id.
      */
-    void confirmReceipt(final JabberId receivedFrom, final Long artifactId,
-            final Long versionId) throws ParityException,
-            SmackException {
+    void confirmReceipt(final Long artifactId, final Long versionId) {
         final UUID uniqueId = readArtifactUniqueId(artifactId);
-        getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
+        final JabberId localUserId = localUserId();
+        getInternalSessionModel().confirmArtifactReceipt(localUserId, uniqueId,
+                versionId, localUserId);
     }
 
     /**
@@ -323,18 +302,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 final List<JabberId> remoteTeam =
                     getInternalSessionModel().readArtifactTeamIds(uniqueId);
                 for (final JabberId remoteUser : remoteTeam) {
-                    try {
-                        addTeamMember(artifactId, remoteUser);
-                    } catch (final TrueAssertion ta) {
-                        if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
-                            logWarning(ta);
-                        } else {
-                            throw ta;
-                        }
-                    }
+                    addTeamMember(artifactId, remoteUser);
                 }
             } else {
                 addTeamMember(artifactId, jabberId);
+            }
+        } catch (final TrueAssertion ta) {
+            if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
+                logWarning(ta);
+            } else {
+                throw ta;
             }
         } catch(final Throwable t) {
             throw translateError(t);
@@ -418,38 +395,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-    /**
-     * Read a key request.
-     * 
-     * @param keyRequestId
-     *            A key request id.
-     * @return A key request.
-     */
-    KeyRequest readKeyRequest(final Long keyRequestId) {
-        logger.info(getApiId("[READ KEY REQUEST]"));
-        logger.debug(keyRequestId);
-        return createKeyRequest((KeyRequestMessage) getInternalMessageModel().read(keyRequestId));
-    }
-
-	/**
-	 * Read all key requests for the given artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of requests.
-	 */
-	List<KeyRequest> readKeyRequests(final Long artifactId) {
-		logger.info(getApiId("[READ KEY REQUESTS]"));
-		logger.debug(artifactId);
-		final List<SystemMessage> messages =
-			getInternalSystemMessageModel().readForArtifact(artifactId, SystemMessageType.KEY_REQUEST);
-		final List<KeyRequest> requests = new ArrayList<KeyRequest>();
-		for(final SystemMessage message : messages) {
-			requests.add(createKeyRequest((KeyRequestMessage) message));
-		}
-		return requests;
-	}
-
 	/**
      * Read the latest version id for an artifact.
      * 
@@ -471,7 +416,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The artifact team.
      */
     Set<User> readTeam(final Long artifactId) {
-        logger.info("[LMODEL] [ARTIFACT] [READ TEAM]");
+        logApiId();
+        logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel(artifactId);
     }
 
@@ -482,8 +428,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      */
     List<TeamMember> readTeam2(final Long artifactId) {
-        logger.info(getApiId("[READ TEAM2]"));
-        logger.debug(artifactId);
+        logApiId();
+        logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel2(artifactId);
     }
 
@@ -598,22 +544,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			flags.add(flag);
 			artifactIO.updateFlags(artifactId, flags);
 		}
-	}
-
-    /**
-	 * Create a key request based upon a key request system message.
-	 * 
-	 * @param message
-	 *            The key request system message.
-	 * @return The key request.
-	 */
-	private KeyRequest createKeyRequest(final KeyRequestMessage message) {
-		final KeyRequest request = new KeyRequest();
-		request.setArtifactId(message.getArtifactId());
-		request.setRequestedBy(message.getRequestedBy());
-		request.setRequestedByName(message.getRequestedByName());
-		request.setId(message.getId());
-		return request;
 	}
     
     /**

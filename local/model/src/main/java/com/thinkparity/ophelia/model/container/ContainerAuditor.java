@@ -8,10 +8,9 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.ophelia.model.AbstractAuditor;
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityException;
+import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
 import com.thinkparity.ophelia.model.audit.event.CloseEvent;
 import com.thinkparity.ophelia.model.audit.event.CreateEvent;
@@ -28,10 +27,12 @@ class ContainerAuditor extends AbstractAuditor {
     /**
      * Create ContainerAuditor.
      * 
-     * @param context
-     *            The thinkParity context.
+     * @param modelFactory
+     *            A thinkParity <code>InternalModelFactory</code>.
      */
-    ContainerAuditor(final Context context) { super(context); }
+    public ContainerAuditor(final InternalModelFactory modelFactory) {
+        super(modelFactory);
+    }
 
     void addTeamMember(final Long id, final JabberId createdBy,
             final Calendar createdOn, final JabberId jabberId)

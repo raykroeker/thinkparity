@@ -5,8 +5,7 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the parity document interface rename api.
@@ -39,8 +38,8 @@ public class RenameTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final File inputFile = getInputFiles()[0];
-        final DocumentModel documentModel = getDocumentModel();
-        final Document document = createDocument(inputFile);
+        final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+        final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
         datum = new Fixture(document, documentModel, System.currentTimeMillis()
                 + "." + document.getName());
 	}

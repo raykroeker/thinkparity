@@ -10,10 +10,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
 
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.Constants.IO;
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
 
 /**
  * Test the document model create api.
@@ -53,7 +51,7 @@ public class CreateTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel();
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		data = new Vector<Fixture>(4);
 
         InputStream content;

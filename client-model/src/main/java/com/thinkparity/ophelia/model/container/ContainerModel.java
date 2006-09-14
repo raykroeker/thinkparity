@@ -13,7 +13,6 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -21,7 +20,6 @@ import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -39,8 +37,8 @@ public class ContainerModel {
 	 *            A thinkParity internal context.
 	 * @return The internal Container interface.
 	 */
-	public static InternalContainerModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static InternalContainerModel getInternalModel(
+            final Context context, final Workspace workspace) {
 		return new InternalContainerModel(workspace, context);
 	}
 
@@ -49,8 +47,7 @@ public class ContainerModel {
 	 * 
 	 * @return The Container interface.
 	 */
-	public static ContainerModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+	public static ContainerModel getModel(final Workspace workspace) {
 		return new ContainerModel(workspace);
 	}
 
@@ -141,6 +138,20 @@ public class ContainerModel {
     }
 
     /**
+     * Print a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    public void printDraft(final Long containerId, final Printer printer) {
+        synchronized (getImplLock()) {
+            getImpl().printDraft(containerId, printer);
+        }
+    }
+
+    /**
      * Print a container version.
      * 
      * @param containerId
@@ -154,20 +165,6 @@ public class ContainerModel {
             final Printer printer) {
         synchronized (getImplLock()) {
             getImpl().printVersion(containerId, versionId, printer);
-        }
-    }
-
-    /**
-     * Print a container draft.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param printer
-     *            An <code>Printer</code>.
-     */
-    public void printDraft(final Long containerId, final Printer printer) {
-        synchronized (getImplLock()) {
-            getImpl().printDraft(containerId, printer);
         }
     }
 

@@ -3,12 +3,8 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-
-import com.thinkparity.codebase.model.session.Credentials;
-
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**
  * Test the session model login api.
@@ -30,7 +26,7 @@ public class LoginTest extends ModelTestCase {
 	 * Test the session model login api.
 	 */
 	public void testLogin() {
-		datum.sessionModel.login(datum.credentials);
+		datum.sessionModel.login(datum.testUser.getCredentials());
 			
 		assertTrue(datum.sessionModel.isLoggedIn());
         datum.sessionModel.logout();
@@ -41,9 +37,9 @@ public class LoginTest extends ModelTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final SessionModel sessionModel = getSessionModel();
-		final OpheliaTestUser testUser = getModelTestUser();
-		datum = new Fixture(testUser.getCredentials(), sessionModel);
+        final OpheliaTestUser testUser = OpheliaTestUser.JUNIT;
+		final SessionModel sessionModel = getSessionModel(testUser);
+		datum = new Fixture(sessionModel, testUser);
 	}
 
 	/**
@@ -61,12 +57,12 @@ public class LoginTest extends ModelTestCase {
 	 * @see LoginTest#tearDown()
 	 */
 	private class Fixture {
-		private final Credentials credentials;
 		private final SessionModel sessionModel;
-		private Fixture(final Credentials credentials,
-                final SessionModel sessionModel) {
-			this.credentials = credentials;
+		private final OpheliaTestUser testUser;
+		private Fixture(final SessionModel sessionModel,
+                final OpheliaTestUser testUser) {
 			this.sessionModel = sessionModel;
+			this.testUser = testUser;
 		}
 	}
 }

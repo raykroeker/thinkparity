@@ -3,126 +3,135 @@
  */
 package com.thinkparity.ophelia;
 
-import com.thinkparity.codebase.jabber.JabberId;
+import java.io.File;
+
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-
-import com.thinkparity.ophelia.model.user.UserModel;
-
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
+import com.thinkparity.ophelia.model.util.smack.SmackException;
+import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
+import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
- * 
  * @author raykroeker@gmail.com
  * @version 1.0
  */
-public class OpheliaTestUser {
+public class OpheliaTestUser extends User {
 
-	public static OpheliaTestUser getJUnit() {
-		return new OpheliaTestUser(
-				"junit@thinkparity.com", "parity", "parity", OpheliaTestCase.TEST_SERVERHOST, OpheliaTestCase.TEST_SERVERPORT, "junit");
-	}
+    /** A test user. */
+    public static final OpheliaTestUser JUNIT;
 
-    public static OpheliaTestUser getX() {
-		return new OpheliaTestUser(
-                "junit.x@thinkparity.com", "parity", "parity", OpheliaTestCase.TEST_SERVERHOST, OpheliaTestCase.TEST_SERVERPORT, "junit.x");
-	}
+    /** A test user. */
+    public static final OpheliaTestUser JUNIT_X;
 
-    public static OpheliaTestUser getY() {
-        return new OpheliaTestUser(
-                "junit.y@thinkparity.com", "parity", "parity", OpheliaTestCase.TEST_SERVERHOST, OpheliaTestCase.TEST_SERVERPORT, "junit.y");
+    /** A test user. */
+    public static final OpheliaTestUser JUNIT_Y;
+
+    /** A test user. */
+    public static final OpheliaTestUser JUNIT_Z;
+
+    /** The test users' password. */
+    private static final String PASSWORD = "parity";
+
+	static {
+        JUNIT = new OpheliaTestUser(Environment.TESTING, "junit");
+        JUNIT_X = new OpheliaTestUser(Environment.TESTING, "junit.x");
+        JUNIT_Y = new OpheliaTestUser(Environment.TESTING, "junit.y");
+        JUNIT_Z = new OpheliaTestUser(Environment.TESTING, "junit.z");
     }
 
-    public static OpheliaTestUser getZ() {
-        return new OpheliaTestUser(
-                "junit.z@thinkparity.com", "parity", "parity", OpheliaTestCase.TEST_SERVERHOST, OpheliaTestCase.TEST_SERVERPORT, "junit.z");
-    }
+	/** The test user's credentials. */
+	private final Credentials credentials;
 
-    private final String emailAddress;
-	private final String password;
-    private final String resource;
-	private final String serverHost;
-	private final Integer serverPort;
-	private final String username;
+	/** The test user's environment. */
+    private final Environment environment;
+
+    /** The test user's workspace. */
+    private final Workspace workspace;
 
 	/**
-	 * Create a ModelTestUser.
-	 */
-	private OpheliaTestUser(final String emailAddress, final String password,
-            final String resource, final String serverHost,
-            final Integer serverPort, final String username) {
+     * Create OpheliaTestUser.
+     * 
+     * @param environment
+     *            The <code>Environment</code> to use for the user.
+     * @param username
+     *            The user's login name <code>String</code>.
+     */
+	private OpheliaTestUser(final Environment environment, final String username) {
 		super();
-        this.emailAddress = emailAddress;
-		this.password = password;
-		this.resource = resource;
-		this.serverHost = serverHost;
-		this.serverPort = serverPort;
-		this.username = username;
+		this.credentials = new Credentials();
+		this.credentials.setPassword(PASSWORD);
+		this.credentials.setUsername(username);
+        this.environment = environment;
+        this.workspace =
+            WorkspaceModel.getModel().getWorkspace(
+                    new File(OpheliaTestCase.testSession.getSessionDirectory(),
+                            "TEST." + username));
+        this.workspace.getPreferences().setUsername(username);
+        processOfflineQueue();
+        initialize();
 	}
 
+    /**
+     * Obtain the user's credentials.
+     * 
+     * @return A set of thinkParity <code>Credentials</code>.
+     */
 	public Credentials getCredentials() {
-        final Credentials credentials = new Credentials();
-        credentials.setPassword(password);
-        credentials.setUsername(username);
         return credentials;
     }
 
-	/**
-     * Obtain the emailAddress
-     *
-     * @return The String.
-     */
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-	public JabberId getJabberId() {
-		return JabberIdBuilder.parseQualifiedJabberId(
-				new StringBuffer(username)
-				.append('@')
-				.append(serverHost)
-				.append('/')
-				.append(resource).toString());
-	}
-
-	/**
-	 * @return The password.
-	 */
-	public String getPassword() { return password; }
-
-	/**
-	 * @return Returns the resource.
-	 */
-	public String getResource() { return resource; }
-
-	/**
-	 * @return The serverHost.
-	 */
-	public String getServerHost() { return serverHost; }
-
-	/**
-	 * @return The serverPort.
-	 */
-	public Integer getServerPort() { return serverPort; }
-
-	public User getUser() {
-        final User user = new User();
-        user.setId(getJabberId());
-        return user;
+    public Workspace getWorkspace() {
+        return workspace;
     }
 
     /**
-	 * @return The username.
-	 */
-	public String getUsername() { return username; }
-
-    /**
-     * Read the user from the user model.
+     * Initialize the test user. We login (via the session model); download all
+     * contacts and read our profile then logout.
      * 
-     * @return A user.
      */
-    public User readUser() {
-        return UserModel.getModel().read(getJabberId());
+    private void initialize() {
+        SessionModel.getModel(workspace).login(credentials);
+        try {
+            ContactModel.getModel(workspace).download();
+            ProfileModel.getModel(workspace).read();
+        } finally {
+            SessionModel.getModel(workspace).logout();
+        }
+        setId(JabberIdBuilder.parseUsername(credentials.getUsername()));
+    }
+
+    /**
+     * Login via the xmpp library to clear any\all pending events from previous
+     * test sessions.
+     * 
+     */
+    private void processOfflineQueue() {
+        XMPPSession session = null;
+        try {
+            session = new XMPPSessionImpl();
+            session.login(environment, credentials);
+            session.processOfflineQueue();
+        } catch (final SmackException sx) {
+            throw new RuntimeException(sx);
+        } finally {
+            Assert.assertNotNull(session,
+                    "User {0}'s session is null.", credentials.getUsername());
+            Assert.assertTrue(session.isLoggedIn(),
+                    "User {0} not logged in.", credentials.getUsername());
+            try {
+                session.logout();
+            } catch (final SmackException sx) {
+                throw new RuntimeException(sx);
+            }
+        }
     }
 }

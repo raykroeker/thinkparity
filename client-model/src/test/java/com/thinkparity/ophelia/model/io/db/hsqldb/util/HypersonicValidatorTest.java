@@ -6,9 +6,8 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.util;
 import java.util.LinkedList;
 import java.util.List;
 
-
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.io.db.hsqldb.util.HypersonicValidator;
 
 /**
  * @author raykroeker@gmail.com
@@ -47,8 +46,8 @@ public class HypersonicValidatorTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-		data.add(new Fixture(new HypersonicValidator(getWorkspace())));
-		data.add(new Fixture(new HypersonicValidator(getWorkspace())));
+		data.add(new Fixture(new HypersonicValidator(OpheliaTestUser.JUNIT.getWorkspace())));
+		data.add(new Fixture(new HypersonicValidator(OpheliaTestUser.JUNIT.getWorkspace())));
 	}
 
 	/**

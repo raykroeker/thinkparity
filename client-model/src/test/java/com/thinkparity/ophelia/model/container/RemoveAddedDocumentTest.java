@@ -8,9 +8,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -52,10 +50,10 @@ public class RemoveAddedDocumentTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
+        login(OpheliaTestUser.JUNIT);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = containerModel.create(NAME);
-        final Document document = create(getInputFiles()[0]);
+        final Document document = create(OpheliaTestUser.JUNIT, getInputFiles()[0]);
         containerModel.addDocument(container.getId(), document.getId());
         datum = new Fixture(container, containerModel, document);
         containerModel.addListener(datum);
@@ -66,8 +64,8 @@ public class RemoveAddedDocumentTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        getContainerModel().removeListener(datum);
-        logout();
+        getContainerModel(OpheliaTestUser.JUNIT).removeListener(datum);
+        logout(OpheliaTestUser.JUNIT);
         datum = null;
         super.tearDown();
     }

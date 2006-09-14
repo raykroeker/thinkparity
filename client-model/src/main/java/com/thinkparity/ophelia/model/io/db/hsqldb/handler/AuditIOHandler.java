@@ -15,6 +15,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 import com.thinkparity.ophelia.model.audit.event.*;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
@@ -102,12 +103,14 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private final UserIOHandler userIO;
 
     /**
-	 * Create an AuditIOHandler.
-	 * 
-	 */
-	public AuditIOHandler() {
-        super();
-        this.userIO = new UserIOHandler();
+     * Create AuditIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+	public AuditIOHandler(SessionManager sessionManager) {
+        super(sessionManager);
+        this.userIO = new UserIOHandler(sessionManager);
 	}
 
 	public void audit(final AddTeamMemberConfirmEvent event)

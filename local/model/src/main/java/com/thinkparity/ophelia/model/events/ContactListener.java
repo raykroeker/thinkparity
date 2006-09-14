@@ -3,11 +3,13 @@
  */
 package com.thinkparity.ophelia.model.events;
 
+import com.thinkparity.ophelia.model.util.EventListener;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface ContactListener {
+public interface ContactListener extends EventListener {
     public void contactDeleted(final ContactEvent e);
     public void contactUpdated(final ContactEvent e);
     public void incomingInvitationAccepted(final ContactEvent e);

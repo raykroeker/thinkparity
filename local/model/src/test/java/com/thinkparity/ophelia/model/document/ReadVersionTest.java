@@ -6,9 +6,7 @@ package com.thinkparity.ophelia.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model getVersion api.
@@ -72,13 +70,13 @@ public class ReadVersionTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel();
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		data = new Vector<Fixture>(getInputFilesLength());
 
 		Document document;
 		DocumentVersion documentVersion;
 		for(File testFile : getInputFiles()) {
-			document = create(testFile);
+			document = create(OpheliaTestUser.JUNIT, testFile);
 			documentModel.createVersion(document.getId());
 			documentVersion = documentModel.listVersions(document.getId()).iterator().next();
 			data.add(new Fixture(document.getId(), documentModel, documentVersion, documentVersion.getVersionId()));

@@ -12,8 +12,7 @@ import org.apache.lucene.index.Term;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
@@ -61,8 +60,9 @@ public class ContainerIndexImpl extends AbstractIndexImpl<Container, Long> {
      * @param context
      *            A thinkParity model context.
      */
-    public ContainerIndexImpl(final Context context, final Workspace workspace) {
-        super(context, workspace);
+    public ContainerIndexImpl(final Workspace workspace,
+            final InternalModelFactory modelFactory) {
+        super(workspace, modelFactory);
     }
 
     /**

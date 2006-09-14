@@ -7,9 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -23,7 +21,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class AddDocumentTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[LMODEL] [CONTAINER] [ADD DOCUMENT TEST]";
+    private static final String NAME = "Container - Add Document Test";
 
     /** Test datum. */
     private Fixture datum;
@@ -36,6 +34,7 @@ public class AddDocumentTest extends ContainerTestCase {
      *
      */
     public void testAddDocument() {
+        logTrace("{0} - Adding document {1}.", NAME, datum.document.getName());
         datum.containerModel.addDocument(datum.container.getId(), datum.document.getId());
 
         assertTrue(NAME + " [DOCUMENT ADDED EVENT NOT FIRED]", datum.didNotify);
@@ -57,10 +56,13 @@ public class AddDocumentTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
-        final Container container = createContainer(NAME);
-        final Document document = createDocument(getInputFiles()[0]);
+        logTrace("{0} setUp logging in as {1}.", NAME, OpheliaTestUser.JUNIT);
+        login(OpheliaTestUser.JUNIT);
+        logTrace("{0} setUp creating container.", NAME);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        logTrace("{0} setUp creating document {1}.", NAME, getInputFiles()[0].getName());
+        final Document document = createDocument(OpheliaTestUser.JUNIT, getInputFiles()[0]);
         datum = new Fixture(container, containerModel, document);
         containerModel.addListener(datum);
     }
@@ -70,8 +72,8 @@ public class AddDocumentTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        getContainerModel().removeListener(datum);
-        logout();
+        datum.containerModel.removeListener(datum);
+        logout(OpheliaTestUser.JUNIT);
         datum = null;
         super.tearDown();
     }

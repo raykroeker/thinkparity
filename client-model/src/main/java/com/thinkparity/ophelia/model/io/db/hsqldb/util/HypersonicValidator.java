@@ -7,11 +7,10 @@ import java.io.File;
 
 import com.thinkparity.codebase.StackUtil;
 
-
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
-import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
+import com.thinkparity.ophelia.model.migrator.hsqldb.HypersonicMigrator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -20,18 +19,19 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public class HypersonicValidator {
 
-	/**
-	 * The database directory.
-	 * 
-	 */
+	/** The database directory. */
 	private final File databaseDirectory;
+
+    /** A thinkParity <code>Workspace</code>. */
+    private final Workspace workspace;
 
 	/**
 	 * Create a HypersonicValidator.
 	 */
 	public HypersonicValidator(final Workspace workspace) {
 		super();
-		this.databaseDirectory = new File(
+		this.workspace = workspace;
+        this.databaseDirectory = new File(
 				workspace.getDataDirectory(),
                 DirectoryNames.Workspace.Data.DB);
 	}
@@ -39,7 +39,7 @@ public class HypersonicValidator {
 	public void validate() throws HypersonicException {
 		validateDatabaseDirectory();
 		validateSession();
-		new HypersonicMigrator().migrate();
+		new HypersonicMigrator(workspace).migrate();
 	}
 
 	private void validateDatabaseDirectory() {
@@ -52,7 +52,8 @@ public class HypersonicValidator {
 
 	private void validateSession() {
 		final Session session =
-            SessionManager.openSession(StackUtil.getExecutionPoint());
+                workspace.getSessionManager().openSession(
+                        StackUtil.getExecutionPoint());
 		session.close();
 	}
 }

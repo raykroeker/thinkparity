@@ -13,12 +13,12 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -315,12 +315,17 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** User io. */
     private final UserIOHandler userIO;
 
-    /** Create ContainerIOHandler. */
-    public ContainerIOHandler() {
-        super();
-        this.artifactIO = new ArtifactIOHandler();
-        this.documentIO = new DocumentIOHandler();
-        this.userIO = new UserIOHandler();
+    /**
+     * Create ContainerIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+    public ContainerIOHandler(final SessionManager sessionManager) {
+        super(sessionManager);
+        this.artifactIO = new ArtifactIOHandler(sessionManager);
+        this.documentIO = new DocumentIOHandler(sessionManager);
+        this.userIO = new UserIOHandler(sessionManager);
     }
 
     /**

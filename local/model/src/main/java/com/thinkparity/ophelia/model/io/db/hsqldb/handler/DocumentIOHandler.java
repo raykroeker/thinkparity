@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.document.DocumentContent;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.document.DocumentVersionContent;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -176,12 +176,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private final ArtifactIOHandler artifactIO;
 
     /**
-	 * Create a RemoteDocumentHandler.
-	 * 
-	 */
-	public DocumentIOHandler() {
-		super();
-		this.artifactIO = new ArtifactIOHandler();
+     * Create a RemoteDocumentHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+	public DocumentIOHandler(final SessionManager sessionManager) {
+		super(sessionManager);
+		this.artifactIO = new ArtifactIOHandler(sessionManager);
 	}
 
     /**

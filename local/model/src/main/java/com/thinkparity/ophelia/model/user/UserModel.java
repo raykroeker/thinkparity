@@ -6,11 +6,9 @@ package com.thinkparity.ophelia.model.user;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -21,22 +19,25 @@ public class UserModel extends AbstractModel {
     /**
      * Obtain the parity internal user interface.
      *
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
      * @param context
      *      The parity calling context.
      * @return The parity internal user interface.
      */
-    public static InternalUserModel getInternalModel(final Context context) {
-        final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+    public static InternalUserModel getInternalModel(final Context context,
+            final Workspace workspace) {
         return new InternalUserModel(workspace, context);
     }
 
     /**
      * Obtain the parity user interface.
      *
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
      * @return The parity user interface.
      */
-    public static UserModel getModel() {
-        final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+    public static UserModel getModel(final Workspace workspace) {
         return new UserModel(workspace);
     }
 

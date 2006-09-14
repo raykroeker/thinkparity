@@ -38,6 +38,7 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
@@ -58,19 +59,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-public class ContainerModelImpl extends AbstractModelImpl {
-
-    /** A list of container listeners. */
-    private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
-
-    /**
-     * Obtain an apache api log id.
-     * @param api The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("CONTAINER").append(" ").append(api);
-    }
+class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
     /** A container audit generator. */
     private final ContainerAuditor auditor;
@@ -122,8 +111,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     ContainerModelImpl(final Workspace workspace) {
         super(workspace);
-        this.auditor = new ContainerAuditor(getContext());
-        this.containerIO = IOFactory.getDefault().createContainerHandler();
+        this.auditor = new ContainerAuditor(internalModelFactory);
+        this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = new DefaultFilter();
@@ -139,6 +128,22 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
+     */
+    @Override
+    protected boolean addListener(final ContainerListener listener) {
+        return super.addListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     */
+    @Override
+    protected boolean removeListener(final ContainerListener listener) {
+        return super.removeListener(listener);
+    }
+
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -147,10 +152,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            A document id.
      */
     void addDocument(final Long containerId, final Long documentId) {
-        logger.info(getApiId("[ADD DOCUMENT]"));
-        logger.debug(containerId);
-        logger.debug(documentId);
-        assertDraftExists(getApiId("[ADD DOCUMENT] [DRAFT DOES NOT EXIST]"), containerId);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("documentId", documentId);
+        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
         getIndexModel().indexDocument(containerId, documentId);
         final Container postAdditionContainer = read(containerId);        
@@ -158,23 +163,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
         notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
                 postAdditionDocument, localEventGenerator);
-    }
-
-    /**
-     * Add a container listener.
-     * 
-     * @param listener
-     *            A container listener.
-     */
-    void addListener(final ContainerListener listener) {
-        logger.info(getApiId("[ADD LISTENER]"));
-        logger.debug(listener);
-        Assert.assertNotNull(getApiId("[ADD LISTENER] [LISTENER IS NULL]"),
-                listener);
-        synchronized(LISTENERS) {
-            if(LISTENERS.contains(listener)) { return; }
-            LISTENERS.add(listener);
-        }
     }
 
     /**
@@ -393,6 +381,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logVariable("artifactBytes", artifactBytes);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedOn", publishedOn);
+        assertIsNotLocalUserId(publishedBy);
         try {
             // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
@@ -745,6 +734,28 @@ public class ContainerModelImpl extends AbstractModelImpl {
         notifyContainerShared(read(containerId), readVersion(containerId,
                 versionId), remoteEventGenerator);
     }
+    /**
+     * Print a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param printer
+     *            An <code>Printer</code>.
+     */
+    void printDraft(final Long containerId, final Printer printer) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("printer", printer);
+        try {
+            final ContainerDraft draft = readDraft(containerId);
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            for (final Document document : draft.getDocuments()) {
+                documentModel.printDraft(document.getId(), printer);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Print a container version.
@@ -769,28 +780,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
             for (final DocumentVersion documentVersion : documentVersions) {
                 documentModel.printVersion(documentVersion.getArtifactId(),
                         documentVersion.getVersionId(), printer);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-    /**
-     * Print a container draft.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param printer
-     *            An <code>Printer</code>.
-     */
-    void printDraft(final Long containerId, final Printer printer) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("printer", printer);
-        try {
-            final ContainerDraft draft = readDraft(containerId);
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
-            for (final Document document : draft.getDocuments()) {
-                documentModel.printDraft(document.getId(), printer);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -922,7 +911,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of containers.
      */
     List<Container> read() {
-        logger.info(getApiId("[READ]"));
+        logApiId();
         return read(defaultComparator);
     }
 
@@ -934,8 +923,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of containers.
      */
     List<Container> read(final Comparator<Artifact> comparator) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(comparator);
+        logApiId();
+        logVariable("comparator", comparator);
         return read(comparator, defaultFilter);
     }
 
@@ -950,9 +939,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(comparator);
-        logger.debug(filter);
+        logApiId();
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final List<Container> containers = containerIO.read(localUser());
         ArtifactFilterManager.filter(containers, filter);
         ModelSorter.sortContainers(containers, comparator);
@@ -967,8 +956,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of containers.
      */
     List<Container> read(final Filter<? super Artifact> filter) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(filter);
+        logApiId();
+        logVariable("filter", filter);
         return read(defaultComparator, filter);
     }
 
@@ -980,8 +969,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A container.
      */
     Container read(final Long containerId) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         return containerIO.read(containerId, localUser());
     }
 
@@ -993,8 +982,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of audit events.
      */
     List<AuditEvent> readAuditEvents(final Long containerId) {
-        logger.info(getApiId("[READ AUDIT EVENTS]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         return getInternalAuditModel().read(containerId);
     }
 
@@ -1008,8 +997,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of documents.
      */
     List<Document> readDocuments(final Long containerId, final Long versionId) {
-        logger.info(getApiId("[READ DOCUMENTS]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
         return readDocuments(containerId, versionId, defaultDocumentComparator, defaultDocumentFilter);
     }
 
@@ -1026,7 +1016,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator) {
-        logger.info(getApiId("[READ DOCUMENTS]"));
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("comparator", comparator);
         return readDocuments(containerId, versionId, comparator, defaultDocumentFilter);
     }
 
@@ -1074,10 +1067,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Filter<? super Artifact> filter) {
-        logger.info(getApiId("[READ DOCUMENTS]"));
-        logger.debug(containerId);
-        logger.debug(versionId);
-        logger.debug(filter);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("filter", filter);
         return readDocuments(containerId, versionId, defaultDocumentComparator, filter);
     }
 
@@ -1089,8 +1082,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of document versions.
      */
     List<DocumentVersion> readDocumentVersions(final Long containerId) {
-        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
         return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
     }
@@ -1103,8 +1096,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A container draft.
      */
     ContainerDraft readDraft(final Long containerId) {
-        logger.info(getApiId("[READ DRAFT]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
         if (null != draft) {
@@ -1127,8 +1120,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of history items.
      */
     List<ContainerHistoryItem> readHistory(final Long containerId) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         return readHistory(containerId, defaultHistoryComparator, defaultHistoryFilter);
     }
 
@@ -1143,9 +1136,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Comparator<? super HistoryItem> comparator) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("comparator", comparator);
         return readHistory(containerId, comparator, defaultHistoryFilter);
     }
 
@@ -1163,10 +1156,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Comparator<? super HistoryItem> comparator,
             final Filter<? super HistoryItem> filter) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
-        logger.debug(filter);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final ContainerHistoryBuilder historyBuilder =
             new ContainerHistoryBuilder(getInternalContainerModel(), l18n);
         final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
@@ -1186,9 +1179,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Filter<? super HistoryItem> filter) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(containerId);
-        logger.debug(filter);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("filter", filter);
         return readHistory(containerId, defaultHistoryComparator, filter);
     }
 
@@ -1408,9 +1401,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A container version.
      */
     ContainerVersion readVersion(final Long containerId, final Long versionId) {
-        logger.info(getApiId("[READ VERSION]"));
-        logger.debug(containerId);
-        logger.debug(versionId);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
         return containerIO.readVersion(containerId, versionId);
     }
 
@@ -1422,8 +1415,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of container versions.
      */
     List<ContainerVersion> readVersions(final Long containerId) {
-        logger.info(getApiId("[READ VERSIONS]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         return readVersions(containerId, defaultVersionComparator);
     }
 
@@ -1438,9 +1431,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator) {
-        logger.info(getApiId("[READ VERSIONS]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("comparator", comparator);
         return readVersions(containerId, comparator, defaultVersionFilter);
     }
 
@@ -1458,10 +1451,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
     List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logger.info(getApiId("[READ VERSIONS]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
-        logger.debug(filter);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final List<ContainerVersion> versions = containerIO.readVersions(containerId);
         ArtifactFilterManager.filterVersions(versions, filter);
         ModelSorter.sortContainerVersions(versions, comparator);
@@ -1480,9 +1473,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     List<ContainerVersion> readVersions(final Long containerId,
             final Filter<? super ArtifactVersion> filter) {
-        logger.info(getApiId("[READ VERSIONS]"));
-        logger.debug(containerId);
-        logger.debug(filter);
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("filter", filter);
         return readVersions(containerId, defaultVersionComparator, filter);
     }
 
@@ -1520,23 +1513,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final Container postAdditionContainer = read(containerId);        
         final ContainerDraft postAdditionDraft = readDraft(containerId);
         notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
-    }
-
-    /**
-     * Remove a container listener.
-     * 
-     * @param listener
-     *            A container listener.
-     */
-    void removeListener(final ContainerListener listener) {
-        logger.info(getApiId("[REMOVE LISTENER]"));
-        logger.debug(listener);
-        Assert.assertNotNull(getApiId("[REMOVE LISTENER] [LISTENER IS NULL]"),
-                listener);
-        synchronized(LISTENERS) {
-            if(!LISTENERS.contains(listener)) { return; }
-            LISTENERS.remove(listener);
-        }
     }
 
     /**
@@ -2058,11 +2034,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void notifyContainerCreated(final Container container,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.containerCreated(eventGenerator.generate(container));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerCreated(eventGenerator.generate(container));
             }
-        }
+        });
     }
 
     /**
@@ -2075,11 +2051,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void notifyContainerDeleted(final Container container,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.containerDeleted(eventGenerator.generate(container));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerDeleted(eventGenerator.generate(container));
             }
-        }
+        });
     }
 
     /**
@@ -2095,11 +2071,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion version,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.draftPublished(eventGenerator.generate(container, draft, version));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftPublished(eventGenerator.generate(container,
+                        draft, version));
             }
-        }
+        });
     }
 
     /**
@@ -2115,11 +2092,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyContainerShared(final Container container,
             final ContainerVersion version,
             final ContainerEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.containerShared(eventGenerator.generate(container, version));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerShared(eventGenerator.generate(container,
+                        version));
             }
-        }
+        });
     }
 
     /**
@@ -2132,11 +2110,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void notifyContainerUpdated(final Container container,
             final ContainerEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for (final ContainerListener l : LISTENERS) {
-                l.containerUpdated(eventGenerator.generate(container));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerUpdated(eventGenerator.generate(container));
             }
-        }
+        });
     }
 
     /**
@@ -2154,11 +2132,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyDocumentAdded(final Container container,
             final ContainerDraft draft, final Document document,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.documentAdded(eventGenerator.generate(container, draft, document));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.documentAdded(eventGenerator.generate(container,
+                        draft, document));
             }
-        }
+        });
     }
 
     /**
@@ -2176,12 +2155,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyDocumentRemoved(final Container container,
             final ContainerDraft draft, final Document document,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.documentRemoved(eventGenerator.generate(container, draft, document));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.documentRemoved(eventGenerator.generate(container,
+                        draft, document));
             }
-        }
-        
+        });
     }
 
     /**
@@ -2195,11 +2174,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyDraftCreated(final Container container,
             final ContainerDraft draft,
             final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.draftCreated(eventGenerator.generate(container, draft));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener
+                        .draftCreated(eventGenerator.generate(container, draft));
             }
-        }
+        });
     }
 
     /**
@@ -2215,53 +2195,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void notifyDraftDeleted(final Container container,
             final ContainerDraft draft,
             final ContainerEventGenerator eventGenerator) {
-        synchronized (LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.draftDeleted(eventGenerator.generate(container, draft));
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftDeleted(eventGenerator.generate(container, draft));
             }
-        }
-    }
-
-    /**
-     * Notify that a team member was added to the container's team.
-     * 
-     * @param container
-     *            A container.
-     * @param teamMember
-     *            A team member.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    @SuppressWarnings("unused")
-    private void notifyTeamMemberAdded(final Container container,
-            final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.teamMemberAdded(eventGenerator.generate(container, teamMember));
-            }
-        }
-    }
-
-    /**
-     * Notify that a team member was added to the container's team.
-     * 
-     * @param container
-     *            A container.
-     * @param teamMember
-     *            A team member.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    @SuppressWarnings("unused")
-    private void notifyTeamMemberRemoved(final Container container,
-            final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.teamMemberRemoved(eventGenerator.generate(container, teamMember));
-            }
-        }
+        });
     }
 
     /**

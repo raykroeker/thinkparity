@@ -41,16 +41,6 @@ public class FileSystemHelper extends AbstractModelImplHelper {
         return new FileSystemHelper(root);
     }
 
-    /**
-     * Obtain a file system helper for the current installation.
-     * 
-     * @return An install file system helper.
-     */
-    public static FileSystemHelper getInstallHelper(final Release release) {
-        final File root = new File(Directories.INSTALL, release.getVersion());
-        return new FileSystemHelper(root);
-    }
-
     /** The release file system directories. */
     private File core, lib, libNative;
 

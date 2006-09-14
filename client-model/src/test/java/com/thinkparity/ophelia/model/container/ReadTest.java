@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 
 /**
@@ -66,11 +66,11 @@ public class ReadTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
+        login(OpheliaTestUser.JUNIT);
 
         data = new HashMap<String, Fixture>(2, 1.0F);
 
-        final ContainerModel containerModel = getContainerModel();
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = containerModel.create(NAME + ".0");
         data.put("testReadContainer", new Fixture(containerModel, container.getId(), container));
 
@@ -84,7 +84,7 @@ public class ReadTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         data.clear();
         data = null;
         super.tearDown();

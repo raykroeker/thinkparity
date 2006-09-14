@@ -26,6 +26,8 @@ public interface Preferences {
 
 	public Integer getServerPort();
 
+    public String getServerProtocol();
+
 	public User getSystemUser();
 
 	public String getUsername();

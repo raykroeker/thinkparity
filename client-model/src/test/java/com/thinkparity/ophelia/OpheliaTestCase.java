@@ -8,20 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.junitx.TestCase;
 import com.thinkparity.codebase.junitx.TestSession;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.index.IndexModel;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,7 +20,7 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 public abstract class OpheliaTestCase extends TestCase {
 
     /** The JUnit eXtension test session. */
-	private static final TestSession testSession;
+	static final TestSession testSession;
 
     static final String TEST_SERVERHOST = "thinkparity.dyndns.org";
 
@@ -43,17 +33,10 @@ public abstract class OpheliaTestCase extends TestCase {
         System.setProperty("parity.serverport", TEST_SERVERPORT.toString());
 
         testSession = TestCase.getTestSession();
-		final OpheliaTestUser modelTestUser = OpheliaTestUser.getJUnit();
-		testSession.setData("modelTestUser", modelTestUser);
         // init archive
 		initParityArchive(testSession.getSessionDirectory());
 		// init install
 		initParityInstall(testSession.getSessionDirectory());
-		// init workspace
-		initParityWorkspace(testSession.getSessionDirectory());
-        // init preferences
-		final Preferences preferences = WorkspaceModel.getModel().getWorkspace().getPreferences();
-		preferences.setUsername(modelTestUser.getUsername());
 	}
 
     /**
@@ -111,30 +94,6 @@ public abstract class OpheliaTestCase extends TestCase {
         System.setProperty("parity.install", install.getAbsolutePath());
     }
 
-	/**
-     * Initialize the parity workspace directory for a test run.
-     * 
-     * @param parent
-     *            The parent within which to create the workspace dir.
-     */
-    private static void initParityWorkspace(final File parent) {
-        final File workspace = new File(parent, "parity.workspace");
-        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT WORKSPACE]", workspace.mkdir());
-
-        System.setProperty("parity.workspace", workspace.getAbsolutePath());
-    }
-
-	/** An apache logger. */
-    protected final Logger logger;
-
-	private ContactModel contactModel;
-
-	private ContainerModel containerModel;
-
-    private DocumentModel documentModel;
-
-	private IndexModel indexModel;
-
     /**
 	 * Create a ModelTestCase.
 	 * 
@@ -143,39 +102,6 @@ public abstract class OpheliaTestCase extends TestCase {
 	 */
 	protected OpheliaTestCase(final String name) {
 		super(name);
-		this.logger = Logger.getLogger(getClass());
-	}
-
-    protected ArtifactModel getArtifactModel() {
-        return ArtifactModel.getModel();
-    }
-
-    protected ContactModel getContactModel() {
-        if(null == contactModel) {
-            contactModel = ContactModel.getModel();
-        }
-        return contactModel;
-    }
-
-    protected ContainerModel getContainerModel() {
-        if(null == containerModel) {
-            containerModel = ContainerModel.getModel();
-        }
-        return containerModel;
-    }
-
-	protected DocumentModel getDocumentModel() {
-		if(null == documentModel) {
-			documentModel = DocumentModel.getModel();
-		}
-		return documentModel;
-	}
-
-	protected IndexModel getIndexModel() {
-		if(null == indexModel) {
-			indexModel = IndexModel.getModel();
-		}
-		return indexModel;
 	}
 
 	/**
@@ -186,14 +112,5 @@ public abstract class OpheliaTestCase extends TestCase {
 		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, 5);
 		return inputFiles;
 	
-	}
-
-    /**
-	 * Obtain the junit test user.
-	 * 
-	 * @return The junit test user.
-	 */
-	protected OpheliaTestUser getModelTestUser() {
-		return (OpheliaTestUser) testSession.getData("modelTestUser");
 	}
 }

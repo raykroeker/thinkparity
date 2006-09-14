@@ -4,7 +4,12 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.*;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
@@ -14,7 +19,6 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
@@ -29,6 +33,7 @@ import com.thinkparity.ophelia.model.events.DocumentEvent;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -46,10 +51,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-class DocumentModelImpl extends AbstractModelImpl {
-
-    /** A list of document listeners. */
-	private static final List<DocumentListener> LISTENERS = new LinkedList<DocumentListener>();
+class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 
 	/** A document auditor. */
 	private final DocumentModelAuditor auditor;
@@ -84,33 +86,32 @@ class DocumentModelImpl extends AbstractModelImpl {
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
-		this.auditor = new DocumentModelAuditor(getContext());
+		this.auditor = new DocumentModelAuditor(internalModelFactory);
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
         this.defaultHistoryComparator = new ComparatorBuilder().createIdDescending();
         this.defaultHistoryFilter = new DefaultFilter();
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
-		this.documentIO = IOFactory.getDefault().createDocumentHandler();
+		this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
         this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
 	}
 
     /**
-     * Add a document listener.  If the listener is already registered
-     * nothing is done.
-     *
-     * @param l
-     *      The document listener.
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
      */
-	void addListener(final DocumentListener l) {
-		logger.info("[LMODEL] [DOCUMENT] [ADD LISTENER]");
-		logger.debug(l);
-		Assert.assertNotNull("[LMODEL] [DOCUMENT] [ADD LISTENER] [NULL LISTENER]", l);
-		synchronized (DocumentModelImpl.LISTENERS) {
-			if(DocumentModelImpl.LISTENERS.contains(l)) { return; }
-			DocumentModelImpl.LISTENERS.add(l);
-		}
-	}
+    @Override
+    protected boolean addListener(final DocumentListener listener) {
+        return super.addListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.AbstractModelImpl#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     */
+    @Override
+    protected boolean removeListener(final DocumentListener listener) {
+        return super.removeListener(listener);
+    }
 
     /**
 	 * Audit a key received event.
@@ -141,7 +142,7 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
     void confirmSend(final Long documentId, final Long versionId,
-            final JabberId confirmedBy) throws ParityException {
+            final JabberId confirmedBy) {
         // audit the receipt
         getInternalArtifactModel().auditConfirmationReceipt(documentId,
                 versionId, localUserId(), currentDateTime(), confirmedBy);
@@ -267,7 +268,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 versionId, name, checksum, content);
     }
 
-    /**
+	/**
      * Handle the receipt of a document from the thinkParity network. If the
      * document does not exist; it will be created; if the version does not
      * exist it will be created.
@@ -348,7 +349,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -362,7 +363,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return list(defaultComparator);
 	}
 
-    /**
+	/**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -387,7 +388,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Obtain a filtered and sorted list of documents.
      * 
      * @param comparator
@@ -408,7 +409,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return documents;
 	}
 
-	/**
+    /**
      * Obtain a filtered list of documents.
      * 
      * @param filter
@@ -440,7 +441,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return listVersions(documentId, defaultVersionComparator);
 	}
 
-    /**
+	/**
 	 * Obtain a list of document versions for a document; ordered by the
 	 * specified comparator.
 	 * 
@@ -544,7 +545,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Print a document version.
      * 
      * @param documentId
@@ -570,7 +571,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Read a document.
      * 
      * @param documentId
@@ -688,7 +689,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         return readHistory(documentId, defaultHistoryComparator, filter);
     }
 
-    /**
+	/**
 	 * Obtain the latest document version.
 	 * 
 	 * @param documentId
@@ -728,24 +729,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    
-	/**
-	 * Remove a document listener.
-	 * 
-	 * @param l
-	 *        A document listener.
-	 */
-	void removeListener(final DocumentListener l) {
-		logger.info("[LMODEL] [DOCUMENT] [REMOVE LISTENER]");
-		logger.debug(l);
-		Assert.assertNotNull("[LMODEL] [DOCUMENT] [REMOVE LISTENER] [NULL LISTENER]", l);
-		synchronized(DocumentModelImpl.LISTENERS) {
-            if(!DocumentModelImpl.LISTENERS.contains(l)) { return; }
-			DocumentModelImpl.LISTENERS.remove(l);
-		}
-	}
-
-	/**
+    /**
      * Rename a document.
      *
      * @param documentId
@@ -995,11 +979,12 @@ class DocumentModelImpl extends AbstractModelImpl {
     private void notifyConfirmationReceived(final Document document,
             final DocumentVersion version,
             final DocumentModelEventGenerator eventGen) {
-        synchronized(DocumentModelImpl.LISTENERS) {
-            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.confirmationReceived(eventGen.generate(document, version));
+        notifyListeners(new EventNotifier<DocumentListener>() {
+            public void notifyListener(final DocumentListener listener) {
+                listener.confirmationReceived(eventGen.generate(document,
+                        version));
             }
-        }
+        });
     }
 
     /**
@@ -1010,12 +995,13 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @param eventGen
      *      The event generator.
 	 */
-	private void notifyDocumentCreated(final Document document, final DocumentModelEventGenerator eventGen) {
-		synchronized(DocumentModelImpl.LISTENERS) {
-			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-				l.documentCreated(eventGen.generate(document));
+	private void notifyDocumentCreated(final Document document,
+            final DocumentModelEventGenerator eventGen) {
+        notifyListeners(new EventNotifier<DocumentListener>() {
+            public void notifyListener(final DocumentListener listener) {
+				listener.documentCreated(eventGen.generate(document));
 			}
-		}
+		});
 	}
 
     /**
@@ -1026,12 +1012,13 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @param eventGen
      *      The event generator.
 	 */
-	private void notifyDocumentDeleted(final Document document, final DocumentModelEventGenerator eventGen) {
-		synchronized(DocumentModelImpl.LISTENERS) {
-			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-				l.documentDeleted(eventGen.generate(document));
+	private void notifyDocumentDeleted(final Document document,
+            final DocumentModelEventGenerator eventGen) {
+        notifyListeners(new EventNotifier<DocumentListener>() {
+            public void notifyListener(final DocumentListener listener) {
+				listener.documentDeleted(eventGen.generate(document));
 			}
-		}
+		});
 	}
 
     /**

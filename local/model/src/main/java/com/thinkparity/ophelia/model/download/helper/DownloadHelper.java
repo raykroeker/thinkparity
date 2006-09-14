@@ -17,11 +17,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-
 import com.thinkparity.ophelia.model.AbstractModelImplHelper;
-import com.thinkparity.ophelia.model.Context;
-import com.thinkparity.ophelia.model.library.InternalLibraryModel;
-import com.thinkparity.ophelia.model.library.LibraryModel;
+import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 
 /**
  * The download helper is used by various methods in the release model impl.  It
@@ -47,10 +45,10 @@ public class DownloadHelper extends AbstractModelImplHelper {
     /** A parity release. */
     private final Release release;
 
-    public DownloadHelper(final Context context, final Release release) {
+    public DownloadHelper(final InternalModelFactory modelFactory, final Release release) {
         super();
         this.fsHelper = FileSystemHelper.getDownloadHelper(release);
-        this.ilModel = LibraryModel.getInternalModel(context);
+        this.ilModel = modelFactory.getLibraryModel();
         this.release = release;
         this.manifest = new Properties();
     }

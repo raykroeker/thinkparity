@@ -7,9 +7,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
+import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 
@@ -57,10 +57,14 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	/**
-	 * Create a MetaDataIOHandler.
-	 * 
-	 */
-	public MetaDataIOHandler() { super(); }
+     * Create a MetaDataIOHandler.
+     * 
+     * @param sessionManager
+     *            A hypersonic <code>SessionManager</code>.
+     */
+	public MetaDataIOHandler(final SessionManager sessionManager) {
+        super(sessionManager);
+	}
 
 	/**
 	 * @see com.thinkparity.ophelia.model.io.handler.MetaDataIOHandler#create(com.thinkparity.ophelia.model.io.md.MetaDataType,

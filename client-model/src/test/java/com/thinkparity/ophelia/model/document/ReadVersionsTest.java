@@ -11,9 +11,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 
 /**
@@ -83,13 +81,13 @@ public class ReadVersionsTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         final Integer VERSION_COUNT = 3;
-		final DocumentModel documentModel = getDocumentModel();
+		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 
         data = new Vector<Fixture>(getInputFilesLength());
 		for(final File testFile : getInputFiles()) {
-			final Document document = createDocument(testFile);
+			final Document document = createDocument(OpheliaTestUser.JUNIT, testFile);
             for(int i = 0; i < VERSION_COUNT; i++) {
-                modifyDocument(document);
+                modifyDocument(OpheliaTestUser.JUNIT, document);
                 documentModel.createVersion(document.getId());
             }
 			data.add(new Fixture(document, documentModel, VERSION_COUNT));

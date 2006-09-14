@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.profile;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 
@@ -35,9 +36,9 @@ public class ReadTest extends ProfileTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ProfileModel pModel = ProfileModel.getModel();
-        datum = new Fixture(pModel);
+        login(OpheliaTestUser.JUNIT);
+        final ProfileModel profileModel = getProfileModel(OpheliaTestUser.JUNIT);
+        datum = new Fixture(profileModel);
     }
 
     /**
@@ -46,7 +47,7 @@ public class ReadTest extends ProfileTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         datum = null;
         super.tearDown();
     }

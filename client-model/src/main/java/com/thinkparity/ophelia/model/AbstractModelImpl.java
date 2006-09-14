@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +21,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
@@ -41,10 +38,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-
-import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
-import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
-import com.thinkparity.ophelia.model.Constants.ThreadNames;
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -61,33 +54,35 @@ import com.thinkparity.ophelia.model.download.InternalDownloadModel;
 import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
-import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicUtil;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
-import com.thinkparity.ophelia.model.library.InternalLibraryModel;
-import com.thinkparity.ophelia.model.library.LibraryModel;
 import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
 import com.thinkparity.ophelia.model.message.SystemMessageModel;
-import com.thinkparity.ophelia.model.release.InternalReleaseModel;
-import com.thinkparity.ophelia.model.release.ReleaseModel;
+import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
+import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
+import com.thinkparity.ophelia.model.migrator.LibraryModel;
+import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.util.Base64;
+import com.thinkparity.ophelia.model.util.EventListener;
+import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.MD5Util;
-import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.localization.Localization;
 import com.thinkparity.ophelia.model.util.localization.LocalizationContext;
+import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * AbstractModelImpl
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractModelImpl {
+public abstract class AbstractModelImpl<T extends EventListener> {
 
     /**
 	 * Assertion message to be displayed if the username is not set in the
@@ -97,70 +92,14 @@ public abstract class AbstractModelImpl {
 		.append("Before you can create the first parity artifact; you will ")
 		.append("need to establish a parity session.").toString();
 
-	/**
+    /**
 	 * The session model context
 	 * 
 	 * @see #getSessionModelContext()
 	 */
 	private static Context sessionModelContext;
 
-	/** A list of runnables to execute when the JVM shuts down. */
-    private static final List<ShutdownHook> shutdownHooks;
-
-	/** A static logger instance. */
-    private static final Logger sLogger;
-
-    static {
-        sLogger = Logger.getLogger(AbstractModelImpl.class);
-
-        shutdownHooks = new ArrayList<ShutdownHook>();
-        Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
-            @Override
-            public void run() {
-                synchronized(shutdownHooks) {
-                    Collections.sort(shutdownHooks);
-                    for(final ShutdownHook shutdownHook : shutdownHooks) {
-                        sLogger.info(shutdownHook.getPriority() + ":" + shutdownHook.getName());
-                        shutdownHook.run();
-                    }
-                }
-            }
-        });
-
-        addShutdownHook(new ShutdownHook() {
-            @Override
-            public String getDescription() {
-                return ShutdownHookNames.HYPERSONIC;
-            }
-            @Override
-            public String getName() {
-                return ShutdownHookNames.HYPERSONIC;
-            }
-            @Override
-            public Integer getPriority() {
-                return ShutdownHookPriorities.HYPERSONIC;
-            }
-            @Override
-            public void run() {
-                HypersonicUtil.shutdown();
-            }
-        });
-    }
-
     /**
-     * Add a shutdown hook.
-     * 
-     * @param hook
-     *            A runnable.
-     */
-    protected static boolean addShutdownHook(final ShutdownHook shutdownHook) {
-        if (shutdownHooks.contains(shutdownHook)) {
-            return false;
-        }
-        return shutdownHooks.add(shutdownHook);
-    }
-
-	/**
 	 * Obtain the current date\time.
 	 * 
 	 * @return The current date\time.
@@ -169,11 +108,7 @@ public abstract class AbstractModelImpl {
         return DateUtil.getInstance();
 	}
 
-	protected static StringBuffer getModelId(final String model) {
-        return new StringBuffer("[LMODEL] [").append(model).append("]");
-    }
-
-	/**
+    /**
 	 * Obtain the session model context.
 	 * 
 	 * @return The session model context.
@@ -185,54 +120,31 @@ public abstract class AbstractModelImpl {
 		return sessionModelContext;
 	}
 
-	/**
-     * Remove a shutdown hook.
-     * 
-     * @param hook
-     *            A runnable.
-     */
-    protected static boolean removeShutdownHook(final ShutdownHook shutdownHook) {
-        if (!shutdownHooks.contains(shutdownHook)) {
-            return false;
-        }
-        return shutdownHooks.remove(shutdownHook);
-    }
-
-	/** The configuration io. */
+    /** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-	/**
-	 * The parity model context.
-	 * 
-	 */
+    /** A thinkParity context. */
 	protected final Context context;
 
-    /**
-	 * The model's l18n.
-	 * 
-	 */
+    /** An internal model factory. */
+    protected final InternalModelFactory internalModelFactory;
+
+	/** A localization interface. */
 	protected final L18n l18n;
 
-	/**
-	 * Apache logger.
-	 * 
-	 */
+	/** An apache logger. */
 	protected final Logger logger;
 
-	/**
-	 * Handle to the parity model preferences.
-	 */
+	/** The thinkParity workspace <code>Preferences</code>. */
 	protected final Preferences preferences;
 
-    /**
-	 * Handle to the parity model workspace.
-	 */
+	/** A thinkParity <code>Workspace</code>. */
 	protected final Workspace workspace;
 
     /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-    /** The encryption cipher. */
+	/** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
 	/** The secret key spec. */
@@ -247,11 +159,24 @@ public abstract class AbstractModelImpl {
 	protected AbstractModelImpl(final Workspace workspace) {
 		super();
 		this.context = new Context(getClass());
+        this.internalModelFactory = new InternalModelFactory(context, workspace);
 		this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = Logger.getLogger(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
+
+    /**
+     * Add a thinkParity event listener.
+     * 
+     * @param listener
+     *            A thinkParity <code>EventListener</code>.
+     * @return Whether or not the listener list was modified as a result of
+     *         calling add.
+     */
+    protected boolean addListener(final T listener) {
+        return getWorkspaceModel().addListener(workspace, this, listener);
+    }
 
     /**
      * Assert a draft doesn't exist for the container.
@@ -265,7 +190,7 @@ public abstract class AbstractModelImpl {
         Assert.assertIsNull(assertion, getInternalContainerModel().readDraft(containerId));
     }
 
-    /**
+	/**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -291,7 +216,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-	/**
+    /**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -307,7 +232,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-	/**
+    /**
      * Assert that the list of team members does not contain the user.
      * 
      * @param assertion
@@ -335,7 +260,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    /**
+	/**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -365,6 +290,16 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Assert the user id does not match the local user id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    protected void assertIsNotLocalUserId(final JabberId userId) {
+        Assert.assertNotTrue("USER ID MATCHES LOCAL USER ID", isLocalUserId(userId));
+    }
+
+    /**
      * Assert that the environment is online.
      * 
      * @param assertion
@@ -372,12 +307,12 @@ public abstract class AbstractModelImpl {
      * @param environment
      *            An environment.
      */
-    protected void assertIsReachable(final Object assertion,
-            final Environment environment) {
-        Assert.assertTrue(assertion, isReachable(environment));
+    protected void assertIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isReachable(),
+                "Environment {0} is not reachable.", environment);
     }
 
-    /**
+	/**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -395,11 +330,11 @@ public abstract class AbstractModelImpl {
      * @param assertion
      *            The assertion.
      */
-    protected void assertNotIsOnline(final Object assertion) {
-        Assert.assertNotTrue(assertion, isOnline());
+    protected void assertNotIsOnline() {
+        Assert.assertNotTrue("USER IS ONLINE", isOnline());
     }
 
-	/**
+    /**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -411,7 +346,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotNull(assertion, reference);
     }
 
-	/**
+    /**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -431,19 +366,19 @@ public abstract class AbstractModelImpl {
 	/**
      * Assert the user is online.
      *
+     */
+    protected void assertOnline() {
+        assertOnline("USER NOT ONLINE");
+    }
+
+	/**
+     * Assert the user is online.
+     *
      * @param assertion
      *      The assertion.
      */
     protected void assertOnline(final String assertion) {
         Assert.assertTrue(assertion, isOnline());
-    }
-
-    /**
-     * Assert the user is online.
-     *
-     */
-    protected void assertOnline() {
-        assertOnline("USER NOT ONLINE");
     }
 
     protected void assertOnline(final StringBuffer api) {
@@ -480,7 +415,7 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -624,13 +559,17 @@ public abstract class AbstractModelImpl {
 	 */
 	protected Context getContext() { return context; }
 
-	/**
+    protected InternalIndexModel getIndexModel() {
+        return IndexModel.getInternalModel(context, workspace);
+    }
+
+    /**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
      */
 	protected InternalArtifactModel getInternalArtifactModel() {
-		return ArtifactModel.getInternalModel(context);
+		return ArtifactModel.getInternalModel(context, workspace);
 	}
 
     /**
@@ -639,17 +578,17 @@ public abstract class AbstractModelImpl {
      * @return The internal parity audit interface.
      */
     protected InternalAuditModel getInternalAuditModel() {
-		return AuditModel.getInternalModel(context);
+		return AuditModel.getInternalModel(context, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
      */
     protected InternalContactModel getInternalContactModel() {
-        return ContactModel.getInternalModel(context);
-    };
+        return ContactModel.getInternalModel(context, workspace);
+    }
 
 	/**
      * Obtain the internal thinkParity container interface.
@@ -657,16 +596,16 @@ public abstract class AbstractModelImpl {
      * @return The internal thinkParity container interface.
      */
     protected InternalContainerModel getInternalContainerModel() {
-        return ContainerModel.getInternalModel(context);
+        return ContainerModel.getInternalModel(context, workspace);
     }
 
-	/**
+    /**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
-		return DocumentModel.getInternalModel(context);
+		return DocumentModel.getInternalModel(context, workspace);
 	}
 
 	/**
@@ -675,23 +614,19 @@ public abstract class AbstractModelImpl {
      * @return The internal parity download interface.
      */
     protected InternalDownloadModel getInternalDownloadModel() {
-        return DownloadModel.getInternalModel(context);
-    }
+        return DownloadModel.getInternalModel(context, workspace);
+    };
 
-    protected InternalIndexModel getIndexModel() {
-        return IndexModel.getInternalModel(context);
-    }
-
-    /**
+	/**
      * Obtain the internal parity library interface.
      *
      * @return The internal parity library interface.
      */
     protected InternalLibraryModel getInternalLibraryModel() {
-        return LibraryModel.getInternalModel(context);
+        return LibraryModel.getInternalModel(context, workspace);
     }
 
-    /**
+	/**
      * Obtain the thinkParity internal message interface.
      * 
      * @return The thinkParity internal message interface.
@@ -700,13 +635,13 @@ public abstract class AbstractModelImpl {
         return getInternalSystemMessageModel();
     }
 
-    /**
+	/**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
      */
     protected InternalReleaseModel getInternalReleaseModel() {
-        return ReleaseModel.getInternalModel(getContext());
+        return ReleaseModel.getInternalModel(context, workspace);
     }
 
     /**
@@ -715,7 +650,7 @@ public abstract class AbstractModelImpl {
      * @return The internal parity session interface.
      */
 	protected InternalSessionModel getInternalSessionModel() {
-		return SessionModel.getInternalModel(getContext());
+		return SessionModel.getInternalModel(context, workspace);
 	}
 
     /**
@@ -724,7 +659,7 @@ public abstract class AbstractModelImpl {
      * @return The internal parity system message interface.
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
-		return SystemMessageModel.getInternalModel(context);
+		return SystemMessageModel.getInternalModel(context, workspace);
 	}
 
     /**
@@ -733,7 +668,7 @@ public abstract class AbstractModelImpl {
      * @return The internal parity user interface.
      */
     protected InternalUserModel getInternalUserModel() {
-        return UserModel.getInternalModel(context);
+        return UserModel.getInternalModel(context, workspace);
     }
 
     /**
@@ -849,15 +784,14 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether or not the local user is the remote key holder.
+     * Determine if the user id matched the local user id.
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return True if the user is the artifact key holder.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the local user id matches the user id.
      */
-    private Boolean isRemoteKeyHolder(final UUID uniqueId) {
-        return localUserId().equals(
-                getInternalSessionModel().readKeyHolder(localUserId(), uniqueId));
+    protected Boolean isLocalUserId(final JabberId userId) {
+        return localUserId().equals(userId);
     }
 
     /**
@@ -909,7 +843,8 @@ public abstract class AbstractModelImpl {
      */
     protected void logApiId() {
         if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0}#{1}",
+            logger.info(MessageFormat.format("{0} {1}#{2}",
+                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName()));
         }
@@ -925,9 +860,9 @@ public abstract class AbstractModelImpl {
      */
     protected void logVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
+            logger.debug(MessageFormat.format("{0} {1}:{2}",
+                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
+                    name, Log4JHelper.render(logger, value)));
         }
     }
 
@@ -938,7 +873,9 @@ public abstract class AbstractModelImpl {
      */
     protected void logWarning(final Object message) {
         if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(Log4JHelper.render(logger, message));
+            logger.warn(MessageFormat.format("{0} {1}",
+                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
+                    Log4JHelper.render(logger, message)));
         }
     }
 
@@ -952,7 +889,22 @@ public abstract class AbstractModelImpl {
      */
     protected void logWarning(final Object message, final Throwable t) {
         if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(Log4JHelper.render(logger, message), t);
+            logger.warn(MessageFormat.format("{0} {1}",
+                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
+                    Log4JHelper.render(logger, message), t));
+        }
+    }
+
+    /**
+     * Notify all event listeners.
+     * 
+     * @param notifier
+     *            A thinkParity <code>EventNotifier</code>.
+     */
+    protected void notifyListeners(final EventNotifier<T> notifier) {
+        final List<T> listeners = getWorkspaceModel().getListeners(workspace, this);
+        for (final T listener : listeners) {
+            notifier.notifyListener(listener);
         }
     }
 
@@ -1000,6 +952,18 @@ public abstract class AbstractModelImpl {
     protected Long readNextVersionId(final Long artifactId) {
         final Long latestVersionId = getInternalArtifactModel().readLatestVersionId(artifactId);
         return null == latestVersionId ? Versioning.START : latestVersionId + Versioning.INCREMENT;
+    }
+
+    /**
+     * Remove a thinkParity event listener.
+     * 
+     * @param listener
+     *            A thinkParity <code>EventListener</code>.
+     * @return Whether or not the listener list was modified as a result of
+     *         calling remove.
+     */
+    protected boolean removeListener(final T listener) {
+        return getWorkspaceModel().removeListener(workspace, this, listener);
     }
 
     /**
@@ -1058,6 +1022,7 @@ public abstract class AbstractModelImpl {
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
     }
+
     /**
      * Determine whether or not a version exists.
      * 
@@ -1092,7 +1057,6 @@ public abstract class AbstractModelImpl {
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
-
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1116,7 +1080,7 @@ public abstract class AbstractModelImpl {
      */
     private ConfigurationIOHandler getConfigurationHandler() {
         if(null == configurationIO) {
-            configurationIO = IOFactory.getDefault().createConfigurationHandler();
+            configurationIO = IOFactory.getDefault(workspace).createConfigurationHandler();
         }
         return configurationIO;
     }
@@ -1164,7 +1128,8 @@ public abstract class AbstractModelImpl {
      * @return An error id.
      */
     private Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] - [{2}]",
+        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
+                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
                     StackUtil.getFrameClassName(2).toUpperCase(),
                     StackUtil.getFrameMethodName(2).toUpperCase(),
                     t.getMessage());
@@ -1186,6 +1151,10 @@ public abstract class AbstractModelImpl {
         return secretKeySpec;
     }
 
+    private InternalWorkspaceModel getWorkspaceModel() {
+        return WorkspaceModel.getInternalModel(context);
+    }
+
     /**
      * Obtain the index of a team member in a user list.
      * 
@@ -1204,15 +1173,15 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether the environment is online.
+     * Determine whether or not the local user is the remote key holder.
      * 
-     * @param environment
-     *            An environment.
-     * @return True if the environment is reachable; false otherwise.
+     * @param uniqueId
+     *            An artifact unique id.
+     * @return True if the user is the artifact key holder.
      */
-    private Boolean isReachable(final Environment environment) {
-        return NetworkUtil.isTargetReachable(
-                environment.getServerHost(), environment.getServerPort());
+    private Boolean isRemoteKeyHolder(final UUID uniqueId) {
+        return localUserId().equals(
+                getInternalSessionModel().readKeyHolder(localUserId(), uniqueId));
     }
 
     /**

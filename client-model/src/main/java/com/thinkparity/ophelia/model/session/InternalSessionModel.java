@@ -18,12 +18,10 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
-import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -97,10 +95,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param uniqueId
      *            The artifact unique id.
      */
-    public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId) throws SmackException {
+    public void confirmArtifactReceipt(final JabberId userId,
+            final UUID uniqueId, final Long versionId, final JabberId receivedBy) {
         synchronized(getImplLock()) {
-            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
+            getImpl().confirmArtifactReceipt(userId, uniqueId, versionId, receivedBy);
         }
     }
 
@@ -200,6 +198,39 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	}
 
     /**
+     * Handle the remote session established event.
+     *
+     */
+    public void handleSessionEstablished() {
+        synchronized (getImplLock()) {
+            getImpl().handleSessionEstablished();
+        }
+    }
+
+    /**
+     * Handle the remote session terminated event.
+     *
+     */
+    public void handleSessionTerminated() {
+        synchronized (getImplLock()) {
+            getImpl().handleSessionTerminated();
+        }
+    }
+
+    /**
+     * Handle the remote session terminated event.
+     * 
+     * @param cause
+     *            The cause of the termination.
+     * 
+     */
+    public void handleSessionTerminated(final Exception cause) {
+        synchronized (getImplLock()) {
+            getImpl().handleSessionTerminated(cause);
+        }
+    }
+
+    /**
      * Publish a container version.
      * 
      * @param container
@@ -235,7 +266,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Read a contact.
      * 
      * @param contactId
@@ -248,7 +279,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read the user's contact list.
      * 
      * @return A list of contacts.
@@ -294,7 +325,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Read the user profile's security question.
      * 
      * @param userId
@@ -307,7 +338,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read a thinkParity user from the server.
      * 
      * @param userId
@@ -319,7 +350,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             return getImpl().readUser(userId);
 		}
 	}
-
+	
     /**
      * Remove an email from a user's profile.
      * 
@@ -333,7 +364,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             getImpl().removeProfileEmail(userId, email);
         }
     }
-	
+
     /**
      * Remove a team member from the artifact team.
      * 

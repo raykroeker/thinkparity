@@ -10,7 +10,6 @@ import com.thinkparity.ophelia.model.io.handler.*;
 import com.thinkparity.ophelia.model.io.pdf.fob.FOPIOFactory;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPIOFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -18,44 +17,31 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  */
 public abstract class IOFactory {
 
-	private static IOFactory ioFactory;
-
-	private static IOFactory pdfIOFactory;
-
-    private static IOFactory xmppIOFactory;
-
-	public static IOFactory getDefault() {
-		if(null == ioFactory) {
-			final Workspace workspace = getWorkspace();
-			final IOLayerId ioLayerId = IOLayerId.DB;
-			switch(ioLayerId) {
-			case DB:
-				ioFactory = new HypersonicIOFactory(workspace);
-				break;
-			default: Assert.assertUnreachable("");
-			}
-			ioFactory.initialize();
+	public static IOFactory getDefault(final Workspace workspace) {
+	    final IOFactory ioFactory;
+        final IOLayerId ioLayerId = IOLayerId.DB;
+		switch(ioLayerId) {
+		case DB:
+			ioFactory = new HypersonicIOFactory(workspace);
+			break;
+		default:
+            throw Assert.createUnreachable("UNKNOWN IO LAYER ID");
 		}
+		ioFactory.initialize();
+        return ioFactory;
+	}
+
+    public static IOFactory getPDF(final Workspace workspace) {
+        final IOFactory ioFactory = new FOPIOFactory(workspace);
+        ioFactory.initialize();
 		return ioFactory;
 	}
 
-    public static IOFactory getPDF() {
-		if(null == pdfIOFactory) {
-			pdfIOFactory = new FOPIOFactory(getWorkspace());
-		}
-		return pdfIOFactory;
-	}
-
-	public static IOFactory getXMPP() {
-        if(null == xmppIOFactory) {
-            xmppIOFactory = new XMPPIOFactory(getWorkspace());
-        }
-        return xmppIOFactory;
+	public static IOFactory getXMPP(final Workspace workspace) {
+        final IOFactory ioFactory = new XMPPIOFactory(workspace);
+        ioFactory.initialize();
+        return ioFactory;
     }
-
-	private static Workspace getWorkspace() {
-		return WorkspaceModel.getModel().getWorkspace();
-	}
 
 	/**
 	 * The parity workspace.
@@ -161,5 +147,4 @@ public abstract class IOFactory {
 	 * 
 	 */
 	public abstract void initialize();
-
 }

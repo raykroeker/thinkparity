@@ -10,9 +10,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -26,7 +24,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class CreateDraftTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[CREATE DRAFT TEST]";
+    private static final String NAME = "Container - Create Draft Test";
 
     /** Test datum. */
     private Fixture datum;
@@ -39,6 +37,7 @@ public class CreateDraftTest extends ContainerTestCase {
      *
      */
     public void testCreateDraft() {
+        logTrace("{0} - Creating draft for container \"{1}\".", NAME, datum.container.getName());
         final ContainerDraft draft =  datum.containerModel.createDraft(datum.container.getId());
 
         assertNotNull(NAME, draft);
@@ -54,9 +53,9 @@ public class CreateDraftTest extends ContainerTestCase {
                 "LATEST VERSION DOCUMENT LIST SIZE DOES NOT MATCH DRAFT DOCUMENT LIST SIZE",
                 latestVersionDocuments.size(), draft.getDocuments().size());
         assertTrue(NAME + " [KEY FLAG IS NOT APPLIED]",
-                getArtifactModel().isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
+                getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
         assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
-                getInternalSessionModel().readKeyHolder(datum.loginUser.getId(),
+                getSessionModel(OpheliaTestUser.JUNIT).readKeyHolder(datum.loginUser.getId(),
                         datum.container.getUniqueId()).equals(datum.loginUser.getId()));
     }
 
@@ -66,12 +65,12 @@ public class CreateDraftTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
-        final ContainerModel containerModel = getContainerModel();
-        final Container container = createContainer(NAME);
-        addDocuments(container);
-        publish(container);
-        datum = new Fixture(container, containerModel, getLoginUser().readUser());
+        login(OpheliaTestUser.JUNIT);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocuments(OpheliaTestUser.JUNIT, container);
+        publish(OpheliaTestUser.JUNIT, container);
+        datum = new Fixture(container, containerModel, OpheliaTestUser.JUNIT);
         containerModel.addListener(datum);
     }
 
@@ -80,7 +79,7 @@ public class CreateDraftTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        logout();
+        logout(OpheliaTestUser.JUNIT);
         datum.containerModel.removeListener(datum);
         datum = null;
         super.tearDown();

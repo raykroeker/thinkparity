@@ -10,15 +10,11 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.events.KeyListener;
-import com.thinkparity.ophelia.model.events.PresenceListener;
 import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * The parity session interface.
@@ -31,24 +27,26 @@ public class SessionModel extends AbstractModel {
 	/**
 	 * Obtain an internal interface to the session model.
 	 * 
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
 	 * @param context
 	 *            The model context.
 	 * @return The internal interface.
 	 */
-	public static InternalSessionModel getInternalModel(final Context context) {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		final InternalSessionModel internalModel = new InternalSessionModel(workspace, context);
-		return internalModel;
+	public static InternalSessionModel getInternalModel(final Context context,
+            final Workspace workspace) {
+	    return new InternalSessionModel(workspace, context);
 	}
 
 	/**
-	 * Obtain a handle to a session model interface.
-	 * @return A handle to the session model interface.
-	 */
-	public static SessionModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		final SessionModel sessionModel = new SessionModel(workspace);
-		return sessionModel;
+     * Obtain a handle to a session model interface.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @return A handle to the session model interface.
+     */
+	public static SessionModel getModel(final Workspace workspace) {
+	    return new SessionModel(workspace);
 	}
 
 	/**
@@ -68,26 +66,6 @@ public class SessionModel extends AbstractModel {
 		super();
 		this.impl = new SessionModelImpl(workspace);
 		this.implLock = new Object();
-	}
-
-	/**
-	 * Add a key listener to the session.
-	 * 
-	 * @param keyListener
-	 *            The key listener to add.
-	 */
-	public void addListener(final KeyListener keyListener) {
-		synchronized(implLock) { impl.addListener(keyListener); }
-	}
-
-	/**
-	 * Add a presence listener to the session.
-	 * 
-	 * @param presenceListener
-	 *            The presence listener to add.
-	 */
-	public void addListener(final PresenceListener presenceListener) {
-		synchronized(implLock) { impl.addListener(presenceListener); }
 	}
 
 	/**
@@ -161,26 +139,6 @@ public class SessionModel extends AbstractModel {
     public Session readSession() {
         synchronized(implLock) { return impl.readSession(); }
     }
-
-	/**
-	 * Remove a key listener from the session.
-	 * 
-	 * @param keyListener
-	 *            The key listener to remove.
-	 */
-	public void removeListener(final KeyListener keyListener) {
-		synchronized(implLock) { impl.removeListener(keyListener); }
-	}
-
-	/**
-	 * Remove a presence listener from the session.
-	 * 
-	 * @param presenceListener
-	 *            The presence listener to remove.
-	 */
-	public void removeListener(final PresenceListener presenceListener) {
-		synchronized(implLock) { impl.removeListener(presenceListener); }
-	}
 
 	/**
 	 * Remove a session listener from the session.

@@ -19,14 +19,12 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPContainerListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPDocumentListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.XMPPSessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
 
 /**
  * XMPPSession
@@ -54,12 +52,18 @@ public interface XMPPSession {
             final JabberId invitedBy, final Calendar acceptedOn);
 
     /**
+     * Clear all xmpp session listeners.
+     *
+     */
+    public void clearListeners();
+
+    /**
      * Add an xmpp artifact event listener.
      * 
      * @param l
      *            The xmpp artifact event listener.
      */
-    public void addListener(final XMPPArtifactListener l);
+    public void addListener(final ArtifactListener listener);
 
     /**
      * Add an xmpp contact event listener.
@@ -67,7 +71,7 @@ public interface XMPPSession {
      * @param l
      *            The xmpp contact event listener.
      */
-    public void addListener(final XMPPContactListener l);
+    public void addListener(final ContactListener listener);
 
     /**
      * Add an xmpp container event listener.
@@ -75,16 +79,15 @@ public interface XMPPSession {
      * @param l
      *            The xmpp container event listener.
      */
-    public void addListener(final XMPPContainerListener l);
+    public void addListener(final ContainerListener listener);
 
     /**
-     * Add an xmpp document event listener.
+     * Add an xmpp session event listener.
      * 
      * @param l
-     *            The xmpp document event listener.
+     *            An xmpp session event listener.
      */
-    public void addListener(final XMPPDocumentListener l);
-    public void addListener(final XMPPSessionListener l);
+    public void addListener(final SessionListener listener);
 
     /**
      * Add an email to a user's profile.
@@ -121,15 +124,19 @@ public interface XMPPSession {
     /**
      * Confirm artifact receipt.
      * 
-     * @param receivedFrom
-     *            From whom the artifact was received.
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param uniqueId
-     *            The artifact unique id.
-     * @throws SmackException
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id.
+     * @param receivedBy
+     *            By whom the artifact was received <code>JabberId</code>.
      */
-    public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId) throws SmackException;
-	/**
+    public void confirmArtifactReceipt(final JabberId userId,
+            final UUID uniqueId, final Long versionId, final JabberId receivedBy);
+
+    /**
      * Create an artifact
      * 
      * @param uniqueId
@@ -340,9 +347,10 @@ public interface XMPPSession {
      */
     public User readUser(final JabberId userId);
 
-    public void removeListener(final XMPPArtifactListener l);
-    public void removeListener(final XMPPContactListener l);
-    public void removeListener(final XMPPSessionListener l);
+    public void removeListener(final ArtifactListener listener);
+    public void removeListener(final ContactListener listener);
+    public void removeListener(final ContainerListener listener);
+    public void removeListener(final SessionListener listener);
 
     /**
      * Remove an email from a user's profile.

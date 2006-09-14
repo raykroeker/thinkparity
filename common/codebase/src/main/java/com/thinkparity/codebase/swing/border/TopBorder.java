@@ -29,6 +29,11 @@ public class TopBorder extends AbstractBorder {
 	private final Color color;
     
     /**
+     * The border thinkness.
+     */
+    private final Integer thickness;    
+       
+    /**
      * The border insets.
      */
     private final Insets insets;
@@ -48,8 +53,24 @@ public class TopBorder extends AbstractBorder {
 	public TopBorder(final Color color) {
 		super();
 		this.color = color;
+        this.thickness = 1;
         this.insets = new Insets(1, 0, 0, 0);  // Offset top is 1
 	}
+    
+    /**
+     * Create a TopBorder.
+     * 
+     * @param color
+     *            The border color.
+     * @param thickness
+     *            The border thinkness
+     */
+    public TopBorder(final Color color, final Integer thickness) {
+        super();
+        this.color = color;
+        this.thickness = thickness;
+        this.insets = new Insets(1, 0, 0, 0);  // Offset top is 1
+    }
     
     /**
      * Create a TopBorder.
@@ -57,10 +78,28 @@ public class TopBorder extends AbstractBorder {
      * @param color
      *            The border color.
      * @param Insets
-     *             The border insets.
+     *            The border insets.
      */
     public TopBorder(final Color color, Insets insets) {
         this(color);
+        this.insets.top = insets.top;
+        this.insets.left = insets.left;
+        this.insets.bottom = insets.bottom;
+        this.insets.right = insets.right;    
+    }
+    
+    /**
+     * Create a TopBorder.
+     * 
+     * @param color
+     *            The border color.
+     * @param thickness
+     *            The border thinkness.
+     * @param Insets
+     *            The border insets.
+     */
+    public TopBorder(final Color color, final Integer thickness, Insets insets) {
+        this(color, thickness);
         this.insets.top = insets.top;
         this.insets.left = insets.left;
         this.insets.bottom = insets.bottom;
@@ -113,6 +152,9 @@ public class TopBorder extends AbstractBorder {
 		final Color oColor = g.getColor();
 		g.setColor(color);
 		g.drawLine(x + this.insets.left, y, x + width - 1 - this.insets.right, y);
+        for (Integer i = 1; i < thickness; i++) {
+            g.drawLine(x + this.insets.left, y + i, x + width - 1 - this.insets.right, y + i);
+        }
 		g.setColor(oColor);
 	}
 }

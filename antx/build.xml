@@ -9,9 +9,10 @@
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC13"/>
+    <property name="release.version" value="1.0.0-RC14"/>
 
     <!-- cvs configuration -->
+    <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator remote/codebase remote/migrator lib/commons-codec lib/hsqldb lib/junit lib/log4j lib/messenger"/>

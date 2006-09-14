@@ -41,14 +41,6 @@ insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity.backup.brussell','parity',0,0);
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity.backup.gdengo','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.junit','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.junit.x','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.junit.y','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.junit.z','parity',0,0);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);
@@ -116,50 +108,6 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('gdengo', 1000);
 
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('junit','parity',0,0);
-insert into jiveVCard (USERNAME,VALUE)
-    values('junit', '<vCard xmlns="vcard-temp"><FN>JUnit thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
-    values('junit', 'junit@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('junit', 'What is my username?', 'junit');
-insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('junit', 1000);
-
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('junit.x','parity',0,0);
-insert into jiveVCard (USERNAME,VALUE)
-    values('junit.x', '<vCard xmlns="vcard-temp"><FN>JUnit.X thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.X</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
-    values('junit.x', 'junit.x@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('junit.x', 'What is my username?', 'junit.x');
-insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('junit.x', 1000);
-
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('junit.y','parity',0,0);
-insert into jiveVCard (USERNAME,VALUE)
-    values('junit.y', '<vCard xmlns="vcard-temp"><FN>JUnit.Y thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.Y</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
-    values('junit.y', 'junit.y@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('junit.y', 'What is my username?', 'junit.y');
-insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('junit.y', 1000);
-
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('junit.z','parity',0,0);
-insert into jiveVCard (USERNAME,VALUE)
-    values('junit.z', '<vCard xmlns="vcard-temp"><FN>JUnit.Z thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.Z</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
-insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
-    values('junit.z', 'junit.z@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('junit.z', 'What is my username?', 'junit.z');
-insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('junit.z', 1000);
-
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('rkroeker', 'ahalaby@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
@@ -225,31 +173,3 @@ insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDB
     values ('gdengo', 'ashaftoe@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('gdengo', 'brussell@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
-
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.x@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.y@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.z@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
-
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.y@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.z@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
-
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.x@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.z@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
-
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.x@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
-insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.y@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());

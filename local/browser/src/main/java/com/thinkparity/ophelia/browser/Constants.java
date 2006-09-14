@@ -134,6 +134,7 @@ public final class Constants {
         public static final Float LEVEL_0 = 1.0F;
         public static final Float LEVEL_1 = 3.0F;
         public static final Float LEVEL_2 = 5.0F;
+        public static final Float LEVEL_3 = 7.0F;
     }
 
     /** Java constants. */

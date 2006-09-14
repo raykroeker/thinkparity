@@ -58,7 +58,7 @@ public class ContactCell extends Contact implements TabCell {
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
-    /** Maximum length of a document cell's text. */
+    /** Maximum length of cell's text. */
     private static final Integer TEXT_MAX_LENGTH;
 
     static {

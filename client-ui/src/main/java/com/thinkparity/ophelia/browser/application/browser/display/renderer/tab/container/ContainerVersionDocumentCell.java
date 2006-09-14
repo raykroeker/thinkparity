@@ -63,9 +63,9 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
         setId(document.getId());
         setRemoteInfo(document.getRemoteInfo());
         setState(document.getState());
+        this.imageCache = new MainCellImageCache();        
         this.popupItemFactory = PopupItemFactory.getInstance();
         this.version = version;
-        this.imageCache = new MainCellImageCache();
     }
 
     /**

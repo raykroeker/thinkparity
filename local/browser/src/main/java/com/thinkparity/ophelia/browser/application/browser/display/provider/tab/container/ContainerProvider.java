@@ -7,12 +7,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.tab
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
-
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
@@ -20,6 +19,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Sing
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToUserCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.Document;
@@ -61,6 +62,9 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 
     /** Reads a list of documents. */
     private final FlatContentProvider versionDocuments;
+    
+    /** Reads a list of users. */
+    private final FlatContentProvider versionUsers;
 
     /** Reads a list of container versions. */
     private final FlatContentProvider versions;
@@ -117,6 +121,18 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 return toDisplay(typedInput, containerModel.readDocuments(containerId, versionId));
             }
         };
+        this.versionUsers = new FlatContentProvider(profile) {
+            @Override
+            public Object[] getElements(final Object input) {
+                Assert.assertNotNull("[NULL INPUT]", input);
+                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionSentToCell.class, input);
+                final ContainerVersionSentToCell typedInput = (ContainerVersionSentToCell) input;
+                final Long containerId = ((ContainerVersionCell)typedInput.getParent()).getArtifactId();
+                final Long versionId = ((ContainerVersionCell)typedInput.getParent()).getVersionId();
+                return toDisplay(typedInput, containerModel.readPublishedTo(containerId, versionId),
+                        containerModel.readSharedWith(containerId, versionId));
+            }
+        };
         this.draftProvider = new SingleContentProvider(profile) {
             public Object getElement(Object input) {
                 Assert.assertNotNull("[NULL INPUT]", input);
@@ -133,7 +149,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             }
         };
         this.flatProviders = new FlatContentProvider[] {
-                containers, versions, versionDocuments, searchResults
+                containers, versions, versionDocuments, versionUsers, searchResults
         };
         this.singleProviders = new SingleContentProvider[] {containerProvider, draftProvider, documentIsDraftModifiedProvider};
     }
@@ -235,7 +251,49 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             list.add(toDisplay(version, document));
         }
         return list.toArray(new ContainerVersionDocumentCell[] {});
-    }      
+    }
+    
+    /**
+     * Create a display user for a version.
+     * 
+     * @param sentToCell
+     *            A "sent-to" cell (parent of sent-to users).
+     * @param user
+     *            A user.
+     * @return A display user.
+     */
+    private ContainerVersionSentToUserCell toDisplay(
+            final ContainerVersionSentToCell sentToCell, final User user) {
+        final ContainerVersionSentToUserCell display = new ContainerVersionSentToUserCell(sentToCell, user);
+        return display;
+    }
+    
+    /**
+     * Create an array of display sent-to users for a version.
+     * 
+     * @param sentToCell
+     *            A "sent-to" cell (parent of sent-to users).
+     * @param versionUsersPublishedTo
+     *            A list of users.
+     * @param versionUsersSharedWith
+     *            A list of users.
+     * @return An array of display users.
+     */
+    private ContainerVersionSentToUserCell[] toDisplay(
+            final ContainerVersionSentToCell sentToCell,
+            final List<User> versionUsersPublishedTo,
+            final List<User> versionUsersSharedWith) {
+        final Integer size = versionUsersPublishedTo.size() + versionUsersSharedWith.size();
+        final List<ContainerVersionSentToUserCell> list =
+            new ArrayList<ContainerVersionSentToUserCell>(size);
+        for(final User user : versionUsersPublishedTo) {
+            list.add(toDisplay(sentToCell, user));
+        }
+        for(final User user : versionUsersSharedWith) {
+            list.add(toDisplay(sentToCell, user));
+        }
+        return list.toArray(new ContainerVersionSentToUserCell[] {});
+    }
 
     /**
      * Obtain a displayable version of a list of containers.

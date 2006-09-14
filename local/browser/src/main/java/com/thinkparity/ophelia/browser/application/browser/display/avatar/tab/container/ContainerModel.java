@@ -24,12 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.*;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
@@ -85,6 +80,9 @@ public class ContainerModel extends TabModel {
     
     /** A map of the container version to the "sent to" cell. */
     private final Map<ContainerVersionCell, ContainerVersionSentToCell> versionSentToCells;
+    
+    /** A map of the "sent to" cell to the "sent to users" cells. */
+    private final Map<ContainerVersionSentToCell, List<ContainerVersionSentToUserCell>> versionSentToUserCells;
 
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
@@ -105,6 +103,7 @@ public class ContainerModel extends TabModel {
         this.logger = browser.getPlatform().getLogger(getClass());
         this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.versionSentToCells = new HashMap<ContainerVersionCell, ContainerVersionSentToCell>(50, 0.75F);
+        this.versionSentToUserCells = new HashMap<ContainerVersionSentToCell, List<ContainerVersionSentToUserCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
     }
 
@@ -304,7 +303,8 @@ public class ContainerModel extends TabModel {
         draftCells.clear();
         versionCells.clear();
         draftDocumentCells.clear();
-        versionSentToCells.clear();       
+        versionSentToCells.clear();
+        versionSentToUserCells.clear();
         versionDocumentCells.clear();
 
         for(final ContainerCell container : containerCells) {
@@ -322,6 +322,9 @@ public class ContainerModel extends TabModel {
             for(final ContainerVersionCell version : versions) {
                 final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
                 versionSentToCells.put(version, sentTo);
+                final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
+                versionSentToUserCells.put(sentTo, versionUsers);
+                sentTo.setNumberOfUsers(versionUsers.size());
                 
                 final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
                 for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
@@ -392,10 +395,17 @@ public class ContainerModel extends TabModel {
                     for (final ContainerVersionCell cv : containerVersions) {
                         visibleCells.add(cv);
                         if (cv.isExpanded()) {
-                            // add "sent to" node
+                            // add "sent-to" node
                             final ContainerVersionSentToCell sentTo = versionSentToCells.get(cv);
                             if (null != sentTo) {
                                 visibleCells.add(sentTo);
+                                if (sentTo.isExpanded()) {
+                                    // add sent-to users
+                                    final List<ContainerVersionSentToUserCell> users = this.versionSentToUserCells.get(sentTo);
+                                    if (null != users) {
+                                        visibleCells.addAll(users);
+                                    }
+                                }
                             }                           
                             // add version documents
                             final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(cv);
@@ -517,6 +527,10 @@ public class ContainerModel extends TabModel {
         else if (tabCell instanceof ContainerVersionDocumentCell) {
             final ContainerVersionDocumentCell versionDocument = (ContainerVersionDocumentCell) tabCell;
             browser.runOpenDocumentVersion(versionDocument.getId(), ((ContainerVersionCell)versionDocument.getParent()).getVersionId());            
+        }
+        else if (tabCell instanceof ContainerVersionSentToUserCell) {
+            final ContainerVersionSentToUserCell versionUser = (ContainerVersionSentToUserCell) tabCell;
+            browser.runReadContact(versionUser.getId());
         }
     }
 
@@ -672,7 +686,7 @@ public class ContainerModel extends TabModel {
      */
     private List<Long> readSearchResults() {
         final List<Long> list = new LinkedList<Long>();
-        final Long[] array = (Long[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(3, searchExpression);
+        final Long[] array = (Long[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(4, searchExpression);
         for (final Long containerId : array) {
             list.add(containerId);
         }
@@ -691,6 +705,20 @@ public class ContainerModel extends TabModel {
         final List<ContainerVersionDocumentCell> l = new LinkedList<ContainerVersionDocumentCell>();
         final ContainerVersionDocumentCell[] a = (ContainerVersionDocumentCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(2, version);
         for(final ContainerVersionDocumentCell c : a) { l.add(c); }
+        return l;
+    }
+    
+    /**
+     * Read the version users from the provider.
+     * 
+     * @param version
+     *            The version.
+     * @return A list of display users.
+     */
+    private List<ContainerVersionSentToUserCell> readVersionUsers(final ContainerVersionSentToCell sentToCell) {
+        final List<ContainerVersionSentToUserCell> l = new LinkedList<ContainerVersionSentToUserCell>();
+        final ContainerVersionSentToUserCell[] a = (ContainerVersionSentToUserCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(3, sentToCell);
+        for(final ContainerVersionSentToUserCell c : a) { l.add(c); }
         return l;
     }
 
@@ -812,10 +840,14 @@ public class ContainerModel extends TabModel {
     private void syncVersionInternal(final Long containerId, final Boolean remote) {
         final ContainerCell container = readContainer(containerId);
         
-        // Remove the version cells and associated document cells
+        // Remove the version cells and associated document cells and user cells
         final List<ContainerVersionCell> containerVersions = versionCells.get(container);
         if (null!=containerVersions) {
             for(final ContainerVersionCell containerVersion : containerVersions) {
+                final ContainerVersionSentToCell sentTo = versionSentToCells.get(containerVersion);
+                if (null!=sentTo) {
+                    versionSentToUserCells.remove(sentTo);
+                }                                
                 versionSentToCells.remove(containerVersion);
                 versionDocumentCells.remove(containerVersion);
             }
@@ -828,6 +860,9 @@ public class ContainerModel extends TabModel {
         for(final ContainerVersionCell version : versions) {
             final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
             versionSentToCells.put(version, sentTo);
+            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
+            versionSentToUserCells.put(sentTo, versionUsers);
+            sentTo.setNumberOfUsers(versionUsers.size());
             
             final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
             for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {

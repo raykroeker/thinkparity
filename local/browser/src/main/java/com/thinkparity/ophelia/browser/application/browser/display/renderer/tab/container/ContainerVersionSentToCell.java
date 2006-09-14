@@ -35,11 +35,14 @@ public class ContainerVersionSentToCell implements TabCell {
         TEXT_FG = Color.BLACK;
     }
 
-    /** The document's version. */
+    /** The version. */
     private final ContainerVersionCell version;
 
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
+    
+    /** The number of users (child cells) */
+    private Integer numberOfUsers = 0;
 
     /** An image cache. */
     private final MainCellImageCache imageCache;
@@ -119,7 +122,7 @@ public class ContainerVersionSentToCell implements TabCell {
      * 
      */
     public String getText() {
-        final Integer number = 5;
+        final Integer number = numberOfUsers;
         return localization.getString("Text", new Object[] {number});
     }
     
@@ -188,6 +191,16 @@ public class ContainerVersionSentToCell implements TabCell {
      *            The expanded flag.
      */
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
+    
+    /**
+     * Set the number of child users.
+     * 
+     * @param users
+     *            The number of users.
+     */
+    public void setNumberOfUsers(final Integer numberOfUsers) {
+        this.numberOfUsers = numberOfUsers;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)

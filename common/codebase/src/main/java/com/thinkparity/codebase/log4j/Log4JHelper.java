@@ -27,8 +27,21 @@ public class Log4JHelper {
      *            An object.
      * @return A rendered version of an object.
      */
-    public static String render(final Logger logger, final Object o) {
-        return SINGLETON.doRender(logger, o);
+    public static Object render(final Logger logger, final Object object) {
+        return SINGLETON.doRender(logger, object);
+    }
+
+    /**
+     * Render an object for a logger.
+     * 
+     * @param logger
+     *            An apache logger.
+     * @param o
+     *            An object.
+     * @return A rendered version of an object.
+     */
+    public static Object[] render(final Logger logger, final Object...objects) {
+        return SINGLETON.doRender(logger, objects);
     }
 
     /** Create Log4JHelper. */
@@ -43,11 +56,29 @@ public class Log4JHelper {
      *            An object.
      * @return A rendered version of an object.
      */
-    private String doRender(final Logger logger, final Object o) {
+    private Object doRender(final Logger logger, final Object o) {
         final LoggerRepository loggerRepository = logger.getLoggerRepository();
         if(loggerRepository instanceof RendererSupport) {
             return ((RendererSupport) loggerRepository).getRendererMap().findAndRender(o);
         }
         else { return o.toString(); }
+    }
+
+
+    /**
+     * Render an object for a logger.
+     * 
+     * @param logger
+     *            An apache logger.
+     * @param o
+     *            An object.
+     * @return A rendered version of an object.
+     */
+    private Object[] doRender(final Logger logger, final Object... objects) {
+        final Object[] rendered = new Object[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            rendered[i] = doRender(logger, objects[i]);
+        }
+        return rendered;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Feb 1, 2006
+ * Created On: Feb 1, 2006
  */
 package com.thinkparity.codebase.junitx;
 
@@ -8,10 +8,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 
 /**
@@ -24,7 +27,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
  */
 public abstract class TestCase extends junit.framework.TestCase {
 
-	protected static void assertEquals(final Iterable expected, final Iterable actual) {}
+    protected static void assertEquals(final Iterable expected, final Iterable actual) {}
 
 	protected static void assertEquals(final String message, final Iterable expected, final Iterable actual) {}
 
@@ -91,7 +94,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		}
 	}
 
-    /**
+	/**
 	 * Clear the session data.
 	 *
 	 */
@@ -99,7 +102,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		testCaseHelper.clearSessionData();
 	}
 
-	/**
+    /**
 	 * Create a test directory.
 	 * 
 	 * @param directoryName
@@ -185,6 +188,51 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return testCaseHelper.getTestText(textLength);
 	}
 
+    /**
+     * Log a debug statement.
+     * 
+     * @param pattern
+     *            A statement pattern.
+     * @param arguments
+     *            The pattern arguments.
+     */
+    protected void logDebug(final String pattern, final Object... arguments) {
+        if (testLogger.isDebugEnabled()) {
+            testLogger.debug(MessageFormat.format(pattern,
+                    Log4JHelper.render(testLogger, arguments)));
+        }
+    }
+
+    /**
+     * Log a trace statement.
+     * 
+     * @param pattern
+     *            A statement pattern.
+     * @param arguments
+     *            The pattern arguments.
+     */
+    protected void logTrace(final String pattern, final Object... arguments) {
+        if (testLogger.isTraceEnabled()) {
+            testLogger.trace(MessageFormat.format(pattern,
+                    Log4JHelper.render(testLogger, arguments)));
+        }
+    }
+
+    /**
+     * Log a warning statement.
+     * 
+     * @param pattern
+     *            A statement pattern.
+     * @param arguments
+     *            The pattern arguments.
+     */
+	protected void logWarning(final String pattern, final Object... arguments) {
+        if (testLogger.isEnabledFor(Level.WARN)) {
+            testLogger.warn(MessageFormat.format(pattern,
+                    Log4JHelper.render(testLogger, arguments)));
+        }
+    }
+
 	/**
 	 * Remove a data item from the test session.
 	 * 
@@ -194,7 +242,24 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected void removeSessionData(final String key) {
 		testCaseHelper.removeSessionDataItem(key);
 	}
+
 	/**
+     * @see junit.framework.TestCase#setUp()
+     */
+    @Override
+    protected void setUp() throws Exception {
+        logTrace("{0} - Set up.", getName());
+    }
+
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        logTrace("{0} - Tear down.", getName());
+    }
+
+    /**
 	 * Read the byte content from a file.
 	 * 
 	 * @param file

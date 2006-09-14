@@ -6,11 +6,11 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
-
 
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -149,13 +149,17 @@ public class SessionApplication extends AbstractApplication {
      * Connect to the thinkParity server.
      *
      */
-    private void connect() { getSessionModel().login(); }
+    private void connect() {
+        getSessionModel().login();
+    }
 
     /**
      * Schedule a task to connect until we are back online.
      *
      */
-    private void connectLater() { connectLater(Session.RECONNECT_DELAY); }
+    private void connectLater() {
+        connectLater(Session.RECONNECT_DELAY);
+    }
 
     /**
      * Schedule a task to connect until we are back online.
@@ -167,7 +171,13 @@ public class SessionApplication extends AbstractApplication {
         connectTimer = new Timer(CONNECT_TIMER_NAME, Boolean.FALSE);
         connectTimer.schedule(new TimerTask() {
             public void run() {
-                if(isOnline()) { connect(); }
+                try {
+                    if (isOnline()) {
+                        connect();
+                    }
+                } catch (final Throwable t) {
+                    logError("Connection timer error.", t);
+                }
             }
         }, delay, Session.CONNECT_TIMER_PERIOD);
     }
@@ -191,4 +201,18 @@ public class SessionApplication extends AbstractApplication {
      * @return True if the platform is online; false otherwise.
      */
     private Boolean isOnline() { return getPlatform().isOnline(); }
+
+    /**
+     * Log an error.
+     * 
+     * @param message
+     *            An error message.
+     * @param t
+     *            The cause of the error.
+     */
+    private void logError(final Object message, final Throwable t) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            logger.error(message, t);
+        }
+    }
 }

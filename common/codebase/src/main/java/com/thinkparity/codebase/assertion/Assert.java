@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.assertion;
 
+import java.text.MessageFormat;
+
 /**
  * Assert
  * @author raykroeker@gmail.com
@@ -62,7 +64,7 @@ public class Assert {
                     null == message ? NULL_MESSAGE : message.toString());
 	}
 
-	/**
+    /**
 	 * Assert that the object references provided are not null. If they are,
 	 * throw a {@link NullPointerAssertion}.
 	 * 
@@ -77,6 +79,24 @@ public class Assert {
 		for(int i = 0; i < objectReferences.length; i++)
 			Assert.assertNotNull(message, objectReferences[i]);
 	}
+
+    /**
+     * Assert that the reference is not null. If it is null throw
+     * {@link NullPointerAssertion}.
+     * 
+     * @param reference
+     *            An object reference.
+     * @param pattern
+     *            An assertion message pattern.
+     * @param arguments
+     *            Assertion message arguments.
+     */
+	public static void assertNotNull(final Object reference,
+            final String pattern, final Object... arguments) {
+        if (null == reference) {
+            throw new NullPointerAssertion(createMessage(pattern, arguments));
+        }
+    }
 
 	/**
 	 * Assert that the boolean expression provided is false. If it is not, throw
@@ -124,6 +144,23 @@ public class Assert {
 	}
 
 	/**
+     * Assert that the expression provided is true.
+     * 
+     * @param expression
+     *            A boolean expression.
+     * @param pattern
+     *            The assertion message pattern.
+     * @param arguments
+     *            The assertion message arguments.
+     */
+    public static void assertTrue(final Boolean expression,
+            final String pattern, final Object... arguments) {
+        if (Boolean.TRUE != expression) {
+            throw new NotTrueAssertion(createMessage(pattern, arguments));
+        }
+    }
+
+    /**
 	 * Assert that the expression provided is true.
 	 * 
 	 * @param message
@@ -139,7 +176,7 @@ public class Assert {
                     null == message ? NULL_MESSAGE : message.toString());
 	}
 
-	/**
+    /**
 	 * Assert that an area of code is unreachable. This is achived by throwing
 	 * an <code>UnreachableCodeAssertion</code>.
 	 * 
@@ -175,6 +212,29 @@ public class Assert {
 		return new UnreachableCodeAssertion(
                 null == message ? NULL_MESSAGE : message.toString());
 	}
+
+	/**
+     * Create a formatted message. If the pattern is null; or if the message
+     * cannot be formatted; a standard message is returned.
+     * 
+     * @param pattern
+     *            A message pattern.
+     * @param arguments
+     *            Message arguments.
+     * @return A formatted message.
+     */
+    private static String createMessage(final String pattern,
+            final Object... arguments) {
+        if (null == pattern) {
+            return NULL_MESSAGE;
+        } else {
+            try {
+                return MessageFormat.format(pattern, arguments);
+            } catch (final IllegalArgumentException iax) {
+                return NULL_MESSAGE;
+            }
+        }
+    }
 
 	/**
 	 * Create a new Assert [Singleton]

@@ -15,14 +15,13 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 
-
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 
@@ -31,26 +30,6 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  * @version $Revision$
  */
 public class FirstRunHelper {
-
-    /**
-     * Obtain a logging api id.
-     * 
-     * @param api
-     *            The api.
-     * @return A logging api id.
-     */
-    private static final StringBuffer getApiId(final String api) {
-        return getLogId().append(" ").append(api);
-    }
-
-    /**
-     * Obtain a logging id.
-     * 
-     * @return A logging id.
-     */
-    private static final StringBuffer getLogId() {
-        return new StringBuffer("[LBROWSER] [PLATFORM] [FIRST RUN HELPER]");
-    }
 
     /** An apache logger. */
     final Logger logger;
@@ -73,8 +52,11 @@ public class FirstRunHelper {
     /** The first run window. */
     private FirstRunWindow window;
 
+    /** The thinkParity <code>Workspace</code>. */
+    private final Workspace workspace;
+
     /** The thinkParity workspace model. */
-    private final WorkspaceModel wModel;
+    private final WorkspaceModel workspaceModel;
 
     /** Create FirstRunHelper. */
     public FirstRunHelper(final Platform platform) {
@@ -83,7 +65,8 @@ public class FirstRunHelper {
         this.profileModel = platform.getModelFactory().getProfileModel(getClass());
         this.contactModel = platform.getModelFactory().getContactModel(getClass());
         this.sessionModel = platform.getModelFactory().getSessionModel(getClass());
-        this.wModel = platform.getModelFactory().getWorkspaceModel(getClass());
+        this.workspace = platform.getModelFactory().getWorkspace(getClass());
+        this.workspaceModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
 
     /**
@@ -92,9 +75,6 @@ public class FirstRunHelper {
      * @return True if first run completed.
      */
     public Boolean firstRun() {
-        Assert.assertTrue(
-                getApiId("[FIRST RUN] [PLATFROM HAS ALREADY BEEN RUN]"),
-                isFirstRun());
         loginAvatar = new LoginAvatar(this);
         openWindow(loginAvatar.getTitle(), loginAvatar);
 
@@ -127,7 +107,7 @@ public class FirstRunHelper {
      * 
      * @return True if this is the first time the platform has been run.
      */
-    public Boolean isFirstRun() { return wModel.isFirstRun(); }
+    public Boolean isFirstRun() { return workspaceModel.isFirstRun(workspace); }
 
     /**
      * Create a new manager window and open the avatar.

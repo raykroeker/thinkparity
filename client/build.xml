@@ -367,7 +367,7 @@ Examples:
         <copy todir="${target.classes.dir}/local/browser">
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}/local/browser" overwrite="true">
+        <copy todir="${target.classes.dir}/local/browser">
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
@@ -390,8 +390,22 @@ Examples:
 
     <!-- unit test -->
 	<target name="test" depends="test-compile">
-		<junit fork="on" forkmode="once" reloading="false"
+        <!-- if junitx.log4j.* is not set; use defaults; otherwise use the
+            values themselves -->
+        <condition property="inner.junitx.log4j.level"
+                value="${junitx.log4j.level}" else="INFO">
+            <isset property="junitx.log4j.level"/>
+        </condition>
+        <condition property="inner.junitx.log4j.console"
+                value="${junitx.log4j.console}" else="false">
+            <isset property="junitx.log4j.console"/>
+        </condition>
+
+        <junit fork="on" forkmode="once" reloading="false"
 		        errorproperty="junit.didError" failureproperty="junit.didFail">
+            <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
+            <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
+
 			<classpath refid="project.test-classpath"/>
 			<formatter type="brief" usefile="false"/>
 

@@ -13,7 +13,6 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
@@ -44,7 +43,7 @@ public class Publish extends AbstractAction {
 	public void invoke(final Data data) {
 		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		if (browser.confirm("Publish.Temp")) {
-            final Profile profile = ProfileModel.getModel().read();
+            final Profile profile = getProfileModel().read();
             final List<Contact> contacts = getContactModel().read();
             final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
             Contact contact;

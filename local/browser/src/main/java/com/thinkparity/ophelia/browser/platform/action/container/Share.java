@@ -9,13 +9,10 @@ import java.util.List;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
@@ -46,7 +43,7 @@ public class Share extends AbstractAction {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         if (browser.confirm("Share.Temp")) {
-            final Profile profile = ProfileModel.getModel().read();
+            final Profile profile = getProfileModel().read();
             final List<Contact> contacts = getContactModel().read();
             final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
             Contact contact;

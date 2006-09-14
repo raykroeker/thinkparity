@@ -159,9 +159,6 @@ public final class Constants {
         public static final MessageFormat OPTION_PARITY_INSTALL = new MessageFormat("-Dparity.install={0}");
         public static final MessageFormat OPTION_PARITY_SERVER_HOST = new MessageFormat("-Dparity.serverhost={0}");
         public static final MessageFormat OPTION_PARITY_SERVER_PORT = new MessageFormat("-Dparity.serverport={0}");
-
-        public static final MessageFormat OPTION_PARITY_WORKSPACE = new MessageFormat("-Dparity.workspace={0}");
-
     }
 
     /** Lookup keys. */

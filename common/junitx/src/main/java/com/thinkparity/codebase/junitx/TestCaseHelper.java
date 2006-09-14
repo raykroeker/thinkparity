@@ -74,9 +74,12 @@ public class TestCaseHelper {
 
 	static {
 		testSession = new TestSession(getRootDirectory());
-		Log4JConfigurator.configure(testSession);
-		try { getInputFiles(); }
-		catch(final IOException iox) { TestCase.fail(createFailMessage(iox)); }
+        TestInitializer.initialize(testSession);
+		try {
+            getInputFiles();
+		} catch (final IOException iox) {
+            TestCase.fail(createFailMessage(iox));
+		}
 		Logger.getLogger(JUnitX.class).log(Level.INFO, JUnitX.MESSAGE_INIT);
 	}
 

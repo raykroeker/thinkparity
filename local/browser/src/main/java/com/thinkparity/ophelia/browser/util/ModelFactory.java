@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.browser.util;
 
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -12,8 +14,8 @@ import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.download.DownloadModel;
 import com.thinkparity.ophelia.model.index.IndexModel;
 import com.thinkparity.ophelia.model.install.InstallModel;
+import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.release.ReleaseModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Preferences;
@@ -53,32 +55,29 @@ public class ModelFactory {
     /** A thinkParity document interface. */
 	private DocumentModel documentModel;  
 
-    /** A thinkParity download interface. */
-    private DownloadModel download;
+    /** A thinkParity downloadModel interface. */
+    private DownloadModel downloadModel;
 
     /** A thinkParity index interface. */
 	private IndexModel indexModel;
 
-    /** A thinkParity install interface. */
-    private InstallModel install;
-
-    /** Flag indicating whether or not the factory is initialized. */
-	private boolean isInitialized;
+    /** A thinkParity installModel interface. */
+    private InstallModel installModel;
 
     /** The thinkParity preferences. */
 	private Preferences preferences;
 
-    /** A thinkParity profile interface. */
-    private ProfileModel profile;
+    /** A thinkParity profileModel interface. */
+    private ProfileModel profileModel;
 
-    /** A thinkParity release interface. */
-    private ReleaseModel release;
+    /** A thinkParity releaseModel interface. */
+    private ReleaseModel releaseModel;
 
     /** A thinkParity session interface. */
 	private SessionModel sessionModel;
 
 	/** A thinkParity user interface. */
-    private UserModel uModel;
+    private UserModel userModel;
 
     /** The thinkParity workspace. */
 	private Workspace workspace;
@@ -89,7 +88,6 @@ public class ModelFactory {
 	/** Create ModelFactory. */
 	private ModelFactory() {
 		super();
-		this.isInitialized = false;
 	}
 
     public ArchiveModel getArchiveModel(final Class clasz) {
@@ -113,48 +111,56 @@ public class ModelFactory {
 	}
 
     /**
-     * Obtain the parity download interface.
+     * Obtain the parity downloadModel interface.
      * 
      * @param clasz
      *            The model consumer.
-     * @return The parity download interface.
+     * @return The parity downloadModel interface.
      */
-    public DownloadModel getDownload(final Class clasz) { return download; }
+    public DownloadModel getDownloadModel(final Class clasz) {
+        return downloadModel;
+    }
 
     public IndexModel getIndexModel(final Class clasz) {
 		return indexModel;
 	}
 
     /**
-     * Obtain the parity install interface.
+     * Obtain the parity installModel interface.
      * 
      * @param clasz
      *            The model consumer.
-     * @return The parity install interface.
+     * @return The parity installModel interface.
      */
-    public InstallModel getInstall(final Class clasz) { return install; }
+    public InstallModel getInstall(final Class clasz) {
+        return installModel;
+    }
 
 	public Preferences getPreferences(final Class clasz) {
 		return preferences;
 	}
 
 	/**
-     * Obtain the thinkParity profile interface.
+     * Obtain the thinkParity profileModel interface.
      * 
      * @param clasz
      *            The model consumer.
-     * @return The thinkParity profile interface.
+     * @return The thinkParity profileModel interface.
      */
-    public ProfileModel getProfileModel(final Class clasz) { return profile; }
+    public ProfileModel getProfileModel(final Class clasz) {
+        return profileModel;
+    }
 
 	/**
-     * Obtain the parity release interface.
+     * Obtain the parity releaseModel interface.
      * 
      * @param clasz
      *            The model consumer.
-     * @return The parity release interface.
+     * @return The parity releaseModel interface.
      */
-	public ReleaseModel getRelease(final Class clasz) { return release; }
+	public ReleaseModel getReleaseModel(final Class clasz) {
+        return releaseModel;
+	}
 
 	public SessionModel getSessionModel(final Class clasz) {
 		return sessionModel;
@@ -167,17 +173,15 @@ public class ModelFactory {
      *      The name of the class will be used to obtain the user model.
      * @return A parity user interface.
      */
-    public UserModel getUserModel(final Class clasz) { return uModel; }
+    public UserModel getUserModel(final Class clasz) {
+        return userModel;
+    }
 
 	public Workspace getWorkspace(final Class clasz) {
-		return getWorkspaceModel(clasz).getWorkspace();
+		return workspace;
 	}
 
 	public WorkspaceModel getWorkspaceModel(final Class clasz) {
-		if(null == workspaceModel) {
-			// NOTE We do this because of a circular dependency
-			workspaceModel = WorkspaceModel.getModel();
-		}
 		return workspaceModel;
 	}
 
@@ -185,24 +189,30 @@ public class ModelFactory {
 	 * Initialize the model factory.
 	 * 
 	 */
-	public void initialize() {
-		if(!isInitialized) {
-            archiveModel = ArchiveModel.getModel();
-			artifactModel = ArtifactModel.getModel();
-            containerModel = ContainerModel.getModel();            
-			documentModel = DocumentModel.getModel();
-            contactModel = ContactModel.getModel();
-            download = DownloadModel.getModel();
-            indexModel = IndexModel.getModel();
-            install = InstallModel.getModel();
-            profile = ProfileModel.getModel();
-            release = ReleaseModel.getModel();
-            sessionModel = SessionModel.getModel();
-            uModel = UserModel.getModel();
-            workspaceModel = WorkspaceModel.getModel();
-            workspace = workspaceModel.getWorkspace();
-            preferences = workspace.getPreferences();
-            isInitialized = true;
-        }
+	public void initialize(final Workspace workspace) {
+        Assert.assertIsNull("MODEL FACTORY ALREADY INITIALIZED", this.workspace);
+        this.workspace = workspace;
+        this.preferences = workspace.getPreferences();
+        initializeModels();
+    }
+
+    /**
+     * Initialize the models.
+     *
+     */
+    private void initializeModels() {
+        archiveModel = ArchiveModel.getModel(workspace);
+		artifactModel = ArtifactModel.getModel(workspace);
+        containerModel = ContainerModel.getModel(workspace);
+		documentModel = DocumentModel.getModel(workspace);
+        contactModel = ContactModel.getModel(workspace);
+        downloadModel = DownloadModel.getModel(workspace);
+        indexModel = IndexModel.getModel(workspace);
+        installModel = InstallModel.getModel(workspace);
+        profileModel = ProfileModel.getModel(workspace);
+        releaseModel = ReleaseModel.getModel(workspace);
+        sessionModel = SessionModel.getModel(workspace);
+        userModel = UserModel.getModel(workspace);
+        workspaceModel = WorkspaceModel.getModel();
     }
 }

@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.download.DownloadModel;
 import com.thinkparity.ophelia.model.install.InstallModel;
-import com.thinkparity.ophelia.model.release.ReleaseModel;
+import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 
 /**
  *
@@ -54,9 +54,9 @@ public class UpdateHelper {
         super();
         this.logger = platform.getLogger(getClass());
         this.platform = platform;
-        this.dModel = platform.getModelFactory().getDownload(getClass());
+        this.dModel = platform.getModelFactory().getDownloadModel(getClass());
         this.iModel = platform.getModelFactory().getInstall(getClass());
-        this.rModel = platform.getModelFactory().getRelease(getClass());
+        this.rModel = platform.getModelFactory().getReleaseModel(getClass());
     }
 
     /**

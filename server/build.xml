@@ -15,7 +15,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/messenger lib/smack lib/smackx lib/xdoclet lib/xstream"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/messenger lib/smack lib/smackx lib/xdoclet lib/xstream"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
@@ -32,11 +32,11 @@
     <property name="vendor.dir" value="${basedir}/vendor"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
     <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>   
+    <property name="vendor.xstream.lib" value="${vendor.dir}/xstream/1.1.2/xstream.jar"/>   
 
     <!-- classpath -->
     <path id="project.classpath">
         <pathelement location="${target.classes.dir}/common/codebase"/>
-        <pathelement location="${target.classes.dir}/common/migrator"/>
         <pathelement location="${target.classes.dir}/common/model"/>
         <pathelement location="${target.classes.dir}/local/model"/>
 		<pathelement location="${target.classes.dir}/remote/codebase"/>
@@ -141,10 +141,6 @@
             <fileset dir="common/junitx/src/main/java">
                 <include name="**/*.java"/>
             </fileset>
-            <!-- common/migrator -->   
-            <fileset dir="common/migrator/src/main/java">
-                <include name="**/*.java"/>
-            </fileset>
             <!-- common/model -->   
             <fileset dir="common/model/src/main/java">
                 <include name="**/*.java"/>
@@ -194,11 +190,6 @@
         <!-- common/codebase -->
         <javac srcdir="common/codebase/src/main/java"
                 destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
-            <classpath refid="project.classpath"/>
-        </javac>
-        <!-- common/migrator -->
-        <javac srcdir="common/migrator/src/main/java"
-                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
         </javac>
         <!-- common/model -->
@@ -302,7 +293,6 @@ Examples:
 	<target name="init">
         <!-- target/classes/* -->
         <mkdir dir="${target.classes.dir}/common/codebase"/>
-        <mkdir dir="${target.classes.dir}/common/migrator"/>
         <mkdir dir="${target.classes.dir}/common/model"/>
         <mkdir dir="${target.classes.dir}/common/xdoclet"/>
         <mkdir dir="${target.classes.dir}/local/model"/>
@@ -411,6 +401,7 @@ Examples:
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
+            <fileset file="${vendor.xstream.lib}"/>
         </copy>
         <!-- local/model -->
         <jar destfile="${target.release.plugin.dir}/lib/model-ophelia.jar">
@@ -424,12 +415,11 @@ Examples:
             </manifest>
             <fileset dir="${target.classes.dir}/remote/model"/>
         </jar>
-        <!-- common/codebase:common/migrator:common/model:remote/codebase -->
+        <!-- common/codebase:common/model:remote/codebase -->
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
             <manifest>
             </manifest>
             <fileset dir="${target.classes.dir}/common/codebase"/>
-            <fileset dir="${target.classes.dir}/common/migrator"/>
             <fileset dir="${target.classes.dir}/common/model"/>
             <fileset dir="${target.classes.dir}/remote/codebase"/>
         </jar>

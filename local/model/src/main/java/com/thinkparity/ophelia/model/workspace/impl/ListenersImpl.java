@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.model.util.EventListener;
  */
 class ListenersImpl {
 
-    private final Map<AbstractModelImpl, List<EventListener>> listeners;
+    private final Map<Class<? extends AbstractModelImpl>, List<EventListener>> listeners;
 
     /**
      * Create ListenersImpl.
@@ -29,7 +29,7 @@ class ListenersImpl {
      */
     ListenersImpl(final WorkspaceImpl workspace) {
         super();
-        this.listeners = new HashMap<AbstractModelImpl, List<EventListener>>();
+        this.listeners = new HashMap<Class<? extends AbstractModelImpl>, List<EventListener>>();
     }
 
     /**
@@ -46,13 +46,13 @@ class ListenersImpl {
     <T extends EventListener> boolean add(final AbstractModelImpl impl,
             final T listener) {
         final List<EventListener> listeners;
-        if (this.listeners.containsKey(impl)) {
-            listeners = this.listeners.get(impl);
+        if (this.listeners.containsKey(impl.getClass())) {
+            listeners = this.listeners.get(impl.getClass());
         } else {
             listeners = new ArrayList<EventListener>();
         }
         final boolean modified = listeners.add(listener);
-        this.listeners.put(impl, listeners);
+        this.listeners.put(impl.getClass(), listeners);
         return modified;
     }
 
@@ -66,9 +66,9 @@ class ListenersImpl {
     @SuppressWarnings("unchecked")
     <T extends EventListener> List<T> get(final AbstractModelImpl impl) {
         final List<T> listeners;
-        if (this.listeners.containsKey(impl)) {
+        if (this.listeners.containsKey(impl.getClass())) {
             listeners = new ArrayList<T>();
-            for (final EventListener listener : this.listeners.get(impl)) {
+            for (final EventListener listener : this.listeners.get(impl.getClass())) {
                 listeners.add((T) listener);
             }
         } else {
@@ -89,12 +89,14 @@ class ListenersImpl {
     <T extends EventListener> boolean remove(final AbstractModelImpl impl,
             final T listener) {
         final List<EventListener> listeners;
-        if (this.listeners.containsKey(impl)) {
-            listeners = this.listeners.get(impl);
+        if (this.listeners.containsKey(impl.getClass())) {
+            listeners = this.listeners.get(impl.getClass());
         } else {
             return false;
         }
-        return listeners.remove(listener);
+        final boolean modified = listeners.remove(listener);
+        this.listeners.put(impl.getClass(), listeners);
+        return modified;
     }
 
     /**

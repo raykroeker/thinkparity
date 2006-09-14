@@ -13,9 +13,6 @@ import java.io.File;
  */
 public final class Constants {
 
-    public static final class VCardFields {
-        public static final String TITLE = "TITLE";
-    }
     public static final class Compression {
         public static final Integer NONE = 0;
     }
@@ -23,13 +20,12 @@ public final class Constants {
         public static final String SERVER_HOST = System.getProperty("parity.serverhost");
         public static final Integer SERVER_PORT = Integer.getInteger("parity.serverport");
     }
-
-
     public static final class Directories {
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
         public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);
         public static final File INSTALL = new File(System.getProperty("parity.install"));
     }
+
 
     public static final class DirectoryNames {
         public static final String BIN = "bin";
@@ -57,6 +53,9 @@ public final class Constants {
         public static final class Workspace {
             public static final class Data {
                 public static final String DB = "db";
+            }
+            public static final class Logging {
+                public static final String LOGFILE = "thinkParity.log";
             }
         }
     }
@@ -119,6 +118,10 @@ public final class Constants {
 
     public static final class ThreadNames {
         public static final String SHUTDOWN_HOOK = "thinkParity Shutdown Hook";
+    }
+
+    public static final class VCardFields {
+        public static final String TITLE = "TITLE";
     }
 
     public static final class Versioning {
@@ -221,10 +224,10 @@ public final class Constants {
         }
         public static final class EventHandler {
             public static final class Artifact {
-                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:artifact:teammemberadded";
-                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:artifact:teammemberremoved";
                 public static final String DRAFT_CREATED = Service.NAMESPACE + "artifact:draftcreated";
                 public static final String DRAFT_DELETED = Service.NAMESPACE + "artifact:draftdeleted";
+                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:artifact:teammemberadded";
+                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:artifact:teammemberremoved";
             }
         }
 

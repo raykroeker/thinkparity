@@ -22,6 +22,7 @@ import com.thinkparity.codebase.assertion.Assertion;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
+import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.util.EventListener;
@@ -153,14 +154,14 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getIndexDirectory()
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }
+    }            
 
     /**
      * Obtain the model's event listeners.
@@ -173,7 +174,15 @@ public class WorkspaceImpl implements Workspace {
             final AbstractModelImpl<T> impl) {
         return listenersImpl.get(impl);
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getLogFile()
+     */
+    public File getLogFile() {
+        final File loggingDirectory = initChild(DirectoryNames.Workspace.LOG);
+        return new File(loggingDirectory, FileNames.Workspace.Logging.LOGFILE);
+    }
+
     /**
      * Obtain the workspace name.
      * 

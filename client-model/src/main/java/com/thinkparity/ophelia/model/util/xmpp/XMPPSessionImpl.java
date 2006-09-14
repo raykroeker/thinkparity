@@ -111,11 +111,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		this.xmppContact = new XMPPContact(this);
         this.xmppProfile = new XMPPProfile(this);
 		this.xmppUser = new XMPPUser(this);
-		XMPPConnection.addConnectionListener(new ConnectionEstablishedListener() {
-			public void connectionEstablished(final XMPPConnection connection) {
-				handleConnectionEstablished(connection);
-			}
-		});
 	}
 
 	/**
@@ -402,6 +397,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			xmppUser.addEventHandlers();
             xmppConnection.login(
                     credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
+            handleConnectionEstablished();
 		} catch (final XMPPException xmppx) {
 			logger.error("login(String,Integer,String,String)", xmppx);
 			throw XMPPErrorTranslator.translate(xmppx);
@@ -727,14 +723,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @param xmppConnection
 	 *            <code>org.jivesoftware.smack.XMPPConnection</code>
 	 */
-	private void handleConnectionEstablished(final XMPPConnection xmppConnection) {
-        if (null != this.xmppConnection && this.xmppConnection.equals(xmppConnection)) {
-            notifyListeners(new EventNotifier<SessionListener>() {
-                public void notifyListener(final SessionListener listener) {
-                    listener.sessionEstablished();
-                }
-            });
-        }
+	private void handleConnectionEstablished() {
+        notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionEstablished();
+            }
+        });
 	}
 
     /**

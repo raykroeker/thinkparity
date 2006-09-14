@@ -36,7 +36,7 @@ public interface Workspace {
      */
     public File createTempFile(final String suffix) throws IOException;
 
-	/**
+    /**
      * Obtain the data directory.
      * 
      * @return The data directory <code>File</code>.
@@ -49,6 +49,13 @@ public interface Workspace {
 	 * @return The index directory <code>File</code.
 	 */
 	public File getIndexDirectory();
+
+	/**
+     * Obtain the log file for the workspace.
+     * 
+     * @return A log <code>File</code>.
+     */
+    public File getLogFile();
 
     /**
      * Obtain the preferences for the workspace.

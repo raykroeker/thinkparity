@@ -63,7 +63,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            The cause of the termination.
      * 
      */
-    public void handleSessionTerminated(final Exception cause) {
+    void handleSessionTerminated(final Exception cause) {
         logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
@@ -366,6 +366,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *
      */
     void handleSessionEstablished() {
+        logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionEstablished();
@@ -876,6 +877,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                             "CANNOT MATCH USER CREDENTIALS",
                             storedCredentials.equals(credentials));
                 }
+                // register with xmpp event listeners
+                new SessionModelEventDispatcher(workspace, internalModelFactory, xmppSession);
+
                 // login
                 xmppSession.login(environment, credentials);
 
@@ -884,10 +888,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     createCredentials(
                             credentials.getUsername(), credentials.getPassword());
                 }
-
-                // register with xmpp event listeners
-                new SessionModelEventDispatcher(workspace, internalModelFactory, xmppSession);
-                
                 xmppSession.processOfflineQueue();
             }
         } catch(final Throwable t) {

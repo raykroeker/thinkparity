@@ -1617,6 +1617,13 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 readVersion(containerId, versionId),
                 readDocumentVersionStreams(containerId, versionId),
                 shareWith, localUserId(), currentDateTime());
+
+        final InternalUserModel userModel = getInternalUserModel();
+        final List<User> shareWithUsers = new ArrayList<User>(shareWith.size());
+        for (final JabberId shareWithId : shareWith) {
+            shareWithUsers.add(userModel.readLazyCreate(shareWithId));
+        }
+        containerIO.createSharedWith(containerId, versionId, shareWithUsers);
     }
 
     /**

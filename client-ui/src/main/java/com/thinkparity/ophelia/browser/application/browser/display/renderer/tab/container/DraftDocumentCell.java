@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -121,14 +122,14 @@ public class DraftDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
      */
     public ImageIcon getNodeIconSelected() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**

@@ -267,15 +267,8 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-
-        final Data addDocumentData = new Data(1);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getContainerId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
         
         if(connection == Connection.ONLINE) {
-            jPopupMenu.addSeparator();
-            
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
@@ -283,9 +276,17 @@ public class DraftCell extends ContainerDraft implements TabCell  {
             final Data deleteData = new Data(1);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
+            
+            jPopupMenu.addSeparator();
         }
-        jPopupMenu.addSeparator();
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
+        
+        final Data addDocumentData = new Data(2);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getContainerId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));       
+        jPopupMenu.addSeparator();       
+        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_DRAFT, Data.emptyData()));
         final Data printData = new Data(1);
         printData.set(PrintDraft.DataKey.CONTAINER_ID, getContainerId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));

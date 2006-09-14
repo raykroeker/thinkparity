@@ -36,8 +36,8 @@ public final class BrowserConstants {
         /** COLOR The colour of the separator for the cells in the main list. */
         public static final Color MAIN_CELL_DEFAULT_BORDER1 = new Color(207, 207, 207, 255);
 
-        /** Darker colour used as a separator. */
-        public static final Color MAIN_CELL_DEFAULT_BORDER_GROUP = new Color(150, 150, 150, 255);
+        /** The colour used as a separator between groups. */
+        public static final Color MAIN_CELL_DEFAULT_BORDER_GROUP = new Color(207, 207, 207, 255);
     }
 
     /** Browser Fonts */

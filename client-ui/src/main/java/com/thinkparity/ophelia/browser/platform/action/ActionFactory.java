@@ -93,6 +93,9 @@ public class ActionFactory extends AbstractFactory {
 		case CONTAINER_ADD_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(browser);
             break;
+        case CONTAINER_ARCHIVE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(browser);
+            break;    
 		case CONTAINER_CREATE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Create(browser);
             break;
@@ -108,6 +111,12 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_EXPORT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Export(browser);
             break;
+        case CONTAINER_EXPORT_DRAFT:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ExportDraft(browser);
+            break;
+        case CONTAINER_EXPORT_VERSION:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ExportVersion(browser);
+            break;            
         case CONTAINER_PRINT_DRAFT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.PrintDraft(browser);
             break;
@@ -120,16 +129,24 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_REMOVE_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument(browser);
             break;
+        case CONTAINER_RENAME:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Rename(browser);
+            break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(browser);
             break;
         case CONTAINER_SHARE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Share(browser);
             break;
+        case CONTAINER_SUBSCRIBE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Subscribe(browser);
+            break;
         case CONTAINER_UNDELETE_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument(browser);
             break;
-
+        case CONTAINER_UNSUBSCRIBE:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.Unsubscribe(browser);
+            break;
 		case DOCUMENT_OPEN:
             action = new com.thinkparity.ophelia.browser.platform.action.document.Open(browser);
             break;

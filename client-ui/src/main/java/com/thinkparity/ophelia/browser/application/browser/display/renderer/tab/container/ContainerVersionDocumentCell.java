@@ -14,18 +14,19 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
-
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.document.Open;
+import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.document.PrintVersion;
 import com.thinkparity.ophelia.model.document.Document;
 
 /**
@@ -104,14 +105,14 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
      */
     public ImageIcon getNodeIconSelected() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**
@@ -205,12 +206,17 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
             final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
-        final Data openData = new Data(1);
-        openData.set(Open.DataKey.DOCUMENT_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
-//        final Data printData = new Data(2);
-//        printData.set(PrintVersion.DataKey.DOCUMENT_ID, getId());
-//        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_VERSION, printData));
+        final Data openData = new Data(2);
+        openData.set(OpenVersion.DataKey.DOCUMENT_ID, getId());
+        openData.set(OpenVersion.DataKey.VERSION_ID, ((ContainerVersionCell)getParent()).getVersionId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN_VERSION, openData));
+        
+        jPopupMenu.addSeparator();
+        
+        final Data printData = new Data(2);
+        printData.set(PrintVersion.DataKey.DOCUMENT_ID, getId());
+        openData.set(PrintVersion.DataKey.VERSION_ID, ((ContainerVersionCell)getParent()).getVersionId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_VERSION, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
 }

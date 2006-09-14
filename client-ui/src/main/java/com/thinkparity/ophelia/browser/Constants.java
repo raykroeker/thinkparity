@@ -29,9 +29,9 @@ public final class Constants {
         public static final class Swing {
             public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
             public static final Color LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(205, 206, 206, 255);
+            public static final Color MENU_SELECTION_BG = new Color(231, 238, 248, 255);
             public static final Color MENU_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(205, 206, 206, 255);
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(231, 238, 248, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
         }
         public static final class Browser {
@@ -133,7 +133,7 @@ public final class Constants {
     public static final class InsetFactors {
         public static final Float LEVEL_0 = 1.0F;
         public static final Float LEVEL_1 = 3.0F;
-        public static final Float LEVEL_2 = LEVEL_1 * 2;
+        public static final Float LEVEL_2 = 5.0F;
     }
 
     /** Java constants. */

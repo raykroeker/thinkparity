@@ -249,11 +249,14 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         if (Connection.ONLINE == connection) {
-            final Data shareData = new Data(1);
+            final Data shareData = new Data(2);
             shareData.set(Share.DataKey.CONTAINER_ID, getArtifactId());
             shareData.set(Share.DataKey.VERSION_ID, getVersionId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));        
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));    
+            jPopupMenu.addSeparator();
         }
+        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_VERSION, Data.emptyData()));
         final Data printData = new Data(2);
         printData.set(PrintVersion.DataKey.CONTAINER_ID, getArtifactId());
         printData.set(PrintVersion.DataKey.VERSION_ID, getVersionId());

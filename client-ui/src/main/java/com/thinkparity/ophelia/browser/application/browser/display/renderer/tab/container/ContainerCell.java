@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -42,8 +43,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
 import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
+import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -63,6 +68,7 @@ public class ContainerCell extends Container implements TabCell  {
     
     /** The border insets for the top of the container cell. */
     private static final Insets BORDER_TOP_INSETS;
+    private static final Insets BORDER_GROUP_TOP_INSETS;
 
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -74,10 +80,11 @@ public class ContainerCell extends Container implements TabCell  {
     private static final Integer TEXT_MAX_LENGTH;
     
     static {
-        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right     
+        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right  
+        BORDER_GROUP_TOP_INSETS = new Insets(3,0,0,0);
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
-        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, BORDER_TOP_INSETS);
+        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, BORDER_GROUP_TOP_INSETS);
 
         TEXT_FG = Color.BLACK;
         TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
@@ -348,16 +355,67 @@ public class ContainerCell extends Container implements TabCell  {
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-
-        if (!isDraft()) {
-            final Data createDraftData = new Data(1);
-            createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));        
+        
+        if(connection == Connection.ONLINE) {
+            Boolean needSeparator = Boolean.FALSE;
+            if (isDraft() && isLocalDraft()) {
+                final Data publishData = new Data(1);
+                publishData.set(Publish.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
+                
+                final Data deleteData = new Data(1);
+                deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
+                needSeparator = Boolean.TRUE;
+            }
+            
+            if (!isDraft()) {
+                final Data createDraftData = new Data(1);
+                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));  
+                needSeparator = Boolean.TRUE;
+            } 
+            
+            if (needSeparator) {
+                jPopupMenu.addSeparator(); 
+            }
+        }               
+        
+        if (isDraft() && isLocalDraft()) {
+            final Data addDocumentData = new Data(2);
+            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getId());
+            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));            
+            jPopupMenu.addSeparator();
         }
-
+        
+        if(connection == Connection.ONLINE) {
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SUBSCRIBE, Data.emptyData()));
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_UNSUBSCRIBE, Data.emptyData()));
+            jPopupMenu.addSeparator();
+        }
+        
+        // TODO should only be here if never published
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_RENAME, Data.emptyData()));       
+        if(connection == Connection.ONLINE) {
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ARCHIVE, Data.emptyData()));
+        }              
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));
+        
+        jPopupMenu.addSeparator();
+        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
+        if (isDraft() && isLocalDraft()) {
+            final Data printData = new Data(1);
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
+        } else {
+            final Data printData = new Data(1);
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_VERSION, printData));
+        }
 
         // include the container's id and unique id in the menu
         if(e.isShiftDown()) {

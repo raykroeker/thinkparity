@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.browser.platform.action.document;
 
 
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -39,9 +41,9 @@ public class OpenVersion extends AbstractAction {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
 		getDocumentModel().openVersion(documentId, versionId);
-		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(documentId, Boolean.FALSE);
+        // Flag the document as having been seen
+        browser.runApplyFlagSeenArtifact(documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**

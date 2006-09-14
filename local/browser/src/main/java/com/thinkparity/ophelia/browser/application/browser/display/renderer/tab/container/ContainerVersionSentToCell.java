@@ -1,70 +1,42 @@
-/*
- * Created On: Aug 3, 2006 6:42:00 PM
+/**
+ * Created On: 13-Sep-06 4:09:05 PM
+ * $Id$
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
-
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.Share;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
-import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
-
-
 /**
- * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @author rob_masako@shaw.ca
+ * @version $Revision$
  */
-public class ContainerVersionCell extends ContainerVersion implements TabCell {
-
-    /** The border for the bottom of the container cell. */
-    private static final Border BORDER_BOTTOM;
-
-    /** The border for the top of the container cell. */
-    private static final Border BORDER_TOP;
-    
-    /** The border insets for the top of the container cell. */
-    private static final Insets BORDER_TOP_INSETS;
-    
+public class ContainerVersionSentToCell implements TabCell {
+       
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
-    static {
-        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right 
-        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP = new TopBorder(Color.WHITE, BORDER_TOP_INSETS);
-        
+    static {      
         TEXT_FG = Color.BLACK;
     }
 
-    /** The container cell. */
-    private final ContainerCell container;
+    /** The document's version. */
+    private final ContainerVersionCell version;
 
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
@@ -74,34 +46,13 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
     
     /** The draft cell localization. */
     private final MainCellL18n localization; 
-    
-    /** A popup item factory. */
-    private final PopupItemFactory popupItemFactory;
 
-    /** Create MainCellContainerVersion. */
-    public ContainerVersionCell(final ContainerCell container,
-            final ContainerVersion containerVersion) {
-        super();
-        this.setArtifactId(containerVersion.getArtifactId());
-        this.setArtifactType(containerVersion.getArtifactType());
-        this.setArtifactUniqueId(containerVersion.getArtifactUniqueId());
-        this.setCreatedBy(containerVersion.getCreatedBy());
-        this.setCreatedOn(containerVersion.getCreatedOn());
-        this.setName(containerVersion.getName());
-        this.setUpdatedBy(containerVersion.getUpdatedBy());
-        this.setUpdatedOn(containerVersion.getUpdatedOn());
-        this.setVersionId(containerVersion.getVersionId());
-        this.container = container;
+    /** Create ContainerVersionSentToCell. */
+    public ContainerVersionSentToCell(final ContainerVersionCell version) {      
+        this.version = version;
         this.imageCache = new MainCellImageCache();
-        this.localization = new MainCellL18n("MainCellContainerVersion");
-        this.popupItemFactory = PopupItemFactory.getInstance();
+        this.localization = new MainCellL18n("MainCellContainerVersionSentTo");
     }
-
-    /**
-     * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
-     * 
-     */
-    public boolean equals(final Object obj) { return super.equals(obj); }
 
     /**
      * Obtain the background image for a cell.
@@ -128,11 +79,7 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      * 
      */
     public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
-        if (lastCell) {
-            return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
-        } else {
-            return BORDER_TOP;
-        }
+        return getParent().getBorder(index, isFirstInGroup, lastCell);
     }
 
     /**
@@ -164,7 +111,7 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      * 
      */
     public TabCell getParent() {
-        return container;
+        return version;
     }
 
     /**
@@ -172,7 +119,8 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      * 
      */
     public String getText() {
-        return localization.getString("Text", new Object[] {getVersionId()});
+        final Integer number = 5;
+        return localization.getString("Text", new Object[] {number});
     }
     
     /**
@@ -200,7 +148,7 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      * 
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_1;
+        return InsetFactors.LEVEL_2;
     }
 
     /**
@@ -246,21 +194,6 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      */
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e) {
-        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-
-        if (Connection.ONLINE == connection) {
-            final Data shareData = new Data(2);
-            shareData.set(Share.DataKey.CONTAINER_ID, getArtifactId());
-            shareData.set(Share.DataKey.VERSION_ID, getVersionId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));    
-            jPopupMenu.addSeparator();
-        }
-        
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_VERSION, Data.emptyData()));
-        final Data printData = new Data(2);
-        printData.set(PrintVersion.DataKey.CONTAINER_ID, getArtifactId());
-        printData.set(PrintVersion.DataKey.VERSION_ID, getVersionId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_VERSION, printData));
-        jPopupMenu.show(invoker, e.getX(), e.getY());
+        // No popup.
     }
 }

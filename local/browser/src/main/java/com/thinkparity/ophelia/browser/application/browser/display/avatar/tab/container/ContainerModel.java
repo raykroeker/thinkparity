@@ -27,6 +27,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -81,6 +82,9 @@ public class ContainerModel extends TabModel {
 
     /** A map of the container version to the draft documents. */
     private final Map<ContainerVersionCell, List<ContainerVersionDocumentCell>> versionDocumentCells;
+    
+    /** A map of the container version to the "sent to" cell. */
+    private final Map<ContainerVersionCell, ContainerVersionSentToCell> versionSentToCells;
 
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
@@ -100,6 +104,7 @@ public class ContainerModel extends TabModel {
         this.listModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
         this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
+        this.versionSentToCells = new HashMap<ContainerVersionCell, ContainerVersionSentToCell>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
     }
 
@@ -181,9 +186,11 @@ public class ContainerModel extends TabModel {
      */
     public Long getDocumentId(final ContainerCell cellContainer, final String name) {
         final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(cellContainer);
-        for(final DraftDocumentCell draftDocument : draftDocuments) {
-            if(draftDocument.getName().equals(name)) {
-                return draftDocument.getId();
+        if (null!=draftDocuments) {
+            for(final DraftDocumentCell draftDocument : draftDocuments) {
+                if(draftDocument.getName().equals(name)) {
+                    return draftDocument.getId();
+                }
             }
         }
         return null;
@@ -199,11 +206,18 @@ public class ContainerModel extends TabModel {
      */
     public List<String> getDocumentNames(final ContainerCell cellContainer) {
         final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(cellContainer);
-        final List<String> l = new ArrayList<String>(draftDocuments.size());
-        for (final DraftDocumentCell draftDocument : draftDocuments) {
-            l.add(draftDocument.getName());
+        if (null!=draftDocuments) {
+            final List<String> l = new ArrayList<String>(draftDocuments.size());
+            for (final DraftDocumentCell draftDocument : draftDocuments) {
+                l.add(draftDocument.getName());
+            }
+            return l;
         }
-        return l;
+        else {
+            // return empty list
+            final List<String> l = new ArrayList<String>(1);
+            return l;
+        }
     }
 
     /**
@@ -234,6 +248,9 @@ public class ContainerModel extends TabModel {
         }
         else if (mainCell instanceof ContainerVersionCell) {
             return ((ContainerVersionCell) mainCell).isExpanded();
+        }
+        else if (mainCell instanceof ContainerVersionSentToCell) {
+            return ((ContainerVersionSentToCell) mainCell).isExpanded();
         }
         else {
             return Boolean.FALSE;
@@ -287,7 +304,9 @@ public class ContainerModel extends TabModel {
         draftCells.clear();
         versionCells.clear();
         draftDocumentCells.clear();
+        versionSentToCells.clear();       
         versionDocumentCells.clear();
+
         for(final ContainerCell container : containerCells) {
             if (container.isDraft() && container.isLocalDraft()) {
                 final DraftCell draft = readDraft(container);
@@ -301,6 +320,9 @@ public class ContainerModel extends TabModel {
             final List<ContainerVersionCell> versions = readVersions(container);
             versionCells.put(container, versions);
             for(final ContainerVersionCell version : versions) {
+                final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
+                versionSentToCells.put(version, sentTo);
+                
                 final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
                 for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
                     containerIdLookup.put(versionDocument.getId(), container.getId());
@@ -370,6 +392,11 @@ public class ContainerModel extends TabModel {
                     for (final ContainerVersionCell cv : containerVersions) {
                         visibleCells.add(cv);
                         if (cv.isExpanded()) {
+                            // add "sent to" node
+                            final ContainerVersionSentToCell sentTo = versionSentToCells.get(cv);
+                            if (null != sentTo) {
+                                visibleCells.add(sentTo);
+                            }                           
                             // add version documents
                             final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(cv);
                             if (null != versionDocuments) {
@@ -480,11 +507,16 @@ public class ContainerModel extends TabModel {
         else if (tabCell instanceof ContainerVersionCell) {
             triggerExpand(tabCell);
         }
+        else if (tabCell instanceof ContainerVersionSentToCell) {
+            triggerExpand(tabCell);
+        }
         else if (tabCell instanceof DraftDocumentCell) {
             final DraftDocumentCell draftDocument = (DraftDocumentCell) tabCell;
             browser.runOpenDocument(draftDocument.getId());
         }
         else if (tabCell instanceof ContainerVersionDocumentCell) {
+            final ContainerVersionDocumentCell versionDocument = (ContainerVersionDocumentCell) tabCell;
+            browser.runOpenDocumentVersion(versionDocument.getId(), ((ContainerVersionCell)versionDocument.getParent()).getVersionId());            
         }
     }
 
@@ -507,6 +539,10 @@ public class ContainerModel extends TabModel {
         }
         else if (mainCell instanceof ContainerVersionCell) {
             final ContainerVersionCell cell = (ContainerVersionCell) mainCell;
+            triggerExpand(mainCell, !isExpanded(cell));            
+        }
+        else if (mainCell instanceof ContainerVersionSentToCell) {
+            final ContainerVersionSentToCell cell = (ContainerVersionSentToCell) mainCell;
             triggerExpand(mainCell, !isExpanded(cell));            
         }
     }
@@ -546,7 +582,14 @@ public class ContainerModel extends TabModel {
                 cell.setExpanded(expand);
                 synchronize();
             }              
-        }        
+        } 
+        else if (mainCell instanceof ContainerVersionSentToCell) {
+            final ContainerVersionSentToCell cell = (ContainerVersionSentToCell) mainCell;
+            if (isExpanded(cell) != expand) {
+                cell.setExpanded(expand);
+                synchronize();
+            }              
+        } 
     }
 
     /**
@@ -741,9 +784,11 @@ public class ContainerModel extends TabModel {
         
         // Remove the draft cell and associated document cells
         final DraftCell containerDraft = draftCells.get(container);
-        draftDocumentCells.remove(containerDraft);
-        draftCells.remove(container);
-        
+        if (null!=containerDraft) {
+            draftDocumentCells.remove(containerDraft);
+            draftCells.remove(container);
+        }
+      
         // Add the draft and associated document cells
         if (container.isDraft() && container.isLocalDraft()) {
             final DraftCell draft = readDraft(container);
@@ -769,13 +814,21 @@ public class ContainerModel extends TabModel {
         
         // Remove the version cells and associated document cells
         final List<ContainerVersionCell> containerVersions = versionCells.get(container);
-        versionDocumentCells.remove(containerVersions);
-        versionCells.remove(container);
+        if (null!=containerVersions) {
+            for(final ContainerVersionCell containerVersion : containerVersions) {
+                versionSentToCells.remove(containerVersion);
+                versionDocumentCells.remove(containerVersion);
+            }
+            versionCells.remove(container);
+        }
         
         // Add the versions and associated document cells
         final List<ContainerVersionCell> versions = readVersions(container);
         versionCells.put(container, versions);
         for(final ContainerVersionCell version : versions) {
+            final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
+            versionSentToCells.put(version, sentTo);
+            
             final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
             for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
                 containerIdLookup.put(versionDocument.getId(), container.getId());

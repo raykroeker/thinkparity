@@ -31,12 +31,12 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel" name="searchPanel">
+    <Component class="com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel" name="searchPanel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="searchPanel.setMainTitleAvatar(this);"/>
       </AuxValues>
     </Component>
-    <Component class="com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarTabPanel" name="tabPanel">
+    <Component class="com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel" name="tabPanel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tabPanel.setMainTitleAvatar(this);"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>

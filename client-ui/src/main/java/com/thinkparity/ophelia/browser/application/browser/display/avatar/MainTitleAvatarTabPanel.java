@@ -208,9 +208,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(contactsJLabel, gridBagConstraints);
 
         nameJLabel.setFont(Fonts.DefaultFontBold);
-        nameJLabel.setMaximumSize(new java.awt.Dimension(100, 18));
-        nameJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
-        nameJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -218,7 +215,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 2, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 2, 0);
         add(nameJLabel, gridBagConstraints);
 
         fillJLabel.setFont(Fonts.DefaultFontBold);

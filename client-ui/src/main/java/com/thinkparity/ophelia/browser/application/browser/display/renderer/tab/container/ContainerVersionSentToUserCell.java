@@ -54,6 +54,9 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
     
     /** The user's parent cell. */
     private final ContainerVersionSentToCell versionSentTo;
+    
+    /** The user's parent version (grandparent cell). */
+    private final ContainerVersionCell version;
 
     /** Create ContainerVersionSentToCell. */
     public ContainerVersionSentToUserCell(final ContainerVersionSentToCell versionSentTo, final User user) { 
@@ -66,13 +69,20 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
         this.imageCache = new MainCellImageCache();        
         this.popupItemFactory = PopupItemFactory.getInstance();
         this.versionSentTo = versionSentTo;
+        this.version = (ContainerVersionCell) versionSentTo.getParent();
     }
     
     /**
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
-    public boolean equals(final Object obj) { return super.equals(obj); }
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerVersionSentToUserCell) {           
+            return ((ContainerVersionSentToUserCell) obj).getId().equals(getId()) &&
+                ((ContainerVersionSentToUserCell) obj).version.equals(version);
+        }
+        return false;
+    }
 
     /**
      * Obtain the background image for a cell.
@@ -124,16 +134,39 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
     public TabCell getParent() {
         return versionSentTo;
     }
+    
+    /**
+     * Get the text for the cell.
+     * 
+     * @return A string.
+     */
+    public String getFullText() {
+        String text = new String(getName());
+        if (isSetTitle() || isSetOrganization()) {
+            text += "  (";
+            if (isSetTitle()) {
+                text += getTitle();
+                if (isSetOrganization()) {
+                    text += ", ";
+                }
+            }
+            if (isSetOrganization()) {
+                text += getOrganization();
+            }
+            text += ")";
+        }
+        return text;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
      * 
      */
     public String getText() {
-        if(TEXT_MAX_LENGTH < getName().length()) {
-            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+        if(TEXT_MAX_LENGTH < getFullText().length()) {
+            return getFullText().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
         }
-        else { return getName(); }
+        else { return getFullText(); }
     }
     
     /**
@@ -169,7 +202,7 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
      * 
      */
     public String getToolTip() {
-        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
+        if(TEXT_MAX_LENGTH < getFullText().length()) { return getFullText(); }
         else { return null; }
     }
     

@@ -312,7 +312,13 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
         if (1 == e.getClickCount()) {
-            // first; we grab the index of the list item of the event
+            if (e.getButton()==MouseEvent.BUTTON1) {
+                if (isMouseEventWithinCell(e)) { 
+                    triggerExpand(getSelectedCell());
+                }
+            }
+            
+/*            // first; we grab the index of the list item of the event
             // second; we grab the bounds of the list item's icon
             // third; we check to see that the icon was clicked and if it was
             //      we trigger expand.           
@@ -329,7 +335,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
                 if(SwingUtil.regionContains(iconBounds, p)) {                            
                     triggerExpand(tabCell);
                 }
-          }
+            }*/
         } else if (2 == e.getClickCount()) {
             if (isMouseEventWithinCell(e)) {  
                 triggerDoubleClick(getSelectedCell());

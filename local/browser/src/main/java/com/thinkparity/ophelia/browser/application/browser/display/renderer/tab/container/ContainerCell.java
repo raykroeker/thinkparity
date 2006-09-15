@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
@@ -201,11 +202,7 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public ImageIcon getNodeIcon() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_DEFAULT);
-        }
+        return null;
     }
 
     /**
@@ -213,11 +210,7 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public ImageIcon getNodeIconSelected() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT);
-        }
+        return null;
     }
 
     /**

@@ -30,7 +30,7 @@ public class TabCellRenderer extends AbstractJPanel implements
     private static final long serialVersionUID = 1;
 
     /** The padding label's left inset. */
-    private static final int PADDING_INSET_LEFT = 12;
+    private static final int PADDING_INSET_LEFT = 10;
 
     /** The cell background image. */
     private BufferedImage background;

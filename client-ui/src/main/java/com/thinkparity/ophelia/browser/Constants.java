@@ -75,7 +75,7 @@ public final class Constants {
                 public static final Integer TITLE_HEIGHT = 48;
                 public static final Integer STATUS_HEIGHT = 34;
             }
-            public static final Dimension MIN_SIZE = new Dimension(200, 200);
+            public static final Dimension MIN_SIZE = new Dimension(400, 200);
             public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
         }
     }

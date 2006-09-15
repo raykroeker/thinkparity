@@ -125,13 +125,22 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JLabel fillJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
+        javax.swing.JLabel nameJLabel1;
 
+        nameJLabel1 = new javax.swing.JLabel();
         containersJLabel = new javax.swing.JLabel();
+        archiveJLabel = new javax.swing.JLabel();
         contactsJLabel = new javax.swing.JLabel();
 
-        archiveJLabel = new javax.swing.JLabel();
         nameJLabel = new javax.swing.JLabel();
+        fillJLabel = new javax.swing.JLabel();
+
+        nameJLabel1.setFont(Fonts.DefaultFontBold);
+        nameJLabel1.setMaximumSize(new java.awt.Dimension(100, 18));
+        nameJLabel1.setMinimumSize(new java.awt.Dimension(100, 18));
+        nameJLabel1.setPreferredSize(new java.awt.Dimension(100, 18));
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -139,70 +148,90 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTabSelected.png")));
         containersJLabel.setMaximumSize(new java.awt.Dimension(78, 20));
         containersJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                containersJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseClicked(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                containersJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                containersJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseExited(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(containersJLabel, gridBagConstraints);
 
-        contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
-        contactsJLabel.setMaximumSize(new java.awt.Dimension(78, 18));
-        contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                contactsJLabelMouseClicked(e);
+        archiveJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ArchiveTab.png")));
+        archiveJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                archiveJLabelMouseClicked(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                contactsJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                archiveJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                contactsJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                archiveJLabelMouseExited(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        add(contactsJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+        add(archiveJLabel, gridBagConstraints);
 
-        archiveJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ArchiveTab.png")));
-        archiveJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                archiveJLabelMouseClicked(e);
+        contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
+        contactsJLabel.setMaximumSize(new java.awt.Dimension(78, 18));
+        contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseClicked(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                archiveJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                archiveJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseExited(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        add(archiveJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+        add(contactsJLabel, gridBagConstraints);
 
         nameJLabel.setFont(Fonts.DefaultFontBold);
+        nameJLabel.setMaximumSize(new java.awt.Dimension(100, 18));
+        nameJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
+        nameJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 1, 2, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 2, 0);
         add(nameJLabel, gridBagConstraints);
+
+        fillJLabel.setFont(Fonts.DefaultFontBold);
+        fillJLabel.setMaximumSize(new java.awt.Dimension(100, 18));
+        fillJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
+        fillJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        add(fillJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 

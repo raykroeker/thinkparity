@@ -180,7 +180,7 @@ public class ContainerVersionCell extends ContainerVersion implements TabCell {
      * 
      */
     public String getSecondaryText() {
-        return null;
+        return "Publish Person";
     }
 
     /**

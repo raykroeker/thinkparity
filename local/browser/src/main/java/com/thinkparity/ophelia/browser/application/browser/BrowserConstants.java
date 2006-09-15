@@ -57,14 +57,6 @@ public final class BrowserConstants {
         /** The small font. */
         public static final Font SmallFont =
             new Font(FONT_NAME, Font.PLAIN, 10);
-        
-        /** The large font. */
-        public static final Font LargeFont =
-            new Font(FONT_NAME, Font.PLAIN, 13);
-        
-        /** The large bold font. */
-        public static final Font LargeFontBold =
-            new Font(FONT_NAME, Font.BOLD, 13);
 
         /** The status bar font. */
         public static final Font StatusBar =

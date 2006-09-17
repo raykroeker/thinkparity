@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Vector;
 
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;

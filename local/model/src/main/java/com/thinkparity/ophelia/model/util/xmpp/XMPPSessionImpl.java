@@ -26,6 +26,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
@@ -33,7 +34,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Jabber;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smack.SmackException;

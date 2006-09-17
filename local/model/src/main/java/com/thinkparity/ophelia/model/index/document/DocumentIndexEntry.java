@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.model.index.document;
 
-import com.thinkparity.ophelia.model.document.Document;
+import com.thinkparity.codebase.model.document.Document;
 
 /**
  * @author raymond@thinkparity.com

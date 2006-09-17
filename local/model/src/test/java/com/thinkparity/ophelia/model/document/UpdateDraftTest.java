@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**

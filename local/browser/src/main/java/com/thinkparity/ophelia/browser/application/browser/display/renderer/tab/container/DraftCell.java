@@ -17,6 +17,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
@@ -39,7 +40,6 @@ import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.document.Document;
 
 /**
  * @author rob_masako@shaw.ca

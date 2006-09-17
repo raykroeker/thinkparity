@@ -7,9 +7,9 @@ package com.thinkparity.ophelia.model.container;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**

@@ -22,13 +22,13 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Publish;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.PublishArtifact;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Send;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.SendArtifact;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;

@@ -4,8 +4,8 @@
 package com.thinkparity.ophelia.browser.util;
 
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.model.document.Document;
 
 /**
  * The parity object helper provides common utility functionality for the user

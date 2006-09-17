@@ -5,7 +5,8 @@ package com.thinkparity.ophelia.model.util.logging;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-import com.thinkparity.ophelia.model.document.Document;
+import com.thinkparity.codebase.model.document.Document;
+
 
 
 /**

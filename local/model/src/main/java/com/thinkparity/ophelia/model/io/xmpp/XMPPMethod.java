@@ -33,13 +33,13 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
-import com.thinkparity.ophelia.model.document.DocumentVersionContent;
 
 /**
  * <b>Title:</b>thinkParity XMPP Method<br>

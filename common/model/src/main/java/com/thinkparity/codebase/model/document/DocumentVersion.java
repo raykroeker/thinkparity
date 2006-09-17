@@ -2,7 +2,7 @@
  * Created On: Apr 16, 2005
  * $Id$
  */
-package com.thinkparity.ophelia.model.document;
+package com.thinkparity.codebase.model.document;
 
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 

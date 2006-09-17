@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.model.document;
 
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.events.DocumentEvent;

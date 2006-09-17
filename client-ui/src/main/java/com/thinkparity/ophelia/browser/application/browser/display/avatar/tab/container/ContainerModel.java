@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
@@ -26,7 +27,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Comp
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.*;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 

@@ -8,9 +8,9 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.index.contact.ContactIndexImpl;
 import com.thinkparity.ophelia.model.index.container.ContainerIndexImpl;
 import com.thinkparity.ophelia.model.index.document.DocumentIndexEntry;

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.document;
 
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 

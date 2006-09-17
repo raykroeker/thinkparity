@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.thinkparity.ophelia.model.document.Document;
-import com.thinkparity.ophelia.model.document.DocumentContent;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
-import com.thinkparity.ophelia.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentContent;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.document.DocumentVersionContent;
+
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
@@ -187,7 +188,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#create(com.thinkparity.ophelia.model.document.Document)
+     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#create(com.thinkparity.codebase.model.document.Document)
      * 
      */
 	public void create(final Document document) throws HypersonicException {
@@ -210,8 +211,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.ophelia.model.document.DocumentVersion,
-     *      com.thinkparity.ophelia.model.document.DocumentVersionContent)
+     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.codebase.model.document.DocumentVersion,
+     *      com.thinkparity.codebase.model.document.DocumentVersionContent)
      * 
      */
 	public void createVersion(final DocumentVersion version,
@@ -468,7 +469,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
     }
 
 	/**
-	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#update(com.thinkparity.ophelia.model.document.Document)
+	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#update(com.thinkparity.codebase.model.document.Document)
 	 */
 	public void update(final Document document) {
 		logger.warn("Update is misleading.  Only name, state, timestamp and flag information is being set.");
@@ -495,7 +496,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 
     
     /**
-	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#updateContent(com.thinkparity.ophelia.model.document.DocumentContent)
+	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#updateContent(com.thinkparity.codebase.model.document.DocumentContent)
 	 */
 	public void updateContent(final DocumentContent content) {
 		final Session session = openSession();
@@ -517,7 +518,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    /** @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#updateVersion(com.thinkparity.ophelia.model.document.DocumentVersion) */
+    /** @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#updateVersion(com.thinkparity.codebase.model.document.DocumentVersion) */
     public void updateVersion(final DocumentVersion documentVersion) throws HypersonicException {
         final Session session = openSession();
         try {

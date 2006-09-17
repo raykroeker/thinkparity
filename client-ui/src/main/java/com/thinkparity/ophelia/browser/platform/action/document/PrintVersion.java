@@ -8,6 +8,9 @@ import java.io.File;
 
 import org.jdesktop.jdic.desktop.DesktopException;
 
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
 
 
 
@@ -16,9 +19,7 @@ import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.util.Printer;
 
 /**

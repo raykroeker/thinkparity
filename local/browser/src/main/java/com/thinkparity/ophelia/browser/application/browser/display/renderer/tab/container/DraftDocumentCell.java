@@ -13,6 +13,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.model.document.Document;
+
 
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
@@ -33,7 +35,6 @@ import com.thinkparity.ophelia.browser.platform.action.document.PrintDraft;
 import com.thinkparity.ophelia.browser.platform.action.document.Rename;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
-import com.thinkparity.ophelia.model.document.Document;
 
 /**
  * @author rob_masako@shaw.ca, raykroeker@gmail.com

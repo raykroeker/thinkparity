@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
 
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**

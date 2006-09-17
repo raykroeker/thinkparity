@@ -1,9 +1,7 @@
 /*
  * Nov 2, 2005
  */
-package com.thinkparity.ophelia.model.document;
-
-
+package com.thinkparity.codebase.model.document;
 
 /**
  * @author raykroeker@gmail.com

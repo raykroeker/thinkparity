@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.thinkparity.codebase.model.document.Document;
+
 
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -16,7 +18,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 
 /**

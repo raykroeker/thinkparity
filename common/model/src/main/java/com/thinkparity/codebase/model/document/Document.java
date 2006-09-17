@@ -1,7 +1,7 @@
 /*
  * Feb 27, 2005
  */
-package com.thinkparity.ophelia.model.document;
+package com.thinkparity.codebase.model.document;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -10,7 +10,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-
 
 /**
  * The document is the parity object that started the revolution. It is used as

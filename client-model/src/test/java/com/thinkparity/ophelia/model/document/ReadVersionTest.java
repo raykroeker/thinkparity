@@ -6,6 +6,9 @@ package com.thinkparity.ophelia.model.document;
 import java.io.File;
 import java.util.Vector;
 
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**

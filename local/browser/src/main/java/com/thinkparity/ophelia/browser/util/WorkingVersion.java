@@ -4,7 +4,8 @@
 package com.thinkparity.ophelia.browser.util;
 
 
-import com.thinkparity.ophelia.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 /**

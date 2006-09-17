@@ -5,8 +5,8 @@ package com.thinkparity.ophelia.browser.util;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.model.document.DocumentVersion;
 
 /**
  * Utility methods that operate on the parity version objects.

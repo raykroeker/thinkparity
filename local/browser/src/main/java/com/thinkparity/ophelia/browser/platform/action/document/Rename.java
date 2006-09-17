@@ -5,11 +5,12 @@
 package com.thinkparity.ophelia.browser.platform.action.document;
 
 
+import com.thinkparity.codebase.model.document.Document;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.document.Document;
 
 /**
  * Rename is run when the user rename's an artifact.

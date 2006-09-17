@@ -199,7 +199,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 * @see ComparatorBuilder
 	 * @see #listVersions(Long, Comparator)
 	 */
-	public List<DocumentVersion> listVersions(final Long documentId) {
+	public List<DocumentVersion> readVersions(final Long documentId) {
 		synchronized(getImplLock()) { return getImpl().listVersions(documentId); }
 	}
 
@@ -215,7 +215,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 * 
 	 * @see ComparatorBuilder
 	 */
-	public Collection<DocumentVersion> listVersions(final Long documentId,
+	public Collection<DocumentVersion> readVersions(final Long documentId,
 			final Comparator<ArtifactVersion> comparator) {
 		synchronized(getImplLock()) {
 			return getImpl().listVersions(documentId, comparator);

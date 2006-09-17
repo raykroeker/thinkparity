@@ -44,7 +44,7 @@ public class CreateTest extends DocumentTestCase {
             document = datum.documentModel.create(datum.name, datum.content);
 
             assertNotNull(NAME, document);
-            versions = datum.documentModel.listVersions(document.getId());
+            versions = datum.documentModel.readVersions(document.getId());
             assertEquals(NAME + "[VERSIONS SHOULD NOT EXIST]", 0, versions.size());
         }
 	}

@@ -42,7 +42,7 @@ public class ReadVersionsTest extends DocumentTestCase {
 			Collection<DocumentVersion> versions;
 			for(Fixture datum : data) {
 				versions =
-					datum.documentModel.listVersions(datum.document.getId());
+					datum.documentModel.readVersions(datum.document.getId());
 
 				// ensure the list is the correct size
 				assertNotNull(versions);
@@ -60,7 +60,7 @@ public class ReadVersionsTest extends DocumentTestCase {
 				final Comparator<ArtifactVersion> descendingVersionId =
 					new ComparatorBuilder().createVersionById(Boolean.FALSE);
 				versions =
-					datum.documentModel.listVersions(datum.document.getId(), descendingVersionId);
+					datum.documentModel.readVersions(datum.document.getId(), descendingVersionId);
 
 				// ensure the list is the correct size
 				assertNotNull(versions);

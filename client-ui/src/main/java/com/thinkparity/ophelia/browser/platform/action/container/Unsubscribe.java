@@ -17,9 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class Unsubscribe extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
- 
     /**
      * Create Unsubscribe.
      * 
@@ -28,7 +25,6 @@ public class Unsubscribe extends AbstractAction {
      */
     public Unsubscribe(final Browser browser) {
         super(ActionId.CONTAINER_UNSUBSCRIBE);
-        this.browser = browser;
     }
 
     /**

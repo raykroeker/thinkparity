@@ -17,9 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class Subscribe extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
-    
     /**
      * Create Subscribe.
      * 
@@ -28,7 +25,6 @@ public class Subscribe extends AbstractAction {
      */
     public Subscribe(final Browser browser) {
         super(ActionId.CONTAINER_SUBSCRIBE);
-        this.browser = browser;
     }
 
     /**

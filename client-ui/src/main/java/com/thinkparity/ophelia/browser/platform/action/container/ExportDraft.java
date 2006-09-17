@@ -17,9 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class ExportDraft extends AbstractAction  {
     
-    /** The browser application. */
-    private final Browser browser;
-    
     /**
      * Create ExportDraft.
      * 
@@ -28,7 +25,6 @@ public class ExportDraft extends AbstractAction  {
      */
     public ExportDraft(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT_DRAFT);
-        this.browser = browser;
     }
 
     /**

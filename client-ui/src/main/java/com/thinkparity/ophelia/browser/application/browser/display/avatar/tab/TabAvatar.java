@@ -4,15 +4,12 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import javax.swing.TransferHandler;
 
 import com.thinkparity.codebase.swing.SwingUtil;
-
 
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -28,12 +25,6 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @version 1.1.2.1
  */
 public abstract class TabAvatar<T extends TabModel> extends Avatar {
-
-    /** The relative location of the "hot" zone in each cell. */
-    private static final Point CELL_NODE_LOCATION = new Point(10, 2);
-
-    /** The size of the "hot" zone in each cell. */
-    private static final Dimension CELL_NODE_SIZE = new Dimension(20, 20);
 
     /** A menu item factory. */
     protected final PopupItemFactory menuItemFactory;
@@ -317,25 +308,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
                     triggerExpand(getSelectedCell());
                 }
             }
-            
-/*            // first; we grab the index of the list item of the event
-            // second; we grab the bounds of the list item's icon
-            // third; we check to see that the icon was clicked and if it was
-            //      we trigger expand.           
-            final Point p = e.getPoint();
-            final Integer listIndex = tabJList.locationToIndex(p);
-            final Integer selectedIndex = tabJList.getSelectedIndex();
-            if (selectedIndex != -1 && listIndex == selectedIndex) {
-                final TabCell tabCell = getSelectedCell();
-                final Rectangle iconBounds = tabJList.getCellBounds(listIndex, listIndex);
-                iconBounds.x += CELL_NODE_LOCATION.x * tabCell.getTextInsetFactor();
-                iconBounds.y += CELL_NODE_LOCATION.y;
-                iconBounds.width = CELL_NODE_SIZE.width;
-                iconBounds.height = CELL_NODE_SIZE.height;
-                if(SwingUtil.regionContains(iconBounds, p)) {                            
-                    triggerExpand(tabCell);
-                }
-            }*/
         } else if (2 == e.getClickCount()) {
             if (isMouseEventWithinCell(e)) {  
                 triggerDoubleClick(getSelectedCell());

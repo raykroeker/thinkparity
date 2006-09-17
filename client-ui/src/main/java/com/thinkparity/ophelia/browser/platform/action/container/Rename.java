@@ -17,9 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class Rename  extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
- 
     /**
      * Create Unsubscribe.
      * 
@@ -28,7 +25,6 @@ public class Rename  extends AbstractAction {
      */
     public Rename(final Browser browser) {
         super(ActionId.CONTAINER_RENAME);
-        this.browser = browser;
     }
 
     /**

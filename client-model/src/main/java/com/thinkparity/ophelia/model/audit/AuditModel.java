@@ -4,15 +4,16 @@
 package com.thinkparity.ophelia.model.audit;
 
 
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class AuditModel extends AbstractModel {
+public class AuditModel extends AbstractModel<AuditModelImpl> {
 
 	/**
 	 * Obtain an internal audit model.
@@ -40,40 +41,12 @@ public class AuditModel extends AbstractModel {
 	}
 
 	/**
-	 * The implementation.
-	 * 
-	 */
-	private final AuditModelImpl impl;
-
-	/**
-	 * The implementation synchrnization lock.
-	 * 
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a AuditModel.
 	 * 
 	 * @param workspace
 	 *            The parity workspace.
 	 */
 	protected AuditModel(final Workspace workspace) {
-		super();
-		this.impl = new AuditModelImpl(workspace);
-		this.implLock = new Object();
+		super(new AuditModelImpl(workspace));
 	}
-
-	/**
-	 * Obtain the implementation.
-	 * 
-	 * @return The implementation.
-	 */
-	protected AuditModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the implementation lock.
-	 * 
-	 * @return The implementation lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

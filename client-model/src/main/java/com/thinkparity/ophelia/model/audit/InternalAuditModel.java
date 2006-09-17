@@ -6,8 +6,8 @@ package com.thinkparity.ophelia.model.audit;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.*;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -28,7 +28,6 @@ public class InternalAuditModel extends AuditModel {
 	 */
 	InternalAuditModel(final Workspace workspace, final Context context) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 
     public void audit(final AddTeamMemberEvent event,

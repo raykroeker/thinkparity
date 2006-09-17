@@ -9,9 +9,10 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -23,7 +24,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version $Revision$
  */
-public class ContactModel {
+public class ContactModel extends AbstractModel<ContactModelImpl> {
 
     /**
 	 * Create a Contact interface.
@@ -50,12 +51,6 @@ public class ContactModel {
 		return new ContactModel(workspace);
 	}
 
-    /** The model implementation. */
-	private final ContactModelImpl impl;
-
-    /** The model implementation synchronization lock. */
-	private final Object implLock;
-
     /**
 	 * Create ContactModel.
 	 *
@@ -63,9 +58,7 @@ public class ContactModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ContactModel(final Workspace workspace) {
-		super();
-		this.impl = new ContactModelImpl(workspace);
-		this.implLock = new Object();
+		super(new ContactModelImpl(workspace));
 	}
 
 	/**
@@ -100,7 +93,7 @@ public class ContactModel {
      * @return The new contact invitation.
      */
     public OutgoingInvitation createOutgoingInvitation(final EMail email) {
-        synchronized(implLock) { return impl.createOutgoingInvitation(email); }
+        synchronized(getImplLock()) { return getImpl().createOutgoingInvitation(email); }
     }
 
 	/**
@@ -123,7 +116,7 @@ public class ContactModel {
      * @return A contact.
      */
     public void delete(final JabberId contactId) {
-        synchronized(implLock) { impl.delete(contactId); }
+        synchronized(getImplLock()) { getImpl().delete(contactId); }
     }
 
 	/**
@@ -152,7 +145,7 @@ public class ContactModel {
      * @return A list of contacts.
      */
     public List<Contact> read() {
-        synchronized(implLock) { return impl.read(); }
+        synchronized(getImplLock()) { return getImpl().read(); }
     }
 
     /**
@@ -163,7 +156,7 @@ public class ContactModel {
      * @return A list of contacts.
      */
     public List<Contact> read(final Comparator<Contact> comparator) {
-        synchronized(implLock) { return impl.read(comparator); }
+        synchronized(getImplLock()) { return getImpl().read(comparator); }
     }
 
     /**
@@ -177,7 +170,7 @@ public class ContactModel {
      */
     public List<Contact> read(final Comparator<Contact> comparator,
             final Filter<? super Contact> filter) {
-        synchronized(implLock) { return impl.read(comparator, filter); }
+        synchronized(getImplLock()) { return getImpl().read(comparator, filter); }
     }
 
     /**
@@ -188,7 +181,7 @@ public class ContactModel {
      * @return A list of contacts.
      */
     public List<Contact> read(final Filter<Contact> filter) {
-        synchronized(implLock) { return impl.read(filter); }
+        synchronized(getImplLock()) { return getImpl().read(filter); }
     }
 
     /**
@@ -199,7 +192,7 @@ public class ContactModel {
      * @return A contact.
      */
     public Contact read(final JabberId contactId) {
-        synchronized(implLock) { return impl.read(contactId); }
+        synchronized(getImplLock()) { return getImpl().read(contactId); }
     }
 
     /**
@@ -350,18 +343,4 @@ public class ContactModel {
             return getImpl().search(expression);
         }
     }
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ContactModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

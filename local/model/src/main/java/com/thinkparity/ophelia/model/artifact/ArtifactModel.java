@@ -8,11 +8,11 @@ import java.util.Set;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -20,7 +20,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ArtifactModel extends AbstractModel {
+public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 
 	/**
 	 * Obtain an internal artifact model.
@@ -48,25 +48,11 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
-	 * The implementation.
-	 * 
-	 */
-	private final ArtifactModelImpl impl;
-
-	/**
-	 * The implementation syncrhonization lock.
-	 * 
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a ArtifactModel.
 	 * 
 	 */
 	protected ArtifactModel(final Workspace workspace) {
-		super();
-		this.impl = new ArtifactModelImpl(workspace);
-		this.implLock = new Object();
+		super(new ArtifactModelImpl(workspace));
 	}
 
 	/**
@@ -76,7 +62,7 @@ public class ArtifactModel extends AbstractModel {
 	 *            The artifact id.
 	 */
 	public void applyFlagSeen(final Long artifactId) {
-		synchronized(implLock) { impl.applyFlagSeen(artifactId); }
+		synchronized(getImplLock()) { getImpl().applyFlagSeen(artifactId); }
 	}
 
 	/**
@@ -87,7 +73,7 @@ public class ArtifactModel extends AbstractModel {
 	 * @return True if the artifact has been seen; false otherwise.
 	 */
 	public Boolean hasBeenSeen(final Long artifactId) {
-		synchronized(implLock) { return impl.hasBeenSeen(artifactId); }
+		synchronized(getImplLock()) { return getImpl().hasBeenSeen(artifactId); }
 	}
 
 	/**
@@ -100,7 +86,7 @@ public class ArtifactModel extends AbstractModel {
 	 * @return True if the flag is applied; false otherwise.
 	 */
 	public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
-		synchronized(implLock) { return impl.isFlagApplied(artifactId, flag); }
+		synchronized(getImplLock()) { return getImpl().isFlagApplied(artifactId, flag); }
 	}
 
     /**
@@ -144,20 +130,6 @@ public class ArtifactModel extends AbstractModel {
 	 *            The artifact id.
 	 */
 	public void removeFlagSeen(final Long artifactId) {
-		synchronized(implLock) { impl.removeFlagSeen(artifactId); }
+		synchronized(getImplLock()) { getImpl().removeFlagSeen(artifactId); }
 	}
-
-    /**
-	 * Obtain the implemenatation.
-	 * 
-	 * @return The implementation.
-	 */
-	protected ArtifactModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the implementation synchronization lock.
-	 * 
-	 * @return The implementation synchronization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

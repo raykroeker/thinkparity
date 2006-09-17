@@ -5,13 +5,13 @@ package com.thinkparity.ophelia.model.session;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.3.2.25
  */
-public class SessionModel extends AbstractModel {
+public class SessionModel extends AbstractModel<SessionModelImpl> {
 
 	/**
 	 * Obtain an internal interface to the session model.
@@ -50,22 +50,10 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Instance implementation.
-	 */
-	private final SessionModelImpl impl;
-
-	/**
-	 * Synchronization lock for impl.
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a SessionModel
 	 */
 	protected SessionModel(final Workspace workspace) {
-		super();
-		this.impl = new SessionModelImpl(workspace);
-		this.implLock = new Object();
+		super(new SessionModelImpl(workspace));
 	}
 
 	/**
@@ -75,7 +63,7 @@ public class SessionModel extends AbstractModel {
 	 *            The session listener to add.
 	 */
 	public void addListener(final SessionListener sessionListener) {
-		synchronized(implLock) { impl.addListener(sessionListener); }
+		synchronized(getImplLock()) { getImpl().addListener(sessionListener); }
 	}
 
 	/**
@@ -89,7 +77,7 @@ public class SessionModel extends AbstractModel {
 	 * @throws ParityException
 	 */
 	public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-		synchronized(implLock) { impl.declineInvitation(invitedAs, invitedBy); }
+		synchronized(getImplLock()) { getImpl().declineInvitation(invitedAs, invitedBy); }
 	}
 
 	/**
@@ -97,7 +85,7 @@ public class SessionModel extends AbstractModel {
 	 * @return Boolean
 	 */
 	public Boolean isLoggedIn() {
-		synchronized(implLock) { return impl.isLoggedIn(); }
+		synchronized(getImplLock()) { return getImpl().isLoggedIn(); }
 	}
 
     /**
@@ -107,7 +95,7 @@ public class SessionModel extends AbstractModel {
      * @throws ParityException
      */
     public void login() {
-        synchronized(implLock) { impl.login(); }
+        synchronized(getImplLock()) { getImpl().login(); }
     }
 
 	/**
@@ -119,7 +107,7 @@ public class SessionModel extends AbstractModel {
 	 * @throws ParityException
 	 */
 	public void login(final Credentials credentials) {
-		synchronized(implLock) { impl.login(credentials); }
+		synchronized(getImplLock()) { getImpl().login(credentials); }
 	}
 
 	/**
@@ -127,7 +115,7 @@ public class SessionModel extends AbstractModel {
 	 * @throws ParityException
 	 */
 	public void logout() {
-		synchronized(implLock) { impl.logout(); }
+		synchronized(getImplLock()) { getImpl().logout(); }
 	}
 
 	/**
@@ -137,7 +125,7 @@ public class SessionModel extends AbstractModel {
      * @throws ParityException
      */
     public Session readSession() {
-        synchronized(implLock) { return impl.readSession(); }
+        synchronized(getImplLock()) { return getImpl().readSession(); }
     }
 
 	/**
@@ -147,7 +135,7 @@ public class SessionModel extends AbstractModel {
 	 *            The registered session listener to remove.
 	 */
 	public void removeListener(final SessionListener sessionListener) {
-		synchronized(implLock) { impl.removeListener(sessionListener); }
+		synchronized(getImplLock()) { getImpl().removeListener(sessionListener); }
 	}
 
     /**
@@ -157,7 +145,7 @@ public class SessionModel extends AbstractModel {
 	 * @throws ParityException
 	 */
 	public void sendLogFileArchive() throws ParityException {
-		synchronized(implLock) { impl.sendLogFileArchive(); }
+		synchronized(getImplLock()) { getImpl().sendLogFileArchive(); }
 	}
 
 	/**
@@ -167,20 +155,6 @@ public class SessionModel extends AbstractModel {
      *            The user's contact info.
      */
     public void updateContact(final Contact contact) {
-        synchronized(implLock) { impl.updateContact(contact); }
+        synchronized(getImplLock()) { getImpl().updateContact(contact); }
     }
-
-    /**
-	 * Obtain the session model implementation.
-	 * 
-	 * @return The session model implementation.
-	 */
-	protected SessionModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the session model implementation lock.
-	 * 
-	 * @return The session model implemenation synchronization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

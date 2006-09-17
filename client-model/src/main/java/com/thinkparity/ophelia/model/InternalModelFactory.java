@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model;
 
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.AuditModel;

@@ -5,10 +5,10 @@
 package com.thinkparity.ophelia.model.download;
 
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Release;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -18,7 +18,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class DownloadModel extends AbstractModel {
+public class DownloadModel extends AbstractModel<DownloadModelImpl> {
 
     /**
      * Obtain the parity bootstrap internal download interface.
@@ -43,17 +43,9 @@ public class DownloadModel extends AbstractModel {
         return new DownloadModel(workspace);
     }
 
-    /** The parity bootstrap download interface. */
-    private final DownloadModelImpl impl;
-
-    /** The parity bootstrap download implementation synchronization lock. */
-    private final Object implLock;
-
     /** Create DownloadModel. */
     protected DownloadModel(final Workspace workspace) {
-        super();
-        this.impl = new DownloadModelImpl(workspace);
-        this.implLock = new Object();
+        super(new DownloadModelImpl(workspace));
     }
 
     /**
@@ -64,7 +56,7 @@ public class DownloadModel extends AbstractModel {
      * @throws ParityException
      */
     public void download(final Release release) throws ParityException {
-        synchronized(implLock) { impl.download(release); }
+        synchronized(getImplLock()) { getImpl().download(release); }
     }
 
     /**
@@ -74,20 +66,6 @@ public class DownloadModel extends AbstractModel {
      *         otherwise.
      */
     public Boolean isComplete(final Release release) throws ParityException {
-        synchronized(implLock) { return impl.isComplete(release); }
+        synchronized(getImplLock()) { return getImpl().isComplete(release); }
     }
-
-    /**
-     * Obtain the impl
-     *
-     * @return The DownloadModelImpl.
-     */
-    protected DownloadModelImpl getImpl() { return impl; }
-
-    /**
-     * Obtain the implLock
-     *
-     * @return The Object.
-     */
-    protected Object getImplLock() { return implLock; }
 }

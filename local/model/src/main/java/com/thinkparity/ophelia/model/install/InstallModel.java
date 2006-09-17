@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class InstallModel extends AbstractModel {
+public class InstallModel extends AbstractModel<InstallModelImpl> {
 
     /**
      * Obtain the parity install interface.
@@ -26,12 +26,6 @@ public class InstallModel extends AbstractModel {
         return new InstallModel(workspace);
     }
 
-    /** The parity install implementation. */
-    private final InstallModelImpl impl;
-
-    /** The parity install implementation synchronization lock. */
-    private final Object implLock;
-
     /**
      * Create InstallModel.
      * 
@@ -39,9 +33,7 @@ public class InstallModel extends AbstractModel {
      *            The parity workspace.
      */
     protected InstallModel(final Workspace workspace) {
-        super();
-        this.impl = new InstallModelImpl(workspace);
-        this.implLock = new Object();
+        super(new InstallModelImpl(workspace));
     }
 
     /**
@@ -51,6 +43,6 @@ public class InstallModel extends AbstractModel {
      *            A release.
      */
     public void install(final Release release) throws ParityException {
-        synchronized(implLock) { impl.install(release); }
+        synchronized (getImplLock()) { getImpl().install(release); }
     }
 }

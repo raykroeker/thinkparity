@@ -21,6 +21,8 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.TestContext;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -594,8 +596,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 
     protected InternalArtifactModel getArtifactModel(
             final OpheliaTestUser testUser) {
-        return ArtifactModel.getInternalModel(new Context(getClass()),
-                testUser.getWorkspace());
+        return ArtifactModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
@@ -603,11 +604,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     protected InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
-        return ContainerModel.getInternalModel(new Context(getClass()), testUser.getWorkspace());
+        return ContainerModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     protected InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
-        return DocumentModel.getInternalModel(new Context(getClass()), testUser.getWorkspace());
+        return DocumentModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     /**
@@ -635,11 +636,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	}
 
     protected InternalLibraryModel getLibraryModel(final Workspace workspace) {
-        return LibraryModel.getInternalModel(new Context(getClass()), workspace);
+        return LibraryModel.getInternalModel(context, workspace);
     }
 
     protected InternalSystemMessageModel getMessageModel(final Workspace workspace) {
-        return SystemMessageModel.getInternalModel(new Context(getClass()), workspace);
+        return SystemMessageModel.getInternalModel(context, workspace);
     }
 
     protected File[] getModFiles() throws IOException {
@@ -650,25 +651,21 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 
     protected InternalProfileModel getProfileModel(
             final OpheliaTestUser testUser) {
-        return ProfileModel.getInternalModel(new Context(getClass()),
-                testUser.getWorkspace());
+        return ProfileModel.getInternalModel(context, testUser.getWorkspace());
     }
 
 	protected InternalReleaseModel getReleaseModel(
             final OpheliaTestUser testUser) {
-        return ReleaseModel.getInternalModel(new Context(getClass()),
-                testUser.getWorkspace());
+        return ReleaseModel.getInternalModel(context, testUser.getWorkspace());
     }
 
 	protected InternalSessionModel getSessionModel(
             final OpheliaTestUser testUser) {
-        return SessionModel.getInternalModel(new Context(getClass()),
-                testUser.getWorkspace());
+        return SessionModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
-        return UserModel.getInternalModel(new Context(getClass()),
-                testUser.getWorkspace());
+        return UserModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     /**
@@ -837,7 +834,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected void setUp() throws Exception {
         super.setUp();
-        this.context = new Context(ModelTestCase.class);
+        this.context = TestContext.CONTEXT;
 	}
 
     /**

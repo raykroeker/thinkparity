@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model;
 
 import java.io.IOException;
 
+import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 
@@ -78,7 +79,6 @@ public class ParityErrorTranslator {
      */
     public static ParityUncheckedException translateUnchecked(
             final Context context, final Object errorId, final Throwable t) {
-        context.assertContextIsValid();
         return singleton.doTranslateUnchecked(errorId, t);
     }
 

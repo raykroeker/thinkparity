@@ -10,9 +10,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.util.Printer;
@@ -27,7 +28,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.5.2.43
  */
-public class DocumentModel {
+public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 
     /**
 	 * Obtain a handle to an internal document model.
@@ -56,22 +57,10 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Internal implementation class.
-	 */
-	private final DocumentModelImpl impl;
-
-	/**
-	 * Synchronization lock for the implementation class.
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a DocumentModel [Singleton]
 	 */
 	protected DocumentModel(final Workspace workspace) {
-		super();
-		this.impl = new DocumentModelImpl(workspace);
-		this.implLock = new Object();
+		super(new DocumentModelImpl(workspace));
 	}
 
 	/**
@@ -82,7 +71,7 @@ public class DocumentModel {
      *      The document listener.
      */
 	public void addListener(final DocumentListener l) {
-		synchronized(implLock) { impl.addListener(l); }
+		synchronized(getImplLock()) { getImpl().addListener(l); }
 	}
 
     /**
@@ -138,8 +127,8 @@ public class DocumentModel {
 	 * @return The newly created version.
 	 */
 	public DocumentVersion createVersion(final Long documentId) {
-		synchronized(implLock) {
-			return impl.createVersion(documentId);
+		synchronized(getImplLock()) {
+			return getImpl().createVersion(documentId);
 		}
 	}
 
@@ -151,7 +140,7 @@ public class DocumentModel {
 	 * @return The document.
 	 */
 	public Document get(final Long documentId) {
-		synchronized(implLock) { return impl.read(documentId); }
+		synchronized(getImplLock()) { return getImpl().read(documentId); }
 	}
 
     /**
@@ -165,7 +154,7 @@ public class DocumentModel {
 	 */
 	public DocumentVersion getVersion(final Long documentId,
 			final Long versionId) {
-		synchronized(implLock) { return impl.readVersion(documentId, versionId); }
+		synchronized(getImplLock()) { return getImpl().readVersion(documentId, versionId); }
 	}
 
 	/**
@@ -179,8 +168,8 @@ public class DocumentModel {
 	 */
 	public DocumentVersionContent getVersionContent(final Long documentId,
 			final Long versionId) {
-		synchronized(implLock) {
-			return impl.getVersionContent(documentId, versionId);
+		synchronized(getImplLock()) {
+			return getImpl().getVersionContent(documentId, versionId);
 		}
 	}
 
@@ -193,7 +182,7 @@ public class DocumentModel {
      * @return True if the draft of the document has been modified.
      */
     public Boolean isDraftModified(final Long documentId) {
-        synchronized(implLock) { return impl.isDraftModified(documentId); }
+        synchronized(getImplLock()) { return getImpl().isDraftModified(documentId); }
     }
 
     /**
@@ -208,7 +197,7 @@ public class DocumentModel {
 	 * @see #listVersions(Long, Comparator)
 	 */
 	public List<DocumentVersion> listVersions(final Long documentId) {
-		synchronized(implLock) { return impl.listVersions(documentId); }
+		synchronized(getImplLock()) { return getImpl().listVersions(documentId); }
 	}
 
 	/**
@@ -225,8 +214,8 @@ public class DocumentModel {
 	 */
 	public Collection<DocumentVersion> listVersions(final Long documentId,
 			final Comparator<ArtifactVersion> comparator) {
-		synchronized(implLock) {
-			return impl.listVersions(documentId, comparator);
+		synchronized(getImplLock()) {
+			return getImpl().listVersions(documentId, comparator);
 		}
 	}
 
@@ -237,7 +226,7 @@ public class DocumentModel {
 	 *            The document unique id.
 	 */
 	public void open(final Long documentId) {
-		synchronized(implLock) { impl.open(documentId); }
+		synchronized(getImplLock()) { getImpl().open(documentId); }
 	}
 
 	/**
@@ -249,7 +238,7 @@ public class DocumentModel {
 	 *            The version to open.
 	 */
 	public void openVersion(final Long documentId, final Long versionId) {
-		synchronized(implLock) { impl.openVersion(documentId, versionId); }
+		synchronized(getImplLock()) { getImpl().openVersion(documentId, versionId); }
 	}
 
 	/**
@@ -291,7 +280,7 @@ public class DocumentModel {
 	 * @return A list of a history items.
 	 */
 	public List<DocumentHistoryItem> readHistory(final Long documentId) {
-		synchronized(implLock) { return impl.readHistory(documentId); }
+		synchronized(getImplLock()) { return getImpl().readHistory(documentId); }
 	}
 
     /**
@@ -305,8 +294,8 @@ public class DocumentModel {
 	 */
 	public List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<HistoryItem> comparator) {
-		synchronized(implLock) {
-			return impl.readHistory(documentId, comparator);
+		synchronized(getImplLock()) {
+			return getImpl().readHistory(documentId, comparator);
 		}
 	}
 
@@ -324,8 +313,8 @@ public class DocumentModel {
     public List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<HistoryItem> comparator,
             final Filter<? super HistoryItem> filter) {
-        synchronized(implLock) {
-            return impl.readHistory(documentId, comparator, filter);
+        synchronized(getImplLock()) {
+            return getImpl().readHistory(documentId, comparator, filter);
         }
     }
 
@@ -340,7 +329,7 @@ public class DocumentModel {
      */
     public List<DocumentHistoryItem> readHistory(final Long documentId,
             final Filter<? super HistoryItem> filter) {
-        synchronized(implLock) { return impl.readHistory(documentId, filter); }
+        synchronized(getImplLock()) { return getImpl().readHistory(documentId, filter); }
     }
 
     /**
@@ -351,8 +340,8 @@ public class DocumentModel {
      * @return The latest document version.
      */
     public DocumentVersion readLatestVersion(final Long documentId) {
-        synchronized(implLock) {
-            return impl.readLatestVersion(documentId);
+        synchronized(getImplLock()) {
+            return getImpl().readLatestVersion(documentId);
         }
     }
 
@@ -363,7 +352,7 @@ public class DocumentModel {
 	 *        The document listener.
 	 */
 	public void removeListener(final DocumentListener l) {
-		synchronized(implLock) { impl.removeListener(l); }
+		synchronized(getImplLock()) { getImpl().removeListener(l); }
 	}
 
 	/**
@@ -375,7 +364,7 @@ public class DocumentModel {
      *      A document name.
      */
     public void rename(final Long documentId, final String documentName) {
-        synchronized(implLock) { impl.rename(documentId, documentName); }
+        synchronized(getImplLock()) { getImpl().rename(documentId, documentName); }
     }
 
     /**
@@ -387,22 +376,8 @@ public class DocumentModel {
      *            The new content.
      */
     public void updateDraft(final Long documentId, final InputStream content) {
-        synchronized(implLock) {
-            impl.updateDraft(documentId, content);
+        synchronized(getImplLock()) {
+            getImpl().updateDraft(documentId, content);
         }
     }
-
-    /**
-	 * Obtain the implementation.
-	 * 
-	 * @return The implementation.
-	 */
-	protected DocumentModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the implementation synchronization lock.
-	 * 
-	 * @return The implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

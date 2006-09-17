@@ -5,10 +5,10 @@
 package com.thinkparity.ophelia.model.migrator;
 
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Library;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class LibraryModel extends AbstractModel {
+public class LibraryModel extends AbstractModel<LibraryModelImpl> {
 
     /**
      * Obtain the internal parity library interface.
@@ -44,17 +44,9 @@ public class LibraryModel extends AbstractModel {
         return new LibraryModel(workspace);
     }
 
-    /** The parity bootstrap library implementation. */
-    private final LibraryModelImpl impl;
-
-    /** The parity bootstrap library implementation synchronization lock. */
-    private final Object implLock;
-
     /** Create LibraryModel. */
     protected LibraryModel(final Workspace workspace) {
-        super();
-        this.impl = new LibraryModelImpl(workspace);
-        this.implLock = new Object();
+        super(new LibraryModelImpl(workspace));
     }
 
     /**
@@ -77,8 +69,8 @@ public class LibraryModel extends AbstractModel {
     public Library create(final String artifactId, final String groupId,
             final String path, final Library.Type type, final String version,
             final byte[] bytes) {
-        synchronized(implLock) {
-            return impl.create(artifactId, groupId, path, type, version, bytes);
+        synchronized(getImplLock()) {
+            return getImpl().create(artifactId, groupId, path, type, version, bytes);
         }
     }
 
@@ -97,23 +89,8 @@ public class LibraryModel extends AbstractModel {
      */
     public Library read(final String artifactId, final String groupId,
             final Library.Type type, final String version) {
-        synchronized(implLock) {
-            return impl.read(artifactId, groupId, type, version);
+        synchronized(getImplLock()) {
+            return getImpl().read(artifactId, groupId, type, version);
         }
     }
-
-    /**
-     * Obtain parity bootstrap library implementation.
-     *
-     * @return The parity bootstrap library implementation.
-     */
-    protected LibraryModelImpl getImpl() { return impl; }
-
-    /**
-     * Obtain parity bootstrap library implementation synchronization lock.
-     * 
-     * @return The parity bootstrap library implementation synchronization lock.
-     */
-    protected Object getImplLock() { return implLock; }
-
 }

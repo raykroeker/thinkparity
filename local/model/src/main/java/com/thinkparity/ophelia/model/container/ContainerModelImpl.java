@@ -882,14 +882,6 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 publishTo.add(teamMember.getId());
             publish(version, publishTo, localUserId(), currentDateTime);
 
-            // create the publish to list
-            final InternalUserModel userModel = getInternalUserModel();
-            final List<User> publishToUsers = new ArrayList<User>();
-            for (final JabberId publishToId : publishTo) {
-                publishToUsers.add(userModel.readLazyCreate(publishToId));
-            }
-            containerIO.createPublishedTo(container.getId(), version.getVersionId(), publishToUsers);
-
             // update remote team
             final InternalSessionModel sessionModel = getInternalSessionModel();
             for (final Contact contact : contacts)
@@ -1617,13 +1609,6 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 readVersion(containerId, versionId),
                 readDocumentVersionStreams(containerId, versionId),
                 shareWith, localUserId(), currentDateTime());
-
-        final InternalUserModel userModel = getInternalUserModel();
-        final List<User> shareWithUsers = new ArrayList<User>(shareWith.size());
-        for (final JabberId shareWithId : shareWith) {
-            shareWithUsers.add(userModel.readLazyCreate(shareWithId));
-        }
-        containerIO.createSharedWith(containerId, versionId, shareWithUsers);
     }
 
     /**

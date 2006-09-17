@@ -6,9 +6,10 @@ package com.thinkparity.ophelia.model.archive;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -19,7 +20,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public class ArchiveModel {
+public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 
 	/**
 	 * Create a thinkParity Archive interface.
@@ -42,12 +43,6 @@ public class ArchiveModel {
 		return new ArchiveModel(workspace);
 	}
 
-	/** The model implementation. */
-	private final ArchiveModelImpl impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
-
 	/**
 	 * Create ArchiveModel.
 	 *
@@ -55,9 +50,7 @@ public class ArchiveModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ArchiveModel(final Workspace workspace) {
-		super();
-		this.impl = new ArchiveModelImpl(workspace);
-		this.implLock = new Object();
+		super(new ArchiveModelImpl(workspace));
 	}
 
 	public List<Artifact> read() {
@@ -84,18 +77,4 @@ public class ArchiveModel {
             return getImpl().read(filter);
         }
     }
-
-    /**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ArchiveModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

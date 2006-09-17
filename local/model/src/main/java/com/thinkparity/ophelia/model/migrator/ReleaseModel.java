@@ -6,11 +6,11 @@ package com.thinkparity.ophelia.model.migrator;
 
 import java.util.List;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class ReleaseModel extends AbstractModel {
+public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
 
     /**
      * Obtain the parity bootstrap's internal release model interface.
@@ -40,17 +40,9 @@ public class ReleaseModel extends AbstractModel {
         return new ReleaseModel(workspace);
     }
 
-    /** The implementation. */
-    private final ReleaseModelImpl impl;
-
-    /** The implementation lock. */
-    private final Object implLock;
-
     /** Create ReleaseModel. */
     protected ReleaseModel(final Workspace workspace) {
-        super();
-        this.impl = new ReleaseModelImpl(workspace);
-        this.implLock = new Object();
+        super(new ReleaseModelImpl(workspace));
     }
 
     /**
@@ -68,8 +60,8 @@ public class ReleaseModel extends AbstractModel {
      */
     public Release create(final String artifactId, final String groupId,
             final String version, final List<Library> libraries) {
-        synchronized(implLock) {
-            return impl.create(artifactId, groupId, version, libraries);
+        synchronized(getImplLock()) {
+            return getImpl().create(artifactId, groupId, version, libraries);
         }
     }
 
@@ -86,8 +78,8 @@ public class ReleaseModel extends AbstractModel {
      */
     public Release read(final String artifactId, final String groupId,
             final String version) {
-        synchronized(implLock) {
-            return impl.read(artifactId, groupId, version);
+        synchronized(getImplLock()) {
+            return getImpl().read(artifactId, groupId, version);
         }
     }
 
@@ -97,7 +89,7 @@ public class ReleaseModel extends AbstractModel {
      * @return A list of all releases.
      */
     public List<Release> readAll() {
-        synchronized(implLock) { return impl.readAll(); }
+        synchronized(getImplLock()) { return getImpl().readAll(); }
     }
 
     /**
@@ -110,8 +102,8 @@ public class ReleaseModel extends AbstractModel {
      * @return A release.
      */
     public Release readLatest(final String artifactId, final String groupId) {
-        synchronized(implLock) {
-            return impl.readLatest(artifactId, groupId);
+        synchronized(getImplLock()) {
+            return getImpl().readLatest(artifactId, groupId);
         }
     }
 
@@ -123,20 +115,6 @@ public class ReleaseModel extends AbstractModel {
      * @return A list of libraries.
      */
     public List<Library> readLibraries(final Long releaseId) {
-        synchronized(implLock) { return impl.readLibraries(releaseId); }
+        synchronized(getImplLock()) { return getImpl().readLibraries(releaseId); }
     }
-
-    /**
-     * Obtain the implementation.
-     *
-     * @return The implementation.
-     */
-    protected ReleaseModelImpl getImpl() { return impl; }
-
-    /**
-     * Obtain the implementation lock.
-     *
-     * @return The implementation lock.
-     */
-    protected Object getImplLock() { return implLock; }
 }

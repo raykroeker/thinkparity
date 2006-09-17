@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
-
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -36,7 +35,6 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
      */
     InternalContainerModel(final Workspace workspace, final Context context) {
         super(workspace);
-        context.assertContextIsValid();
     }
 
     /**

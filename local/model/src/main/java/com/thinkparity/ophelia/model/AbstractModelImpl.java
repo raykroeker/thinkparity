@@ -82,7 +82,8 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractModelImpl<T extends EventListener> {
+public abstract class AbstractModelImpl<T extends EventListener>
+    extends com.thinkparity.codebase.model.AbstractModelImpl {
 
     /**
 	 * Assertion message to be displayed if the username is not set in the
@@ -93,13 +94,6 @@ public abstract class AbstractModelImpl<T extends EventListener> {
 		.append("need to establish a parity session.").toString();
 
     /**
-	 * The session model context
-	 * 
-	 * @see #getSessionModelContext()
-	 */
-	private static Context sessionModelContext;
-
-    /**
 	 * Obtain the current date\time.
 	 * 
 	 * @return The current date\time.
@@ -108,23 +102,8 @@ public abstract class AbstractModelImpl<T extends EventListener> {
         return DateUtil.getInstance();
 	}
 
-    /**
-	 * Obtain the session model context.
-	 * 
-	 * @return The session model context.
-	 */
-	protected static Context getSessionModelContext() {
-		if(null == sessionModelContext) {
-			sessionModelContext = new Context(SessionModel.class);
-		}
-		return sessionModelContext;
-	}
-
     /** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
-
-    /** A thinkParity context. */
-	protected final Context context;
 
     /** An internal model factory. */
     protected final InternalModelFactory internalModelFactory;
@@ -158,8 +137,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
 	 */
 	protected AbstractModelImpl(final Workspace workspace) {
 		super();
-		this.context = new Context(getClass());
-        this.internalModelFactory = new InternalModelFactory(context, workspace);
+        this.internalModelFactory = new InternalModelFactory(getContext(), workspace);
 		this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = Logger.getLogger(getClass());
 		this.workspace = workspace;
@@ -552,15 +530,8 @@ public abstract class AbstractModelImpl<T extends EventListener> {
         return team.get(indexOf(team, user));
     }
 
-    /**
-	 * Obtain the model's context.
-	 * 
-	 * @return The model's context.
-	 */
-	protected Context getContext() { return context; }
-
     protected InternalIndexModel getIndexModel() {
-        return IndexModel.getInternalModel(context, workspace);
+        return IndexModel.getInternalModel(getContext(), workspace);
     }
 
     /**
@@ -569,7 +540,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity artifact interface.
      */
 	protected InternalArtifactModel getInternalArtifactModel() {
-		return ArtifactModel.getInternalModel(context, workspace);
+		return ArtifactModel.getInternalModel(getContext(), workspace);
 	}
 
     /**
@@ -578,7 +549,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity audit interface.
      */
     protected InternalAuditModel getInternalAuditModel() {
-		return AuditModel.getInternalModel(context, workspace);
+		return AuditModel.getInternalModel(getContext(), workspace);
 	}
 
     /**
@@ -587,7 +558,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal thinkParity contact interface.
      */
     protected InternalContactModel getInternalContactModel() {
-        return ContactModel.getInternalModel(context, workspace);
+        return ContactModel.getInternalModel(getContext(), workspace);
     }
 
 	/**
@@ -596,7 +567,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal thinkParity container interface.
      */
     protected InternalContainerModel getInternalContainerModel() {
-        return ContainerModel.getInternalModel(context, workspace);
+        return ContainerModel.getInternalModel(getContext(), workspace);
     }
 
     /**
@@ -605,7 +576,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
-		return DocumentModel.getInternalModel(context, workspace);
+		return DocumentModel.getInternalModel(getContext(), workspace);
 	}
 
 	/**
@@ -614,7 +585,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity download interface.
      */
     protected InternalDownloadModel getInternalDownloadModel() {
-        return DownloadModel.getInternalModel(context, workspace);
+        return DownloadModel.getInternalModel(getContext(), workspace);
     };
 
 	/**
@@ -623,7 +594,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity library interface.
      */
     protected InternalLibraryModel getInternalLibraryModel() {
-        return LibraryModel.getInternalModel(context, workspace);
+        return LibraryModel.getInternalModel(getContext(), workspace);
     }
 
 	/**
@@ -641,7 +612,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity release interface.
      */
     protected InternalReleaseModel getInternalReleaseModel() {
-        return ReleaseModel.getInternalModel(context, workspace);
+        return ReleaseModel.getInternalModel(getContext(), workspace);
     }
 
     /**
@@ -650,7 +621,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity session interface.
      */
 	protected InternalSessionModel getInternalSessionModel() {
-		return SessionModel.getInternalModel(context, workspace);
+		return SessionModel.getInternalModel(getContext(), workspace);
 	}
 
     /**
@@ -659,7 +630,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity system message interface.
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
-		return SystemMessageModel.getInternalModel(context, workspace);
+		return SystemMessageModel.getInternalModel(getContext(), workspace);
 	}
 
     /**
@@ -668,7 +639,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
      * @return The internal parity user interface.
      */
     protected InternalUserModel getInternalUserModel() {
-        return UserModel.getInternalModel(context, workspace);
+        return UserModel.getInternalModel(getContext(), workspace);
     }
 
     /**
@@ -981,7 +952,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
         else {
             final Object errorId = getErrorId(t);
             logger.error(errorId, t);
-            return ParityErrorTranslator.translateUnchecked(context, errorId, t);
+            return ParityErrorTranslator.translateUnchecked(getContext(), errorId, t);
         }
     }
 
@@ -1152,7 +1123,7 @@ public abstract class AbstractModelImpl<T extends EventListener> {
     }
 
     private InternalWorkspaceModel getWorkspaceModel() {
-        return WorkspaceModel.getInternalModel(context);
+        return WorkspaceModel.getInternalModel(getContext());
     }
 
     /**

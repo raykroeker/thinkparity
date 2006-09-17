@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
 
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 
 /**
  * WorkspaceModel
@@ -21,7 +22,7 @@ import com.thinkparity.ophelia.model.Context;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class WorkspaceModel extends AbstractModel {
+public class WorkspaceModel extends AbstractModel<WorkspaceModelImpl> {
 
     /**
      * Obtain a handle to a workspace model.
@@ -42,25 +43,11 @@ public class WorkspaceModel extends AbstractModel {
         return workspaceModel;
     }
 
-	/**
-	 * Internal implementation of the workspace model.
-	 * @see WorkspaceModel#implLock
-	 */
-	private final WorkspaceModelImpl impl;
-
-	/**
-	 * Synchronization lock for the impl.
-	 * @see WorkspaceModel#impl
-	 */
-	private final Object implLock;
-
     /**
 	 * Create a WorkspaceModel
 	 */
 	protected WorkspaceModel() {
-		super();
-		impl = new WorkspaceModelImpl();
-		implLock = new Object();
+		super(new WorkspaceModelImpl());
 	}
 
     /**
@@ -83,23 +70,5 @@ public class WorkspaceModel extends AbstractModel {
         synchronized (getImplLock()) {
             return getImpl().isFirstRun(workspace);
         }
-    }
-
-	/**
-     * Obtain the workspace model implementation.
-     * 
-     * @return The workspace model implementation.
-     */
-    protected WorkspaceModelImpl getImpl() {
-        return impl;
-    }
-
-    /**
-     * Obtain the workspace model implementation synchronization lock.
-     * 
-     * @return The workspace model implementation synchronization lock.
-     */
-    protected Object getImplLock() {
-        return implLock;
     }
 }

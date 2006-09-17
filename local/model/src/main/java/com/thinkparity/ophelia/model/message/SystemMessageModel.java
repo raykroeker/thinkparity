@@ -3,15 +3,16 @@
  */
 package com.thinkparity.ophelia.model.message;
 
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SystemMessageModel extends AbstractModel {
+public class SystemMessageModel extends AbstractModel<SystemMessageModelImpl> {
 
 	/**
 	 * Obtain an internal system message model.
@@ -38,12 +39,6 @@ public class SystemMessageModel extends AbstractModel {
 		return new SystemMessageModel(workspace);
 	}
 
-	/** The model implementation. */
-	private final SystemMessageModelImpl impl;
-
-	/** The model implementation syncrhonization lock. */
-	private final Object implLock;
-
 	/**
      * Create SystemMessageModel.
      * 
@@ -51,22 +46,7 @@ public class SystemMessageModel extends AbstractModel {
      *            A thinkParity <code>Workspace</code>.
      */
 	protected SystemMessageModel(final Workspace workspace) {
-		super();
-		this.impl = new SystemMessageModelImpl(workspace);
-		this.implLock = new Object();
+		super(new SystemMessageModelImpl(workspace));
 	}
 
-	/**
-	 * Obtain the implementation.
-	 * 
-	 * @return The implementation.
-	 */
-	protected SystemMessageModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the implementation lock.
-	 * 
-	 * @return The implementation lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

@@ -3,7 +3,8 @@
  */
 package com.thinkparity.ophelia.model.message;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -22,6 +23,5 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 	 */
 	InternalSystemMessageModel(final Workspace workspace, final Context context) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 }

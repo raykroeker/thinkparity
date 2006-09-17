@@ -10,7 +10,8 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractModel {
+public abstract class AbstractModel<T extends AbstractModelImpl> extends
+        com.thinkparity.codebase.model.AbstractModel<T> {
 
     /**
 	 * Obtain the workspace model.
@@ -22,8 +23,10 @@ public abstract class AbstractModel {
 		return workspaceModel;
 	}
 
-	/**
-	 * Create a AbstractModel
-	 */
-	protected AbstractModel() { super(); }
+    /**
+     * Create a AbstractModel.
+     */
+    protected AbstractModel(final T impl) {
+        super(impl);
+    }
 }

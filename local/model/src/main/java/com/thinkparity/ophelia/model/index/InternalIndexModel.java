@@ -6,9 +6,8 @@ package com.thinkparity.ophelia.model.index;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 
-
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -27,7 +26,6 @@ public class InternalIndexModel extends IndexModel {
 	 */
 	InternalIndexModel(final Workspace workspace, final Context context) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 
     /**

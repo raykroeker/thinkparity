@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 
-
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -35,7 +34,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	InternalDocumentModel(final Workspace workspace,
 			final Context context) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 
     public void auditRecieveKey(final Long artifactId,

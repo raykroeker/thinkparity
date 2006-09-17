@@ -5,9 +5,9 @@
 package com.thinkparity.ophelia.model.download;
 
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Release;
 
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -13,7 +14,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.document.Document;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -28,7 +29,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-public class ContainerModel {
+public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 
     /**
 	 * Create a Container interface.
@@ -51,12 +52,6 @@ public class ContainerModel {
 		return new ContainerModel(workspace);
 	}
 
-    /** The model implementation. */
-	private final ContainerModelImpl impl;
-
-    /** The model implementation synchronization lock. */
-	private final Object implLock;
-
     /**
 	 * Create ContainerModel.
 	 *
@@ -64,9 +59,7 @@ public class ContainerModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ContainerModel(final Workspace workspace) {
-		super();
-		this.impl = new ContainerModelImpl(workspace);
-		this.implLock = new Object();
+		super(new ContainerModelImpl(workspace));
 	}
 
     /**
@@ -90,7 +83,7 @@ public class ContainerModel {
      *            A container listener.
      */
     public void addListener(final ContainerListener listener) {
-        synchronized(implLock) { impl.addListener(listener); }
+        synchronized(getImplLock()) { getImpl().addListener(listener); }
     }
 
     /**
@@ -122,7 +115,7 @@ public class ContainerModel {
      *            A container id.
      */
     public void delete(final Long containerId) {
-        synchronized(implLock) { impl.delete(containerId); }
+        synchronized(getImplLock()) { getImpl().delete(containerId); }
     }
 
     /**
@@ -207,7 +200,7 @@ public class ContainerModel {
      * 
      * @return A list of containers.
      */
-	public List<Container> read() { synchronized(implLock) { return impl.read(); } }
+	public List<Container> read() { synchronized(getImplLock()) { return getImpl().read(); } }
 
     /**
      * Read the containers.
@@ -217,7 +210,7 @@ public class ContainerModel {
      * @return A list of containers.
      */
     public List<Container> read(final Comparator<Artifact> comparator) {
-        synchronized(implLock) { return impl.read(comparator); }
+        synchronized(getImplLock()) { return getImpl().read(comparator); }
     }
 
     /**
@@ -231,7 +224,7 @@ public class ContainerModel {
      */
     public List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        synchronized(implLock) { return impl.read(comparator, filter); }
+        synchronized(getImplLock()) { return getImpl().read(comparator, filter); }
     }
 
     /**
@@ -242,7 +235,7 @@ public class ContainerModel {
      * @return A list of containers.
      */
     public List<Container> read(final Filter<? super Artifact> filter) {
-        synchronized(implLock) { return impl.read(filter); }
+        synchronized(getImplLock()) { return getImpl().read(filter); }
     }
 
     /**
@@ -253,7 +246,7 @@ public class ContainerModel {
      * @return A container.
      */
     public Container read(final Long containerId) {
-        synchronized(implLock) { return impl.read(containerId); }
+        synchronized(getImplLock()) { return getImpl().read(containerId); }
     }
 
     /**
@@ -267,7 +260,7 @@ public class ContainerModel {
      */
     public List<Document> readDocuments(final Long containerId,
             final Long versionId) {
-        synchronized(implLock) { return impl.readDocuments(containerId, versionId); }
+        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId); }
     }
 
     /**
@@ -283,7 +276,7 @@ public class ContainerModel {
      */
     public List<Document> readDocuments(final Long containerId,
             final Long versionId, final Comparator<Artifact> comparator) {
-        synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator); }
+        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, comparator); }
     }
 
     /**
@@ -302,7 +295,7 @@ public class ContainerModel {
     public List<Document> readDocuments(final Long containerId,
             final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator, filter); }
+        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, comparator, filter); }
     }
 
     /**
@@ -318,7 +311,7 @@ public class ContainerModel {
      */
     public List<Document> readDocuments(final Long containerId, final Long versionId,
             final Filter<? super Artifact> filter) {
-        synchronized(implLock) { return impl.readDocuments(containerId, versionId, filter); }
+        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, filter); }
     }
 
     /**
@@ -516,7 +509,7 @@ public class ContainerModel {
      */
     public ContainerVersion readVersion(final Long containerId,
             final Long versionId) {
-        synchronized(implLock) { return impl.readVersion(containerId, versionId); }
+        synchronized(getImplLock()) { return getImpl().readVersion(containerId, versionId); }
     }
 
     /**
@@ -593,7 +586,7 @@ public class ContainerModel {
      *            A document id.
      */
     public void removeDocument(final Long containerId, final Long documentId) {
-        synchronized(implLock) { impl.removeDocument(containerId, documentId); }
+        synchronized(getImplLock()) { getImpl().removeDocument(containerId, documentId); }
     }
 
     /**
@@ -603,7 +596,7 @@ public class ContainerModel {
      *            A container listener.
      */
     public void removeListener(final ContainerListener listener) {
-        synchronized(implLock) { impl.removeListener(listener); }
+        synchronized(getImplLock()) { getImpl().removeListener(listener); }
     }
 
     /**
@@ -687,18 +680,4 @@ public class ContainerModel {
             getImpl().unsubscribe(containerId);
         }
     }
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ContainerModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

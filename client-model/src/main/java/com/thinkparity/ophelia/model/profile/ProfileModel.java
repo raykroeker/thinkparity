@@ -6,11 +6,12 @@ package com.thinkparity.ophelia.model.profile;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -20,7 +21,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 
  */
-public class ProfileModel {
+public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 
     /**
 	 * Create a Profile interface.
@@ -47,12 +48,6 @@ public class ProfileModel {
 		return new ProfileModel(workspace);
 	}
 
-	/** The model implementation. */
-	private final ProfileModelImpl impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
-
 	/**
 	 * Create ProfileModel.
 	 *
@@ -60,9 +55,7 @@ public class ProfileModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ProfileModel(final Workspace workspace) {
-		super();
-		this.impl = new ProfileModelImpl(workspace);
-		this.implLock = new Object();
+		super(new ProfileModelImpl(workspace));
 	}
 
     /**
@@ -82,7 +75,11 @@ public class ProfileModel {
      * 
      * @return A profile.
      */
-    public Profile read() { synchronized(implLock) { return impl.read(); } }
+    public Profile read() {
+        synchronized (getImplLock()) {
+            return getImpl().read();
+        }
+    }
 
     /**
      * Read a profile email.
@@ -194,18 +191,4 @@ public class ProfileModel {
             getImpl().verifyEmail(emailId, key);
         }
     }
-
-    /**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ProfileModelImpl getImpl() { return impl; }
-
-    /**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

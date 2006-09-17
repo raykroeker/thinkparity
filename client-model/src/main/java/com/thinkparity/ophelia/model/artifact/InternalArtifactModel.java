@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
@@ -32,7 +32,6 @@ public class InternalArtifactModel extends ArtifactModel {
 	 */
 	InternalArtifactModel(final Context context, final Workspace workspace) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 
 	/**

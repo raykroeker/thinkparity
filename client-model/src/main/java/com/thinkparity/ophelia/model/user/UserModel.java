@@ -4,17 +4,17 @@
 package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UserModel extends AbstractModel {
+public class UserModel extends AbstractModel<UserModelImpl> {
 
     /**
      * Obtain the parity internal user interface.
@@ -41,12 +41,6 @@ public class UserModel extends AbstractModel {
         return new UserModel(workspace);
     }
 
-    /** The model implementation. */
-    private final UserModelImpl impl;
-
-    /** The impl synchronization lock. */
-    private final Object implLock;
-
     /**
      * Create a UserModel.
      *
@@ -54,9 +48,7 @@ public class UserModel extends AbstractModel {
      *      The parity workspace.
      */
     protected UserModel(final Workspace workspace) {
-        super();
-        this.impl = new UserModelImpl(workspace);
-        this.implLock = new Object();
+        super(new UserModelImpl(workspace));
     }
 
     /**
@@ -69,18 +61,4 @@ public class UserModel extends AbstractModel {
     public User read(final JabberId jabberId) {
         synchronized(getImplLock()) { return getImpl().read(jabberId); }
     }
-
-    /**
-     * Obtain the model implementation.
-     *
-     * @return The model implementation.
-     */
-    protected UserModelImpl getImpl() { return impl; }
-
-    /**
-     * Obtain the impl synchronization lock.
-     *
-     * @return The impl synchronization lock.
-     */
-    protected Object getImplLock() { return implLock; }
 }

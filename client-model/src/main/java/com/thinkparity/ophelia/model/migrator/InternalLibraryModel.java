@@ -5,9 +5,9 @@
 package com.thinkparity.ophelia.model.migrator;
 
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.LibraryBytes;
 
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**

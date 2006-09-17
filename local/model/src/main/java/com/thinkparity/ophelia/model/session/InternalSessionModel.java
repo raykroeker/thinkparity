@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -18,7 +19,6 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.Context;
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.document.DocumentVersion;
@@ -38,7 +38,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 */
 	InternalSessionModel(final Workspace workspace, final Context context) {
 		super(workspace);
-		context.assertContextIsValid();
 	}
 
     /**

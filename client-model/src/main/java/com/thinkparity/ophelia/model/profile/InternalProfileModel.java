@@ -4,7 +4,8 @@
 package com.thinkparity.ophelia.model.profile;
 
 
-import com.thinkparity.ophelia.model.Context;
+import com.thinkparity.codebase.model.Context;
+
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -27,6 +28,5 @@ public class InternalProfileModel extends ProfileModel implements InternalModel 
      */
     InternalProfileModel(final Workspace workspace, final Context context) {
         super(workspace);
-        context.assertContextIsValid();
     }
 }

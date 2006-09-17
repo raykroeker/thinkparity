@@ -72,8 +72,10 @@
     <path id="project.test-classpath">
         <path refid="project.classpath"/>
    
-        <pathelement location="${target.test-classes.dir}/common/codebase"/>
         <pathelement location="${target.test-classes.dir}/common/junitx"/>
+   
+        <pathelement location="${target.test-classes.dir}/common/codebase"/>
+        <pathelement location="${target.test-classes.dir}/common/model"/>   
         <pathelement location="${target.test-classes.dir}/local/browser"/>
         <pathelement location="${target.test-classes.dir}/local/model"/>
 

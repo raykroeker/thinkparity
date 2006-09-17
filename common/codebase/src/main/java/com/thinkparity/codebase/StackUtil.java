@@ -93,6 +93,15 @@ public class StackUtil {
         return getFrameClassName(CALLER_DEPTH);
     }
 
+    /**
+     * Obtain the caller's file name.
+     * 
+     * @return A file name <code>String</code>.
+     */
+    public static String getCallerFileName() {
+        return getFrameFileName(CALLER_DEPTH);
+    }
+
 	/**
      * Obtain the caller's line number.
      * 
@@ -212,6 +221,18 @@ public class StackUtil {
     public static String getFrameClassName(final Integer depth) {
         final StackTraceElement frame = getFrame(depth);
         return null == frame ? null : frame.getClassName();
+    }
+
+    /**
+     * Obtain the frame's file name.
+     * 
+     * @param depth
+     *            The depth of the frame.
+     * @return The file name; or null if the frame does not exist.
+     */
+    public static String getFrameFileName(final Integer depth) {
+        final StackTraceElement frame = getFrame(depth);
+        return null == frame ? null : frame.getFileName();
     }
 
     /**

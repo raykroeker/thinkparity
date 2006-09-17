@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
  * A file system is a simple wrapper around a single root directory. It
  * abstracts certain file operations.
@@ -54,12 +56,73 @@ public class FileSystem {
         return new FileSystem(resolve(path));
     }
 
+    /**
+     * Create a directory at the given path.
+     * 
+     * @param path
+     *            A path.
+     * @return The new directory.
+     */
+    public File createDirectory(final String path) {
+        Assert.assertNotTrue(pathExists(path), "Path exists:  {0}", path);
+        final String absolutePath = resolvePath(path);
+        final File absoluteDirectory = new File(absolutePath);
+        Assert.assertTrue(absoluteDirectory.mkdirs(),
+                "Cannot create directory:  {0}", absoluteDirectory);
+        return findDirectory(path);
+    }
+
     /** @see java.lang.Object#equals(java.lang.Object) */
     public boolean equals(Object obj) {
         if(null != obj && obj instanceof FileSystem) {
             return root.equals(((FileSystem) obj).root);
         }
         else { return false; }
+    }
+
+    /**
+     * Find a file at the given path.
+     * 
+     * @param path
+     *            A relative path.
+     * @return A <code>File</code>.
+     */
+    public File find(final String path) {
+        return resolve(path);
+    }
+
+    /**
+     * Find a directory at the given path.
+     * 
+     * @param path
+     *            A relative path.
+     * @return A directory.
+     */
+    public File findDirectory(final String path) {
+        final File file = resolve(path);
+        if (null == file) {
+            return null;
+        } else if (file.isFile()) {
+            return null;
+        }
+        return file;
+    }
+
+    /**
+     * Find a file at the given path.
+     * 
+     * @param path
+     *            A relative path.
+     * @return A directory.
+     */
+    public File findFile(final String path) {
+        final File file = resolve(path);
+        if (null == file) {
+            return null;
+        } else if (file.isDirectory()) {
+            return null;
+        }
+        return file;
     }
 
     /**
@@ -176,6 +239,17 @@ public class FileSystem {
                 });
             }
         }
+    }
+
+    /**
+     * Determine if the path exists for the file system.
+     * 
+     * @param path
+     *            A relative path.
+     * @return True if the path resolves; false otherwise.
+     */
+    public Boolean pathExists(final String path) {
+        return null != resolve(path);
     }
 
     /**
@@ -329,21 +403,50 @@ public class FileSystem {
     }
 
     /**
-     * Resolve a given path in the file system.
+     * Resolve a relative path into an absolute file.
      * 
      * @param path
      *            A file system path.
-     * @return The file; or null if the path does not match a real file.
+     * @return The file; or null if the path does not match a absolute file.
      */
     private File resolve(final String path) {
-        final StringBuffer realPath = new StringBuffer();
-        final StringTokenizer pathTokenizer = new StringTokenizer(path, PATH_SEP);
-        while(pathTokenizer.hasMoreTokens()) {
-            realPath.append(pathTokenizer.nextToken());
-            if(pathTokenizer.hasMoreTokens()) { realPath.append(File.separator); }
+        final File file = new File(resolvePath(path));
+        if (file.exists()) {
+            return file;
+        } else {
+            return null;
         }
-        final File file = new File(root, realPath.toString());
-        if(file.exists()) { return file; }
-        else { return null; }
+    }
+
+    /**
+     * Resolve the relative path into an absolute path.
+     * 
+     * @param path
+     *            A relative path.
+     * @return An absolute path.
+     */
+    private String resolvePath(final String path) {
+        final StringBuffer resolvedPath = new StringBuffer(root.getAbsolutePath());
+        final List<String> tokens = tokenize(path);
+        for (final String token : tokens) {
+            resolvedPath.append(File.separator).append(token);
+        }
+        return resolvedPath.toString();
+    }
+
+    /**
+     * Tokenize the path.
+     * 
+     * @param path
+     *            A path.
+     * @return A list of tokens separating the path.
+     */
+    private List<String> tokenize(final String path) {
+        final StringTokenizer tokenizer = new StringTokenizer(path, PATH_SEP);
+        final List<String> tokens = new ArrayList<String>(tokenizer.countTokens());
+        while (tokenizer.hasMoreTokens()) {
+            tokens.add(tokenizer.nextToken());
+        }
+        return tokens;
     }
 }

@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -42,10 +44,6 @@ import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
-import com.thinkparity.ophelia.model.util.filter.Filter;
-import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
-import com.thinkparity.ophelia.model.util.filter.artifact.DefaultFilter;
-import com.thinkparity.ophelia.model.util.filter.history.HistoryFilterManager;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
@@ -115,14 +113,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
-        this.defaultDocumentFilter = new DefaultFilter();
-        this.defaultFilter = new DefaultFilter();
+        this.defaultDocumentFilter = FilterManager.createDefault();
+        this.defaultFilter = FilterManager.createDefault();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
-        this.defaultHistoryFilter = new com.thinkparity.ophelia.model.util.filter.history.DefaultFilter();
+        this.defaultHistoryFilter = FilterManager.createDefault();
         this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
-        this.defaultUserFilter = new com.thinkparity.ophelia.model.util.filter.user.DefaultFilter();
+        this.defaultUserFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
-        this.defaultVersionFilter = new com.thinkparity.ophelia.model.util.filter.container.DefaultVersionFilter();
+        this.defaultVersionFilter = FilterManager.createDefault();
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
     }
@@ -943,7 +941,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("comparator", comparator);
         logVariable("filter", filter);
         final List<Container> containers = containerIO.read(localUser());
-        ArtifactFilterManager.filter(containers, filter);
+        FilterManager.filter(containers, filter);
         ModelSorter.sortContainers(containers, comparator);
         return containers;        
     }
@@ -1049,7 +1047,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("filter", filter);
         final List<Document> documents =
                 containerIO.readDocuments(containerId, versionId);
-        ArtifactFilterManager.filter(documents, filter);
+        FilterManager.filter(documents, filter);
         ModelSorter.sortDocuments(documents, comparator);
         return documents;
     }
@@ -1163,7 +1161,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final ContainerHistoryBuilder historyBuilder =
             new ContainerHistoryBuilder(getInternalContainerModel(), l18n);
         final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
-        HistoryFilterManager.filter(history, filter);
+        FilterManager.filter(history, filter);
         ModelSorter.sortHistory(history, defaultHistoryComparator);
         return history;
     }
@@ -1264,7 +1262,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("filter", filter);
         final List<User> publishedTo =
             containerIO.readPublishedTo(containerId, versionId);
-        UserFilterManager.filter(publishedTo, filter);
+        FilterManager.filter(publishedTo, filter);
         ModelSorter.sortUsers(publishedTo, comparator);
         return publishedTo;
     }
@@ -1352,7 +1350,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("filter", filter);
         final List<User> sharedWith =
             containerIO.readSharedWith(containerId, versionId);
-        UserFilterManager.filter(sharedWith, filter);
+        FilterManager.filter(sharedWith, filter);
         ModelSorter.sortUsers(sharedWith, comparator);
         return sharedWith;
     }
@@ -1456,7 +1454,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("comparator", comparator);
         logVariable("filter", filter);
         final List<ContainerVersion> versions = containerIO.readVersions(containerId);
-        ArtifactFilterManager.filterVersions(versions, filter);
+        FilterManager.filter(versions, filter);
         ModelSorter.sortContainerVersions(versions, comparator);
         return versions;
     }

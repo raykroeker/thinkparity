@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -19,7 +20,6 @@ import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.Printer;
-import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**

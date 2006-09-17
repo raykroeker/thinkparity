@@ -99,6 +99,23 @@ public class Assert {
     }
 
 	/**
+     * Assert that a boolean expression is false.
+     * 
+     * @param falseExpression
+     *            A false expression.
+     * @param pattern
+     *            An assertion message pattern.
+     * @param arguments
+     *            Assertion message arguments.
+     */
+    public static void assertNotTrue(final Boolean falseExpression,
+            final String pattern, final Object... arguments) {
+        if (Boolean.FALSE != falseExpression) {
+            throw new TrueAssertion(createMessage(pattern, arguments));
+        }
+    }
+
+    /**
 	 * Assert that the boolean expression provided is false. If it is not, throw
 	 * a <code>org.kcs.projectmanager.client.util.TrueAssertion</code>.
 	 * 

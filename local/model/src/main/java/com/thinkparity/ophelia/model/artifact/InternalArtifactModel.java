@@ -50,11 +50,31 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
+    /**
+     * Apply the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public void applyFlagArchived(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().applyFlagArchived(artifactId);
+        }
+    }
+
+    /**
+     * Apply the key flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
     public void applyFlagKey(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().applyFlagKey(artifactId); }
+		synchronized (getImplLock()) {
+            getImpl().applyFlagKey(artifactId);
+		}
 	}
 
-	/**
+    /**
      * Audit the confirmation receipt of the artifact.
      * 
      * @param artifactId
@@ -72,7 +92,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-    /**
+	/**
 	 * Audit the denial of a key request for an artifact.
 	 * 
 	 * @param artifactId
@@ -129,7 +149,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-	/**
+    /**
      * Create the team. This will add the current user to the team.
      * 
      * @param artifactId
@@ -154,7 +174,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-    /**
+	/**
      * Delete the team in its entirety.
      *
      * @param artifactId
@@ -203,7 +223,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-	/**
+    /**
      * Handle the remote event generated when a draft is created.
      * 
      * @param uniqueId
@@ -220,7 +240,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-    /**
+	/**
      * Handle the remote event generated when a draft is deleted.
      * 
      * @param uniqueId
@@ -236,7 +256,7 @@ public class InternalArtifactModel extends ArtifactModel {
             getImpl().handleDraftDeleted(uniqueId, deletedBy, deletedOn);
         }
     }
-    
+
     /**
      * Handle the remote event generated when a team member is added. This will
      * download the user's info if required and create the team data locally.
@@ -252,7 +272,7 @@ public class InternalArtifactModel extends ArtifactModel {
             getImpl().handleTeamMemberAdded(uniqueId, jabberId);
         }
     }
-
+    
     /**
      * Handle the team member removed remote event.
      * 
@@ -311,6 +331,18 @@ public class InternalArtifactModel extends ArtifactModel {
      */
     public UUID readUniqueId(final Long artifactId) {
         synchronized(getImplLock()) { return getImpl().readUniqueId(artifactId); }
+    }
+
+    /**
+     * Remove the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public void removeFlagArchived(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().removeFlagArchived(artifactId);
+        }
     }
 
     public void removeFlagKey(final Long artifactId) {

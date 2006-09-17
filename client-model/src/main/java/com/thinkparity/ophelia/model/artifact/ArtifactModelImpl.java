@@ -93,6 +93,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Apply the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    void applyFlagArchived(final Long artifactId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
+        try {
+            applyFlag(artifactId, ArtifactFlag.ARCHIVED);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
 	 * Apply the key flag.
 	 * 
 	 * @param artifactId
@@ -192,7 +208,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return readTeam2(artifactId);
     }
 
-	/**
+    /**
      * Delete the artifact's remote info.
      * 
      * @param artifactId
@@ -216,7 +232,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return null != artifactIO.readUniqueId(artifactId);
     }
 
-    Boolean doesExist(final UUID uniqueId) {
+	Boolean doesExist(final UUID uniqueId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(uniqueId);
         return null != artifactIO.readId(uniqueId);
@@ -338,7 +354,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -367,7 +383,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return flags.contains(flag);
 	}
 
-    /**
+	/**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -395,7 +411,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-	/**
+    /**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -421,7 +437,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel(artifactId);
     }
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -444,6 +460,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [ARTIFACT] [READ UNIQUE ID]");
         logger.debug(artifactId);
         return artifactIO.readUniqueId(artifactId);
+    }
+
+    /**
+     * Remove the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    void removeFlagArchived(final Long artifactId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
+        try {
+            removeFlag(artifactId, ArtifactFlag.ARCHIVED);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

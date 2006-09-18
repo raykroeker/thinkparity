@@ -41,12 +41,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -388,7 +383,9 @@ public class ContainerCell extends Container implements TabCell  {
         // TODO should only be here if never published
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_RENAME, Data.emptyData()));       
         if(connection == Connection.ONLINE) {
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ARCHIVE, Data.emptyData()));
+            final Data archiveData = new Data(1);
+            archiveData.set(Archive.DataKey.CONTAINER_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ARCHIVE, archiveData));
         }              
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, getId());

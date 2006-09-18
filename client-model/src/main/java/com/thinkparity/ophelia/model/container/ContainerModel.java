@@ -87,6 +87,18 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     }
 
     /**
+     * Archive a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void archive(final Long containerId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(containerId);
+        }
+    }
+
+    /**
      * Create a container.
      * 
      * @param name

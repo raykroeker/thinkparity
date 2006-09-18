@@ -164,6 +164,18 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Archive a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void archive(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#archive");
+    }
+
+    /**
      * Create a container.
      * 
      * @param name

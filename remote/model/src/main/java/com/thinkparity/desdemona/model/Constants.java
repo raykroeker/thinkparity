@@ -33,6 +33,9 @@ public interface Constants {
 	/** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String XMPP_DOMAIN = "xmpp.domain";
+        public static final String XMPP_SOCKET_PLAIN_PORT = "xmpp.socket.plain.port";
+        public static final String THINKPARITY_ARCHIVE_HOST = "thinkparity.archive.host";
+        public static final String THINKPARITY_ARCHIVE_ROOT = "thinkparity.archive.root";
     }
 
     public static final class VCardFields {
@@ -155,7 +158,6 @@ public interface Constants {
         }
         public static final class Service {
             public static final class Artifact {
-                public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
                 public static final String CONFIRM_RECEIPT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifactconfirmreceipt";
                 public static final String CREATE_ARTIFACT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "createartifact";
                 public static final String CREATE_DRAFT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifact:createdraft";

@@ -7,17 +7,16 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
@@ -44,6 +43,21 @@ class ContainerModelImpl extends AbstractModelImpl {
     ContainerModelImpl(final Session session) {
         super(session);
         this.artifactSql = new ArtifactSql();
+    }
+
+    /**
+     * Archive a container for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        getArchiveModel().archive(userId, uniqueId);
     }
 
     /**
@@ -84,16 +98,10 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeJabberId("publishedBy", publishedBy);
             publishArtifact.writeJabberIds("publishedTo", "publishedTo", publishedTo);
             publishArtifact.writeCalendar("publishedOn", publishedOn);
-            for (final JabberId publishedToId : publishedTo) {
-                final IQ iq = publishArtifact.getIQ();
-                setTo(iq, publishedToId);
-                send(publishedToId, iq);
-            }
-
+            send(publishedTo, publishArtifact.getIQ());
             final Artifact artifact = getArtifactModel().read(uniqueId);
             artifactSql.updateKeyHolder(artifact.getId(),
                     User.THINK_PARITY.getId().getUsername(), publishedBy);
-            getContainerArchiveModel().backup(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -168,15 +176,83 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeBytes("artifactBytes", artifactBytes);
             publishArtifact.writeJabberId("publishedBy", publishedBy);
             publishArtifact.writeCalendar("publishedOn", publishedOn);
-            for (final JabberId publishToId : publishTo) {
-                final IQ iq = publishArtifact.getIQ();
-                setTo(iq, publishToId);
-                send(publishToId, iq);
-            }
-            getArtifactArchiveModel().backup(null);
+            send(publishTo, publishArtifact.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Read the archived containers for user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    List<Container> readArchive(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        return getArchiveModel().getContainerReader(userId).read();
+    }
+
+    /**
+     * Read the archived documents for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    List<Document> readArchiveDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
+                .read();
+    }
+
+    /**
+     * Read the archived document versions for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id </code>UUID </code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
+            final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("documentUniqueId", documentUniqueId);
+        return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
+                .readVersions(documentUniqueId);
+    }
+
+    /**
+     * Read the archived container versions for user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    List<ContainerVersion> readArchiveVersions(final JabberId userId,
+            final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        return getArchiveModel().getContainerReader(userId).readVersions(uniqueId);
     }
 
     /**
@@ -217,12 +293,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             sendArtifact.writeJabberId("sentBy", sentBy);
             sendArtifact.writeJabberIds("sentTo", "sentTo", sentTo);
             sendArtifact.writeCalendar("sentOn", sentOn);
-            for (final JabberId sentToId : sentTo) {
-                final IQ iq = sendArtifact.getIQ();
-                setTo(iq, sentToId);
-                send(sentToId, iq);
-            }
-            getContainerArchiveModel().backup(null);
+            send(sentTo, sendArtifact.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -297,32 +368,9 @@ class ContainerModelImpl extends AbstractModelImpl {
             sendArtifact.writeBytes("artifactBytes", artifactBytes);
             sendArtifact.writeJabberId("sentBy", sentBy);
             sendArtifact.writeCalendar("sentOn", sentOn);
-            for (final JabberId sendToId : sendTo) {
-                final IQ iq = sendArtifact.getIQ();
-                setTo(iq, sendToId);
-                send(sendToId, iq);
-            }
-            getArtifactArchiveModel().backup(null);
+            send(sendTo, sendArtifact.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }
-    }
-
-    /**
-     * Obtain a thinkParity artifact archive interface.
-     * 
-     * @return A thinkParity artifact archive interface.
-     */
-    private ArchiveModel<ArtifactVersion> getArtifactArchiveModel() {
-        return ArchiveModel.<ArtifactVersion>getModel(session);
-    }
-
-    /**
-     * Obtain a thinkParity container archive interface.
-     * 
-     * @return A thinkParity container archive interface.
-     */
-    private ArchiveModel<ContainerVersion> getContainerArchiveModel() {
-        return ArchiveModel.<ContainerVersion>getModel(session);
     }
 }

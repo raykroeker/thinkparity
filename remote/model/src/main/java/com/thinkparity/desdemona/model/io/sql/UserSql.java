@@ -51,15 +51,17 @@ public class UserSql extends AbstractSql {
     private static final String SQL_READ_ARCHIVE_CREDENTIALS =
             new StringBuffer("select USERNAME,PASSWORD ")
             .append("from jiveUser JU ")
+            .append("inner join PARITY_USER_ARCHIVE_REL PUAR ")
+            .append("on JU.USERNAME=PUAR.ARCHIVENAME ")
             .append("where JU.USERNAME=?")
             .toString();
 
     /** Sql to read a user's archive ids. */
     private static final String SQL_READ_ARCHIVE_IDS =
-            new StringBuffer("select PUAR.ARCHIVE_ID ")
-            .append("from PARITY_USER_ARCHIVE_REL ")
+            new StringBuffer("select PUAR.ARCHIVENAME ")
+            .append("from PARITY_USER_ARCHIVE_REL PUAR ")
             .append("where PUAR.USERNAME=? ")
-            .append("order by PUAR.ARCHIVE_ID asc")
+            .append("order by PUAR.ARCHIVENAME asc")
             .toString();
 
     /** Sql to read a user. */
@@ -225,7 +227,7 @@ public class UserSql extends AbstractSql {
             final List<JabberId> archiveIds = new ArrayList<JabberId>();
             while (session.nextResult()) {
                 archiveIds.add(JabberIdBuilder.parseUsername(
-                        session.getString("ARCHIVE_ID")));
+                        session.getString("ARCHIVENAME")));
             }
             return archiveIds;
         } finally {

@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -51,9 +50,8 @@ public abstract class ModelTestCase extends TestCase {
      *
      * @return The new artifact.
      */
-    protected Artifact createArtifact() throws ParityServerModelException {
-        final UUID artifactUniqueId = UUID.randomUUID();
-        return getArtifactModel().create(artifactUniqueId);
+    protected Artifact createArtifact() {
+        throw Assert.createNotYetImplemented("ModelTestCase#createArtifact");
     }
 
     /**

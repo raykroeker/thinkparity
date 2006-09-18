@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import org.jivesoftware.messenger.IQHandlerInfo;
-import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.IQHandlerInfo;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
@@ -30,7 +30,7 @@ import com.thinkparity.codebase.xmpp.IQWriter;
  * @version 1.1.2.8
  */
 public abstract class AbstractHandler extends
-		org.jivesoftware.messenger.handler.IQHandler {
+		org.jivesoftware.wildfire.handler.IQHandler {
 
 	/** The info. */
 	private final IQHandlerInfo info;
@@ -72,10 +72,16 @@ public abstract class AbstractHandler extends
      */
     public abstract IQWriter createWriter(final IQ iq);
 
-    /** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
+    /**
+     * @see org.jivesoftware.wildfire.handler.IQHandler#getInfo()
+     * 
+     */
 	public IQHandlerInfo getInfo() { return info; }
 
-    /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
+	/**
+     * @see org.jivesoftware.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
+     * 
+	 */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         iqReader = createReader(iq);
 

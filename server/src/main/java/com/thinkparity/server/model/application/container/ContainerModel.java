@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -22,7 +25,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class ContainerModel extends AbstractModel {
+public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 
 	/**
 	 * Create a Container interface.
@@ -33,12 +36,6 @@ public class ContainerModel extends AbstractModel {
 		return new ContainerModel(session);
 	}
 
-	/** The model implementation. */
-	private final ContainerModelImpl impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
-
 	/**
 	 * Create ContainerModel.
 	 *
@@ -46,10 +43,22 @@ public class ContainerModel extends AbstractModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ContainerModel(final Session session) {
-		super();
-		this.impl = new ContainerModelImpl(session);
-		this.implLock = new Object();
+		super(new ContainerModelImpl(session));
 	}
+
+    /**
+     * Archive a container.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    public void archive(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(userId, uniqueId);
+        }
+    }
 
     /**
      * Publish the container version.
@@ -127,6 +136,76 @@ public class ContainerModel extends AbstractModel {
     }
 
     /**
+     * Read the archived containers for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    public List<Container> readArchive(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchive(userId);
+        }
+    }
+
+    /**
+     * Read the archived documents for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    public List<Document> readArchiveDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocuments(userId, uniqueId, versionId);
+        }
+    }
+
+
+    /**
+     * Read the archived document versions for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id </code>UUID </code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
+            final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersions(userId, uniqueId,
+                    versionId, documentUniqueId);
+        }
+    }
+
+    /**
+     * Read the archived container versions for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A list of container versions.
+     */
+    public List<ContainerVersion> readArchiveVersions(final JabberId userId,
+            final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveVersions(userId, uniqueId);
+        }
+    }
+
+    /**
      * Send a container version.
      * 
      * @param uniqueId
@@ -200,18 +279,4 @@ public class ContainerModel extends AbstractModel {
                     artifactBytes, sendTo, sentBy, sentOn);
         }
     }
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ContainerModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

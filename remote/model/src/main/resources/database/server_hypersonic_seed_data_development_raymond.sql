@@ -8,14 +8,6 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.plain.port', '5226');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5227');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.driver', 'org.hsqldb.jdbcDriver');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.password', '');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/development/hsqldb/calpurnia/db');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.username', 'sa');
 insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 
@@ -29,18 +21,6 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('thinkparity', 'What is my username?', 'thinkparity');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('thinkparity', 1000);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.rkroeker','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.ahalaby','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.rwaterhouse','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.ashaftoe','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.brussell','parity',0,0);
-insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
-    values('thinkparity.backup.gdengo','parity',0,0);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);
@@ -52,6 +32,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('rkroeker', 'What is my username?', 'rkroeker');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('rkroeker', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.0','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.0', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('rkroeker', 'thinkparity.archive.0');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ahalaby','parity',0,0);
@@ -63,6 +49,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('ahalaby', 'What is my username?', 'ahalaby');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('ahalaby', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.1','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.1', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('ahalaby', 'thinkparity.archive.1');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rwaterhouse','parity',0,0);
@@ -74,6 +66,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('rwaterhouse', 'What is my username?', 'rwaterhouse');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('rwaterhouse', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.2','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.2', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('rwaterhouse', 'thinkparity.archive.2');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('ashaftoe','parity',0,0);
@@ -85,6 +83,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('ashaftoe', 'What is my username?', 'ashaftoe');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('ashaftoe', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.3','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.3', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('ashaftoe', 'thinkparity.archive.3');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('brussell','parity',0,0);
@@ -96,6 +100,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('brussell', 'What is my username?', 'brussell');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('brussell', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.4','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.4', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('brussell', 'thinkparity.archive.4');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('gdengo','parity',0,0);
@@ -107,6 +117,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('gdengo', 'What is my username?', 'gdengo');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('gdengo', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.5','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.5', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('gdengo', 'thinkparity.archive.5');
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('rkroeker', 'ahalaby@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());

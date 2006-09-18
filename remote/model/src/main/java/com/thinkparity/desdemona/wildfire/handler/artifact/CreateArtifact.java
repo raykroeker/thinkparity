@@ -3,37 +3,41 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
+import java.util.UUID;
 
-import org.xmpp.packet.IQ;
+import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.desdemona.model.ParityServerModelException;
-import com.thinkparity.desdemona.model.artifact.ArtifactModel;
-import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.wildfire.handler.IQAction;
-import com.thinkparity.desdemona.wildfire.handler.IQHandler;
+import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class CreateArtifact extends IQHandler {
+public class CreateArtifact extends AbstractHandler {
 
 	/**
 	 * Create a CreateArtifact.
 	 */
-	public CreateArtifact() { super(IQAction.CREATEARTIFACT); }
+	public CreateArtifact() { super("artifact:create"); }
 
 	/**
-	 * @see com.thinkparity.desdemona.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
-	 *      com.thinkparity.desdemona.model.session.Session)
-	 */
-	public IQ handleIQ(final IQ iq, final Session session)
-			throws ParityServerModelException, UnauthorizedException {
+     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     */
+    @Override
+    public void service() {
         logApiId();
-		final ArtifactModel artifactModel = getArtifactModel(session);
-		artifactModel.create(extractUniqueId(iq));
-		return createResult(iq);
-	}
+        create(readJabberId("userId"), readUUID("uniqueId"));
+    }
+
+    /**
+     * Create an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    private void create(final JabberId userId, final UUID uniqueId) {
+        getArtifactModel().create(userId, uniqueId);
+    }
 }

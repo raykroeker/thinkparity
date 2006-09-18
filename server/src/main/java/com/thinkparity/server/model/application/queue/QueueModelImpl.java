@@ -3,18 +3,23 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
+import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.ParityErrorTranslator;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.session.SessionModel;
 
 
 /**
@@ -31,7 +36,10 @@ class QueueModelImpl extends AbstractModelImpl {
 	 */
 	private final QueueSql queueSql;
 
-    /**
+    /** A sax xml reader. */
+    private final SAXReader saxReader;
+
+	/**
 	 * Create a QueueModelImpl.
 	 * 
 	 * @param session
@@ -40,6 +48,7 @@ class QueueModelImpl extends AbstractModelImpl {
 	QueueModelImpl(final Session session) {
 		super(session);
 		this.queueSql = new QueueSql();
+        this.saxReader = new SAXReader();
 	}
 
 	/**
@@ -67,7 +76,8 @@ class QueueModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    
+    /**
 	 * Process all pending queue items for the given session.
 	 * 
 	 * @throws ParityServerModelException
@@ -76,23 +86,23 @@ class QueueModelImpl extends AbstractModelImpl {
         logApiId();
 		try {
 			final Collection<QueueItem> queueItems = list();
-			final SessionModel sessionModel = getSessionModel();
+			Element rootElement;
+            JabberId userId;
 			for(final QueueItem queueItem : queueItems) {
-				sessionModel.send(queueItem);
-				dequeue(queueItem);
+                rootElement = readRootElement(queueItem.getQueueMessage());
+                userId = JabberIdBuilder.parseUsername(queueItem.getUsername());
+
+                if (isOnline(userId)) {
+                    getClientSession(userId).process(new IQ(rootElement));
+                    dequeue(queueItem);
+                }
 			}
-		}
-		catch(final SQLException sqlx) {
-			logger.error("Could not process offline queue.", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not process offline queue.", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
-	/**
+    /**
 	 * Dequeue a previously enqueued item from the persistant store.
 	 * 
 	 * @param queueItem
@@ -103,7 +113,7 @@ class QueueModelImpl extends AbstractModelImpl {
 		final Integer queueId = queueItem.getQueueId();
 		queueSql.delete(queueId);
 	}
-
+    
 	/**
 	 * Obtain a list of queued items for the jabber id.
 	 * 
@@ -112,4 +122,18 @@ class QueueModelImpl extends AbstractModelImpl {
 	private Collection<QueueItem> list() throws SQLException {
 		return queueSql.select(session.getJID().getNode());
 	}
+
+	/**
+     * Read the root element of the xml.
+     * 
+     * @param xml
+     *            An xml <code>String</code>.
+     * @return The xml root <code>Element</code>.
+     * @throws DocumentException
+     */
+    private Element readRootElement(final String xml) throws DocumentException {
+        synchronized (saxReader) {
+            return saxReader.read(new StringReader(xml)).getRootElement();
+        }
+    }
 }

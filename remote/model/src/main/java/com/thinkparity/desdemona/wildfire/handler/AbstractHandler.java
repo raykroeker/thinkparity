@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.util.JiveProperties;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
@@ -19,8 +19,11 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
@@ -53,9 +56,6 @@ public abstract class AbstractHandler extends
     /** A thinkParity container interface. */
     private ContainerModel containerModel;
 
-    /** A thinkParity user interface. */
-    private UserModel userModel;
-
     /** A custom iq reader. */
     private IQReader iqReader;
 
@@ -70,6 +70,9 @@ public abstract class AbstractHandler extends
 
     /** A thinkParity user session. */
     private Session session;
+
+    /** A thinkParity user interface. */
+    private UserModel userModel;
 
     /** Create AbstractHandler. */
     public AbstractHandler(final String action) {
@@ -223,6 +226,47 @@ public abstract class AbstractHandler extends
                     name, Log4JHelper.render(logger, value)));
         }
         return value;
+    }
+
+    /**
+     * Marshal a list of containers to the xml response.
+     * 
+     * @param containers
+     *            A list of containers.
+     */
+    protected final void marshalContainers(final List<Container> containers) {
+        iqWriter.marshalContainers(containers);
+    }
+
+    /**
+     * Marshal a list of containers to the xml response.
+     * 
+     * @param containers
+     *            A list of containers.
+     */
+    protected final void marshalContainerVersions(
+            final List<ContainerVersion> versions) {
+        iqWriter.marshalContainerVersions(versions);
+    }
+
+    /**
+     * Marshal a list of documents to the xml response.
+     * 
+     * @param documents
+     *            A <code>List&lt;Document&gt;</code>.
+     */
+    protected final void marshalDocuments(final List<Document> documents) {
+        iqWriter.marshalDocuments(documents);
+    }
+
+    /**
+     * Marshal a list of document versions to the xml response.
+     * 
+     * @param versions
+     *            A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    protected final void marshalDocumentVersions(final List<DocumentVersion> versions) {
+        iqWriter.marshalDocumentVersions(versions);
     }
 
     /**

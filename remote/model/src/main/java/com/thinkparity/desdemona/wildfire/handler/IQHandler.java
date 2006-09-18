@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import org.jivesoftware.messenger.IQHandlerInfo;
-import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.util.JiveProperties;
+import org.jivesoftware.wildfire.IQHandlerInfo;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 import org.dom4j.Branch;
 import org.dom4j.Element;
@@ -28,14 +28,12 @@ import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
-import com.thinkparity.desdemona.model.document.DocumentModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
@@ -51,7 +49,7 @@ import com.thinkparity.desdemona.wildfire.JIDBuilder;
  * @version 1.1
  */
 public abstract class IQHandler extends
-		org.jivesoftware.messenger.handler.IQHandler {
+		org.jivesoftware.wildfire.handler.IQHandler {
 
     /**
      * A synchronization lock used to serialize all incoming iq handler
@@ -84,17 +82,20 @@ public abstract class IQHandler extends
         this.logger = Logger.getLogger(getClass());
 	}
 
-	/** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
+	/**
+     * @see org.jivesoftware.wildfire.handler.IQHandler#getInfo()
+     * 
+	 */
 	public IQHandlerInfo getInfo() { return iqHandlerInfo; }
 
     /** The current session. */
     private Session session;
 
-	/**
-	 * @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
-	 * 
-	 */
-	public IQ handleIQ(final IQ iq) throws UnauthorizedException {
+    /**
+     * @see org.jivesoftware.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
+     * 
+     */
+    public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         synchronized (SERIALIZER) {
     		try {
     			this.session = new Session() {
@@ -339,17 +340,6 @@ public abstract class IQHandler extends
 	protected ContactModel getContactModel(final Session session) {
 		return ContactModel.getModel(session);
 	}
-
-    /**
-     * Obtain the parity document interface.
-     * 
-     * @param session
-     *            The user's session.
-     * @return The parity document interface.
-     */
-    protected DocumentModel getDocumentModel(final Session session) {
-        return DocumentModel.getModel(session);
-    }
 
     /**
 	 * Simplicity method to extract a named element from an element.

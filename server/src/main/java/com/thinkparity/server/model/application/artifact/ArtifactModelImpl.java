@@ -6,36 +6,26 @@ package com.thinkparity.desdemona.model.artifact;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
-
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.ParityErrorTranslator;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSubscriptionSql;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
-import com.thinkparity.desdemona.util.xmpp.packet.IQArtifact;
-import com.thinkparity.desdemona.util.xmpp.packet.IQArtifactFlag;
 import com.thinkparity.desdemona.util.xmpp.packet.artifact.IQConfirmReceipt;
-import com.thinkparity.desdemona.util.xmpp.packet.document.IQReactivateDocument;
 
 /**
  * @author raykroeker@gmail.com
@@ -66,17 +56,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            A user's jabber id.
      */
-    void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+    void addTeamMember(final UUID uniqueId, final JabberId userId) {
         logApiId();
-        logger.debug(uniqueId);
-        logger.debug(jabberId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("userId", userId);
         try {
-            final Artifact artifact = read(uniqueId);
-            final User user = getUserModel().read(jabberId);
-            final String username = jabberId.getUsername();
-            artifactSubscriptionSql.insert(artifact.getId(), username,
-                    session.getJabberId());
-            notifyTeamMemberAdded(read(uniqueId), user);
+            final UserModel userModel = getUserModel();
+            if (getUserModel().isArchive(userId)) {
+                logInfo("Ignoring archive user {0}.", userId);
+            } else {
+                final User user = userModel.read(userId);
+                final Artifact artifact = read(uniqueId);
+                artifactSubscriptionSql.insert(artifact.getId(),
+                        userId.getUsername(), session.getJabberId());
+                notifyTeamMemberAdded(artifact, user);
+            }
         } catch(final Throwable t) {
             throw translateError(t);
         }
@@ -102,41 +96,37 @@ class ArtifactModelImpl extends AbstractModelImpl {
             iq.setUniqueId(uniqueId);
             iq.setVersionId(versionId);
             iq.setConfirmedBy(session.getJabberId());
-            iq.setFrom(session.getJID());
-            setTo(iq, receivedFrom);
-
             send(receivedFrom, iq);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
-	 * Create an artifact.
-	 * 
-	 * @param uniqueId
-	 *            The artifact id.
-	 * @return The new artifact.
-	 * @throws ParityServerModelException
-	 */
-	Artifact create(final UUID uniqueId) throws ParityServerModelException {
+    /**
+     * Create an artifact; and add the creator to the team immediately. Note
+     * that we are deliberately not using the model api to add a team member
+     * because we do not want to fire off notifications.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return The new <code>Artifact</code>.
+     */
+    Artifact create(final JabberId userId, final UUID uniqueId) {
 		logApiId();
-		logger.debug(uniqueId);
+		logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
 		try {
-            final JabberId sessionJabberId = session.getJabberId();
-			artifactSql.insert(uniqueId, sessionJabberId.getUsername(),
-					ArtifactState.ACTIVE, session.getJabberId());
-			final Artifact artifact = artifactSql.select(uniqueId);
-			return artifact;
-		}
-		catch(SQLException sqlx) {
-			logger.error("create(UUID)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("create(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+			artifactSql.insert(uniqueId, userId, ArtifactState.ACTIVE, session
+                    .getJabberId());
+			final Artifact artifact = read(uniqueId);
+            artifactSubscriptionSql.insert(artifact.getId(),
+                    userId.getUsername(), session.getJabberId());
+			return read(uniqueId);
+		} catch (final Throwable t) {
+		    throw translateError(t);
+        }
 	}
 
 	/**
@@ -178,8 +168,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("uniqueId", uniqueId);
         try {
+            assertIsKeyHolder(uniqueId);
             final Artifact artifact = read(uniqueId);
-            assertIsKeyHolder(artifact);
             final JabberId sessionJabberId = session.getJabberId();
             artifactSql.updateKeyHolder(artifact.getId(), User.THINK_PARITY, sessionJabberId);
             notifyDraftDeleted(artifact, session.getJabberId(), DateUtil.getInstance());
@@ -189,132 +179,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
-	 * Flag an artifact.
-	 * 
-	 * @param artifact
-	 *            An <code>Artifact</code>.
-	 * @param artifactFlag
-	 *            A <code>ArtifactFlag</code>.
-	 * @throws ParityServerModelException
-	 */
-	void flag(final Artifact artifact, final ArtifactFlag artifactFlag) {
-        logApiId();
-		logVariable("artifact", artifact);
-        logVariable("artifactFlag", artifactFlag);
-		try {
-			final Long artifactId = artifact.getId();
-			final Collection<ArtifactSubscription> subscriptions =
-				artifactSubscriptionSql.select(artifactId);
-
-			// send an IQFlag packet to each subscribed user
-			final UUID artifactUniqueId = artifact.getUniqueId();
-			IQ iq;
-			for(ArtifactSubscription subscription : subscriptions) {
-				iq = createFlag(artifactUniqueId, artifactFlag, subscription);
-				// send the parity iq
-				send(JabberIdBuilder.parseUsername(subscription.getUsername()), iq);
-			}
-		} catch(final Throwable t) {
-			throw translateError(t);
-		}
-	}
-
-    /**
-	 * Set the keyholder for the given artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @return The previous keyholder's JID.
-	 * @throws ParityServerModelException
-	 */
-	JID getKeyHolder(final UUID artifactUniqueId) throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifactUniqueId);
-		try {
-			final Artifact artifact = artifactSql.select(artifactUniqueId);
-			final Long artifactId = artifact.getId();
-			final String previousKeyHolder = artifactSql.selectKeyHolder(artifactId);
-			return buildJID(previousKeyHolder);
-		}
-		catch(SQLException sqlx) {
-			logger.error("getKeyHolder(Artifact)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("getKeyHolder(Artifact)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-    List<ArtifactSubscription> getSubscription(
-			final UUID uniqueId) throws ParityServerModelException {
-        logApiId();
-		logVariable("uniqueId", uniqueId);
-		try {
-			final Artifact artifact = read(uniqueId);
-            if (null == artifact) {
-                return Collections.emptyList();
-            } else {
-                return artifactSubscriptionSql.select(artifact.getId());
-            }
-		}
-		catch(final SQLException sqlx) {
-			logger.error("getArtifactSubscription(UUID)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("getArtifactSubscription(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-    List<Artifact> listForKeyHolder() throws ParityServerModelException {
-        logApiId();
-		try { return artifactSql.listForKeyHolder(session.getJID()); }
-		catch(final SQLException sqlx) {
-			logger.error("Could not obtain artifacts for key holder.", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not obtain artifacts for key holder.", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	void reactivate(final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] bytes)
-            throws ParityServerModelException {
-        logApiId();
-        logger.debug(team);
-        logger.debug(uniqueId);
-        logger.debug(versionId);
-        logger.debug(name);
-        logger.debug(bytes);
-        create(uniqueId);
-
-        final IQReactivateDocument iq = new IQReactivateDocument();
-        iq.setContent(bytes);
-        iq.setName(name);
-        iq.setUniqueId(uniqueId);
-        iq.setVersionId(versionId);
-        for(final JabberId jabberId : team) {
-            try {
-                // don't send reactivation to self
-                if(!jabberId.equals(session.getJabberId())) {
-                    if(isActive(jabberId)) {
-                        iq.setFrom(session.getJID());
-                        setTo(iq, jabberId);
-                        send(jabberId, iq);
-                    }
-                }
-            }
-            catch(final UnauthorizedException ux) {
-                throw ParityErrorTranslator.translate(ux);
-            }
-        }
-    }
-
-	/**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param uniqueId
@@ -330,7 +194,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read the key holder for an artifact.
      * 
      * @param userId
@@ -355,15 +219,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("uniqueId", uniqueId);
 		try {
-			final List<ArtifactSubscription> subscriptions = getSubscription(uniqueId);
-			final List<JabberId> teamIds =
-                new ArrayList<JabberId>(subscriptions.size());
-			for(final ArtifactSubscription subscription : subscriptions) {
-                teamIds.add(subscription.getJabberId());
-			}
-			return teamIds;
-		} catch( final Throwable t) {
-            throw translateError(t);
+			final Artifact artifact = read(uniqueId);
+            if (null == artifact) {
+                return Collections.emptyList();
+            } else {
+                final List<ArtifactSubscription> subscriptions =
+                    artifactSubscriptionSql.select(artifact.getId());
+                final List<JabberId> teamIds = new ArrayList<JabberId>(subscriptions.size());
+                for (final ArtifactSubscription subscription : subscriptions) {
+                    teamIds.add(subscription.getJabberId());
+                }
+                return teamIds;
+            }
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -398,26 +267,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
-	 * Create a flag iq packet to send to a subscription.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @param artifactFlag
-	 *            The flag.
-	 * @param subscription
-	 *            The subscription.
-	 * @return The flag iq packet.
-	 */
-	private IQArtifact createFlag(final UUID artifactUniqueId,
-			final ArtifactFlag artifactFlag,
-			final ArtifactSubscription subscription) {
-		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUniqueId, artifactFlag);
-		iqArtifactFlag.setTo(buildJID(subscription.getUsername()));
-		iqArtifactFlag.setFrom(session.getJID());
-		return iqArtifactFlag;
-	}
-
     /**
      * Notify the team a a draft was created.
      * 
@@ -437,7 +286,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
         notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("createdBy", createdBy);
         notification.writeCalendar("createdOn", createdOn);
-        notifyTeam(artifact.getUniqueId(), notification.getIQ());
+        final List<JabberId> team = getArtifactModel().readTeamIds(artifact.getUniqueId());
+        team.remove(createdBy);
+        send(team, notification.getIQ());
     }
 
     /**
@@ -455,7 +306,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
         notification.writeUniqueId("uniqueId", artifact.getUniqueId());
         notification.writeJabberId("deletedBy", deletedBy);
         notification.writeCalendar("deletedOn", deletedOn);
-        notifyTeam(artifact.getUniqueId(), notification.getIQ());
+        final List<JabberId> team = getArtifactModel().readTeamIds(artifact.getUniqueId());
+        team.remove(deletedBy);
+        send(team, notification.getIQ());
     }
 
     /**

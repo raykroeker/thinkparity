@@ -8,6 +8,6 @@
     <version>${pom.version}</version>
     <date>11/25/2005</date>
     <url>${pom.url}</url>
-    <minServerVersion>2.3.1</minServerVersion>
+    <minServerVersion>3.0.1</minServerVersion>
 
 </plugin>

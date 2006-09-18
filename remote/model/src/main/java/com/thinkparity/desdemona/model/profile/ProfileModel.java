@@ -20,7 +20,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class ProfileModel extends AbstractModel {
+public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 
     /**
 	 * Create a Profile interface.
@@ -31,12 +31,6 @@ public class ProfileModel extends AbstractModel {
 		return new ProfileModel(session);
 	}
 
-	/** The model implementation. */
-	private final ProfileModelImpl impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
-
 	/**
 	 * Create ProfileModel.
 	 *
@@ -44,9 +38,7 @@ public class ProfileModel extends AbstractModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ProfileModel(final Session session) {
-		super();
-		this.impl = new ProfileModelImpl(session);
-		this.implLock = new Object();
+		super(new ProfileModelImpl(session));
 	}
 
     /**
@@ -58,8 +50,8 @@ public class ProfileModel extends AbstractModel {
      *            An <code>EMail</code>.
      */
     public void addEmail(final JabberId userId, final EMail email) {
-        synchronized (implLock) {
-            impl.addEmail(userId, email);
+        synchronized (getImplLock()) {
+            getImpl().addEmail(userId, email);
         }
     }
 
@@ -71,8 +63,8 @@ public class ProfileModel extends AbstractModel {
      * @return A <code>Profile</code>.
      */
     public Profile read(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.read(userId);
+        synchronized (getImplLock()) {
+            return getImpl().read(userId);
         }
     }
 
@@ -84,8 +76,8 @@ public class ProfileModel extends AbstractModel {
      * @return A <code>List&lt;EMail&gt;</code>.
      */
     public List<EMail> readEmails(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.readEmails(userId);
+        synchronized (getImplLock()) {
+            return getImpl().readEmails(userId);
         }
     }
 
@@ -97,8 +89,8 @@ public class ProfileModel extends AbstractModel {
      * @return A <code>List&lt;Feature&gt</code>.
      */
     public List<Feature> readFeatures(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.readFeatures(userId);
+        synchronized (getImplLock()) {
+            return getImpl().readFeatures(userId);
         }
     }
 
@@ -110,8 +102,8 @@ public class ProfileModel extends AbstractModel {
      * @return A users's security question <code>String</code>.
      */
     public String readSecurityQuestion(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.readSecurityQuestion(userId);
+        synchronized (getImplLock()) {
+            return getImpl().readSecurityQuestion(userId);
         }
     }
 
@@ -124,8 +116,8 @@ public class ProfileModel extends AbstractModel {
      *            An <code>EMail</code>.
      */
     public void removeEmail(final JabberId userId, final EMail email) {
-        synchronized (implLock) {
-            impl.removeEmail(userId, email);
+        synchronized (getImplLock()) {
+            getImpl().removeEmail(userId, email);
         }
     }
 
@@ -140,8 +132,8 @@ public class ProfileModel extends AbstractModel {
      */
     public String resetPassword(final JabberId userId,
             final String securityAnswer) {
-        synchronized (implLock) {
-            return impl.resetCredentials(userId, securityAnswer);
+        synchronized (getImplLock()) {
+            return getImpl().resetCredentials(userId, securityAnswer);
         }
     }
 
@@ -159,8 +151,8 @@ public class ProfileModel extends AbstractModel {
      */
     public void update(final JabberId userId, final String name,
             final String organization, final String title) {
-        synchronized (implLock) {
-            impl.update(userId, name, organization, title);
+        synchronized (getImplLock()) {
+            getImpl().update(userId, name, organization, title);
         }
     }
 
@@ -176,8 +168,8 @@ public class ProfileModel extends AbstractModel {
      */
     public void verifyEmail(final JabberId userId, final EMail email,
             final String key) {
-        synchronized (implLock) {
-            impl.verifyEmail(userId, email, key);
+        synchronized (getImplLock()) {
+            getImpl().verifyEmail(userId, email, key);
         }
     }
 }

@@ -18,13 +18,13 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
-import com.thinkparity.codebase.model.user.User;
 
 
 /**
@@ -104,33 +104,32 @@ public class ArtifactSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public Integer insert(final UUID artifactUUID,
-			final String artifactKeyHolder, final ArtifactState state,
-			final JabberId createdBy) throws SQLException {
+	public Integer insert(final UUID uniqueId, final JabberId keyHolder,
+            final ArtifactState state, final JabberId createdBy) {
 		logApiId();
-		logger.debug(artifactUUID);
-		logger.debug(artifactKeyHolder);
-		Connection cx = null;
-		PreparedStatement ps = null;
+		logVariable("uniqueId", uniqueId);
+        logVariable("keyHolder", keyHolder);
+        logVariable("state", state);
+        logVariable("createdBy", createdBy);
+		final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-            logStatement(INSERT);
-			ps = cx.prepareStatement(INSERT);
-			final Integer artifactId = nextId(this);
-            logStatementParameter(1, artifactId);
-			ps.setInt(1, artifactId);
-            logStatementParameter(2, artifactUUID.toString());
-			ps.setString(2, artifactUUID.toString());
-            logStatementParameter(3, artifactKeyHolder);
-			ps.setString(3, artifactKeyHolder);
-            logStatementParameter(4, state);
-			ps.setInt(4, state.getId());
-			set(ps, 5, createdBy);
-			set(ps, 6, createdBy);
-			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
+            final Integer artifactId = nextId(this);
+			session.prepareStatement(INSERT);
+			session.setInt(1, artifactId);
+			session.setUniqueId(2, uniqueId);
+			session.setString(3, keyHolder.getUsername());
+            session.setInt(4, state.getId());
+            session.setString(5, createdBy.getUsername());
+            session.setString(6, createdBy.getUsername());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT CREATE ARTIFACT");
 			return artifactId;
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+		} finally {
+            session.close();
 		}
-		finally { close(cx, ps); }
 	}
 
 	public List<Artifact> listForKeyHolder(final JID keyHolderJID)

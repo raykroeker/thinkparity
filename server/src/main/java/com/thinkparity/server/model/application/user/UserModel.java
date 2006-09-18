@@ -19,7 +19,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UserModel extends AbstractModel {
+public class UserModel extends AbstractModel<UserModelImpl> {
 
 	/**
 	 * Obtain a user model.
@@ -34,38 +34,37 @@ public class UserModel extends AbstractModel {
 	}
 
 	/**
-	 * The implementation.
-	 * 
-	 */
-	private final UserModelImpl impl;
-
-	/**
-	 * The implementation synchronization lock.
-	 * 
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a UserModel.
 	 * 
 	 * @param session
 	 *            The user session.
 	 */
 	private UserModel(final Session session) {
-		super();
-		this.impl = new UserModelImpl(session);
-		this.implLock = new Object();
+		super(new UserModelImpl(session));
 	}
 
-    public List<User> read() {
-        synchronized (implLock) {
-            return impl.read();
+    /**
+     * Determine if the user is an archive.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user represents an archive.
+     */
+    public Boolean isArchive(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().isArchive(userId);
         }
     }
 
-    public User read(final EMail email) {
-        synchronized (implLock) {
-            return impl.read(email);
+    public List<User> read() {
+        synchronized (getImplLock()) {
+            return getImpl().read();
+        }
+    }
+
+	public User read(final EMail email) {
+        synchronized (getImplLock()) {
+            return getImpl().read(email);
         }
     }
 
@@ -75,30 +74,30 @@ public class UserModel extends AbstractModel {
      * @return A list of users.
      */
     public List<User> read(final Filter<? super User> filter) {
-        synchronized (implLock) {
-            return impl.read(filter);
+        synchronized (getImplLock()) {
+            return getImpl().read(filter);
         }
     }
 
-	public User read(final JabberId userId) {
-		synchronized(implLock) { return impl.read(userId); }
+    public User read(final JabberId userId) {
+		synchronized(getImplLock()) { return getImpl().read(userId); }
 	}
 
     public List<User> read(final List<JabberId> userIds) {
-		synchronized (implLock) {
-            return impl.read(userIds);
+		synchronized (getImplLock()) {
+            return getImpl().read(userIds);
 		}
 	}
 
     public Credentials readArchiveCredentials(final JabberId archiveId) {
-        synchronized (implLock) {
-            return impl.readArchiveCredentials(archiveId);
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveCredentials(archiveId);
         }
     }
 
-    public List<JabberId> readArchiveIds(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.readArchiveIds(userId);
+    public JabberId readArchiveId(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveId(userId);
         }
     }
 
@@ -110,16 +109,15 @@ public class UserModel extends AbstractModel {
      * @return A <code>List&lt;Feature&gt</code>.
      */
     public List<Feature> readFeatures(final JabberId userId) {
-        synchronized (implLock) {
-            return impl.readFeatures(userId);
+        synchronized (getImplLock()) {
+            return getImpl().readFeatures(userId);
         }
     }
 
-
     public void update(final JabberId userId, final String name,
             final String organization, final String title) {
-        synchronized (implLock) {
-            impl.update(userId, name, organization, title);
+        synchronized (getImplLock()) {
+            getImpl().update(userId, name, organization, title);
         }
     }
 }

@@ -6,7 +6,7 @@ package com.thinkparity.desdemona.model.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jivesoftware.messenger.vcard.VCardManager;
+import org.jivesoftware.wildfire.vcard.VCardManager;
 
 import org.dom4j.Element;
 
@@ -47,6 +47,28 @@ class UserModelImpl extends AbstractModelImpl {
         this.userSql = new UserSql();
 		this.vcardManager = VCardManager.getInstance();
 	}
+
+    /**
+     * Determine if the user is an archive.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True if the user represents an archive.
+     */
+    Boolean isArchive(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            final Credentials archiveCredentials = readArchiveCredentials(userId);
+            if (null == archiveCredentials) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     List<User> read() {
         logApiId();
@@ -123,17 +145,23 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<JabberId> readArchiveIds(final JabberId userId) {
+	JabberId readArchiveId(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
         try {
-            return userSql.readArchiveIds(userId);
+            // ASSUME For version 1 we assume a single archive
+            final List<JabberId> archiveIds = userSql.readArchiveIds(userId);
+            if (0 == archiveIds.size()) {
+                return null;
+            } else {
+                return archiveIds.get(0);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-	/**
+    /**
      * Read all features for a user.
      * 
      * @param userId
@@ -245,5 +273,4 @@ class UserModelImpl extends AbstractModelImpl {
             throws Exception {
         vcardManager.setVCard(userId.getUsername(), vcard);
     }
-
 }

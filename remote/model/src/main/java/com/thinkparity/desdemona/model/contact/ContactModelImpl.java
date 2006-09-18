@@ -14,8 +14,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -92,9 +90,7 @@ class ContactModelImpl extends AbstractModelImpl {
 			final IQWriter notification = createIQWriter("invitationaccepted");
             notification.writeJabberId("acceptedBy", userId);
             notification.writeCalendar("acceptedOn", acceptedOn);
-            final IQ notificationIQ = notification.getIQ();
-            setTo(notificationIQ, invitedBy);
-            send(invitedBy, notificationIQ);
+            send(invitedBy, notification.getIQ());
 		}
 		catch(final Throwable t) {
             throw translateError(t);
@@ -129,9 +125,7 @@ class ContactModelImpl extends AbstractModelImpl {
             notification.writeEMail("invitedAs", invitedAs);
             notification.writeJabberId("declinedBy", userId);
             notification.writeCalendar("declinedOn", declinedOn);
-            final IQ notificationIQ = notification.getIQ();
-            setTo(notificationIQ, invitedBy);
-            send(invitedBy, notificationIQ);
+            send(invitedBy, notification.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -157,9 +151,7 @@ class ContactModelImpl extends AbstractModelImpl {
             final IQWriter notification = createIQWriter("contactdeleted");
             notification.writeJabberId("deletedBy", userId);
             notification.writeCalendar("deletedOn", currentDateTime());
-            final IQ notificationIQ = notification.getIQ();
-            setTo(notificationIQ, contactId);
-            send(contactId, notificationIQ);
+            send(contactId, notification.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -195,9 +187,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 notification.writeEMail("invitedAs", invitedAs);
                 notification.writeJabberId("deletedBy", userId);
                 notification.writeCalendar("deletedOn", deletedOn);
-                final IQ notificationIQ = notification.getIQ();
-                setTo(notificationIQ, invitedAsUser.getId());
-                send(invitedAsUser.getId(), notificationIQ);
+                send(invitedAsUser.getId(), notification.getIQ());
             }
 		} catch(final Throwable t) {
 			throw translateError(t);
@@ -239,9 +229,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 notification.writeEMail("extendedTo", extendTo);
                 notification.writeJabberId("extendedBy", userId);
                 notification.writeCalendar("extendedOn", extendedOn);
-                final IQ notificationIQ = notification.getIQ();
-                setTo(notificationIQ, extendToUser.getId());
-                send(extendToUser.getId(), notificationIQ);
+                send(extendToUser.getId(), notification.getIQ());
             }
         } catch (final Throwable t) {
             throw translateError(t);

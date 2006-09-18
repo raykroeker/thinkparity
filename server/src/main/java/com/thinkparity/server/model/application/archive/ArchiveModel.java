@@ -3,7 +3,10 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
-import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import java.util.UUID;
+
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -16,73 +19,67 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class ArchiveModel<T extends ArtifactVersion> extends AbstractModel {
+public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 
-	/**
+    /**
+     * Obtain an internal thinkParity archive interface.
+     * 
+     * @param context
+     *            A thinkParity context.
+     * @return An internal thinkParity archive interface.
+     */
+    public static InternalArchiveModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalArchiveModel(context, session);
+    }
+
+    /**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
      */
-    public static <U extends ArtifactVersion> ArchiveModel<U> getModel() {
-        return new ArchiveModel<U>();
+    public static ArchiveModel getModel() {
+        return new ArchiveModel();
     }
 
-    /**
+	/**
 	 * Create an Archive interface.
 	 * 
 	 * @return The Archive interface.
 	 */
-	public static <U extends ArtifactVersion> ArchiveModel<U> getModel(final Session session) {
-		return new ArchiveModel<U>(session);
+	public static ArchiveModel getModel(final Session session) {
+		return new ArchiveModel(session);
 	}
-
-	/** The model implementation. */
-	private final ArchiveModelImpl<T> impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
 
 	/** Create ArchiveModel. */
     protected ArchiveModel() {
-        super();
-        this.impl = new ArchiveModelImpl<T>();
-        this.implLock = new Object();
+        super(new ArchiveModelImpl());
     }
 
-    /**
+	/**
 	 * Create ArchiveModel.
 	 *
 	 * @param workspace
 	 *		The thinkParity workspace.
 	 */
 	protected ArchiveModel(final Session session) {
-		super();
-		this.impl = new ArchiveModelImpl<T>(session);
-		this.implLock = new Object();
+		super(new ArchiveModelImpl(session));
 	}
 
     /**
-     * Archive an xmpp query.
+     * Archive an artifact.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @param query
-     *            An xmpp query <code>IQ</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
      */
-    public void archive() {
-    }
-
-    /**
-     * Backup an xmpp query.
-     * 
-     * @param query
-     *            An xmpp query <code>IQ</code>.
-     */
-    public void backup(final T version) {
-        synchronized (implLock) {
-            impl.backup(version);
+    public void archive(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(userId, uniqueId);
         }
     }
+
 
     /**
      * Start the archive.  This involves starting all of the archive
@@ -90,8 +87,8 @@ public class ArchiveModel<T extends ArtifactVersion> extends AbstractModel {
      *
      */
     public void start() {
-        synchronized (implLock) {
-            impl.start();
+        synchronized (getImplLock()) {
+            getImpl().start();
         }
     }
 
@@ -101,22 +98,8 @@ public class ArchiveModel<T extends ArtifactVersion> extends AbstractModel {
      *
      */
     public void stop() {
-        synchronized (implLock) {
-            impl.stop();
+        synchronized (getImplLock()) {
+            getImpl().stop();
         }
     }
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ArchiveModelImpl getImpl() { return impl; }
-
-	/**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

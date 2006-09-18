@@ -112,6 +112,14 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 		return DbConnectionManager.getConnection();
 	}
 
+    protected final <V> V logVariable(final String name, final V value)  {
+        if (logger.isDebugEnabled()) {
+            logger.debug(Log4JHelper.renderAndFormat(logger, "{0}:{1}", name,
+                    value));
+        }
+        return value;
+    }
+
     /** Log an api id. */
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {

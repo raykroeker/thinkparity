@@ -4,7 +4,7 @@
 package com.thinkparity.desdemona.util.logging.or;
 
 import org.apache.log4j.or.ObjectRenderer;
-import org.jivesoftware.messenger.IQHandlerInfo;
+import org.jivesoftware.wildfire.IQHandlerInfo;
 
 
 /**

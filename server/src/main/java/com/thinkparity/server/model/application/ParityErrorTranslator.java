@@ -5,8 +5,8 @@ package com.thinkparity.desdemona.model;
 
 import java.sql.SQLException;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.jivesoftware.messenger.user.UserNotFoundException;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.user.UserNotFoundException;
 
 import com.thinkparity.desdemona.model.session.Session;
 

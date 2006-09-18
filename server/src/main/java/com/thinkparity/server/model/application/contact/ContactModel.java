@@ -17,7 +17,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1.2.7
  */
-public class ContactModel extends AbstractModel {
+public class ContactModel extends AbstractModel<ContactModelImpl> {
 
 	/**
 	 * Obtain a handle to the artifact model.
@@ -29,12 +29,6 @@ public class ContactModel extends AbstractModel {
 		return contactModel;
 	}
 
-    /** Model implementation. */
-	private final ContactModelImpl impl;
-
-	/** Model implementation synchronization lock. */
-	private final Object implLock;
-
     /**
      * Create ContactModel.
      * 
@@ -42,9 +36,7 @@ public class ContactModel extends AbstractModel {
      *            The user's session.
      */
 	private ContactModel(final Session session) {
-		super();
-		this.impl = new ContactModelImpl(session);
-		this.implLock = new Object();
+		super(new ContactModelImpl(session));
 	}
 
 	/**
@@ -60,8 +52,8 @@ public class ContactModel extends AbstractModel {
      */
     public void acceptInvitation(final JabberId userId,
             final JabberId invitedBy, final Calendar acceptedOn) {
-		synchronized (implLock) {
-            impl.acceptInvitation(userId, invitedBy, acceptedOn);
+		synchronized (getImplLock()) {
+            getImpl().acceptInvitation(userId, invitedBy, acceptedOn);
 		}
 	}
 
@@ -81,8 +73,8 @@ public class ContactModel extends AbstractModel {
 	public void declineInvitation(final JabberId userId,
             final JabberId invitedBy, final EMail invitedAs,
             final Calendar declinedOn) {
-		synchronized (implLock) {
-            impl.declineInvitation(userId, invitedBy, invitedAs, declinedOn);
+		synchronized (getImplLock()) {
+            getImpl().declineInvitation(userId, invitedBy, invitedAs, declinedOn);
         }
 	}
 
@@ -95,8 +87,8 @@ public class ContactModel extends AbstractModel {
      *            A contact id <code>JabberId</code>.
      */
     public void delete(final JabberId userId, final JabberId contactId) {
-        synchronized (implLock) {
-            impl.delete(userId, contactId);
+        synchronized (getImplLock()) {
+            getImpl().delete(userId, contactId);
         }
     }
 
@@ -110,8 +102,8 @@ public class ContactModel extends AbstractModel {
      */
     public void deleteInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
-        synchronized (implLock) {
-            impl.deleteInvitation(userId, invitedAs, deletedOn);
+        synchronized (getImplLock()) {
+            getImpl().deleteInvitation(userId, invitedAs, deletedOn);
         }
     }
 
@@ -129,8 +121,8 @@ public class ContactModel extends AbstractModel {
      */
     public void extendInvitation(final JabberId userId, final EMail extendedTo,
             final Calendar extendedOn) {
-        synchronized (implLock) {
-            impl.extendInvitation(userId, extendedTo, extendedOn);
+        synchronized (getImplLock()) {
+            getImpl().extendInvitation(userId, extendedTo, extendedOn);
         }
     }
 
@@ -142,8 +134,8 @@ public class ContactModel extends AbstractModel {
      * @return A <code>List&lt;Contact&gt;</code>.
      */
 	public List<Contact> read(final JabberId userId) {
-		synchronized (implLock) {
-            return impl.read(userId);
+		synchronized (getImplLock()) {
+            return getImpl().read(userId);
 		}
 	}
 
@@ -157,8 +149,8 @@ public class ContactModel extends AbstractModel {
      * @return The contact info.
      */
 	public Contact read(final JabberId userId, final JabberId contactId) {
-		synchronized (implLock) {
-            return impl.read(userId, contactId);
+		synchronized (getImplLock()) {
+            return getImpl().read(userId, contactId);
 		}
 	}
 
@@ -170,8 +162,8 @@ public class ContactModel extends AbstractModel {
 	 * @return The invitation.
 	 */
 	public Invitation readInvitation(final JabberId from) {
-		synchronized (implLock) {
-            return impl.readInvitation(from);
+		synchronized (getImplLock()) {
+            return getImpl().readInvitation(from);
 		}
 	}
 }

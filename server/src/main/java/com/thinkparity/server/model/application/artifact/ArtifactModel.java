@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -21,7 +19,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ArtifactModel extends AbstractModel {
+public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 
     /**
 	 * Obtain a handle to the artifact model.
@@ -33,23 +31,11 @@ public class ArtifactModel extends AbstractModel {
 		return artifactModel;
 	}
 
-    /**
-	 * Artifact model implementation.
-	 */
-	private final ArtifactModelImpl impl;
-
-    /**
-	 * Synchronization lock for the implementation.
-	 */
-	private final Object implLock;
-
 	/**
 	 * Create a ArtifactModel.
 	 */
 	private ArtifactModel(final Session session) {
-		super();
-		this.impl = new ArtifactModelImpl(session);
-		this.implLock = new Object();
+		super(new ArtifactModelImpl(session));
 	}
 
 	/**
@@ -61,7 +47,9 @@ public class ArtifactModel extends AbstractModel {
      *            A user's jabber id.
      */
 	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        synchronized(implLock) { impl.addTeamMember(uniqueId, jabberId); }
+        synchronized (getImplLock()) {
+            getImpl().addTeamMember(uniqueId, jabberId);
+        }
     }
 
     /**
@@ -77,22 +65,23 @@ public class ArtifactModel extends AbstractModel {
      */
     public void confirmReceipt(final UUID uniqueId, final Long versionId,
             final JabberId receivedFrom) throws ParityServerModelException {
-        synchronized(implLock) {
-            impl.confirmReceipt(uniqueId, versionId, receivedFrom);
+        synchronized(getImplLock()) {
+            getImpl().confirmReceipt(uniqueId, versionId, receivedFrom);
         }
     }
 
-	/**
-	 * Create an artifact.
-	 * 
-	 * @param uniqueId
-	 *            The artifact unique id.
-	 * @return The new artifact.
-	 * @throws ParityServerModelException
-	 */
-	public Artifact create(final UUID uniqueId)
-            throws ParityServerModelException {
-		synchronized(implLock) { return impl.create(uniqueId); }
+    /**
+     * Create an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+	public Artifact create(final JabberId userId, final UUID uniqueId) {
+		synchronized (getImplLock()) {
+            return getImpl().create(userId, uniqueId);
+		}
 	}
 
 	/**
@@ -102,7 +91,7 @@ public class ArtifactModel extends AbstractModel {
      *            The artifact unique id.
      */
     public void createDraft(final UUID uniqueId) {
-        synchronized(implLock) { impl.createDraft(uniqueId); }
+        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
     }
 
 	/**
@@ -112,49 +101,16 @@ public class ArtifactModel extends AbstractModel {
      *            An artifact unique id.
      */
     public void deleteDraft(final UUID uniqueId) {
-        synchronized (implLock) {
-            impl.deleteDraft(uniqueId);
+        synchronized (getImplLock()) {
+            getImpl().deleteDraft(uniqueId);
         }
     }
 
-    /**
-     * Flag an artifact.
-     * 
-     * @param artifact
-     *            An <code>Artifact</code>.
-     * @param artifactFlag
-     *            A <code>ArtifactFlag</code>.
-     * @throws ParityServerModelException
-     */
-	public void flag(final Artifact artifact,
-            final ArtifactFlag artifactFlag) {
-		synchronized (implLock) {
-            impl.flag(artifact, artifactFlag);
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
+		synchronized (getImplLock()) {
+            return getImpl().readTeamIds(uniqueId);
 		}
 	}
-
-    public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.getSubscription(artifactUniqueId); }
-	}
-
-	/**
-	 * Obtain a list of artifacts the user has keys for.
-	 * 
-	 * @return A list of artifacts the user has keys for.
-	 * @throws ParityServerModelException
-	 */
-	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
-		synchronized(implLock) { return impl.listForKeyHolder(); }
-	}
-
-	public void reactivate(final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] bytes)
-            throws ParityServerModelException {
-        synchronized(implLock) {
-            impl.reactivate(team, uniqueId, versionId, name, bytes);
-        }
-    }
 
 	/**
 	 * Obtain a handle to an artifact for a given artifact unique id.
@@ -163,8 +119,8 @@ public class ArtifactModel extends AbstractModel {
 	 *            An artifact unique id.
 	 */
 	public Artifact read(final UUID artifactUniqueId) {
-		synchronized (implLock) {
-            return impl.read(artifactUniqueId);
+		synchronized (getImplLock()) {
+            return getImpl().read(artifactUniqueId);
 		}
 	}
 
@@ -178,16 +134,10 @@ public class ArtifactModel extends AbstractModel {
      * @return The artifact key holder <code>JabberId</code>.
      */
     public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
-        synchronized (implLock) {
-            return impl.readKeyHolder(userId, uniqueId);
+        synchronized (getImplLock()) {
+            return getImpl().readKeyHolder(userId, uniqueId);
         }
     }
-
-    public List<JabberId> readTeamIds(final UUID uniqueId) {
-		synchronized (implLock) {
-            return impl.readTeamIds(uniqueId);
-		}
-	}
 
 	/**
      * Remove a user from an artifact's team.
@@ -198,8 +148,8 @@ public class ArtifactModel extends AbstractModel {
      *            A user's jabber id.
      */
     public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        synchronized (implLock) {
-            impl.removeTeamMember(uniqueId, jabberId);
+        synchronized (getImplLock()) {
+            getImpl().removeTeamMember(uniqueId, jabberId);
         }
     }
 }

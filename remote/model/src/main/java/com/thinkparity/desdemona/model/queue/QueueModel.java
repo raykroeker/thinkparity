@@ -18,7 +18,7 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class QueueModel extends AbstractModel {
+public class QueueModel extends AbstractModel<QueueModelImpl> {
 
     /**
 	 * Obtain a handle to a queue model.
@@ -33,22 +33,10 @@ public class QueueModel extends AbstractModel {
 	}
 
 	/**
-	 * Queue model implementation.
-	 */
-	private final QueueModelImpl impl;
-
-	/**
-	 * Queue model synchronization lock.
-	 */
-	private final Object implLock;
-
-	/**
 	 * Create a QueueModel.
 	 */
 	private QueueModel(final Session session) {
-		super();
-		this.impl = new QueueModelImpl(session);
-		this.implLock = new Object();
+		super(new QueueModelImpl(session));
 	}
 
 	/**
@@ -62,7 +50,9 @@ public class QueueModel extends AbstractModel {
 	 * @throws ParityServerModelException
 	 */
 	public QueueItem enqueue(final JID jid, final IQ iq) {
-		synchronized(implLock) { return impl.enqueue(jid, iq); }
+		synchronized (getImplLock()) {
+            return getImpl().enqueue(jid, iq);
+		}
 	}
 
 	/**
@@ -71,6 +61,8 @@ public class QueueModel extends AbstractModel {
 	 * @throws ParityServerModelException
 	 */
 	public void processOfflineQueue() throws ParityServerModelException {
-		synchronized(implLock) { impl.processOfflineQueue(); }
+		synchronized (getImplLock()) {
+            getImpl().processOfflineQueue();
+		}
 	}
 }

@@ -4,7 +4,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 

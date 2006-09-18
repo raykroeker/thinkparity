@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.desdemona.model.Constants.Xml.Service;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
@@ -18,7 +16,7 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 public class AddTeamMember extends AbstractHandler {
 
     /** Create AddTeamMember. */
-    public AddTeamMember() { super(Service.Artifact.ADD_TEAM_MEMBER); }
+    public AddTeamMember() { super("artifact:addteammember"); }
 
     /**
      * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()

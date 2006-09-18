@@ -17,9 +17,10 @@ import javax.mail.internet.MimeMessage;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import org.jivesoftware.messenger.SessionManager;
-import org.jivesoftware.messenger.XMPPServer;
-import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.ClientSession;
+import org.jivesoftware.wildfire.SessionManager;
+import org.jivesoftware.wildfire.XMPPServer;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
@@ -32,16 +33,14 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
-import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.archive.ArchiveModel;
+import com.thinkparity.desdemona.model.archive.InternalArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
-import com.thinkparity.desdemona.model.artifact.ArtifactSubscription;
 import com.thinkparity.desdemona.model.contact.ContactModel;
-import com.thinkparity.desdemona.model.document.DocumentModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.model.session.SessionModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
@@ -50,7 +49,11 @@ import com.thinkparity.desdemona.wildfire.JIDBuilder;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractModelImpl {
+public abstract class AbstractModelImpl
+    extends com.thinkparity.codebase.model.AbstractModelImpl {
+
+    /** No session log statement. */
+    private static final JabberId NO_SESSION = User.THINK_PARITY.getId();
 
     /** An apache logger. */
 	protected final Logger logger;
@@ -59,13 +62,6 @@ public abstract class AbstractModelImpl {
 	 * Handle to the user's session.
 	 */
 	protected final Session session;
-
-    /** Create AbstractModelImpl. */
-    protected AbstractModelImpl() {
-        super();
-        this.logger = Logger.getLogger(getClass());
-        this.session = null;
-    }
 
     /**
 	 * Create an AbstractModelImpl.
@@ -92,7 +88,7 @@ public abstract class AbstractModelImpl {
                 new InternetAddress(email.toString(), Boolean.TRUE));
     }
 
-    /**
+	/**
      * Assert that the actual and expected jabber id's are equal.
      * 
      * @param assertion
@@ -122,7 +118,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-	/**
+    /**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -142,10 +138,14 @@ public abstract class AbstractModelImpl {
 	 * @throws NotTrueAssertion
 	 *             If the user is not the key holder.
 	 */
-	protected void assertIsKeyHolder(final Artifact artifact) {
-		Assert.assertTrue("USER NOT KEY HOLDER",
-				readKeyHolder(artifact.getUniqueId()).equals(
-						session.getJabberId()));
+	protected void assertIsKeyHolder(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        final JabberId keyHolder = readKeyHolder(uniqueId);
+        logVariable("keyHolder", keyHolder);
+		Assert.assertTrue(keyHolder.equals(session.getJabberId()),
+                "Session user {0} is not the key holder {1}.",
+                session.getJabberId(), keyHolder);
 	}
 
     /**
@@ -198,11 +198,20 @@ public abstract class AbstractModelImpl {
         return new IQWriter(iq);
     }
 
-    protected Calendar currentDateTime() {
+	protected Calendar currentDateTime() {
         return DateUtil.getInstance();
     }
 
 	/**
+     * Obtain a thinkParity archive interface.
+     * 
+     * @return A thinkParity archive interface.
+     */
+    protected InternalArchiveModel getArchiveModel() {
+        return ArchiveModel.getInternalModel(getContext(), session);
+    }
+
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -211,6 +220,17 @@ public abstract class AbstractModelImpl {
 		final ArtifactModel artifactModel = ArtifactModel.getModel(session);
 		return artifactModel;
 	}
+
+	/**
+     * Obtain the client session for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A client session.
+     */
+    protected final ClientSession getClientSession(final JabberId userId) {
+        return getSessionManager().getSession(getJID(userId));
+    }
 
 	/**
      * Obtain the parity contact interface.
@@ -222,36 +242,17 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
-     * Obtain the parity document interface.
-     * 
-     * @return The parity document interface.
-     */
-    protected DocumentModel getDocumentModel() {
-        return DocumentModel.getModel(session);
-    }
-
-    /**
      * Obtain an error id.
      * 
      * @return An error id.
      */
     protected final Object getErrorId(final Throwable t) {
         return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                    session.getJabberId().getUsername(),
+                    null == session ? NO_SESSION : session.getJabberId(),
                     StackUtil.getFrameClassName(2),
                     StackUtil.getFrameMethodName(2),
                     t.getMessage());
     }
-
-	/**
-	 * Obtain the parity session interface.
-	 * 
-	 * @return The parity session interface.
-	 */
-	protected SessionModel getSessionModel() {
-		final SessionModel sModel = SessionModel.getModel(session);
-		return sModel;
-	}
 
 	/**
      * Obtain the parity user interface.
@@ -263,7 +264,7 @@ public abstract class AbstractModelImpl {
 		return uModel;
 	}
 
-    /**
+	/**
      * Inject the fields of a user into a user type object.
      * 
      * @param <T>
@@ -282,7 +283,7 @@ public abstract class AbstractModelImpl {
         return logVariable("type", type);
     }
 
-	/**
+    /**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -304,16 +305,15 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-	 * Determine whether or not the user represented by the jabber id is
-	 * currently online.
-	 * 
-	 * @param jid
-	 *            The jabber id to check.
-	 * @return True; if the user is online; false otherwise.
-	 */
-	protected Boolean isOnline(final JID jid) {
-		final SessionManager sessionManager = getSessionManager();
-		if(0 < sessionManager.getSessionCount(jid.getNode())) {
+     * Determine whether or not the user represented by the jabber id is
+     * currently online.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return True; if the user is online; false otherwise.
+     */
+	protected Boolean isOnline(final JabberId jabberId) {
+		if(0 < getSessionManager().getSessionCount(jabberId.getUsername())) {
 			return Boolean.TRUE;
 		}
 		else { return Boolean.FALSE; }
@@ -325,42 +325,61 @@ public abstract class AbstractModelImpl {
 
     /** Log an api id. */
     protected final void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("{0} {1}.{2}",
+                    null == session ? NO_SESSION : session.getJabberId(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName()));
         }
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
      *            A message.
      */
     protected final void logApiId(final Object message) {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}] [{3}]",
-                    session.getJabberId().getUsername(),
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("{0} {1}.{2} {3}",
+                    null == session ? NO_SESSION : session.getJabberId(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName(),
-                    message));
+                    Log4JHelper.render(logger, message)));
+        }
+    }
+
+	/**
+     * Log an info message.
+     * 
+     * @param infoPattern
+     *            An info pattern.
+     * @param infoArguments
+     *            Info arguments.
+     */
+    protected final void logInfo(final String infoPattern,
+            final Object... infoArguments) {
+        if (logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("{0} {1}",
+                    null == session ? NO_SESSION : session.getJabberId(),
+                    Log4JHelper.renderAndFormat(logger, infoPattern,
+                            infoArguments)));
         }
     }
 
 	/** Log a trace id. */
     protected final void logTraceId() {
         if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}:{3}]",
-                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
+            logger.info(MessageFormat.format("{0} {1}.{2}({3}:{4})",
+                    null == session ? NO_SESSION : session.getJabberId(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName(),
+                    StackUtil.getCallerFileName(),
                     StackUtil.getCallerLineNumber()));
         }
     }
 
-	/**
+    /**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -371,9 +390,9 @@ public abstract class AbstractModelImpl {
      * @return The value.
      */
     protected final <T> T logVariable(final String name, final T value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
-                    session.getJabberId().getUsername(),
+        if (logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0} {1}={2}",
+                    null == session ? NO_SESSION : session.getJabberId(),
                     name, Log4JHelper.render(logger, value)));
         }
         return value;
@@ -387,10 +406,12 @@ public abstract class AbstractModelImpl {
      */
     protected final void logWarning(final Object warning) {
         if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(MessageFormat.format("{0} {1}#{2} {3}",
-                    null == session ? "NO SESSION" : session.getJabberId().getUsername(),
+            logger.warn(MessageFormat.format("{0} {1}.{2}({3}:{4}) {5}",
+                    null == session ? NO_SESSION : session.getJabberId(),
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName(),
+                    StackUtil.getCallerFileName(),
+                    StackUtil.getCallerLineNumber(),
                     Log4JHelper.render(logger, warning)));
         }
     }
@@ -410,14 +431,9 @@ public abstract class AbstractModelImpl {
      * @throws UnauthorizedException
      */
     protected void notifyTeam(final UUID uniqueId, final IQ notification)
-            throws ParityServerModelException, UnauthorizedException {
-        final List<JabberId> team = readTeam(uniqueId);
-        for(final JabberId teamMember : team) {
-            if(!teamMember.equals(session.getJabberId())) {
-                notification.setTo(getJID(teamMember));
-                send(teamMember, notification);
-            }
-        }
+            throws UnauthorizedException {
+        final List<JabberId> team = getArtifactModel().readTeamIds(uniqueId);
+        send(team, notification);
     }
 
     /**
@@ -433,32 +449,46 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-	 * Route an IQ to a jive user. This will determine whether or not the user
-	 * is currently online; and if they are not; it will queue the request.
-	 * 
-	 * @param jabberId
-	 *            The jabber id.
-	 * @param iq
-	 *            The iq.
-	 */
-	protected void send(final JabberId jabberId, final IQ iq)
-            throws UnauthorizedException {
-	    logApiId();
-		logVariable("jabberId", jabberId);
-        logVariable("iq", iq);
-		send(getJID(jabberId), iq);
-	}
-
-	/**
-     * Set the from field in the query.
+     * Send a query to a user.
      * 
-     * @param query
-     *            The xmpp query <code>IQ</code>.
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @param query
+     *            An xmpp internet query <code>IQ</code>.
      */
-    protected void setFrom(final IQ query, final JabberId userId) {
-        query.setFrom(getJID(userId));
+    protected void send(final JabberId toUserId, final IQ query) {
+        logApiId();
+        logVariable("toUserId", toUserId);
+        logVariable("query", query);
+        final List<JabberId> toUserIds = new ArrayList<JabberId>(1);
+        send(toUserIds, query);
+    }
+
+    /**
+     * Send a query to a list of users.
+     * 
+     * @param toUserIds
+     *            A <code>List&lt;JabberId&gt;</code>.
+     * @param query
+     *            An xmpp internet query <code>IQ</code>.
+     */
+    protected void send(final List<JabberId> toUserIds, final IQ query) {
+        logApiId();
+        logVariable("toUserIds", toUserIds);
+        logVariable("query", query);
+        for (final JabberId toUserId : toUserIds) {
+            query.setTo(getJID(toUserId));
+            if (isOnline(toUserId)) {
+                getClientSession(toUserId).process(query);
+            } else {
+                enqueue(toUserId, query);
+            }
+            backup(toUserId, query);
+        }
+        // do not backup the same user twice
+        if (!toUserIds.contains(session.getJabberId())) {
+            backup(session.getJabberId(), query);
+        }
     }
 
 	/**
@@ -473,7 +503,7 @@ public abstract class AbstractModelImpl {
         query.setTo(getJID(userId));
     }
 
-    /**
+	/**
      * Translate an error into a parity unchecked error.
      * 
      * @param t
@@ -491,6 +521,27 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Archive a query for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param query
+     *            An xmpp internet query.
+     */
+    private void backup(final JabberId userId, final IQ query) {
+        final JabberId archiveId = getUserModel().readArchiveId(userId);
+        if (null != archiveId) {
+            query.setTo(getJID(archiveId));
+            if (isOnline(archiveId)) {
+                getClientSession(archiveId).process(query);
+            } else {
+                logWarning(MessageFormat.format("Archive {0} not online.", archiveId));
+                enqueue(archiveId, query);
+            }
+        }
+    }
+
+    /**
 	 * Save the iq in the parity offline queue.
 	 * 
 	 * @param jid
@@ -498,9 +549,9 @@ public abstract class AbstractModelImpl {
 	 * @param iq
 	 *            The iq packet.
 	 */
-	private void enqueue(final JID jid, final IQ iq) {
+	private void enqueue(final JabberId userId, final IQ iq) {
 		final QueueModel queueModel = QueueModel.getModel(session);
-		queueModel.enqueue(jid, iq);
+		queueModel.enqueue(getJID(userId), iq);
 	}
 
     /**
@@ -542,43 +593,4 @@ public abstract class AbstractModelImpl {
             throws ParityServerModelException {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
     }
-
-
-    /**
-     * Read the team.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return A list of jabber ids.
-     * @throws ParityServerModelException
-     */
-    private List<JabberId> readTeam(final UUID uniqueId)
-            throws ParityServerModelException {
-        final List<ArtifactSubscription> subscription = getArtifactModel().getSubscription(uniqueId);
-        final List<JabberId> team = new ArrayList<JabberId>(subscription.size());
-        for(final ArtifactSubscription s : subscription) {
-            team.add(s.getJabberId());
-        }
-        return team;
-    }
-
-    /**
-	 * Route an IQ to a jive user. This will determine whether or not the user
-	 * is currently online; and if they are not; it will queue the request.
-	 * 
-	 * @param jid
-	 *            The jive user id.
-	 * @param iq
-	 *            The iq.
-	 */
-	private void send(final JID jid, final IQ iq) throws UnauthorizedException {
-        logApiId();
-		logVariable("jid", jid);
-        logVariable("iq", iq);
-		if (isOnline(jid)) {
-            getSessionManager().getSession(jid).process(iq);
-		} else {
-            enqueue(jid, iq);
-		}
-	}
 }

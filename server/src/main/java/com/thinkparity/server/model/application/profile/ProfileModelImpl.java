@@ -13,11 +13,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.jivesoftware.messenger.user.UserManager;
-import org.jivesoftware.messenger.user.UserProvider;
-
-import org.xmpp.packet.IQ;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.user.UserManager;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -49,7 +46,7 @@ class ProfileModelImpl extends AbstractModelImpl {
     private final ContactSql contactSql;
 
     /** A jive user provider. */
-    private final UserProvider userProvider;
+    private final UserManager userManager;
 
     /** User db io. */
     private final UserSql userSql;
@@ -63,7 +60,7 @@ class ProfileModelImpl extends AbstractModelImpl {
     ProfileModelImpl(final Session session) {
         super(session);
         this.contactSql = new ContactSql();
-        this.userProvider = UserManager.getUserProvider();
+        this.userManager = UserManager.getInstance();
         this.userSql = new UserSql();
     }
 
@@ -210,7 +207,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             Assert.assertTrue("SECURITY ANSWER DOES NOT MATCH",
                     securityAnswer.equals(storedSecurityAnswer));
             final String password = PasswordGenerator.generate();
-            userProvider.setPassword(userId.getUsername(), password);
+            userManager.getUser(userId.getUsername()).setPassword(password);
             return password;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -303,10 +300,6 @@ class ProfileModelImpl extends AbstractModelImpl {
         final IQWriter notification = createIQWriter("contact:contactupdated");
         notification.writeJabberId("contactId", userId);
         notification.writeCalendar("updatedOn", currentDateTime());
-        final IQ notificationIQ = notification.getIQ();
-        for (final JabberId contactId : contactIds) {
-            setTo(notificationIQ, contactId);
-            send(contactId, notificationIQ);
-        }
+        send(contactIds, notification.getIQ());
     }
 }

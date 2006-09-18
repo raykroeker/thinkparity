@@ -3,7 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire;
 
-import org.jivesoftware.messenger.XMPPServer;
+import org.jivesoftware.wildfire.XMPPServer;
 
 import org.xmpp.packet.JID;
 

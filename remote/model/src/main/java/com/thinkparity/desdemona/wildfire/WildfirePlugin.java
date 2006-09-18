@@ -13,18 +13,19 @@ import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import org.jivesoftware.messenger.IQRouter;
-import org.jivesoftware.messenger.XMPPServer;
-import org.jivesoftware.messenger.container.Plugin;
-import org.jivesoftware.messenger.container.PluginManager;
-import org.jivesoftware.messenger.handler.IQHandler;
+import org.jivesoftware.util.JiveGlobals;
+import org.jivesoftware.wildfire.IQRouter;
+import org.jivesoftware.wildfire.XMPPServer;
+import org.jivesoftware.wildfire.XMPPServerListener;
+import org.jivesoftware.wildfire.container.Plugin;
+import org.jivesoftware.wildfire.container.PluginManager;
+import org.jivesoftware.wildfire.handler.IQHandler;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.XPP3Reader;
 import org.xmlpull.v1.XmlPullParserException;
-
 
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
@@ -37,7 +38,7 @@ import com.thinkparity.desdemona.model.archive.ArchiveModel;
  * @author raykroeker@gmail.com
  * @version 1.1.2.30
  */
-public class WildfirePlugin implements Plugin {
+public class WildfirePlugin implements Plugin, XMPPServerListener {
 
 	/** An apache logger. */
     protected Logger logger;
@@ -45,7 +46,7 @@ public class WildfirePlugin implements Plugin {
 	/** The plugin's handlers. */
     private final List<IQHandler> handlers;
 
-    /** The jive router. */
+    /** The wildfire router. */
 	private final IQRouter router;
 
 	/** Create WildfirePlugin. */
@@ -53,35 +54,44 @@ public class WildfirePlugin implements Plugin {
 		super();
         this.handlers = new LinkedList<IQHandler>();
 		this.router = XMPPServer.getInstance().getIQRouter();
+        XMPPServer.getInstance().addServerListener(this);
 	}
 
-	/**
-	 * @see org.jivesoftware.messenger.container.Plugin#destroyPlugin()
-	 */
+    /**
+     * @see org.jivesoftware.wildfire.container.Plugin#destroyPlugin()
+     * 
+     */
 	public void destroyPlugin() {
-        destroyArchive();
+        stopArchive();
 	    destroyHandlers();
 		destroyLogging();
 	}
 
 	/**
-	 * @see org.jivesoftware.messenger.container.Plugin#initializePlugin(org.jivesoftware.messenger.container.PluginManager, java.io.File)
+     * @see org.jivesoftware.wildfire.container.Plugin#initializePlugin(org.jivesoftware.wildfire.container.PluginManager, java.io.File)
+     * 
 	 */
 	public void initializePlugin(final PluginManager manager,
             final File pluginDirectory) {
-		initializeLogging(pluginDirectory);
+		initializeLogging();
 		initializeHandlers(pluginDirectory);
-        initializeArchive();
-		logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
+//        startArchive();
+		logger.info(MessageFormat.format("{0} - {1} - {2}",
                 Version.getName(), Version.getMode(), Version.getBuildId()));
 	}
 
-	/**
-     * Stop the archive service.
-     *
+    /**
+     * @see org.jivesoftware.wildfire.XMPPServerListener#serverStarted()
      */
-    private void destroyArchive() {
-        ArchiveModel.getModel().stop();
+    public void serverStarted() {
+        startArchive();
+    }
+
+	/**
+     * @see org.jivesoftware.wildfire.XMPPServerListener#serverStopping()
+     */
+    public void serverStopping() {
+        stopArchive();
     }
 
 	/**
@@ -97,21 +107,13 @@ public class WildfirePlugin implements Plugin {
         }
 	}
 
-    /**
+	/**
 	 * Destroy the logging framework.
 	 *
 	 */
 	private void destroyLogging() { LogManager.shutdown(); }
 
     /**
-     * Start the archive service.
-     *
-     */
-    private void initializeArchive() {
-        ArchiveModel.getModel().start();
-    }
-
-	/**
      * Intialize the controller and add it to the route table.
      * 
      * @param handlerName
@@ -161,15 +163,32 @@ public class WildfirePlugin implements Plugin {
         }
     }
 
-    /**
+	/**
 	 * Initialize logging.
 	 * 
 	 * @param pluginDirectory
 	 *            The plugin directory.
 	 */
-	private void initializeLogging(final File pluginDirectory) {
+	private void initializeLogging() {
+        final File logDirectory = new File(JiveGlobals.getHomeDirectory(), "logs");
         System.setProperty("thinkparity.log4j.file",
-                new File(pluginDirectory, "desdemona.log4j").getAbsolutePath());
+                new File(logDirectory, "desdemona.log").getAbsolutePath());
         logger = Logger.getLogger(getClass());
 	}
+
+    /**
+     * Start the archive service.
+     *
+     */
+    private void startArchive() {
+        ArchiveModel.getModel().start();
+    }
+
+    /**
+     * Stop the archive service.
+     *
+     */
+    private void stopArchive() {
+        ArchiveModel.getModel().stop();
+    }
 }

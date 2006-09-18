@@ -682,6 +682,16 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         if (!contains(localTeam, publishedBy)) {
             artifactModel.addTeamMember(containerId, publishedBy);
         }
+        // delete draft
+        final ContainerDraft draft = readDraft(containerId);
+        if (null == draft) {
+            logInfo("Draft did not previously exist for {0}.", name);
+        } else {
+            for (final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            }
+            containerIO.deleteDraft(containerId);
+        }
         // create published to list
         containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
         // fire event

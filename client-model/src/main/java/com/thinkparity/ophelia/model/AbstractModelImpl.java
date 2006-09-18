@@ -93,6 +93,8 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		.append("Before you can create the first parity artifact; you will ")
 		.append("need to establish a parity session.").toString();
 
+    private static final String NO_WORKSPACE = "No workspace.";
+
     /**
 	 * Obtain the current date\time.
 	 * 
@@ -105,7 +107,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-    /** An internal model factory. */
+	/** An internal model factory. */
     protected final InternalModelFactory internalModelFactory;
 
 	/** A localization interface. */
@@ -117,16 +119,16 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	/** The thinkParity workspace <code>Preferences</code>. */
 	protected final Preferences preferences;
 
-	/** A thinkParity <code>Workspace</code>. */
+    /** A thinkParity <code>Workspace</code>. */
 	protected final Workspace workspace;
 
-    /** The decryption cipher. */
+	/** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
 	/** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-	/** The secret key spec. */
+    /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
     /**
@@ -156,7 +158,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getWorkspaceModel().addListener(workspace, this, listener);
     }
 
-    /**
+	/**
      * Assert a draft doesn't exist for the container.
      * 
      * @param assertion
@@ -168,7 +170,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertIsNull(assertion, getInternalContainerModel().readDraft(containerId));
     }
 
-	/**
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -225,7 +227,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue(assertion, contains(teamMembers, user));
     }
 
-    /**
+	/**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -253,7 +255,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-	/**
+    /**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -277,7 +279,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue("USER ID MATCHES LOCAL USER ID", isLocalUserId(userId));
     }
 
-    /**
+	/**
      * Assert that the environment is online.
      * 
      * @param assertion
@@ -290,7 +292,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 "Environment {0} is not reachable.", environment);
     }
 
-	/**
+    /**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -324,7 +326,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, reference);
     }
 
-    /**
+	/**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -349,7 +351,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline("USER NOT ONLINE");
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      * @param assertion
@@ -363,7 +365,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -393,7 +395,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 	}
 
-	/**
+    /**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -552,7 +554,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -561,7 +563,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), workspace);
     }
 
-	/**
+    /**
      * Obtain the internal thinkParity container interface.
      * 
      * @return The internal thinkParity container interface.
@@ -570,14 +572,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContainerModel.getInternalModel(getContext(), workspace);
     }
 
-    /**
+	/**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), workspace);
-	}
+	};
 
 	/**
      * Obtain the internal parity download interface.
@@ -586,7 +588,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), workspace);
-    };
+    }
 
 	/**
      * Obtain the internal parity library interface.
@@ -606,7 +608,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-	/**
+    /**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -821,6 +823,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
         }
     }
 
+    protected final void logInfo(final String infoPattern,
+            final Object... infoArguments) {
+        if (logger.isInfoEnabled()) {
+            logger.info(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    null == workspace ? NO_WORKSPACE : workspace.getWorkspaceDirectory().getName(),
+                            Log4JHelper.renderAndFormat(logger, infoPattern, infoArguments)));
+        }
+    }
+
     /**
      * Log a variable. Note that only the variable value will be rendered.
      * 
@@ -833,7 +844,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected final void logVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
             logger.debug(MessageFormat.format("{0} {1}:{2}",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
+                    null == workspace ? NO_WORKSPACE : workspace.getWorkspaceDirectory().getName(),
                     name, Log4JHelper.render(logger, value)));
         }
     }

@@ -69,6 +69,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	private static final int SEND_PACKET_SLEEP_DURATION = 75;
 
+    /**
+     * The number of milliseconds to sleep immediately prior to executing the
+     * login api.
+     */
+    private static final int LOGIN_SLEEP_DURATION = 5 * 1000;
+
     static {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
@@ -741,6 +747,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             default:
                 Assert.assertUnreachable("UNKNOWN ENVIRONMENT PROTOCOL");
 			}
+            // this smack library is so flaky; a delay has to be used between
+            // creating the connection and logging in
+            // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141
+            try { Thread.sleep(LOGIN_SLEEP_DURATION); }
+            catch(final InterruptedException ix) {
+                xmppConnection = null;
+                throw XMPPErrorTranslator.translate(ix);
+            }
 
             xmppConnection.addConnectionListener(new ConnectionListener() {
 			    public void connectionClosed() {
@@ -768,8 +782,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             handleConnectionEstablished();
         } catch (final IllegalStateException isx) {
             logger.error(isx);
-            // a bug in the smack library's processing makes tls authentication
-            // flaky
+            // this smack library is so flaky; a delay has to be used between
+            // creating the connection and logging in
+            // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141
             if ("Not connected to server.".equals(isx.getMessage())) {
                 login(attempt + 1, environment, credentials);
             }

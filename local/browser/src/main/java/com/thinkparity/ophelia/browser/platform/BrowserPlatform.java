@@ -208,7 +208,9 @@ public class BrowserPlatform implements Platform {
 	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
 	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
-    public Boolean isOnline() { return onlineHelper.isOnline(); }
+    public Boolean isOnline() {
+        return onlineHelper.isOnline();
+    }
 
     /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {

@@ -7,8 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.*;
@@ -18,7 +24,6 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.ProviderManager;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
@@ -35,11 +40,13 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Jabber;
-import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.smackx.packet.*;
+import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifact;
+import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifactFlag;
+import com.thinkparity.ophelia.model.util.smackx.packet.IQParity;
+import com.thinkparity.ophelia.model.util.smackx.packet.IQProcessOfflineQueue;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
@@ -59,6 +66,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private static final Logger logger =
 		Logger.getLogger(XMPPSessionImpl.class);
 
+    /**
+     * The number of milliseconds to sleep immediately prior to executing the
+     * login api.
+     */
+    private static final int LOGIN_SLEEP_DURATION = 5 * 1000;
+
     private static final String NO_CONNECTION = "No connection id.";
 
     /**
@@ -69,20 +82,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	private static final int SEND_PACKET_SLEEP_DURATION = 75;
 
-    /**
-     * The number of milliseconds to sleep immediately prior to executing the
-     * login api.
-     */
-    private static final int LOGIN_SLEEP_DURATION = 5 * 1000;
-
     static {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
-
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:closeartifact", new IQCloseArtifactProvider());
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getkeyholder", new IQGetKeyHolderProvider());
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getkeys", new IQGetKeysProvider());
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
 	}
 
     /** A list of the session listeners. */
@@ -209,19 +211,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppUser.clearListeners();
     }
 
-    /**
-	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#closeArtifact(java.util.UUID)
-	 * 
-	 */
-	public void closeArtifact(final UUID artifactUniqueId) throws SmackException {
-		logger.info("sendClose(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQCloseArtifact(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
-	}
-
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID, java.lang.Long,
@@ -232,18 +221,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.confirmReceipt(userId, uniqueId, versionId, receivedBy);
     }
 
-	/**
-	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createArtifact(java.util.UUID)
-	 * 
-	 */
-	public void createArtifact(final UUID artifactUniqueId)
-            throws SmackException {
-		logger.info("sendCreate(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createArtifact(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     */
+	public void createArtifact(final JabberId userId, final UUID uniqueId) {
+	    xmppArtifact.create(userId, uniqueId);
 	}
 
     /**
@@ -318,23 +301,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		iq.setType(IQ.Type.SET);
 		logger.debug(iq);
 		sendPacket(iq);
-	}
-
-	/**
-	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#getArtifactKeys()
-	 * 
-	 */
-	public List<UUID> getArtifactKeys() throws SmackException {
-		assertLoggedIn("Cannot obtain artifact keys while offline.");
-		logger.info("getArtifactKeys()");
-		final IQParity iq = new IQGetKeys();
-		iq.setType(IQ.Type.GET);
-		logger.debug(iq);
-		final IQGetKeysResponse response =
-			(IQGetKeysResponse) sendAndConfirmPacket(iq);
-		final List<UUID> keys = new LinkedList<UUID>();
-		for(final UUID key : response.getKeys()) { keys.add(key); }
-		return keys;
 	}
 
 	/**
@@ -641,6 +607,22 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
+     * Log an error.
+     * 
+     * @param message
+     *            An error message.
+     */
+    protected void logError(final Throwable cause, final String pattern,
+            final Object... arguments) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            logger.error(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    null == xmppConnection ? NO_CONNECTION : xmppConnection
+                            .getConnectionID(), Log4JHelper.renderAndFormat(
+                            logger, pattern, arguments)), cause);
+        }
+    }
+
+	/**
      * Log a variable.  Note that only the variable value will be rendered.
      * 
      * @param name
@@ -698,7 +680,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         });
 	}
 
-	/**
+    /**
 	 * Event handler for the connectionEstablished event generated by the smack
 	 * connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionEstablished event.
@@ -781,7 +763,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
                     credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
             handleConnectionEstablished();
         } catch (final IllegalStateException isx) {
-            logger.error(isx);
+            logError(isx, "Login attempt {0} failed.", attempt);
             // this smack library is so flaky; a delay has to be used between
             // creating the connection and logging in
             // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141

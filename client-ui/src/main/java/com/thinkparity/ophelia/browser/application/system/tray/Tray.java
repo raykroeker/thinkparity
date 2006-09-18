@@ -113,7 +113,6 @@ public class Tray {
      *      The platform connection.
      */
     public void reloadConnection(final Platform.Connection cx) {
-        systemApplication.logApiId();
         systemApplication.debugVariable("cx", cx);
         switch(cx) {
         case OFFLINE:

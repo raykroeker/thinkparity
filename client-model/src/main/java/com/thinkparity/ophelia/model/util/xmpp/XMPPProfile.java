@@ -174,7 +174,9 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
         update.setParameter("userId", userId);
         update.setParameter("name", profile.getName());
         update.setParameter("organization", profile.getOrganization());
-        update.setParameter("title", profile.getTitle());
+        if (profile.isSetTitle()) {
+            update.setParameter("title", profile.getTitle());
+        }
         execute(update);
     }
 }

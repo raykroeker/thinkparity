@@ -5,11 +5,11 @@
 package com.thinkparity.ophelia.browser.platform.online;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.model.workspace.Preferences;
 
 /**
  * @author raymond@thinkparity.com
@@ -17,15 +17,13 @@ import com.thinkparity.ophelia.browser.platform.Platform;
  */
 public class OnlineHelper {
 
-    /** The url to check if we are online. */
-    private final String urlString;
+    /** The thinkParity platform. */
+    private final Platform platform;
 
     /** Create OnlineHelper. */
     public OnlineHelper(final Platform platform) {
         super();
-        this.urlString = new StringBuffer("http://")
-                .append(platform.getPreferences().getServerHost())
-                .toString();
+        this.platform = platform;
     }
 
     /**
@@ -34,14 +32,17 @@ public class OnlineHelper {
      * @return True if the platform is online.
      */
     public Boolean isOnline() {
+        final Preferences preferences = platform.getPreferences();
+        Socket socket;
         try {
-            final URL url = new URL(urlString);
-            final HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            final int responseCode = con.getResponseCode();
-            if(200 != responseCode) { return Boolean.FALSE; }
-            else { return Boolean.TRUE; }
+            socket = new Socket(
+                    preferences.getServerHost(), preferences.getServerPort());
+            socket.close();
+            return Boolean.TRUE;
+        } catch (final UnknownHostException uhx) {
+            return Boolean.FALSE;
+        } catch (final IOException iox) {
+            return Boolean.FALSE;
         }
-        catch(final MalformedURLException murlx) { return Boolean.FALSE; }
-        catch(final IOException iox) { return Boolean.FALSE; }
     }
 }

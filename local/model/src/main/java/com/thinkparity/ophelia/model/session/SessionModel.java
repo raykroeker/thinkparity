@@ -92,7 +92,6 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
      * Login to parity. This will create a new singleton instance of a parity
      * session.
      * 
-     * @throws ParityException
      */
     public void login() {
         synchronized(getImplLock()) { getImpl().login(); }
@@ -104,7 +103,6 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
 	 * 
 	 * @param credentials
 	 *            The user's credentials.
-	 * @throws ParityException
 	 */
 	public void login(final Credentials credentials) {
 		synchronized(getImplLock()) { getImpl().login(credentials); }

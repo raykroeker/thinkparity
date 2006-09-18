@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
@@ -19,8 +20,6 @@ import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 import com.thinkparity.codebase.model.profile.Profile;
-
-
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Logging;
@@ -336,7 +335,7 @@ public abstract class AbstractApplication implements Application {
 	}
 
     /** Log an api id. */
-    protected void logApiId() {
+    protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}]",
                     Logging.APPLICATION_LOG_ID,
@@ -352,7 +351,7 @@ public abstract class AbstractApplication implements Application {
      * @param message
      *            A message to log.
      */
-    protected void logApiId(final Object message) {
+    protected final void logApiId(final Object message) {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}] [{4}]",
                     Logging.APPLICATION_LOG_ID,
@@ -360,6 +359,100 @@ public abstract class AbstractApplication implements Application {
                     getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
                     getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase(),
                     message));
+        }
+    }
+
+    /**
+     * Log an error.
+     * 
+     * @param message
+     *            An error message.
+     * @param t
+     *            The cause of the error.
+     */
+    protected void logError(final Object message, final Throwable t) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            logger.error(message, t);
+        }
+    }
+
+
+
+	/**
+     * Log a variable. Note that only the variable value will be rendered.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     * @return The variable.
+     */
+    protected final <V> V logVariable(final String name, final V value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0} {1}:{2}",
+                    Log4JHelper.render(logger, profile.getId()),
+                    name, Log4JHelper.render(logger, value)));
+        }
+        return value;
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param message
+     *            A warning message.
+     */
+    protected final void logWarn(final Object message) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    profile.getId(), message));
+        }
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param message
+     *            A warning message.
+     */
+    protected final void logWarn(final Throwable cause, final Object message) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    profile.getId(), message), cause);
+        }
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param pattern
+     *            A warning pattern.
+     * @param arguments
+     *            Warning arguments.
+     */
+    protected final void logWarn(final String pattern,
+            final Object... arguments) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    profile.getId(), Log4JHelper.renderAndFormat(logger,
+                            pattern, arguments)));
+        }
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param pattern
+     *            A warning pattern.
+     * @param arguments
+     *            Warning arguments.
+     */
+    protected final void logWarn(final Throwable cause, final String pattern,
+            final Object... arguments) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    profile.getId(), Log4JHelper.renderAndFormat(logger,
+                            pattern, arguments)), cause);
         }
     }
 
@@ -419,7 +512,7 @@ public abstract class AbstractApplication implements Application {
 		persistence.set(key, value);
 	}
 
-	protected String setPref(final String key, final String value) {
+    protected String setPref(final String key, final String value) {
 		final String p = getPref(key, (String) null);
 		persistence.set(key, value);
 		return p;

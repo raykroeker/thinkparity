@@ -13,8 +13,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
-
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.system.tray.TrayNotification;
@@ -158,12 +156,6 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#logApiId()
-     */
-    @Override
-    public void logApiId() { super.logApiId(); }
-
-    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -254,12 +246,6 @@ public class SystemApplication extends AbstractApplication {
     protected Profile getProfile() {
         return super.getProfile();
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#logApiId(java.lang.Object)
-     */
-    @Override
-    protected void logApiId(final Object message) { super.logApiId(message); }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#translateError(java.lang.Throwable)

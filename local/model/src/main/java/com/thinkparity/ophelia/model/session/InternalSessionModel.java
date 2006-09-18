@@ -107,8 +107,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param uniqueId
      *            An artifact unique id.
      */
-	public void createArtifact(final UUID uniqueId) {
-		synchronized (getImplLock()) { getImpl().createArtifact(uniqueId); }
+	public void createArtifact(final JabberId userId, final UUID uniqueId) {
+		synchronized (getImplLock()) {
+            getImpl().createArtifact(userId, uniqueId);
+		}
 	}
 
     /**

@@ -52,12 +52,6 @@ public interface XMPPSession {
             final JabberId invitedBy, final Calendar acceptedOn);
 
     /**
-     * Clear all xmpp session listeners.
-     *
-     */
-    public void clearListeners();
-
-    /**
      * Add an xmpp artifact event listener.
      * 
      * @param l
@@ -113,13 +107,10 @@ public interface XMPPSession {
             final JabberId jabberId) throws SmackException;
 
     /**
-     * Close an artifact.
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @throws SmackException
+     * Clear all xmpp session listeners.
+     *
      */
-	public void closeArtifact(final UUID uniqueId) throws SmackException;
+    public void clearListeners();
 
     /**
      * Confirm artifact receipt.
@@ -139,10 +130,12 @@ public interface XMPPSession {
     /**
      * Create an artifact
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @param uniqueId
-     *            The artifact unique id.
+     *            An artifact unique id <code>UUID</code>.
      */
-    public void createArtifact(final UUID uniqueId) throws SmackException;
+    public void createArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
      * Create a draft for an artifact.

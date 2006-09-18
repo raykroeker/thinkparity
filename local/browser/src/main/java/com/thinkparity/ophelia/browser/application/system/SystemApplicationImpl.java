@@ -3,11 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 import com.thinkparity.ophelia.browser.application.system.tray.TrayNotification;
@@ -47,18 +45,18 @@ class SystemApplicationImpl extends Thread {
 	 */
 	public void run() {
 		while(running) {
-			sysApp.logApiId();
-			try { synchronized(this) { wait(); } }
-			catch(final InterruptedException ix) {
-				sysApp.logApiId("INTERRUPTED");
-			}
+			try {
+                synchronized(this) {
+                    wait();
+                }
+			} catch(final InterruptedException ix) {}
             // do not try to process the queue if after waking up
             // we are no longer running
-            if(running) {
-    			try { processQueue(); }
-    			catch(final RuntimeException rx) {
-    				sysApp.translateError(rx);
-    				throw rx;
+            if (running) {
+    			try {
+                    processQueue();
+    			} catch (final RuntimeException rx) {
+    				throw sysApp.translateError(rx);
     			}
             }
 		}
@@ -139,11 +137,11 @@ class SystemApplicationImpl extends Thread {
 	 *
 	 */
 	private void processQueue() {
-        sysApp.logApiId(MessageFormat.format("{0}", getQueueTotal()));
-        if(0 < getQueueTotal()) {
-            TrayNotification notification;
-            synchronized(this) {
-                for(final Iterator<TrayNotification> i = queue.iterator(); i.hasNext();) {
+        if (0 < getQueueTotal()) {
+            synchronized (this) {
+                TrayNotification notification;
+                for (final Iterator<TrayNotification> i = queue.iterator();
+                        i.hasNext();) {
                     notification = i.next();
                     sysTray.display(notification);
                     i.remove();

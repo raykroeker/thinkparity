@@ -57,22 +57,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	}
 
 	/**
-     * Handle the remote session terminated event.
-     * 
-     * @param cause
-     *            The cause of the termination.
-     * 
-     */
-    void handleSessionTerminated(final Exception cause) {
-        logApiId();
-        notifyListeners(new EventNotifier<SessionListener>() {
-            public void notifyListener(final SessionListener listener) {
-                listener.sessionTerminated(cause);
-            }
-        });
-    }
-
-	/**
      * Read a contact.
      * 
      * @param contactId
@@ -93,7 +77,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -174,7 +158,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
 	 * Send an artifact received confirmation receipt.
 	 * 
 	 * @param receivedFrom
@@ -205,20 +189,21 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id.
      */
-	void createArtifact(final UUID uniqueId) {
+	void createArtifact(final JabberId userId, final UUID uniqueId) {
 		logApiId();
+        logVariable("userId", userId);
 		logVariable("uniqueId", uniqueId);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
-		        xmppSession.createArtifact(uniqueId);
+		        xmppSession.createArtifact(userId, uniqueId);
 		    }
 		} catch (final Throwable t) {
             throw translateError(t);
         }
 	}
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -237,7 +222,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
 	 * Decline a user's invitation to their contact list.
 	 * 
 	 * @param jabberId
@@ -300,7 +285,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -326,7 +311,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -341,7 +326,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
 	 * Extend an invitation to a contact.
 	 * 
 	 * @param extendTo
@@ -383,6 +368,22 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionTerminated();
+            }
+        });
+    }
+
+    /**
+     * Handle the remote session terminated event.
+     * 
+     * @param cause
+     *            The cause of the termination.
+     * 
+     */
+    void handleSessionTerminated(final Exception cause) {
+        logApiId();
+        notifyListeners(new EventNotifier<SessionListener>() {
+            public void notifyListener(final SessionListener listener) {
+                listener.sessionTerminated(cause);
             }
         });
     }

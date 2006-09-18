@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Application;
@@ -118,7 +117,10 @@ public class SessionApplication extends AbstractApplication {
         ed = new EventDispatcher(this);
         ed.start();
 
-        if(!isConnected()) { connectLater(0L); }
+        logVariable("isConnected()", isConnected());
+        if(!isConnected()) {
+            connectLater(0L);
+        }
 
         notifyStart();
     }
@@ -168,12 +170,16 @@ public class SessionApplication extends AbstractApplication {
      *            The time to delay before the initial run of the task.
      */
     private void connectLater(final Long delay) {
+        logApiId();
         connectTimer = new Timer(CONNECT_TIMER_NAME, Boolean.FALSE);
         connectTimer.schedule(new TimerTask() {
             public void run() {
                 try {
+                    logVariable("isOnline()", isOnline());
                     if (isOnline()) {
                         connect();
+                    } else {
+                        logWarn("Server not online.");
                     }
                 } catch (final Throwable t) {
                     logError("Connection timer error.", t);
@@ -200,19 +206,7 @@ public class SessionApplication extends AbstractApplication {
      * 
      * @return True if the platform is online; false otherwise.
      */
-    private Boolean isOnline() { return getPlatform().isOnline(); }
-
-    /**
-     * Log an error.
-     * 
-     * @param message
-     *            An error message.
-     * @param t
-     *            The cause of the error.
-     */
-    private void logError(final Object message, final Throwable t) {
-        if (logger.isEnabledFor(Level.ERROR)) {
-            logger.error(message, t);
-        }
+    private Boolean isOnline() {
+        return getPlatform().isOnline();
     }
 }

@@ -7,6 +7,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
@@ -14,10 +17,6 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.border.TopBorder;
 
 /**
  * <b>Title:</b>thinkParity Browser Status<br>
@@ -152,6 +151,11 @@ public class MainStatusAvatar extends Avatar {
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
 
         connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND);
+        connectionJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                connectionJLabelMouseClicked(evt);
+            }
+        });
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -197,6 +201,9 @@ public class MainStatusAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void connectionJLabelMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connectionJLabelMouseClicked
+    }//GEN-LAST:event_connectionJLabelMouseClicked
+
     /**
      * Reload the connection status message.
      * 
@@ -237,7 +244,7 @@ public class MainStatusAvatar extends Avatar {
         }
     }
 
-    private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseDragged
+    private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {                                          
         getController().resizeBrowserWindow(
                 new Dimension(e.getPoint().x - resizeOffsetX,
                         e.getPoint().y - resizeOffsetY));

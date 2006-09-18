@@ -1788,8 +1788,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private void createDistributed(final Container container) {
         final InternalSessionModel sessionModel = getInternalSessionModel();
-        sessionModel.createArtifact(container.getUniqueId());
-        sessionModel.addTeamMember(container.getUniqueId(), localUserId());
+        sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
 
     /**

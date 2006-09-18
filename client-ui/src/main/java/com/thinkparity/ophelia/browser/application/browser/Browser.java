@@ -1372,7 +1372,7 @@ public class Browser extends AbstractApplication {
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */
-	public void start(final Platform platform) {
+    public void start(final Platform platform) {
 		logger.info("[BROWSER2] [APP] [B2] [START]");
 
 		assertStatusChange(ApplicationStatus.STARTING);
@@ -1380,6 +1380,7 @@ public class Browser extends AbstractApplication {
 
         connection = getSessionModel().isLoggedIn() ?
                 Connection.ONLINE : Connection.OFFLINE;
+        setStatus(connection);
 
 		ed = new EventDispatcher(this);
 		ed.start();

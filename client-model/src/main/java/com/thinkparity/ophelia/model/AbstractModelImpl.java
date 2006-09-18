@@ -822,14 +822,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Log a variable.  Note that only the variable value will be rendered.
+     * Log a variable. Note that only the variable value will be rendered.
      * 
      * @param name
      *            The variable name.
      * @param value
      *            The variable value.
+     * @return The variable.
      */
-    protected void logVariable(final String name, final Object value) {
+    protected final void logVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
             logger.debug(MessageFormat.format("{0} {1}:{2}",
                     null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),

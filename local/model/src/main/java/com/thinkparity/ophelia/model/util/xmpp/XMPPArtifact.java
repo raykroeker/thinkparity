@@ -275,6 +275,15 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         method.execute(xmppCore.getConnection());
     }
 
+    void create(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod create = new XMPPMethod("artifact:create");
+        create.setParameter("userId", userId);
+        create.setParameter("uniqueId", uniqueId);
+        execute(create);
+    }
+
     /**
      * Delete an artifact.
      * @param uniqueId An artifact unique id.

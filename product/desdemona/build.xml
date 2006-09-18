@@ -4,6 +4,7 @@
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- build configuration -->
+    <property environment="env"/>
     <tstamp>
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
@@ -16,8 +17,11 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/messenger lib/smack lib/smackx lib/xdoclet lib/xstream"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/messenger lib/smack lib/smackx lib/swing-layout lib/xdoclet lib/xstream"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
+
+    <!-- wildfire configuration  -->
+    <property name="wildfire.home" value="${env.ProgramFiles}\Wildfire"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
@@ -33,6 +37,9 @@
     <property name="vendor.dir" value="${basedir}/vendor"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
     <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>   
+    <property name="vendor.lucene.lib" value="${vendor.dir}/lucene/1.9.1/lucene.jar"/>
+    <property name="vendor.smack.lib" value="${vendor.dir}/smack/2.2.1/smack.jar"/>   
+    <property name="vendor.smackx.lib" value="${vendor.dir}/smackx/2.2.1/smackx.jar"/>   
     <property name="vendor.xstream.lib" value="${vendor.dir}/xstream/1.1.2/xstream.jar"/>   
 
     <!-- classpath -->
@@ -46,11 +53,11 @@
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
         <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
 		<pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
-		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
-		<pathelement location="${basedir}/vendor/messenger/2.3.1/mail.jar"/>
 		<pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
 		<pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
 		<pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
+		<pathelement location="${basedir}/vendor/wildfire/3.0.1/wildfire.jar"/>
+		<pathelement location="${basedir}/vendor/wildfire/3.0.1/mail.jar"/>
     </path>
     <!-- test-classpath -->
     <path id="project.test-classpath">
@@ -402,6 +409,9 @@ Examples:
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
+            <fileset file="${vendor.lucene.lib}"/>
+            <fileset file="${vendor.smack.lib}"/>
+            <fileset file="${vendor.smackx.lib}"/>
             <fileset file="${vendor.xstream.lib}"/>
         </copy>
         <!-- local/model -->
@@ -521,4 +531,14 @@ Examples:
         <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
     </target>
 
+    <!-- deploy the plugin into wildfire -->
+    <target name="wildfire.deploy" depends="quick-release">
+        <delete includeemptydirs="true">
+            <fileset dir="${wildfire.home}/plugins">
+                <include name="${release.name}*/**"/>
+            </fileset>
+        </delete>
+        <copy file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
+            todir="${wildfire.home}/plugins"/>
+    </target>
 </project>

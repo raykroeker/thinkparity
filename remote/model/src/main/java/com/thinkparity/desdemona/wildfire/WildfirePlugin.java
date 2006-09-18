@@ -75,7 +75,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             final File pluginDirectory) {
 		initializeLogging();
 		initializeHandlers(pluginDirectory);
-//        startArchive();
+        startArchive();
 		logger.info(MessageFormat.format("{0} - {1} - {2}",
                 Version.getName(), Version.getMode(), Version.getBuildId()));
 	}

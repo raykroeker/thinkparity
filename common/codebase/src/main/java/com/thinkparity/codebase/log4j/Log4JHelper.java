@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.log4j;
 
+import java.text.MessageFormat;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.RendererSupport;
@@ -44,6 +46,22 @@ public class Log4JHelper {
         return SINGLETON.doRender(logger, objects);
     }
 
+    /**
+     * Create a rendered formatted message.
+     * 
+     * @param logger
+     *            A logger.
+     * @param pattern
+     *            A message pattern.
+     * @param arguments
+     *            A message arguments.
+     * @return A rendered formatted message.
+     */
+    public static String renderAndFormat(final Logger logger,
+            final String pattern, final Object... arguments) {
+        return SINGLETON.doRenderAndFormat(logger, pattern, arguments);
+    }
+
     /** Create Log4JHelper. */
     private Log4JHelper() { super(); }
 
@@ -80,5 +98,21 @@ public class Log4JHelper {
             rendered[i] = doRender(logger, objects[i]);
         }
         return rendered;
+    }
+
+    /**
+     * Create a rendered formatted message.
+     * 
+     * @param logger
+     *            A logger.
+     * @param pattern
+     *            A message pattern.
+     * @param arguments
+     *            A message arguments.
+     * @return A rendered formatted message.
+     */    
+    private String doRenderAndFormat(final Logger logger, final String pattern,
+            final Object... objects) {
+        return MessageFormat.format(pattern, doRender(logger, objects));
     }
 }

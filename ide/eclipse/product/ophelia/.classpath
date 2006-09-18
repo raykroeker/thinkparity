@@ -6,8 +6,9 @@
 	<classpathentry path="local/model/src/main/java" output="target/classes/local/model" kind="src"/>
 	<classpathentry path="local/thinkparity/src/main/java" output="target/classes/local/thinkparity" kind="src"/>
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-	<classpathentry path="common/codebase/src/test/java" output="target/test-classes/common/codebase" kind="src"/>
 	<classpathentry path="common/junitx/src/main/java" output="target/test-classes/common/junitx" kind="src"/>
+	<classpathentry path="common/codebase/src/test/java" output="target/test-classes/common/codebase" kind="src"/>
+	<classpathentry path="common/model/src/test/java" output="target/test-classes/common/model" kind="src"/>
 	<classpathentry path="local/browser/src/test/java" output="target/test-classes/local/browser" kind="src"/>
 	<classpathentry path="local/model/src/test/java" output="target/test-classes/local/model" kind="src"/>
 	<classpathentry sourcepath="vendor/commons-codec/1.3/commons-codec-sources.jar" path="vendor/commons-codec/1.3/commons-codec.jar" kind="lib"/>

@@ -468,6 +468,12 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return bValue;
+            } else if (javaType.equals(Boolean.class)) {
+                parser.next();
+                final Boolean value = Boolean.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return value;
             }
             else if(javaType.equals(Calendar.class)) {
                 parser.next();

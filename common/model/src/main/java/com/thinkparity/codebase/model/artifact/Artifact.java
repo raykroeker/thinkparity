@@ -6,7 +6,6 @@ package com.thinkparity.codebase.model.artifact;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.note.Note;
 
 
@@ -217,6 +216,15 @@ public abstract class Artifact {
 	 * @return The object description.
 	 */
 	public String getDescription() { return description; }
+
+    /**
+     * Determine if the description for the parity object is set.
+     * 
+     * @return True if it is set.
+     */
+    public Boolean isSetDescription() {
+        return null != description;
+    }
 
 	/**
 	 * Obtain the current object state.

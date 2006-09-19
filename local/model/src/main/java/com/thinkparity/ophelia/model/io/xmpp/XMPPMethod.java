@@ -32,11 +32,13 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
+import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
@@ -440,7 +442,27 @@ public class XMPPMethod extends IQ {
         private Object parseJavaObject(final XmlPullParser parser,
                 final String name, final Class javaType) throws IOException,
                 XmlPullParserException {
-            if(javaType.equals(byte[].class)) {
+            if (javaType.equals(ArtifactRemoteInfo.class)) {
+                parser.next();
+                final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
+                remoteInfo.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
+                remoteInfo.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
+                parser.next();
+                parser.next();
+                return remoteInfo;
+            } else if (javaType.equals(ArtifactState.class)) {
+                parser.next();
+                final ArtifactState state = ArtifactState.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return state;
+            } else if (javaType.equals(ArtifactType.class)) {
+                parser.next();
+                final ArtifactType type = ArtifactType.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return type;
+            } else if(javaType.equals(byte[].class)) {
                 parser.next();
                 final byte[] bValue = decompress(decode(parser.getText()));
                 parser.next();
@@ -453,6 +475,24 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return cValue;
+            } else if (javaType.equals(Container.class)) {
+                parser.next();
+                final Container container = new Container();
+                container.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                container.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
+                container.setCustomDescription((String) parseJavaObject(parser, "descriptionBy", String.class));
+                container.setDraft((Boolean) parseJavaObject(parser, "draft", Boolean.class));
+                container.setLocalDraft((Boolean) parseJavaObject(parser, "localDraft", Boolean.class));
+                container.setName((String) parseJavaObject(parser, "name", String.class));
+                container.setRemoteInfo((ArtifactRemoteInfo) parseJavaObject(parser, "remoteInfo", ArtifactRemoteInfo.class));
+                container.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
+                container.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
+                container.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
+                container.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                container.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
+                parser.next();
+                parser.next();
+                return container;
             } else if (javaType.equals(EMail.class)) {
                 parser.next();
                 final EMail value = EMailBuilder.parse(parser.getText());
@@ -468,9 +508,6 @@ public class XMPPMethod extends IQ {
             }
             else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
                 parser.next();
-                // NOTE The jabber id returned is not the same as the type.  This
-                // is due to not easily being able to refactor the jabber id class
-                // to a different package
                 final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
                 parser.next();
                 parser.next();

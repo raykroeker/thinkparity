@@ -17,7 +17,8 @@ import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 
@@ -27,8 +28,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Comp
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.*;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
-import com.thinkparity.ophelia.model.util.filter.Filter;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -232,31 +231,6 @@ public class ContainerModel extends TabModel {
     }
 
     /**
-     * Determine whether or not the cell is expanded.
-     * 
-     * @param mainCell
-     *            The cell.
-     * @return True if the cell is expanded; false otherwise.
-     */
-    public Boolean isExpanded(final TabCell mainCell) {
-        if (mainCell instanceof ContainerCell) {
-            return ((ContainerCell) mainCell).isExpanded();
-        }
-        else if (mainCell instanceof DraftCell) {
-            return ((DraftCell) mainCell).isExpanded();
-        }
-        else if (mainCell instanceof ContainerVersionCell) {
-            return ((ContainerVersionCell) mainCell).isExpanded();
-        }
-        else if (mainCell instanceof ContainerVersionSentToCell) {
-            return ((ContainerVersionSentToCell) mainCell).isExpanded();
-        }
-        else {
-            return Boolean.FALSE;
-        }
-    }
-
-    /**
      * Remove the search.
      * 
      * @see #searchExpression
@@ -369,7 +343,7 @@ public class ContainerModel extends TabModel {
         // search filtered containers
         final List<ContainerCell> filteredContainers = cloneContainers();
         if (null != searchExpression && null != searchResults) {
-            ArtifactFilterManager.filter(filteredContainers, new SearchFilter(searchResults));
+            FilterManager.filter(filteredContainers, new SearchFilter(searchResults));
         }
         
         // update all visible cells
@@ -508,29 +482,14 @@ public class ContainerModel extends TabModel {
     @Override
     protected void triggerDoubleClick(final TabCell tabCell) {
         debug();
-        if (tabCell instanceof ContainerCell) {
+       
+        if ((tabCell instanceof ContainerCell) ||
+            (tabCell instanceof DraftCell) ||
+            (tabCell instanceof ContainerVersionCell) ||
+            (tabCell instanceof ContainerVersionSentToCell)) {
             triggerExpand(tabCell);
-        }
-        else if (tabCell instanceof DraftCell) {
-            triggerExpand(tabCell);
-        }
-        else if (tabCell instanceof ContainerVersionCell) {
-            triggerExpand(tabCell);
-        }
-        else if (tabCell instanceof ContainerVersionSentToCell) {
-            triggerExpand(tabCell);
-        }
-        else if (tabCell instanceof DraftDocumentCell) {
-            final DraftDocumentCell draftDocument = (DraftDocumentCell) tabCell;
-            browser.runOpenDocument(draftDocument.getId());
-        }
-        else if (tabCell instanceof ContainerVersionDocumentCell) {
-            final ContainerVersionDocumentCell versionDocument = (ContainerVersionDocumentCell) tabCell;
-            browser.runOpenDocumentVersion(versionDocument.getId(), ((ContainerVersionCell)versionDocument.getParent()).getVersionId());            
-        }
-        else if (tabCell instanceof ContainerVersionSentToUserCell) {
-            final ContainerVersionSentToUserCell versionUser = (ContainerVersionSentToUserCell) tabCell;
-            browser.runReadContact(versionUser.getId());
+        } else {
+            tabCell.triggerDoubleClickAction(browser);
         }
     }
 
@@ -543,22 +502,7 @@ public class ContainerModel extends TabModel {
      */
     @Override
     protected void triggerExpand(final TabCell mainCell) {
-        if (mainCell instanceof ContainerCell) {
-            final ContainerCell cell = (ContainerCell) mainCell;
-            triggerExpand(mainCell, !isExpanded(cell)); 
-        }
-        else if (mainCell instanceof DraftCell) {
-            final DraftCell cell = (DraftCell) mainCell;
-            triggerExpand(mainCell, !isExpanded(cell));          
-        }
-        else if (mainCell instanceof ContainerVersionCell) {
-            final ContainerVersionCell cell = (ContainerVersionCell) mainCell;
-            triggerExpand(mainCell, !isExpanded(cell));            
-        }
-        else if (mainCell instanceof ContainerVersionSentToCell) {
-            final ContainerVersionSentToCell cell = (ContainerVersionSentToCell) mainCell;
-            triggerExpand(mainCell, !isExpanded(cell));            
-        }
+        triggerExpand(mainCell, !mainCell.isExpanded()); 
     }
     
     /**
@@ -571,39 +515,14 @@ public class ContainerModel extends TabModel {
      */
     @Override
     protected void triggerExpand(final TabCell mainCell, final Boolean expand) {
-        if (mainCell instanceof ContainerCell) {
-            final ContainerCell cell = (ContainerCell) mainCell;
-            if (isExpanded(cell) != expand) {
-                cell.setExpanded(expand);
-                synchronize();
-                
-                if (expand) {
-                    // Flag the container as having been seen
-                    browser.runApplyFlagSeenArtifact(cell.getId(), ArtifactType.CONTAINER);
-                }
-            }      
+        if (mainCell.setExpanded(expand)) {
+            synchronize();
+            if ((mainCell instanceof ContainerCell) && expand) {
+                // Flag the container as having been seen
+                final ContainerCell cell = (ContainerCell) mainCell;
+                browser.runApplyFlagSeenArtifact(cell.getId(), ArtifactType.CONTAINER);
+            }
         }
-        else if (mainCell instanceof DraftCell) {
-            final DraftCell cell = (DraftCell) mainCell;
-            if (isExpanded(cell) != expand) {
-                cell.setExpanded(expand);
-                synchronize();
-            }          
-        }
-        else if (mainCell instanceof ContainerVersionCell) {
-            final ContainerVersionCell cell = (ContainerVersionCell) mainCell;
-            if (isExpanded(cell) != expand) {
-                cell.setExpanded(expand);
-                synchronize();
-            }              
-        } 
-        else if (mainCell instanceof ContainerVersionSentToCell) {
-            final ContainerVersionSentToCell cell = (ContainerVersionSentToCell) mainCell;
-            if (isExpanded(cell) != expand) {
-                cell.setExpanded(expand);
-                synchronize();
-            }              
-        } 
     }
 
     /**
@@ -928,7 +847,7 @@ public class ContainerModel extends TabModel {
      * <b>Description:</b>Provides the capability to filter the container cells
      * that do not match the search results.
      */
-    private class SearchFilter implements Filter<Artifact> {
+    private class SearchFilter implements Filter<ContainerCell> {
 
         /** The search results. */
         private final List<Long> searchResults;
@@ -946,7 +865,7 @@ public class ContainerModel extends TabModel {
         /**
          * @see com.thinkparity.ophelia.model.util.filter.Filter#doFilter(java.lang.Object)
          */
-        public Boolean doFilter(final Artifact o) {
+        public Boolean doFilter(final ContainerCell o) {
             for (final Long searchResult : searchResults) {
                 if (searchResult.equals(o.getId()))
                     return Boolean.FALSE;

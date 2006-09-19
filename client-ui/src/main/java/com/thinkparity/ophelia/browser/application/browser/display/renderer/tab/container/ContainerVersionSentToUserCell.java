@@ -14,9 +14,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -33,7 +35,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerVersionSentToUserCell extends User implements TabCell {
+public class ContainerVersionSentToUserCell implements TabCell {
     
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -57,15 +59,18 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
     
     /** The user's parent version (grandparent cell). */
     private final ContainerVersionCell version;
+    
+    /** The user associated with this cell. */
+    private User user;
 
     /** Create ContainerVersionSentToCell. */
     public ContainerVersionSentToUserCell(final ContainerVersionSentToCell versionSentTo, final User user) { 
-        super();
-        setId(user.getId());
-        setLocalId(user.getLocalId());
-        setName(user.getName());
-        setOrganization(user.getOrganization());
-        setTitle(user.getTitle());
+        this.user = new User();
+        this.user.setId(user.getId());
+        this.user.setLocalId(user.getLocalId());
+        this.user.setName(user.getName());
+        this.user.setOrganization(user.getOrganization());
+        this.user.setTitle(user.getTitle());
         this.imageCache = new MainCellImageCache();        
         this.popupItemFactory = PopupItemFactory.getInstance();
         this.versionSentTo = versionSentTo;
@@ -78,10 +83,19 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
      */
     public boolean equals(final Object obj) {
         if (null != obj && obj instanceof ContainerVersionSentToUserCell) {           
-            return ((ContainerVersionSentToUserCell) obj).getId().equals(getId()) &&
+            return ((ContainerVersionSentToUserCell) obj).user.getId().equals(user.getId()) &&
                 ((ContainerVersionSentToUserCell) obj).version.equals(version);
         }
         return false;
+    }
+    
+    /**
+     * Get the user Id.
+     * 
+     * @return The user id.
+     */
+    public JabberId getId() {
+        return user.getId();
     }
 
     /**
@@ -141,17 +155,17 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
      * @return A string.
      */
     public String getFullText() {
-        String text = new String(getName());
-        if (isSetTitle() || isSetOrganization()) {
+        String text = new String(user.getName());
+        if (user.isSetTitle() || user.isSetOrganization()) {
             text += "  (";
-            if (isSetTitle()) {
-                text += getTitle();
-                if (isSetOrganization()) {
+            if (user.isSetTitle()) {
+                text += user.getTitle();
+                if (user.isSetOrganization()) {
                     text += ", ";
                 }
             }
-            if (isSetOrganization()) {
-                text += getOrganization();
+            if (user.isSetOrganization()) {
+                text += user.getOrganization();
             }
             text += ")";
         }
@@ -229,9 +243,30 @@ public class ContainerVersionSentToUserCell extends User implements TabCell {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         final Data readData = new Data(1);
-        readData.set(Read.DataKey.CONTACT_ID, getId());
+        readData.set(Read.DataKey.CONTACT_ID, user.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
 
         jPopupMenu.show(invoker, e.getX(), e.getY());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {  
+        browser.runReadContact(user.getId());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
     }
 }

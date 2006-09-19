@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -23,6 +24,8 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -31,6 +34,7 @@ import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -48,7 +52,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerCell extends Container implements TabCell  {
+public class ContainerCell implements TabCell  {
 
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
@@ -112,26 +116,29 @@ public class ContainerCell extends Container implements TabCell  {
     /** A flag indicating if this cell is the first in a group. */
     private Boolean firstInGroup = Boolean.FALSE;
     
+    /** The container associated with this cell. */
+    private Container container;
+    
     /** Create CellContainer. */
     public ContainerCell(final Container container, final ContainerDraft containerDraft) {
-        super();
-        setCreatedBy(container.getCreatedBy());
-        setCreatedOn(container.getCreatedOn());
-        setDraft(container.isDraft());
-        setId(container.getId());
-        setLocalDraft(container.isLocalDraft());
-        setName(container.getName());
-        setRemoteInfo(container.getRemoteInfo());
-        setState(container.getState());
-        setUniqueId(container.getUniqueId());
-        setUpdatedBy(container.getUpdatedBy());
-        setUpdatedOn(container.getUpdatedOn());
-        add(container.getFlags());
-        this.closed = getState() == ArtifactState.CLOSED;
+        this.container = new Container();
+        this.container.setCreatedBy(container.getCreatedBy());
+        this.container.setCreatedOn(container.getCreatedOn());
+        this.container.setDraft(container.isDraft());
+        this.container.setId(container.getId());
+        this.container.setLocalDraft(container.isLocalDraft());
+        this.container.setName(container.getName());
+        this.container.setRemoteInfo(container.getRemoteInfo());
+        this.container.setState(container.getState());
+        this.container.setUniqueId(container.getUniqueId());
+        this.container.setUpdatedBy(container.getUpdatedBy());
+        this.container.setUpdatedOn(container.getUpdatedOn());
+        this.container.add(container.getFlags());
+        this.closed = this.container.getState() == ArtifactState.CLOSED;
         this.imageCache = new MainCellImageCache();
-        this.keyHolder = contains(ArtifactFlag.KEY);
+        this.keyHolder = this.container.contains(ArtifactFlag.KEY);
         this.popupItemFactory = PopupItemFactory.getInstance();
-        this.seen = contains(ArtifactFlag.SEEN);
+        this.seen = this.container.contains(ArtifactFlag.SEEN);
         this.urgent = Boolean.FALSE;
         if (null==containerDraft) {
             this.draftOwner = null;
@@ -145,10 +152,55 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
+    
+    /**
+     * Get the container Id.
+     * 
+     * @return The container id.
+     */
+    public Long getId() {
+        return container.getId();
+    }
+    
+    /**
+     * Get the container name.
+     * 
+     * @return The container name.
+     */
+    public String getName() {
+        return container.getName();
+    }
+    
+    /**
+     * Obtain the update date.
+     * 
+     * @return The updated date.
+     */
+    public Calendar getUpdatedOn() {
+        return container.getUpdatedOn();
+    }
+    
+    /**
+     * Determine whether or not there exists a draft.
+     * 
+     * @return True if there exists a draft; false otherwise.
+     */
+    public Boolean isDraft() {
+        return container.isDraft();
+    }
+
+    
+    /** 
+     * Determine whether or not the draft is local.
+     * 
+     * @return True if the draft is local; false otherwise.
+     */
+    public Boolean isLocalDraft() {
+        return container.isLocalDraft();
+    }
 
     /**
      * Obtain the background image for a cell.
-     * 
      * 
      * @return A buffered image.
      */
@@ -218,10 +270,10 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public String getText() {
-        if(TEXT_MAX_LENGTH < getName().length()) {
-            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+        if(TEXT_MAX_LENGTH < container.getName().length()) {
+            return container.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
         }
-        else { return getName(); }
+        else { return container.getName(); }
     }
     
     /**
@@ -263,7 +315,7 @@ public class ContainerCell extends Container implements TabCell  {
      * 
      */
     public String getToolTip() {
-        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
+        if(TEXT_MAX_LENGTH < container.getName().length()) { return container.getName(); }
         else { return null; }
     }
     
@@ -297,13 +349,6 @@ public class ContainerCell extends Container implements TabCell  {
      * @return True if the container is closed; false otherwise.
      */
     public Boolean isClosed() { return closed; }    
-
-    /**
-     * Determine whether or not the cell is expanded.
-     * 
-     * @return True if the cell is expanded.
-     */
-    public Boolean isExpanded() { return expanded; }
     
     /**
      * Determine whether or not the user is the container's key holder.
@@ -327,14 +372,6 @@ public class ContainerCell extends Container implements TabCell  {
     public Boolean isUrgent() { return urgent; }
 
     /**
-     * Set the expanded flag.
-     * 
-     * @param expanded
-     *            The expanded flag.
-     */
-    public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(java.awt.Component, java.awt.event.MouseEvent, MouseEvent)
      */
     public void triggerPopup(final Connection connection,
@@ -343,20 +380,20 @@ public class ContainerCell extends Container implements TabCell  {
         
         if(connection == Connection.ONLINE) {
             Boolean needSeparator = Boolean.FALSE;
-            if (isDraft() && isLocalDraft()) {
+            if (container.isDraft() && container.isLocalDraft()) {
                 final Data publishData = new Data(1);
-                publishData.set(Publish.DataKey.CONTAINER_ID, getId());
+                publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
                 
                 final Data deleteData = new Data(1);
-                deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
+                deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
                 needSeparator = Boolean.TRUE;
             }
             
-            if (!isDraft()) {
+            if (!container.isDraft()) {
                 final Data createDraftData = new Data(1);
-                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
+                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));  
                 needSeparator = Boolean.TRUE;
             } 
@@ -366,9 +403,9 @@ public class ContainerCell extends Container implements TabCell  {
             }
         }               
         
-        if (isDraft() && isLocalDraft()) {
+        if (container.isDraft() && container.isLocalDraft()) {
             final Data addDocumentData = new Data(2);
-            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getId());
+            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
             addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));            
             jPopupMenu.addSeparator();
@@ -388,19 +425,19 @@ public class ContainerCell extends Container implements TabCell  {
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ARCHIVE, archiveData));
         }              
         final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTAINER_ID, getId());
+        deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));
         
         jPopupMenu.addSeparator();
         
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
-        if (isDraft() && isLocalDraft()) {
+        if (container.isDraft() && container.isLocalDraft()) {
             final Data printData = new Data(1);
-            printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, container.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
         } else {
             final Data printData = new Data(1);
-            printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, container.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_VERSION, printData));
         }
 
@@ -415,12 +452,12 @@ public class ContainerCell extends Container implements TabCell  {
                     systemClipboard.setContents(stringSelection, null);
                 }
             };
-            final JMenuItem idJMenuItem = new JMenuItem("Id - " + getId());
-            idJMenuItem.putClientProperty("COPY_ME", getId());
+            final JMenuItem idJMenuItem = new JMenuItem("Id - " + container.getId());
+            idJMenuItem.putClientProperty("COPY_ME", container.getId());
             idJMenuItem.addActionListener(debugActionListener);
 
-            final JMenuItem uidJMenuItem = new JMenuItem("Unique id - " + getUniqueId());
-            uidJMenuItem.putClientProperty("COPY_ME", getUniqueId());
+            final JMenuItem uidJMenuItem = new JMenuItem("Unique id - " + container.getUniqueId());
+            uidJMenuItem.putClientProperty("COPY_ME", container.getUniqueId());
             uidJMenuItem.addActionListener(debugActionListener);
 
             jPopupMenu.addSeparator();
@@ -429,4 +466,32 @@ public class ContainerCell extends Container implements TabCell  {
         }
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return expanded;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        if (this.expanded != expand) {
+            this.expanded = expand;
+            if (expand) {
+                
+            }
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    } 
 }

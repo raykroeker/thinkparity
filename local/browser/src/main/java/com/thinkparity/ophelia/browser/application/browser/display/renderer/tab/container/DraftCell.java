@@ -10,19 +10,19 @@ import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
-
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -45,7 +45,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class DraftCell extends ContainerDraft implements TabCell  {
+public class DraftCell implements TabCell  {
     
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
@@ -84,17 +84,20 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** The container draft associated with this cell. */
+    private ContainerDraft containerDraft;
 
     /**
      * Create a CellContainer.
      */
     public DraftCell(final ContainerCell containerDisplay, final ContainerDraft draft) {
-        super();
-        setContainerId(draft.getContainerId());
+        this.containerDraft = new ContainerDraft();
+        this.containerDraft.setContainerId(draft.getContainerId());
         this.haveDocuments = Boolean.FALSE;
         for(final Document document : draft.getDocuments()) {
-            addDocument(document);
-            putState(document, draft.getState(document));
+            this.containerDraft.addDocument(document);
+            this.containerDraft.putState(document, draft.getState(document));
             this.haveDocuments = Boolean.TRUE;
         }
         this.container = containerDisplay;
@@ -108,6 +111,33 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
+    
+    /**
+     * Get container ID.
+     * 
+     * @return Long container id.
+     */
+    public Long getContainerId() {
+        return containerDraft.getContainerId();
+    }
+    
+    /**
+     * Get the draft state.
+     * 
+     * @return 
+     */
+    public ContainerDraft.ArtifactState getState(final Long artifactId) {
+        return containerDraft.getState(artifactId);
+    }
+    
+    /**
+     * Get documents.
+     * 
+     * 
+     */
+    public List<Document> getDocuments() {
+        return containerDraft.getDocuments();
+    }
 
     /**
      * Obtain the background image for a cell.
@@ -242,26 +272,6 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     public int hashCode() { return super.hashCode(); }
 
     /**
-     * Determine whether or not the cell is expanded.
-     * 
-     * @return True if the cell is expanded.
-     */
-    public Boolean isExpanded() { return expanded; }
-
-    /**
-     * Set the expanded flag.
-     * 
-     * @param expanded
-     *            The expanded flag.
-     */
-    public void setExpanded(final Boolean expanded) {
-        this.expanded = expanded;
-        if (!haveDocuments) {
-            this.expanded = Boolean.FALSE;
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
@@ -270,26 +280,51 @@ public class DraftCell extends ContainerDraft implements TabCell  {
         
         if(connection == Connection.ONLINE) {
             final Data publishData = new Data(1);
-            publishData.set(Publish.DataKey.CONTAINER_ID, getContainerId());
+            publishData.set(Publish.DataKey.CONTAINER_ID, containerDraft.getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
 
             final Data deleteData = new Data(1);
-            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getContainerId());
+            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, containerDraft.getContainerId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteData));
             
             jPopupMenu.addSeparator();
         }
         
         final Data addDocumentData = new Data(2);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getContainerId());
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, containerDraft.getContainerId());
         addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));       
         jPopupMenu.addSeparator();       
         
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_DRAFT, Data.emptyData()));
         final Data printData = new Data(1);
-        printData.set(PrintDraft.DataKey.CONTAINER_ID, getContainerId());
+        printData.set(PrintDraft.DataKey.CONTAINER_ID, containerDraft.getContainerId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {       
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return expanded;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        if ((this.expanded != expand) && (haveDocuments)) {
+            this.expanded = expand;
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    } 
 }

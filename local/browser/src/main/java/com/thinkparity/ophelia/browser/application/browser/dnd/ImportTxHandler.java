@@ -24,14 +24,12 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 
 /**
  * An import transfer handler for drag'n'drop. The tx handler has the ability to
@@ -360,7 +358,7 @@ public class ImportTxHandler extends TransferHandler {
         }
         
         // Report an error (and stop) if the file extensions are different.
-        final String ext1 = ArtifactUtil.getNameExtension(draftDocument);
+        final String ext1 = draftDocument.getNameExtension();
         final String ext2 = FileUtil.getExtension(updateFile);
         if (!ext1.equals(ext2)) {
             browser.displayErrorDialog("ErrorUpdateDocumentDifferentExtension");

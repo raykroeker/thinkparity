@@ -14,11 +14,11 @@ import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
-
-
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
@@ -26,12 +26,10 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Comp
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.IncomingInvitationCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.OutgoingInvitationCell;
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
-import com.thinkparity.ophelia.model.util.filter.Filter;
-import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
 
 /**
  * @author rob_masako@shaw.ca; raymond@thinkparity.com
@@ -255,10 +253,7 @@ public class ContactModel extends TabModel {
     @Override
     protected void triggerDoubleClick(final TabCell tabCell) {
         debug();
-        if(tabCell instanceof ContactCell) {
-            final ContactCell cc = (ContactCell) tabCell;
-            browser.runReadContact(cc.getId());
-        }
+        tabCell.triggerDoubleClickAction(browser);
     }
 
     /**
@@ -473,7 +468,7 @@ public class ContactModel extends TabModel {
      * Synchronize an invitation in an invitation list.
      * 
      * @param <T>
-     *            A contact invitation.
+     *            A contact invitation cell.
      * @param invitationId
      *            An invitation id.
      * @param invitation
@@ -483,7 +478,7 @@ public class ContactModel extends TabModel {
      * @param remote
      *            Whether or not this was the result of a remote event.
      */
-    private <T extends ContactInvitation> void syncInvitationInternal(
+    private <T extends InvitationCell> void syncInvitationInternal(
             final Long invitationId, final T invitation,
             final List<T> invitations, final Boolean remote) {
         // if the invitation is null; we can assume it has been
@@ -531,7 +526,7 @@ public class ContactModel extends TabModel {
         final List<OutgoingInvitationCell> filteredOutgoingInvitations = cloneInvitations(outgoingInvitations);
         final List<IncomingInvitationCell> filteredIncomingInvitations = cloneInvitations(incomingInvitations);
         if (null != searchExpression && null != searchResults) {
-            UserFilterManager.filter(filteredContacts, new SearchFilter(searchResults));
+            FilterManager.filter(filteredContacts, new SearchFilter(searchResults));
         }
 
         // update all visible cells
@@ -578,12 +573,7 @@ public class ContactModel extends TabModel {
      * @return A contact display cell.
      */
     private ContactCell toDisplay(final Contact contact) {
-        final ContactCell contactCell = new ContactCell();
-        contactCell.setId(contact.getId());
-        contactCell.setLocalId(contact.getLocalId());
-        contactCell.setName(contact.getName());
-        contactCell.setOrganization(contact.getOrganization());
-        contactCell.addAllEmails(contact.getEmails());
+        final ContactCell contactCell = new ContactCell(contact);
         return contactCell;
     }
 
@@ -598,11 +588,8 @@ public class ContactModel extends TabModel {
         if (null == incoming) {
             return null;
         } else {
-            final IncomingInvitationCell incomingCell = new IncomingInvitationCell();
-            incomingCell.setCreatedBy(incoming.getCreatedBy());
-            incomingCell.setCreatedOn(incoming.getCreatedOn());
-            incomingCell.setId(incoming.getId());
-            incomingCell.setInvitedByUser(readUser(incoming.getInvitedBy()));
+            final User invitedByUser = readUser(incoming.getInvitedBy());
+            final IncomingInvitationCell incomingCell = new IncomingInvitationCell(incoming, invitedByUser);
             return incomingCell;
         }
     }
@@ -619,11 +606,7 @@ public class ContactModel extends TabModel {
             return null;
         }
         else {
-            final OutgoingInvitationCell outgoingCell = new OutgoingInvitationCell();
-            outgoingCell.setCreatedBy(outgoing.getCreatedBy());
-            outgoingCell.setCreatedOn(outgoing.getCreatedOn());
-            outgoingCell.setEmail(outgoing.getEmail());
-            outgoingCell.setId(outgoing.getId());
+            final OutgoingInvitationCell outgoingCell = new OutgoingInvitationCell(outgoing);
             return outgoingCell;
         }
     }
@@ -633,7 +616,7 @@ public class ContactModel extends TabModel {
      * <b>Description:</b>Provides the capability to filter the contact cells
      * that do not match the search results.
      */
-    private class SearchFilter implements Filter<User> {
+    private class SearchFilter implements Filter<ContactCell> {
 
         /** The search results. */
         private final List<JabberId> searchResults;
@@ -651,7 +634,7 @@ public class ContactModel extends TabModel {
         /**
          * @see com.thinkparity.ophelia.model.util.filter.Filter#doFilter(java.lang.Object)
          */
-        public Boolean doFilter(final User o) {
+        public Boolean doFilter(final ContactCell o) {
             for (final JabberId searchResult : searchResults) {
                 if (searchResult.equals(o.getId()))
                     return Boolean.FALSE;

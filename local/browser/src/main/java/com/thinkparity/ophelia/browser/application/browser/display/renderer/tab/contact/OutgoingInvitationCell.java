@@ -16,9 +16,9 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
-
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -35,7 +35,7 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingInvitationCell extends OutgoingInvitation implements TabCell {
+public class OutgoingInvitationCell extends InvitationCell implements TabCell {
 
     /** A thinkParity fuzzy date format. */
     private final FuzzyDateFormat fuzzyDateFormat; 
@@ -45,10 +45,18 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
 
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** The outgoing invitation associated with this cell. */
+    private OutgoingInvitation outgoingInvitation;
 
     /** Create OutgoingInvitationCell. */
-    public OutgoingInvitationCell() {
+    public OutgoingInvitationCell(final OutgoingInvitation outgoingInvitation) {
         super();
+        this.outgoingInvitation = new OutgoingInvitation();
+        this.outgoingInvitation.setCreatedBy(outgoingInvitation.getCreatedBy());
+        this.outgoingInvitation.setCreatedOn(outgoingInvitation.getCreatedOn());
+        this.outgoingInvitation.setEmail(outgoingInvitation.getEmail());
+        this.outgoingInvitation.setId(outgoingInvitation.getId());
         this.fuzzyDateFormat = DateFormats.FUZZY;
         this.localization = new MainCellL18n("OutgoingInvitation");
         this.popupItemFactory = PopupItemFactory.getInstance();
@@ -101,7 +109,7 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
      */
     public String getText() {
         return localization.getString("Text", new Object[] {
-                getEmail(), fuzzyDateFormat.format(getCreatedOn()) });
+                outgoingInvitation.getEmail(), fuzzyDateFormat.format(outgoingInvitation.getCreatedOn()) });
     }
     
     /**
@@ -157,7 +165,7 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
         switch(connection) {
         case ONLINE:
             final Data deleteData = new Data(1);
-            deleteData.set(DeleteOutgoingInvitation.DataKey.INVITATION_ID, getId());
+            deleteData.set(DeleteOutgoingInvitation.DataKey.INVITATION_ID, outgoingInvitation.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE_OUTGOING_INVITATION, deleteData));
             jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
@@ -166,5 +174,33 @@ public class OutgoingInvitationCell extends OutgoingInvitation implements TabCel
         default:
             Assert.assertUnreachable("UNKNOWN CONECTION");
         }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell#getId()
+     */
+    @Override
+    public Long getId() {
+        return outgoingInvitation.getId();
     }
 }

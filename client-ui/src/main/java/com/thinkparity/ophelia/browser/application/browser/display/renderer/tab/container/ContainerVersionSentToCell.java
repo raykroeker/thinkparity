@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
@@ -176,21 +177,6 @@ public class ContainerVersionSentToCell implements TabCell {
      */
     @Override
     public int hashCode() { return super.hashCode(); }
-
-    /**
-     * Determine whether or not the cell is expanded.
-     * 
-     * @return True if the cell is expanded.
-     */
-    public Boolean isExpanded() { return expanded; }
-
-    /**
-     * Set the expanded flag.
-     * 
-     * @param expanded
-     *            The expanded flag.
-     */
-    public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
     
     /**
      * Set the number of child users.
@@ -209,4 +195,29 @@ public class ContainerVersionSentToCell implements TabCell {
             final Component invoker, final MouseEvent e) {
         // No popup.
     }
+      
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {       
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return expanded;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        if (this.expanded != expand) {
+            this.expanded = expand;
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }  
 }

@@ -15,9 +15,8 @@ import javax.swing.border.Border;
 
 import com.thinkparity.codebase.model.document.Document;
 
-
-
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -33,6 +32,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.PrintDraft;
 import com.thinkparity.ophelia.browser.platform.action.document.Rename;
+import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
@@ -40,7 +40,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
  * @author rob_masako@shaw.ca, raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class DraftDocumentCell extends Document implements TabCell  {
+public class DraftDocumentCell implements TabCell  {
     
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -64,6 +64,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
 
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** The document associated with this cell. */
+    private Document document;
 
     /**
      * Create MainCellDraftDocument.
@@ -74,12 +77,12 @@ public class DraftDocumentCell extends Document implements TabCell  {
      *            A document.
      */
     public DraftDocumentCell(final DraftCell draft, final Document document) {
-        super(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
+        this.document = new Document(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
                 document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
                 document.getUpdatedOn());
-        setId(document.getId());
-        setRemoteInfo(document.getRemoteInfo());
-        setState(document.getState());
+        this.document.setId(document.getId());
+        this.document.setRemoteInfo(document.getRemoteInfo());
+        this.document.setState(document.getState());
         this.draft = draft;
         this.imageCache = new MainCellImageCache();
         this.localization = new MainCellL18n("DraftDocumentCell");
@@ -92,10 +95,37 @@ public class DraftDocumentCell extends Document implements TabCell  {
     @Override
     public boolean equals(final Object obj) {
         if (null != obj && obj instanceof DraftDocumentCell) {
-            return ((DraftDocumentCell) obj).getId().equals(getId()) &&
+            return ((DraftDocumentCell) obj).document.getId().equals(document.getId()) &&
                 ((DraftDocumentCell) obj).draft.getContainerId().equals(draft.getContainerId());
         }
         return false;
+    }
+    
+    /**
+     * Get the document Id.
+     * 
+     * @return The document id.
+     */
+    public Long getId() {
+        return document.getId();
+    }
+    
+    /**
+     * Get the draft document name.
+     * 
+     * @return The draft document name.
+     */
+    public String getName() {
+        return document.getName();
+    }
+    
+    /**
+     * Get the draft document name extension.
+     * 
+     * @return The draft document name extension.
+     */
+    public String getNameExtension() {
+        return ArtifactUtil.getNameExtension(document);
     }
     
     /**
@@ -145,8 +175,8 @@ public class DraftDocumentCell extends Document implements TabCell  {
      */
     public String getText() {
         final String messageKey = new StringBuffer("Text.")
-                .append(draft.getState(getId())).toString();
-        return getString(messageKey, getName());
+                .append(draft.getState(document.getId())).toString();
+        return getString(messageKey, document.getName());
     }
     
     /**
@@ -182,7 +212,7 @@ public class DraftDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
+        if(TEXT_MAX_LENGTH < document.getName().length()) { return document.getName(); }
         else { return null; }
     }
     
@@ -208,7 +238,7 @@ public class DraftDocumentCell extends Document implements TabCell  {
     @Override
     public String toString() {
         return new StringBuffer(getClass().getName()).append("//")
-                .append(getId()).append("/")
+                .append(document.getId()).append("/")
                 .append(draft.getContainerId())
                 .toString();
     }
@@ -219,42 +249,42 @@ public class DraftDocumentCell extends Document implements TabCell  {
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        final ArtifactState state = draft.getState(getId());
+        final ArtifactState state = draft.getState(document.getId());
 
         final Data openData = new Data(1);
-        openData.set(Open.DataKey.DOCUMENT_ID, getId());
+        openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
         
         jPopupMenu.addSeparator();
 
         final Data renameData = new Data(1);
-        renameData.set(Rename.DataKey.DOCUMENT_ID, getId());
+        renameData.set(Rename.DataKey.DOCUMENT_ID, document.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_RENAME, renameData));
         
         if (state == ArtifactState.MODIFIED) {
             final Data revertData = new Data(2);
             revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, getId());
+            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REVERT_DOCUMENT, renameData));
         }
         
         if (state == ArtifactState.REMOVED) {
             final Data removeData = new Data(2);
             removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_UNDELETE_DOCUMENT, renameData));
         }
         
         if (state != ArtifactState.REMOVED) {
             final Data removeData = new Data(2);
             removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
         }
        
         jPopupMenu.addSeparator();
         final Data printData = new Data(1);
-        printData.set(PrintDraft.DataKey.DOCUMENT_ID, getId());
+        printData.set(PrintDraft.DataKey.DOCUMENT_ID, document.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_DRAFT, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
@@ -271,5 +301,26 @@ public class DraftDocumentCell extends Document implements TabCell  {
     private String getString(final String messageKey,
             final Object... messageArguments) {
         return localization.getString(messageKey, messageArguments);
+    }
+       
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {  
+        browser.runOpenDocument(document.getId());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
     }
 }

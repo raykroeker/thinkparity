@@ -15,12 +15,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -44,7 +45,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContactCell extends Contact implements TabCell {
+public class ContactCell implements TabCell {
 
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
@@ -70,20 +71,25 @@ public class ContactCell extends Contact implements TabCell {
         TEXT_MAX_LENGTH = 60;
     }
 
-    /** A flag indicating the expand\collapse status. */
-    private Boolean expanded = Boolean.FALSE;
-
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
     /** A popup item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** The contact associated with this cell. */
+    private Contact contact;
 
     /**
      * Create a CellContact.
      */
-    public ContactCell() {
-        super();
+    public ContactCell(final Contact contact) {        
+        this.contact = new Contact();
+        this.contact.setId(contact.getId());
+        this.contact.setLocalId(contact.getLocalId());
+        this.contact.setName(contact.getName());
+        this.contact.setOrganization(contact.getOrganization());
+        this.contact.addAllEmails(contact.getEmails());
         this.imageCache = new MainCellImageCache();
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
@@ -94,6 +100,15 @@ public class ContactCell extends Contact implements TabCell {
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
 
+    /**
+     * Get the contact Id.
+     * 
+     * @return The contact id.
+     */
+    public JabberId getId() {
+        return contact.getId();
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#fireSelection()
      * 
@@ -162,10 +177,10 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public String getText() {
-        if(TEXT_MAX_LENGTH < getName().length()) {
-            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+        if(TEXT_MAX_LENGTH < contact.getName().length()) {
+            return contact.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
         }
-        else { return getName(); }
+        else { return contact.getName(); }
     }
     
     /**
@@ -205,7 +220,7 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public String getToolTip() {
-        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
+        if(TEXT_MAX_LENGTH < contact.getName().length()) { return contact.getName(); }
         else { return null; }
     }
     
@@ -224,21 +239,6 @@ public class ContactCell extends Contact implements TabCell {
     public int hashCode() { return super.hashCode(); }
 
     /**
-     * Determine whether or not the cell is expanded.
-     * 
-     * @return True if the cell is expanded.
-     */
-    public Boolean isExpanded() { return expanded; }
-
-    /**
-     * Set the expanded flag.
-     * 
-     * @param expanded
-     *            The expanded flag.
-     */
-    public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection,
      *      java.awt.Component, java.awt.event.MouseEvent, int, int)
      * 
@@ -248,12 +248,33 @@ public class ContactCell extends Contact implements TabCell {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         final Data readData = new Data(1);
-        readData.set(Read.DataKey.CONTACT_ID, getId());
+        readData.set(Read.DataKey.CONTACT_ID, contact.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
 
         final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTACT_ID, getId());
+        deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DELETE, deleteData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {  
+        browser.runReadContact(contact.getId());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
     }
 }

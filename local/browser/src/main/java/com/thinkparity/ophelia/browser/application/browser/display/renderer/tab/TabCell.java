@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
@@ -132,4 +133,26 @@ public interface TabCell {
      */
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e);
+    
+    /**
+     * Trigger the double click action.
+     * @param browser
+     *            The browser.
+     */
+    public void triggerDoubleClickAction(final Browser browser);
+    
+    /**
+     * Determine if this cell is expanded.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isExpanded();
+    
+    /**
+     * Set the expand or collapse state for the cell.
+     * @param expand
+     *            Boolean flag to expand or collapse.    
+     * @return A Boolean, true if the expand state changed.                
+     */
+    public Boolean setExpanded(final Boolean expand);
 }

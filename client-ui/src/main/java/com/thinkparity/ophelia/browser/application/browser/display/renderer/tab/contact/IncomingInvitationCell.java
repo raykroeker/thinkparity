@@ -17,9 +17,9 @@ import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.user.User;
 
-
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -36,7 +36,7 @@ import com.thinkparity.ophelia.model.contact.IncomingInvitation;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class IncomingInvitationCell extends IncomingInvitation implements TabCell {
+public class IncomingInvitationCell extends InvitationCell implements TabCell {
 
     /** A thinkParity fuzzy date format. */
     private final FuzzyDateFormat fuzzyDateFormat;
@@ -49,10 +49,18 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
 
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** The incoming invitation associated with this cell. */
+    private IncomingInvitation incomingInvitation;
 
     /** Create IncomingInvitationCell. */
-    public IncomingInvitationCell() {
+    public IncomingInvitationCell(final IncomingInvitation incomingInvitation, final User invitedByUser) {
         super();
+        this.incomingInvitation = new IncomingInvitation();
+        this.incomingInvitation.setCreatedBy(incomingInvitation.getCreatedBy());
+        this.incomingInvitation.setCreatedOn(incomingInvitation.getCreatedOn());
+        this.incomingInvitation.setId(incomingInvitation.getId());
+        this.invitedByUser = invitedByUser;
         this.fuzzyDateFormat = DateFormats.FUZZY;
         this.localization = new MainCellL18n("IncomingInvitation");
         this.popupItemFactory = PopupItemFactory.getInstance();
@@ -114,7 +122,7 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
      */
     public String getText() {
         return localization.getString("Text", new Object[] {
-                invitedByUser.getName(), fuzzyDateFormat.format(createdOn) });
+                invitedByUser.getName(), fuzzyDateFormat.format(incomingInvitation.getCreatedOn()) });
     }
     
     /**
@@ -162,15 +170,6 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
     }
 
     /**
-     * Set invitedBy.
-     *
-     * @param invitedBy The User.
-     */
-    public void setInvitedByUser(final User invitedBy) {
-        this.invitedByUser = invitedBy;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
@@ -179,11 +178,11 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
         switch(connection) {
         case ONLINE:
             final Data acceptData = new Data(1);
-            acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, getId());
+            acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, incomingInvitation.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, acceptData));
 
             final Data declineData = new Data(1);
-            declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, getId());
+            declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, incomingInvitation.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, declineData));
             jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
@@ -192,5 +191,33 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
         default:
             Assert.assertUnreachable("UNKNOWN CONECTION");
         }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell#getId()
+     */
+    @Override
+    public Long getId() {
+        return incomingInvitation.getId();
     }
 }

@@ -104,6 +104,9 @@ abstract class ContainerTestCase extends ModelTestCase {
      * 
      */
     protected abstract class Fixture implements ContainerListener {
+        public void containerArchived(ContainerEvent e) {
+            fail(getName() + " - Container archived event fired.");
+        }
         public void containerClosed(ContainerEvent e) {
             fail(getName() + " [CONTAINER CLOSED EVENT FIRED]");
         }

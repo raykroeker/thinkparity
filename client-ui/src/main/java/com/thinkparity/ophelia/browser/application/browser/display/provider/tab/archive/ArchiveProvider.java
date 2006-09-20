@@ -3,9 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive;
 
-import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
-
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
@@ -33,7 +32,7 @@ public class ArchiveProvider extends FlatContentProvider {
         this.artifactProvider = new FlatContentProvider(profile) {
             @Override
             public Object[] getElements(final Object input) {
-                return archiveModel.read().toArray(new Artifact[] {});
+                return archiveModel.readContainers().toArray(new Container[] {});
             }
         };
     }

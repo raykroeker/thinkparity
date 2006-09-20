@@ -11,12 +11,12 @@ import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveCell;
-
 
 /**
  * @author raymond@thinkparity.com
@@ -42,16 +42,6 @@ class ArchiveModel extends TabModel {
     }
 
     /**
-     * Synchronize an artifact.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param remote
-     *            The remote event flag.
-     */
-    void synchronizeArtifact(final Long artifactId, final Boolean remote) {}
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      */
     @Override
@@ -73,7 +63,7 @@ class ArchiveModel extends TabModel {
      */
     protected void initialize() {
         archiveCells.clear();
-        archiveCells.addAll(readArchivedArtifacts());
+        archiveCells.addAll(readArchivedContainers());
     }
 
     /**
@@ -114,15 +104,26 @@ class ArchiveModel extends TabModel {
     }
 
     /**
+     * Synchronize an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param remote
+     *            The remote event flag.
+     */
+    void synchronizeArtifact(final Long artifactId, final Boolean remote) {}
+
+    /**
      * Read the archived artifacts.
      * 
      * @return A <code>List&lt;ArchiveCell&gt;</code>.
      */
-    private List<ArchiveCell> readArchivedArtifacts() {
+    private List<ArchiveCell> readArchivedContainers() {
         final List<ArchiveCell> display = new LinkedList<ArchiveCell>();
-        final Artifact[] artifacts = (Artifact[]) ((FlatContentProvider) contentProvider).getElements(null);
-        for(final Artifact artifact : artifacts) {
-            display.add(toDisplay(artifact));
+        final Container[] containers =
+            (Container[]) ((FlatContentProvider) contentProvider).getElements(null);
+        for(final Container container : containers) {
+            display.add(toDisplay(container));
         }
         return display;
     }

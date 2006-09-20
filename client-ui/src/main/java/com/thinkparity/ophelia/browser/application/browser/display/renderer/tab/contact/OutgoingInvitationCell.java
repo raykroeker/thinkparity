@@ -61,6 +61,23 @@ public class OutgoingInvitationCell extends InvitationCell implements TabCell {
         this.localization = new MainCellL18n("OutgoingInvitation");
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
+    
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof OutgoingInvitationCell) {
+            return ((OutgoingInvitationCell) obj).outgoingInvitation.equals(outgoingInvitation);
+        }
+        return false;
+    }
+    
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
+     * 
+     */
+    public int hashCode() { return outgoingInvitation.hashCode(); }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackground()

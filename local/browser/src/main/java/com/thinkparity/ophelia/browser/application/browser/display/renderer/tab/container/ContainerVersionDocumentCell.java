@@ -79,8 +79,8 @@ public class ContainerVersionDocumentCell implements TabCell  {
     @Override
     public boolean equals(final Object obj) {
         if (null != obj && obj instanceof ContainerVersionDocumentCell) {
-            return ((ContainerVersionDocumentCell) obj).document.getId().equals(document.getId()) &&
-                ((ContainerVersionDocumentCell) obj).version.equals(version);
+            return ((ContainerVersionDocumentCell) obj).document.equals(document) &&
+                   ((ContainerVersionDocumentCell) obj).version.equals(version);
         }
         return false;
     }
@@ -209,6 +209,7 @@ public class ContainerVersionDocumentCell implements TabCell  {
     public String toString() {
         return new StringBuffer(getClass().getName()).append("//")
             .append(document.getId()).append("/")
+            .append(version.getArtifactId()).append("/")
             .append(version.getVersionId())
             .toString();
     }

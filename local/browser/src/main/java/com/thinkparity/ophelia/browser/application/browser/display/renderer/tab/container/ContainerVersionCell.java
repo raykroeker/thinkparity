@@ -104,7 +104,12 @@ public class ContainerVersionCell implements TabCell {
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
-    public boolean equals(final Object obj) { return super.equals(obj); }
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerVersionCell) {
+            return ((ContainerVersionCell) obj).containerVersion.equals(containerVersion);
+        }
+        return false;
+    }
     
     /**
      * Get the container artifact id.
@@ -245,7 +250,7 @@ public class ContainerVersionCell implements TabCell {
      * 
      */
     @Override
-    public int hashCode() { return super.hashCode(); }
+    public int hashCode() { return containerVersion.hashCode(); }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)

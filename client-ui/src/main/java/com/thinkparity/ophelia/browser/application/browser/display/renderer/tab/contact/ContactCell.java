@@ -31,6 +31,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -98,7 +99,12 @@ public class ContactCell implements TabCell {
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
-    public boolean equals(final Object obj) { return super.equals(obj); }
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContactCell) {
+            return ((ContactCell) obj).contact.equals(contact);
+        }
+        return false;
+    }
 
     /**
      * Get the contact Id.
@@ -236,7 +242,7 @@ public class ContactCell implements TabCell {
      * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
      * 
      */
-    public int hashCode() { return super.hashCode(); }
+    public int hashCode() { return contact.hashCode(); }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection,

@@ -149,7 +149,12 @@ public class ContainerCell implements TabCell  {
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
-    public boolean equals(final Object obj) { return super.equals(obj); }
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerCell) {
+            return ((ContainerCell) obj).container.equals(container);
+        }
+        return false;
+    }
     
     /**
      * Get the container Id.
@@ -339,7 +344,7 @@ public class ContainerCell implements TabCell  {
      * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
      * 
      */
-    public int hashCode() { return super.hashCode(); }
+    public int hashCode() { return container.hashCode(); }
     
     /**
      * Determine whether or not the container is closed.

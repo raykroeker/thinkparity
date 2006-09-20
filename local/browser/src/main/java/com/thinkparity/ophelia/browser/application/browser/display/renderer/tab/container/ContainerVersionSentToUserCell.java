@@ -83,8 +83,8 @@ public class ContainerVersionSentToUserCell implements TabCell {
      */
     public boolean equals(final Object obj) {
         if (null != obj && obj instanceof ContainerVersionSentToUserCell) {           
-            return ((ContainerVersionSentToUserCell) obj).user.getId().equals(user.getId()) &&
-                ((ContainerVersionSentToUserCell) obj).version.equals(version);
+            return ((ContainerVersionSentToUserCell) obj).user.equals(user) &&
+                   ((ContainerVersionSentToUserCell) obj).version.equals(version);
         }
         return false;
     }
@@ -233,7 +233,21 @@ public class ContainerVersionSentToUserCell implements TabCell {
      * 
      */
     @Override
-    public int hashCode() { return super.hashCode(); }
+    public int hashCode() {
+        return toString().hashCode();
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+            .append(user.getId()).append("/")
+            .append(version.getArtifactId()).append("/")
+            .append(version.getVersionId())
+            .toString();
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)

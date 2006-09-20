@@ -95,8 +95,8 @@ public class DraftDocumentCell implements TabCell  {
     @Override
     public boolean equals(final Object obj) {
         if (null != obj && obj instanceof DraftDocumentCell) {
-            return ((DraftDocumentCell) obj).document.getId().equals(document.getId()) &&
-                ((DraftDocumentCell) obj).draft.getContainerId().equals(draft.getContainerId());
+            return ((DraftDocumentCell) obj).document.equals(document) &&
+                   ((DraftDocumentCell) obj).draft.equals(draft);
         }
         return false;
     }

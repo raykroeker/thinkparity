@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -65,6 +66,23 @@ public class IncomingInvitationCell extends InvitationCell implements TabCell {
         this.localization = new MainCellL18n("IncomingInvitation");
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
+    
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof IncomingInvitationCell) {
+            return ((IncomingInvitationCell) obj).incomingInvitation.equals(incomingInvitation);
+        }
+        return false;
+    }
+    
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
+     * 
+     */
+    public int hashCode() { return incomingInvitation.hashCode(); }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackground()

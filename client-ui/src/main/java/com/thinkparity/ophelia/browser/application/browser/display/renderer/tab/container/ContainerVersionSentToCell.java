@@ -57,6 +57,17 @@ public class ContainerVersionSentToCell implements TabCell {
         this.imageCache = new MainCellImageCache();
         this.localization = new MainCellL18n("MainCellContainerVersionSentTo");
     }
+    
+    /**
+     * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerVersionSentToCell) {
+            return ((ContainerVersionSentToCell) obj).version.equals(version);
+        }
+        return false;
+    }
 
     /**
      * Obtain the background image for a cell.
@@ -176,7 +187,20 @@ public class ContainerVersionSentToCell implements TabCell {
      * 
      */
     @Override
-    public int hashCode() { return super.hashCode(); }
+    public int hashCode() {
+        return toString().hashCode();
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+            .append(version.getArtifactId()).append("/")
+            .append(version.getVersionId())
+            .toString();
+    }
     
     /**
      * Set the number of child users.

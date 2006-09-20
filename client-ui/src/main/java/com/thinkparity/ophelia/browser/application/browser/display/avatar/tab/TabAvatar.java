@@ -324,10 +324,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         if (!MenuFactory.isPopupMenu() && e.isPopupTrigger()) {
             // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
             // If click in the blank area below the last entry in the list then trigger a popup that
-            // allows the user to create a container.
-            // If there are no containers then expect getSelectedIndex() to return -1.
-            // If there are 1 or more containers and the user clicks below the final entry then expect
-            // locationToIndex() to return the last entry.
+            // is related to the tab rather than a cell in the tab.
             if (isMouseEventWithinCell(e)) {
                 setSelectedIndex(tabJList.locationToIndex(e.getPoint()));
                 triggerPopup(getSelectedCell(), e);

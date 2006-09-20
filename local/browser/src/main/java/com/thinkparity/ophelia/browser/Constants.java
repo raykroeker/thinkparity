@@ -190,6 +190,10 @@ public final class Constants {
     public static final class Search {
         public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
     }
+    
+    public static final class PopupMenuInfo {
+        public static final Integer ACTIVATION_DELAY = 200; // Milliseconds
+    }
 
     public static final class Session {
         public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;

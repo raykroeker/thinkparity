@@ -11,6 +11,7 @@ import javax.swing.TransferHandler;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -253,7 +254,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tabJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMousePressed
+    private void tabJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMousePressed       
         // If selectingLastIndex is true then the selection was interrupted. Don't
         // perform the selection if the user clicked below the last entry, otherwise
         // proceed with the selection.
@@ -302,23 +303,25 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }
 
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
-        if (1 == e.getClickCount()) {
-            if (e.getButton()==MouseEvent.BUTTON1) {
-                if (isMouseEventWithinCell(e)) { 
-                    triggerExpand(getSelectedCell());
+        if (!MenuFactory.isPopupMenu()) {
+            if (1 == e.getClickCount()) {
+                if (e.getButton()==MouseEvent.BUTTON1) {
+                    if (isMouseEventWithinCell(e)) { 
+                        triggerExpand(getSelectedCell());
+                    }
                 }
-            }
-        } else if (2 == e.getClickCount()) {
-            if (isMouseEventWithinCell(e)) {  
-                triggerDoubleClick(getSelectedCell());
-            } else {
-                triggerDoubleClick();
+            } else if (2 == e.getClickCount()) {
+                if (isMouseEventWithinCell(e)) {  
+                    triggerDoubleClick(getSelectedCell());
+                } else {
+                    triggerDoubleClick();
+                }
             }
         }
     }//GEN-LAST:event_tabJListMouseClicked
 
     private void tabJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseReleased
-        if(e.isPopupTrigger()) {
+        if (!MenuFactory.isPopupMenu() && e.isPopupTrigger()) {
             // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
             // If click in the blank area below the last entry in the list then trigger a popup that
             // allows the user to create a container.
@@ -360,9 +363,9 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *
      * @param tabCell A <code>TabCell</code>.
      */
-    private void triggerPopup(final TabCell tabCell, final MouseEvent e) {    
+    private void triggerPopup(final TabCell tabCell, final MouseEvent e) {
         model.triggerPopup(tabCell, tabJList, e);
-        setSelectedCell(tabCell);  
+        setSelectedCell(tabCell);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

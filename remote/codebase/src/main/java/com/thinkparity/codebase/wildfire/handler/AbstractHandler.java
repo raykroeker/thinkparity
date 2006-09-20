@@ -18,6 +18,10 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
@@ -227,6 +231,27 @@ public abstract class AbstractHandler extends
         iqWriter.writeCalendar(name, value);
     }
 
+    protected final void writeContainers(final String parentName,
+            final String name, final List<Container> values) {
+        iqWriter.writeContainers(parentName, name, values);
+    }
+
+    protected final void writeContainerVersions(final String parentName,
+            final String name, final List<ContainerVersion> values) {
+        iqWriter.writeContainerVersions(parentName, name, values);
+    }
+
+
+    protected final void writeDocuments(final String parentName,
+            final String name, final List<Document> values) {
+        iqWriter.writeDocuments(parentName, name, values);
+    }
+
+    protected final void writeDocumentVersions(final String parentName,
+            final String name, final List<DocumentVersion> values) {
+        iqWriter.writeDocumentVersions(parentName, name, values);
+    }
+
     /**
      * Write a list of e-mail values to the response query.
      * 
@@ -253,7 +278,6 @@ public abstract class AbstractHandler extends
     protected final void writeJabberId(final String name, final JabberId value) {
         iqWriter.writeJabberId(name, value);
     }
-
 
     /**
      * Write a list of string values to the response query.

@@ -21,6 +21,11 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 public class ContainerAdapter implements ContainerListener {
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerArchived(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerArchived(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerCreated(com.thinkparity.ophelia.model.events.ContainerEvent)
      * 
      */

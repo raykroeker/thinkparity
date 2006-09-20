@@ -30,7 +30,7 @@ public class ReadArchiveVersions extends AbstractHandler {
         logApiId();
         final List<ContainerVersion> versions =
             readArchiveVersions(readJabberId("userId"), readUUID("uniqueId"));
-        marshalContainerVersions(versions);
+        writeContainerVersions("containerVersions", "containerVersions", versions);
     }
 
     /**

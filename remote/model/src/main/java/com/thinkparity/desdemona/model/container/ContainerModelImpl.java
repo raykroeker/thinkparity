@@ -46,21 +46,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Archive a container for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        getArchiveModel().archive(userId, uniqueId);
-    }
-
-    /**
      * Publish the container version.
      * 
      * @param uniqueId

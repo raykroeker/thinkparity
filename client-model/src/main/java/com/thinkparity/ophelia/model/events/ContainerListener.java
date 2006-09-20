@@ -21,6 +21,14 @@ import com.thinkparity.ophelia.model.util.EventListener;
 public interface ContainerListener extends EventListener {
 
     /**
+     * A container was archived.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void containerArchived(final ContainerEvent e);
+
+    /**
      * A container was created.
      * 
      * @param e

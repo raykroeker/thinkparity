@@ -151,7 +151,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         });
 	}
 
-	/**
+    /**
 	 * Create a XMPPArtifact.
 	 * 
 	 * @param xmppCore
@@ -160,7 +160,6 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 	XMPPArtifact(final XMPPCore xmppCore) {
 		super(xmppCore);
 	}
-
 
 	/**
 	 * Add the packet listeners to the connection.
@@ -200,7 +199,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         }, HandleArtifactReceivedIQ.class);
 	}
 
-    /**
+
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
      */
     @Override
@@ -208,7 +208,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         return super.addListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
      */
     @Override
@@ -237,6 +237,24 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
     }
 
 	/**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod archive = new XMPPMethod("artifact:archive");
+        archive.setParameter("userId", userId);
+        archive.setParameter("uniqueId", uniqueId);
+        execute(archive);
+    }
+
+	/**
      * Confirm artifact receipt.
      * 
      * @param receivedFrom
@@ -261,7 +279,16 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         execute(confirmReceipt);
 	}
 
-	/**
+	void create(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod create = new XMPPMethod("artifact:create");
+        create.setParameter("userId", userId);
+        create.setParameter("uniqueId", uniqueId);
+        execute(create);
+    }
+
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -273,15 +300,6 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         final XMPPMethod method = new XMPPMethod("artifact:createdraft");
         method.setParameter("uniqueId", uniqueId);
         method.execute(xmppCore.getConnection());
-    }
-
-    void create(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        final XMPPMethod create = new XMPPMethod("artifact:create");
-        create.setParameter("userId", userId);
-        create.setParameter("uniqueId", uniqueId);
-        execute(create);
     }
 
     /**

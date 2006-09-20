@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.util.xmpp;
 
 import java.util.List;
 
+import org.dom4j.Branch;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -16,7 +17,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.Dom4JWriter;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Writer <br>
@@ -114,6 +114,30 @@ public class IQWriter extends com.thinkparity.codebase.xmpp.IQWriter {
      *            An object.
      */
     private final void marshal(final Object object) {
-        xstream.marshal(object, new Dom4JWriter(iq.getChildElement()));
+        final Dom4JWriter writer = new Dom4JWriter(iq.getChildElement());
+        xstream.marshal(object, writer);
+    }
+
+    private class Dom4JWriter extends com.thoughtworks.xstream.io.xml.Dom4JWriter {
+
+        private Boolean firstNode;
+
+        /** Create Dom4JWriter. */
+        public Dom4JWriter(final Branch branch) {
+            super(branch);
+            this.firstNode = Boolean.TRUE;
+        }
+
+        /**
+         * @see com.thoughtworks.xstream.io.xml.Dom4JWriter#startNode(java.lang.String)
+         */
+        @Override
+        public void startNode(final String name) {
+            super.startNode(name);
+            if (firstNode) {
+                addAttribute("javaType", xstream.getClass().getName());
+                firstNode = Boolean.FALSE;
+            }
+        }
     }
 }

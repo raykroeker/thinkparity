@@ -12,6 +12,10 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 
 /**
@@ -63,6 +67,30 @@ public abstract class IQWriter {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
+    public final void writeContainers(final String parentName,
+            final String name, final List<Container> values) {
+        ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeContainerVersions(final String parentName,
+            final String name, final List<ContainerVersion> values) {
+        ElementBuilder.addContainerVersionElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeDocuments(final String parentName,
+            final String name, final List<Document> values) {
+        ElementBuilder.addDocumentElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeDocumentVersions(final String parentName,
+            final String name, final List<DocumentVersion> values) {
+        ElementBuilder.addDocumentVersionElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeEMail(final String name, final EMail value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
     /**
      * Write email values.
      * 
@@ -99,10 +127,6 @@ public abstract class IQWriter {
      *            The element value.
      */
     public final void writeJabberId(final String name, final JabberId value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
-    }
-
-    public final void writeEMail(final String name, final EMail value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 

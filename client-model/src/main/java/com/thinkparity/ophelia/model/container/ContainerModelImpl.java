@@ -43,12 +43,10 @@ import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
-import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -172,7 +170,15 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     void archive(final Long containerId) {
         logApiId();
         logVariable("containerId", containerId);
-        throw Assert.createNotYetImplemented("ContainerModelImpl#archive");
+        try {
+            final Container container = read(containerId);
+            getInternalSessionModel().archiveArtifact(
+                    localUserId(), container.getUniqueId());
+            deleteLocal(containerId);
+            notifyContainerArchived(container, localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -1056,7 +1062,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document filter <code>Filter&lt;? super Artifact&gt;</code>.
      * @return A <code>List&gt;Document&gt;</code>.
      * 
-     * @see ArtifactFilterManager#filter(List, Filter)
+     * @see FilterManager#filter(List, Filter)
      * @see ModelSorter#sortDocuments(List, Comparator)
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
@@ -2041,6 +2047,23 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private Boolean isDistributed(final Long containerId) {
         return getInternalArtifactModel().doesVersionExist(containerId, Versioning.START);
+    }
+
+    /**
+     * Fire a container archived notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerArchived(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerArchived(eventGenerator.generate(container));
+            }
+        });
     }
 
     /**

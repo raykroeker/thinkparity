@@ -285,12 +285,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
     private Workspace readWorkspace(final JabberId archiveId,
             final FileSystem archiveFileSystem) {
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
-        final Workspace workspace = workspaceModel.getWorkspace(archiveFileSystem.getRoot());
-        if (workspaceModel.isFirstRun(workspace)) {
-            final Preferences preferences = workspace.getPreferences();
-            preferences.setUsername(archiveId.getUsername());
-        }
-        return workspace;
+        return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
     }
 
     /**
@@ -306,6 +301,12 @@ class ArchiveModelImpl extends AbstractModelImpl {
         final Workspace workspace = readWorkspace(archiveId, archiveFileSystem);
         createContext(archiveId, workspace);
         getModelFactory(archiveId).getSessionModel(getClass()).login(credentials);
+        final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
+        if (workspaceModel.isFirstRun(workspace)) {
+            final Preferences preferences = workspace.getPreferences();
+            preferences.setUsername(archiveId.getUsername());
+            getModelFactory(archiveId).getProfileModel(getClass()).read();
+        }
     }
 
     /**

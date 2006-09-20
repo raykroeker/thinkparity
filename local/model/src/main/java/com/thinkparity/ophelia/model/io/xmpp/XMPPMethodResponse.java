@@ -13,6 +13,10 @@ import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -53,6 +57,22 @@ public class XMPPMethodResponse extends IQ {
 
     public Calendar readResultCalendar(final String name) {
         return (Calendar) readResult(name);
+    }
+
+    public List<Container> readResultContainers(final String name) {
+        return (List<Container>) readResult(name);
+    }
+
+    public List<ContainerVersion> readResultContainerVersions(final String name) {
+        return (List<ContainerVersion>) readResult(name);
+    }
+
+    public List<Document> readResultDocuments(final String name) {
+        return (List<Document>) readResult(name);
+    }
+
+    public List<DocumentVersion> readResultDocumentVersions(final String name) {
+        return (List<DocumentVersion>) readResult(name);
     }
 
     public List<EMail> readResultEMails(final String name) {

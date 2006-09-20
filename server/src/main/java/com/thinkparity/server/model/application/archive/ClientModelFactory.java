@@ -11,6 +11,8 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
@@ -48,6 +50,10 @@ class ClientModelFactory {
 
     InternalDocumentModel getDocumentModel(final Class clasz) {
         return DocumentModel.getInternalModel(context, workspace);
+    }
+
+    InternalProfileModel getProfileModel(final Class clasz) {
+        return ProfileModel.getInternalModel(context, workspace);
     }
 
     InternalSessionModel getSessionModel(final Class clasz) {

@@ -31,7 +31,7 @@ public class ReadArchiveDocuments extends AbstractHandler {
         final List<Document> documents = readArchiveDocuments(
                 readJabberId("userId"), readUUID("uniqueId"),
                 readLong("versionId"));
-        marshalDocuments(documents);
+        writeDocuments("documents", "document", documents);
     }
 
     /**

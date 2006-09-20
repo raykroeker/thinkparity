@@ -13,7 +13,9 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -83,6 +85,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
         synchronized(getImplLock()) {
             getImpl().addTeamMember(uniqueId, jabberId);
+        }
+    }
+
+    /**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    public void archiveArtifact(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().archiveArtifact(userId, uniqueId);
         }
     }
 
@@ -251,6 +267,75 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             final Calendar publishedOn) {
         synchronized (getImplLock()) {
             getImpl().publish(container, documents, publishTo, publishedBy, publishedOn);
+        }
+    }
+
+    /**
+     * Read the archived containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A list of conatiners.
+     */
+    public List<Container> readArchiveContainers(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveContainers(userId);
+        }
+    }
+
+    /**
+     * Read the archived containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    public List<ContainerVersion> readArchiveContainerVersions(
+            final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveContainerVersions(userId, uniqueId);
+        }
+    }
+
+    /**
+     * Read the archived containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    public List<Document> readArchiveDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocuments(userId, uniqueId, versionId);
+        }
+    }
+
+    /**
+     * Read the archived document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readArchiveDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersions(userId, uniqueId,
+                    versionId, documentUniqueId);
         }
     }
 

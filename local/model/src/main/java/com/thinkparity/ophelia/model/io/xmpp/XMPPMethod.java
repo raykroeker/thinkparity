@@ -36,6 +36,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -448,7 +451,6 @@ public class XMPPMethod extends IQ {
                 remoteInfo.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 remoteInfo.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 parser.next();
-                parser.next();
                 return remoteInfo;
             } else if (javaType.equals(ArtifactState.class)) {
                 parser.next();
@@ -462,7 +464,7 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return type;
-            } else if(javaType.equals(byte[].class)) {
+            } else if (javaType.equals(byte[].class)) {
                 parser.next();
                 final byte[] bValue = decompress(decode(parser.getText()));
                 parser.next();
@@ -474,19 +476,17 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return value;
-            }
-            else if(javaType.equals(Calendar.class)) {
+            } else if(javaType.equals(Calendar.class)) {
                 parser.next();
-                final Calendar cValue = calendarValueOf(parser.getText());
+                final Calendar value = calendarValueOf(parser.getText());
                 parser.next();
                 parser.next();
-                return cValue;
+                return value;
             } else if (javaType.equals(Container.class)) {
                 parser.next();
                 final Container container = new Container();
                 container.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
                 container.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
-                container.setCustomDescription((String) parseJavaObject(parser, "descriptionBy", String.class));
                 container.setDraft((Boolean) parseJavaObject(parser, "draft", Boolean.class));
                 container.setLocalDraft((Boolean) parseJavaObject(parser, "localDraft", Boolean.class));
                 container.setName((String) parseJavaObject(parser, "name", String.class));
@@ -497,8 +497,50 @@ public class XMPPMethod extends IQ {
                 container.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
                 container.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 parser.next();
-                parser.next();
                 return container;
+            } else if (javaType.equals(ContainerVersion.class)) {
+                parser.next();
+                final ContainerVersion version = new ContainerVersion();
+                version.setArtifactType((ArtifactType) parseJavaObject(parser, "artifactType", ArtifactType.class));
+                version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
+                version.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
+                version.setName((String) parseJavaObject(parser, "name", String.class));
+                version.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
+                version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
+                parser.next();
+                return version;
+            } else if (javaType.equals(Document.class)) {
+                parser.next();
+                final Document document = new Document();
+                document.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                document.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
+                document.setName((String) parseJavaObject(parser, "name", String.class));
+                document.setRemoteInfo((ArtifactRemoteInfo) parseJavaObject(parser, "remoteInfo", ArtifactRemoteInfo.class));
+                document.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
+                document.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
+                document.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
+                document.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                document.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
+                parser.next();
+                return document;
+            } else if (javaType.equals(DocumentVersion.class)) {
+                parser.next();
+                final DocumentVersion version = new DocumentVersion();
+                version.setArtifactType((ArtifactType) parseJavaObject(parser, "artifactType", ArtifactType.class));
+                version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
+                version.setChecksum((String) parseJavaObject(parser, "checksum", String.class));
+                version.setCompression((Integer) parseJavaObject(parser, "checksum", Integer.class));
+                version.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
+                version.setEncoding((String) parseJavaObject(parser, "encoding", String.class));
+                version.setName((String) parseJavaObject(parser, "name", String.class));
+                version.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
+                version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
+                parser.next();
+                return version;
             } else if (javaType.equals(EMail.class)) {
                 parser.next();
                 final EMail value = EMailBuilder.parse(parser.getText());
@@ -610,8 +652,13 @@ public class XMPPMethod extends IQ {
                 }
                 parser.next();
                 return list;
-            }
-            else {
+            } else if (javaType.equals(UUID.class)) {
+                parser.next();
+                final UUID value = UUID.fromString(parser.getText());
+                parser.next();
+                parser.next();
+                return value;
+            } else {
                 throw Assert.createUnreachable(MessageFormat.format(
                         "[LBROWSER BOOTSTRAP] [XMPP IO] [JAVA TYPE NOT SUPPORTED] [{0}]",
                         new Object[] {javaType.getName()}));

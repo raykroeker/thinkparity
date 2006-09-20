@@ -28,7 +28,7 @@ public class ReadArchive extends AbstractHandler {
     public void service() {
         logApiId();
         final List<Container> containers = readArchive(readJabberId("userId"));
-        marshalContainers(containers);
+        writeContainers("containers", "container", containers);
     }
 
     /**

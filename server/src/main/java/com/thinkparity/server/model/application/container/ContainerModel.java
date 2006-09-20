@@ -47,20 +47,6 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 	}
 
     /**
-     * Archive a container.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     */
-    public void archive(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().archive(userId, uniqueId);
-        }
-    }
-
-    /**
      * Publish the container version.
      * 
      * @param uniqueId

@@ -76,6 +76,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * Archive an artifact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        getArchiveModel().archive(userId, uniqueId);
+    }
+
 	/**
      * Confirm an artifact receipt.
      * 

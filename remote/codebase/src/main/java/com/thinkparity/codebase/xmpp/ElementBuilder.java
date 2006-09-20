@@ -15,6 +15,13 @@ import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
+import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.util.Base64;
 
 /**
@@ -25,6 +32,46 @@ import com.thinkparity.codebase.util.Base64;
  * @version 1.1.2.5
  */
 public class ElementBuilder {
+
+    public static final Element addContainerElements(final Element parent,
+            final String parentName, final String name,
+            final List<Container> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for (final Container value : values) {
+            addElement(element, name, value);
+        }
+        return element;
+    }
+
+    public static final Element addContainerVersionElements(final Element parent,
+            final String parentName, final String name,
+            final List<ContainerVersion> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for (final ContainerVersion value : values) {
+            addElement(element, name, value);
+        }
+        return element;
+    }
+
+    public static final Element addDocumentElements(final Element parent,
+            final String parentName, final String name,
+            final List<Document> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for (final Document value : values) {
+            addElement(element, name, value);
+        }
+        return element;
+    }
+
+    public static final Element addDocumentVersionElements(final Element parent,
+            final String parentName, final String name,
+            final List<DocumentVersion> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for (final DocumentVersion value : values) {
+            addElement(element, name, value);
+        }
+        return element;
+    }
 
     /**
      * Add a byte array value.
@@ -63,6 +110,69 @@ public class ElementBuilder {
         final String valueString = DateUtil.format(
                 valueGMT, DateUtil.DateImage.ISO);
         return addElement(parent, name, Calendar.class, valueString);
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final Container value) {
+        final Element element = addElement(parent, "container", Container.class);
+        addElement(element, "createdBy", value.getCreatedBy());
+        addElement(element, "createdOn", value.getCreatedOn());
+        addElement(element, "draft", value.isDraft());
+        addElement(element, "localDraft", value.isLocalDraft());
+        addElement(element, "name", value.getName());
+        addElement(element, "remoteInfo", value.getRemoteInfo());
+        addElement(element, "state", value.getState());
+        addElement(element, "type", value.getType());
+        addElement(element, "uniqueId", value.getUniqueId());
+        addElement(element, "updatedBy", value.getUpdatedBy());
+        addElement(element, "updatedOn", value.getUpdatedOn());
+        return element;
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final ContainerVersion value) {
+        final Element element = addElement(parent, "containerVersion", ContainerVersion.class);
+        addElement(element, "artifactType", value.getArtifactType());
+        addElement(element, "artifactUniqueId", value.getArtifactUniqueId());
+        addElement(element, "createdBy", value.getCreatedBy());
+        addElement(element, "createdOn", value.getCreatedOn());
+        addElement(element, "name", value.getName());
+        addElement(element, "updatedBy", value.getUpdatedBy());
+        addElement(element, "updatedOn", value.getUpdatedOn());
+        addElement(element, "versionId", value.getVersionId());
+        return element;
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final Document value) {
+        final Element element = addElement(parent, "document", Document.class);
+        addElement(element, "createdBy", value.getCreatedBy());
+        addElement(element, "createdOn", value.getCreatedOn());
+        addElement(element, "name", value.getName());
+        addElement(element, "remoteInfo", value.getRemoteInfo());
+        addElement(element, "state", value.getState());
+        addElement(element, "type", value.getType());
+        addElement(element, "uniqueId", value.getUniqueId());
+        addElement(element, "updatedBy", value.getUpdatedBy());
+        addElement(element, "updatedOn", value.getUpdatedOn());
+        return element;
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final DocumentVersion value) {
+        final Element element = addElement(parent, "documentVersion", DocumentVersion.class);
+        addElement(element, "artifactType", value.getArtifactType());
+        addElement(element, "artifactUniqueId", value.getArtifactUniqueId());
+        addElement(element, "checksum", value.getChecksum());
+        addElement(element, "compression", value.getCompression());
+        addElement(element, "createdBy", value.getCreatedBy());
+        addElement(element, "createdOn", value.getCreatedOn());
+        addElement(element, "encoding", value.getEncoding());
+        addElement(element, "name", value.getName());
+        addElement(element, "updatedBy", value.getUpdatedBy());
+        addElement(element, "updatedOn", value.getUpdatedOn());
+        addElement(element, "versionId", value.getVersionId());
+        return element;
     }
 
     /**
@@ -296,6 +406,29 @@ public class ElementBuilder {
      */
     protected static final String encode(final byte[] bytes) {
         return Base64.encode(bytes);
+    }
+
+    private static final Element addElement(final Element parent,
+            final String name, final ArtifactRemoteInfo value) {
+        final Element element = addElement(parent, name, ArtifactRemoteInfo.class);
+        addElement(element, "updatedBy", value.getUpdatedBy());
+        addElement(element, "updatedOn", value.getUpdatedOn());
+        return element;
+    }
+
+    private static final Element addElement(final Element parent,
+            final String name, final ArtifactState value) {
+        return addElement(parent, name, value.getClass(), value.toString());
+    }
+
+    private static final Element addElement(final Element parent,
+            final String name, final ArtifactType value) {
+        return addElement(parent, name, value.getClass(), value.toString());
+    }
+
+    private static final Element addElement(final Element parent,
+            final String name, final Boolean value) {
+        return addElement(parent, name, value.getClass(), value.toString());
     }
 
 	/** Create ElementBuilder */

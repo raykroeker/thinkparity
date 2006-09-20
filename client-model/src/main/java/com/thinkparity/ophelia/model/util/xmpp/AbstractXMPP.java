@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.EventListener;
 import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
+import com.thoughtworks.xstream.XStream;
 
 /**
  * @author raymond@thinkparity.com
@@ -34,6 +35,9 @@ abstract class AbstractXMPP<T extends EventListener> {
 
     /** The xmpp core functionality. */
     protected final XMPPCore xmppCore;
+
+    /** An xstream xml serializer. */
+    protected final XStream xstream;
 
     /** The xmpp interfact implementation's listeners. */
     private final List<T> listeners;
@@ -47,6 +51,7 @@ abstract class AbstractXMPP<T extends EventListener> {
         this.listeners = new ArrayList<T>();
         this.logger = Logger.getLogger(getClass());
         this.xmppCore = xmppCore;
+        this.xstream = new XStream();
     }
 
     /**

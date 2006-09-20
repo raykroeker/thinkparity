@@ -31,7 +31,7 @@ public class ReadArchiveDocumentVersions extends AbstractHandler {
         final List<DocumentVersion> versions = readArchiveDocumentVersions(
                 readJabberId("userId"), readUUID("uniqueId"),
                 readLong("versionId"), readUUID("documentUniqueId"));
-        marshalDocumentVersions(versions);
+        writeDocumentVersions("documentVersions", "documentVersion", versions);
     }
 
     /**

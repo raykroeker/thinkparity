@@ -13,7 +13,9 @@ import java.util.UUID;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -105,6 +107,16 @@ public interface XMPPSession {
      */
     public void addTeamMember(final UUID artifactUniqueId,
             final JabberId jabberId) throws SmackException;
+
+    /**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    public void archiveArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
      * Clear all xmpp session listeners.
@@ -262,7 +274,59 @@ public interface XMPPSession {
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws SmackException;
 
+    /**
+     * Read the archive's containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A list of containers.
+     */
+    public List<Container> readArchiveContainers(final JabberId userId);
+
 	/**
+     * Read the archived containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    public List<ContainerVersion> readArchiveContainerVersions(
+            final JabberId userId, final UUID uniqueId);
+
+    /**
+     * Read the archived containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    public List<Document> readArchiveDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the archived document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readArchiveDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId);
+
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -282,7 +346,7 @@ public interface XMPPSession {
      */
     public Contact readContact(final JabberId userId, final JabberId contactId);
 
-    /**
+	/**
      * Read a user's contacts.
      * 
      * @param userId
@@ -308,7 +372,7 @@ public interface XMPPSession {
      */
 	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
 
-	/**
+    /**
      * Read the user's profile.
      * 
      * @return A profile.
@@ -321,7 +385,6 @@ public interface XMPPSession {
      * @return A list of profile emails addresses.
      */
     public List<EMail> readProfileEMails();
-
     /**
      * Read the user profile's security question.
      * 
@@ -330,7 +393,6 @@ public interface XMPPSession {
      * @return A security question <code>String</code>.
      */
     public String readProfileSecurityQuestion(final JabberId userId);
-
     /**
      * Read a set of users.
      * 
@@ -339,10 +401,12 @@ public interface XMPPSession {
      * @return A <code>User</code>.
      */
     public User readUser(final JabberId userId);
-
     public void removeListener(final ArtifactListener listener);
+
     public void removeListener(final ContactListener listener);
+
     public void removeListener(final ContainerListener listener);
+
     public void removeListener(final SessionListener listener);
 
     /**

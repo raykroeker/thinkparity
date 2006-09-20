@@ -31,7 +31,7 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 		return artifactModel;
 	}
 
-	/**
+    /**
 	 * Create a ArtifactModel.
 	 */
 	private ArtifactModel(final Session session) {
@@ -49,6 +49,20 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
         synchronized (getImplLock()) {
             getImpl().addTeamMember(uniqueId, jabberId);
+        }
+    }
+
+    /**
+     * Archive an artifact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void archive(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(userId, uniqueId);
         }
     }
 
@@ -106,13 +120,7 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
         }
     }
 
-    public List<JabberId> readTeamIds(final UUID uniqueId) {
-		synchronized (getImplLock()) {
-            return getImpl().readTeamIds(uniqueId);
-		}
-	}
-
-	/**
+    /**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param artifactUniqueId
@@ -138,6 +146,12 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
             return getImpl().readKeyHolder(userId, uniqueId);
         }
     }
+
+	public List<JabberId> readTeamIds(final UUID uniqueId) {
+		synchronized (getImplLock()) {
+            return getImpl().readTeamIds(uniqueId);
+		}
+	}
 
 	/**
      * Remove a user from an artifact's team.

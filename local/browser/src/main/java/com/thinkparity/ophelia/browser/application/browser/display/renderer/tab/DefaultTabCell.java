@@ -34,14 +34,17 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
  */
 public abstract class DefaultTabCell implements TabCell {
 
-    /** The border for the bottom of the container cell. */
+    /** The border for the bottom of the cell. */
     protected static final Border BORDER_BOTTOM;
 
-    /** The border for the top of the first container cell. */
-    protected static final Border BORDER_TOP_0;
+    /** The border for the top of the cell. */
+    protected static final Border BORDER_TOP;
+    
+    /** The border for the top of child cells. */
+    protected static final Border BORDER_CHILD_TOP;
 
-    /** The border for the top of the rest of the container cells. */
-    protected static final Border BORDER_TOP_N;
+    /** The border for the top of a group of cells. */
+    private static final Border BORDER_GROUP_TOP;
     
     /** The cell's text foreground color. */
     protected static final Color TEXT_FG;
@@ -53,9 +56,10 @@ public abstract class DefaultTabCell implements TabCell {
     protected static final Integer TEXT_MAX_LENGTH;
 
     static {
-        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, new Insets(2,0,0,0));
-        BORDER_TOP_N = new TopBorder(Color.WHITE);
+        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER);
+        BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER, new Insets(2,0,0,0));
+        BORDER_CHILD_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_CHILD, new Insets(2,0,0,0));
+        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, new Insets(3,0,0,0));
         
         TEXT_FG = Colors.Browser.TabCell.TEXT;
         TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
@@ -101,12 +105,19 @@ public abstract class DefaultTabCell implements TabCell {
      */
     public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
         final Border topBorder;
-        if (0 == index) {
-            topBorder = BORDER_TOP_0;
+        if (getParent() != null) {
+            topBorder = BORDER_CHILD_TOP;
+        } else if (isFirstInGroup) {
+            topBorder = BORDER_GROUP_TOP;
         } else {
-            topBorder = BORDER_TOP_N;
+            topBorder = BORDER_TOP;
         }
-        return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
+        
+        if (lastCell) {
+            return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
+        } else {
+            return topBorder;
+        }
     }
 
     /**

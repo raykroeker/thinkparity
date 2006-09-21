@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -17,20 +16,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Calendar;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.border.Border;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
@@ -46,27 +40,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @version $Revision$
  */
 public class ContainerCell extends DefaultTabCell implements TabCell  {
-
-    /** The border for the bottom of the container cell. */
-    private static final Border BORDER_BOTTOM;
-
-    /** The border for the top of the container cell. */
-    private static final Border BORDER_TOP;
-    
-    /** The border for the top of a group of container cells. */
-    private static final Border BORDER_GROUP_TOP;
-    
-    /** The border insets for the top of the container cell. */
-    private static final Insets BORDER_TOP_INSETS;
-    private static final Insets BORDER_GROUP_TOP_INSETS;
-    
-    static {
-        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right  
-        BORDER_GROUP_TOP_INSETS = new Insets(3,0,0,0);
-        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
-        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, BORDER_GROUP_TOP_INSETS);
-    }
     
     /** A flag indicating whether or not the user is the key holder. */
     private Boolean keyHolder = Boolean.FALSE;
@@ -186,25 +159,6 @@ public class ContainerCell extends DefaultTabCell implements TabCell  {
     public BufferedImage getBackgroundSelected() {
         if(isUrgent()) { return imageCache.read(TabCellImage.BG_URGENT); }
         else { return imageCache.read(TabCellImage.BG_SEL_DEFAULT); }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
-     * 
-     */
-    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) { 
-        final Border topBorder;
-        if (isFirstInGroup) {
-            topBorder = BORDER_GROUP_TOP;
-        } else {
-            topBorder = BORDER_TOP;
-        }
-            
-        if (lastCell) {
-            return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
-        } else {
-            return topBorder;
-        }
     }
     
     /**

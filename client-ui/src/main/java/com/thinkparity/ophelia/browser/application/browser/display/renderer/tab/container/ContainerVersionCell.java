@@ -3,21 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Insets;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
-import javax.swing.border.Border;
 
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
@@ -34,21 +27,6 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @version 1.1.2.1
  */
 public class ContainerVersionCell extends DefaultTabCell implements TabCell {
-
-    /** The border for the bottom of the container cell. */
-    private static final Border BORDER_BOTTOM;
-
-    /** The border for the top of the container cell. */
-    private static final Border BORDER_TOP;
-    
-    /** The border insets for the top of the container cell. */
-    private static final Insets BORDER_TOP_INSETS;
-    
-    static {
-        BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right 
-        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP = new TopBorder(Color.WHITE, BORDER_TOP_INSETS);
-    }
 
     /** The container cell. */
     private final ContainerCell container;
@@ -103,18 +81,6 @@ public class ContainerVersionCell extends DefaultTabCell implements TabCell {
      */
     public Long getVersionId() {
         return containerVersion.getVersionId();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
-     * 
-     */
-    public Border getBorder(final int index, final Boolean isFirstInGroup, final Boolean lastCell) {
-        if (lastCell) {
-            return BorderFactory.createCompoundBorder(BORDER_TOP, BORDER_BOTTOM);
-        } else {
-            return BORDER_TOP;
-        }
     }
 
     /**

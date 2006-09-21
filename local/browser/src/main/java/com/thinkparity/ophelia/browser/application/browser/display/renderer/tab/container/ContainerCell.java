@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
@@ -26,20 +25,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.Constants.InsetFactors;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -51,7 +45,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerCell implements TabCell  {
+public class ContainerCell extends DefaultTabCell implements TabCell  {
 
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
@@ -65,15 +59,6 @@ public class ContainerCell implements TabCell  {
     /** The border insets for the top of the container cell. */
     private static final Insets BORDER_TOP_INSETS;
     private static final Insets BORDER_GROUP_TOP_INSETS;
-
-    /** The cell's text foreground color. */
-    private static final Color TEXT_FG;
-    
-    /** The cell's text foreground colour for mouse over cells. */
-    private static final Color TEXT_FG_MOUSEOVER;
-
-    /** Maximum length of a container cell's text. */
-    private static final Integer TEXT_MAX_LENGTH;
     
     static {
         BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right  
@@ -81,30 +66,10 @@ public class ContainerCell implements TabCell  {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
         BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, BORDER_GROUP_TOP_INSETS);
-
-        TEXT_FG = Colors.Browser.TabCell.TEXT;
-        TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
-
-        TEXT_MAX_LENGTH = 60;
     }
-    
-    /** A flag indicating whether or not the container is closed. */
-    private Boolean closed = Boolean.FALSE; 
-    
-    /** A flag indicating the expand\collapse status. */
-    private Boolean expanded = Boolean.FALSE;
-    
-    /** A flag indicating the mouse over status. */
-    private Boolean mouseOver = Boolean.FALSE;
-    
-    /** An image cache. */
-    private final MainCellImageCache imageCache;
     
     /** A flag indicating whether or not the user is the key holder. */
     private Boolean keyHolder = Boolean.FALSE;
-
-    /** A popup menu item factory. */
-    private final PopupItemFactory popupItemFactory;
 
     /** A flag indicating whether or not the cell has been seen. */
     private Boolean seen = Boolean.FALSE;
@@ -136,10 +101,7 @@ public class ContainerCell implements TabCell  {
         this.container.setUpdatedBy(container.getUpdatedBy());
         this.container.setUpdatedOn(container.getUpdatedOn());
         this.container.add(container.getFlags());
-        this.closed = this.container.getState() == ArtifactState.CLOSED;
-        this.imageCache = new MainCellImageCache();
         this.keyHolder = this.container.contains(ArtifactFlag.KEY);
-        this.popupItemFactory = PopupItemFactory.getInstance();
         this.seen = this.container.contains(ArtifactFlag.SEEN);
         this.urgent = Boolean.FALSE;
         if (null==containerDraft) {
@@ -195,7 +157,6 @@ public class ContainerCell implements TabCell  {
     public Boolean isDraft() {
         return container.isDraft();
     }
-
     
     /** 
      * Determine whether or not the draft is local.
@@ -212,9 +173,8 @@ public class ContainerCell implements TabCell  {
      * @return A buffered image.
      */
     public BufferedImage getBackground() {
-        if(isClosed()) { return imageCache.read(DocumentImage.BG_CLOSED); }
-        else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
-        else { return imageCache.read(DocumentImage.BG_DEFAULT); }
+        if(isUrgent()) { return imageCache.read(TabCellImage.BG_URGENT); }
+        else { return imageCache.read(TabCellImage.BG_DEFAULT); }
     }
 
     /**
@@ -224,9 +184,8 @@ public class ContainerCell implements TabCell  {
      * @return A buffered image.
      */
     public BufferedImage getBackgroundSelected() {
-        if(isClosed()) { return imageCache.read(DocumentImage.BG_SEL_CLOSED); }
-        else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
-        else { return imageCache.read(DocumentImage.BG_SEL_DEFAULT); }
+        if(isUrgent()) { return imageCache.read(TabCellImage.BG_URGENT); }
+        else { return imageCache.read(TabCellImage.BG_SEL_DEFAULT); }
     }
 
     /**
@@ -247,54 +206,31 @@ public class ContainerCell implements TabCell  {
             return topBorder;
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
-     * 
      */
     public ImageIcon getNodeIcon() {
         return null;
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
-     * 
      */
     public ImageIcon getNodeIconSelected() {
         return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getParent()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public TabCell getParent() {
-        return null;
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     *
-     */
-    public String getText(TextGroup textGroup) {
+    public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.MAIN_TEXT) {
-            final String s;
-            if(TEXT_MAX_LENGTH < container.getName().length()) {
-                s = container.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
-            }
-            else {
-                s = container.getName();
-            }
-            
-            if (isMouseOver()) {
-                return "<HTML><u>" + s + "</u>";
-            } else {
-                return s;
-            }
+            return container.getName();
         } else {
             return draftOwner;
         }
-    }   
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
@@ -303,35 +239,6 @@ public class ContainerCell implements TabCell  {
     public Font getTextFont(TextGroup textGroup) {
         if (isSeen()) { return BrowserConstants.Fonts.DefaultFont; }
         else { return BrowserConstants.Fonts.DefaultFontBold; }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     * 
-     */
-    public Color getTextForeground(TextGroup textGroup) {
-        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT)) {
-            return TEXT_FG_MOUSEOVER;
-        } else {
-            return TEXT_FG;
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
-     * 
-     */
-    public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_0;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
-     * 
-     */
-    public String getToolTip() {
-        if(TEXT_MAX_LENGTH < container.getName().length()) { return container.getName(); }
-        else { return null; }
     }
     
     /**
@@ -357,13 +264,6 @@ public class ContainerCell implements TabCell  {
      * 
      */
     public int hashCode() { return container.hashCode(); }
-    
-    /**
-     * Determine whether or not the container is closed.
-     * 
-     * @return True if the container is closed; false otherwise.
-     */
-    public Boolean isClosed() { return closed; }    
     
     /**
      * Determine whether or not the user is the container's key holder.
@@ -481,46 +381,11 @@ public class ContainerCell implements TabCell  {
         }
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }
-
+    
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
      */
-    public void triggerDoubleClickAction(Browser browser) {
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
-     */
-    public Boolean isExpanded() {
-        return expanded;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
-     */
-    public Boolean setExpanded(Boolean expand) {
-        if (this.expanded != expand) {
-            this.expanded = expand;
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-
-    /**
-     * Determine whether or not the cell is mouse over.
-     * 
-     * @return True if the cell is mouse over; false otherwise.
-     */
-    public Boolean isMouseOver() {
-        return mouseOver;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
-     */
-    public void setMouseOver(Boolean mouseOver) {
-        this.mouseOver = mouseOver;        
-    }
- 
+    public Boolean isChildren() {
+        return Boolean.TRUE;
+    } 
 }

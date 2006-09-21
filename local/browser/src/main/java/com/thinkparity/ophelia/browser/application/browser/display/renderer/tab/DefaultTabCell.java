@@ -22,28 +22,35 @@ import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellIcon;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DefaultTabCell implements TabCell {
+public abstract class DefaultTabCell implements TabCell {
 
     /** The border for the bottom of the container cell. */
-    private static final Border BORDER_BOTTOM;
+    protected static final Border BORDER_BOTTOM;
 
     /** The border for the top of the first container cell. */
-    private static final Border BORDER_TOP_0;
+    protected static final Border BORDER_TOP_0;
 
     /** The border for the top of the rest of the container cells. */
-    private static final Border BORDER_TOP_N;
+    protected static final Border BORDER_TOP_N;
     
     /** The cell's text foreground color. */
-    private static final Color TEXT_FG;
+    protected static final Color TEXT_FG;
+    
+    /** The cell's text foreground colour for mouse over cells. */
+    protected static final Color TEXT_FG_MOUSEOVER;
+    
+    /** Maximum length of a container cell's text. */
+    protected static final Integer TEXT_MAX_LENGTH;
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
@@ -51,29 +58,42 @@ public class DefaultTabCell implements TabCell {
         BORDER_TOP_N = new TopBorder(Color.WHITE);
         
         TEXT_FG = Colors.Browser.TabCell.TEXT;
+        TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
+        
+        TEXT_MAX_LENGTH = 100;
     }
     
     /** An image cache. */
-    private final MainCellImageCache imageCache;
+    protected final MainCellImageCache imageCache;
+    
+    /** A popup menu item factory. */
+    protected final PopupItemFactory popupItemFactory;
+    
+    /** A flag indicating the expand\collapse status. */
+    protected Boolean expanded = Boolean.FALSE;
+    
+    /** A flag indicating the mouse over status. */
+    protected Boolean mouseOver = Boolean.FALSE;
 
     /** Create DefaultTabCell. */
     protected DefaultTabCell() {
         super();
         this.imageCache = new MainCellImageCache();
+        this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackground()
      */
     public BufferedImage getBackground() {
-        return imageCache.read(DocumentImage.BG_DEFAULT);
+        return imageCache.read(TabCellImage.BG_DEFAULT);
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackgroundSelected()
      */
     public BufferedImage getBackgroundSelected() {
-        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
+        return imageCache.read(TabCellImage.BG_SEL_DEFAULT);
     }
 
     /**
@@ -93,14 +113,26 @@ public class DefaultTabCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {
-        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
+        if (!isChildren()) {
+            return imageCache.read(TabCellIcon.NODE_NOCHILDREN);            
+        } else if (isExpanded()) {
+            return imageCache.read(TabCellIcon.NODE_EXPANDED);
+        } else {
+            return imageCache.read(TabCellIcon.NODE_COLLAPSED);
+        }
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
      */
     public ImageIcon getNodeIconSelected() {
-        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
+        if (!isChildren()) {
+            return imageCache.read(TabCellIcon.NODE_NOCHILDREN); 
+        } else if (isExpanded()) {
+            return imageCache.read(TabCellIcon.NODE_SEL_EXPANDED);
+        } else {
+            return imageCache.read(TabCellIcon.NODE_SEL_COLLAPSED);
+        }
     }
 
     /**
@@ -113,7 +145,23 @@ public class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getText(TextGroup textGroup) {
+    public String getText(TextGroup textGroup) { 
+        String s = getTextNoClipping(textGroup);
+        if ((textGroup == TextGroup.MAIN_TEXT) && (s!=null)) {
+            if (TEXT_MAX_LENGTH < s.length()) {
+                s = s.substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";                    
+            }
+            if (isMouseOver() && isChildren()) {
+                s = "<HTML><u>" + s + "</u>";
+            }
+        }
+        return s;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     */
+    public String getTextNoClipping(TextGroup textGroup) {
         return null;
     }
 
@@ -128,7 +176,11 @@ public class DefaultTabCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
     public Color getTextForeground(TextGroup textGroup) {
-        return TEXT_FG;
+        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT) && isChildren()) {
+            return TEXT_FG_MOUSEOVER;
+        } else {
+            return TEXT_FG;
+        }
     }   
     
     /**
@@ -142,7 +194,8 @@ public class DefaultTabCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        return getText(TextGroup.MAIN_TEXT);
+        if (TEXT_MAX_LENGTH < getTextNoClipping(TextGroup.MAIN_TEXT).length()) { return getTextNoClipping(TextGroup.MAIN_TEXT); }
+        else { return null; }
     }
     
     /**
@@ -161,28 +214,45 @@ public class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
      */
-    public void triggerDoubleClickAction(Browser browser) {
-        return;
-    }
+    public void triggerDoubleClickAction(Browser browser) {}
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
      */
     public Boolean isExpanded() {
-        return Boolean.FALSE;
+        return expanded;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
      */
     public Boolean setExpanded(Boolean expand) {
-        return Boolean.FALSE;
+        if (this.expanded != expand && isChildren()) {
+            this.expanded = expand;
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isMouseOver()
+     */
+    public Boolean isMouseOver() {
+        return mouseOver;
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
      */
     public void setMouseOver(Boolean mouseOver) {
-        return;
+        this.mouseOver = mouseOver;  
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
+     */
+    public Boolean isChildren() {
+        return Boolean.FALSE;
+    }  
 }

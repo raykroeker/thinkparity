@@ -4,12 +4,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
+
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public abstract class InvitationCell {
+public abstract class InvitationCell extends DefaultTabCell  {
     
     /**
      * Get the invitation Id.

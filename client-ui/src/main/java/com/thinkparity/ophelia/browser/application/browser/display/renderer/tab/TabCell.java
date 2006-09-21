@@ -82,6 +82,15 @@ public interface TabCell {
      * @return A string.
      */
     public String getText(TextGroup textGroup);
+    
+    /**
+     * Obtain the text to display, with no clipping.
+     * 
+     * @param textGroup
+     *          Indicates if this is the main text or secondary text.
+     * @return A string.
+     */
+    public String getTextNoClipping(TextGroup textGroup);
 
     /**
      * Obatin the font for the cell text.
@@ -149,6 +158,7 @@ public interface TabCell {
     
     /**
      * Set the expand or collapse state for the cell.
+     * 
      * @param expand
      *            Boolean flag to expand or collapse.    
      * @return A Boolean, true if the expand state changed.                
@@ -156,11 +166,26 @@ public interface TabCell {
     public Boolean setExpanded(final Boolean expand);
     
     /**
+     * Determine if this cell is mouse over.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isMouseOver();
+    
+    /**
      * Set the mouseOver state for the cell.
+     * 
      * @param mouseOver
      *            Boolean flag to indicate mouseOver.
      */
     public void setMouseOver(final Boolean mouseOver);
+    
+    /**
+     * Deterine if this cell has children (and can expand).
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isChildren();
     
     public enum TextGroup { MAIN_TEXT, SECONDARY_TEXT };
 }

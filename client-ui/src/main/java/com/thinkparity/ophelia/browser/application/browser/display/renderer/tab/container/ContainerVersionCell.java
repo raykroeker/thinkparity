@@ -5,13 +5,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
@@ -19,16 +16,10 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -42,7 +33,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerVersionCell implements TabCell {
+public class ContainerVersionCell extends DefaultTabCell implements TabCell {
 
     /** The border for the bottom of the container cell. */
     private static final Border BORDER_BOTTOM;
@@ -53,38 +44,17 @@ public class ContainerVersionCell implements TabCell {
     /** The border insets for the top of the container cell. */
     private static final Insets BORDER_TOP_INSETS;
     
-    /** The cell's text foreground color. */
-    private static final Color TEXT_FG;
-    
-    /** The cell's text foreground colour for mouse over cells. */
-    private static final Color TEXT_FG_MOUSEOVER;
-
     static {
         BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right 
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP = new TopBorder(Color.WHITE, BORDER_TOP_INSETS);
-        
-        TEXT_FG = Colors.Browser.TabCell.TEXT;
-        TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
     }
 
     /** The container cell. */
     private final ContainerCell container;
-
-    /** A flag indicating the expand\collapse status. */
-    private Boolean expanded = Boolean.FALSE;
-    
-    /** A flag indicating the mouse over status. */
-    private Boolean mouseOver = Boolean.FALSE;
-
-    /** An image cache. */
-    private final MainCellImageCache imageCache;
     
     /** The draft cell localization. */
     private final MainCellL18n localization; 
-    
-    /** A popup item factory. */
-    private final PopupItemFactory popupItemFactory;
     
     /** The container version associated with this cell. */
     private ContainerVersion containerVersion;
@@ -103,9 +73,7 @@ public class ContainerVersionCell implements TabCell {
         this.containerVersion.setUpdatedOn(containerVersion.getUpdatedOn());
         this.containerVersion.setVersionId(containerVersion.getVersionId());
         this.container = container;
-        this.imageCache = new MainCellImageCache();
         this.localization = new MainCellL18n("MainCellContainerVersion");
-        this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
     /**
@@ -138,26 +106,6 @@ public class ContainerVersionCell implements TabCell {
     }
 
     /**
-     * Obtain the background image for a cell.
-     * 
-     * 
-     * @return A buffered image.
-     */
-    public BufferedImage getBackground() {
-        return imageCache.read(DocumentImage.BG_DEFAULT);
-    }
-    
-    /**
-     * Obtain the background image for a selected cell.
-     * 
-     * 
-     * @return A buffered image.
-     */
-    public BufferedImage getBackgroundSelected() {
-        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
@@ -170,30 +118,6 @@ public class ContainerVersionCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
-     * 
-     */
-    public ImageIcon getNodeIcon() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_DEFAULT);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
-     * 
-     */
-    public ImageIcon getNodeIconSelected() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getParent()
      * 
      */
@@ -202,37 +126,14 @@ public class ContainerVersionCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      *
      */
-    public String getText(TextGroup textGroup) {
+    public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.MAIN_TEXT) {
-            final String s = localization.getString("Text", new Object[] {containerVersion.getVersionId()});
-            if (isMouseOver()) {
-                return "<HTML><u>" + s + "</u>";
-            } else {
-                return s;
-            }
+            return localization.getString("Text", new Object[] {containerVersion.getVersionId()});
         } else {
             return "Publish Person";
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     *
-     */
-    public Font getTextFont(TextGroup textGroup) { return Fonts.DefaultFont; }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     * 
-     */
-    public Color getTextForeground(TextGroup textGroup) {
-        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT)) {
-            return TEXT_FG_MOUSEOVER;
-        } else {
-            return TEXT_FG;
         }
     }
 
@@ -242,22 +143,6 @@ public class ContainerVersionCell implements TabCell {
      */
     public Float getTextInsetFactor() {
         return InsetFactors.LEVEL_1;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
-     * 
-     */
-    public String getToolTip() {
-        return null;
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
-     * 
-     */
-    public Boolean isFirstInGroup() {
-        return Boolean.FALSE;
     }
 
     /**
@@ -291,43 +176,9 @@ public class ContainerVersionCell implements TabCell {
     }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
      */
-    public void triggerDoubleClickAction(Browser browser) {       
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
-     */
-    public Boolean isExpanded() {
-        return expanded;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
-     */
-    public Boolean setExpanded(Boolean expand) {
-        if (this.expanded != expand) {
-            this.expanded = expand;
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Determine whether or not the cell is mouse over.
-     * 
-     * @return True if the cell is mouse over; false otherwise.
-     */
-    public Boolean isMouseOver() {
-        return mouseOver;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
-     */
-    public void setMouseOver(Boolean mouseOver) {
-        this.mouseOver = mouseOver;        
-    }   
+    public Boolean isChildren() {
+        return Boolean.TRUE;
+    }  
 }

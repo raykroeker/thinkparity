@@ -9,9 +9,7 @@ import java.awt.event.MouseEvent;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
-import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 
@@ -38,29 +36,15 @@ public class ArchiveCell extends DefaultTabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getParent()
-     */
-    public TabCell getParent() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      *
      */
-    public String getText(TextGroup textGroup) {
+    public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.MAIN_TEXT) {
             return artifact.getName();
         } else {
             return null;
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
-     */
-    public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_0;
     }
 
     /**

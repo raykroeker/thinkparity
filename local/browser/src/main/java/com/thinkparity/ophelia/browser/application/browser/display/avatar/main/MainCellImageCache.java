@@ -47,66 +47,30 @@ public class MainCellImageCache {
         synchronized(ICON_CACHE) {
             ICON_CACHE.clear();
             
-            for(final ContactIcon ci : ContactIcon.values()) {
-                if(!ICON_CACHE.containsKey(ci.iconName)) {
+            for (final TabCellIcon tci : TabCellIcon.values()) {
+                if(!ICON_CACHE.containsKey(tci.iconName)) {
                     slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + ci.iconName + "]");
+                            "[CACHING " + tci.iconName + "]");
                     ICON_CACHE.put(
-                            ci.iconName,
-                            ImageIOUtil.readIcon(ci.iconName));
-                }
-            }
-            for(final ContainerIcon ci : ContainerIcon.values()) {
-                if(!ICON_CACHE.containsKey(ci.iconName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + ci.iconName + "]");
-                    ICON_CACHE.put(
-                            ci.iconName,
-                            ImageIOUtil.readIcon(ci.iconName));
-                }
-            }
-            for(final DocumentIcon di : DocumentIcon.values()) {
-                if(!ICON_CACHE.containsKey(di.iconName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + di.iconName + "]");
-                    ICON_CACHE.put(
-                            di.iconName,
-                            ImageIOUtil.readIcon(di.iconName));
-                }
-            }
-            for(final HistoryItemIcon hii : HistoryItemIcon.values()) {
-                if(!ICON_CACHE.containsKey(hii.iconName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + hii.iconName + "]");
-                    ICON_CACHE.put(
-                            hii.iconName,
-                            ImageIOUtil.readIcon(hii.iconName));
+                            tci.iconName,
+                            ImageIOUtil.readIcon(tci.iconName));
                 }
             }
         }
     }
 
-    /** Cache all main cell images. */
+    /** Cache all tab cell images. */
     private static void cacheImages() {
         synchronized(IMAGE_CACHE) {
             IMAGE_CACHE.clear();
 
-            for(final DocumentImage di: DocumentImage.values()) {
-                if(!IMAGE_CACHE.containsKey(di.imageName)) {
+            for(final TabCellImage tci: TabCellImage.values()) {
+                if(!IMAGE_CACHE.containsKey(tci.imageName)) {
                     slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + di.imageName + "]");
+                            "[CACHING " + tci.imageName + "]");
                     IMAGE_CACHE.put(
-                            di.imageName,
-                            ImageIOUtil.read(di.imageName));
-                }
-            }
-            for(final HistoryItemImage hii: HistoryItemImage.values()) {
-                if(!IMAGE_CACHE.containsKey(hii.imageName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + hii.imageName + "]");
-                    IMAGE_CACHE.put(
-                            hii.imageName,
-                            ImageIOUtil.read(hii.imageName));
+                            tci.imageName,
+                            ImageIOUtil.read(tci.imageName));
                 }
             }
         }
@@ -128,74 +92,26 @@ public class MainCellImageCache {
     }
     
     /**
-     * Read a contact icon from the cache.
+     * Read a tab cell icon from the cache.
      * 
      * @param icon
      *            The icon.
      * @return The icon.
      * @see ImageIOUtil#readIcon(java.lang.String)
      */
-    public ImageIcon read(final ContactIcon icon) {
-        return (ImageIcon) read(ICON_CACHE, icon.iconName);
-    }
-    
-    /**
-     * Read a container icon from the cache.
-     * 
-     * @param icon
-     *            The icon.
-     * @return The icon.
-     * @see ImageIOUtil#readIcon(java.lang.String)
-     */
-    public ImageIcon read(final ContainerIcon icon) {
+    public ImageIcon read(final TabCellIcon icon) {
         return (ImageIcon) read(ICON_CACHE, icon.iconName);
     }
 
     /**
-     * Read a document icon from the cache.
-     * 
-     * @param icon
-     *            The icon.
-     * @return The icon.
-     * @see ImageIOUtil#readIcon(java.lang.String)
-     */
-    public ImageIcon read(final DocumentIcon icon) {
-        return (ImageIcon) read(ICON_CACHE, icon.iconName);
-    }
-
-    /**
-     * Read document image from the cache.
+     * Read tab cell image from the cache.
      * 
      * @param image
      *            The image.
      * @return The image.
      * @see ImageIOUtil.read(java.lang.String)
      */
-    public BufferedImage read(final DocumentImage image) {
-        return (BufferedImage) read(IMAGE_CACHE, image.imageName);
-    }
-
-    /**
-     * Read a history item icon from the cache.
-     * 
-     * @param icon
-     *            The icon.
-     * @return The icon.
-     * @see ImageIOUtil#readIcon(String)
-     */
-    ImageIcon read(final HistoryItemIcon icon) {
-        return (ImageIcon) read(ICON_CACHE, icon.iconName);
-    }
-
-    /**
-     * Read history image from the cache.
-     * 
-     * @param image
-     *            The image.
-     * @return The image.
-     * @see ImageIOUtil.read(java.lang.String)
-     */
-    BufferedImage read(final HistoryItemImage image) {
+    public BufferedImage read(final TabCellImage image) {
         return (BufferedImage) read(IMAGE_CACHE, image.imageName);
     }
 
@@ -230,28 +146,8 @@ public class MainCellImageCache {
         synchronized(cache) { return cache.get(cacheKey); }
     }
     
-    /** All contact cell icons. */
-    public enum ContactIcon {
-        INFO("Invisible20x20.png"),
-        NODE("Invisible9x9.png"),
-        NODE_SELECTED("Invisible9x9.png");
-        
-        /** The icon file name. */
-        private final String iconName;
-
-        /**
-         * Create a ContactIcon.
-         * 
-         * @param iconName
-         *            The icon file name.
-         */
-        private ContactIcon(final String iconName) {
-            this.iconName = iconName;
-        }        
-    }
-    
-    /** All container cell icons. */
-    public enum ContainerIcon {
+    /** All tab cell icons. */
+    public enum TabCellIcon {
         INFO("Invisible20x20.png"),
         NODE_NOCHILDREN("Invisible9x9.png"),
         
@@ -260,50 +156,23 @@ public class MainCellImageCache {
 
         NODE_SEL_COLLAPSED("MainCellExpand.png"),
         NODE_SEL_EXPANDED("MainCellCollapse.png");
-
         
         /** The icon file name. */
         private final String iconName;
 
         /**
-         * Create a ContactIcon.
+         * Create a TabCellIcon.
          * 
          * @param iconName
          *            The icon file name.
          */
-        private ContainerIcon(final String iconName) {
+        private TabCellIcon(final String iconName) {
             this.iconName = iconName;
-        }        
+        }            
     }
 
-    /** All document cell icons. */
-    public enum DocumentIcon {
-
-        INFO_IS_KEYHOLDER("Invisible20x20.png"),
-        INFO_IS_NOT_KEYHOLDER("Lock.png"),
-
-        NODE_DEFAULT("MainCellExpand.png"),
-        NODE_EXPANDED("MainCellCollapse.png"),
-
-        NODE_SEL_DEFAULT("MainCellExpand.png"),
-        NODE_SEL_EXPANDED("MainCellCollapse.png");
-
-        /** The icon file name. */
-        private final String iconName;
-
-        /**
-         * Create a DocumentIcon.
-         * 
-         * @param iconName
-         *            The icon file name.
-         */
-        private DocumentIcon(final String iconName) {
-            this.iconName = iconName;
-        }
-    }
-
-    /** All document cell images. */
-    public enum DocumentImage {
+    /** All tab cell cell images. */
+    public enum TabCellImage {
 
         BG_CLOSED("MainCellGray.png"),
         BG_DEFAULT("MainCellDefault.png"),
@@ -317,60 +186,12 @@ public class MainCellImageCache {
         private final String imageName;
 
         /**
-         * Create a DocumentImage.
+         * Create a TabCellImage.
          * 
          * @param imageName
          *            The image file name.
          */
-        private DocumentImage(final String imageName) {
-            this.imageName = imageName;
-        }
-    }
-
-    /** All history item cell icons. */
-    enum HistoryItemIcon {
-
-        INFO_DEFAULT("Invisible20x20.png"),
-        INFO_PENDING("MainCellInfoPending.png"),
-
-        NODE_DEFAULT("Invisible12x12.png"),
-        NODE_DEFAULT_SELECTED("Invisible12x12.png");
-
-        /** The icon file name. */
-        private final String iconName;
-
-        /**
-         * Create a HistoryItemIcon.
-         * 
-         * @param iconName
-         *            The icon file name.
-         */
-        private HistoryItemIcon(final String iconName) {
-            this.iconName = iconName;
-        }
-    }
-
-    /** All history item cell images. */
-    enum HistoryItemImage {
-
-        BG_CLOSED("MainCellGray.png"),
-        BG_DEFAULT("MainCellGreen.png"),
-        BG_URGENT("MainCellOrange.png"),
-        
-        BG_SEL_CLOSED("MainCellGraySelected.png"),
-        BG_SEL_DEFAULT("MainCellGreenSelected.png"),
-        BG_SEL_URGENT("MainCellOrangeSelected.png");
-
-        /** The image file name. */
-        private final String imageName;
-
-        /**
-         * Create a HistoryItemImage.
-         * 
-         * @param imageName
-         *            The image file name.
-         */
-        private HistoryItemImage(final String imageName) {
+        private TabCellImage(final String imageName) {
             this.imageName = imageName;
         }
     }

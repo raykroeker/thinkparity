@@ -58,7 +58,8 @@ public final class Constants {
             }
             public static final class TabCell {
                 public static final Color TEXT = Color.BLACK;
-                public static final Color TEXT_CLOSED = Color.BLACK;
+                public static final Color TEXT_CLOSED = new Color(127, 131, 134, 255);
+                public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
             }
         }
     }

@@ -77,30 +77,29 @@ public interface TabCell {
     /**
      * Obtain the text to display.
      * 
+     * @param textGroup
+     *          Indicates if this is the main text or secondary text.
      * @return A string.
      */
-    public String getText();
-    
-    /**
-     * Obtain the secondary text to display.
-     * 
-     * @return A string.
-     */
-    public String getSecondaryText();
+    public String getText(TextGroup textGroup);
 
     /**
      * Obatin the font for the cell text.
      * 
+     * @param textGroup
+     *          Indicates if this is the main text or secondary text.
      * @return A font.
      */
-    public Font getTextFont();
+    public Font getTextFont(TextGroup textGroup);
 
     /**
      * Obtain a color for the cell text.
      * 
+     * @param textGroup
+     *          Indicates if this is the main text or secondary text.
      * @return A color.
      */
-    public Color getTextForeground();
+    public Color getTextForeground(TextGroup textGroup);
 
     /**
      * Obtain the text inset factor. This is used to offset text the default
@@ -155,4 +154,13 @@ public interface TabCell {
      * @return A Boolean, true if the expand state changed.                
      */
     public Boolean setExpanded(final Boolean expand);
+    
+    /**
+     * Set the mouseOver state for the cell.
+     * @param mouseOver
+     *            Boolean flag to indicate mouseOver.
+     */
+    public void setMouseOver(final Boolean mouseOver);
+    
+    public enum TextGroup { MAIN_TEXT, SECONDARY_TEXT };
 }

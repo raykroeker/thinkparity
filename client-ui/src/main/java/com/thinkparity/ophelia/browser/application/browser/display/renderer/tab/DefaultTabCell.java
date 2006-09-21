@@ -17,10 +17,14 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
-
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.ContainerIcon;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
@@ -37,30 +41,39 @@ public class DefaultTabCell implements TabCell {
 
     /** The border for the top of the rest of the container cells. */
     private static final Border BORDER_TOP_N;
+    
+    /** The cell's text foreground color. */
+    private static final Color TEXT_FG;
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, new Insets(2,0,0,0));
         BORDER_TOP_N = new TopBorder(Color.WHITE);
+        
+        TEXT_FG = Colors.Browser.TabCell.TEXT;
     }
+    
+    /** An image cache. */
+    private final MainCellImageCache imageCache;
 
     /** Create DefaultTabCell. */
     protected DefaultTabCell() {
         super();
+        this.imageCache = new MainCellImageCache();
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackground()
      */
     public BufferedImage getBackground() {
-        return null;
+        return imageCache.read(DocumentImage.BG_DEFAULT);
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getBackgroundSelected()
      */
     public BufferedImage getBackgroundSelected() {
-        return null;
+        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
     }
 
     /**
@@ -80,14 +93,14 @@ public class DefaultTabCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIcon()
      */
     public ImageIcon getNodeIcon() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getNodeIconSelected()
      */
     public ImageIcon getNodeIconSelected() {
-        return null;
+        return imageCache.read(ContainerIcon.NODE_NOCHILDREN); 
     }
 
     /**
@@ -98,33 +111,26 @@ public class DefaultTabCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getSecondaryText() {
+    public String getText(TextGroup textGroup) {
         return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getText() {
-        return null;
+    public Font getTextFont(TextGroup textGroup) {
+        return BrowserConstants.Fonts.DefaultFont;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public Font getTextFont() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
-     */
-    public Color getTextForeground() {
-        return null;
-    }
-
+    public Color getTextForeground(TextGroup textGroup) {
+        return TEXT_FG;
+    }   
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
@@ -136,7 +142,7 @@ public class DefaultTabCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        return getText();
+        return getText(TextGroup.MAIN_TEXT);
     }
     
     /**
@@ -171,5 +177,12 @@ public class DefaultTabCell implements TabCell {
      */
     public Boolean setExpanded(Boolean expand) {
         return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        return;
     }
 }

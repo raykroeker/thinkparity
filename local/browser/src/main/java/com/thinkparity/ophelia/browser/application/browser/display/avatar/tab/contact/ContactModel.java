@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
@@ -24,6 +23,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.IncomingInvitationCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell;
@@ -130,7 +130,7 @@ public class ContactModel extends TabModel {
                     + contacts.size() + ")]");
             for (final ContactCell cc : contacts) {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + cc.getText() + "]");
+                        + cc.getText(TextGroup.MAIN_TEXT) + "]");
             }
 
             // visible cells
@@ -139,7 +139,7 @@ public class ContactModel extends TabModel {
                             + visibleCells.size() + ")]");
             for (final TabCell mc : visibleCells) {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + mc.getText() + "]");
+                        + mc.getText(TextGroup.MAIN_TEXT) + "]");
             }
 
             // list elements
@@ -151,7 +151,7 @@ public class ContactModel extends TabModel {
             while (e.hasMoreElements()) {
                 mc = (TabCell) e.nextElement();
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + mc.getText() + "]");
+                        + mc.getText(TextGroup.MAIN_TEXT) + "]");
             }
         }
     }
@@ -162,7 +162,7 @@ public class ContactModel extends TabModel {
      * @return The swing list model.
      */
     @Override
-    protected ListModel getListModel() {
+    protected DefaultListModel getListModel() {
         return jListModel;
     }
 

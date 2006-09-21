@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -58,13 +59,17 @@ public class DraftCell implements TabCell  {
     
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
+    
+    /** The cell's text foreground colour for mouse over cells. */
+    private static final Color TEXT_FG_MOUSEOVER;
 
     static {
         BORDER_TOP_INSETS = new Insets(2,0,0,0);  // Top, left, bottom, right 
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
         BORDER_TOP = new TopBorder(Color.WHITE, BORDER_TOP_INSETS);
         
-        TEXT_FG = Color.BLACK;
+        TEXT_FG = Colors.Browser.TabCell.TEXT;
+        TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
     }
 
     /** The parent cell. */
@@ -72,6 +77,9 @@ public class DraftCell implements TabCell  {
 
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
+    
+    /** A flag indicating the mouse over status. */
+    private Boolean mouseOver = Boolean.FALSE;
     
     /** Flag to indicate if there are documents. */
     private Boolean haveDocuments = Boolean.FALSE;    
@@ -220,30 +228,39 @@ public class DraftCell implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getText() { return localization.getString("Draft"); }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
-     */
-    public String getSecondaryText() {
-        return null;
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            final String s = localization.getString("Draft");
+            if (isMouseOver() && haveDocuments) {
+                return "<HTML><u>" + s + "</u>";
+            } else {
+                return s;
+            }
+        } else {
+            return null;
+        }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() { return Fonts.DefaultFont; }
+    public Font getTextFont(TextGroup textGroup) { return Fonts.DefaultFont; }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      * 
      */
-    public Color getTextForeground() { return TEXT_FG; }
+    public Color getTextForeground(TextGroup textGroup) {
+        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT) && haveDocuments) {
+            return TEXT_FG_MOUSEOVER;
+        } else {
+            return TEXT_FG;
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
@@ -332,4 +349,20 @@ public class DraftCell implements TabCell  {
             return Boolean.FALSE;
         }
     } 
+    
+    /**
+     * Determine whether or not the cell is mouse over.
+     * 
+     * @return True if the cell is mouse over; false otherwise.
+     */
+    public Boolean isMouseOver() {
+        return mouseOver;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        this.mouseOver = mouseOver;        
+    }   
 }

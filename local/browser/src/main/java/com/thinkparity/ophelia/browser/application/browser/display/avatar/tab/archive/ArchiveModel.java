@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
@@ -52,7 +51,7 @@ class ArchiveModel extends TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
     @Override
-    protected ListModel getListModel() {
+    protected DefaultListModel getListModel() {
         return listModel;
     }
 

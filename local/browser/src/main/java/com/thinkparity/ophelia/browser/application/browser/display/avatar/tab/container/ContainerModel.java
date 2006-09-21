@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
@@ -254,7 +253,7 @@ public class ContainerModel extends TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
     @Override
-    public ListModel getListModel() {
+    public DefaultListModel getListModel() {
         return listModel;
     }
     
@@ -487,7 +486,7 @@ public class ContainerModel extends TabModel {
             (tabCell instanceof DraftCell) ||
             (tabCell instanceof ContainerVersionCell) ||
             (tabCell instanceof ContainerVersionSentToCell)) {
-            triggerExpand(tabCell);
+            // Do nothing (every click does expand or collapse)
         } else {
             tabCell.triggerDoubleClickAction(browser);
         }

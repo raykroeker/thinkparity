@@ -31,7 +31,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -179,37 +178,35 @@ public class ContactCell implements TabCell {
     }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getText() {
-        if(TEXT_MAX_LENGTH < contact.getName().length()) {
-            return contact.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            if(TEXT_MAX_LENGTH < contact.getName().length()) {
+                return contact.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+            }
+            else {
+                return contact.getName();
+            }
+        } else {
+            return null;
         }
-        else { return contact.getName(); }
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
-     */
-    public String getSecondaryText() {
-        return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() {
+    public Font getTextFont(TextGroup textGroup) {
         return BrowserConstants.Fonts.DefaultFont;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      * 
      */
-    public Color getTextForeground() {
+    public Color getTextForeground(TextGroup textGroup) {
         return TEXT_FG;
     }
 
@@ -282,5 +279,12 @@ public class ContactCell implements TabCell {
      */
     public Boolean setExpanded(Boolean expand) {
         return Boolean.FALSE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        return;        
     }
 }

@@ -94,21 +94,21 @@ public class TabCellRenderer extends AbstractJPanel implements
         // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.
         final Integer widthToUse = list.getParent().getWidth() - 42;
-        if (null == cell.getSecondaryText()) {
+        if (null == cell.getText(TabCell.TextGroup.SECONDARY_TEXT)) {
             eastSize = 5;
         } else {
             eastSize = (int) (0.35 * (double)widthToUse);
         }
         westSize = widthToUse - eastSize - inset;
 
-        westTextJLabel.setFont(cell.getTextFont());
-        westTextJLabel.setForeground(cell.getTextForeground());
-        westTextJLabel.setText(cell.getText());
+        westTextJLabel.setFont(cell.getTextFont(TabCell.TextGroup.MAIN_TEXT));
+        westTextJLabel.setForeground(cell.getTextForeground(TabCell.TextGroup.MAIN_TEXT));
+        westTextJLabel.setText(cell.getText(TabCell.TextGroup.MAIN_TEXT));
         westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
         
-        eastTextJLabel.setFont(cell.getTextFont());
-        eastTextJLabel.setForeground(cell.getTextForeground());
-        eastTextJLabel.setText(cell.getSecondaryText());
+        eastTextJLabel.setFont(cell.getTextFont(TabCell.TextGroup.SECONDARY_TEXT));
+        eastTextJLabel.setForeground(cell.getTextForeground(TabCell.TextGroup.SECONDARY_TEXT));
+        eastTextJLabel.setText(cell.getText(TabCell.TextGroup.SECONDARY_TEXT));
         // These two lines make the east text left justified.
         eastTextJLabel.setPreferredSize(new Dimension(eastSize, 14));
         eastTextJLabel.setHorizontalAlignment(SwingConstants.LEFT);

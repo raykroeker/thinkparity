@@ -171,33 +171,32 @@ public class DraftDocumentCell implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getText() {
-        final String messageKey = new StringBuffer("Text.")
-                .append(draft.getState(document.getId())).toString();
-        return getString(messageKey, document.getName());
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
-     */
-    public String getSecondaryText() {
-        return null;
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            final String messageKey = new StringBuffer("Text.")
+                    .append(draft.getState(document.getId())).toString();
+            return getString(messageKey, document.getName());
+        } else {
+            return null;
+        }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() {
+    public Font getTextFont(TextGroup textGroup) {
         return BrowserConstants.Fonts.DefaultFont;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     * 
      */
-    public Color getTextForeground() {
+    public Color getTextForeground(TextGroup textGroup) {
         return TEXT_FG;
     }
 
@@ -322,5 +321,12 @@ public class DraftDocumentCell implements TabCell  {
      */
     public Boolean setExpanded(Boolean expand) {
         return Boolean.FALSE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        return;        
     }
 }

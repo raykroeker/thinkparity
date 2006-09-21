@@ -173,35 +173,33 @@ public class ContainerVersionSentToUserCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getText() {
-        if(TEXT_MAX_LENGTH < getFullText().length()) {
-            return getFullText().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            if(TEXT_MAX_LENGTH < getFullText().length()) {
+                return getFullText().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+            }
+            else {
+                return getFullText();
+            }
+        } else {
+            return null;
         }
-        else { return getFullText(); }
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
-     */
-    public String getSecondaryText() {
-        return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() { return Fonts.DefaultFont; }
+    public Font getTextFont(TextGroup textGroup) { return Fonts.DefaultFont; }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      * 
      */
-    public Color getTextForeground() { return TEXT_FG; }
+    public Color getTextForeground(TextGroup textGroup) { return TEXT_FG; }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
@@ -282,5 +280,12 @@ public class ContainerVersionSentToUserCell implements TabCell {
      */
     public Boolean setExpanded(Boolean expand) {
         return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        return;        
     }
 }

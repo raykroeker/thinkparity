@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -67,9 +68,9 @@ public class ContainerCell implements TabCell  {
 
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
-
-    /** The cell's text foreground colour for closed containers. */
-    private static final Color TEXT_FG_CLOSED;
+    
+    /** The cell's text foreground colour for mouse over cells. */
+    private static final Color TEXT_FG_MOUSEOVER;
 
     /** Maximum length of a container cell's text. */
     private static final Integer TEXT_MAX_LENGTH;
@@ -81,8 +82,8 @@ public class ContainerCell implements TabCell  {
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1, BORDER_TOP_INSETS);
         BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, BORDER_GROUP_TOP_INSETS);
 
-        TEXT_FG = Color.BLACK;
-        TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
+        TEXT_FG = Colors.Browser.TabCell.TEXT;
+        TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;
 
         TEXT_MAX_LENGTH = 60;
     }
@@ -92,6 +93,9 @@ public class ContainerCell implements TabCell  {
     
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
+    
+    /** A flag indicating the mouse over status. */
+    private Boolean mouseOver = Boolean.FALSE;
     
     /** An image cache. */
     private final MainCellImageCache imageCache;
@@ -267,42 +271,50 @@ public class ContainerCell implements TabCell  {
     public TabCell getParent() {
         return null;
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
-     * 
-     */
-    public String getText() {
-        if(TEXT_MAX_LENGTH < container.getName().length()) {
-            return container.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
-        }
-        else { return container.getName(); }
-    }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getSecondaryText() {
-        return draftOwner;
-    }    
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            final String s;
+            if(TEXT_MAX_LENGTH < container.getName().length()) {
+                s = container.getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+            }
+            else {
+                s = container.getName();
+            }
+            
+            if (isMouseOver()) {
+                return "<HTML><u>" + s + "</u>";
+            } else {
+                return s;
+            }
+        } else {
+            return draftOwner;
+        }
+    }   
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() {
-        if(isSeen()) { return BrowserConstants.Fonts.DefaultFont; }
+    public Font getTextFont(TextGroup textGroup) {
+        if (isSeen()) { return BrowserConstants.Fonts.DefaultFont; }
         else { return BrowserConstants.Fonts.DefaultFontBold; }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      * 
      */
-    public Color getTextForeground() {
-        if(isClosed()) { return TEXT_FG_CLOSED; }
-        else { return TEXT_FG; }
+    public Color getTextForeground(TextGroup textGroup) {
+        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT)) {
+            return TEXT_FG_MOUSEOVER;
+        } else {
+            return TEXT_FG;
+        }
     }
 
     /**
@@ -489,12 +501,26 @@ public class ContainerCell implements TabCell  {
     public Boolean setExpanded(Boolean expand) {
         if (this.expanded != expand) {
             this.expanded = expand;
-            if (expand) {
-                
-            }
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
         }
-    } 
+    }
+
+    /**
+     * Determine whether or not the cell is mouse over.
+     * 
+     * @return True if the cell is mouse over; false otherwise.
+     */
+    public Boolean isMouseOver() {
+        return mouseOver;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        this.mouseOver = mouseOver;        
+    }
+ 
 }

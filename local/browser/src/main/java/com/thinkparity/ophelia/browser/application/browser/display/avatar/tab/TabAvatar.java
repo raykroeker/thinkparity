@@ -5,9 +5,12 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import javax.swing.TransferHandler;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -224,6 +227,11 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         tabJList.setModel(model.getListModel());
         tabJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabJList.setCellRenderer(new TabCellRenderer());
+        tabJList.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tabJListKeyPressed(evt);
+            }
+        });
         tabJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 tabJListValueChanged(evt);
@@ -254,7 +262,19 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tabJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMousePressed       
+    private void tabJListKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tabJListKeyPressed
+        if ((evt.getKeyCode()==KeyEvent.VK_DOWN) ||
+            (evt.getKeyCode()==KeyEvent.VK_PAGE_DOWN) ||
+            (evt.getKeyCode()==KeyEvent.VK_END)) {
+            if (tabJList.getSelectedIndex() != tabJList.getModel().getSize()-1) {
+                // Set selectedIndex to -1 so the ListSelectionListener behaves correctly
+                // ie. allow the selection to change.
+                selectedIndex = -1;
+            }
+        }
+    }//GEN-LAST:event_tabJListKeyPressed
+        
+    private void tabJListMousePressed(java.awt.event.MouseEvent e) {                                             
         // If selectingLastIndex is true then the selection was interrupted. Don't
         // perform the selection if the user clicked below the last entry, otherwise
         // proceed with the selection.
@@ -265,7 +285,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
             selectingLastIndex = Boolean.FALSE; 
         }
-    }//GEN-LAST:event_tabJListMousePressed
+    }                                     
 
     private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_tabJListValueChanged
         final Integer newSelectedIndex = tabJList.getSelectedIndex();
@@ -288,7 +308,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }//GEN-LAST:event_tabJListValueChanged
 
     /**
-     * Determine if the mouse event occured on or below the cell in an x-y plane.
+     * Determine if the mouse event occurred on or below the cell in an x-y plane.
      * 
      * @return True if the mouse event occurred in the cell.
      */
@@ -303,18 +323,23 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }
 
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
+        // Interesting fact aobut getClickCount() is that the count continues to 3, 4 and beyond if
+        // the user keeps clicking with less than (say) 1/2 second delay between clicks.
         if (!MenuFactory.isPopupMenu()) {
-            if (1 == e.getClickCount()) {
-                if (e.getButton()==MouseEvent.BUTTON1) {
-                    if (isMouseEventWithinCell(e)) { 
-                        triggerExpand(getSelectedCell());
-                    }
+            if (e.getButton()==MouseEvent.BUTTON1) {
+                final Boolean isInCell = isMouseEventWithinCell(e);
+                // Every click (regardless of getClickCount() triggers
+                // expand / collapse if the node supports it.
+                if (isInCell) { 
+                    triggerExpand(getSelectedCell());
                 }
-            } else if (2 == e.getClickCount()) {
-                if (isMouseEventWithinCell(e)) {  
-                    triggerDoubleClick(getSelectedCell());
-                } else {
-                    triggerDoubleClick();
+                // A click count of 2, 4, 6, etc. triggers double click event
+                if (e.getClickCount() % 2 == 0) {
+                    if (isInCell) {  
+                        triggerDoubleClick(getSelectedCell());
+                    } else {
+                        triggerDoubleClick();
+                    }
                 }
             }
         }
@@ -322,7 +347,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     private void tabJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseReleased
         if (!MenuFactory.isPopupMenu() && e.isPopupTrigger()) {
-            // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
+            // Desired behavior: if click on an entry in the list then trigger a popup for that cell.
             // If click in the blank area below the last entry in the list then trigger a popup that
             // is related to the tab rather than a cell in the tab.
             if (isMouseEventWithinCell(e)) {
@@ -363,6 +388,82 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     private void triggerPopup(final TabCell tabCell, final MouseEvent e) {
         model.triggerPopup(tabCell, tabJList, e);
         setSelectedCell(tabCell);
+    }    
+    
+    /**
+     * Get the index of the cell the event is over.
+     * 
+     * @param e
+     *          Mouse event.
+     * @return  index of the cell the mouse is over, or -1.
+     */
+    private Integer getMouseOverIndex(java.awt.event.MouseEvent e) {
+        Integer tabCellIndex = tabJList.locationToIndex(e.getPoint());
+        
+        // Handle the case that the mouse is below the last entry
+        if ((tabCellIndex != -1) && (tabCellIndex == tabJList.getModel().getSize() - 1)) {
+            final Rectangle tabCellBounds = tabJList.getCellBounds(tabCellIndex, tabCellIndex);
+            if (!SwingUtil.regionContains(tabCellBounds, e.getPoint())) {
+                tabCellIndex = -1;
+            }
+        }
+        
+        return tabCellIndex;
+    }  
+    
+    /**
+     * Update the cell that the mouse is over with the mouseOver flag and
+     * cause the cell to redraw.
+     * 
+     * @param index
+     *              Index of the cell.
+     * @param mouseOver
+     *              Mouse over flag.
+     */
+    private void updateCellMouseOver(final Integer index, final Boolean mouseOver) {
+        if (index != -1) {
+            final Integer selectedIndex = getSelectedIndex();
+            final TabCell cell = (TabCell) tabJList.getModel().getElementAt(index);
+            cell.setMouseOver(mouseOver);
+            model.getListModel().removeElementAt(index);
+            model.getListModel().add(index, cell);
+            tabJList.setSelectedIndex(selectedIndex);
+        }
+    }
+    
+    /**
+     * Install a mouse over listener.
+     *
+     */
+    protected final void installMouseOverListener() {
+        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
+            private int mouseOverIndex = -1;
+
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                mouseMoved(e);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (-1 != mouseOverIndex) {
+                    updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
+                    mouseOverIndex = -1;
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                final Integer newMouseOverIndex = getMouseOverIndex(e);
+                if (newMouseOverIndex != mouseOverIndex) {
+                    updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
+                    updateCellMouseOver(newMouseOverIndex, Boolean.TRUE);
+                    mouseOverIndex = newMouseOverIndex;
+                }
+            }
+        };
+        tabJList.addMouseListener(mouseOverListener);
+        tabJList.addMouseMotionListener(mouseOverListener);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

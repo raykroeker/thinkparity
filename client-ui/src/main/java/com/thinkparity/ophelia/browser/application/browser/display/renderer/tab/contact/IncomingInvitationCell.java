@@ -24,7 +24,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -136,32 +135,31 @@ public class IncomingInvitationCell extends InvitationCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public String getText() {
-        return localization.getString("Text", new Object[] {
-                invitedByUser.getName(), fuzzyDateFormat.format(incomingInvitation.getCreatedOn()) });
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondaryText()
-     * 
-     */
-    public String getSecondaryText() {
-        return null;
+    public String getText(TextGroup textGroup) {
+        if (textGroup == TextGroup.MAIN_TEXT) {
+            return localization.getString("Text", new Object[] {
+                    invitedByUser.getName(), fuzzyDateFormat.format(incomingInvitation.getCreatedOn()) });
+        } else {
+            return null;
+        }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
      */
-    public Font getTextFont() {
+    public Font getTextFont(TextGroup textGroup) {
         return Fonts.DefaultFont;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     * 
      */
-    public Color getTextForeground() {
+    public Color getTextForeground(TextGroup textGroup) {
         return null;
     }
 
@@ -176,7 +174,7 @@ public class IncomingInvitationCell extends InvitationCell implements TabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        return getText();
+        return getText(TextGroup.MAIN_TEXT);
     }
     
     /**
@@ -229,6 +227,13 @@ public class IncomingInvitationCell extends InvitationCell implements TabCell {
      */
     public Boolean setExpanded(Boolean expand) {
         return Boolean.FALSE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(Boolean mouseOver) {
+        return;        
     }
     
     /**

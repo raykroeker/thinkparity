@@ -6,8 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import javax.swing.ListModel;
-
+import javax.swing.DefaultListModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -90,7 +89,7 @@ public abstract class TabModel {
      * 
      * @return A <code>ListModel</code>.
      */
-    protected abstract ListModel getListModel();
+    protected abstract DefaultListModel getListModel();
 
     /**
      * Initialize the tab model.

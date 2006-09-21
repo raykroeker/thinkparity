@@ -30,6 +30,7 @@ public class ContainerAvatar extends TabAvatar<ContainerModel> {
     public ContainerAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerModel());
         setListTransferHandler(new ImportTxHandler(getController(), tabJList, model));
+        installMouseOverListener();
     }
 
     /**

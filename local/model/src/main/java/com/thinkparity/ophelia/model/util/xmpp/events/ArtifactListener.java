@@ -7,9 +7,9 @@ package com.thinkparity.ophelia.model.util.xmpp.events;
 import java.util.Calendar;
 import java.util.UUID;
 
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.ophelia.model.util.EventListener;
 
 
 /**

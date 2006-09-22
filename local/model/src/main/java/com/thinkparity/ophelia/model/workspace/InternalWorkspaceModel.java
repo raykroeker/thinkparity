@@ -5,11 +5,11 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.util.List;
 
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.util.EventListener;
 
 /**
  * @author raymond@thinkparity.com

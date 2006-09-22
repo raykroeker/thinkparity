@@ -17,13 +17,13 @@ import org.jivesoftware.smack.packet.Packet;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.event.EventListener;
+import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
-import com.thinkparity.ophelia.model.util.EventListener;
-import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thoughtworks.xstream.XStream;
 

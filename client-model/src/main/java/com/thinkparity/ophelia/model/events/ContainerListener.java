@@ -4,8 +4,9 @@
  */
 package com.thinkparity.ophelia.model.events;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.util.EventListener;
 
 /**
  * <b>Title:</b>thinkParity Container Listener<br>

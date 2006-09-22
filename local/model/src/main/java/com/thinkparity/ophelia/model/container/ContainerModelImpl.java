@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -40,7 +41,6 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
-import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;

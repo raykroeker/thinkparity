@@ -19,13 +19,13 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.event.EventListener;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
-import com.thinkparity.ophelia.model.util.EventListener;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;

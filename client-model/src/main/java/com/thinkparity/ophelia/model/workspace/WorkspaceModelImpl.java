@@ -11,11 +11,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
-import com.thinkparity.ophelia.model.util.EventListener;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 

@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
@@ -21,7 +22,6 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.util.EventNotifier;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 import com.thinkparity.ophelia.model.util.filter.contact.DefaultInvitationFilter;
 import com.thinkparity.ophelia.model.util.filter.contact.FilterManager;

@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.util.EventListener;
 
 
 /**

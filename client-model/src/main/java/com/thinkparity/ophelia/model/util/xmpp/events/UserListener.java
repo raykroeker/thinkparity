@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp.events;
 
-import com.thinkparity.ophelia.model.util.EventListener;
+import com.thinkparity.codebase.event.EventListener;
 
 /**
  * @author raymond@thinkparity.com

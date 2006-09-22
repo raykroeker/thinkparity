@@ -6,9 +6,9 @@ package com.thinkparity.ophelia.model.util.xmpp.events;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.ophelia.model.util.EventListener;
 
 public interface ContactListener extends EventListener {
     public void handleContactDeleted(final JabberId deletedBy,

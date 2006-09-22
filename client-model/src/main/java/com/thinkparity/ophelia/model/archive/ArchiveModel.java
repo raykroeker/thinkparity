@@ -50,7 +50,7 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 	}
 
 	/**
-	 * Create ArchiveModel.
+	 * Create ArchiveTabModel.
 	 *
 	 * @param workspace
 	 *		The thinkParity workspace.

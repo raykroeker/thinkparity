@@ -7,10 +7,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
-import com.thinkparity.ophelia.model.util.EventListener;
 
 
 /**

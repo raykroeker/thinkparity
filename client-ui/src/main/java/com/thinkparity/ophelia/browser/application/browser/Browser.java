@@ -154,7 +154,7 @@ public class Browser extends AbstractApplication {
 
     /** Close the main window. */
     public void closeBrowserWindow() {
-        Assert.assertNotNull("[BROWSER WINDOW IS NULL]", mainWindow);
+        Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
     }
 
@@ -372,7 +372,10 @@ public class Browser extends AbstractApplication {
 		ed.end();
 		ed = null;
 
-		if(isBrowserWindowOpen()) { disposeBrowserWindow(); }
+		if (isBrowserWindowOpen()) {
+            closeBrowserWindow();
+            disposeBrowserWindow();
+		}
 
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
@@ -1506,9 +1509,7 @@ nextAvatar.reload();
 
 	/** Dispose the main window. */
     private void disposeBrowserWindow() {
-        Assert.assertNotNull(
-                "[LBROWSER] [APPLICATION] [BROWSER] [DISPOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
-                mainWindow);
+        Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispose();
     }
 

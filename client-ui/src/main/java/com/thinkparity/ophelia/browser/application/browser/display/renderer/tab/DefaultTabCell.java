@@ -37,15 +37,12 @@ public abstract class DefaultTabCell implements TabCell {
     /** The border for the bottom of the cell. */
     protected static final Border BORDER_BOTTOM;
 
-    /** The border for the top of the cell. */
-    protected static final Border BORDER_TOP;
-    
     /** The border for the top of child cells. */
     protected static final Border BORDER_CHILD_TOP;
-
-    /** The border for the top of a group of cells. */
-    private static final Border BORDER_GROUP_TOP;
     
+    /** The border for the top of the cell. */
+    protected static final Border BORDER_TOP;
+
     /** The cell's text foreground color. */
     protected static final Color TEXT_FG;
     
@@ -54,6 +51,9 @@ public abstract class DefaultTabCell implements TabCell {
     
     /** Maximum length of a container cell's text. */
     protected static final Integer TEXT_MAX_LENGTH;
+    
+    /** The border for the top of a group of cells. */
+    private static final Border BORDER_GROUP_TOP;
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER);
@@ -67,17 +67,20 @@ public abstract class DefaultTabCell implements TabCell {
         TEXT_MAX_LENGTH = 100;
     }
     
-    /** An image cache. */
-    protected final MainCellImageCache imageCache;
-    
-    /** A popup menu item factory. */
-    protected final PopupItemFactory popupItemFactory;
-    
     /** A flag indicating the expand\collapse status. */
     protected Boolean expanded = Boolean.FALSE;
     
+    /** An image cache. */
+    protected final MainCellImageCache imageCache;
+    
     /** A flag indicating the mouse over status. */
     protected Boolean mouseOver = Boolean.FALSE;
+    
+    /** A popup menu item factory. */
+    protected final PopupItemFactory popupItemFactory;
+
+    /** Whether or not the cell is being hovered over. */
+    private Boolean hover;
 
     /** Create DefaultTabCell. */
     protected DefaultTabCell() {
@@ -170,13 +173,6 @@ public abstract class DefaultTabCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     */
-    public String getTextNoClipping(TextGroup textGroup) {
-        return null;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
     public Font getTextFont(TextGroup textGroup) {
@@ -192,13 +188,20 @@ public abstract class DefaultTabCell implements TabCell {
         } else {
             return TEXT_FG;
         }
-    }   
-    
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
         return InsetFactors.LEVEL_0;
+    }   
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     */
+    public String getTextNoClipping(TextGroup textGroup) {
+        return null;
     }
 
     /**
@@ -208,34 +211,44 @@ public abstract class DefaultTabCell implements TabCell {
         if (TEXT_MAX_LENGTH < getTextNoClipping(TextGroup.MAIN_TEXT).length()) { return getTextNoClipping(TextGroup.MAIN_TEXT); }
         else { return null; }
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
+     */
+    public Boolean isChildren() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public Boolean isExpanded() {
+        return expanded;
+    }   
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isFirstInGroup()
      */
     public Boolean isFirstInGroup() {
         return Boolean.FALSE;
-    }   
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)
-     */
-    public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e) {}
+    }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isHover()
      */
-    public void triggerDoubleClickAction(Browser browser) {}
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
-     */
-    public Boolean isExpanded() {
-        return expanded;
+    public Boolean isHover() {
+        return hover;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isMouseOver()
+     */
+    public Boolean isMouseOver() {
+        return mouseOver;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)
      */
     public Boolean setExpanded(Boolean expand) {
         if (this.expanded != expand && isChildren()) {
@@ -244,13 +257,6 @@ public abstract class DefaultTabCell implements TabCell {
         } else {
             return Boolean.FALSE;
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isMouseOver()
-     */
-    public Boolean isMouseOver() {
-        return mouseOver;
     }
     
     /**
@@ -261,9 +267,13 @@ public abstract class DefaultTabCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setHover(java.lang.Boolean)
      */
-    public Boolean isChildren() {
-        return Boolean.FALSE;
-    }  
+    public void triggerDoubleClickAction(Browser browser) {}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)
+     */
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e) {}
 }

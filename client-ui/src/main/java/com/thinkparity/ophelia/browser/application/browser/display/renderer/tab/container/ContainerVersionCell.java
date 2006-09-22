@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerVersionCell extends DefaultTabCell implements TabCell {
+public class ContainerVersionCell extends DefaultTabCell {
 
     /** The container cell. */
     private final ContainerCell container;

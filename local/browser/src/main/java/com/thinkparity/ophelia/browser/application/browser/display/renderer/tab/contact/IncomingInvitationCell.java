@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -28,7 +27,7 @@ import com.thinkparity.ophelia.model.contact.IncomingInvitation;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class IncomingInvitationCell extends InvitationCell implements TabCell {
+public class IncomingInvitationCell extends DefaultInvitationCell {
 
     /** A thinkParity fuzzy date format. */
     private final FuzzyDateFormat fuzzyDateFormat;
@@ -124,7 +123,25 @@ public class IncomingInvitationCell extends InvitationCell implements TabCell {
     }
     
     /**
+<<<<<<< IncomingInvitationCell.java
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isExpanded()
+     */
+    public Boolean isExpanded() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
+     */
+    public Boolean setExpanded(Boolean expand) {
+        return Boolean.FALSE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
+=======
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell#getId()
+>>>>>>> 1.1.2.6
      */
     @Override
     public Long getId() {

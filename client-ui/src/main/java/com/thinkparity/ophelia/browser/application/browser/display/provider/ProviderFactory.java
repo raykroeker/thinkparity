@@ -8,14 +8,11 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 
-
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.ResetPasswordProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
@@ -110,9 +107,6 @@ public class ProviderFactory {
         switch(avatarId) {
         case DIALOG_CONTACT_READ:
             provider = new ReadContactProvider(profile, contactModel);
-            break;
-        case TAB_ARCHIVE:
-            provider = new ArchiveProvider(profile, archiveModel);
             break;
         case TAB_CONTACT:
             provider = new ContactProvider(profile, contactModel, userModel);

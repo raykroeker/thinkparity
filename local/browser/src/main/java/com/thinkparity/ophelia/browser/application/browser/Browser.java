@@ -23,7 +23,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
-
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
@@ -1410,7 +1409,7 @@ public class Browser extends AbstractApplication {
 	void displayMainTitleAvatar() {
         final Data input = new Data(2);
         input.set(MainTitleAvatar.DataKey.PROFILE, getProfile());
-        input.set(MainTitleAvatar.DataKey.TAB, MainTitleAvatar.Tab.CONTAINER);
+        input.set(MainTitleAvatar.DataKey.TAB_ID, MainTitleAvatar.TabId.CONTAINER);
         setInput(AvatarId.MAIN_TITLE, input);
     	displayAvatar(DisplayId.TITLE, AvatarId.MAIN_TITLE);
 	}
@@ -1589,8 +1588,8 @@ nextAvatar.reload();
      * 
      * @return A tab.
      */
-    private MainTitleAvatar.Tab getMainTitleAvatarTab() {
-        return (MainTitleAvatar.Tab) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB);
+    private MainTitleAvatar.TabId getMainTitleAvatarTab() {
+        return (MainTitleAvatar.TabId) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB_ID);
     }
     
     /**

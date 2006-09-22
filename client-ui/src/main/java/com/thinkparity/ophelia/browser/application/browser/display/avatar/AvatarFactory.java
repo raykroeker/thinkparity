@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
@@ -18,12 +17,16 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.ResetPasswordAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
+import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
+import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.TabExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -34,7 +37,10 @@ public class AvatarFactory {
 	/** A singleton instance. */
 	private static final AvatarFactory SINGLETON;
 
-	static { SINGLETON = new AvatarFactory(); }
+	static {
+        final Platform platform = BrowserPlatform.getInstance();
+        SINGLETON = new AvatarFactory(platform);
+	}
 
 	/**
 	 * Create an avatar.
@@ -53,11 +59,15 @@ public class AvatarFactory {
     /** An apache logger. */
     private final Logger logger;
 
+    /** A thinkParity plugin registry. */
+    private final PluginRegistry pluginRegistry;
+
 	/** Create AvatarFactory */
-	private AvatarFactory() {
+	private AvatarFactory(final Platform platform) {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
         this.logger = Logger.getLogger(getClass());
+        this.pluginRegistry = platform.getPluginRegistry();
 	}
     
 	/**
@@ -69,7 +79,7 @@ public class AvatarFactory {
      */
 	private Avatar doCreate(final AvatarId id) {
 		final Avatar avatar;
-		switch(id) {
+		switch (id) {
 		case MAIN_CONTENT:
 		    avatar = new MainContentAvatar();
 		    break;
@@ -81,8 +91,11 @@ public class AvatarFactory {
 		    break;
 
         case TAB_ARCHIVE:
-            avatar = new ArchiveAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            final TabExtension archiveTab =
+                (TabExtension) pluginRegistry.getExtension(
+                        PluginId.ARCHIVE, "Archive");
+            avatar = archiveTab.createAvatar();
+            avatar.setContentProvider(archiveTab.getProvider());
             break;
         case TAB_CONTAINER:
             avatar = new ContainerAvatar();

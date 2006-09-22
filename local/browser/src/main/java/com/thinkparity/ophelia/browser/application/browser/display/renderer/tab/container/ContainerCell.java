@@ -28,7 +28,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -39,7 +38,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerCell extends DefaultTabCell implements TabCell  {
+public class ContainerCell extends DefaultTabCell {
     
     /** A flag indicating whether or not the user is the key holder. */
     private Boolean keyHolder = Boolean.FALSE;

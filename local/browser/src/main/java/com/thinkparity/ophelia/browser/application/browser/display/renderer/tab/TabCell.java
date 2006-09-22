@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
- * <b>Title:</b>thinkParity Tab Cell<br>
+ * <b>Title:</b>thinkParity TabId Cell<br>
  * <b>Description:</b>A tab cell represents a single line item in either of the
  * browser's tabbed lists. To add a disparate type to the main list; simply
  * implement this interface; and update the model for the appropriate tab.<br>
@@ -75,7 +75,7 @@ public interface TabCell {
     public TabCell getParent();
 
     /**
-     * Obtain the text to display.
+     * Obtain the secondary text to display.
      * 
      * @param textGroup
      *          Indicates if this is the main text or secondary text.
@@ -83,15 +83,6 @@ public interface TabCell {
      */
     public String getText(TextGroup textGroup);
     
-    /**
-     * Obtain the text to display, with no clipping.
-     * 
-     * @param textGroup
-     *          Indicates if this is the main text or secondary text.
-     * @return A string.
-     */
-    public String getTextNoClipping(TextGroup textGroup);
-
     /**
      * Obatin the font for the cell text.
      * 
@@ -117,37 +108,29 @@ public interface TabCell {
      * @return The text inset factor.
      */
     public Float getTextInsetFactor();
-    
+
+    /**
+     * Obtain the text to display, with no clipping.
+     * 
+     * @param textGroup
+     *          Indicates if this is the main text or secondary text.
+     * @return A string.
+     */
+    public String getTextNoClipping(TextGroup textGroup);
+
     /**
      * Obtain the tool tip text.
      * 
      * @return A string.
      */
     public String getToolTip();
-    
+
     /**
-     * Determine if this cell is the first in a group of cells.
+     * Deterine if this cell has children (and can expand).
      * 
      * @return A Boolean.
      */
-    public Boolean isFirstInGroup();
-
-    /**
-     * Trigger a connection sensitive popup menu for the cell.
-     * @param invoker
-     *            The invoker component.
-     * @param e
-     *            The x position.
-     */
-    public void triggerPopup(final Connection connection,
-            final Component invoker, final MouseEvent e);
-    
-    /**
-     * Trigger the double click action.
-     * @param browser
-     *            The browser.
-     */
-    public void triggerDoubleClickAction(final Browser browser);
+    public Boolean isChildren();
     
     /**
      * Determine if this cell is expanded.
@@ -156,6 +139,20 @@ public interface TabCell {
      */
     public Boolean isExpanded();
     
+    /**
+     * Determine if this cell is the first in a group of cells.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isFirstInGroup();
+    
+    /**
+     * Determine if this cell is mouse over.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean isMouseOver();
+
     /**
      * Set the expand or collapse state for the cell.
      * 
@@ -166,13 +163,6 @@ public interface TabCell {
     public Boolean setExpanded(final Boolean expand);
     
     /**
-     * Determine if this cell is mouse over.
-     * 
-     * @return A Boolean.
-     */
-    public Boolean isMouseOver();
-    
-    /**
      * Set the mouseOver state for the cell.
      * 
      * @param mouseOver
@@ -181,11 +171,21 @@ public interface TabCell {
     public void setMouseOver(final Boolean mouseOver);
     
     /**
-     * Deterine if this cell has children (and can expand).
-     * 
-     * @return A Boolean.
+     * Trigger the double click action.
+     * @param browser
+     *            The browser.
      */
-    public Boolean isChildren();
+    public void triggerDoubleClickAction(final Browser browser);
+
+    /**
+     * Trigger a connection sensitive popup menu for the cell.
+     * @param invoker
+     *            The invoker component.
+     * @param e
+     *            The x position.
+     */
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e);
     
     public enum TextGroup { MAIN_TEXT, SECONDARY_TEXT };
 }

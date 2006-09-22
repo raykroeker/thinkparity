@@ -27,7 +27,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 
 /**
- * <b>Title:</b>thinkParity Container Tab Provider<br>
+ * <b>Title:</b>thinkParity Container TabId Provider<br>
  * <b>Description:</b>A thinkParity container tab provider reads from the
  * various thinkParity model interfaces to provide the container tab with its
  * data.

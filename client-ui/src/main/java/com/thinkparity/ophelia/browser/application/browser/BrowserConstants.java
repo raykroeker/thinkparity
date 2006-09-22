@@ -64,6 +64,5 @@ public final class BrowserConstants {
         /** The status bar font. */
         public static final Font StatusBar =
             new Font(FONT_NAME, Font.PLAIN, 11);
-
     }
 }

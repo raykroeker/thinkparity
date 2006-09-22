@@ -20,7 +20,7 @@ public abstract class ContentProvider {
     /** A thinkParity profile. */
     protected final Profile profile;
 
-	/**
+    /**
      * Create a ContentProvider.
      * 
      * @param profile

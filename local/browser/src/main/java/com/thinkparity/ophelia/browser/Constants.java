@@ -26,14 +26,6 @@ public final class Constants {
     
     /** Colour constants. */
     public static final class Colors {
-        public static final class Swing {
-            public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color MENU_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
-        }
         public static final class Browser {
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
@@ -52,15 +44,23 @@ public final class Constants {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
+            public static final class TabCell {
+                public static final Color TEXT = Color.BLACK;
+                public static final Color TEXT_CLOSED = Color.BLACK;
+                public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
+            }
             public static final class UpdateProfile {
                 public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
                 public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
-            public static final class TabCell {
-                public static final Color TEXT = Color.BLACK;
-                public static final Color TEXT_CLOSED = new Color(127, 131, 134, 255);
-                public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
-            }
+        }
+        public static final class Swing {
+            public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
+            public static final Color LIST_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(231, 238, 248, 255);
+            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_SELECTION_BG = new Color(231, 238, 248, 255);
+            public static final Color MENU_SELECTION_FG = Color.BLACK;
         }
     }
 
@@ -72,18 +72,13 @@ public final class Constants {
     /** Dimension constants. */
     public static final class Dimensions {
         public static final class BrowserWindow {
-            public static final class Display {
-                public static final Integer TITLE_HEIGHT = 48;
-                public static final Integer STATUS_HEIGHT = 34;
-            }
-            public static final Dimension MIN_SIZE = new Dimension(400, 200);
             public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
+            public static final Dimension MIN_SIZE = new Dimension(400, 200);
+            public static final class Display {
+                public static final Integer STATUS_HEIGHT = 34;
+                public static final Integer TITLE_HEIGHT = 48;
+            }
         }
-    }
-    
-    /** Window resize constants. */
-    public static final class Resize {
-        public static final Integer EDGE_PIXEL_BUFFER = 7;
     }
 
     /** Parity directories. */
@@ -93,32 +88,28 @@ public final class Constants {
         public static final File PARITY_INSTALL =
             new File(System.getProperty("parity.install"));
 
+        public static final File PARITY_PLUGIN_ROOT =
+            new File(PARITY_INSTALL, "plugins");
     }
-
+    
     public static final class DirectoryNames {
         public static final String DEFAULT_PROFILE = "Default";
+        public static final String PLUGIN_LIB = "lib";
+    }
+
+    public static final class FileExtensions {
+        public static final String PAR = ".par";
+        public static final String JAR = ".jar";
     }
 
     public static final class Icons {
         public static final class BrowserTitle {
-            public static final Icon ARCHIVE_TAB =
-                ImageIOUtil.readIcon("BrowserTitle_ArchiveTab.png");
-            public static final Icon ARCHIVE_TAB_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_ArchiveTabRollover.png");
-            public static final Icon ARCHIVE_TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_ArchiveTabSelected.png");
-            public static final Icon CONTACTS_TAB =
-                ImageIOUtil.readIcon("BrowserTitle_ContactsTab.png");
-            public static final Icon CONTACTS_TAB_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_ContactsTabRollover.png");
-            public static final Icon CONTACTS_TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_ContactsTabSelected.png");
-            public static final Icon CONTAINERS_TAB =
-                ImageIOUtil.readIcon("BrowserTitle_ContainersTab.png");
-            public static final Icon CONTAINERS_TAB_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_ContainersTabRollover.png");
-            public static final Icon CONTAINERS_TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
+            public static final Icon TAB =
+                ImageIOUtil.readIcon("BrowserTitle_Tab.png");
+            public static final Icon TAB_ROLLOVER =
+                ImageIOUtil.readIcon("BrowserTitle_TabRollover.png");
+            public static final Icon TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
         }
     }
 
@@ -182,18 +173,23 @@ public final class Constants {
         public static final Integer TTL = 0;
     }
 
+    public static final class PopupMenuInfo {
+        public static final Integer ACTIVATION_DELAY = 200; // Milliseconds
+    }
+
     public static final class Release {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
         public static final String VERSION = Version.getVersion();
     }
 
-    public static final class Search {
-        public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
+    /** Window resize constants. */
+    public static final class Resize {
+        public static final Integer EDGE_PIXEL_BUFFER = 7;
     }
     
-    public static final class PopupMenuInfo {
-        public static final Integer ACTIVATION_DELAY = 200; // Milliseconds
+    public static final class Search {
+        public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
     }
 
     public static final class Session {

@@ -13,11 +13,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.GradientPainter;
 
-
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 
@@ -70,6 +70,14 @@ public class MainTitleAvatar extends Avatar {
     @Override
     public State getState() { return null; }
     
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getPluginRegistry()
+     */
+    @Override
+    protected PluginRegistry getPluginRegistry() {
+        return super.getPluginRegistry();
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
@@ -124,11 +132,11 @@ public class MainTitleAvatar extends Avatar {
      * 
      * @return The input tab.
      */
-    private MainTitleAvatar.Tab getInputTab() {
+    private MainTitleAvatar.TabId getInputTab() {
         if(null == input) {
             return null;
         } else {
-            return (MainTitleAvatar.Tab) ((Data) input).get(DataKey.TAB);
+            return (MainTitleAvatar.TabId) ((Data) input).get(DataKey.TAB_ID);
         }
     }
 
@@ -147,6 +155,7 @@ public class MainTitleAvatar extends Avatar {
         searchPanel.setMainTitleAvatar(this);
 
         tabPanel.setMainTitleAvatar(this);
+        tabPanel.initPluginTabs(getPluginRegistry());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -181,10 +190,10 @@ public class MainTitleAvatar extends Avatar {
      *
      */
     private void reloadTab() {
-        final MainTitleAvatar.Tab tab = getInputTab();
-        if (null != tab) {
-            tabPanel.setTab(tab);
-            switch (tab) {
+        final MainTitleAvatar.TabId tabId = getInputTab();
+        if (null != tabId) {
+            tabPanel.setTab(tabId);
+            switch (tabId) {
             case ARCHIVE:
                 getController().displayTabArchiveAvatar();
                 break;
@@ -204,7 +213,7 @@ public class MainTitleAvatar extends Avatar {
     private com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel tabPanel;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { PROFILE, TAB }
+    public enum DataKey { PROFILE, TAB_ID, TAB_EXTENSION }
 
-    public enum Tab { ARCHIVE, CONTACT, CONTAINER }
+    public enum TabId { ARCHIVE, CONTACT, CONTAINER }
 }

@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resize
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
@@ -32,26 +33,26 @@ public abstract class Avatar extends AbstractJPanel {
     /** The avatar's content provider. */
 	protected ContentProvider contentProvider;
 
-	/** A list of the avatar's errors. */
+    /** A list of the avatar's errors. */
 	protected final List<Throwable> errors;
 
 	/** The avatar input. */
 	protected Object input;
 
-	/** The thinkparity application registry. */
+	/** Localization helper utility. */
+    protected final JPanelLocalization localization;
+
+	/** The thinkParity <code>PluginRegistry</code>. */
+    protected final PluginRegistry pluginRegistry;
+
+    /** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
-    
-    /** The Resizer */
+
+	/** The Resizer */
     private final Resizer resizer;
 
-	/**
-	 * The avatar's scrolling policy.
-	 * 
-	 */
+    /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
-
-    /** Localization helper utility. */
-    protected final JPanelLocalization localization;
 
     /**
      * Create Avatar.
@@ -98,6 +99,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
         this.localization = new JPanelLocalization(l18nContext);
+        this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
         this.resizer = new Resizer(getController(), this);
 	}
@@ -118,6 +120,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
         this.localization = new JPanelLocalization(l18nContext);
+        this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
         this.resizer = new Resizer(getController(), this);
 	}
@@ -195,12 +198,20 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract State getState();
 
 	/**
+     * These get and set methods are used by classes that intend to do their
+     * own mouse dragging. (For example, the bottom right resize control.)
+     */
+    public Boolean isResizeDragging() {
+        return resizer.isResizeDragging();
+    }
+    
+	/**
 	 * Reload the avatar. This event is called when either the content provider
 	 * or the input has changed; or as a manual reload of the avatar.
 	 * 
 	 */
 	public void reload() {}
-    
+
 	/**
 	 * Set the content provider.
 	 * 
@@ -231,6 +242,17 @@ public abstract class Avatar extends AbstractJPanel {
 		reload();
 	}
 
+	public void setResizeDragging(Boolean dragging) {
+        resizer.setResizeDragging(dragging);
+    }
+
+	/**
+     * Set the behavior of resizing.
+     */
+    public void setResizeEdges(Resizer.FormLocation formLocation) {
+        resizer.setResizeEdges(formLocation);        
+    }
+
 	/**
 	 * Set the avatar state.
 	 * 
@@ -248,6 +270,31 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
 	/**
+     * Obtain the pluginRegistry
+     *
+     * @return The PluginRegistry.
+     */
+    protected PluginRegistry getPluginRegistry() {
+        return pluginRegistry;
+    }
+
+    /**
+     * @see JPanelLocalization#getString(String)
+     * 
+     */
+    protected String getString(final String localKey) {
+    	return localization.getString(localKey);
+    }
+    
+    /**
+     * @see JPanelLocalization#getString(String, Object[])
+     * 
+     */
+    protected String getString(final String localKey, final Object[] arguments) {
+    	return localization.getString(localKey, arguments);
+    }
+    
+    /**
      * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
      * dispatching thread.
      * 
@@ -258,8 +305,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected void invokeLater(final Runnable doRun) {
         SwingUtilities.invokeLater(doRun);
     }
-
-	/**
+    /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -268,7 +314,7 @@ public abstract class Avatar extends AbstractJPanel {
 		return getController().getPlatform().isDevelopmentMode();
 	}
 
-	/**
+    /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -277,7 +323,7 @@ public abstract class Avatar extends AbstractJPanel {
 		return getController().getPlatform().isTestingMode();
 	}
 
-	/**
+    /**
 	 * Provide a visual cue to the user that work is being done.
 	 *
 	 */
@@ -286,7 +332,7 @@ public abstract class Avatar extends AbstractJPanel {
 		else { setIsNotWorking(); }
 	}
 
-	private void setIsNotWorking() {
+    private void setIsNotWorking() {
 		final Component[] components = getComponents();
 		for(final Component c : components) {
 			if(c.getClass().isAssignableFrom(JButton.class)) {
@@ -304,40 +350,6 @@ public abstract class Avatar extends AbstractJPanel {
 			}
 		}
 	}
-    
-    /**
-     * Set the behavior of resizing.
-     */
-    public void setResizeEdges(Resizer.FormLocation formLocation) {
-        resizer.setResizeEdges(formLocation);        
-    }
-    
-    /**
-     * These get and set methods are used by classes that intend to do their
-     * own mouse dragging. (For example, the bottom right resize control.)
-     */
-    public Boolean isResizeDragging() {
-        return resizer.isResizeDragging();
-    }
-    public void setResizeDragging(Boolean dragging) {
-        resizer.setResizeDragging(dragging);
-    }
-
-    /**
-     * @see JPanelLocalization#getString(String)
-     * 
-     */
-    protected String getString(final String localKey) {
-    	return localization.getString(localKey);
-    }
-
-    /**
-     * @see JPanelLocalization#getString(String, Object[])
-     * 
-     */
-    protected String getString(final String localKey, final Object[] arguments) {
-    	return localization.getString(localKey, arguments);
-    }
 
     /**
 	 * The scrolling policy for the avatar.

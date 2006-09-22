@@ -17,7 +17,9 @@ public abstract class FlatContentProvider extends ContentProvider {
      * @param profile
      *            A thinkParity profile.
      */
-	protected FlatContentProvider(final Profile profile) { super(profile); }
+	protected FlatContentProvider(final Profile profile) {
+        super(profile);
+	}
 
 	/**
 	 * Obtain a flat list of elements.

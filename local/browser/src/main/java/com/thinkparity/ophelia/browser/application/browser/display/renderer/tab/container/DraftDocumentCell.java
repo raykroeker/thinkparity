@@ -32,7 +32,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
  * @author rob_masako@shaw.ca, raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class DraftDocumentCell extends DefaultTabCell implements TabCell  {
+public class DraftDocumentCell extends DefaultTabCell {
 
     /** The document's draft. */
     private final DraftCell draft;

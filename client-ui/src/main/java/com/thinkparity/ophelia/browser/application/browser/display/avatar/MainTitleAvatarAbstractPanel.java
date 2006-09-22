@@ -77,7 +77,7 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
         this.mainTitleAvatar = mainTitleAvatar;
         resizer.setBrowser(mainTitleAvatar.getController());
     }
-    
+
     /**
      * Set the behavior of resizing.
      */

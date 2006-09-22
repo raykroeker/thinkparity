@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -30,7 +29,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContactCell extends DefaultTabCell implements TabCell {
+public class ContactCell extends DefaultTabCell {
     
     /** The contact associated with this cell. */
     private Contact contact;

@@ -3,16 +3,31 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import javax.swing.Icon;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
 import javax.swing.JLabel;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
-
 
 import com.thinkparity.ophelia.browser.Constants.Icons.BrowserTitle;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.TabExtension;
 
 
 /**
@@ -25,20 +40,52 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+    /** A resource bundle. */
+    private static final ResourceBundle BUNDLE;
+
+    static {
+        BUNDLE = ResourceBundle.getBundle("localization/JPanel_Messages");
+    }
+
+    /** A list of all core tabs. */
+    private final Map<TabId, Tab> allTabs;
+
+    /** A list of all plugin tabs. */
+    private final List<Tab> pluginTabs;
 
     /** A thinkParity user's profile. */
     private Profile profile;
 
-    /** The tab. */
-    private MainTitleAvatar.Tab tab;
+    /** The selected tab. */
+    private Tab selectedTab;
 
     /** Creates new form BrowserTitleTabs */
     public MainTitleAvatarTabPanel() {
         super();
+        this.allTabs = new HashMap<TabId, Tab>();
+        this.pluginTabs = new ArrayList<Tab>();
         setResizeEdges(Resizer.FormLocation.LEFT);
         initComponents();
+    }
+
+    /**
+     * @see javax.swing.JComponent#paintChildren(java.awt.Graphics)
+     */
+    @Override
+    protected void paintChildren(final Graphics g) {
+        super.paintChildren(g);
+        final Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            g2.setFont(Fonts.DefaultFontBold);
+            for (final Tab tab : allTabs.values()) {
+                tab.drawText(g2, g2.getFontMetrics());
+            }
+            for (final Tab tab : pluginTabs) {
+                tab.drawText(g2, g2.getFontMetrics());
+            }
+        } finally {
+            g2.dispose();
+        }
     }
 
     /**
@@ -54,68 +101,37 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /**
      * Select a tab.
      * 
-     * @param tab
+     * @param tabId
      *            A tab.
      */
-    void setTab(final MainTitleAvatar.Tab tab) {
-        this.tab = tab;
+    void setTab(final TabId tabId) {
+        this.selectedTab = allTabs.get(tabId);
         reloadDisplay();
     }
 
-    private void archiveJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseClicked
-        selectTab(MainTitleAvatar.Tab.ARCHIVE);
-    }//GEN-LAST:event_archiveJLabelMouseClicked
-
-    private void archiveJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseEntered
-        highlightTab(MainTitleAvatar.Tab.ARCHIVE, archiveJLabel, BrowserTitle.ARCHIVE_TAB_ROLLOVER);
-    }//GEN-LAST:event_archiveJLabelMouseEntered
-
-    private void archiveJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_archiveJLabelMouseExited
-        unhighlightTab(MainTitleAvatar.Tab.ARCHIVE, archiveJLabel, BrowserTitle.ARCHIVE_TAB);
-    }//GEN-LAST:event_archiveJLabelMouseExited
-
-    private void contactsJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJLabelMouseClicked
-        selectTab(MainTitleAvatar.Tab.CONTACT);
-    }//GEN-LAST:event_contactsJLabelMouseClicked
-
-    private void contactsJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseEntered
-        highlightTab(MainTitleAvatar.Tab.CONTACT, contactsJLabel, BrowserTitle.CONTACTS_TAB_ROLLOVER);
-    }//GEN-LAST:event_contactsJLabelMouseEntered
-
-    private void contactsJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseExited
-        unhighlightTab(MainTitleAvatar.Tab.CONTACT, contactsJLabel, BrowserTitle.CONTACTS_TAB);
-    }//GEN-LAST:event_contactsJLabelMouseExited
-
-    private void containersJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_containersJLabelMouseClicked
-        selectTab(MainTitleAvatar.Tab.CONTAINER);
-    }//GEN-LAST:event_containersJLabelMouseClicked
-
-    private void containersJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseEntered
-        highlightTab(MainTitleAvatar.Tab.CONTAINER, containersJLabel, BrowserTitle.CONTAINERS_TAB_ROLLOVER);
-    }//GEN-LAST:event_containersJLabelMouseEntered
-
-    private void containersJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseExited
-        unhighlightTab(MainTitleAvatar.Tab.CONTAINER, containersJLabel, BrowserTitle.CONTAINERS_TAB);
-    }//GEN-LAST:event_containersJLabelMouseExited
+    /**
+     * Create a plugin extension tab.
+     * 
+     * @param tabExtension
+     *            A tab extension.
+     * @return A <code>Tab</code>.
+     */
+    private Tab createTab(final TabExtension tabExtension) {
+        final Tab tab = new Tab(tabExtension);
+        pluginTabs.add(tab);
+        return tab;
+    }
 
     /**
-     * Highlight a tab. If the tab is not selected; the label's icon will be
-     * set to that provided.
+     * Create a tab.
      * 
-     * @param tab
-     *            A tab.
-     * @param jLabel
-     *            A <code>JLabel</code> representing the tab.
-     * @param icon
-     *            An <code>Icon</code>.
-     * @see #unhighlightTab(com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.Tab,
-     *      JLabel, Icon)
+     * @param tabId
+     *            An enumerated tab <code>TabId</code>.
+     * @return A <code>Tab</code>.
      */
-    private void highlightTab(final MainTitleAvatar.Tab tab,
-            final JLabel jLabel, final Icon icon) {
-        if (this.tab != tab) {
-            jLabel.setIcon(icon);
-        }
+    private Tab createTab(final TabId tabId) {
+        allTabs.put(tabId, new Tab(tabId));
+        return allTabs.get(tabId);
     }
 
     /** This method is called from within the constructor to
@@ -125,87 +141,32 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel fillJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel nameJLabel1;
 
-        nameJLabel1 = new javax.swing.JLabel();
-        containersJLabel = new javax.swing.JLabel();
-        archiveJLabel = new javax.swing.JLabel();
-        contactsJLabel = new javax.swing.JLabel();
+        containerJLabel = createTab(TabId.CONTAINER).jLabel;
+        contactJLabel = createTab(TabId.CONTACT).jLabel;
 
         nameJLabel = new javax.swing.JLabel();
         fillJLabel = new javax.swing.JLabel();
 
-        nameJLabel1.setFont(Fonts.DefaultFontBold);
-        nameJLabel1.setMaximumSize(new java.awt.Dimension(100, 18));
-        nameJLabel1.setMinimumSize(new java.awt.Dimension(100, 18));
-        nameJLabel1.setPreferredSize(new java.awt.Dimension(100, 18));
-
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
-        containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTabSelected.png")));
-        containersJLabel.setMaximumSize(new java.awt.Dimension(78, 20));
-        containersJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                containersJLabelMouseExited(evt);
-            }
-        });
-
+        containerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_TabSelected.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        add(containersJLabel, gridBagConstraints);
+        add(containerJLabel, gridBagConstraints);
 
-        archiveJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ArchiveTab.png")));
-        archiveJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                archiveJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                archiveJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                archiveJLabelMouseExited(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
-        add(archiveJLabel, gridBagConstraints);
-
-        contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
-        contactsJLabel.setMaximumSize(new java.awt.Dimension(78, 18));
-        contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                contactsJLabelMouseExited(evt);
-            }
-        });
-
+        contactJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
-        add(contactsJLabel, gridBagConstraints);
+        add(contactJLabel, gridBagConstraints);
 
         nameJLabel.setFont(Fonts.DefaultFontBold);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -233,6 +194,17 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Initialize tabs for the plugins.
+     *
+     */
+    void initPluginTabs(final PluginRegistry pluginRegistry) {
+        final TabExtension extension =
+            pluginRegistry.getExtension(PluginId.ARCHIVE, "ArchiveTab");
+        if (null != extension)
+            createTab(extension);
+    }
+
+    /**
      * Reload the display.  This will examine the current tab; then call the
      * controller to display the correct avatar; as well as update the images
      * representing the tabs.
@@ -242,7 +214,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         reloadDisplayTab();
         reloadDisplayName();
     }
-
     /**
      * Reload the name label.
      * 
@@ -253,73 +224,116 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             nameJLabel.setText(profile.getName());
         }
     }
-
     /**
-     * Reload the tab images; and display the correct avatar in the browser.
+     * Reload the tab images.
      * 
      */
     private void reloadDisplayTab() {
-        switch(tab) {
-        case ARCHIVE:
-            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB_SELECTED);
-
-            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB);
-            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB);
-            break;
-        case CONTACT:
-            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB_SELECTED);
-
-            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB);
-            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB);
-            break;
-        case CONTAINER:
-            containersJLabel.setIcon(BrowserTitle.CONTAINERS_TAB_SELECTED);
-
-            archiveJLabel.setIcon(BrowserTitle.ARCHIVE_TAB);
-            contactsJLabel.setIcon(BrowserTitle.CONTACTS_TAB);
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
+        for (final MainTitleAvatarTabPanel.Tab tab : allTabs.values()) {
+            tab.jLabel.setIcon(BrowserTitle.TAB);
         }
-    }
-
-    /**
-     * Select a tab.  Here we set the input in the main title avatar to contain
-     * the selected tab.
-     * 
-     * @param tab
-     *            A tab.
-     */
-    private void selectTab(final MainTitleAvatar.Tab tab) {
-        final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
-        data.set(MainTitleAvatar.DataKey.TAB, tab);
-        mainTitleAvatar.setInput(data);
-    }
-
-    /**
-     * Unhighlight a tab. If the tab is not selected; the label's icon will be
-     * set to that provided.
-     * 
-     * @param tab
-     *            A tab.
-     * @param jLabel
-     *            A <code>JLabel</code> representing the tab.
-     * @param icon
-     *            An <code>Icon</code>.
-     * @see #highlightTab(com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.Tab,
-     *      JLabel, Icon)
-     */
-    private void unhighlightTab(final MainTitleAvatar.Tab tab,
-            final JLabel jLabel, final Icon icon) {
-        if (this.tab != tab) {
-            jLabel.setIcon(icon);
-        }
+        selectedTab.jLabel.setIcon(BrowserTitle.TAB_SELECTED);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel archiveJLabel;
-    private javax.swing.JLabel contactsJLabel;
-    private javax.swing.JLabel containersJLabel;
+    private javax.swing.JLabel contactJLabel;
+    private javax.swing.JLabel containerJLabel;
+    private javax.swing.JLabel fillJLabel;
     private javax.swing.JLabel nameJLabel;
     // End of variables declaration//GEN-END:variables
+
+    /** A tab definition. */
+    private final class Tab {
+
+        /** The tab label. */
+        private final JLabel jLabel;
+
+        /** The tab text. */
+        private final String jLabelText;
+
+        /**
+         * Create Tab.
+         * 
+         * @param tabExtension
+         *            A plugin tab extension.
+         */
+        private Tab(final TabExtension tabExtension) {
+            super();
+            this.jLabel = LabelFactory.create(BrowserTitle.TAB);
+            this.jLabelText = tabExtension.getText();
+            this.jLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(final MouseEvent e) {
+                    final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
+                    data.set(MainTitleAvatar.DataKey.TAB_EXTENSION, tabExtension);
+                    mainTitleAvatar.setInput(data);   
+                }
+                @Override
+                public void mouseEntered(final MouseEvent e) {
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
+                        jLabel.setIcon(BrowserTitle.TAB_ROLLOVER);
+                }
+                @Override
+                public void mouseExited(final MouseEvent e) {
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
+                        jLabel.setIcon(BrowserTitle.TAB);
+                }
+            });
+        }
+
+        /**
+         * Create Tab.
+         * 
+         * @param tabId
+         *            A tab id.
+         */
+        private Tab(final TabId tabId) {
+            super();
+            this.jLabel = LabelFactory.create(BrowserTitle.TAB);
+            this.jLabelText = BUNDLE.getString(
+                    new StringBuffer("MAIN_TITLE.MainTitleAvatar$TabId.")
+                            .append(tabId).toString());
+
+            this.jLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(final MouseEvent e) {
+                    final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
+                    data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
+                    mainTitleAvatar.setInput(data);   
+                }
+                @Override
+                public void mouseEntered(final MouseEvent e) {
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
+                        jLabel.setIcon(BrowserTitle.TAB_ROLLOVER);
+                }
+                @Override
+                public void mouseExited(final MouseEvent e) {
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
+                        jLabel.setIcon(BrowserTitle.TAB);
+                }
+            });
+            final Dimension minimumSize = jLabel.getMinimumSize();
+            minimumSize.height = 20;
+            minimumSize.width = 76;
+            this.jLabel.setMinimumSize(minimumSize);
+        }
+
+        /**
+         * Draw the tab's text.
+         * 
+         * @param g2
+         *            The <code>Graphics2D</code>.
+         * @param fm
+         *            The <code>FontMetrics</code>.
+         */
+        private void drawText(final Graphics2D g2, final FontMetrics fm) {
+            final Point labelLocation = jLabel.getLocation();
+            final Dimension labelSize = jLabel.getSize();
+            final int textWidth = fm.stringWidth(jLabelText);
+            final int textHeight = fm.getHeight();
+            g2.drawString(jLabelText,
+                    labelLocation.x + (labelSize.width - textWidth) / 2,
+                    labelLocation.y + (labelSize.height - textHeight) / 2 + 12);
+        }
+    }
 }

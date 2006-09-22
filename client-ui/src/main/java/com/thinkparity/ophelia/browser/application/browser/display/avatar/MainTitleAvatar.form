@@ -40,7 +40,7 @@
     </Component>
     <Component class="com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel" name="tabPanel">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tabPanel.setMainTitleAvatar(this);"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="tabPanel.setMainTitleAvatar(this);&#xa;tabPanel.initPluginTabs(getPluginRegistry());"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>

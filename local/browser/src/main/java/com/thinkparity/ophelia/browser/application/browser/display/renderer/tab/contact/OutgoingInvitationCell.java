@@ -14,7 +14,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.Constants.DateFormats;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -27,7 +26,7 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class OutgoingInvitationCell extends InvitationCell implements TabCell {
+public class OutgoingInvitationCell extends DefaultInvitationCell {
 
     /** A thinkParity fuzzy date format. */
     private final FuzzyDateFormat fuzzyDateFormat; 
@@ -107,7 +106,7 @@ public class OutgoingInvitationCell extends InvitationCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell#getId()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
      */
     @Override
     public Long getId() {

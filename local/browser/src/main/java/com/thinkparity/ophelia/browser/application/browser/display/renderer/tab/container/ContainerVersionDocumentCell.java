@@ -27,7 +27,7 @@ import com.thinkparity.ophelia.browser.platform.action.document.PrintVersion;
  * @author rob_masako@shaw.ca, raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class ContainerVersionDocumentCell extends DefaultTabCell implements TabCell  {
+public class ContainerVersionDocumentCell extends DefaultTabCell {
 
     /** The document's version. */
     private final ContainerVersionCell version;

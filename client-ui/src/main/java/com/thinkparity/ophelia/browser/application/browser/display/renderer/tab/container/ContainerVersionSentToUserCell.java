@@ -27,7 +27,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerVersionSentToUserCell extends DefaultTabCell implements TabCell {
+public class ContainerVersionSentToUserCell extends DefaultTabCell {
     
     /** The user's parent cell. */
     private final ContainerVersionSentToCell versionSentTo;

@@ -30,7 +30,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class DraftCell extends DefaultTabCell implements TabCell  {
+public class DraftCell extends DefaultTabCell {
 
     /** The parent cell. */
     private final ContainerCell container;

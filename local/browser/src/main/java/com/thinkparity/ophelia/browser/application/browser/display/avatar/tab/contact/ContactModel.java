@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.IncomingInvitationCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.InvitationCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.OutgoingInvitationCell;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
@@ -478,7 +478,7 @@ public class ContactModel extends TabModel {
      * @param remote
      *            Whether or not this was the result of a remote event.
      */
-    private <T extends InvitationCell> void syncInvitationInternal(
+    private <T extends DefaultInvitationCell> void syncInvitationInternal(
             final Long invitationId, final T invitation,
             final List<T> invitations, final Boolean remote) {
         // if the invitation is null; we can assume it has been

@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerVersionSentToCell extends DefaultTabCell implements TabCell {
+public class ContainerVersionSentToCell extends DefaultTabCell {
        
     /** The version. */
     private final ContainerVersionCell version;

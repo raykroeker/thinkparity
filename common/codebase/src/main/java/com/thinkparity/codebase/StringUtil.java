@@ -6,8 +6,10 @@ package com.thinkparity.codebase;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import com.thinkparity.codebase.SystemUtil.SystemProperty;
@@ -20,267 +22,6 @@ import com.thinkparity.codebase.SystemUtil.SystemProperty;
  */
 public abstract class StringUtil {
 	
-	/**
-	 * Provides an enumeration of some common character sets.  The enumerated
-	 * types also contain references to the actual java charsets.
-	 * @author raykroeker@gmail.com
-	 * @version 1.0.0
-	 * @see java.nio.charset.Charset
-	 */
-	public enum Charset {
-
-		US_ASCII("US-ASCII"), ISO_8859_1("ISO-8859-1"), UTF_8("UTF-8"),
-		UTF_16_BE("UTF-16BE"), UTF_16_LE("UTF-16LE"), UTF_16("UTF-16");
-
-		/**
-		 * The charset name.
-		 */
-		private final String charsetName;
-
-		/**
-		 * Reference to the java charset for the enumerated type.
-		 */
-		private final java.nio.charset.Charset charset;
-		
-		/**
-		 * Create a Charset. This will create a java charset reference upon
-		 * creation.
-		 * 
-		 * @param charsetName
-		 *            The name of the charset.
-		 * @see java.nio.charset.Charset#forName(java.lang.String)
-		 */
-		private Charset(final String charsetName) {
-			this.charsetName = charsetName;
-			this.charset = java.nio.charset.Charset.forName(charsetName);
-		}
-
-		/**
-		 * Obtain the charset name for the enumerated charset.
-		 * 
-		 * @return The charset name.
-		 */
-		public String getCharsetName() { return charsetName; }
-
-		/**
-		 * Obtain the java charset for the enumerated charset.
-		 * 
-		 * @return The java charset.
-		 */
-		public java.nio.charset.Charset getCharset() { return charset; }
-	}
-	
-	/**
-	 * <b>Title:</b>  Separator
-	 * <br><b>Description:</b>  Separator is used as a place holder for various 
-	 * string constants commonly used in String manipulation.  
-	 * @author raykroeker@gmail.com
-	 * @version 1.0.1
-	 */
-	public static final class Separator extends Enum {
-
-		private static final long serialVersionUID = 1;
-
-		/**
-		 * Comma
-		 */
-		public static final Separator Comma = new Separator(",");
-
-		/**
-		 * Dash
-		 */
-		public static final Separator Dash = new Separator("-");
-		
-		/**
-		 * Double quote
-		 */
-		public static final Separator DblQuote = new Separator("\"");
-
-		/**
-		 * Equals
-		 */
-		public static final Separator Equals = new Separator("=");
-
-		/**
-		 * Empty String
-		 */
-		public static final Separator EmptyString = new Separator("");
-
-		/**
-		 * Full colon
-		 */
-		public static final Separator FullColon = new Separator(":");
-
-		/**
-		 * Greater Than
-		 */
-		public static final Separator GreaterThan = new Separator(">");
-
-		/**
-		 * Less Than
-		 */
-		public static final Separator LessThan = new Separator("<");
-		
-		/**
-		 * Nix new line
-		 */
-		public static final Separator NixNewLine = new Separator("\n");
-		
-		/**
-		 * Double nix new line
-		 */
-		public static final Separator DoubleNixNewLine =
-			new Separator(NixNewLine.append(NixNewLine));
-
-		/**
-		 * Period
-		 */
-		public static final Separator Period = new Separator(".");
-
-		/**
-		 * Open parenthesis
-		 */
-		public static final Separator OpenParenthesis = new Separator("(");
-		
-		/**
-		 * Close parenthesis
-		 */
-		public static final Separator CloseParenthesis = new Separator(")");
-
-		/**
-		 * Question mark
-		 */
-		public static final Separator QuestionMark = new Separator("?");
-
-		/**
-		 * Semi colon
-		 */
-		public static final Separator SemiColon = new Separator(";");
-
-		/**
-		 * Single quote
-		 */
-		public static final Separator SingleQuote = new Separator("\'");
-
-		/**
-		 * Space
-		 */
-		public static final Separator Space = new Separator(" ");
-
-		/**
-		 * Comma space
-		 */
-		public static final Separator CommaSpace =
-			new Separator(Comma.append(Space));
-
-		/**
-		 * Double space
-		 */
-		public static final Separator DoubleSpace =
-			new Separator(Space.append(Space));
-
-		/**
-		 * Period double space
-		 */
-		public static final Separator PeriodDblSpace =
-			new Separator(Period.append(DoubleSpace));
-
-		/**
-		 * Quadruple space
-		 */
-		public static final Separator QuadrupleSpace =
-			new Separator(DoubleSpace.append(DoubleSpace));
-
-		/**
-		 * Space dash space
-		 */
-		public static final Separator SpaceDashSpace = 
-			new Separator(Space.append(Dash).append(Space));
-
-		/**
-		 * Open square bracket
-		 */
-		public static final Separator OpenSquareBracket =
-			new Separator("[");
-
-		/**
-		 * Close square bracket
-		 */
-		public static final Separator CloseSquareBracket =
-			new Separator("]");
-
-		/**
-		 * System's new line
-		 */
-		public static final Separator SystemNewLine =
-			new Separator(SystemUtil.getSystemProperty(SystemProperty.LineSeparator));
-
-		/**
-		 * Double system new line
-		 */
-		public static final Separator DoubleSystemNewLine =
-			new Separator(SystemNewLine.append(SystemNewLine));
-
-		/**
-		 * Tab
-		 */
-		public static final Separator Tab = new Separator("\t");
-
-		/**
-		 * Double tab
-		 */
-		public static final Separator DoubleTab = new Separator(Tab.append(Tab));
-
-		/**
-		 * Underscore
-		 */
-		public static final Separator Underscore = new Separator("_");
-
-		/**
-		 * Windows new line
-		 */
-		public static final Separator WindowsNewLine = new Separator("\r\n");
-		
-		/**
-		 * Double windows new line
-		 */
-		public static final Separator DoubleWindowsNewLine =
-			new Separator(WindowsNewLine.append(WindowsNewLine));
-
-		/**
-		 * Windows new line tab
-		 */
-		public static final Separator WindowsNewLineTab =
-			new Separator(WindowsNewLine.append(Tab));
-
-		/**
-		 * Create a new Separator
-		 * @param separator <code>java.lang.String</code>
-		 */
-		private Separator(String separator) {
-			this(new StringBuffer().append(separator));
-		}
-
-		/**
-		 * Create a new Separator
-		 * @param separator <code>java.lang.StringBuffer</code>
-		 */
-		private Separator(StringBuffer separator) {super(separator);}
-		
-		/**
-		 * Append to the end of this Separator, the value of separator
-		 * @param separator <code>StringUtil$Separator</code>
-		 * @return <code>java.lang.StringBuffer</code>
-		 */
-		private StringBuffer append(Separator separator) {return toBuffer().append(separator);}
-		
-		/**
-		 * Obtain this Separator's value as a StringBuffer
-		 * @return <code>java.lang.StringBuffer</code>
-		 */
-		private StringBuffer toBuffer() {return new StringBuffer().append(toString());}
-	}
-
 	/**
 	 * Build a name StringBuffer checking for null.
 	 * @param first <code>java.lang.String</code>
@@ -312,7 +53,7 @@ public abstract class StringUtil {
 		}
 		return name;
 	}
-
+	
 	/**
 	 * Build a name StringBuffer checking for null.
 	 * @param first <code>java.lang.StringBuffer</code>
@@ -328,6 +69,11 @@ public abstract class StringUtil {
 			null == first ? null : first.toString(),
 			null == second ? null : second.toString(),
 			separator);
+	}
+
+	public static String convertFrom(final byte[] bytes)
+			throws UnsupportedEncodingException {
+		return new String(bytes, Charset.ISO_8859_1.getCharsetName());
 	}
 
 	/**
@@ -353,6 +99,10 @@ public abstract class StringUtil {
 		return convertedList;
 	}
 
+	public static synchronized StringBuffer[] convertToArrayList(String list, Separator separator) {
+		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
+	}
+
 	public static synchronized StringBuffer[] convertToArrayList(String list, String separator) {
 		final Collection<StringBuffer> convertedList =
 		    StringUtil.convertToList(list, separator);
@@ -365,7 +115,7 @@ public abstract class StringUtil {
 		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
 	}
 	
-	public static synchronized StringBuffer[] convertToArrayList(String list, Separator separator) {
+	public static StringBuffer[] convertToArrayList(StringBuffer list, Separator separator) {
 		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
 	}
 
@@ -377,8 +127,13 @@ public abstract class StringUtil {
 		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
 	}
 	
-	public static StringBuffer[] convertToArrayList(StringBuffer list, Separator separator) {
-		return StringUtil.convertToArrayList(list,  null == separator ? null : separator.toString());
+	public static byte[] convertToBytes(final String string)
+			throws UnsupportedEncodingException {
+		return string.getBytes(Charset.ISO_8859_1.getCharsetName());
+	}
+
+    public static synchronized Collection<StringBuffer> convertToList(String list, Separator separator) {
+		return StringUtil.convertToList(list, null == separator ? null : separator.toString());
 	}
 
 	public static synchronized Collection<StringBuffer> convertToList(String list, String separator) {
@@ -411,8 +166,8 @@ public abstract class StringUtil {
 		return StringUtil.convertToList(list, null == separator ? null : separator.toString());
 	}
 	
-	public static synchronized Collection<StringBuffer> convertToList(String list, Separator separator) {
-		return StringUtil.convertToList(list, null == separator ? null : separator.toString());
+	public static Collection<StringBuffer> convertToList(StringBuffer list, Separator separator) {
+		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
 	}
 
 	public static Collection<StringBuffer> convertToList(StringBuffer list, String separator) {
@@ -423,11 +178,38 @@ public abstract class StringUtil {
 		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
 	}
 	
-	public static Collection<StringBuffer> convertToList(StringBuffer list, Separator separator) {
-		return StringUtil.convertToList(null == list ? null : list.toString(),  null == separator ? null : separator.toString());
-	}
+	/**
+     * Print the stack trace of the throwable to a string and return it.
+     *
+     * @param t
+     *      A throwable.
+     * @return A printed stack trace.
+     */
+    public static String printStackTrace(final Throwable t) {
+        final StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+    }
 	
 
+
+	/**
+	 * Remove any characters after the find string within the search string.
+	 * @param search String
+	 * @param find String
+	 * @return String
+	 */
+	public static synchronized String removeAfter(final String search,
+			final String find) {
+		if(null == search)
+			return null;
+		if(null == find)
+			return search;
+		final Integer findIndex = search.lastIndexOf(find);
+		if(findIndex > 0)
+			return search.substring(0, findIndex);
+		return search;
+	}
 
 	/**
 	 * Remove the whitespace from target, replacing it with replacement or the 
@@ -441,21 +223,6 @@ public abstract class StringUtil {
 		Separator replacement) {
 		return StringUtil.removeWhitespace(
 			target,
-			null == replacement ? null : replacement.toString());
-	}
-
-	/**
-	 * Remove the whitespace from target, replacing it with replacement or the
-	 * empty string if replacement is <code>null</code>.
-	 * @param target <code>java.lang.StringBuffer</code>
-	 * @param replacement <code>java.lang.StringBuffer</code>
-	 * @return <code>java.lang.StringBuffer</code>
-	 */
-	public static synchronized StringBuffer removeWhitespace(
-		StringBuffer target,
-		StringBuffer replacement) {
-		return StringUtil.removeWhitespace(
-			null == target ? null : target.toString(),
 			null == replacement ? null : replacement.toString());
 	}
 
@@ -482,6 +249,21 @@ public abstract class StringUtil {
 				buffer.append(targetChars[i]);
 		}
 		return buffer;
+	}
+
+    /**
+	 * Remove the whitespace from target, replacing it with replacement or the
+	 * empty string if replacement is <code>null</code>.
+	 * @param target <code>java.lang.StringBuffer</code>
+	 * @param replacement <code>java.lang.StringBuffer</code>
+	 * @return <code>java.lang.StringBuffer</code>
+	 */
+	public static synchronized StringBuffer removeWhitespace(
+		StringBuffer target,
+		StringBuffer replacement) {
+		return StringUtil.removeWhitespace(
+			null == target ? null : target.toString(),
+			null == replacement ? null : replacement.toString());
 	}
 
     /**
@@ -518,7 +300,7 @@ public abstract class StringUtil {
         return processedString;
     }
 
-    /**
+	/**
      * Does a search and replace on a string based on the find and replace
      * criteria.  This method will replace all occurances of find in search 
      * with replace.
@@ -539,7 +321,7 @@ public abstract class StringUtil {
 			replace);
 	}
 
-	/**
+    /**
 	 * Does a search and replace on a string based on the find and replace
 	 * criteria.  This method will replace all occurances of find in search 
 	 * with replace.
@@ -560,49 +342,292 @@ public abstract class StringUtil {
 			null == replace ? null : replace.toString());
     }
 
-    /**
-     * Print the stack trace of the throwable to a string and return it.
-     *
-     * @param t
-     *      A throwable.
-     * @return A printed stack trace.
-     */
-    public static String printStackTrace(final Throwable t) {
-        final StringWriter sw = new StringWriter();
-		t.printStackTrace(new PrintWriter(sw));
-		return sw.toString();
+	public static List<String> tokenize(final String str, final String delim) {
+        if (null == delim)
+            throw new NullPointerException();
+        if (null == str || 0 == str.length())
+            return null;
+        final List<String> tokenized;
+        int currentIndex = 0;
+        int nextIndex = str.indexOf(delim);
+        if (-1 == nextIndex) {   // The separator doesn't exist in the list at all
+            tokenized = new ArrayList<String>(1);
+            tokenized.add(str);
+        }
+        else {
+            tokenized = new ArrayList<String>();
+            while (-1 != nextIndex) {
+                tokenized.add(str.substring(currentIndex, nextIndex));
+                currentIndex = nextIndex + 1;
+                nextIndex = str.indexOf(delim, currentIndex);
+            }
+        }
+        return tokenized;
     }
-
-	/**
-	 * Remove any characters after the find string within the search string.
-	 * @param search String
-	 * @param find String
-	 * @return String
-	 */
-	public static synchronized String removeAfter(final String search,
-			final String find) {
-		if(null == search)
-			return null;
-		if(null == find)
-			return search;
-		final Integer findIndex = search.lastIndexOf(find);
-		if(findIndex > 0)
-			return search.substring(0, findIndex);
-		return search;
-	}
-
-	public static String convertFrom(final byte[] bytes)
-			throws UnsupportedEncodingException {
-		return new String(bytes, Charset.ISO_8859_1.getCharsetName());
-	}
-
-	public static byte[] convertToBytes(final String string)
-			throws UnsupportedEncodingException {
-		return string.getBytes(Charset.ISO_8859_1.getCharsetName());
-	}
 
 	/**
 	 * Create a StringUtil [Singleton]
 	 */
 	private StringUtil() { super(); }
+
+	/**
+	 * Provides an enumeration of some common character sets.  The enumerated
+	 * types also contain references to the actual java charsets.
+	 * @author raykroeker@gmail.com
+	 * @version 1.0.0
+	 * @see java.nio.charset.Charset
+	 */
+	public enum Charset {
+
+		ISO_8859_1("ISO-8859-1"), US_ASCII("US-ASCII"), UTF_16("UTF-16"),
+		UTF_16_BE("UTF-16BE"), UTF_16_LE("UTF-16LE"), UTF_8("UTF-8");
+
+		/**
+		 * Reference to the java charset for the enumerated type.
+		 */
+		private final java.nio.charset.Charset charset;
+
+		/**
+		 * The charset name.
+		 */
+		private final String charsetName;
+		
+		/**
+		 * Create a Charset. This will create a java charset reference upon
+		 * creation.
+		 * 
+		 * @param charsetName
+		 *            The name of the charset.
+		 * @see java.nio.charset.Charset#forName(java.lang.String)
+		 */
+		private Charset(final String charsetName) {
+			this.charsetName = charsetName;
+			this.charset = java.nio.charset.Charset.forName(charsetName);
+		}
+
+		/**
+		 * Obtain the java charset for the enumerated charset.
+		 * 
+		 * @return The java charset.
+		 */
+		public java.nio.charset.Charset getCharset() { return charset; }
+
+		/**
+		 * Obtain the charset name for the enumerated charset.
+		 * 
+		 * @return The charset name.
+		 */
+		public String getCharsetName() { return charsetName; }
+	}
+
+	/**
+	 * <b>Title:</b>  Separator
+	 * <br><b>Description:</b>  Separator is used as a place holder for various 
+	 * string constants commonly used in String manipulation.  
+	 * @author raykroeker@gmail.com
+	 * @version 1.0.1
+	 */
+	public static final class Separator extends Enum {
+
+		/**
+		 * Close parenthesis
+		 */
+		public static final Separator CloseParenthesis = new Separator(")");
+
+		/**
+		 * Close square bracket
+		 */
+		public static final Separator CloseSquareBracket =
+			new Separator("]");
+
+		/**
+		 * Comma
+		 */
+		public static final Separator Comma = new Separator(",");
+		
+		/**
+		 * Dash
+		 */
+		public static final Separator Dash = new Separator("-");
+
+		/**
+		 * Double quote
+		 */
+		public static final Separator DblQuote = new Separator("\"");
+
+		/**
+		 * Empty String
+		 */
+		public static final Separator EmptyString = new Separator("");
+
+		/**
+		 * Equals
+		 */
+		public static final Separator Equals = new Separator("=");
+		
+		/**
+		 * Full colon
+		 */
+		public static final Separator FullColon = new Separator(":");
+
+		/**
+		 * Greater Than
+		 */
+		public static final Separator GreaterThan = new Separator(">");
+
+		/**
+		 * Less Than
+		 */
+		public static final Separator LessThan = new Separator("<");
+
+		/**
+		 * Nix new line
+		 */
+		public static final Separator NixNewLine = new Separator("\n");
+
+        /**
+         * Double nix new line
+         */
+        public static final Separator DoubleNixNewLine =
+            new Separator(NixNewLine.append(NixNewLine));
+
+		/**
+		 * Open parenthesis
+		 */
+		public static final Separator OpenParenthesis = new Separator("(");
+
+		/**
+		 * Open square bracket
+		 */
+		public static final Separator OpenSquareBracket =
+			new Separator("[");
+
+		/**
+		 * Question mark
+		 */
+		public static final Separator QuestionMark = new Separator("?");
+
+		/**
+		 * Semi colon
+		 */
+		public static final Separator SemiColon = new Separator(";");
+
+		/**
+		 * Single quote
+		 */
+		public static final Separator SingleQuote = new Separator("\'");
+
+		/**
+		 * Space
+		 */
+		public static final Separator Space = new Separator(" ");
+
+        /**
+         * Double space
+         */
+        public static final Separator DoubleSpace =
+            new Separator(Space.append(Space));
+
+        /**
+         * Quadruple space
+         */
+        public static final Separator QuadrupleSpace =
+            new Separator(DoubleSpace.append(DoubleSpace));
+
+        /**
+         * Period
+         */
+        public static final Separator Period = new Separator(".");
+
+        /**
+         * Period double space
+         */
+        public static final Separator PeriodDblSpace =
+            new Separator(Period.append(DoubleSpace));
+
+        /**
+         * Comma space
+         */
+        public static final Separator CommaSpace =
+            new Separator(Comma.append(Space));
+
+		/**
+		 * Space dash space
+		 */
+		public static final Separator SpaceDashSpace = 
+			new Separator(Space.append(Dash).append(Space));
+
+		/**
+		 * System's new line
+		 */
+		public static final Separator SystemNewLine =
+			new Separator(SystemUtil.getSystemProperty(SystemProperty.LineSeparator));
+
+        /**
+         * Double system new line
+         */
+        public static final Separator DoubleSystemNewLine =
+            new Separator(SystemNewLine.append(SystemNewLine));
+
+		/**
+		 * TabId
+		 */
+		public static final Separator Tab = new Separator("\t");
+
+        /**
+         * Double tab
+         */
+        public static final Separator DoubleTab = new Separator(Tab.append(Tab));
+
+		/**
+		 * Underscore
+		 */
+		public static final Separator Underscore = new Separator("_");
+
+		/**
+		 * Windows new line
+		 */
+		public static final Separator WindowsNewLine = new Separator("\r\n");
+
+        /**
+         * Double windows new line
+         */
+        public static final Separator DoubleWindowsNewLine =
+            new Separator(WindowsNewLine.append(WindowsNewLine));
+
+		/**
+		 * Windows new line tab
+		 */
+		public static final Separator WindowsNewLineTab =
+			new Separator(WindowsNewLine.append(Tab));
+
+		private static final long serialVersionUID = 1;
+
+		/**
+		 * Create a new Separator
+		 * @param separator <code>java.lang.String</code>
+		 */
+		private Separator(String separator) {
+			this(new StringBuffer().append(separator));
+		}
+
+		/**
+		 * Create a new Separator
+		 * @param separator <code>java.lang.StringBuffer</code>
+		 */
+		private Separator(StringBuffer separator) {super(separator);}
+		
+		/**
+		 * Append to the end of this Separator, the value of separator
+		 * @param separator <code>StringUtil$Separator</code>
+		 * @return <code>java.lang.StringBuffer</code>
+		 */
+		private StringBuffer append(Separator separator) {return toBuffer().append(separator);}
+		
+		/**
+		 * Obtain this Separator's value as a StringBuffer
+		 * @return <code>java.lang.StringBuffer</code>
+		 */
+		private StringBuffer toBuffer() {return new StringBuffer().append(toString());}
+	}
 }

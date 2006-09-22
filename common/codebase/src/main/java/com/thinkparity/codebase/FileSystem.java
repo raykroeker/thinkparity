@@ -136,15 +136,16 @@ public class FileSystem {
     public int hashCode() { return root.hashCode(); }
 
     /**
-     * List all files in the file system beneath the relative path. If a
-     * recursive listing is required; see
-     * {@link #list(String, Boolean) list(String,Boolean)}.
+     * List all files (non-recursive) in the file system beneath the root that
+     * match the filter.
      * 
-     * @param path
-     *            A relative path.
+     * @param filter
+     *            A <code>FileFilter</code>.
      * @return A list of files.
      */
-    public File[] list(final String path) { return list(path, Boolean.FALSE); }
+    public File[] list(final String path, final FileFilter filter) {
+        return list(path, filter, Boolean.FALSE);
+    }
 
     /**
      * List all files in the file system beneath the relative path. If a
@@ -153,17 +154,57 @@ public class FileSystem {
      * 
      * @param path
      *            A relative path.
-     * @param doRecurse
+     * @return A list of files.
+     */
+    public File[] list(final String path) {
+        return list(path, Boolean.FALSE);
+    }
+
+    /**
+     * List all files in the file system beneath the relative path. If a
+     * recursive listing is required; see
+     * {@link #list(String, Boolean) list(String,Boolean)}.
+     * 
+     * @param path
+     *            A relative path.
+     * @param recurse
      *            Whether or not to recursively pull out files.
      * @return A list of files.
      */
-    public File[] list(final String path, final Boolean doRecurse) {
+    public File[] list(final String path, final Boolean recurse) {
         final File file = resolve(path);
         if(null == file) { return null; }
         if(file.isFile()) { return null; }
         
-        if(doRecurse) { return list(file).toArray(new File[] {}); }
-        else { return file.listFiles(); }
+        if (recurse) {
+            return list(file).toArray(new File[] {});
+        } else {
+            return file.listFiles();
+        }
+    }
+
+    /**
+     * List all files in the file system beneath the root that match the filter.
+     * 
+     * @param filter
+     *            A <code>FileFilter</code>.
+     * @param recurse
+     *            Recurse the file system.
+     * @return A list of files.
+     */
+    public File[] list(final String path, final FileFilter filter,
+            final Boolean recurse) {
+        final File file = resolve(path);
+        if (null == file) {
+            return null;
+        }
+        Assert.assertTrue(file.isDirectory(), "{0} is not a directory.", path);
+
+        if (recurse) {
+            return list(file).toArray(new File[] {});
+        } else {
+            return file.listFiles(filter);
+        }
     }
 
     /**
@@ -184,17 +225,18 @@ public class FileSystem {
      * 
      * @param path
      *            A relative path.
-     * @param doRecurse
+     * @param recurse
      *            If set to true; a recursive list is obtained.
      * @return A list of directories.
      */
-    public File[] listDirectories(final String path, final Boolean doRecurse) {
+    public File[] listDirectories(final String path, final Boolean recurse) {
         final File file = resolve(path);
         if(null == file) { return null; }
         if(file.isFile()) { return null; }
     
-        if(doRecurse) { return listDirectories(file).toArray(new File[] {}); }
-        else {
+        if (recurse) {
+            return listDirectories(file).toArray(new File[] {});
+        } else {
             return file.listFiles(new FileFilter() {
                 public boolean accept(final File pathname) {
                     return pathname.isDirectory();
@@ -221,17 +263,20 @@ public class FileSystem {
      * 
      * @param path
      *            A relative path.
-     * @param doRecurse
+     * @param recurse
      *            Whether or not to recursively pull out files.
      * @return A list of files.
      */
-    public File[] listFiles(final String path, final Boolean doRecurse) {
+    public File[] listFiles(final String path, final Boolean recurse) {
         final File file = resolve(path);
-        if(null == file) { return null; }
-        else if(file.isFile()) { return null; }
-        else {
-            if(doRecurse) { return listFiles(file).toArray(new File[] {}); }
-            else {
+        if (null == file) {
+            return null;
+        } else if (file.isFile()) {
+            return null;
+        } else {
+            if (recurse) {
+                return listFiles(file).toArray(new File[] {});
+            } else {
                 return file.listFiles(new FileFilter() {
                     public boolean accept(final File pathname) {
                         return pathname.isFile();
@@ -324,10 +369,18 @@ public class FileSystem {
      * @return A list of files.
      */
     private List<File> list(final File directory) {
+        return list(directory, new FileFilter() {
+            public boolean accept(final File pathname) {
+                return true;
+            }
+        });
+    }
+
+    private List<File> list(final File directory, final FileFilter filter) {
         final List<File> files = new ArrayList<File>();
-        for(final File file : directory.listFiles()) {
+        for(final File file : directory.listFiles(filter)) {
             files.add(file);
-            if(file.isDirectory()) { files.addAll(list(file)); }
+            if(file.isDirectory()) { files.addAll(list(file, filter)); }
         }
         return files;
     }

@@ -66,6 +66,13 @@ public interface TabCell {
      * @return The node selected icon.
      */
     public ImageIcon getNodeIconSelected();
+    
+    /**
+     * Obtain the second node icon.
+     * 
+     * @return The second node icon.
+     */
+    public ImageIcon getSecondNodeIcon();
 
     /**
      * Obtain the parent cell; if applicable.
@@ -156,11 +163,11 @@ public interface TabCell {
     /**
      * Set the expand or collapse state for the cell.
      * 
-     * @param expand
+     * @param expanded
      *            Boolean flag to expand or collapse.    
      * @return A Boolean, true if the expand state changed.                
      */
-    public Boolean setExpanded(final Boolean expand);
+    public Boolean setExpanded(final Boolean expanded);
     
     /**
      * Set the mouseOver state for the cell.

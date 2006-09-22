@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
@@ -15,6 +16,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -22,6 +24,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.PrintVersion;
+import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 
 /**
  * @author rob_masako@shaw.ca, raykroeker@gmail.com
@@ -80,6 +83,20 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      */
     public TabCell getParent() {
         return version;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
+     */
+    public ImageIcon getSecondNodeIcon() {
+        final String extension = ArtifactUtil.getNameExtension(document);
+        if (extension.equalsIgnoreCase(".DOC")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+        } else if (extension.equalsIgnoreCase(".XLS")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+        } else {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+        }
     }
 
     /**

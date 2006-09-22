@@ -131,12 +131,15 @@ public class BrowserMenuBar extends JMenuBar {
         // Create JMenus
         final JMenu newMenu = MenuFactory.create(localization.getString("New"),
                 new Integer(localization.getString("NewMnemonic").charAt(0)));
+        this.add(Box.createRigidArea(new Dimension(6,0)));   
         this.add(newMenu);
         final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"),
                 new Integer(localization.getString("ProfileMnemonic").charAt(0)));
+        this.add(Box.createRigidArea(new Dimension(2,0)));  
         this.add(profileMenu);
         final JMenu helpMenu = MenuFactory.create(localization.getString("Help"),
                 new Integer(localization.getString("HelpMnemonic").charAt(0)));
+        this.add(Box.createRigidArea(new Dimension(2,0)));  
         this.add(helpMenu);
 
         // Create the New popup menu
@@ -153,11 +156,12 @@ public class BrowserMenuBar extends JMenuBar {
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
         
         // Create the Sign-Up button
-        this.add(Box.createRigidArea(new Dimension(3,0)));
+        this.add(Box.createHorizontalGlue());
         this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, Data.emptyData()));
+        this.add(Box.createRigidArea(new Dimension(5,0)));
 
         // Add minimize and close buttons
-        this.add(Box.createHorizontalGlue());
+
         this.add(getMinimizeButton());
         this.add(Box.createRigidArea(new Dimension(3,0)));
         this.add(getCloseButton());

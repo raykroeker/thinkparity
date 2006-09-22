@@ -27,6 +27,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -172,6 +173,13 @@ public class ContainerCell extends DefaultTabCell {
      */
     public ImageIcon getNodeIconSelected() {
         return null;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
+     */
+    public ImageIcon getSecondNodeIcon() {
+        return imageCacheTest.read(TabCellIconTest.PACKAGE); 
     }
 
     /**

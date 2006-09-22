@@ -6,12 +6,14 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -89,6 +91,17 @@ public class ContainerVersionCell extends DefaultTabCell {
      */
     public TabCell getParent() {
         return container;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
+     */
+    public ImageIcon getSecondNodeIcon() {
+        if (isExpanded()) {
+            return imageCacheTest.read(TabCellIconTest.FOLDER_OPEN); 
+        } else {
+            return imageCacheTest.read(TabCellIconTest.FOLDER_CLOSED); 
+        }
     }
 
     /**

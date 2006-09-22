@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -35,25 +36,25 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 public abstract class DefaultTabCell implements TabCell {
 
     /** The border for the bottom of the cell. */
-    protected static final Border BORDER_BOTTOM;
+    private static final Border BORDER_BOTTOM;
 
     /** The border for the top of child cells. */
-    protected static final Border BORDER_CHILD_TOP;
+    private static final Border BORDER_CHILD_TOP;
     
     /** The border for the top of the cell. */
-    protected static final Border BORDER_TOP;
-
-    /** The cell's text foreground color. */
-    protected static final Color TEXT_FG;
-    
-    /** The cell's text foreground colour for mouse over cells. */
-    protected static final Color TEXT_FG_MOUSEOVER;
-    
-    /** Maximum length of a container cell's text. */
-    protected static final Integer TEXT_MAX_LENGTH;
+    private static final Border BORDER_TOP;
     
     /** The border for the top of a group of cells. */
-    private static final Border BORDER_GROUP_TOP;
+    private static final Border BORDER_GROUP_TOP;   
+
+    /** The cell's text foreground color. */
+    private static final Color TEXT_FG;
+    
+    /** The cell's text foreground colour for mouse over cells. */
+    private static final Color TEXT_FG_MOUSEOVER;
+    
+    /** Maximum length of a container cell's text. */
+    private static final Integer TEXT_MAX_LENGTH;   
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER);
@@ -72,6 +73,7 @@ public abstract class DefaultTabCell implements TabCell {
     
     /** An image cache. */
     protected final MainCellImageCache imageCache;
+    protected final MainCellImageCacheTest imageCacheTest;
     
     /** A flag indicating the mouse over status. */
     protected Boolean mouseOver = Boolean.FALSE;
@@ -86,6 +88,7 @@ public abstract class DefaultTabCell implements TabCell {
     protected DefaultTabCell() {
         super();
         this.imageCache = new MainCellImageCache();
+        this.imageCacheTest = new MainCellImageCacheTest();
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
@@ -147,6 +150,13 @@ public abstract class DefaultTabCell implements TabCell {
         } else {
             return imageCache.read(TabCellIcon.NODE_SEL_COLLAPSED);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
+     */
+    public ImageIcon getSecondNodeIcon() {
+        return null;
     }
 
     /**
@@ -250,9 +260,9 @@ public abstract class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)
      */
-    public Boolean setExpanded(Boolean expand) {
-        if (this.expanded != expand && isChildren()) {
-            this.expanded = expand;
+    public Boolean setExpanded(Boolean expanded) {
+        if (this.expanded != expanded && isChildren()) {
+            this.expanded = expanded;
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;

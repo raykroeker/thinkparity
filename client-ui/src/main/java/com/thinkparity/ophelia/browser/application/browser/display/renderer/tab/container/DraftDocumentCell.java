@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -114,6 +116,20 @@ public class DraftDocumentCell extends DefaultTabCell {
     public TabCell getParent() {
         return draft;
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
+     */
+    public ImageIcon getSecondNodeIcon() {
+        final String extension = getNameExtension();
+        if (extension.equalsIgnoreCase(".DOC")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+        } else if (extension.equalsIgnoreCase(".XLS")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+        } else {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
@@ -133,7 +149,7 @@ public class DraftDocumentCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_2;
+        return InsetFactors.LEVEL_1;
     }
 
     /**

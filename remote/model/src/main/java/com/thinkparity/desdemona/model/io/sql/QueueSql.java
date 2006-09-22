@@ -7,9 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 
 import org.jivesoftware.database.JiveID;
 
@@ -139,23 +139,34 @@ public class QueueSql extends AbstractSql {
 		finally { close(cx, ps, rs); }
 	}
 
-	public Collection<QueueItem> select(final String username) throws SQLException {
+	public List<QueueItem> select(final String username) {
         logApiId();
-		logger.debug(username);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		logVariable("username", username);
+        final HypersonicSession session = openSession();
 		try {
-			cx = getCx();
-			ps = cx.prepareStatement(SELECT_USERNAME);
-			ps.setString(1, username);
-			rs = ps.executeQuery();
-			final Collection<QueueItem> items = new Vector<QueueItem>(7);
-			while(rs.next()) { items.add(extract(rs)); }
+			session.prepareStatement(SELECT_USERNAME);
+			session.setString(1, username);
+			session.executeQuery();
+			final List<QueueItem> items = new ArrayList<QueueItem>(7);
+			while (session.nextResult()) {
+                items.add(extract(session));
+			}
 			return items;
+		} finally {
+            session.close();
 		}
-		finally { close(cx, ps, rs); }
 	}
+
+    private QueueItem extract(final HypersonicSession session) {
+        final Integer queueId = session.getInteger("QUEUEID");
+        final String username = session.getString("USERNAME");
+        final Integer queueMessageSize = session.getInteger("QUEUEMESSAGESIZE");
+        final String queueMessage = session.getString("QUEUEMESSAGE");
+        final Calendar createdOn = session.getCalendar("CREATEDON");
+        final Calendar updatedOn =  session.getCalendar("UPDATEDON");
+        return new QueueItem(createdOn, queueId, queueMessage, queueMessageSize,
+                updatedOn, username);
+    }
 
 	private QueueItem extract(final ResultSet rs) throws SQLException {
 		final Integer queueId = rs.getInt(1);

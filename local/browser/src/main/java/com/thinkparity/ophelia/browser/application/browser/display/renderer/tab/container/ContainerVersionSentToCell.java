@@ -90,7 +90,7 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
      * 
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_2;
+        return InsetFactors.LEVEL_3;
     }
 
     /**

@@ -115,7 +115,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_2;
+        return InsetFactors.LEVEL_1;
     }
 
     /**

@@ -32,6 +32,17 @@ final class BrowserDisplayHelper extends BrowserHelper {
     }
 
     /**
+     * Display an avatar on the status display.
+     * 
+     * @param id
+     *            An avatar id.
+     */
+    void displayStatus(final AvatarId id) {
+        logApiId();
+        displayAvatar(id, DisplayId.STATUS);
+    }
+
+    /**
      * Display a tab avatar on the content display.
      * 
      * @param id
@@ -51,25 +62,13 @@ final class BrowserDisplayHelper extends BrowserHelper {
     void displayTab(final TabExtension tabExtension) {
         logApiId();
         try {
-            final Avatar avatar = tabExtension.createAvatar();
-            avatar.setContentProvider(tabExtension.getProvider());
+            final Avatar avatar = browserApplication.getAvatar(tabExtension);
 
             displayAvatar(avatar, null, DisplayId.CONTENT);
         } catch (final Throwable t) {
             browserApplication.displayErrorDialog(
                     "PluginError", new Object[] { tabExtension }, t);
         }
-    }
-
-    /**
-     * Display an avatar on the status display.
-     * 
-     * @param id
-     *            An avatar id.
-     */
-    void displayStatus(final AvatarId id) {
-        logApiId();
-        displayAvatar(id, DisplayId.STATUS);
     }
 
     /**

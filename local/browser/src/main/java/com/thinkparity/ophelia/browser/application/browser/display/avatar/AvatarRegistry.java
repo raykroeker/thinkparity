@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -14,15 +15,17 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
  */
 public class AvatarRegistry {
 
-	/**
-	 * The underlying avatar registry.
-	 * 
-	 */
-	private static Map<AvatarId, Object> REGISTRY;
+    /** The underlying avatar registry. */
+    private static Map<TabExtension, Object> EXTENSION_REGISTRY;
+
+    /** The underlying avatar registry. */
+    private static Map<AvatarId, Object> REGISTRY;
 
 	static {
-		final Integer avatarCount = AvatarId.values().length;
-		REGISTRY = new HashMap<AvatarId, Object>(avatarCount, 1.0F);
+        final Integer avatarCount = AvatarId.values().length;
+        REGISTRY = new HashMap<AvatarId, Object>(avatarCount, 1.0F);
+
+        EXTENSION_REGISTRY = new HashMap<TabExtension, Object>(2, 1.0F);
 	}
 
 	/**
@@ -42,16 +45,42 @@ public class AvatarRegistry {
 		synchronized(REGISTRY) { return REGISTRY.containsKey(avatarId); }
 	}
 
-	/**
-	 * Obtain the avatar for the given id.
-	 * 
-	 * @param avatarId
-	 *            The avatar id.
-	 * @return The avatar; or null if the avatar has not yet been displayed.
-	 */
-	public Avatar get(final AvatarId avatarId) {
-		synchronized(REGISTRY) { return (Avatar) REGISTRY.get(avatarId); }
-	}
+    /**
+     * Determine whether or not the registry contains the extension's avatar.
+     * 
+     * @param tabExtension
+     *            A <code>TabExtension</code>.
+     * @return True if the registry contains the avatar.
+     */
+    public Boolean contains(final TabExtension tabExtension) {
+        synchronized (EXTENSION_REGISTRY) {
+            return EXTENSION_REGISTRY.containsKey(tabExtension);
+        }
+    }
+
+    /**
+     * Obtain the avatar for the given id.
+     * 
+     * @param avatarId
+     *            The avatar id.
+     * @return The avatar; or null if the avatar has not yet been displayed.
+     */
+    public Avatar get(final AvatarId avatarId) {
+        synchronized(REGISTRY) { return (Avatar) REGISTRY.get(avatarId); }
+    }
+
+    /**
+     * Obtain the avatar for the given id.
+     * 
+     * @param avatarId
+     *            The avatar id.
+     * @return The avatar; or null if the avatar has not yet been displayed.
+     */
+    public Avatar get(final TabExtension tabExtension) {
+        synchronized (EXTENSION_REGISTRY) {
+            return (Avatar) EXTENSION_REGISTRY.get(tabExtension);
+        }
+    }
 
 	/**
 	 * Set the avatar in the registry.
@@ -64,4 +93,10 @@ public class AvatarRegistry {
 	Avatar put(final AvatarId avatarId, final Avatar avatar) {
 		synchronized(REGISTRY) { return (Avatar) REGISTRY.put(avatarId, avatar); }
 	}
+
+    Avatar put(final TabExtension tabExtension, final Avatar avatar) {
+        synchronized(EXTENSION_REGISTRY) {
+            return (Avatar) EXTENSION_REGISTRY.put(tabExtension, avatar);
+        }
+    }
 }

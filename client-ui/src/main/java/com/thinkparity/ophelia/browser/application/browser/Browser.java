@@ -1402,6 +1402,14 @@ public class Browser extends AbstractApplication {
         return super.getAvatar(id);
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
+     */
+    @Override
+    protected Avatar getAvatar(final TabExtension tabExtension) {
+        return super.getAvatar(tabExtension);
+    }
+
     /** Display the main status avatar. */
     void displayMainStatusAvatar() {
         displayStatus(AvatarId.MAIN_STATUS);

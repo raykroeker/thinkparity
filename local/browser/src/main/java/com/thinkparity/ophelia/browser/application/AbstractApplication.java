@@ -31,6 +31,7 @@ import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.ApplicationL18n;
@@ -298,9 +299,27 @@ public abstract class AbstractApplication implements Application {
 	 * @return The avatar.
 	 */
 	protected Avatar getAvatar(final AvatarId id) {
-		if(avatarRegistry.contains(id)) { return avatarRegistry.get(id); }
-		else { return AvatarFactory.create(id); }
+		if (avatarRegistry.contains(id)) {
+            return avatarRegistry.get(id);
+		} else {
+            return AvatarFactory.create(id);
+		}
 	}
+
+    /**
+     * Obtain an avatar for a tab extension.
+     * 
+     * @param tabExtension
+     *            A <code>TabExtension</code>.
+     * @return An avatar.
+     */
+    protected Avatar getAvatar(final TabExtension tabExtension) {
+        if (avatarRegistry.contains(tabExtension)) {
+            return avatarRegistry.get(tabExtension);
+        } else {
+            return AvatarFactory.create(tabExtension);
+        }
+    }
 
 	/**
 	 * Obtain the platform.
@@ -412,19 +431,6 @@ public abstract class AbstractApplication implements Application {
     /**
      * Log a warning.
      * 
-     * @param message
-     *            A warning message.
-     */
-    protected final void logWarn(final Throwable cause, final Object message) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    profile.getId(), message), cause);
-        }
-    }
-
-    /**
-     * Log a warning.
-     * 
      * @param pattern
      *            A warning pattern.
      * @param arguments
@@ -436,6 +442,19 @@ public abstract class AbstractApplication implements Application {
             logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
                     profile.getId(), Log4JHelper.renderAndFormat(logger,
                             pattern, arguments)));
+        }
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param message
+     *            A warning message.
+     */
+    protected final void logWarn(final Throwable cause, final Object message) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
+                    profile.getId(), message), cause);
         }
     }
 

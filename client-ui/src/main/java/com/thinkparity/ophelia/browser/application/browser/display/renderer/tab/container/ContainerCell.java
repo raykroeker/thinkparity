@@ -21,6 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 
@@ -185,11 +186,15 @@ public class ContainerCell extends DefaultTabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
-            return container.getName();
-        } else {
+    @Override
+    public String getTextNoClipping(final TextGroup textGroup) {
+        switch (textGroup) {
+        case EAST:
             return draftOwner;
+        case WEST:
+            return container.getName();
+        default:
+            throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
         }
     }
 

@@ -130,7 +130,7 @@ public class ContactModel extends TabModel {
                     + contacts.size() + ")]");
             for (final ContactCell cc : contacts) {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + cc.getText(TextGroup.MAIN_TEXT) + "]");
+                        + cc.getText(TextGroup.WEST) + "]");
             }
 
             // visible cells
@@ -139,7 +139,7 @@ public class ContactModel extends TabModel {
                             + visibleCells.size() + ")]");
             for (final TabCell mc : visibleCells) {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + mc.getText(TextGroup.MAIN_TEXT) + "]");
+                        + mc.getText(TextGroup.WEST) + "]");
             }
 
             // list elements
@@ -151,7 +151,7 @@ public class ContactModel extends TabModel {
             while (e.hasMoreElements()) {
                 mc = (TabCell) e.nextElement();
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t["
-                        + mc.getText(TextGroup.MAIN_TEXT) + "]");
+                        + mc.getText(TextGroup.WEST) + "]");
             }
         }
     }

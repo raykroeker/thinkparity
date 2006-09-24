@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
@@ -169,31 +170,49 @@ public abstract class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getText(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getText(TextGroup textGroup) { 
-        String s = getTextNoClipping(textGroup);
-        if ((textGroup == TextGroup.MAIN_TEXT) && (s!=null)) {
-            if (TEXT_MAX_LENGTH < s.length()) {
-                s = s.substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";                    
+    public String getText(final TextGroup textGroup) { 
+        final String nonClippedText = getTextNoClipping(textGroup);
+        switch (textGroup) {
+        case WEST:
+            final String clippedText;
+            if (TEXT_MAX_LENGTH < nonClippedText.length()) {
+                clippedText = nonClippedText.substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";                    
+            } else {
+                clippedText = nonClippedText;
             }
+
             if (isMouseOver() && isChildren()) {
-                s = "<HTML><u>" + s + "</u>";
+                return "<html><u>" + clippedText + "</u></html>";
+            } else {
+                return clippedText;
             }
+        case EAST:
+            if (null == nonClippedText) {
+                return null;
+            } else {
+                if (TEXT_MAX_LENGTH < nonClippedText.length()) {
+                    return nonClippedText.substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";                    
+                } else {
+                    return nonClippedText;
+                }
+            }
+        default:
+            throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
         }
-        return s;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextFont(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public Font getTextFont(TextGroup textGroup) {
+    public Font getTextFont(final TextGroup textGroup) {
         return BrowserConstants.Fonts.DefaultFont;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextForeground(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public Color getTextForeground(TextGroup textGroup) {
-        if (isMouseOver() && (textGroup==TextGroup.MAIN_TEXT) && isChildren()) {
+    public Color getTextForeground(final TextGroup textGroup) {
+        if (isMouseOver() && textGroup == TextGroup.WEST && isChildren()) {
             return TEXT_FG_MOUSEOVER;
         } else {
             return TEXT_FG;
@@ -206,20 +225,17 @@ public abstract class DefaultTabCell implements TabCell {
     public Float getTextInsetFactor() {
         return InsetFactors.LEVEL_0;
     }   
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */
-    public String getTextNoClipping(TextGroup textGroup) {
-        return null;
-    }
+    public abstract String getTextNoClipping(final TextGroup textGroup);
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        if (TEXT_MAX_LENGTH < getTextNoClipping(TextGroup.MAIN_TEXT).length()) { return getTextNoClipping(TextGroup.MAIN_TEXT); }
-        else { return null; }
+        return getTextNoClipping(TextGroup.WEST);
     }
 
     /**
@@ -258,15 +274,10 @@ public abstract class DefaultTabCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setExpanded(java.lang.Boolean)
      */
-    public Boolean setExpanded(Boolean expanded) {
-        if (this.expanded != expanded && isChildren()) {
-            this.expanded = expanded;
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
+    public void setExpanded(final Boolean expanded) {
+        this.expanded = expanded;
     }
     
     /**

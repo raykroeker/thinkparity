@@ -69,9 +69,9 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
-import com.thinkparity.ophelia.browser.platform.application.display.Display;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.Window;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
@@ -99,9 +99,12 @@ public class Browser extends AbstractApplication {
 	/** The browser's connection. */
     private Connection connection;
 
-    /** The browser's event dispatcher. */
-	private EventDispatcher ed;
+    /** The browser controller's display helper. */
+    private final BrowserDisplayHelper displayHelper;
 	
+	/** The browser's event dispatcher. */
+	private EventDispatcher ed;
+
 	/**
 	 * The file chooser.
 	 * 
@@ -111,14 +114,14 @@ public class Browser extends AbstractApplication {
 
 	/** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
-
-	/** A persistence for browser settings. */
-    private final Persistence persistence;
     
-    /** Contains the browser's session information. */
+    /** A persistence for browser settings. */
+    private final Persistence persistence;
+
+	/** Contains the browser's session information. */
 	private final BrowserSession session;
 
-	/**
+    /**
 	 * Create Browser.
 	 * 
 	 */
@@ -126,6 +129,7 @@ public class Browser extends AbstractApplication {
 		super(platform, L18nContext.BROWSER2);
 		this.actionRegistry = new ActionRegistry();
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
+        this.displayHelper = new BrowserDisplayHelper(this);
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.session= new BrowserSession(this);
 	}
@@ -325,19 +329,19 @@ public class Browser extends AbstractApplication {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
     }
 
-    /** Display the archive avatar tab. */
-    public void displayTabArchiveAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.TAB_ARCHIVE);
-    }
-
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);
+        displayTab(AvatarId.TAB_CONTACT);
     }
 
     /** Display the container avatar tab. */
     public void displayTabContainerAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTAINER);
+        displayTab(AvatarId.TAB_CONTAINER);
+    }
+
+    /** Display a tab extension. */
+    public void displayTabExtension(final TabExtension tabExtension) {
+        displayTab(tabExtension);
     }
 
     /**
@@ -360,7 +364,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
     }
-    
+
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end()
 	 * 
@@ -380,27 +384,6 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-    
-    /**
-     * Notify the application that an artifact has been seen.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param artifactType
-     *            The artifact type.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.  
-     */
-    public void fireArtifactFlagSeen(final Long artifactId,
-            final ArtifactType artifactType, final Boolean remote) {
-        if (artifactType == ArtifactType.CONTAINER) {
-            fireContainerUpdated(artifactId, remote);
-        }
-        else if (artifactType == ArtifactType.DOCUMENT) {
-            fireDocumentUpdated(artifactId, remote);
-        }
-    }
 
     /**
      * Notify the application that a contact has been added.
@@ -466,7 +449,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
      * Notify the application that a container has been deleted.
      * 
@@ -506,7 +489,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Notify the application that a document has been deleted.
      * 
@@ -544,7 +527,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         
     }
-    
+
     /**
      * Notify the application that the draft has been deleted.
      * 
@@ -561,7 +544,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         
     }
-
+    
     /**
      * Notify the application that a container has been received (ie. package published)
      *
@@ -581,7 +564,7 @@ public class Browser extends AbstractApplication {
                 public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-    
+
     /**
      * Notify the application a team member has been added to the container.
      *
@@ -595,7 +578,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-
+    
     /**
      * Notify the application a team member has been removed from the document.
      *
@@ -764,7 +747,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
      * Notify the application that an outgoing contact invitation has been
      * deleted.
      * 
@@ -826,19 +809,19 @@ public class Browser extends AbstractApplication {
 	 */
 	public Long getSelectedContainerId() { return session.getSelectedContainerId(); }
 
-    /**
+	/**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
 	 */
 	public Object getSelectedSystemMessage() { return null; }
-    
+
     /**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
-
+    
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate()
 	 * 
@@ -852,7 +835,7 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
 
-	/** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
+    /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
@@ -864,8 +847,8 @@ public class Browser extends AbstractApplication {
 	public void minimize() {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
-    
-    /**
+
+	/**
      * Move and resize the browser window.
      * (See moveBrowserWindow, resizeBrowserWindow)
      *
@@ -897,14 +880,14 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		mainWindow.setLocation(newL);
 	}
-
-	/**
+    
+    /**
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
 
-    /**
+	/**
      * Resize the browser window.
      * 
      * @param s
@@ -931,15 +914,15 @@ public class Browser extends AbstractApplication {
 
 		assertStatusChange(ApplicationStatus.RUNNING);
 		setStatus(ApplicationStatus.RUNNING);
-	}    
-  
-	/**
+	}
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
 	 * 
 	 */
-	public void restoreState(final State state) {}
-
-    /**
+	public void restoreState(final State state) {}    
+  
+	/**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
@@ -991,17 +974,30 @@ public class Browser extends AbstractApplication {
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
     }
-       
+
     /**
      * Run the apply flag seen action.
      * 
-     * @param artifactId
-     *            The artifact id.
+     * @param documentId
+     *            A document id <code>Long</code>.
      */
-    public void runApplyFlagSeenArtifact(final Long artifactId, final ArtifactType artifactType) {
+    public void runApplyContainerFlagSeen(final Long containerId) {
         final Data data = new Data(2);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, artifactId);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, artifactType);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.CONTAINER);
+        invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
+    }
+
+    /**
+     * Run the apply flag seen action.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    public void runApplyDocumentFlagSeen(final Long documentId) {
+        final Data data = new Data(2);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
+        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.DOCUMENT);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
 
@@ -1012,7 +1008,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContactInvitation() {
         runCreateContactInvitation(null);
     }
-    
+
     /**
      * Run the add contact action.
      * 
@@ -1025,7 +1021,7 @@ public class Browser extends AbstractApplication {
             data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, email);
         invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
     }
-
+    
     /**
      * Run the create container (package) action. The user will
      * determine the container name.
@@ -1034,7 +1030,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-    
+
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1045,7 +1041,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-
+    
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1085,7 +1081,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-    
+
     /**
      * Decline an invitation.
      * 
@@ -1110,7 +1106,7 @@ public class Browser extends AbstractApplication {
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
     }
-  
+    
     /**
 	 * Run the open document action.
 	 *
@@ -1123,8 +1119,8 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}    
-    
+	}
+  
     /**
 	 * Run the open document version action.
 	 *
@@ -1141,9 +1137,9 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}
+	}    
     
-	/**
+    /**
      *  Publish the selected container.
      *  
      *  @param containerId
@@ -1157,7 +1153,7 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });
     }
-
+    
 	/**
      * Run the open contact action.
      * 
@@ -1171,7 +1167,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTACT_READ, data);
     }
 
-    /**
+	/**
      * Run the profile's remove email action.
      *
      */
@@ -1239,7 +1235,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_RESET_PASSWORD, data);
     }
-  
+
     /**
      * Update the document with the file.
      * 
@@ -1256,7 +1252,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-
+  
     /**
      * Update the user's profile.
      * 
@@ -1344,8 +1340,8 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }
     }
-    
-	/**
+
+    /**
      * Select a container.
      * 
      * @param containerId
@@ -1359,8 +1355,8 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }        
     }
-
-    /**
+    
+	/**
      * Set the cursor.
      * 
      * @param cursor
@@ -1393,19 +1389,22 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
-    
+
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-
-    /** Display the main content avatar. */
-    void displayMainContentAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.MAIN_CONTENT);
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId)
+     */
+    @Override
+    protected Avatar getAvatar(final AvatarId id) {
+        return super.getAvatar(id);
     }
 
     /** Display the main status avatar. */
     void displayMainStatusAvatar() {
-        displayAvatar(DisplayId.STATUS, AvatarId.MAIN_STATUS);
+        displayStatus(AvatarId.MAIN_STATUS);
     }
 
     /** Display the main title avatar. */
@@ -1414,7 +1413,7 @@ public class Browser extends AbstractApplication {
         input.set(MainTitleAvatar.DataKey.PROFILE, getProfile());
         input.set(MainTitleAvatar.DataKey.TAB_ID, MainTitleAvatar.TabId.CONTAINER);
         setInput(AvatarId.MAIN_TITLE, input);
-    	displayAvatar(DisplayId.TITLE, AvatarId.MAIN_TITLE);
+        displayTitle(AvatarId.MAIN_TITLE);
 	}
 
     /** Notify the session has been terminated. */
@@ -1428,6 +1427,17 @@ public class Browser extends AbstractApplication {
         connection = Connection.ONLINE;
         setStatus(connection);
     }
+
+    /**
+	 * Obtain the input for an avatar.
+	 * 
+	 * @param avatarId
+	 *            The avatar id.
+	 * @return The avatar input.
+	 */
+	Object getAvatarInput(final AvatarId id) {
+		return avatarInputMap.get(id);
+	}
 
     /**
      * Clear any status messages.
@@ -1465,32 +1475,6 @@ public class Browser extends AbstractApplication {
 	 * @param avatarId
 	 *            The avatar to display.
 	 */
-	private void displayAvatar(final DisplayId displayId, final AvatarId avatarId) {
-		Assert.assertNotNull("Cannot display on a null display.", displayId);
-		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
-		final Display display = mainWindow.getDisplay(displayId);
-
-		final Avatar nextAvatar = getAvatar(avatarId);
-
-		final Object input = getAvatarInput(avatarId);
-		if(null == input) { logger.info("Null input:  " + avatarId); }
-		else { nextAvatar.setInput(getAvatarInput(avatarId)); }
-
-		display.setAvatar(nextAvatar);
-		display.displayAvatar();
-nextAvatar.reload();
-		display.revalidate();
-		display.repaint();
-	}
-
-    /**
-	 * Display an avatar.
-	 * 
-	 * @param displayId
-	 *            The display to use.
-	 * @param avatarId
-	 *            The avatar to display.
-	 */
 	private void displayAvatar(final WindowId windowId, final AvatarId avatarId) {
 		Assert.assertNotNull("Cannot display on a null window.", windowId);
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
@@ -1507,7 +1491,47 @@ nextAvatar.reload();
 		});
 	}
 
-	/** Dispose the main window. */
+    /**
+     * Display an avatar on the status display.
+     * 
+     * @param id
+     *            An avatar id.
+     */
+    private void displayStatus(final AvatarId id) {
+        displayHelper.displayStatus(id);
+    }
+
+    /**
+     * Display a tab.
+     * 
+     * @param id
+     *            An avatar id.
+     */
+    private void displayTab(final AvatarId id) {
+        displayHelper.displayTab(id);
+    }
+
+    /**
+     * Display a tab.
+     * 
+     * @param tabExtension
+     *            A tab extension.
+     */
+    private void displayTab(final TabExtension tabExtension) {
+        displayHelper.displayTab(tabExtension);
+    }
+
+	/**
+     * Display an avatar on the title display.
+     * 
+     * @param id
+     *            An avatar id.
+     */
+    private void displayTitle(final AvatarId id) {
+        displayHelper.displayTitle(id);
+    }
+
+    /** Dispose the main window. */
     private void disposeBrowserWindow() {
         Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispose();
@@ -1529,17 +1553,6 @@ nextAvatar.reload();
         } else {
             return ActionFactory.create(id);
         }
-	}
-
-    /**
-	 * Obtain the input for an avatar.
-	 * 
-	 * @param avatarId
-	 *            The avatar id.
-	 * @return The avatar input.
-	 */
-	private Object getAvatarInput(final AvatarId avatarId) {
-		return avatarInputMap.get(avatarId);
 	}
 
 	/**
@@ -1645,11 +1658,13 @@ nextAvatar.reload();
 	 */
 	private void openMainWindow() {
 		mainWindow = new BrowserWindow(this);
+		displayHelper.setBrowserWindow(mainWindow);
 		mainWindow.open();
 	}
 
     private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
+        displayHelper.setBrowserWindow(mainWindow);
         mainWindow.reOpen();
     }
 

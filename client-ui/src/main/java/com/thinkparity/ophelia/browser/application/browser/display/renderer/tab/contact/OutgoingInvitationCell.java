@@ -71,7 +71,7 @@ public class OutgoingInvitationCell extends DefaultInvitationCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             return localization.getString("Text", new Object[] {
                     outgoingInvitation.getEmail(), fuzzyDateFormat.format(outgoingInvitation.getCreatedOn()) });
         } else {

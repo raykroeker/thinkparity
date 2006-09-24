@@ -104,7 +104,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             return document.getName();
         } else {
             return null;

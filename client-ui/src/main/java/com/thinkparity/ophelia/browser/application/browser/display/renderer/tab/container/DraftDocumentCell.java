@@ -136,7 +136,7 @@ public class DraftDocumentCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             final String messageKey = new StringBuffer("Text.")
                     .append(draft.getState(document.getId())).toString();
             return getString(messageKey, document.getName());

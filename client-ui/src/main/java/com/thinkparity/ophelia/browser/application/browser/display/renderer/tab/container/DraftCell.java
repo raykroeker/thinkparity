@@ -131,7 +131,7 @@ public class DraftCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             return localization.getString("Draft");
         } else {
             return null;

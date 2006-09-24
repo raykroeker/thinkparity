@@ -71,7 +71,7 @@ public class ContactCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             return contact.getName();
         } else {
             return null;

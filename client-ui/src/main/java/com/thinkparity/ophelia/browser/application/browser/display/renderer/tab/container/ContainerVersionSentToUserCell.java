@@ -101,7 +101,7 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             String text = new String(user.getName());
             if (user.isSetTitle() || user.isSetOrganization()) {
                 text += "  (";

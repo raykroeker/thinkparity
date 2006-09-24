@@ -11,7 +11,13 @@ import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+
 /**
+ * <b>Title:</b>thinkParity Browser Platform Plugin Registry<br>
+ * <b>Description:</b>Used to integrate the plugin extensions into the browser
+ * platform.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -21,7 +27,7 @@ public class PluginRegistry {
     private static final Map<String, PluginWrapper> PLUGINS;
 
     static {
-        PLUGINS = new HashMap<String, PluginWrapper>(2, 1.0F);
+        PLUGINS = new HashMap<String, PluginWrapper>(2);
     }
 
     /**
@@ -32,6 +38,15 @@ public class PluginRegistry {
         super();
     }
 
+    public TabExtension getTabExtension(final PluginId id, final String name) {
+        if (PLUGINS.containsKey(toId(id))) {
+            final PluginWrapper wrapper = PLUGINS.get(toId(id));
+            return (TabExtension) wrapper.getExtension(name);
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Obtain a specific plugin.
      * 
@@ -40,65 +55,94 @@ public class PluginRegistry {
      * @return A <code>Plugin</code>.
      */
     public Plugin getPlugin(final PluginId id) {
-        return (Plugin) PLUGINS.get(id.toId());
+        final PluginWrapper wrapper = PLUGINS.get(toId(id));
+        if (null == wrapper) {
+            return null;
+        } else {
+            return wrapper.getPlugin();
+        }
     }
 
     /**
      * Obtain a list of all of the plugins.
      * 
-     * @param filter
-     *            A plugin <code>Filter</code>.
      * @return A <code>List&lt;Plugin&gt;</code>.
      */
     public List<Plugin> getPlugins() {
         final List<Plugin> plugins = new ArrayList<Plugin>();
-        for (final Object plugin : PLUGINS.values()) {
-            plugins.add((Plugin) plugin);
+        for (final PluginWrapper wrapper : PLUGINS.values()) {
+            plugins.add(wrapper.getPlugin());
         }
         return Collections.unmodifiableList(plugins);
     }
 
-    public <T extends PluginExtension> T getExtension(final PluginId id,
-            final String name) {
-        return null;
-    }
-
     /**
-     * Eradicate a plugin from the registry.
+     * Register a <code>PluginWrapper</code>.
      * 
-     * @param plugin
+     * @param wrapper
      *            A <code>PluginWrapper</code>.
      */
-    void eradicate(final PluginWrapper plugin) {
+    void add(final PluginWrapper wrapper) {
         synchronized (PLUGINS) {
-            Assert.assertTrue(PLUGINS.containsValue(plugin),
-                    "Registry does not contain {0}.", plugin);
-            PLUGINS.remove(plugin.getId());
+            Assert.assertNotTrue(PLUGINS.containsKey(toId(wrapper)),
+                    "Plugin {0} already registered.",
+                    wrapper.getPlugin());
+            PLUGINS.put(toId(wrapper), wrapper);
         }
     }
 
     /**
-     * Obtain a list of the plugin wrappers.
+     * Obtain the list of registered plugin wrappers.
      * 
      * @return A <code>List&lt;PluginWrapper&gt;</code>.
      */
-    List<PluginWrapper> getPluginWrappers() {
-        final List<PluginWrapper> wrappers = new ArrayList<PluginWrapper>(PLUGINS.size());
+    List<PluginWrapper> getWrappers() {
+        final List<PluginWrapper> wrappers = new ArrayList<PluginWrapper>();
         wrappers.addAll(PLUGINS.values());
         return Collections.unmodifiableList(wrappers);
     }
 
     /**
-     * Register a plugin with the registry.
+     * Remove plugin from the registry.
      * 
-     * @param plugin
+     * @param wrapper
      *            A <code>PluginWrapper</code>.
      */
-    void register(final PluginWrapper plugin) {
+    void remove(final PluginWrapper wrapper) {
         synchronized (PLUGINS) {
-            Assert.assertNotTrue(PLUGINS.containsKey(plugin.getId()),
-                    "Registry already contains plugin {0}.", plugin.getId());
-            PLUGINS.put(plugin.getId(), plugin);
+            Assert.assertTrue(PLUGINS.containsKey(toId(wrapper)),
+                    "Plugin {0} not registered.",
+                    wrapper.getPlugin());
+            PLUGINS.remove(toId(wrapper));
         }
+    }
+
+    /**
+     * Create a registry id from a plugin id.
+     * 
+     * @param id
+     *            A plugin id.
+     * @return A registry id.
+     */
+    private String toId(final PluginId id) {
+        switch (id) {
+        case ARCHIVE:
+            return "com.thinkparity.archive";
+        case CORE:
+            return "com.thinkparity.core";
+        default:
+            throw Assert.createUnreachable("UNKNOWN PLUGIN ID");
+        }
+    }
+
+    /**
+     * Create a registry id from a plugin wrapper.
+     * 
+     * @param wrapper
+     *            A plugin wrapper.
+     * @return A registry id.
+     */
+    private String toId(final PluginWrapper wrapper) {
+        return wrapper.getMetaInfo().getPluginId();
     }
 }

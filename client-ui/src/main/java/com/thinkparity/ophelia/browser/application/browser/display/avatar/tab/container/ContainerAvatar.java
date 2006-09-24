@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
 
-
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
@@ -29,7 +28,7 @@ public class ContainerAvatar extends TabAvatar<ContainerModel> {
     /** Create ContainerAvatar. */
     public ContainerAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerModel());
-        installMouseOverListener();
+        installMouseOverTracker();
         setListTransferHandler(new ImportTxHandler(getController(), tabJList, model));
     }
 
@@ -44,7 +43,8 @@ public class ContainerAvatar extends TabAvatar<ContainerModel> {
      * @param select
      *            Indicates whether the container should be selected.
      */
-    public void syncContainer(final Long containerId, final Boolean remote, final Boolean select) {
+    public void syncContainer(final Long containerId, final Boolean remote,
+            final Boolean select) {
         final TabCell selectedCell = getSelectedCell();
         final Integer selectedIndex = getSelectedIndex();
         model.syncContainer(containerId, remote);
@@ -52,10 +52,8 @@ public class ContainerAvatar extends TabAvatar<ContainerModel> {
         // otherwise select the previously selected container
         if (select) {
             final TabCell container = model.getContainerCell(containerId);
-            if (null!=container) {
-                model.triggerExpand(container, Boolean.TRUE);
-                setSelectedCell(container);
-            }
+            model.triggerExpand(container);
+            setSelectedCell(container);
         }
         else {
             if (!setSelectedCell(selectedCell)) {

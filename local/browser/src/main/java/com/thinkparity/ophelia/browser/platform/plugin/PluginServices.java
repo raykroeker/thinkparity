@@ -11,48 +11,49 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 /**
+ * <b>Title:</b>thinkParity Browser Platform Plugin Services<br>
+ * <b>Description:</b>The plugin services are made available to each plugin and
+ * extension and provide access to the browser platform itself ie logging; model
+ * generation etc.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class PluginServices implements Cloneable {
+public final class PluginServices {
 
+    /** The plugin's logger. */
     private final Logger logger;
 
-    private PluginExtensionMetaInfo extensionMetaInfo;
+    /** The plugin's model factory. */
+    private final PluginModelFactory modelFactory;
 
-    private PluginMetaInfo metaInfo;
-
-    private PluginModelFactory modelFactory;
-
-    PluginServices() {
+    /**
+     * Create PluginServices.
+     * 
+     */
+    PluginServices(final PluginModelFactory modelFactory) {
         super();
         this.logger = Logger.getLogger(getClass());
+        this.modelFactory = modelFactory;
     }
 
     /**
-     * @see java.lang.Object#clone()
+     * Obtain the model factory.
+     * 
+     * @return A <code>PluginModelFactory</code>.
      */
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        final PluginServices clone = (PluginServices) super.clone();
-        clone.extensionMetaInfo = extensionMetaInfo;
-        clone.metaInfo = metaInfo;
-        clone.modelFactory = modelFactory;
-        return clone;
+    public PluginModelFactory getModelFactory() {
+        return modelFactory;
     }
 
-    public void logWarning(final String warnPattern,
-            final Object... warnArguments) {
-        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
-                warnArguments));
-    }
-
-    public void logWarning(final Throwable t, final String warnPattern,
-            final Object... warnArguments) {
-        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
-                warnArguments), t);
-    }
-
+    /**
+     * Log a trace statement.
+     * 
+     * @param tracePattern
+     *            A trace pattern.
+     * @param traceArguments
+     *            Trace pattern arguments.
+     */
     public void logTrace(final String tracePattern,
             final Object... traceArguments) {
         if (logger.isTraceEnabled()) {
@@ -61,6 +62,17 @@ public final class PluginServices implements Cloneable {
         }
     }
 
+    /**
+     * Log a variable.
+     * 
+     * @param <V>
+     *            A variable type.
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     * @return The variable.
+     */
     public <V> V logVariable(final String name, final V value) {
         if (logger.isDebugEnabled()) {
             logger.warn(Log4JHelper.renderAndFormat(logger, "{0}:{1}", name,
@@ -70,13 +82,43 @@ public final class PluginServices implements Cloneable {
     }
 
     /**
+     * Log a warning.
+     * 
+     * @param warnPattern
+     *            A warning text pattern.
+     * @param warnArguments
+     *            Warning text pattern arguments.
+     */
+    public void logWarning(final String warnPattern,
+            final Object... warnArguments) {
+        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
+                warnArguments));
+    }
+
+    /**
+     * Log a warning.
+     * 
+     * @param t
+     *            A throwable.
+     * @param warnPattern
+     *            A warning text pattern.
+     * @param warnArguments
+     *            Warning text pattern arguments.
+     */
+    public void logWarning(final Throwable t, final String warnPattern,
+            final Object... warnArguments) {
+        logger.warn(Log4JHelper.renderAndFormat(logger, warnPattern,
+                warnArguments), t);
+    }
+
+    /**
      * Translate an error into a plugin error.
      * 
      * @param cause
-     *            The cause of the error.
-     * @return A plugin error.
+     *            The cause <code>Throwable</code> of the error.
+     * @return A <code>PluginException</code>.
      */
-    public RuntimeException translateError(final Throwable cause) {
+    public PluginException translateError(final Throwable cause) {
         if (PluginException.class.isAssignableFrom(cause.getClass())) {
             return (PluginException) cause;
         } else {
@@ -94,37 +136,11 @@ public final class PluginServices implements Cloneable {
      * @return The error id.
      */
     private Object getErrorId(final Throwable cause) {
-        return MessageFormat.format("{0} - {1} - {2} - {3}.{4}({5}:{6})",
-                metaInfo.getPluginName(),
-                extensionMetaInfo.getExtensionName(),
+        return MessageFormat.format("{0} - {2} - {3}.{4}({5}:{6})",
                 cause.getLocalizedMessage(),
                 StackUtil.getFrameClassName(2),
                 StackUtil.getFrameMethodName(2),
                 StackUtil.getFrameFileName(2),
                 StackUtil.getFrameLineNumber(2));
-    }
-
-    public PluginExtensionMetaInfo getExtensionMetaInfo() {
-        return extensionMetaInfo;
-    }
-
-    public PluginMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    public PluginModelFactory getModelFactory() {
-        return modelFactory;
-    }
-
-    void setExtensionMetaInfo(final PluginExtensionMetaInfo extensionMetaInfo) {
-        this.extensionMetaInfo = extensionMetaInfo;
-    }
-
-    void setMetaInfo(final PluginMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
-    void setModelFactory(final PluginModelFactory modelFactory) {
-        this.modelFactory = modelFactory;
     }
 }

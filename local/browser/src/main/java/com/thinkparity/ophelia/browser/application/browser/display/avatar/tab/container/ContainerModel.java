@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -38,7 +37,7 @@ public class ContainerModel extends TabModel {
     protected final Logger logger;
 
     /** The application. */
-    private final Browser browser;
+    public final Browser browser;
 
     /** A list of all containers. */
     private final List<ContainerCell> containerCells;
@@ -336,7 +335,7 @@ public class ContainerModel extends TabModel {
      * 
      */
     @Override
-    protected void synchronize() {
+    public void synchronize() {
         debug();
 
         // search filtered containers
@@ -492,36 +491,17 @@ public class ContainerModel extends TabModel {
         }
     }
 
-    /**
-     * Trigger the expansion of the cell (ie. expand if collapsed, or
-     * collapse if expanded.)
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    @Override
-    protected void triggerExpand(final TabCell mainCell) {
-        triggerExpand(mainCell, !mainCell.isExpanded()); 
-    }
     
     /**
-     * Trigger the expansion of the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     * @param expand
-     *            Boolean flag to expand or collapse.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
      */
     @Override
-    protected void triggerExpand(final TabCell mainCell, final Boolean expand) {
-        if (mainCell.setExpanded(expand)) {
-            synchronize();
-            if ((mainCell instanceof ContainerCell) && expand) {
-                // Flag the container as having been seen
-                final ContainerCell cell = (ContainerCell) mainCell;
-                browser.runApplyFlagSeenArtifact(cell.getId(), ArtifactType.CONTAINER);
-            }
+    protected void triggerExpand(final TabCell tabCell) {
+        if (tabCell.isExpanded() && tabCell instanceof ContainerCell) {
+            // flag the container as having been seen
+            browser.runApplyContainerFlagSeen(((ContainerCell) tabCell).getId());
         }
+        super.triggerExpand(tabCell);
     }
 
     /**

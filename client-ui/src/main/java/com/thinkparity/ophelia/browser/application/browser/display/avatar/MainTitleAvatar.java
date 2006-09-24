@@ -18,6 +18,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 
@@ -128,15 +129,28 @@ public class MainTitleAvatar extends Avatar {
     }
 
     /**
+     * Obtain the input tab extension.
+     * 
+     * @return The input tab extension.
+     */
+    private TabExtension getInputTabExtension() {
+        if (null == input) {
+            return null;
+        } else {
+            return (TabExtension) ((Data) input).get(DataKey.TAB_EXTENSION);
+        }
+    }
+
+    /**
      * Obtain the input tab.
      * 
      * @return The input tab.
      */
-    private MainTitleAvatar.TabId getInputTab() {
-        if(null == input) {
+    private TabId getInputTabId() {
+        if (null == input) {
             return null;
         } else {
-            return (MainTitleAvatar.TabId) ((Data) input).get(DataKey.TAB_ID);
+            return (TabId) ((Data) input).get(DataKey.TAB_ID);
         }
     }
 
@@ -190,13 +204,10 @@ public class MainTitleAvatar extends Avatar {
      *
      */
     private void reloadTab() {
-        final MainTitleAvatar.TabId tabId = getInputTab();
+        final TabId tabId = getInputTabId();
         if (null != tabId) {
-            tabPanel.setTab(tabId);
+            tabPanel.selectTab(tabId);
             switch (tabId) {
-            case ARCHIVE:
-                getController().displayTabArchiveAvatar();
-                break;
             case CONTACT:
                 getController().displayTabContactAvatar();
                 break;
@@ -205,6 +216,12 @@ public class MainTitleAvatar extends Avatar {
                 break;
             default:
                 Assert.assertUnreachable("UNKNOWN TAB");
+            }
+        } else {
+            final TabExtension tabExtension = getInputTabExtension();
+            if (null != tabExtension) {
+                tabPanel.selectTab(tabExtension);
+                getController().displayTabExtension(tabExtension);
             }
         }
     }
@@ -215,5 +232,5 @@ public class MainTitleAvatar extends Avatar {
 
     public enum DataKey { PROFILE, TAB_ID, TAB_EXTENSION }
 
-    public enum TabId { ARCHIVE, CONTACT, CONTAINER }
+    public enum TabId { CONTACT, CONTAINER }
 }

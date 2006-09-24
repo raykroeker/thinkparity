@@ -31,6 +31,7 @@ import com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.firstrun.FirstRunHelper;
 import com.thinkparity.ophelia.browser.platform.online.OnlineHelper;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginHelper;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.update.UpdateHelper;
 import com.thinkparity.ophelia.browser.profile.Profile;
@@ -110,14 +111,11 @@ public class BrowserPlatform implements Platform {
     /** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
-	/**
-	 * The platform settings.
-	 * 
-	 */
+	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
     /** The platform plugin helper. */
-//    private final PluginHelper pluginHelper;
+    private final PluginHelper pluginHelper;
 
     /** The parity preferences. */
 	private final Preferences preferences;
@@ -152,7 +150,7 @@ public class BrowserPlatform implements Platform {
         this.firstRunHelper = new FirstRunHelper(this);
         this.listenerHelper = new ListenerHelper(this);
         this.onlineHelper = new OnlineHelper(this);
-//        this.pluginHelper = new PluginHelper(this);
+        this.pluginHelper = new PluginHelper(this);
         this.updateHelper = new UpdateHelper(this);
 	}
 
@@ -172,9 +170,13 @@ public class BrowserPlatform implements Platform {
         logApiId();
         endApplications();
         endPlugins();
-       notifyLifeCycleEnded();
+        notifyLifeCycleEnded();
     }
 
+    /**
+     * End all applications.
+     *
+     */
     private void endApplications() {
         for (final ApplicationId id : ApplicationId.values()) {
             if(applicationRegistry.contains(id))
@@ -182,8 +184,12 @@ public class BrowserPlatform implements Platform {
         }
     }
 
+    /**
+     * End all plugins.
+     *
+     */
     private void endPlugins() {
-//        pluginHelper.end();
+        pluginHelper.end();
     }
 
 	/**
@@ -369,10 +375,18 @@ public class BrowserPlatform implements Platform {
         notifyLifeCycleStarted();
 	}
 
+    /**
+     * Start all plugins.
+     *
+     */
     private void startPlugins() {
-//        pluginHelper.start();
+        pluginHelper.start();
     }
 
+    /**
+     * Start all applications.
+     *
+     */
     private void startApplications() {
         applicationFactory.create(ApplicationId.BROWSER).start(this);
         applicationFactory.create(ApplicationId.SYSTEM).start(this);

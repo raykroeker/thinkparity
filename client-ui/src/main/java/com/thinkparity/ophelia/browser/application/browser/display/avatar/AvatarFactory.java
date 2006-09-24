@@ -24,9 +24,6 @@ import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.TabExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -59,15 +56,11 @@ public class AvatarFactory {
     /** An apache logger. */
     private final Logger logger;
 
-    /** A thinkParity plugin registry. */
-    private final PluginRegistry pluginRegistry;
-
 	/** Create AvatarFactory */
 	private AvatarFactory(final Platform platform) {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
         this.logger = Logger.getLogger(getClass());
-        this.pluginRegistry = platform.getPluginRegistry();
 	}
     
 	/**
@@ -90,13 +83,6 @@ public class AvatarFactory {
 		    avatar = new MainTitleAvatar();
 		    break;
 
-        case TAB_ARCHIVE:
-            final TabExtension archiveTab =
-                (TabExtension) pluginRegistry.getExtension(
-                        PluginId.ARCHIVE, "Archive");
-            avatar = archiveTab.createAvatar();
-            avatar.setContentProvider(archiveTab.getProvider());
-            break;
         case TAB_CONTAINER:
             avatar = new ContainerAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));            

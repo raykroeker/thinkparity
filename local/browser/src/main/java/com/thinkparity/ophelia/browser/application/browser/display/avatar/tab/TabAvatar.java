@@ -36,7 +36,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     /** The avatar's accompanying <code>TabModel</code>.*/
     protected final T model;
 
-    /** The avatar id. */
+    /** The avatar's id. */
     private final AvatarId id;
 
     /** Variables used to modify behavior of selection. */
@@ -46,7 +46,10 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     /** Create TabAvatar */
     protected TabAvatar(final AvatarId id, final T model) {
-        super(id);
+        // HACK This null check of an avatar id was done to allow the tab
+        // plugin extension framework to create an avatar.  It needs to be
+        // refactored in order to work "correctly".
+        super(null == id ? "" : id.toString());
         this.id = id;
         this.menuItemFactory = PopupItemFactory.getInstance();
         this.model = model;
@@ -88,7 +91,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     public void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider(contentProvider);
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
      */
@@ -134,40 +137,43 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }
 
     /**
-     * Install a mouse over listener.
-     *
+     * Install a mouse over tracker which tracks the mouse and records the index
+     * above which it is positioned. It also updates the underlying cell's
+     * "mouseOver" property.
+     * 
      */
-    protected final void installMouseOverListener() {
+    protected final void installMouseOverTracker() {
         final MouseInputListener mouseOverListener = new MouseInputAdapter() {
             private int mouseOverIndex = -1;
-
             @Override
             public void mouseEntered(final MouseEvent e) {
                 mouseMoved(e);
             }
-
             @Override
-            public void mouseExited(MouseEvent e) {
+            public void mouseExited(final MouseEvent e) {
                 if (-1 != mouseOverIndex) {
                     updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
                     mouseOverIndex = -1;
                 }
             }
-
             @Override
             public void mouseMoved(MouseEvent e) {
-                final Integer newMouseOverIndex = getMouseOverIndex(e);
-                if (newMouseOverIndex != mouseOverIndex) {
-                    updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
-                    updateCellMouseOver(newMouseOverIndex, Boolean.TRUE);
-                    mouseOverIndex = newMouseOverIndex;
+                final int mouseOverIndex = getMouseOverIndex(e);
+                if (mouseOverIndex != this.mouseOverIndex) {
+                    if (-1 != this.mouseOverIndex) {
+                        updateCellMouseOver(this.mouseOverIndex, Boolean.FALSE);
+                    }
+                    if (-1 != mouseOverIndex) {
+                        updateCellMouseOver(mouseOverIndex, Boolean.TRUE);
+                    }
+                    this.mouseOverIndex = mouseOverIndex;
                 }
             }
         };
         tabJList.addMouseListener(mouseOverListener);
         tabJList.addMouseMotionListener(mouseOverListener);
     }
-    
+        
     /**
      * Set the header label transfer handler.
      * 
@@ -176,7 +182,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      */
     protected void setHeaderTransferHandler(final TransferHandler newHandler) {
         headerJLabel.setTransferHandler(newHandler);
-    }
+    }                                     
 
     /**
      * Set the list transfer handler.
@@ -233,7 +239,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *
      */
     protected void triggerPopup(final Component invoker, final MouseEvent e) {}
-        
     /**
      * Get the index of the cell the event is over.
      * 
@@ -253,7 +258,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         }
         
         return tabCellIndex;
-    }                                     
+    }
 
     private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_headerJLabelMousePressed
     }//GEN-LAST:event_headerJLabelMousePressed
@@ -263,7 +268,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             triggerPopup(tabJList, e);
         }
     }//GEN-LAST:event_headerJLabelMouseReleased
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -329,7 +334,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
+    
     /**
      * Determine if the mouse event occurred on or below the cell in an x-y plane.
      * 
@@ -356,6 +361,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
         }
     }//GEN-LAST:event_tabJListKeyPressed
+
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
         // Interesting fact aobut getClickCount() is that the count continues to 3, 4 and beyond if
         // the user keeps clicking with less than (say) 1/2 second delay between clicks.
@@ -405,7 +411,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
         }
     }//GEN-LAST:event_tabJListMouseReleased    
-    
     private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_tabJListValueChanged
         final Integer newSelectedIndex = tabJList.getSelectedIndex();
         final Integer lastIndex = tabJList.getModel().getSize() - 1;
@@ -425,7 +430,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             selectingLastIndex = Boolean.TRUE;   
         }
     }//GEN-LAST:event_tabJListValueChanged  
-    
     /**
      * Trigger a double click event on the tab cell.
      * 
@@ -447,6 +451,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         model.triggerExpand(tabCell);
         setSelectedCell(tabCell);
     }
+
     /**
      * Trigger a popup menu for a tab cell.
      *
@@ -456,6 +461,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         model.triggerPopup(tabCell, tabJList, e);
         setSelectedCell(tabCell);
     }
+
     /**
      * Update the cell that the mouse is over with the mouseOver flag and
      * cause the cell to redraw.
@@ -466,14 +472,30 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *              Mouse over flag.
      */
     private void updateCellMouseOver(final Integer index, final Boolean mouseOver) {
-        if (index != -1) {
-            final Integer selectedIndex = getSelectedIndex();
-            final TabCell cell = (TabCell) tabJList.getModel().getElementAt(index);
-            cell.setMouseOver(mouseOver);
-            model.getListModel().removeElementAt(index);
-            model.getListModel().add(index, cell);
-            tabJList.setSelectedIndex(selectedIndex);
-        }
+        saveSelection();
+        final TabCell cell = (TabCell) tabJList.getModel().getElementAt(index);
+        cell.setMouseOver(mouseOver);
+        model.getListModel().removeElementAt(index);
+        model.getListModel().add(index, cell);
+        restoreSelection();
+    }
+
+    /**
+     * Save the current selection cell.
+     *
+     */
+    private void saveSelection() {
+        putClientProperty(ClientProperty.SAVE_SELECTION, getSelectedIndex());
+    }
+
+    /**
+     * Restore the saved selection.
+     *
+     */
+    private void restoreSelection() {
+        final Integer selection =
+            (Integer) getClientProperty(ClientProperty.SAVE_SELECTION);
+        tabJList.setSelectedIndex(selection);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -481,6 +503,8 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     protected final javax.swing.JList tabJList = new javax.swing.JList();
     protected final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
     // End of variables declaration//GEN-END:variables
+
+    private enum ClientProperty { SAVE_SELECTION }
 
     public enum DataKey { SEARCH_EXPRESSION }
 }

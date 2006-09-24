@@ -109,7 +109,7 @@ public class ContainerVersionCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             return localization.getString("Text", new Object[] {containerVersion.getVersionId()});
         } else {
             return "Publish Person";

@@ -169,9 +169,7 @@ public class BrowserWindow extends AbstractJFrame {
         debug();
 
         browser.displayMainTitleAvatar();
-        browser.displayMainContentAvatar();
         browser.displayMainStatusAvatar();
-
         browser.displayTabContainerAvatar();
     }
 

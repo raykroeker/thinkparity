@@ -17,12 +17,18 @@ import com.thinkparity.codebase.FileSystem;
 
 import com.thinkparity.ophelia.browser.Constants.FileExtensions;
 
-
 /**
+ * <b>Title:</b>thinkParity Browser Platform Plugin Class Loader<br>
+ * <b>Description:</b>The plugin class loader uses <code>FileSystem</code> to
+ * create a classpath for a plugin. It then reads a plugin's meta info to load
+ * the plugin class itself as well as any extensions.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * @see #loadExtension(PluginExtensionMetaInfo, PluginServices)
+ * @see #loadPlugin(PluginMetaInfo, PluginServices)
  */
-class PluginClassLoader {
+class PluginClassLoader extends PluginUtility {
 
     /** A file filter for jar files. */
     private static final FileFilter JAR_FILE_FILTER;
@@ -45,63 +51,62 @@ class PluginClassLoader {
         };
     }
 
-    /** The class loader. */
-    private final ClassLoader classLoader;
+    /** The underlying <code>ClassLoader</code>. */
+    private ClassLoader classLoader;
 
-    /** The extracted plugin's file system. */
+    /** The plugin's <code>FileSystem</code>. */
     private final FileSystem fileSystem;
 
     /**
      * Create PluginClassLoader.
      * 
-     * @param extractor
-     *            A plugin extractor.
+     * @param fileSystem
+     *            A file system within which the plugin resides.
      */
-    PluginClassLoader(final FileSystem fileSystem) throws IOException {
+    PluginClassLoader(final FileSystem fileSystem) {
         super();
         this.fileSystem = fileSystem;
-        this.classLoader = createClassLoader();
-    }
-
-    PluginExtension loadExtension(
-            final PluginExtensionMetaInfo extensionMetaInfo,
-            final PluginServices pluginServices) throws InstantiationException,
-            IllegalAccessException, InvocationTargetException,
-            ClassNotFoundException, NoSuchMethodException {
-        return (PluginExtension) load(
-                extensionMetaInfo.getExtensionClass(), pluginServices);
-    }
-
-    Plugin loadPlugin(final PluginMetaInfo metaInfo,
-            final PluginServices pluginServices) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException,
-            InvocationTargetException, NoSuchMethodException {
-        return (Plugin) load(metaInfo.getPluginClass(), pluginServices);
     }
 
     /**
-     * Create the plugin class loader. Use the lib directory and any resources
-     * in the root of the plugin's root directory.
+     * Load a plugin extension. Requires the extension's fully-qualified class
+     * name.
      * 
-     * @return A class loader.
-     * @throws IOException
+     * @param extensionClassName
+     *            The extension's fully-qualified class name.
+     * @return An instance of a plugin extension.
      */
-    private ClassLoader createClassLoader() throws IOException {
-        final List<URL> classpath = new ArrayList<URL>();
-        classpath.addAll(getLibs());
-        classpath.addAll(getResources());
-        return new URLClassLoader(classpath.toArray(new URL[] {}));
+    PluginExtension loadExtension(final String extensionClassName) {
+        try {
+            return (PluginExtension) load(extensionClassName);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
-     * Obtain a list of all of the libraries for the plugin.
+     * Load a plugin class. Requires the plugin's fully-qualified class name.
+     * 
+     * @param pluginClassName
+     *            The plugin's fully-qualified class name.
+     */
+    Plugin loadPlugin(final String pluginClassName) {
+        try {
+            return (Plugin) load(pluginClassName);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Obtain a list of all of the jar files in the lib directory.
      * 
      * @return A <code>List&lt;URL&gt;</code>.
      * @throws IOException
      */
     private List<URL> getLibs() throws IOException {
         final List<URL> libs = new ArrayList<URL>();
-        final File[] libFiles = fileSystem.list("/", JAR_FILE_FILTER);
+        final File[] libFiles = fileSystem.list("lib", JAR_FILE_FILTER);
         for (final File libFile : libFiles) {
             libs.add(libFile.toURL());
         }
@@ -109,7 +114,7 @@ class PluginClassLoader {
     }
 
     /**
-     * Obtain a list of all of the resources for the plugin.
+     * Obtain a list of all of the resources in the root directory.
      * 
      * @return A <code>List&lt;URL&gt;</code>.
      * @throws IOException
@@ -124,26 +129,45 @@ class PluginClassLoader {
     }
 
     /**
-     * Load a plugin class providing plugin services.
+     * Create a class loader. Load all jar files in the lib directory; as well
+     * as all resources in the root of the file system.
+     * 
+     * @return A class loader.
+     * @throws IOException
+     */
+    private ClassLoader lazyCreateClassLoader() throws IOException {
+        if (null == classLoader) {
+            final List<URL> classpath = new ArrayList<URL>();
+            classpath.addAll(getLibs());
+            classpath.addAll(getResources());
+            classLoader = new URLClassLoader(classpath.toArray(new URL[] {}));
+        }
+        return classLoader;
+    }
+
+    /**
+     * Load a class. Requires the class have a constructor taking an instance of
+     * <code>PluginServices</code>.
      * 
      * @param name
-     *            A plugin class.
+     *            A class name.
      * @param pluginServices
-     *            The plugin services.
-     * @return The plugin class.
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     *            A copy of plugin services to pass to the constructor.
+     * @return An instance of a class.
+     * @throws IOException
      * @throws ClassNotFoundException
      * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
      */
-    private Object load(final String name, final PluginServices pluginServices)
-            throws InstantiationException, IllegalAccessException,
-            InvocationTargetException, ClassNotFoundException,
-            NoSuchMethodException {
-        final Class loadedClass = classLoader.loadClass(name);
+    private Object load(final String name) throws IOException,
+            ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException,
+            InstantiationException {
+        final Class loadedClass = lazyCreateClassLoader().loadClass(name);
         final Constructor constructor =
-            loadedClass.getConstructor(new Class[] { PluginServices.class });
-        return constructor.newInstance(new Object[] { pluginServices });
+            loadedClass.getConstructor(new Class[] {});
+        return constructor.newInstance(new Object[] {});
     }
 }

@@ -17,6 +17,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup;
 
 /**
  * @author raykroeker@thinkparity.com
@@ -94,21 +95,21 @@ public class TabCellRenderer extends AbstractJPanel implements
         // Logic to make sure the east text column is in a good spot.
         // Note the constants 42 and 0.35 just happens to look good.
         final Integer widthToUse = list.getParent().getWidth() - 42;
-        if (null == cell.getText(TabCell.TextGroup.SECONDARY_TEXT)) {
+        if (null == cell.getText(TextGroup.EAST)) {
             eastSize = 5;
         } else {
             eastSize = (int) (0.35 * (double)widthToUse);
         }
         westSize = widthToUse - eastSize - inset;
 
-        westTextJLabel.setFont(cell.getTextFont(TabCell.TextGroup.MAIN_TEXT));
-        westTextJLabel.setForeground(cell.getTextForeground(TabCell.TextGroup.MAIN_TEXT));
-        westTextJLabel.setText(cell.getText(TabCell.TextGroup.MAIN_TEXT));
+        westTextJLabel.setFont(cell.getTextFont(TextGroup.WEST));
+        westTextJLabel.setForeground(cell.getTextForeground(TextGroup.WEST));
+        westTextJLabel.setText(cell.getText(TextGroup.WEST));
         westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
         
-        eastTextJLabel.setFont(cell.getTextFont(TabCell.TextGroup.SECONDARY_TEXT));
-        eastTextJLabel.setForeground(cell.getTextForeground(TabCell.TextGroup.SECONDARY_TEXT));
-        eastTextJLabel.setText(cell.getText(TabCell.TextGroup.SECONDARY_TEXT));
+        eastTextJLabel.setFont(cell.getTextFont(TextGroup.EAST));
+        eastTextJLabel.setForeground(cell.getTextForeground(TextGroup.EAST));
+        eastTextJLabel.setText(cell.getText(TextGroup.EAST));
         // These two lines make the east text left justified.
         eastTextJLabel.setPreferredSize(new Dimension(eastSize, 14));
         eastTextJLabel.setHorizontalAlignment(SwingConstants.LEFT);

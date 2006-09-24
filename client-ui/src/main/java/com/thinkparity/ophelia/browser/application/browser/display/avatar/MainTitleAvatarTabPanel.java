@@ -7,12 +7,11 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -25,9 +24,10 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 
 
 /**
@@ -51,7 +51,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private final Map<TabId, Tab> allTabs;
 
     /** A list of all plugin tabs. */
-    private final List<Tab> pluginTabs;
+    private final Map<TabExtension, Tab> pluginTabs;
 
     /** A thinkParity user's profile. */
     private Profile profile;
@@ -63,7 +63,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     public MainTitleAvatarTabPanel() {
         super();
         this.allTabs = new HashMap<TabId, Tab>();
-        this.pluginTabs = new ArrayList<Tab>();
+        this.pluginTabs = new HashMap<TabExtension, Tab>();
         setResizeEdges(Resizer.FormLocation.LEFT);
         initComponents();
     }
@@ -80,12 +80,52 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             for (final Tab tab : allTabs.values()) {
                 tab.drawText(g2, g2.getFontMetrics());
             }
-            for (final Tab tab : pluginTabs) {
+            for (final Tab tab : pluginTabs.values()) {
                 tab.drawText(g2, g2.getFontMetrics());
             }
         } finally {
             g2.dispose();
         }
+    }
+
+    /**
+     * Initialize tabs for the plugins.
+     *
+     */
+    void initPluginTabs(final PluginRegistry pluginRegistry) {
+        final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
+        if (null != archivePlugin) {
+            final TabExtension archiveTab =
+                pluginRegistry.getTabExtension(PluginId.ARCHIVE, "Archive");
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+            gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+            add(createTab(archivePlugin, archiveTab).jLabel, gridBagConstraints);
+        }
+    }
+
+    /**
+     * Select a tab.
+     * 
+     * @param tabExtension
+     *            A tab extension.
+     */
+    void selectTab(final TabExtension tabExtension) {
+        this.selectedTab = pluginTabs.get(tabExtension);
+        reloadDisplay();
+    }
+
+    /**
+     * Select a tab.
+     * 
+     * @param tabId
+     *            A tab.
+     */
+    void selectTab(final TabId tabId) {
+        this.selectedTab = allTabs.get(tabId);
+        reloadDisplay();
     }
 
     /**
@@ -99,29 +139,17 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
-     * Select a tab.
-     * 
-     * @param tabId
-     *            A tab.
-     */
-    void setTab(final TabId tabId) {
-        this.selectedTab = allTabs.get(tabId);
-        reloadDisplay();
-    }
-
-    /**
      * Create a plugin extension tab.
      * 
      * @param tabExtension
      *            A tab extension.
      * @return A <code>Tab</code>.
      */
-    private Tab createTab(final TabExtension tabExtension) {
+    private Tab createTab(final Plugin plugin, final TabExtension tabExtension) {
         final Tab tab = new Tab(tabExtension);
-        pluginTabs.add(tab);
+        pluginTabs.put(tabExtension, tab);
         return tab;
     }
-
     /**
      * Create a tab.
      * 
@@ -192,18 +220,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(fillJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Initialize tabs for the plugins.
-     *
-     */
-    void initPluginTabs(final PluginRegistry pluginRegistry) {
-        final TabExtension extension =
-            pluginRegistry.getExtension(PluginId.ARCHIVE, "ArchiveTab");
-        if (null != extension)
-            createTab(extension);
-    }
-
     /**
      * Reload the display.  This will examine the current tab; then call the
      * controller to display the correct avatar; as well as update the images
@@ -229,7 +245,10 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      * 
      */
     private void reloadDisplayTab() {
-        for (final MainTitleAvatarTabPanel.Tab tab : allTabs.values()) {
+        for (final Tab tab : pluginTabs.values()) {
+            tab.jLabel.setIcon(BrowserTitle.TAB);
+        }
+        for (final Tab tab : allTabs.values()) {
             tab.jLabel.setIcon(BrowserTitle.TAB);
         }
         selectedTab.jLabel.setIcon(BrowserTitle.TAB_SELECTED);
@@ -265,8 +284,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                 @Override
                 public void mouseClicked(final MouseEvent e) {
                     final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
+                    data.unset(MainTitleAvatar.DataKey.TAB_ID);
                     data.set(MainTitleAvatar.DataKey.TAB_EXTENSION, tabExtension);
-                    mainTitleAvatar.setInput(data);   
+                    mainTitleAvatar.setInput(data);
                 }
                 @Override
                 public void mouseEntered(final MouseEvent e) {
@@ -279,6 +299,10 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                         jLabel.setIcon(BrowserTitle.TAB);
                 }
             });
+            final Dimension minimumSize = jLabel.getMinimumSize();
+            minimumSize.height = 20;
+            minimumSize.width = 76;
+            this.jLabel.setMinimumSize(minimumSize);
         }
 
         /**
@@ -293,7 +317,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             this.jLabelText = BUNDLE.getString(
                     new StringBuffer("MAIN_TITLE.MainTitleAvatar$TabId.")
                             .append(tabId).toString());
-
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(final MouseEvent e) {

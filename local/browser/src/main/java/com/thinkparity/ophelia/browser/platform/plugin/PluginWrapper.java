@@ -3,117 +3,94 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.JVMUniqueId;
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
+ * <b>Title:</b>thinkParity Browser Plugin Wrapper<br>
+ * <b>Description:</b>The plugin wrapper is a thin wrapper around the
+ * instantiated plugins that loads the plugin; the plugin extensions and
+ * provides the services to the plugin.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-class PluginWrapper {
+final class PluginWrapper {
 
-    /** The plugin's <code>File</code>. */
-    private final File file;
+    /** A list of extension names and extensions. */
+    private final Map<String, PluginExtension> extensions;
 
-    /** An instance of the plugin. */
+    /** The plugin meta info. */
+    private PluginMetaInfo metaInfo;
+
+    /** The plugin. */
     private Plugin plugin;
 
-    /** Instances of the plugin extensions. */
-    private final List<PluginExtension> pluginExtensions;
-
-    /** The plugin services. */
-    private final PluginServices pluginServices;
-
-    /**
-     * Create PluginWrapper.
-     * 
-     * @param file
-     *            The plugin's <code>File</code>.
-     */
-    PluginWrapper(final File file, final PluginServices pluginServices) {
+    PluginWrapper() {
         super();
-        this.file = file;
-        this.pluginExtensions = new ArrayList<PluginExtension>();
-        this.pluginServices = pluginServices;
+        this.extensions = new HashMap<String, PluginExtension>();
+    }
+
+    PluginExtension addExtension(final String name,
+            final PluginExtension extension) {
+        return extensions.put(name, extension);
+    }
+
+    void clearExtensions() {
+        extensions.clear();
+    }
+
+    PluginExtension getExtension(final String name) {
+        return extensions.get(name);
+    }
+
+    List<PluginExtension> getExtensions() {
+        final List<PluginExtension> extensions = new ArrayList<PluginExtension>();
+        extensions.addAll(this.extensions.values());
+        return Collections.unmodifiableList(extensions);
     }
 
     /**
-     * End the plugin.
+     * Obtain the metaInfo
      *
+     * @return The PluginMetaInfo.
      */
-    void end() {
-        Assert.assertNotNull(plugin, "Plugin not loaded.");
-        plugin.end();
+    PluginMetaInfo getMetaInfo() {
+        return metaInfo;
     }
 
     /**
-     * Obtain the plugin wrapper id.
-     * 
-     * @return A unique plugin wrapper id <code>String</code>.
-     */
-    String getId() {
-        return JVMUniqueId.nextId().toString();
-    }
-
-    /**
-     * Initialize the plugin.
+     * Obtain the plugin
      *
+     * @return The Plugin.
      */
-    void initialize() {
-        Assert.assertNotNull(plugin, "Plugin not loaded.");
-        plugin.initialize();
+    Plugin getPlugin() {
+        return plugin;
+    }
+
+    PluginExtension removeExtension(final String extensionName) {
+        return extensions.remove(extensionName);
     }
 
     /**
-     * Load the plugin. Check to see if the plugin has been extracted; and if
-     * not extract the plugin. Create a class loader for the plugin and use it
-     * to create an instance of the plugin.
-     * 
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     */
-    void load() throws IOException, ClassNotFoundException,
-            IllegalAccessException, InstantiationException,
-            CloneNotSupportedException, NoSuchMethodException,
-            InvocationTargetException {
-        final PluginMetaInfo pluginMetaInfo = new PluginMetaInfo(file);
-        final PluginExtractor extractor = new PluginExtractor(file);
-        if (!extractor.isExtracted()) {
-            extractor.extract();
-        }
-        final FileSystem pluginFileSystem = extractor.getFileSystem();
-        final PluginServices pluginServices =
-                (PluginServices) this.pluginServices.clone();
-        pluginServices.setMetaInfo(pluginMetaInfo);
-        
-        final PluginClassLoader pluginClassLoader =
-            new PluginClassLoader(pluginFileSystem);
-        this.plugin = pluginClassLoader.loadPlugin(pluginMetaInfo, pluginServices);
-        for (final String extension : pluginMetaInfo.getExtensions()) {
-            pluginServices.setExtensionMetaInfo(
-                    pluginMetaInfo.getExtensionMetaInfo(extension));
-            this.pluginExtensions.add(
-                    pluginClassLoader.loadExtension(
-                            pluginMetaInfo.getExtensionMetaInfo(extension),
-                            pluginServices));
-        }
-    }
-
-    /**
-     * Start the plugin.
+     * Set metaInfo.
      *
+     * @param metaInfo The PluginMetaInfo.
      */
-    void start() {
-        Assert.assertNotNull(plugin, "Plugin not loaded.");
-        plugin.start();
+    void setMetaInfo(PluginMetaInfo metaInfo) {
+        this.metaInfo = metaInfo;
+    }
+
+    /**
+     * Set plugin.
+     *
+     * @param plugin The Plugin.
+     */
+    void setPlugin(Plugin plugin) {
+        this.plugin = plugin;
     }
 }

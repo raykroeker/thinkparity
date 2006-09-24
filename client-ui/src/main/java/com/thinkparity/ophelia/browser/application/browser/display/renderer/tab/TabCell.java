@@ -88,7 +88,7 @@ public interface TabCell {
      *          Indicates if this is the main text or secondary text.
      * @return A string.
      */
-    public String getText(TextGroup textGroup);
+    public String getText(final TextGroup textGroup);
     
     /**
      * Obatin the font for the cell text.
@@ -97,7 +97,7 @@ public interface TabCell {
      *          Indicates if this is the main text or secondary text.
      * @return A font.
      */
-    public Font getTextFont(TextGroup textGroup);
+    public Font getTextFont(final TextGroup textGroup);
 
     /**
      * Obtain a color for the cell text.
@@ -106,7 +106,7 @@ public interface TabCell {
      *          Indicates if this is the main text or secondary text.
      * @return A color.
      */
-    public Color getTextForeground(TextGroup textGroup);
+    public Color getTextForeground(final TextGroup textGroup);
 
     /**
      * Obtain the text inset factor. This is used to offset text the default
@@ -123,7 +123,7 @@ public interface TabCell {
      *          Indicates if this is the main text or secondary text.
      * @return A string.
      */
-    public String getTextNoClipping(TextGroup textGroup);
+    public String getTextNoClipping(final TextGroup textGroup);
 
     /**
      * Obtain the tool tip text.
@@ -164,10 +164,9 @@ public interface TabCell {
      * Set the expand or collapse state for the cell.
      * 
      * @param expanded
-     *            Boolean flag to expand or collapse.    
-     * @return A Boolean, true if the expand state changed.                
+     *            A <code>Boolean</code> describing the expanded state.
      */
-    public Boolean setExpanded(final Boolean expanded);
+    public void setExpanded(final Boolean expanded);
     
     /**
      * Set the mouseOver state for the cell.
@@ -193,6 +192,7 @@ public interface TabCell {
      */
     public void triggerPopup(final Connection connection,
             final Component invoker, final MouseEvent e);
-    
-    public enum TextGroup { MAIN_TEXT, SECONDARY_TEXT };
+
+    /** A column-like grouping of text within a tab's cell. */
+    public enum TextGroup { EAST, WEST };
 }

@@ -77,7 +77,7 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.MAIN_TEXT) {
+        if (textGroup == TextGroup.WEST) {
             final Integer number = numberOfUsers;
             return localization.getString("Text", new Object[] {number});
         } else {

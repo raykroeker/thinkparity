@@ -8,10 +8,14 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 
 /**
+ * <b>Title:</b>thinkParity Browser Platform Plugin Model Factory<br>
+ * <b>Description:</b>Gives the plugins access to the thinkParity model
+ * interfaces.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class PluginModelFactory {
+public final class PluginModelFactory {
 
     /** The platform's <code>ModelFactory</code>. */
     private final ModelFactory factory;

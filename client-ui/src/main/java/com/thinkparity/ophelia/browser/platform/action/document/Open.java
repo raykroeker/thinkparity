@@ -3,9 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.document;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -44,7 +41,7 @@ public class Open extends AbstractAction {
 		getDocumentModel().open(documentId);
         
         // Flag the document as having been seen
-        browser.runApplyFlagSeenArtifact(documentId, ArtifactType.DOCUMENT);
+        browser.runApplyDocumentFlagSeen(documentId);
 	}
 
 	/** Data keys. */

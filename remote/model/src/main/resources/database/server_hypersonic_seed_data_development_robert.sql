@@ -8,14 +8,6 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.plain.port', '5228');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5229');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.driver', 'org.hsqldb.jdbcDriver');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.password', '');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/development/hsqldb/calpurnia/db');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.username', 'sa');
 insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 
@@ -73,6 +65,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('robert', 'What is my username?', 'robert');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('robert', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.0','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.0', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('robert', 'thinkparity.archive.0');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('djohnson','parity',0,0);

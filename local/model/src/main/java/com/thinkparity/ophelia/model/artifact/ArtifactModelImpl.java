@@ -13,6 +13,7 @@ import com.thinkparity.codebase.assertion.TrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -450,6 +451,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the artifact's type.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return An <code>ArtifactType</code>.
+     */
+    ArtifactType readType(final Long artifactId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
+        try {
+            return artifactIO.readType(artifactId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -554,7 +572,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         assertStateTransition(currentState, state);
         artifactIO.updateState(artifactId, state);
     }
-
+    
     /**
 	 * Apply a flag to an artifact.
 	 * 
@@ -577,7 +595,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactIO.updateFlags(artifactId, flags);
 		}
 	}
-    
+
     /**
 	 * Remove a flag from an artifact.
 	 * 
@@ -602,5 +620,4 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
-
 }

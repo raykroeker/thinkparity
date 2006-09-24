@@ -10,6 +10,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
@@ -124,6 +125,19 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
     }
 
 	/**
+     * Read the artifact's type.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return An <code>ArtifactType</code>.
+     */
+    public ArtifactType readType(final Long artifactId) {
+        synchronized (getImplLock()) {
+            return getImpl().readType(artifactId);
+        }
+    }
+
+    /**
 	 * Remove the seen flag from the artifact.
 	 * 
 	 * @param artifactId

@@ -399,7 +399,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }
 
     private void tabJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseReleased
-        if (!MenuFactory.isPopupMenu() && e.isPopupTrigger()) {
+        if (e.isPopupTrigger()) {
             // Desired behavior: if click on an entry in the list then trigger a popup for that cell.
             // If click in the blank area below the last entry in the list then trigger a popup that
             // is related to the tab rather than a cell in the tab.
@@ -411,6 +411,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
         }
     }//GEN-LAST:event_tabJListMouseReleased    
+    
     private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_tabJListValueChanged
         final Integer newSelectedIndex = tabJList.getSelectedIndex();
         final Integer lastIndex = tabJList.getModel().getSize() - 1;
@@ -430,6 +431,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             selectingLastIndex = Boolean.TRUE;   
         }
     }//GEN-LAST:event_tabJListValueChanged  
+    
     /**
      * Trigger a double click event on the tab cell.
      * 

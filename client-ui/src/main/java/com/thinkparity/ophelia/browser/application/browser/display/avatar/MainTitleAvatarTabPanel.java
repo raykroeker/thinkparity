@@ -96,7 +96,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
         if (null != archivePlugin) {
             final TabExtension archiveTab =
-                pluginRegistry.getTabExtension(PluginId.ARCHIVE, "Archive");
+                pluginRegistry.getTabExtension(PluginId.ARCHIVE, "ArchiveTab");
             final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 1;

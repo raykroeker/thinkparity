@@ -52,17 +52,12 @@ final class PluginInstaller extends PluginUtility {
      *
      */
     void install() {
-        String installPath;
+        FileSystem pluginFileSystem = null;
         try {
-            installPath = getInstallName();
+            pluginFileSystem = getPluginFileSystem();
         } catch (final Throwable t) {
             throw translateError(t);
         }
-        final File pluginFileSystemRoot = new File(installFileSystem.getRoot(), installPath);
-        Assert.assertTrue(pluginFileSystemRoot.mkdir(),
-                "Could not create install root {0}.", pluginFileSystemRoot);
-        final FileSystem pluginFileSystem =
-                installFileSystem.cloneChild(installPath);
         try {
             JarEntry pluginJarEntry;
             File entryFile;
@@ -114,6 +109,21 @@ final class PluginInstaller extends PluginUtility {
     }
 
     /**
+     * Re-install the plugin.
+     *
+     */
+    void reinstall() {
+        FileSystem pluginFileSystem = null;
+        try {
+            pluginFileSystem = getPluginFileSystem();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+        FileUtil.deleteTree(pluginFileSystem.getRoot());
+        install();
+    }
+
+    /**
      * Obtain the name of the install directory.
      * 
      * @return The install directory name.
@@ -121,6 +131,20 @@ final class PluginInstaller extends PluginUtility {
     private String getInstallName() throws IOException {
         final PluginMetaInfo metaInfo = readMetaInfo();
         return new StringBuffer(metaInfo.getPluginId()).toString();
+    }
+
+    /**
+     * Obtain the plugin's installation file system.
+     * 
+     * @return A <code>FileSystem</code>.
+     * @throws IOException
+     */
+    private FileSystem getPluginFileSystem() throws IOException {
+        final String installPath = getInstallName();
+        final File pluginFileSystemRoot = new File(installFileSystem.getRoot(), installPath);
+        Assert.assertTrue(pluginFileSystemRoot.mkdir(),
+                "Could not create install root {0}.", pluginFileSystemRoot);
+        return installFileSystem.cloneChild(installPath);
     }
 
     /**

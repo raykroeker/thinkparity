@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 
 /**
@@ -23,10 +24,14 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
  */
 public class PluginRegistry {
 
+    /** A list of plugin loaders. */
+    private static final Map<String, PluginLoader> LOADERS;
+
     /** The plugins. */
     private static final Map<String, PluginWrapper> PLUGINS;
 
     static {
+        LOADERS = new HashMap<String, PluginLoader>(2);
         PLUGINS = new HashMap<String, PluginWrapper>(2);
     }
 
@@ -38,10 +43,10 @@ public class PluginRegistry {
         super();
     }
 
-    public TabExtension getTabExtension(final PluginId id, final String name) {
+    public ActionExtension getActionExtension(final PluginId id, final String name) {
         if (PLUGINS.containsKey(toId(id))) {
             final PluginWrapper wrapper = PLUGINS.get(toId(id));
-            return (TabExtension) wrapper.getExtension(name);
+            return (ActionExtension) wrapper.getExtension(name);
         } else {
             return null;
         }
@@ -76,18 +81,44 @@ public class PluginRegistry {
         return Collections.unmodifiableList(plugins);
     }
 
+    public TabExtension getTabExtension(final PluginId id, final String name) {
+        if (PLUGINS.containsKey(toId(id))) {
+            final PluginWrapper wrapper = PLUGINS.get(toId(id));
+            return (TabExtension) wrapper.getExtension(name);
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Register a <code>PluginWrapper</code>.
      * 
      * @param wrapper
      *            A <code>PluginWrapper</code>.
      */
-    void add(final PluginWrapper wrapper) {
+    void add(final PluginWrapper wrapper, final PluginLoader loader) {
         synchronized (PLUGINS) {
             Assert.assertNotTrue(PLUGINS.containsKey(toId(wrapper)),
                     "Plugin {0} already registered.",
                     wrapper.getPlugin());
+            Assert.assertNotTrue(LOADERS.containsKey(toId(wrapper)),
+                    "Plugin {0}'s loader already registered.",
+                    wrapper.getPlugin());
             PLUGINS.put(toId(wrapper), wrapper);
+            LOADERS.put(toId(wrapper), loader);
+        }
+    }
+
+    /**
+     * Obtain the registered plugin loader.
+     * @param wrapper A plugin wrapper.
+     * @return
+     */
+    PluginLoader getLoader(final PluginWrapper wrapper) {
+        synchronized (LOADERS) {
+            Assert.assertTrue(LOADERS.containsKey(toId(wrapper)),
+                    "Loader for plugin {0} does not exist.", wrapper.getPlugin());
+            return LOADERS.get(toId(wrapper));
         }
     }
 

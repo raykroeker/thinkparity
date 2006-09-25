@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.FileSystem;
 
@@ -23,6 +25,9 @@ final class PluginLoader extends PluginUtility {
     /** The plugin registry. */
     private final PluginRegistry pluginRegistry;
 
+    /** The plugin class loader. */
+    private final PluginClassLoader classLoader;
+
     /**
      * Create PluginLoader.
      * 
@@ -33,6 +38,29 @@ final class PluginLoader extends PluginUtility {
         super();
         this.pluginFileSystem = pluginFileSystem;
         this.pluginRegistry = new PluginRegistry();
+
+        try {
+            this.metaInfo = readMetaInfo();
+            this.classLoader = new PluginClassLoader(pluginFileSystem);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /** The plugin meta info. */
+    private final PluginMetaInfo metaInfo;
+
+    /**
+     * Load a resource bundle.
+     * 
+     * @param baseName
+     *            The bundle base name.
+     * @param locale
+     *            The locale.
+     * @return The resource bundle.
+     */
+    ResourceBundle loadBundle(final String baseName, final Locale locale) {
+        return classLoader.loadBundle(baseName, locale);
     }
 
     /**
@@ -41,9 +69,6 @@ final class PluginLoader extends PluginUtility {
      */
     void load() {
         try {
-            final PluginMetaInfo metaInfo = readMetaInfo();
-            final PluginClassLoader classLoader = new PluginClassLoader(pluginFileSystem);
-            
             final PluginWrapper wrapper = new PluginWrapper();
             wrapper.setMetaInfo(metaInfo);
             wrapper.setPlugin(loadPlugin(metaInfo, classLoader));
@@ -53,7 +78,7 @@ final class PluginLoader extends PluginUtility {
                         metaInfo.getExtensionName(platformExtension),
                         loadExtension(platformExtension, metaInfo, classLoader));
             }
-            pluginRegistry.add(wrapper);
+            pluginRegistry.add(wrapper, this);
         } catch (final Throwable t) {
             throw translateError(t);
         }

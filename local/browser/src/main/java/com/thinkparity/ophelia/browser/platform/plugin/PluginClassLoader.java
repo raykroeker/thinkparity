@@ -12,6 +12,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.FileSystem;
 
@@ -66,6 +68,23 @@ class PluginClassLoader extends PluginUtility {
     PluginClassLoader(final FileSystem fileSystem) {
         super();
         this.fileSystem = fileSystem;
+    }
+
+    /**
+     * Load a resource bundle.
+     * 
+     * @param baseName
+     *            The bundle base name.
+     * @param locale
+     *            The bundle locale.
+     * @return A resource bundle.
+     */
+    ResourceBundle loadBundle(final String baseName, final Locale locale) {
+        try {
+            return ResourceBundle.getBundle(baseName, locale, lazyCreateClassLoader());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

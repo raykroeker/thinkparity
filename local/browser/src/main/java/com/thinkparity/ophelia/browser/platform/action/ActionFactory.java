@@ -5,13 +5,13 @@ package com.thinkparity.ophelia.browser.platform.action;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.AbstractFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -23,6 +23,17 @@ public class ActionFactory extends AbstractFactory {
 	private static final ActionFactory SINGLETON;
 
 	static { SINGLETON = new ActionFactory(); }
+
+    /**
+     * Create a thinkParity action.
+     * 
+     * @param actionExtension
+     *            An <code>ActionExtension</code>.
+     * @return An <code>AbstractAction</code>.
+     */
+    public static AbstractAction create(final ActionExtension extension) {
+        return SINGLETON.doCreateAction(extension);
+    }
 
     /**
      * Create a thinkParity action.
@@ -54,6 +65,19 @@ public class ActionFactory extends AbstractFactory {
     }
 
     /**
+     * Create a thinkParity action.
+     * 
+     * @param actionExtension
+     *            An <code>ActionExtension</code>.
+     * @return An <code>AbstractAction</code>.
+     */
+    public AbstractAction doCreateAction(final ActionExtension extension) {
+        final AbstractAction action = extension.createAction();
+        register(action, extension);
+        return action;
+    }
+
+    /**
 	 * Create an action for the browser application.
 	 * 
 	 * @param actionId
@@ -62,11 +86,9 @@ public class ActionFactory extends AbstractFactory {
 	 *            The thinkParity browser application.
 	 * @return The action.
 	 */
-	private AbstractAction doCreateAction(final ActionId actionId) {
-        logApiId();
-        debugVariable("actionId", actionId);
+	private AbstractAction doCreateAction(final ActionId id) {
         final AbstractAction action;
-		switch(actionId) {
+		switch (id) {
         case ARTIFACT_APPLY_FLAG_SEEN:
             action = new com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen(browser);
             break;
@@ -93,9 +115,6 @@ public class ActionFactory extends AbstractFactory {
 		case CONTAINER_ADD_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.AddDocument(browser);
             break;
-        case CONTAINER_ARCHIVE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(browser);
-            break;    
 		case CONTAINER_CREATE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Create(browser);
             break;
@@ -222,5 +241,18 @@ public class ActionFactory extends AbstractFactory {
             logWarning("REGISTRY CONTAINS ACTION " + action.getId());
         }
         actionRegistry.put(action);
+    }
+
+    /**
+     * Register an action.
+     * 
+     * @param action
+     *            A thinkParity action.
+     */
+    private void register(final AbstractAction action,
+            final ActionExtension actionExtension) {
+        Assert.assertNotTrue(actionRegistry.contains(actionExtension),
+                "Action {0} already registered.", action);
+        actionRegistry.put(action, actionExtension);
     }
 }

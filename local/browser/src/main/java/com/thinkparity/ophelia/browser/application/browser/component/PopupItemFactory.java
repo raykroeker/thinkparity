@@ -11,7 +11,6 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.AbstractFactory;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -21,6 +20,8 @@ import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtensionAction;
 
 /**
  * <b>Title:</b>thinkParity Popup Item Factory<br>
@@ -55,20 +56,24 @@ public class PopupItemFactory extends AbstractFactory {
     /** An action registry. */
     private final ActionRegistry actionRegistry;
 
+    /** The action extension action wrapper map. */
+    private final Map<ActionExtension, ActionWrapper> extensionRegistry;
+    
     /** The action wrapper registry (for main menus). */
     private final Map<ActionId, ActionWrapper> menuWrapperRegistry;
-    
+
     /** The action wrapper registry (for context popup menus). */
     private final Map<ActionId, ActionWrapper> wrapperRegistry;
-
+    
     /** Create PopupItemFactory. */
     private PopupItemFactory() {
         super();
         this.actionRegistry = new ActionRegistry();
+        this.extensionRegistry = new HashMap<ActionExtension, ActionWrapper>();
         this.menuWrapperRegistry = new HashMap<ActionId, ActionWrapper>(ActionId.values().length, 1.0F);
         this.wrapperRegistry = new HashMap<ActionId, ActionWrapper>(ActionId.values().length, 1.0F);
     }
-    
+
     /**
      * Create a popup menu item for an action and its data.
      * This method is suited for main menus (mnemonic and
@@ -77,6 +82,11 @@ public class PopupItemFactory extends AbstractFactory {
     public JMenuItem createMenuPopupItem(final ActionId actionId,
             final Data data) {
         return SINGLETON.doCreatePopupItem(actionId, data, Boolean.TRUE);        
+    }
+
+    public JMenuItem createPopupItem(final ActionExtension extension,
+            final Object selection) {
+        return SINGLETON.doCreatePopupItem(extension, selection);
     }
 
     /**
@@ -106,6 +116,34 @@ public class PopupItemFactory extends AbstractFactory {
      *            true for main menu, false for context menu
      * @return A popup menu item.
      */
+    private JMenuItem doCreatePopupItem(final ActionExtension extension,
+            final Object selection) {
+        final AbstractAction action;
+        if (actionRegistry.contains(extension)) {
+            action = actionRegistry.get(extension);
+        } else {
+            action = ActionFactory.create(extension);
+        }
+        
+        final ActionWrapper wrapper = getWrapper(extension, action);        
+        final Data data = new Data(1);
+        data.set(ActionExtensionAction.DataKey.SELECTION, selection);
+        wrapper.setData(data);
+        
+        return new JMenuItem(wrapper);
+    }
+
+    /**
+     * Create a popup menu item from an action id.
+     * 
+     * @param actionId
+     *            An action id.
+     * @param data
+     *            The action data.
+     * @param mainMenu
+     *            true for main menu, false for context menu
+     * @return A popup menu item.
+     */
     private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data, Boolean mainMenu) {
         final AbstractAction action;
         if (actionRegistry.contains(actionId)) {
@@ -122,13 +160,33 @@ public class PopupItemFactory extends AbstractFactory {
             registry = wrapperRegistry;            
         }
         
-        final ActionWrapper actionWrapper = getActionWrapper(actionId, action, registry);        
+        final ActionWrapper actionWrapper = getWrapper(actionId, action, registry);        
         actionWrapper.setData(data);
         
         // Adjust the action so it is suited to main menu or context popup menu
         actionWrapper.adjustForMenuType(mainMenu);
         
         return new JMenuItem(actionWrapper);
+    }
+
+    /**
+     * Obtain an action wrapper for an action extension. The wrapper will be
+     * created and registered if required.
+     * 
+     * @param extension
+     *            A <code>ActionExtension</code>.
+     * @param action
+     *            An <code>AbstractAction</code>.
+     * @return An <code>ActionWrapper</code>.
+     */
+    private ActionWrapper getWrapper(final ActionExtension extension,
+            final AbstractAction action) {
+        if (extensionRegistry.containsKey(extension)) {
+            return extensionRegistry.get(extension);
+        } else {
+            extensionRegistry.put(extension, new ActionWrapper(action));
+            return extensionRegistry.get(extension);
+        }
     }
 
     /**
@@ -142,8 +200,9 @@ public class PopupItemFactory extends AbstractFactory {
      *              The registry, either for menus or for context popups.
      * @return An ActionWrapper.
      */
-    private ActionWrapper getActionWrapper(final ActionId actionId,
-            final AbstractAction action, final Map<ActionId, ActionWrapper> registry) {
+    private ActionWrapper getWrapper(final ActionId actionId,
+            final AbstractAction action,
+            final Map<ActionId, ActionWrapper> registry) {
         final ActionWrapper actionWrapper;
         if (registry.containsKey(actionId)) {
             actionWrapper = registry.get(actionId);
@@ -193,18 +252,6 @@ public class PopupItemFactory extends AbstractFactory {
         }
         
         /**
-         * Set mnemonic and accelerator
-         */
-        private void setMnemonicAndAccelerator() {
-            if (action.isSetMnemonic()) {
-                putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
-            }
-            if (action.isSetAccelerator()) {
-                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(action.getAccelerator())); 
-            }
-        }
-
-        /**
          * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
          * 
          */
@@ -214,6 +261,19 @@ public class PopupItemFactory extends AbstractFactory {
             } catch(final Throwable t) {
                 ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER))
                         .displayErrorDialog(t.getLocalizedMessage(), t);
+            }
+        }
+
+        /**
+         * Tailor the action so it is suited for main menu or popup menu.
+         */
+        public void adjustForMenuType(Boolean mainMenu) {
+            if (mainMenu) {
+                putValue(Action.NAME, action.isSetMenuName() ? action.getMenuName() : "!No name set.!"); 
+                setMnemonicAndAccelerator();
+            }
+            else {
+                putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
             }
         }
 
@@ -228,15 +288,14 @@ public class PopupItemFactory extends AbstractFactory {
         }
         
         /**
-         * Tailor the action so it is suited for main menu or popup menu.
+         * Set mnemonic and accelerator
          */
-        public void adjustForMenuType(Boolean mainMenu) {
-            if (mainMenu) {
-                putValue(Action.NAME, action.isSetMenuName() ? action.getMenuName() : "!No name set.!"); 
-                setMnemonicAndAccelerator();
+        private void setMnemonicAndAccelerator() {
+            if (action.isSetMnemonic()) {
+                putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
             }
-            else {
-                putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
+            if (action.isSetAccelerator()) {
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(action.getAccelerator())); 
             }
         }
     }

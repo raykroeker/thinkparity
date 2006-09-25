@@ -7,6 +7,8 @@ import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
+import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -31,16 +33,28 @@ public class ActionLocalization {
 	 */
 	protected final ResourceBundleHelper bundleHelper;
 
-	/**
-	 * Create an ActionLocalization.
-	 * 
-	 * @param context
-	 *            The named context for the Action.
-	 */
-	public ActionLocalization(final String l18nContext) {
-		super();
-		this.bundleHelper = new ResourceBundleHelper(RESOURCE_BUNDLE, l18nContext);
-	}
+    /**
+     * Create an ActionLocalization.
+     * 
+     * @param context
+     *            The named context for the Action.
+     */
+    public ActionLocalization(final String l18nContext) {
+        super();
+        this.bundleHelper = new ResourceBundleHelper(RESOURCE_BUNDLE, l18nContext);
+    }
+
+    /**
+     * Create an ActionLocalization.
+     * 
+     * @param extension
+     *            A plugin extension.
+     */
+    public ActionLocalization(final PluginExtension extension) {
+        super();
+        this.bundleHelper = new ResourceBundleHelper(
+                extension.getLocalization(), extension.getLocalizationContext());
+    }
 
 	/**
 	 * Obtain the localised string for an artifact type.

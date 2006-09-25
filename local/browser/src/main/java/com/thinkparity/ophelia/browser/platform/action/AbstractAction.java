@@ -15,12 +15,11 @@ import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
-
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
@@ -82,6 +81,25 @@ public abstract class AbstractAction {
         this.id = id;
         this.icon = null;
         this.localization = new ActionLocalization(id.toString());
+        this.name = localization.getString("NAME");
+        this.menuName = localization.getString("MENUNAME");
+        this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
+        this.accelerator = localization.getString("ACCELERATOR");
+    }
+
+    /**
+     * Create AbstractAction. This constructor is used by the plugin action
+     * extensions.
+     * 
+     * @param extension
+     *            An action extension.
+     */
+    protected AbstractAction(final ActionExtension extension) {
+        super();
+        this.applicationRegistry = new ApplicationRegistry();
+        this.id = null;
+        this.icon = null;
+        this.localization = new ActionLocalization(extension);
         this.name = localization.getString("NAME");
         this.menuName = localization.getString("MENUNAME");
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);

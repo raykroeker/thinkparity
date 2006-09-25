@@ -114,6 +114,9 @@ public final class PluginHelper {
                 installer = new PluginInstaller(pluginFileSystem, pluginFile);
                 if (!installer.isInstalled()) {
                     installer.install();
+                } else if (pluginFile.lastModified() >
+                        pluginFileSystem.getRoot().lastModified()) {
+                    installer.reinstall();
                 }
             }
 
@@ -127,10 +130,11 @@ public final class PluginHelper {
         }
 
         // start
-        final PluginServices services = new PluginServices(new PluginModelFactory(platform));
         final List<PluginWrapper> wrappers = registry.getWrappers();
+        PluginServices services;
         for (final PluginWrapper wrapper : wrappers) {
             try {
+                services = new PluginServices(platform, wrapper);
                 wrapper.getPlugin().initialize(services);
                 for (final PluginExtension extensions : wrapper.getExtensions()) {
                     extensions.initialize(services);

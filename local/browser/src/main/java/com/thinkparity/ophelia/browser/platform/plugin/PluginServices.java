@@ -4,11 +4,15 @@
 package com.thinkparity.ophelia.browser.platform.plugin;
 
 import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JHelper;
+
+import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Services<br>
@@ -21,6 +25,9 @@ import com.thinkparity.codebase.log4j.Log4JHelper;
  */
 public final class PluginServices {
 
+    /** The plugin's resource bundle. */
+    private final PluginLoader loader;
+
     /** The plugin's logger. */
     private final Logger logger;
 
@@ -31,10 +38,22 @@ public final class PluginServices {
      * Create PluginServices.
      * 
      */
-    PluginServices(final PluginModelFactory modelFactory) {
+    PluginServices(final Platform platform, final PluginWrapper wrapper) {
         super();
+        this.loader = new PluginRegistry().getLoader(wrapper);
         this.logger = Logger.getLogger(getClass());
-        this.modelFactory = modelFactory;
+        this.modelFactory = new PluginModelFactory(platform);
+    }
+
+    /**
+     * Obtain the resource bundle for the plugin.
+     * 
+     * @param baseName
+     *            The resource bundle's base name.
+     * @return A resource bundle.
+     */
+    public ResourceBundle getBundle(final String baseName) {
+        return loader.loadBundle(baseName, Locale.getDefault());
     }
 
     /**

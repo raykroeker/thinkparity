@@ -34,6 +34,10 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -301,11 +305,18 @@ public class ContainerCell extends DefaultTabCell {
         
         // TODO should only be here if never published
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_RENAME, Data.emptyData()));       
+
         if(connection == Connection.ONLINE) {
-            final Data archiveData = new Data(1);
-            archiveData.set(Archive.DataKey.CONTAINER_ID, getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ARCHIVE, archiveData));
+            final PluginRegistry pluginRegistry = new PluginRegistry();
+            final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
+            if (null != archivePlugin) {
+                final ActionExtension archiveExtension =
+                    pluginRegistry.getActionExtension(PluginId.ARCHIVE, "ArchiveAction");
+                jPopupMenu.add(popupItemFactory.createPopupItem(
+                        archiveExtension, container));
+            }
         }              
+
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));

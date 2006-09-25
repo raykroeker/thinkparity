@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Sing
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentFolderCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToUserCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -114,10 +115,10 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             @Override
             public Object[] getElements(final Object input) {
                 Assert.assertNotNull("[NULL INPUT]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionCell.class, input);
-                final ContainerVersionCell typedInput = (ContainerVersionCell) input;
-                final Long containerId = typedInput.getArtifactId();
-                final Long versionId = typedInput.getVersionId();
+                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionDocumentFolderCell.class, input);
+                final ContainerVersionDocumentFolderCell typedInput = (ContainerVersionDocumentFolderCell) input;
+                final Long containerId = ((ContainerVersionCell)typedInput.getParent()).getArtifactId();
+                final Long versionId = ((ContainerVersionCell)typedInput.getParent()).getVersionId();
                 return toDisplay(typedInput, containerModel.readDocuments(containerId, versionId));
             }
         };
@@ -199,6 +200,25 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             return new ContainerCell(container, containerDraft);
         }
     }
+    
+    /**
+     * Obtain a displayable version of a list of containers.
+     * 
+     * @param containers
+     *          The containers
+     * @param ctrModel
+     *          The parity container interface.
+     *          
+     * @return The displayable containers.
+     */
+    private ContainerCell[] toDisplay(final List<Container> containers,
+            final ContainerModel ctrModel) {
+        final List<ContainerCell> display = new ArrayList<ContainerCell>();
+        for(final Container container : containers) {
+            display.add(toDisplay(container, ctrModel));
+        }
+        return display.toArray(new ContainerCell[] {});      
+    }  
 
     /**
      * Create a displayable list of container versions.
@@ -221,34 +241,34 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /**
      * Create a display document for a version.
      * 
-     * @param version
-     *            A display version.
+     * @param versionDocumentFolder
+     *            A "version document folder" cell (parent of version document).
      * @param document
      *            A document.
      * @return A display document.
      */
     private ContainerVersionDocumentCell toDisplay(
-            final ContainerVersionCell version, final Document document) {
-        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(version, document);
+            final ContainerVersionDocumentFolderCell versionDocumentFolder, final Document document) {
+        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(versionDocumentFolder, document);
         return display;
     }
 
     /**
      * Create an array of display documents for a version.
      * 
-     * @param version
-     *            A display version.
+     * @param versionDocumentFolder
+     *            A "version document folder" cell (parent of version document).
      * @param versionDocuments
      *            A list of documents.
      * @return An array of display documents.
      */
     private ContainerVersionDocumentCell[] toDisplay(
-            final ContainerVersionCell version,
+            final ContainerVersionDocumentFolderCell versionDocumentFolder,
             final List<Document> documents) {
         final List<ContainerVersionDocumentCell> list =
             new ArrayList<ContainerVersionDocumentCell>(documents.size());
         for(final Document document : documents) {
-            list.add(toDisplay(version, document));
+            list.add(toDisplay(versionDocumentFolder, document));
         }
         return list.toArray(new ContainerVersionDocumentCell[] {});
     }
@@ -293,24 +313,5 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             list.add(toDisplay(sentToCell, user));
         }
         return list.toArray(new ContainerVersionSentToUserCell[] {});
-    }
-
-    /**
-     * Obtain a displayable version of a list of containers.
-     * 
-     * @param containers
-     *          The containers
-     * @param ctrModel
-     *          The parity container interface.
-     *          
-     * @return The displayable containers.
-     */
-    private ContainerCell[] toDisplay(final List<Container> containers,
-            final ContainerModel ctrModel) {
-        final List<ContainerCell> display = new ArrayList<ContainerCell>();
-        for(final Container container : containers) {
-            display.add(toDisplay(container, ctrModel));
-        }
-        return display.toArray(new ContainerCell[] {});      
     }
 }

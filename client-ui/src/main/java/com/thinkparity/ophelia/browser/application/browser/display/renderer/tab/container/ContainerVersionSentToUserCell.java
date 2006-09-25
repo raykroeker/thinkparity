@@ -42,6 +42,7 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
 
     /** Create ContainerVersionSentToCell. */
     public ContainerVersionSentToUserCell(final ContainerVersionSentToCell versionSentTo, final User user) { 
+        super();
         this.user = new User();
         this.user.setId(user.getId());
         this.user.setLocalId(user.getLocalId());

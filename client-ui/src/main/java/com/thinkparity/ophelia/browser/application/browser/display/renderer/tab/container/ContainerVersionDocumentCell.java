@@ -31,22 +31,27 @@ import com.thinkparity.ophelia.browser.util.ArtifactUtil;
  * @version 1.1.2.1
  */
 public class ContainerVersionDocumentCell extends DefaultTabCell {
+    
+    /** The document's parent cell. */
+    private final ContainerVersionDocumentFolderCell versionDocumentFolder;
 
-    /** The document's version. */
+    /** The document's version (grandparent cell). */
     private final ContainerVersionCell version;
     
     /** The document associated with this cell. */
     private Document document;
     
     /** Create a CellDocument. */
-    public ContainerVersionDocumentCell(final ContainerVersionCell version, final Document document) {
+    public ContainerVersionDocumentCell(final ContainerVersionDocumentFolderCell versionDocumentFolder, final Document document) {
+        super();
         this.document = new Document(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
                 document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
                 document.getUpdatedOn());
         this.document.setId(document.getId());
         this.document.setRemoteInfo(document.getRemoteInfo());
         this.document.setState(document.getState());
-        this.version = version;
+        this.versionDocumentFolder = versionDocumentFolder;
+        this.version = (ContainerVersionCell) versionDocumentFolder.getParent();
     }
 
     /**
@@ -82,7 +87,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * 
      */
     public TabCell getParent() {
-        return version;
+        return versionDocumentFolder;
     }
     
     /**
@@ -115,7 +120,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_1;
+        return InsetFactors.LEVEL_3;
     }
 
     /**
@@ -163,6 +168,6 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
      */
     public void triggerDoubleClickAction(Browser browser) {  
-        browser.runOpenDocumentVersion(document.getId(), ((ContainerVersionCell)getParent()).getVersionId());
+        browser.runOpenDocumentVersion(document.getId(), version.getVersionId());
     }
 }

@@ -71,9 +71,12 @@ public class ContainerModel extends TabModel {
 
     /** A map of the container cells to a list of their respective versions. */
     private final Map<ContainerCell, List<ContainerVersionCell>> versionCells;
+    
+    /** A map of the container version to the "document folder" cell. */
+    private final Map<ContainerVersionCell, ContainerVersionDocumentFolderCell> versionDocumentFolderCells;
 
-    /** A map of the container version to the draft documents. */
-    private final Map<ContainerVersionCell, List<ContainerVersionDocumentCell>> versionDocumentCells;
+    /** A map of the "version document folder" cell to the version document cells. */
+    private final Map<ContainerVersionDocumentFolderCell, List<ContainerVersionDocumentCell>> versionDocumentCells;
     
     /** A map of the container version to the "sent to" cell. */
     private final Map<ContainerVersionCell, ContainerVersionSentToCell> versionSentToCells;
@@ -98,7 +101,8 @@ public class ContainerModel extends TabModel {
         this.versionCells = new HashMap<ContainerCell, List<ContainerVersionCell>>(50, 0.75F);
         this.listModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
-        this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
+        this.versionDocumentFolderCells = new HashMap<ContainerVersionCell, ContainerVersionDocumentFolderCell>(50, 0.75F);
+        this.versionDocumentCells = new HashMap<ContainerVersionDocumentFolderCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.versionSentToCells = new HashMap<ContainerVersionCell, ContainerVersionSentToCell>(50, 0.75F);
         this.versionSentToUserCells = new HashMap<ContainerVersionSentToCell, List<ContainerVersionSentToUserCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
@@ -271,42 +275,69 @@ public class ContainerModel extends TabModel {
         containerCells.clear();
         containerCells.addAll(readContainers());
         sortContainers();
-        // drafts and history
+        
+        // Clear all the cells under the containers
         draftCells.clear();
-        versionCells.clear();
         draftDocumentCells.clear();
+        versionCells.clear();
+        versionDocumentFolderCells.clear();
+        versionDocumentCells.clear();
         versionSentToCells.clear();
         versionSentToUserCells.clear();
-        versionDocumentCells.clear();
 
+        // Add all the cells under each container
         for(final ContainerCell container : containerCells) {
-            if (container.isDraft() && container.isLocalDraft()) {
-                final DraftCell draft = readDraft(container);
-                draftCells.put(container, draft);
-                final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
-                for(final DraftDocumentCell draftDocument : draftDocuments) {
-                    containerIdLookup.put(draftDocument.getId(), container.getId());
-                }
-                draftDocumentCells.put(draft, draftDocuments);
-            }
-            final List<ContainerVersionCell> versions = readVersions(container);
-            versionCells.put(container, versions);
-            for(final ContainerVersionCell version : versions) {
-                final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
-                versionSentToCells.put(version, sentTo);
-                final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
-                versionSentToUserCells.put(sentTo, versionUsers);
-                sentTo.setNumberOfUsers(versionUsers.size());
-                
-                final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
-                for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
-                    containerIdLookup.put(versionDocument.getId(), container.getId());
-                }
-                versionDocumentCells.put(version, versionDocuments);
-            }
+            initializeDraft(container);
+            initializeVersion(container);
         }
         
         synchronize();
+    }
+    
+    /**
+     * Initialize the draft for one container.
+     * 
+     * @param container
+     *          The container.
+     */
+    private void initializeDraft(ContainerCell container) {
+        if (container.isDraft() && container.isLocalDraft()) {
+            final DraftCell draft = readDraft(container);
+            draftCells.put(container, draft);
+            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
+            for(final DraftDocumentCell draftDocument : draftDocuments) {
+                containerIdLookup.put(draftDocument.getId(), container.getId());
+            }
+            draftDocumentCells.put(draft, draftDocuments);
+        }
+    }
+    
+    /**
+     * Initialize the versions for one container.
+     * 
+     * @param container
+     *          The container.
+     */
+    private void initializeVersion(ContainerCell container) {
+        final List<ContainerVersionCell> versions = readVersions(container);
+        versionCells.put(container, versions);
+        for(final ContainerVersionCell version : versions) {
+            final ContainerVersionDocumentFolderCell documentFolder = new ContainerVersionDocumentFolderCell(version);
+            versionDocumentFolderCells.put(version, documentFolder);
+                           
+            final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
+            versionSentToCells.put(version, sentTo);
+                           
+            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(documentFolder);
+            versionDocumentCells.put(documentFolder, versionDocuments);  
+            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
+                containerIdLookup.put(versionDocument.getId(), container.getId());
+            }
+            
+            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
+            versionSentToUserCells.put(sentTo, versionUsers);
+            sentTo.setNumberOfUsers(versionUsers.size());
+        }
     }
  
     /**
@@ -319,9 +350,9 @@ public class ContainerModel extends TabModel {
         for(final ContainerCell container : containerCells) {
             container.setFirstInGroup(Boolean.FALSE);
             if (prevContainer!=null) {
-                if ((prevContainer.isLocalDraft()!=container.isLocalDraft()) ||
-                    (prevContainer.isDraft()!=container.isDraft())) {
+                if (prevContainer.isLocalDraft()!=container.isLocalDraft()) {
                     container.setFirstInGroup(Boolean.TRUE);
+                    break;
                 }
             }
             prevContainer = container;
@@ -367,6 +398,19 @@ public class ContainerModel extends TabModel {
                     for (final ContainerVersionCell cv : containerVersions) {
                         visibleCells.add(cv);
                         if (cv.isExpanded()) {
+                            // add "version document folder" node
+                            final ContainerVersionDocumentFolderCell documentFolder = versionDocumentFolderCells.get(cv);
+                            if (null != documentFolder) {
+                                visibleCells.add(documentFolder);
+                                if (documentFolder.isExpanded()) {
+                                    // add version documents
+                                    final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(documentFolder);
+                                    if (null != versionDocuments) {
+                                        visibleCells.addAll(versionDocuments);
+                                    }
+                                }
+                            }                            
+                            
                             // add "sent-to" node
                             final ContainerVersionSentToCell sentTo = versionSentToCells.get(cv);
                             if (null != sentTo) {
@@ -379,11 +423,6 @@ public class ContainerModel extends TabModel {
                                     }
                                 }
                             }                           
-                            // add version documents
-                            final List<ContainerVersionDocumentCell> versionDocuments = this.versionDocumentCells.get(cv);
-                            if (null != versionDocuments) {
-                                visibleCells.addAll(versionDocuments);
-                            }
                         }
                     }
                 }
@@ -484,6 +523,7 @@ public class ContainerModel extends TabModel {
         if ((tabCell instanceof ContainerCell) ||
             (tabCell instanceof DraftCell) ||
             (tabCell instanceof ContainerVersionCell) ||
+            (tabCell instanceof ContainerVersionDocumentFolderCell) ||
             (tabCell instanceof ContainerVersionSentToCell)) {
             // Do nothing (every click does expand or collapse)
         } else {
@@ -497,11 +537,11 @@ public class ContainerModel extends TabModel {
      */
     @Override
     protected void triggerExpand(final TabCell tabCell) {
+        super.triggerExpand(tabCell);
         if (tabCell.isExpanded() && tabCell instanceof ContainerCell) {
             // flag the container as having been seen
             browser.runApplyContainerFlagSeen(((ContainerCell) tabCell).getId());
         }
-        super.triggerExpand(tabCell);
     }
 
     /**
@@ -599,9 +639,9 @@ public class ContainerModel extends TabModel {
      * @return A list of display documents.
      */
     private List<ContainerVersionDocumentCell> readVersionDocuments(
-            final ContainerVersionCell version) {
+            final ContainerVersionDocumentFolderCell documentFolder) {
         final List<ContainerVersionDocumentCell> l = new LinkedList<ContainerVersionDocumentCell>();
-        final ContainerVersionDocumentCell[] a = (ContainerVersionDocumentCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(2, version);
+        final ContainerVersionDocumentCell[] a = (ContainerVersionDocumentCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(2, documentFolder);
         for(final ContainerVersionDocumentCell c : a) { l.add(c); }
         return l;
     }
@@ -698,7 +738,7 @@ public class ContainerModel extends TabModel {
     }
     
     /**
-     * Synchronize the draft with the list.
+     * Synchronize the draft with the list for one container.
      * 
      * @param containerId
      *            The container id.
@@ -714,21 +754,13 @@ public class ContainerModel extends TabModel {
             draftDocumentCells.remove(containerDraft);
             draftCells.remove(container);
         }
-      
-        // Add the draft and associated document cells
-        if (container.isDraft() && container.isLocalDraft()) {
-            final DraftCell draft = readDraft(container);
-            draftCells.put(container, draft);
-            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
-            for(final DraftDocumentCell draftDocument : draftDocuments) {
-                containerIdLookup.put(draftDocument.getId(), container.getId());
-            }
-            draftDocumentCells.put(draft, draftDocuments);
-        }
+        
+        // Add the draft cell and associated document cells
+        initializeDraft(container);
     }
     
     /**
-     * Synchronize the versions with the list.
+     * Synchronize the versions with the list for one container.
      * 
      * @param containerId
      *            The container id.
@@ -738,36 +770,27 @@ public class ContainerModel extends TabModel {
     private void syncVersionInternal(final Long containerId, final Boolean remote) {
         final ContainerCell container = readContainer(containerId);
         
-        // Remove the version cells and associated document cells and user cells
+        // Remove the version cells and associated child cells
         final List<ContainerVersionCell> containerVersions = versionCells.get(container);
         if (null!=containerVersions) {
             for(final ContainerVersionCell containerVersion : containerVersions) {
+                final ContainerVersionDocumentFolderCell documentFolder = versionDocumentFolderCells.get(containerVersion);
+                if (null!=documentFolder) {
+                    versionDocumentCells.remove(documentFolder);
+                }
+                versionDocumentFolderCells.remove(containerVersion);
+                
                 final ContainerVersionSentToCell sentTo = versionSentToCells.get(containerVersion);
                 if (null!=sentTo) {
                     versionSentToUserCells.remove(sentTo);
                 }                                
                 versionSentToCells.remove(containerVersion);
-                versionDocumentCells.remove(containerVersion);
             }
             versionCells.remove(container);
         }
         
-        // Add the versions and associated document cells
-        final List<ContainerVersionCell> versions = readVersions(container);
-        versionCells.put(container, versions);
-        for(final ContainerVersionCell version : versions) {
-            final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
-            versionSentToCells.put(version, sentTo);
-            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
-            versionSentToUserCells.put(sentTo, versionUsers);
-            sentTo.setNumberOfUsers(versionUsers.size());
-            
-            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(version);
-            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
-                containerIdLookup.put(versionDocument.getId(), container.getId());
-            }
-            versionDocumentCells.put(version, readVersionDocuments(version));
-        }
+        // Add the version cells and associated child cells
+        initializeVersion(container);
     }
     
     /**

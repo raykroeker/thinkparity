@@ -28,11 +28,8 @@ public class ContainerCellComparator implements Comparator<ContainerCell>{
      */
     public int compare(final ContainerCell o1, final ContainerCell o2) {
         
-        // Put local draft first, then other drafts, finally by date (recent first).
+        // Put local draft first, then by date (recent first).
         int compareResult = o2.isLocalDraft().compareTo(o1.isLocalDraft());
-        if (0==compareResult) {
-            compareResult = o2.isDraft().compareTo(o1.isDraft());
-        }
         if (0==compareResult) {
             compareResult = o2.getUpdatedOn().compareTo(o1.getUpdatedOn());
         }

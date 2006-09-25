@@ -42,6 +42,7 @@ public class ContainerVersionCell extends DefaultTabCell {
     /** Create MainCellContainerVersion. */
     public ContainerVersionCell(final ContainerCell container,
             final ContainerVersion containerVersion) {
+        super();
         this.containerVersion = new ContainerVersion();
         this.containerVersion.setArtifactId(containerVersion.getArtifactId());
         this.containerVersion.setArtifactType(containerVersion.getArtifactType());

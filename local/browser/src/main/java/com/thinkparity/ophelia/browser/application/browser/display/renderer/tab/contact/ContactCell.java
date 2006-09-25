@@ -37,7 +37,8 @@ public class ContactCell extends DefaultTabCell {
     /**
      * Create a CellContact.
      */
-    public ContactCell(final Contact contact) {        
+    public ContactCell(final Contact contact) {  
+        super();
         this.contact = new Contact();
         this.contact.setId(contact.getId());
         this.contact.setLocalId(contact.getLocalId());

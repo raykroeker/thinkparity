@@ -62,6 +62,7 @@ public class ContainerCell extends DefaultTabCell {
     
     /** Create CellContainer. */
     public ContainerCell(final Container container, final ContainerDraft containerDraft) {
+        super();
         this.container = new Container();
         this.container.setCreatedBy(container.getCreatedBy());
         this.container.setCreatedOn(container.getCreatedOn());

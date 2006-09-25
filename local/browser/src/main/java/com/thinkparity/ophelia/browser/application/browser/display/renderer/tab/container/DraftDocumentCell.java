@@ -54,6 +54,7 @@ public class DraftDocumentCell extends DefaultTabCell {
      *            A document.
      */
     public DraftDocumentCell(final DraftCell draft, final Document document) {
+        super();
         this.document = new Document(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
                 document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
                 document.getUpdatedOn());

@@ -146,8 +146,10 @@ public abstract class TabModel {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
      */
     protected void triggerExpand(final TabCell tabCell) {
-        tabCell.setExpanded(!tabCell.isExpanded());
-        synchronize();
+        if (tabCell.isChildren()) {
+            tabCell.setExpanded(!tabCell.isExpanded());         
+            synchronize();
+        }
     }
 
     /**

@@ -30,6 +30,7 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
 
     /** Create ContainerVersionSentToCell. */
     public ContainerVersionSentToCell(final ContainerVersionCell version) {      
+        super();
         this.version = version;
         this.localization = new MainCellL18n("MainCellContainerVersionSentTo");
     }
@@ -127,6 +128,6 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
      */
     public Boolean isChildren() {
-        return Boolean.TRUE;
+        return (numberOfUsers > 0);
     }  
 }

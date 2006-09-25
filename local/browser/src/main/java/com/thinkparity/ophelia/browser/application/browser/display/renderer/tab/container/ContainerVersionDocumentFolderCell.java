@@ -1,5 +1,5 @@
 /**
- * Created On: 13-Sep-06 4:09:05 PM
+ * Created On: 22-Sep-06 1:27:39 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
@@ -17,22 +17,20 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ContainerVersionSentToCell extends DefaultTabCell {
-       
+public class ContainerVersionDocumentFolderCell extends DefaultTabCell {
+    
     /** The version. */
     private final ContainerVersionCell version;
-    
-    /** The number of users (child cells) */
-    private Integer numberOfUsers = 0;
     
     /** The draft cell localization. */
     private final MainCellL18n localization; 
 
-    /** Create ContainerVersionSentToCell. */
-    public ContainerVersionSentToCell(final ContainerVersionCell version) {      
+    /** Create ContainerVersionDocumentFolderCell. */
+    public ContainerVersionDocumentFolderCell(final ContainerVersionCell version) {      
         super();
         this.version = version;
-        this.localization = new MainCellL18n("MainCellContainerVersionSentTo");
+        this.localization = new MainCellL18n("MainCellContainerVersionDocumentFolder");
+        setExpanded(Boolean.TRUE);  // Default expanded
     }
     
     /**
@@ -40,8 +38,8 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
      * 
      */
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof ContainerVersionSentToCell) {
-            return ((ContainerVersionSentToCell) obj).version.equals(version);
+        if (null != obj && obj instanceof ContainerVersionDocumentFolderCell) {
+            return ((ContainerVersionDocumentFolderCell) obj).version.equals(version);
         }
         return false;
     }
@@ -79,8 +77,7 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
      */
     public String getTextNoClipping(TextGroup textGroup) {
         if (textGroup == TextGroup.WEST) {
-            final Integer number = numberOfUsers;
-            return localization.getString("Text", new Object[] {number});
+            return localization.getString("Text");
         } else {
             return null;
         }
@@ -115,19 +112,9 @@ public class ContainerVersionSentToCell extends DefaultTabCell {
     }
     
     /**
-     * Set the number of child users.
-     * 
-     * @param users
-     *            The number of users.
-     */
-    public void setNumberOfUsers(final Integer numberOfUsers) {
-        this.numberOfUsers = numberOfUsers;
-    }
-    
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#isChildren()
      */
     public Boolean isChildren() {
-        return (numberOfUsers > 0);
+        return (Boolean.TRUE);
     }  
 }

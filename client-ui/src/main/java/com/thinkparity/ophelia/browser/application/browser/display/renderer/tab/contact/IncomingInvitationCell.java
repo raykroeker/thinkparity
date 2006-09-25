@@ -63,14 +63,6 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
         }
         return false;
     }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
-     */
-    @Override
-    public Long getId() {
-        return incomingInvitation.getId();
-    }
 
     /**
      * Obtain the invitedBy
@@ -101,11 +93,6 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
     public int hashCode() { return incomingInvitation.hashCode(); }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
-     */
-    public void triggerDoubleClickAction(final Browser browser) {}
-    
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
     public void triggerPopup(final Connection connection,
@@ -128,4 +115,18 @@ public class IncomingInvitationCell extends DefaultInvitationCell {
             Assert.assertUnreachable("UNKNOWN CONECTION");
         }
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell#getId()
+     */
+    @Override
+    public Long getId() {
+        return incomingInvitation.getId();
+    }   
 }

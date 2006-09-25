@@ -50,6 +50,7 @@ public class DraftCell extends DefaultTabCell {
      * Create a CellContainer.
      */
     public DraftCell(final ContainerCell containerDisplay, final ContainerDraft draft) {
+        super();
         this.containerDraft = new ContainerDraft();
         this.containerDraft.setContainerId(draft.getContainerId());
         this.haveDocuments = Boolean.FALSE;
@@ -60,6 +61,9 @@ public class DraftCell extends DefaultTabCell {
         }
         this.container = containerDisplay;
         this.localization = new MainCellL18n("MainCellContainerDraft");
+        if (isChildren()) {
+            setExpanded(Boolean.TRUE);  // Default expanded
+        }
     }
 
     /**

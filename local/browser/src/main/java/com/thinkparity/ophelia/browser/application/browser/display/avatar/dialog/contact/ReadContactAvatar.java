@@ -63,14 +63,12 @@ public class ReadContactAvatar extends Avatar {
         // contact name, company and email
         JabberId id = getInputContactId();
         if (id != null) {
-            // TODO Refactor to not use single-character variable names
-            // See:  http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
-            final Contact c = getContact(id);
-            if (c != null) {
-                nameJTextField.setText(c.getName());
-                companyJTextField.setText(c.getOrganization());
-                titleJTextField.setText(c.getTitle());
-                final List<EMail> emails = c.getEmails();
+            final Contact contact = getContact(id);
+            if (contact != null) {
+                nameJTextField.setText(contact.getName());
+                companyJTextField.setText(contact.getOrganization());
+                titleJTextField.setText(contact.getTitle());
+                final List<EMail> emails = contact.getEmails();
                 if (0 < emails.size()) {
                     emailJTextField.setText(emails.get(0).toString());
                 }

@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ManageTeamProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.ResetPasswordProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
@@ -113,6 +114,9 @@ public class ProviderFactory {
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profile, containerModel, documentModel);
+            break;
+        case DIALOG_CONTAINER_PUBLISH:
+            provider = new ManageTeamProvider(profile, containerModel, contactModel);
             break;
         case DIALOG_PROFILE_RESET_PASSWORD:
             provider = new ResetPasswordProvider(profile, profileModel);

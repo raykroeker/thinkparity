@@ -86,14 +86,15 @@ public class CreateContainerAvatar extends Avatar {
         explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
         explanationJTextArea.setLineWrap(true);
         explanationJTextArea.setRows(5);
-        explanationJTextArea.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Explanation"));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        explanationJTextArea.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJTextArea.setWrapStyleWord(true);
         explanationJTextArea.setBorder(null);
         explanationJTextArea.setFocusable(false);
         explanationJTextArea.setOpaque(false);
 
-        newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.BorderTitle")));
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Name"));
+        newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("NewContainerDialog.BorderTitle"))); // NOI18N
+        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -109,7 +110,7 @@ public class CreateContainerAvatar extends Avatar {
                 .addContainerGap()
                 .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
                 .addContainerGap())
         );
         newContainerJPanelLayout.setVerticalGroup(
@@ -120,15 +121,16 @@ public class CreateContainerAvatar extends Avatar {
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+        newContainerJPanel.getAccessibleContext().setAccessibleName(bundle.getString("NewContainerDialog.BorderTitle")); // NOI18N
 
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Ok"));
+        okJButton.setText(bundle.getString("NewContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Cancel"));
+        cancelJButton.setText(bundle.getString("NewContainerDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -146,7 +148,7 @@ public class CreateContainerAvatar extends Avatar {
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
-                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                    .add(explanationJTextArea)
                     .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );

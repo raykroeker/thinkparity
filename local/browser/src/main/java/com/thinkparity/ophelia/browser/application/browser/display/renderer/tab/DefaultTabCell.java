@@ -283,14 +283,14 @@ public abstract class DefaultTabCell implements TabCell {
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setMouseOver(java.lang.Boolean)
      */
-    public void setMouseOver(Boolean mouseOver) {
+    public void setMouseOver(final Boolean mouseOver) {
         this.mouseOver = mouseOver;  
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#setHover(java.lang.Boolean)
      */
-    public void triggerDoubleClickAction(Browser browser) {}
+    public void triggerDoubleClickAction(final Browser browser) {}
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.ophelia.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent)

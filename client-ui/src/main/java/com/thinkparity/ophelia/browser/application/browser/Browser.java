@@ -22,6 +22,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -33,6 +34,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
@@ -76,6 +78,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -231,6 +234,20 @@ public class Browser extends AbstractApplication {
         input.set(CreateContainerAvatar.DataKey.FILES, files);        
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
+    }
+    
+    /**
+     * Display the "publish container" dialog.
+     * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void displayPublishContainerDialog(final Long containerId) {
+        final Data input = new Data(1);
+        input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
 
     /**
@@ -1140,7 +1157,7 @@ public class Browser extends AbstractApplication {
 	}    
     
     /**
-     *  Publish the selected container.
+     *  Publish the container.
      *  
      *  @param containerId
      *              The container id.
@@ -1149,6 +1166,23 @@ public class Browser extends AbstractApplication {
     public void runPublishContainer(final Long containerId) {
         final Data data = new Data(1);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
+        });
+    }
+    
+    /**
+     * Publish the container.
+     * 
+     *  @param containerId
+     *              The container id.     
+     */
+    public void runPublishContainer(final Long containerId,
+            final List<TeamMember> teamMembers, final List<Contact> contacts) {
+        final Data data = new Data(3);
+        data.set(Publish.DataKey.CONTAINER_ID, containerId);
+        data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
+        data.set(Publish.DataKey.CONTACTS, contacts);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });

@@ -3,11 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -42,29 +43,41 @@ public class Publish extends AbstractAction {
 	 */
 	public void invoke(final Data data) {
 		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-		if (browser.confirm("Publish.Temp")) {
+        final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
+        final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
+        
+        if (((null==contactsIn) || contactsIn.isEmpty()) &&
+            ((null==teamMembersIn) || teamMembersIn.isEmpty())) {
+            // Launch publish dialog
+            browser.displayPublishContainerDialog(containerId);
+        } else {
             final Profile profile = getProfileModel().read();
-            final List<Contact> contacts = getContactModel().read();
-            final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
-            Contact contact;
-            for (final Iterator<Contact> iContact = contacts.iterator(); iContact.hasNext(); ) {
-                contact = iContact.next();
+            final ArrayList<TeamMember> teamMembers = new ArrayList<TeamMember>();
+            final ArrayList<Contact> contacts = new ArrayList<Contact>();
+            
+            // Build team members list, minus the current user
+            for (final User teamMemberIn : teamMembersIn) {
+                if (!teamMemberIn.getId().equals(profile.getId())) {
+                    teamMembers.add((TeamMember)teamMemberIn);
+                }
+            }
+            
+            // Build contacts list, minus any overlap with team members
+            for (final User contactIn : contactsIn) {
+                Boolean found = Boolean.FALSE;
                 for (final TeamMember teamMember : teamMembers) {
-                    if (teamMember.getId().equals(contact.getId())) {
-                        iContact.remove();
+                    if (teamMember.getId().equals(contactIn.getId())) {
+                        found = Boolean.TRUE;
+                        break;
                     }
                 }
-            }
-            TeamMember teamMember;
-            for (final Iterator<TeamMember> iTeamMember = teamMembers.iterator(); iTeamMember.hasNext(); ) {
-                teamMember = iTeamMember.next();
-                if (teamMember.getId().equals(profile.getId())) {
-                    iTeamMember.remove();
+                if (!found) {
+                    contacts.add((Contact) contactIn);
                 }
             }
-
-		    getContainerModel().publish(containerId, contacts, teamMembers);
-		    getArtifactModel().applyFlagSeen(containerId);
+            
+            getContainerModel().publish(containerId, contacts, teamMembers);
+            getArtifactModel().applyFlagSeen(containerId);            
         }
 	}
 
@@ -73,5 +86,5 @@ public class Publish extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { CONTAINER_ID }
+	public enum DataKey { CONTAINER_ID, CONTACTS, TEAM_MEMBERS }
 }

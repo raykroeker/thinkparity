@@ -9,9 +9,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -20,16 +20,20 @@ import com.thinkparity.ophelia.model.user.TeamMember;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ManageTeamProvider extends CompositeFlatContentProvider {
+public class ManageTeamProvider extends CompositeFlatSingleContentProvider {
     
     /**
      * Providers.
      */
     private final FlatContentProvider teamProvider;
     private final FlatContentProvider contactsProvider;
+    private final SingleContentProvider profileProvider;
     
-    /** The set of providers. */
-    private final FlatContentProvider[] flatProviders;  
+    /** The set of flat providers. */
+    private final FlatContentProvider[] flatProviders;
+    
+    /** The set of single providers. */
+    private final SingleContentProvider[] singleProviders;
 
     /**
      * Create a ManageContactsProvider.
@@ -47,12 +51,17 @@ public class ManageTeamProvider extends CompositeFlatContentProvider {
                 return contactModel.read().toArray(new Contact[] {});
             }            
         };
+        this.profileProvider = new SingleContentProvider(profile) {
+            public Object getElement(final Object input) {
+                return profile;
+            }            
+        };
         this.flatProviders = new FlatContentProvider[] {contactsProvider, teamProvider};
+        this.singleProviders = new SingleContentProvider[] {profileProvider};
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatContentProvider#getElements(java.lang.Integer,
-     *      java.lang.Object)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatContentProvider#getElements(java.lang.Integer, java.lang.Object)
      * 
      */
     public Object[] getElements(final Integer index, final Object input) {
@@ -62,4 +71,17 @@ public class ManageTeamProvider extends CompositeFlatContentProvider {
                 index >= 0 && index < flatProviders.length);
         return flatProviders[index].getElements(input);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider#getElement(java.lang.Integer, java.lang.Object)
+     */
+    public Object getElement(final Integer index, final Object input) {
+        Assert.assertNotNull("Index cannot be null.", index);
+        Assert.assertTrue(
+                "Index must lie within [0," + (singleProviders.length - 1) + "]",
+                index >= 0 && index < singleProviders.length);
+        return singleProviders[index].getElement(input);
+    }
+    
+    
 }

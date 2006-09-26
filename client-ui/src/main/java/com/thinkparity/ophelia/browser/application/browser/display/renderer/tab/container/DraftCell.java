@@ -134,7 +134,7 @@ public class DraftCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      *
      */
-    public String getTextNoClipping(TextGroup textGroup) {
+    public String getTextNoClipping(final TextGroup textGroup) {
         if (textGroup == TextGroup.WEST) {
             return localization.getString("Draft");
         } else {

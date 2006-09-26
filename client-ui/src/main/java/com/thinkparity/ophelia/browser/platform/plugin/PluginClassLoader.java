@@ -36,7 +36,7 @@ class PluginClassLoader extends PluginUtility {
     private static final FileFilter JAR_FILE_FILTER;
 
     /** A file filter for resource files. */
-    private static final FileFilter RESOURCE_FILE_FILTER;
+    private static final FileFilter RESOURCE_FILTER;
 
     static {
         JAR_FILE_FILTER = new FileFilter() {
@@ -46,9 +46,14 @@ class PluginClassLoader extends PluginUtility {
                                 FileExtensions.JAR);
             }
         };
-        RESOURCE_FILE_FILTER = new FileFilter() {
+        final List<String> illegalResources = new ArrayList<String>();
+        illegalResources.add("LICENSE.txt");
+        illegalResources.add("README.txt");
+        illegalResources.add("META-INF");
+        illegalResources.add("lib");
+        RESOURCE_FILTER = new FileFilter() {
             public boolean accept(final File pathname) {
-                return pathname.isFile();
+                return !illegalResources.contains(pathname.getName());
             }
         };
     }
@@ -140,7 +145,7 @@ class PluginClassLoader extends PluginUtility {
      */
     private List<URL> getResources() throws IOException {
         final List<URL> resources = new ArrayList<URL>();
-        final File[] resourceFiles = fileSystem.list("/", RESOURCE_FILE_FILTER);
+        final File[] resourceFiles = fileSystem.list("/", RESOURCE_FILTER);
         for (final File resourceFile : resourceFiles) {
             resources.add(resourceFile.toURL());
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="ophelia-plugins" default="help" basedir="."
+<project name="ophelia-plugin-archive" default="help" basedir="."
         xmlns:cs="antlib:com.puppycrawl.tools.checkstyle">
     <property name="build.sysclasspath" value="ignore"/>
 
@@ -17,11 +17,11 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value=""/>
+    <property name="cvs.modules" value="local/browser-plugins/archive"/>
     <property name="cvs.modules.ide" value=""/>
 
     <!-- output directories -->
-	<property name="target.dir" value="${basedir}/target/plugins"/>
+	<property name="target.dir" value="${basedir}/target/browser-plugins/archive"/>
     <property name="target.analyze-report.dir" value="${target.dir}/analyze-report"/>   
     <property name="target.release.dir" value="${target.dir}/release"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
@@ -33,6 +33,7 @@
     <!-- classpath -->
 	<path id="project.classpath">
 		<pathelement location="${basedir}/target/classes"/>
+		<pathelement location="${target.classes.dir}"/>
 
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
 	</path>
@@ -40,7 +41,7 @@
     <path id="project.test-classpath">
         <path refid="project.classpath"/>
 
-        <pathelement location="${target.test-classes.dir}/common/junitx"/>
+        <pathelement location="${target.test-classes.dir}"/>
 
         <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
@@ -57,26 +58,23 @@
 
     <!-- release -->
     <target name="release-impl">
-        <!-- plugins/archive -->
-        <copy todir="${target.release.dir}/archive">
+        <copy todir="${target.release.dir}">
             <fileset file="${basedir}/LICENSE.txt"/>
             <fileset file="${basedir}/README.txt"/>
             <fileset dir="${target.classes.dir}">
-                <include name="localization/*"/>
                 <include name="META-INF/*"/>
             </fileset>
         </copy>
-        <mkdir dir="${target.release.dir}/archive/lib"/>
-        <jar destfile="${target.release.dir}/archive/lib/plugin-archive.jar"
+        <mkdir dir="${target.release.dir}/lib"/>
+        <jar destfile="${target.release.dir}/lib/plugin-archive.jar"
                 duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/archive">
+            <fileset dir="${target.classes.dir}">
                 <exclude name="META-INF**/*"/>
             </fileset>
         </jar>
-        <mkdir dir="${basedir}/target/classes/plugins"/>   
-        <jar destfile="${basedir}/target/classes/plugins/plugin-archive.par"
+        <jar destfile="${target.release.dir}/${release.name}.par"
                 duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.release.dir}/archive"/>
+            <fileset dir="${target.release.dir}"/>
         </jar>
     </target>
 
@@ -117,7 +115,7 @@
 
         <!-- plugins/archive -->
         <javac srcdir="${basedir}/local/browser-plugins/archive/main/java"
-                destdir="${target.classes.dir}/archive" debug="${compile.innerDebug}">
+                destdir="${target.classes.dir}" debug="${compile.innerDebug}">
 			<classpath refid="project.classpath"/>
         </javac>
 	</target>
@@ -156,13 +154,9 @@ Examples:
     <!-- initialize output -->
 	<target name="init">
         <mkdir dir="${target.analyze-report.dir}"/>
-        <mkdir dir="${target.classes.dir}/archive"/>
-        <mkdir dir="${target.classes.dir}/sample"/>
-        <mkdir dir="${target.javadoc.dir}/archive"/>
-        <mkdir dir="${target.javadoc.dir}/sample"/>
-		<mkdir dir="${target.test-classes.dir}/common/junitx"/>
-		<mkdir dir="${target.test-classes.dir}/archive"/>
-		<mkdir dir="${target.test-classes.dir}/sample"/>
+        <mkdir dir="${target.classes.dir}"/>
+        <mkdir dir="${target.javadoc.dir}"/>
+		<mkdir dir="${target.test-classes.dir}"/>
 		<mkdir dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
@@ -172,8 +166,7 @@ Examples:
         <cs:checkstyle config="checkstyle-rules.xml"
             failureProperty="checkstyle.didFail" failOnViolation="false">
             <formatter type="xml" tofile="target/analyze-report/checkstyle.xml"/>
-            <!-- sample -->   
-            <fileset dir="${basedir}/sample/main/java">
+            <fileset dir="${basedir}/local/browser-plugins/archive/main/java">
                 <include name="**/*.java"/>
             </fileset>
         </cs:checkstyle>
@@ -264,9 +257,6 @@ Examples:
 
     <!-- process test resources -->
     <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}/common/junitx/">
-            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
-        </copy>
     </target>
 
      <!-- update -->
@@ -281,5 +271,12 @@ Examples:
         <antcall target="clean" inheritAll="true" inheritRefs="true"/>
         <antcall target="compile" inheritAll="true" inheritRefs="true"/>
         <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+    <!-- quick-release-install -->
+    <target name="quick-release-install">
+        <antcall target="quick-release" inheritAll="true" inheritRefs="true"/>
+        <copy file="${target.release.dir}/${release.name}.par"
+                todir="${basedir}/target/classes/plugins"/>
     </target>
 </project>

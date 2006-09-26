@@ -3,9 +3,8 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
@@ -17,22 +16,8 @@ import com.thinkparity.ophelia.model.io.md.MetaData;
  */
 public abstract class AbstractIOHandler {
 
-	/**
-     * A log id.
-     * 
-     * @param io
-     *            The io category.
-     * @return The io log id.
-     */
-    protected static StringBuffer getIOId(final String io) {
-        return new StringBuffer("[LMODEL] [IO] ").append(io);
-    }
-
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger logger;
+	/** An apache logger. */
+	protected final Log4JWrapper logger;
 
     /**
      * The configuration io. Since the IO handler is an abstract io handler; it is
@@ -61,7 +46,7 @@ public abstract class AbstractIOHandler {
      */
 	protected AbstractIOHandler(final SessionManager sessionManager) {
 		super();
-		this.logger = Logger.getLogger(getClass());
+		this.logger = new Log4JWrapper();
         this.sessionManager = sessionManager;
 	}
 

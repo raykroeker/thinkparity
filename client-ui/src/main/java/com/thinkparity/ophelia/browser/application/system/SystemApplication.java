@@ -67,8 +67,8 @@ public class SystemApplication extends AbstractApplication {
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#debugVariable(java.lang.String, java.lang.Object)
      */
     @Override
-    public void debugVariable(final String name, final Object value) {
-        super.debugVariable(name, value);
+    public <V> V debugVariable(final String name, final V value) {
+        return super.debugVariable(name, value);
     }
 
 	/** Display the about dialogue. */
@@ -400,10 +400,11 @@ public class SystemApplication extends AbstractApplication {
                 actionRegistry.get(actionId).invoke(data);
             }
             else { ActionFactory.create(actionId).invoke(data); }
-        }
-        catch(final Exception x) {
-            logger.error("[LBROWSER] [APPLICATION] [SYSTEM] [RUN ACTION] [UNKNOWN ERROR]", x);
-            throw new RuntimeException(x);
+        } catch(final Throwable t) {
+            logger.logError(t,
+                    "Could not run system application action {0} with data {1}.",
+                    actionId, data);
+            throw new RuntimeException(t);
         }
     }
 

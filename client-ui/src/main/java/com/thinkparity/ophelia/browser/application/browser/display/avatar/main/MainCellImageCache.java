@@ -11,7 +11,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 public class MainCellImageCache {
 
     /** An apache logger. */
-    protected static final Logger slogger;
+    protected static final Log4JWrapper slogger;
     
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
@@ -33,7 +33,7 @@ public class MainCellImageCache {
     private static final Map<String, Object> IMAGE_CACHE;
 
     static {
-        slogger = Logger.getLogger(MainCellImageCache.class);
+        slogger = new Log4JWrapper();
 
         ICON_CACHE = new Hashtable<String, Object>(20, 0.75F);
         IMAGE_CACHE = new Hashtable<String, Object>(20, 0.75F);
@@ -44,16 +44,14 @@ public class MainCellImageCache {
 
     /** Cache all main cell icons. */
     private static void cacheIcons() {
+        slogger.logApiId();
         synchronized(ICON_CACHE) {
             ICON_CACHE.clear();
             
             for (final TabCellIcon tci : TabCellIcon.values()) {
-                if(!ICON_CACHE.containsKey(tci.iconName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + tci.iconName + "]");
-                    ICON_CACHE.put(
-                            tci.iconName,
-                            ImageIOUtil.readIcon(tci.iconName));
+                if (!ICON_CACHE.containsKey(tci.iconName)) {
+                    slogger.logVariable("tci", tci);
+                    ICON_CACHE.put(tci.iconName, ImageIOUtil.readIcon(tci.iconName));
                 }
             }
         }
@@ -61,28 +59,27 @@ public class MainCellImageCache {
 
     /** Cache all tab cell images. */
     private static void cacheImages() {
+        slogger.logApiId();
         synchronized(IMAGE_CACHE) {
             IMAGE_CACHE.clear();
 
             for(final TabCellImage tci: TabCellImage.values()) {
                 if(!IMAGE_CACHE.containsKey(tci.imageName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + tci.imageName + "]");
+                    slogger.logVariable("tci", tci);
                     IMAGE_CACHE.put(
-                            tci.imageName,
-                            ImageIOUtil.read(tci.imageName));
+                            tci.imageName, ImageIOUtil.read(tci.imageName));
                 }
             }
         }
     }
 
     /** An apache logger. */
-    protected final Logger logger;
+    protected final Log4JWrapper logger;
 
     /** Creates a new instance of MainCellImageCache */
     public MainCellImageCache() {
         super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
     }
 
     /** Debug the cache. */
@@ -124,10 +121,11 @@ public class MainCellImageCache {
      *            The cache.
      */
     private void debug(final String cacheName, final Map<String, Object> cache) {
-        synchronized(cache) {
+        logger.logApiId();
+        logger.logVariable("cacheName", cacheName);
+        synchronized (cache) {
             for(final String key : cache.keySet()) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE IO] [" +
-                        cacheName + "] [" + key + "]");
+                logger.logVariable("key", key);
             }
         }
     }

@@ -3,24 +3,20 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 
-import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
@@ -33,6 +29,9 @@ import com.thoughtworks.xstream.XStream;
  */
 abstract class AbstractXMPP<T extends EventListener> {
 
+    /** An apache logger. */
+    protected final Log4JWrapper logger;
+
     /** The xmpp core functionality. */
     protected final XMPPCore xmppCore;
 
@@ -42,14 +41,11 @@ abstract class AbstractXMPP<T extends EventListener> {
     /** The xmpp interfact implementation's listeners. */
     private final List<T> listeners;
 
-    /** An apache logger. */
-    private final Logger logger;
-
     /** Create AbstractXMPP. */
     protected AbstractXMPP(final XMPPCore xmppCore) {
         super();
         this.listeners = new ArrayList<T>();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
         this.xmppCore = xmppCore;
         this.xstream = new XStream();
     }
@@ -173,73 +169,6 @@ abstract class AbstractXMPP<T extends EventListener> {
     }
 
     /**
-     * Log the api id of the caller.
-     *
-     */
-    protected void logApiId() {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}#{2}",
-                    xmppCore.getJabberId().getUsername(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
-    }
-
-    protected void logError(final Object message) {
-        if (logger.isEnabledFor(Level.ERROR)) {
-            logger.error(MessageFormat.format("{0} {1}",
-                    xmppCore.getJabberId().getUsername(),
-                    Log4JHelper.render(logger, message)));
-        }
-    }
-
-    /**
-     * Debug a variable. Note that only the variable value will be rendered.
-     * 
-     * @param name
-     *            The variable name.
-     * @param value
-     *            The variable value.
-     */
-    protected <V> V logVariable(final String name, final V value) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0} {1}:{2}",
-                    xmppCore.getJabberId().getUsername(), name,
-                    Log4JHelper.render(logger, value)));
-        }
-        return value;
-    }
-
-    /**
-     * Log a warning message.
-     * 
-     * @param message A warning message.
-     */
-    protected void logWarning(final Object message) {
-        if (Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(MessageFormat.format("{0} {1}",
-                    xmppCore.getJabberId().getUsername(),
-                    Log4JHelper.render(logger, message)));
-        }
-    }
-
-    /**
-     * Log a warning with a error.
-     * 
-     * @param message
-     *            A warning message.
-     * @param t
-     *            An error.
-     */
-    protected void logWarning(final Object message, final Throwable t) {
-        if (Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(MessageFormat.format("{0} {1}",
-                    xmppCore.getJabberId().getUsername(),
-                    Log4JHelper.render(logger, message)), t);
-        }
-    }
-
-    /**
      * Notify all event listeners.
      * 
      * @param notifier
@@ -281,16 +210,12 @@ abstract class AbstractXMPP<T extends EventListener> {
         if (XMPPUncheckedException.class.isAssignableFrom(t.getClass())) {
             return (XMPPUncheckedException) t;
         } else if (Assertion.class.isAssignableFrom(t.getClass())) {
-            final Object errorId = MessageFormat.format("{0}#{1} - {2}",
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(), t.getLocalizedMessage());
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             return (Assertion) t;
         } else {
-            final Object errorId = MessageFormat.format("{0}#{1} - {2}",
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(), t.getLocalizedMessage());
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             return XMPPErrorTranslator.translateUnchecked(xmppCore, errorId, t);
         }
     }

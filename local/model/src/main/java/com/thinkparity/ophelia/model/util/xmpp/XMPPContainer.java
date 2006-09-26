@@ -251,12 +251,12 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws IOException {
-        logApiId();
-        logVariable("container", container);
-        logVariable("documents", documents);
-        logVariable("publishTo", publishTo);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedOn", publishedOn);
+        logger.logApiId();
+        logger.logVariable("container", container);
+        logger.logVariable("documents", documents);
+        logger.logVariable("publishTo", publishTo);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
         int i = 0;
         final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
         for (final Entry<DocumentVersion, InputStream> entry : entries) {
@@ -309,12 +309,12 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> sendTo, final JabberId sentBy,
             final Calendar sentOn) throws IOException {
-        logApiId();
-        logVariable("container", container);
-        logVariable("documents", documents);
-        logVariable("sendTo", sendTo);
-        logVariable("sentBy", sentBy);
-        logVariable("sentOn", sentOn);
+        logger.logApiId();
+        logger.logVariable("container", container);
+        logger.logVariable("documents", documents);
+        logger.logVariable("sendTo", sendTo);
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentOn", sentOn);
         int i = 0;
         final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
         for (final Entry<DocumentVersion, InputStream> entry : entries) {

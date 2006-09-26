@@ -28,7 +28,7 @@ public class Closed extends AbstractFilter<Artifact> {
 	public Closed() { super(); }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.filter.Filter#debug(org.apache.log4j.Logger)
+     * @see com.thinkparity.ophelia.model.util.filter.Filter#logVariable(String, org.apache.log4j.Logger)
      * 
      */
     public void debug(final Logger logger) {

@@ -150,9 +150,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document id.
      */
     void addDocument(final Long containerId, final Long documentId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("documentId", documentId);
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
         getIndexModel().indexDocument(containerId, documentId);
@@ -170,8 +170,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id <code>Long</code>.
      */
     void archive(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
             getArchiveModel().archive(container.getId());
@@ -190,8 +190,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return The new container.
      */
     Container create(final String name) {
-        logApiId();
-        logVariable("name", name);
+        logger.logApiId();
+        logger.logVariable("name", name);
         try {
             final Credentials credentials = readCredentials();
             final Calendar currentDateTime = currentDateTime();
@@ -258,8 +258,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see InternalSessionModel#createDraft(UUID)
      */
     ContainerDraft createDraft(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         assertContainerDraftDoesNotExist("DRAFT ALREADY EXISTS", containerId);
         assertOnline("USER NOT ONLINE");
         final Container container = read(containerId);
@@ -296,8 +296,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      */
     void delete(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
             if (isDistributed(container.getId())) {
@@ -322,8 +322,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      */
     void deleteDraft(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         assertDoesExistLocalDraft("DRAFT DOES NOT EXIST", containerId);
         assertIsDistributed("CANNOT DELETE FIRST DRAFT", containerId);
         assertOnline("USER NOT ONLINE");
@@ -386,18 +386,18 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final ArtifactType artifactType, final String artifactChecksum,
             final byte[] artifactBytes, final JabberId publishedBy,
             final Calendar publishedOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("artifactUniqueId", artifactUniqueId);
-        logVariable("artifactVersionId", artifactVersionId);
-        logVariable("artifactName", artifactName);
-        logVariable("artifactType", artifactType);
-        logVariable("artifactChecksum", artifactChecksum);
-        logVariable("artifactBytes", artifactBytes);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedOn", publishedOn);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("artifactUniqueId", artifactUniqueId);
+        logger.logVariable("artifactVersionId", artifactVersionId);
+        logger.logVariable("artifactName", artifactName);
+        logger.logVariable("artifactType", artifactType);
+        logger.logVariable("artifactChecksum", artifactChecksum);
+        logger.logVariable("artifactBytes", artifactBytes);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
         assertIsNotLocalUserId(publishedBy);
         try {
             // determine the existance of the container and the version.
@@ -517,18 +517,18 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final ArtifactType artifactType, final String artifactChecksum,
             final byte[] artifactBytes, final JabberId sentBy,
             final Calendar sentOn) {
-        logApiId();
-        logVariable("sentBy", sentBy);
-        logVariable("sentOn", sentOn);
-        logVariable("containerUniqueId", uniqueId);
-        logVariable("containerVersionId", versionId);
-        logVariable("containerName", name);
-        logVariable("artifactUniqueId", artifactUniqueId);
-        logVariable("artifactVersionId", artifactVersionId);
-        logVariable("artifactName", artifactName);
-        logVariable("artifactType", artifactType);
-        logVariable("artifactChecksum", artifactChecksum);
-        logVariable("artifactBytes", artifactBytes);
+        logger.logApiId();
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentOn", sentOn);
+        logger.logVariable("containerUniqueId", uniqueId);
+        logger.logVariable("containerVersionId", versionId);
+        logger.logVariable("containerName", name);
+        logger.logVariable("artifactUniqueId", artifactUniqueId);
+        logger.logVariable("artifactVersionId", artifactVersionId);
+        logger.logVariable("artifactName", artifactName);
+        logger.logVariable("artifactType", artifactType);
+        logger.logVariable("artifactChecksum", artifactChecksum);
+        logger.logVariable("artifactBytes", artifactBytes);
         try {
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             final Container container;
@@ -614,14 +614,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("createdBy", createdBy);
-        logVariable("createdOn", createdOn);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("createdBy", createdBy);
+        logger.logVariable("createdOn", createdOn);
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(containerId);
         final List<TeamMember> team = readTeam(containerId);
-        logVariable("team", team);
+        logger.logVariable("team", team);
         draft.setOwner(team.get(indexOf(team, createdBy)));
         containerIO.createDraft(draft);
         // fire event
@@ -641,10 +641,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void handleDraftDeleted(final Long containerId,
             final JabberId deletedBy, final Calendar deletedOn) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("createdBy", deletedBy);
-        logVariable("createdOn", deletedOn);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("createdBy", deletedBy);
+        logger.logVariable("createdOn", deletedOn);
         final ContainerDraft draft = readDraft(containerId);
         for (final Artifact artifact : draft.getArtifacts()) {
             containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
@@ -677,14 +677,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final String name, final Integer artifactCount,
             final JabberId publishedBy, final List<JabberId> publishedTo,
             final Calendar publishedOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("artifactCount", artifactCount);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedTo", publishedTo);
-        logVariable("publishedOn", publishedOn);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("artifactCount", artifactCount);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedTo", publishedTo);
+        logger.logVariable("publishedOn", publishedOn);
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final Long containerId = artifactModel.readId(uniqueId);
         // add to local team
@@ -704,7 +704,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete draft
         final ContainerDraft draft = readDraft(containerId);
         if (null == draft) {
-            logInfo("Draft did not previously exist for {0}.", name);
+            logger.logInfo("Draft did not previously exist for {0}.", name);
         } else {
             for (final Artifact artifact : draft.getArtifacts()) {
                 containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
@@ -741,14 +741,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final String name, final Integer artifactCount,
             final JabberId sentBy, final Calendar sentOn,
             final List<JabberId> sentTo) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("artifactCount", artifactCount);
-        logVariable("sentBy", sentBy);
-        logVariable("sentBy", sentBy);
-        logVariable("sentTo", sentTo);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("artifactCount", artifactCount);
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentTo", sentTo);
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final InternalUserModel userModel = getInternalUserModel();
         final Long containerId = artifactModel.readId(uniqueId);
@@ -771,9 +771,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            An <code>Printer</code>.
      */
     void printDraft(final Long containerId, final Printer printer) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("printer", printer);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("printer", printer);
         try {
             final ContainerDraft draft = readDraft(containerId);
             final InternalDocumentModel documentModel = getInternalDocumentModel();
@@ -796,10 +796,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void printVersion(final Long containerId, final Long versionId,
             final Printer printer) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("printer", printer);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("printer", printer);
         try {
             final InternalDocumentModel documentModel = getInternalDocumentModel();
             final List<DocumentVersion> documentVersions =
@@ -827,10 +827,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void publish(final Long containerId, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("contacts", contacts);
-        logVariable("teamMembers", teamMembers);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("contacts", contacts);
+        logger.logVariable("teamMembers", teamMembers);
         publish(containerId, null, contacts, teamMembers);
     }
 
@@ -848,11 +848,11 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void publish(final Long containerId, final String comment,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("comment", comment);
-        logVariable("contacts", contacts);
-        logVariable("teamMembers", teamMembers);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comment", comment);
+        logger.logVariable("contacts", contacts);
+        logger.logVariable("teamMembers", teamMembers);
         assertOnline("USER NOT ONLINE");
         assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
         assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
@@ -938,7 +938,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of containers.
      */
     List<Container> read() {
-        logApiId();
+        logger.logApiId();
         return read(defaultComparator);
     }
 
@@ -950,8 +950,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of containers.
      */
     List<Container> read(final Comparator<Artifact> comparator) {
-        logApiId();
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("comparator", comparator);
         return read(comparator, defaultFilter);
     }
 
@@ -966,9 +966,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<Container> containers = containerIO.read(localUser());
         FilterManager.filter(containers, filter);
         ModelSorter.sortContainers(containers, comparator);
@@ -983,8 +983,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of containers.
      */
     List<Container> read(final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("filter", filter);
         return read(defaultComparator, filter);
     }
 
@@ -996,8 +996,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A container.
      */
     Container read(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         return containerIO.read(containerId, localUser());
     }
 
@@ -1009,8 +1009,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of audit events.
      */
     List<AuditEvent> readAuditEvents(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         return getInternalAuditModel().read(containerId);
     }
 
@@ -1024,9 +1024,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of documents.
      */
     List<Document> readDocuments(final Long containerId, final Long versionId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
         return readDocuments(containerId, versionId, defaultDocumentComparator, defaultDocumentFilter);
     }
 
@@ -1043,10 +1043,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
         return readDocuments(containerId, versionId, comparator, defaultDocumentFilter);
     }
 
@@ -1069,11 +1069,11 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<Document> documents =
                 containerIO.readDocuments(containerId, versionId);
         FilterManager.filter(documents, filter);
@@ -1094,10 +1094,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
         return readDocuments(containerId, versionId, defaultDocumentComparator, filter);
     }
 
@@ -1109,8 +1109,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of document versions.
      */
     List<DocumentVersion> readDocumentVersions(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
         return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
     }
@@ -1123,8 +1123,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A container draft.
      */
     ContainerDraft readDraft(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
         if (null != draft) {
@@ -1147,8 +1147,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of history items.
      */
     List<ContainerHistoryItem> readHistory(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         return readHistory(containerId, defaultHistoryComparator, defaultHistoryFilter);
     }
 
@@ -1163,9 +1163,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Comparator<? super HistoryItem> comparator) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comparator", comparator);
         return readHistory(containerId, comparator, defaultHistoryFilter);
     }
 
@@ -1183,10 +1183,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Comparator<? super HistoryItem> comparator,
             final Filter<? super HistoryItem> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final ContainerHistoryBuilder historyBuilder =
             new ContainerHistoryBuilder(getInternalContainerModel(), l18n);
         final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
@@ -1206,9 +1206,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<ContainerHistoryItem> readHistory(final Long containerId,
             final Filter<? super HistoryItem> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("filter", filter);
         return readHistory(containerId, defaultHistoryComparator, filter);
     }
 
@@ -1220,8 +1220,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A container version.
      */
     ContainerVersion readLatestVersion(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         if (doesExistLatestVersion(containerId)) {
             return containerIO.readLatestVersion(containerId);
         } else {
@@ -1240,9 +1240,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readPublishedTo(final Long containerId,
             final Long versionId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
         return readPublishedTo(containerId, versionId, defaultUserComparator,
                 defaultUserFilter);
     }
@@ -1260,10 +1260,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
         return readPublishedTo(containerId, versionId, comparator,
                 defaultUserFilter);
     }
@@ -1284,11 +1284,11 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<User> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<User> publishedTo =
             containerIO.readPublishedTo(containerId, versionId);
         FilterManager.filter(publishedTo, filter);
@@ -1309,10 +1309,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readPublishedTo(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
         return readPublishedTo(containerId, versionId, defaultUserComparator,
                 filter); 
     }
@@ -1328,9 +1328,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readSharedWith(final Long containerId,
             final Long versionId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
         return readSharedWith(containerId, versionId, defaultUserComparator,
                 defaultUserFilter);
     }
@@ -1348,10 +1348,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
         return readSharedWith(containerId, versionId, comparator,
                 defaultUserFilter);
     }
@@ -1372,11 +1372,11 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<User> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<User> sharedWith =
             containerIO.readSharedWith(containerId, versionId);
         FilterManager.filter(sharedWith, filter);
@@ -1397,10 +1397,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<User> readSharedWith(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
         return readSharedWith(containerId, versionId, defaultUserComparator,
                 filter);
     }
@@ -1413,8 +1413,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of users.
      */
     List<TeamMember> readTeam(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         return getInternalArtifactModel().readTeam2(containerId);
     }
 
@@ -1428,9 +1428,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A container version.
      */
     ContainerVersion readVersion(final Long containerId, final Long versionId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
         return containerIO.readVersion(containerId, versionId);
     }
 
@@ -1442,8 +1442,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A list of container versions.
      */
     List<ContainerVersion> readVersions(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         return readVersions(containerId, defaultVersionComparator);
     }
 
@@ -1458,9 +1458,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comparator", comparator);
         return readVersions(containerId, comparator, defaultVersionFilter);
     }
 
@@ -1478,10 +1478,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<ContainerVersion> versions = containerIO.readVersions(containerId);
         FilterManager.filter(versions, filter);
         ModelSorter.sortContainerVersions(versions, comparator);
@@ -1500,9 +1500,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     List<ContainerVersion> readVersions(final Long containerId,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("filter", filter);
         return readVersions(containerId, defaultVersionComparator, filter);
     }
 
@@ -1515,9 +1515,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document id.
      */
     void removeDocument(final Long containerId, final Long documentId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("documentId", documentId);
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                 containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
@@ -1551,9 +1551,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The new container name.
      */
     void rename(final Long containerId, final String name) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("name", name);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("name", name);
         assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
         containerIO.updateName(containerId, name);
         // fire event
@@ -1567,8 +1567,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container unique id <code>UUID</code>.
      */
     void restore(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final InternalArchiveModel archiveModel = getArchiveModel();
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
@@ -1629,9 +1629,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A document id.
      */
     void revertDocument(final Long containerId, final Long documentId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("documentId", documentId);
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                 containerId, documentId, ContainerDraft.ArtifactState.NONE);
@@ -1652,8 +1652,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @return A <code>List&lt;Long&gt;</code>.
      */
     List<Long> search(final String expression) {
-        logApiId();
-        logVariable("expression", expression);
+        logger.logApiId();
+        logger.logVariable("expression", expression);
         try {
             final InternalIndexModel indexModel = getIndexModel();
             final List<Long> containerIds = indexModel.searchContainers(expression);
@@ -1678,11 +1678,11 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     void share(final Long containerId, final Long versionId,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        logApiId();
-        logVariable("containerId", containerId);
-        logVariable("versionId", versionId);
-        logVariable("contacts", contacts);
-        logVariable("teamMembers", teamMembers);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("contacts", contacts);
+        logger.logVariable("teamMembers", teamMembers);
         assertDoesExistVersion("VERSION DOES NOT EXIST", containerId, versionId);
         assertOnline("USER NOT ONLINE");
         final List<JabberId> shareWith = new ArrayList<JabberId>(contacts.size() + teamMembers.size());
@@ -1707,8 +1707,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      */
     void subscribe(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         assertNotTeamMember("USER A TEAM MEMBER", containerId, localUserId());
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
@@ -1723,8 +1723,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container id.
      */
     void unsubscribe(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
         assertTeamMember("USER NOT A TEAM MEMBER", containerId, localUserId());
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final UUID containerUniqueId = artifactModel.readUniqueId(containerId);

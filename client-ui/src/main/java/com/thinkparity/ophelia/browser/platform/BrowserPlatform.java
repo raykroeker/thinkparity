@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.platform;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -12,15 +11,14 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Java;
-import com.thinkparity.ophelia.browser.Constants.Logging;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationFactory;
@@ -39,8 +37,6 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 
 /**
- * 
- * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -81,11 +77,8 @@ public class BrowserPlatform implements Platform {
         return new StringBuffer("[LBROWSER] [PLATFORM] ").append(suffix);
     }
 
-	/**
-	 * The platform's logger.
-	 * 
-	 */
-	protected final Logger logger;
+	/** The platform's log4j wrapper. */
+	protected final Log4JWrapper logger;
 
 	/** An application factory. */
     private final ApplicationFactory applicationFactory;
@@ -144,7 +137,7 @@ public class BrowserPlatform implements Platform {
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
 
-		this.logger = Logger.getLogger(getClass());
+		this.logger = new Log4JWrapper();
 		this.persistence = new BrowserPlatformPersistence(this);
 
         this.firstRunHelper = new FirstRunHelper(this);
@@ -174,31 +167,12 @@ public class BrowserPlatform implements Platform {
     }
 
     /**
-     * End all applications.
-     *
-     */
-    private void endApplications() {
-        for (final ApplicationId id : ApplicationId.values()) {
-            if(applicationRegistry.contains(id))
-                applicationRegistry.get(id).end(this);
-        }
-    }
-
-    /**
-     * End all plugins.
-     *
-     */
-    private void endPlugins() {
-        pluginHelper.end();
-    }
-
-	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getAvatarRegistry()
 	 * 
 	 */
 	public AvatarRegistry getAvatarRegistry() { return avatarRegistry; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
@@ -220,7 +194,7 @@ public class BrowserPlatform implements Platform {
 		return persistence;
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getPluginRegistry()
      */
     public PluginRegistry getPluginRegistry() {
@@ -234,7 +208,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	public Preferences getPreferences() { return preferences; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
@@ -248,7 +222,7 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
 	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
@@ -268,34 +242,34 @@ public class BrowserPlatform implements Platform {
 	 */
 	public void notifyEnd(final Application application) {
         logApiId();
-        logger.debug(application);
+        logVariable("application", application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyHibernate(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
 	public void notifyHibernate(final Application application) {
 		logApiId();
-        logger.debug(application);
+        logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
 	public void notifyRestore(final Application application) {
         logApiId();
-        logger.debug(application);
+        logVariable("application", application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyStart(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */
 	public void notifyStart(final Application application) {
         logApiId();
-        logger.debug(application);
+        logVariable("application", application);
 	}
 
     /**
@@ -311,7 +285,7 @@ public class BrowserPlatform implements Platform {
     /** @see com.thinkparity.ophelia.browser.platform.Platform#restart(java.util.Properties) */
     public void restart(final Properties properties) {
         logApiId();
-        logger.debug(properties);
+        logVariable("properties", properties);
 
         // attach a process to the jvm shutdown
         final List<String> commands = new ArrayList<String>();
@@ -324,11 +298,13 @@ public class BrowserPlatform implements Platform {
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);
         commands.add(Java.MAIN_CLASS);
-        for(final String command : commands) { logger.debug(command); }
+        for (final String command : commands) {
+            logVariable("command", command);
+        }
 
         final ProcessBuilder pb = new ProcessBuilder();
         pb.command(commands);
-        logger.debug(Directories.PARITY_INSTALL);
+        logVariable("Directories.PARITY_INSTALL", Directories.PARITY_INSTALL);
         pb.directory(Directories.PARITY_INSTALL);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -348,7 +324,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	public void restore(final ApplicationId applicationId) {
 		logApiId();
-        logger.debug(applicationId);
+        logVariable("applicationId", applicationId);
 		applicationRegistry.get(applicationId).restore(this);
 	}
 
@@ -375,44 +351,49 @@ public class BrowserPlatform implements Platform {
         notifyLifeCycleStarted();
 	}
 
-    /**
-     * Start all plugins.
-     *
-     */
-    private void startPlugins() {
-        pluginHelper.start();
-    }
-
-    /**
-     * Start all applications.
-     *
-     */
-    private void startApplications() {
-        applicationFactory.create(ApplicationId.BROWSER).start(this);
-        applicationFactory.create(ApplicationId.SYSTEM).start(this);
-        applicationFactory.create(ApplicationId.SESSION).start(this);
-    }
-
     /** Update the browser. */
     public void update() {
         logApiId();
         updateHelper.update();
     }
 
-    /** Log an api id. */
-    protected void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    Logging.PLATFORM_LOG_ID,
-                    StackUtil.getCallerClassName().toUpperCase(),
-                    StackUtil.getCallerMethodName().toUpperCase()));
+    /**
+     * @see Log4JWrapper#logApiId()
+     */
+    protected final void logApiId() {
+        logger.logApiId();
+    }
+
+    /**
+     * @see Log4JWrapper#logApiId()
+     */
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
+    }
+
+    /**
+     * End all applications.
+     *
+     */
+    private void endApplications() {
+        for (final ApplicationId id : ApplicationId.values()) {
+            if(applicationRegistry.contains(id))
+                applicationRegistry.get(id).end(this);
         }
+    }
+
+    /**
+     * End all plugins.
+     *
+     */
+    private void endPlugins() {
+        pluginHelper.end();
     }
 
     /** Perform first run initialization. */
     private Boolean firstRun() { return firstRunHelper.firstRun(); }
 
-	/**
+    /**
      * Determine if this is the first time the platform has been run.
      *
      * @return True if this is the first run of the platform.
@@ -426,7 +407,7 @@ public class BrowserPlatform implements Platform {
      */
     private Boolean isUpdateAvailable() { return Boolean.FALSE; }
 
-    private void notifyLifeCycleEnded() {
+	private void notifyLifeCycleEnded() {
         final LifeCycleEvent e = listenerHelper.createEvent();
         listenerHelper.notifyListeners(new EventNotifier<LifeCycleListener>() {
             public void notifyListener(final LifeCycleListener listener) {
@@ -460,6 +441,24 @@ public class BrowserPlatform implements Platform {
                 listener.starting(e);
             }
         });
+    }
+
+    /**
+     * Start all applications.
+     *
+     */
+    private void startApplications() {
+        applicationFactory.create(ApplicationId.BROWSER).start(this);
+        applicationFactory.create(ApplicationId.SYSTEM).start(this);
+        applicationFactory.create(ApplicationId.SESSION).start(this);
+    }
+
+    /**
+     * Start all plugins.
+     *
+     */
+    private void startPlugins() {
+        pluginHelper.start();
     }
 
 

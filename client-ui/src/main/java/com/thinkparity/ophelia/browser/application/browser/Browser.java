@@ -387,7 +387,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void end(final Platform platform) {
-		logger.info("[LBROWSER] [APPLICATION] [BROWSER] [END]");
+		logApiId();
 		assertStatusChange(ApplicationStatus.ENDING);
 
 		ed.end();
@@ -1405,7 +1405,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
     public void start(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [B2] [START]");
+		logApiId();
 
 		assertStatusChange(ApplicationStatus.STARTING);
 		setStatus(ApplicationStatus.STARTING);
@@ -1525,8 +1525,11 @@ public class Browser extends AbstractApplication {
 		final Avatar avatar = getAvatar(avatarId);
 
 		final Object input = getAvatarInput(avatarId);
-		if(null == input) { logger.info("Null input:  " + avatarId); }
-		else { avatar.setInput(getAvatarInput(avatarId)); }
+		if (null == input) {
+            logger.logInfo("Avatar {0}'s input is null.", avatarId);
+		} else {
+            avatar.setInput(getAvatarInput(avatarId));
+		}
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }
@@ -1670,7 +1673,7 @@ public class Browser extends AbstractApplication {
 		try {
 			getAction(actionId).invoke(data);
 		} catch(final Throwable t) {
-            logger.error("[BROWSER] [INVOKE]", t);
+            logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             // TODO Provide meaningful error messages
             displayErrorDialog("", t);
 		}
@@ -1723,7 +1726,7 @@ public class Browser extends AbstractApplication {
 	private void setInput(final AvatarId avatarId, final Object input) {
 		final Avatar avatar = getAvatar(avatarId);
 		if(null == avatar) {
-			logger.warn("Avatar " + avatarId + " not yet available.");
+			logger.logWarning("Avatar {0} does not exist.", avatarId);
 			avatarInputMap.put(avatarId, input);
 		}
 		else {

@@ -227,9 +227,9 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @throws SmackException
      */
     void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("jabberId", jabberId);
         final XMPPMethod method = new XMPPMethod(Xml.Method.Artifact.ADD_TEAM_MEMBER);
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);
@@ -248,11 +248,11 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      */
 	void confirmReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId receivedBy) {
-	    logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("receivedBy", receivedBy);
+	    logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("receivedBy", receivedBy);
         final XMPPMethod confirmReceipt = new XMPPMethod("artifact:confirmreceipt");
         confirmReceipt.setParameter("userId", userId);
         confirmReceipt.setParameter("uniqueId", uniqueId);
@@ -262,8 +262,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 	}
 
 	void create(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod create = new XMPPMethod("artifact:create");
         create.setParameter("userId", userId);
         create.setParameter("uniqueId", uniqueId);
@@ -277,8 +277,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      *            An artifact unique id.
      */
     void createDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod method = new XMPPMethod("artifact:createdraft");
         method.setParameter("uniqueId", uniqueId);
         method.execute(xmppCore.getConnection());
@@ -289,16 +289,16 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @param uniqueId An artifact unique id.
      */
     void delete(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod delete = new XMPPMethod(Xml.Method.Artifact.DELETE);
         delete.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         delete.execute(xmppCore.getConnection());
     }
 
 	void deleteDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
         deleteDraft.setParameter("uniqueId", uniqueId);
         deleteDraft.execute(xmppCore.getConnection());
@@ -328,8 +328,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
 	List<JabberId> readTeamIds(final UUID uniqueId) {
-		logApiId();
-		logVariable("uniqueId", uniqueId);
+		logger.logApiId();
+		logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod readTeam = new XMPPMethod("artifact:readteamids");
         readTeam.setParameter("uniqueId", uniqueId);
         final XMPPMethodResponse response = execute(readTeam, Boolean.TRUE);
@@ -345,9 +345,9 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      *            A jabber id.
      */
     void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("jabberId", jabberId);
         final XMPPMethod method = new XMPPMethod("artifact:removeteammember");
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);

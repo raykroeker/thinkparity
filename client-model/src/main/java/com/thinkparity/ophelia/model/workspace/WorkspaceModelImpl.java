@@ -126,7 +126,7 @@ class WorkspaceModelImpl extends AbstractModelImpl {
      * @return True if this is the first run of the workspace; false otherwise.
      */
     Boolean isFirstRun(final Workspace workspace) {
-        logApiId();
+        logger.logApiId();
         return findImpl(workspace).isFirstRun();
     }
 

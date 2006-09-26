@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
  * ResourceBundleHelper This helper class is used to obtain sets of resources
@@ -31,17 +31,11 @@ public class ResourceBundleHelper {
 	 */
 	private final ResourceBundle bundle;
 
-	/**
-	 * The localization context for the user.
-	 * 
-	 */
-	private final String l18Context;
+	/** The localization context for the client. */
+	private final String context;
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	private final Logger logger;
+	/** An apache logger. */
+	private final Log4JWrapper logger;
 
 	/**
 	 * Create a ResourceBundleHelper
@@ -52,13 +46,12 @@ public class ResourceBundleHelper {
 	 *            The l18Context to use.
 	 */
 	public ResourceBundleHelper(final ResourceBundle bundle,
-			final String l18Context) {
+            final String context) {
 		super();
 		this.bundle = bundle;
-		this.l18Context = l18Context;
-		this.logger = Logger.getLogger(getClass());
-		logger.info("[PLATFORM] [UTIL] [L18N] [INIT]");
-		logger.debug(l18Context);
+		this.context = context;
+		this.logger = new Log4JWrapper();
+		logger.logVariable("context", context);
 	}
 
 	/**
@@ -71,9 +64,11 @@ public class ResourceBundleHelper {
 	 */
 	public String getString(final String localKey) {
 		final String qualifiedKey = getQualifiedKey(localKey);
-		try { return bundle.getString(qualifiedKey); }
-		catch(final MissingResourceException mrx) {
-			logger.warn("!" + qualifiedKey + "!");
+		try {
+            return bundle.getString(qualifiedKey);
+        } catch (final MissingResourceException mrx) {
+			logger.logWarning("Missing localization key {0} in bundle {1}.",
+                    qualifiedKey, bundle);
 			return "!" + qualifiedKey + "!";
 		}
 	}
@@ -91,10 +86,12 @@ public class ResourceBundleHelper {
 	 */
 	public String getString(final String localKey, final Object[] arguments) {
 		final String qualifiedKey = getQualifiedKey(localKey);
-		final String string = getString(localKey);
-		try { return MessageFormat.format(string, arguments); }
-		catch(final IllegalArgumentException iax) {
-			logger.warn("!!" + qualifiedKey + "!!");
+		final String pattern = getString(localKey);
+		try {
+            return MessageFormat.format(pattern, arguments);
+		} catch (final IllegalArgumentException iax) {
+			logger.logWarning("Illegal arguments for pattern {0} in bundle {1}.",
+                    pattern, bundle);
 			return "!!" + qualifiedKey + "!!";
 		}
 	}
@@ -109,11 +106,11 @@ public class ResourceBundleHelper {
 	 */
 	private String getQualifiedKey(final String localKey) {
 		if(isSetContext()) {
-			return new StringBuffer(l18Context)
-				.append(DOT)
+			return new StringBuffer(context).append(DOT)
 				.append(localKey).toString();
+		} else {
+            return localKey;
 		}
-		else { return localKey; }
 	}
 
 	/**
@@ -122,7 +119,10 @@ public class ResourceBundleHelper {
 	 * @return True if it has, false otherwise.
 	 */
 	private Boolean isSetContext() {
-		if(null != l18Context && 0 < l18Context.length()) { return Boolean.TRUE; }
-		else { return Boolean.FALSE; }
+		if(null != context && 0 < context.length()) {
+            return Boolean.TRUE;
+		} else {
+            return Boolean.FALSE;
+		}
 	}
 }

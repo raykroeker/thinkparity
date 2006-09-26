@@ -40,14 +40,6 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             .append("where C.CONFIGURATION_KEY=?")
             .toString();
 
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("[CONFIGURATION]").append(" " ).append(api);
-    }
-
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /** The meta data io interface. */
     private final MetaDataIOHandler metaDataIO;
 
@@ -74,7 +66,7 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.setString(1, key);
             session.setLong(2, metaDataId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE CONFIGURATION]"));
+                throw new HypersonicException("Could not create configuration entry.");
 
             session.commit();
         }
@@ -101,10 +93,10 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
                 session.prepareStatement(SQL_DELETE);
                 session.setString(1, key);
                 if(1 != session.executeUpdate())
-                    throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT DELETE CONFIGURATION]"));
+                    throw new HypersonicException("Could not delete configuration entry.");
             }
             else {
-                throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT FIND CONFIGURATION]"));
+                throw new HypersonicException("Could not find configuration entry.");
             }
             
             session.commit();

@@ -59,8 +59,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     void archive(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         try {
             final UUID uniqueId = getInternalArtifactModel().readUniqueId(artifactId);
             getInternalSessionModel().archiveArtifact(localUserId(), uniqueId);
@@ -70,9 +70,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     InputStream openDocumentVersion(final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
         try {
             return getInternalSessionModel().openArchiveDocumentVersion(
                     localUserId(), uniqueId, versionId);
@@ -82,8 +82,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     Container readContainer(final UUID containerUniqueId) {
-        logApiId();
-        logVariable("containerUniqueId", containerUniqueId);
+        logger.logApiId();
+        logger.logVariable("containerUniqueId", containerUniqueId);
         try {
             return getInternalSessionModel().readArchiveContainer(
                     localUserId(), containerUniqueId);
@@ -93,44 +93,44 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     List<Container> readContainers() {
-        logApiId();
+        logger.logApiId();
         return readContainers(defaultComparator);
     }
 
     List<Container> readContainers(final Comparator<Artifact> comparator) {
-        logApiId();
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("comparator", comparator);
         return readContainers(comparator, defaultFilter);
     }
 
     List<Container> readContainers(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         final List<Container> containers =
             getInternalSessionModel().readArchiveContainers(localUserId());
         return containers;
     }
 
     List<Container> readContainers(final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("filter", filter);
         return readContainers(defaultComparator, filter);
     }
 
     List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 defaultVersionFilter);
     }
 
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("comparator", comparator);
         return readContainerVersions(uniqueId, comparator,
                 defaultVersionFilter);
     }
@@ -138,10 +138,10 @@ class ArchiveModelImpl extends AbstractModelImpl {
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
         try {
             final List<ContainerVersion> versions =
                 getInternalSessionModel().readArchiveContainerVersions(
@@ -156,38 +156,38 @@ class ArchiveModelImpl extends AbstractModelImpl {
 
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("filter", filter);
         return readContainerVersions(uniqueId, defaultVersionComparator,
                 filter);
     }
 
     List<Document> readDocuments(final UUID uniqueId,
             final Long versionId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
         return readDocuments(uniqueId, versionId, defaultComparator,
                 defaultFilter);
     }
 
     List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
         return readDocuments(uniqueId, versionId, comparator, defaultFilter);
     }
 
     List<Document> readDocuments(final UUID uniqueId,
             final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
         try {
             final List<Document> documents =
                 getInternalSessionModel().readArchiveDocuments(localUserId(),
@@ -202,19 +202,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
 
     List<Document> readDocuments(final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId, final Filter<? super Artifact> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
         return readDocuments(uniqueId, versionId, defaultComparator, filter);
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final UUID documentUniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
         return readDocumentVersions(uniqueId, versionId, documentUniqueId,
                 defaultVersionComparator, defaultVersionFilter);
     }
@@ -222,11 +222,11 @@ class ArchiveModelImpl extends AbstractModelImpl {
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final UUID documentUniqueId,
             final Comparator<ArtifactVersion> comparator) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("comparator", comparator);
         return readDocumentVersions(uniqueId, versionId, documentUniqueId,
                 comparator, defaultVersionFilter);
     }
@@ -235,11 +235,11 @@ class ArchiveModelImpl extends AbstractModelImpl {
             final Long versionId, final UUID documentUniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("comparator", comparator);
         try {
             final List<DocumentVersion> versions =
                 getInternalSessionModel().readArchiveDocumentVersions(
@@ -255,19 +255,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId, final UUID documentUniqueId,
             final Filter<? super ArtifactVersion> filter) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("filter", filter);
         return readDocumentVersions(uniqueId, versionId, documentUniqueId,
                 defaultVersionComparator, filter);
     }
 
 
     List<JabberId> readTeamIds(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         try {
             return getInternalSessionModel().readArchiveTeamIds(localUserId(),
                     uniqueId);
@@ -277,8 +277,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     void restore(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         try {
             getInternalSessionModel().restoreArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {

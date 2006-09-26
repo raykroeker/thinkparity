@@ -47,30 +47,6 @@ public class UserIOHandler extends AbstractIOHandler implements
         .toString();
 
     /**
-     * Obtain an api id.
-     * 
-     * @param api
-     *            An api.
-     * @return An error id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("USER").append(" ").append(api);
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @param api
-     *            An api.
-     * @param error
-     *            An error.
-     * @return An error id.
-     */
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
-    /**
      * Create a UserIOHandler.
      * 
      * @param sessionManager
@@ -151,7 +127,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setString(3, user.getTitle());
         session.setLong(4, user.getLocalId());
         if (1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("UPDATE", "CANNOT UPDATE USER"));
+            throw new HypersonicException("Could not update user.");
     }
 
     /**
@@ -169,7 +145,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setString(3, user.getOrganization());
         session.setString(4, user.getTitle());
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("[CREATE]", "[COULD NOT CREATE USER]"));
+            throw new HypersonicException("Could not create user.");
         user.setLocalId(session.getIdentity());
     }
 

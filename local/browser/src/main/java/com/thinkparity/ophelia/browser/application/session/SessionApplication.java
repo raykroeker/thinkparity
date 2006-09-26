@@ -182,7 +182,7 @@ public class SessionApplication extends AbstractApplication {
                         logWarn("Server not online.");
                     }
                 } catch (final Throwable t) {
-                    logError("Connection timer error.", t);
+                    logError(t, "Error connecting to session.");
                 }
             }
         }, delay, Session.CONNECT_TIMER_PERIOD);

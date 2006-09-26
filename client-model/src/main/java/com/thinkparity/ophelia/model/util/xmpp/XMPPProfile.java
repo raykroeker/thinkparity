@@ -40,9 +40,9 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            An <code>EMail</code>.
      */
     void addEmail(final JabberId userId, final EMail email) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod addEmail = new XMPPMethod("profile:addemail");
         addEmail.setParameter("userId", userId);
@@ -56,8 +56,8 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      * @return A profile.
      */
     Profile read(final JabberId userId) throws SmackException {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod read = new XMPPMethod("profile:read");
         read.setParameter("userId", userId);
@@ -71,8 +71,8 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     List<EMail> readEMails(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod readEMails = new XMPPMethod("profile:reademails");
         readEMails.setParameter("userId", userId);
@@ -88,8 +88,8 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      * @return A security question <code>String</code>.
      */
     String readSecurityQuestion(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod resetCredentials = new XMPPMethod("profile:readsecurityquestion");
         resetCredentials.setParameter("userId", userId);
@@ -106,9 +106,9 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            An <code>EMail</code>.
      */
     void removeEmail(final JabberId userId, final EMail email) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod addEmail = new XMPPMethod("profile:removeemail");
         addEmail.setParameter("userId", userId);
@@ -123,9 +123,9 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            A user id <code>JabberId</code>.
      */
     String resetPassword(final JabberId userId, final String securityAnswer) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("securityAnswer", "XXXXX");
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("securityAnswer", "XXXXX");
         assertIsAuthenticatedUser(userId);
         final XMPPMethod resetCredentials = new XMPPMethod("profile:resetpassword");
         resetCredentials.setParameter("userId", userId);
@@ -145,10 +145,10 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            An email verification key <code>String</code>.
      */
     void verifyEmail(final JabberId userId, final EMail email, final String key) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
-        logVariable("key", key);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
+        logger.logVariable("key", key);
         assertIsAuthenticatedUser(userId);
         final XMPPMethod verifyEmail = new XMPPMethod("profile:verifyemail");
         verifyEmail.setParameter("userId", userId);
@@ -166,8 +166,8 @@ class XMPPProfile extends AbstractXMPP<ProfileListener> {
      *            The user's <code>Profile</code>.
      */
     void update(final JabberId userId, final Profile profile) {
-        logApiId();
-        logVariable("profile", profile);
+        logger.logApiId();
+        logger.logVariable("profile", profile);
         assertIsAuthenticatedUser(userId);
 
         final XMPPMethod update = new XMPPMethod("profile:update");

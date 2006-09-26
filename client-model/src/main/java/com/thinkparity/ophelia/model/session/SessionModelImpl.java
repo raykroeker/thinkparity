@@ -104,9 +104,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A <code>ProfileEMail</code>.
      */
     void addProfileEmail(final JabberId userId, final ProfileEMail email) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -127,9 +127,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A jabber id.
      */
     void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("jabberId", jabberId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -149,9 +149,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id <code>UUID</code>.
      */
     void archiveArtifact(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -172,11 +172,11 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 */
 	void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
             final Long versionId, final JabberId receivedBy) {
-	    logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("receivedBy", receivedBy);
+	    logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("receivedBy", receivedBy);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
     	    synchronized(xmppSession) {
@@ -194,9 +194,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id.
      */
 	void createArtifact(final JabberId userId, final UUID uniqueId) {
-		logApiId();
-        logVariable("userId", userId);
-		logVariable("uniqueId", uniqueId);
+		logger.logApiId();
+        logger.logVariable("userId", userId);
+		logger.logVariable("uniqueId", uniqueId);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
@@ -214,8 +214,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id.
      */
     void createDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -234,9 +234,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * @throws ParityException
 	 */
 	void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-        logApiId();
-        logVariable("invitedAs", invitedAs);
-        logVariable("invitedBy", invitedBy);
+        logger.logApiId();
+        logger.logVariable("invitedAs", invitedAs);
+        logger.logVariable("invitedBy", invitedBy);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized(xmppSession) {
@@ -254,8 +254,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id.
      */
     void deleteArtifact(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -276,9 +276,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A contact id <code>JabberId</code>.
      */
     void deleteContact(final JabberId userId, final JabberId contactId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("contactId", contactId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("contactId", contactId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -301,10 +301,10 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     void deleteContactInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("invitedAs", invitedAs);
-        logVariable("deletedOn", deletedOn);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("invitedAs", invitedAs);
+        logger.logVariable("deletedOn", deletedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -322,8 +322,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id.
      */
     void deleteDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         final XMPPSession xmppSession = workspace.getXMPPSession();
         synchronized (xmppSession) {
             xmppSession.deleteDraft(uniqueId);
@@ -337,8 +337,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 *            An <code>EMail</code> to invite.
 	 */
 	void extendInvitation(final EMail extendTo) {
-        logApiId();
-        logVariable("extendTo", extendTo);
+        logger.logApiId();
+        logger.logVariable("extendTo", extendTo);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
@@ -355,7 +355,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *
      */
     void handleSessionEstablished() {
-        logApiId();
+        logger.logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionEstablished();
@@ -368,7 +368,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *
      */
     void handleSessionTerminated() {
-        logApiId();
+        logger.logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionTerminated();
@@ -384,7 +384,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * 
      */
     void handleSessionTerminated(final Exception cause) {
-        logApiId();
+        logger.logApiId();
         notifyListeners(new EventNotifier<SessionListener>() {
             public void notifyListener(final SessionListener listener) {
                 listener.sessionTerminated(cause);
@@ -410,7 +410,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @throws ParityException
      */
     void login() {
-        logApiId();
+        logger.logApiId();
         login(readCredentials());
     }
 
@@ -422,8 +422,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @throws ParityException
      */
     void login(final Credentials credentials) {
-        logApiId();
-        logVariable("credentials", credentials);
+        logger.logApiId();
+        logger.logVariable("credentials", credentials);
         login(environment, credentials);
     }
 
@@ -432,7 +432,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 * 
 	 */
 	void logout() {
-        logApiId();
+        logger.logApiId();
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
@@ -461,12 +461,12 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) {
-        logApiId();
-        logVariable("container", container);
-        logVariable("documents", documents);
-        logVariable("publishTo", publishTo);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedOn", publishedOn);
+        logger.logApiId();
+        logger.logVariable("container", container);
+        logger.logVariable("documents", documents);
+        logger.logVariable("publishTo", publishTo);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -480,9 +480,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 
     Container readArchiveContainer(final JabberId userId,
             final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -501,8 +501,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A list of conatiners.
      */
     List<Container> readArchiveContainers(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -524,9 +524,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     List<ContainerVersion> readArchiveContainerVersions(
             final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -551,10 +551,10 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -582,11 +582,11 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -606,8 +606,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A list of jabber ids.
      */
 	List<JabberId> readArtifactTeamIds(final UUID uniqueId) {
-		logApiId();
-        logVariable("uniqueId", uniqueId);
+		logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
@@ -624,7 +624,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return The user's contact info.
      */
     Contact readContact() {
-        logApiId();
+        logger.logApiId();
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
@@ -636,9 +636,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A contact.
      */
 	Contact readContact(final JabberId userId, final JabberId contactId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("contactId", contactId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("contactId", contactId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -675,9 +675,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @throws ParityException
      */
     JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
-		logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+		logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
@@ -694,7 +694,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A profile.
      */
     Profile readProfile() {
-        logApiId();
+        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -706,7 +706,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     }
 
 	List<EMail> readProfileEMails() {
-        logApiId();
+        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -725,8 +725,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A security question <code>String</code>.
      */
     String readProfileSecurityQuestion(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -743,7 +743,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return The logged in user's session.
      */
     Session readSession() {
-        logApiId();
+        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -763,7 +763,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @throws ParityException
      */
 	User readUser() {
-        logApiId();
+        logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -782,8 +782,8 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A <code>User</code>.
      */
 	User readUser(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -803,9 +803,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A <code>ProfileEMail</code>.
      */
     void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -825,9 +825,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A user id <code>JabberId</code>.
      */
     void removeTeamMember(final UUID uniqueId, final JabberId userId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("userId", userId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -849,9 +849,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     String resetProfilePassword(final JabberId userId,
             final String securityAnswer) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("securityAnswer", "XXXXX");
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("securityAnswer", "XXXXX");
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -871,9 +871,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            An artifact unique id <code>UUID</code>.
      */
     void restoreArtifact(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -898,12 +898,12 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> sendTo, final JabberId sentBy,
             final Calendar sentOn) {
-        logApiId();
-        logVariable("container", container);
-        logVariable("documents", documents);
-        logVariable("sendTo", sendTo);
-        logVariable("sentBy", sentBy);
-        logVariable("sentOn", sentOn);
+        logger.logApiId();
+        logger.logVariable("container", container);
+        logger.logVariable("documents", documents);
+        logger.logVariable("sendTo", sendTo);
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentOn", sentOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -944,9 +944,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            The user's <code>Profile</code>.
      */
     void updateProfile(final JabberId userId, final Profile profile) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("profile", profile);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("profile", profile);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -967,9 +967,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     void updateProfileCredentials(final JabberId userId,
             final Credentials credentials) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("credentials", credentials);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("credentials", credentials);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -992,10 +992,10 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     void verifyProfileEmail(final JabberId userId,
             final ProfileEMail email, final String key) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
-        logVariable("key", key);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
+        logger.logVariable("key", key);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1031,8 +1031,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     private void login(final Integer attempt, final Environment environment,
             final Credentials credentials) {
-        logger.debug(environment);
-        logger.debug(credentials);
+        logger.logVariable("attempt", attempt);
+        logger.logVariable("environment", environment);
+        logger.logVariable("credentials", credentials);
         try {
             assertNotIsOnline();
             assertIsReachable(environment);
@@ -1074,9 +1075,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A list of jabber ids.
      */
     List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
@@ -1089,10 +1090,10 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 
     InputStream openArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {

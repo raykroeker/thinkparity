@@ -238,7 +238,7 @@ public class ActionFactory extends AbstractFactory {
      */
     private void register(final AbstractAction action) {
         if (actionRegistry.contains(action.getId())) {
-            logWarning("REGISTRY CONTAINS ACTION " + action.getId());
+            logger.logWarning("Action {0} already registered.", action);
         }
         actionRegistry.put(action);
     }

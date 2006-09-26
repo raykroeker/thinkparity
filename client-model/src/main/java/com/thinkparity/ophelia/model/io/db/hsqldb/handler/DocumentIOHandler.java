@@ -147,30 +147,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             .toString();
 
 	/**
-     * Obtain a log4j api id.
-     * 
-     * @param api
-     *            An api.
-     * @return A log4j api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("[DOCUMENT]").append(" ").append(api);
-    }
-
-	/**
-     * Obtain a log4j error id for an api.
-     * 
-     * @param api
-     *            An api.
-     * @param error
-     *            An error.
-     * @return A log4j error id.
-     */
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
-	/**
 	 * Generic artifact io.
 	 * 
 	 */
@@ -199,7 +175,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_CREATE);
 			session.setLong(1, document.getId());
 			if(1 != session.executeUpdate())
-				throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE DOCUMENT]"));
+				throw new HypersonicException("Could not create document.");
 
 			session.commit();
 		}
@@ -229,8 +205,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setString(5, version.getChecksum());
 			session.setInt(6, version.getCompression());
 			if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        getErrorId("[CREATE VERSION]", "[CANNOT CREATE DOCUMENT VERSION]"));
+                throw new HypersonicException("Could not create document version.");
 
 			version.setVersionId(version.getVersionId());
 			session.commit();
@@ -252,7 +227,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_DELETE);
 			session.setLong(1, documentId);
 			if(1 != session.executeUpdate())
-				throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT DELETE DOCUMENT]"));
+				throw new HypersonicException("Could not delete document.");
 			artifactIO.deleteRemoteInfo(session, documentId);
 			artifactIO.delete(session, documentId);
 			session.commit();
@@ -472,7 +447,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#update(com.thinkparity.codebase.model.document.Document)
 	 */
 	public void update(final Document document) {
-		logger.warn("Update is misleading.  Only name, state, timestamp and flag information is being set.");
+		logger.logWarning("Update is misleading.  Only updated on, name, state, and flag information is being set.");
 		final Session session = openSession();
 		try {
 			artifactIO.setFlags(session, document.getId(), document.getFlags());

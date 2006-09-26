@@ -36,14 +36,6 @@ class EmailIOHandler extends AbstractIOHandler {
             .append("where E.EMAIL=?")
             .toString();
 
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("[EMAIL]").append(" ").append(api);
-    }
-
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /**
      * Create EmailIOHandler.
      * 
@@ -67,7 +59,7 @@ class EmailIOHandler extends AbstractIOHandler {
         session.prepareStatement(SQL_CREATE);
         session.setEMail(1, email);
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("CREATE", "COULD NOT CREATE E-MAIL"));
+            throw new HypersonicException("Could not create email.");
         return session.getIdentity();
     }
 
@@ -75,7 +67,7 @@ class EmailIOHandler extends AbstractIOHandler {
         session.prepareStatement(SQL_DELETE);
         session.setLong(1, emailId);
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("DELETE", "COULD NOT DELETE E-MAIL"));
+            throw new HypersonicException("Could not delete email.");
     }
 
     /**

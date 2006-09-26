@@ -3,16 +3,13 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 
@@ -35,21 +32,17 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 class SessionModelEventDispatcher {
 
     /** An apache logger. */
-    private final Logger logger;
+    private final Log4JWrapper logger;
 
     private final InternalModelFactory modelFactory;
-
-    /** The thinkParity <code>Workspace</code>. */
-    private final Workspace workspace;
 
     SessionModelEventDispatcher(final Workspace workspace,
             final InternalModelFactory modelFactory,
             final XMPPSession xmppSession) {
         super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
         this.modelFactory = modelFactory;
-        this.workspace = workspace;
-        logApiId();
+        logger.logApiId();
         xmppSession.clearListeners();
         xmppSession.addListener(new ArtifactListener() {
             public void confirmReceipt(final UUID uniqueId,
@@ -86,7 +79,7 @@ class SessionModelEventDispatcher {
                     final UUID artifactUniqueId, final Long artifactVersionId,
                     final String artifactName, final ArtifactType artifactType,
                     final String artifactChecksum, final byte[] artifactBytes) {
-                logApiId();
+                logger.logApiId();
                 getContainerModel().handleArtifactPublished(containerUniqueId, containerVersionId,
                         containerName, artifactUniqueId, artifactVersionId,
                         artifactName, artifactType, artifactChecksum,
@@ -158,19 +151,6 @@ class SessionModelEventDispatcher {
                 getSessionModel().handleSessionTerminated(x);
             }
         });
-    }
-
-    /**
-     * Log the api id of the caller.
-     *
-     */
-    protected void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}#{2}",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
     }
 
     private InternalArtifactModel getArtifactModel() {

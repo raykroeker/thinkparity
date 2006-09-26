@@ -37,10 +37,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
     void audit(final AddTeamMemberEvent event, final JabberId createdBy,
             final JabberId teamMember) throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT TEAM MEMBER ADDED]");
-        logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(teamMember);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", teamMember);
         event.setCreatedBy(lookupUser(createdBy));
         event.setTeamMember(lookupUser(teamMember));
         auditIO.audit(event);
@@ -48,10 +48,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
     void audit(final AddTeamMemberConfirmEvent event, final JabberId createdBy,
             final JabberId teamMember) throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRM TEAM MEMBER ADDED]");
-        logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(teamMember);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", teamMember);
         event.setCreatedBy(lookupUser(createdBy));
         event.setTeamMember(lookupUser(teamMember));
         auditIO.audit(event);
@@ -59,19 +59,19 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final ArchiveEvent event, final JabberId createdBy)
             throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT ARCHIVE]");
-		logger.debug(event);
-        logger.debug(createdBy);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
         event.setCreatedBy(lookupUser(createdBy));
 		auditIO.audit(event);
 	}
 
 	void audit(final CloseEvent event, final JabberId createdBy,
             final JabberId closedBy) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT CLOSE]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(closedBy);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", closedBy);
         event.setCreatedBy(lookupUser(createdBy));
         event.setClosedBy(lookupUser(closedBy));
 		auditIO.audit(event);
@@ -79,10 +79,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
     void audit(final SendConfirmEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRMATION RECEIPT]");
-        logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(receivedFrom);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", receivedFrom);
         event.setCreatedBy(lookupUser(createdBy));
         event.setConfirmedBy(lookupUser(receivedFrom));
         auditIO.audit(event);
@@ -90,19 +90,19 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final CreateEvent event, final JabberId createdBy)
             throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT CREATE]");
-        logger.debug(event);
-        logger.debug(createdBy);
+		logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
         event.setCreatedBy(lookupUser(createdBy));
 		auditIO.audit(event);
 	}
 
 	void audit(final CreateRemoteEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT CREATE REMOTE]");
-        logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(receivedFrom);
+		logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", receivedFrom);
         event.setCreatedBy(lookupUser(createdBy));
         event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
@@ -110,10 +110,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final KeyRequestDeniedEvent event, final JabberId createdBy,
             final JabberId deniedBy) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [KEY REQUEST DENIED]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(deniedBy);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", deniedBy);
         event.setCreatedBy(lookupUser(createdBy));
         event.setDeniedBy(lookupUser(deniedBy));
 		auditIO.audit(event);
@@ -121,10 +121,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final KeyResponseDeniedEvent event, final JabberId createdBy,
             final JabberId requestedBy) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [KEY RESPONSE DENIED]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(requestedBy);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", requestedBy);
         event.setCreatedBy(lookupUser(createdBy));
         event.setRequestedBy(lookupUser(requestedBy));
 		auditIO.audit(event);
@@ -132,19 +132,19 @@ class AuditModelImpl extends AbstractModelImpl {
 
     void audit(final PublishEvent event, final JabberId createdBy)
             throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT PUBLISH]");
-        logger.debug(event);
-        logger.debug(createdBy);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
         event.setCreatedBy(lookupUser(createdBy));
         auditIO.audit(event);
     }
 
     void audit(final ReactivateEvent event, final JabberId createdBy,
             final JabberId reactivatedBy) throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT REACTIVATE]");
-        logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(reactivatedBy);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", reactivatedBy);
         event.setCreatedBy(lookupUser(createdBy));
         event.setReactivatedBy(lookupUser(reactivatedBy));
         auditIO.audit(event);
@@ -152,10 +152,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final ReceiveEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT RECEIVE]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(receivedFrom);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", receivedFrom);
         event.setCreatedBy(lookupUser(createdBy));
         event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
@@ -163,9 +163,9 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final ReceiveKeyEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT RECEIVE KEY]");
-		logger.debug(event);
-        logger.debug(createdBy);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
         event.setCreatedBy(lookupUser(createdBy));
         event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
@@ -173,9 +173,9 @@ class AuditModelImpl extends AbstractModelImpl {
 
     void audit(final RenameEvent event, final JabberId createdBy)
             throws ParityException {
-        logger.info("[LMODEL] [AUDIT] [AUDIT RENAME]");
-        logger.debug(event);
-        logger.debug(createdBy);
+        logger.logApiId();
+        logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
         event.setCreatedBy(lookupUser(createdBy));
         auditIO.audit(event);
     }
@@ -183,11 +183,11 @@ class AuditModelImpl extends AbstractModelImpl {
 	void audit(final RequestKeyEvent event, final JabberId createdBy,
             final JabberId requestedBy, final JabberId requestedFrom)
             throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT REQUEST KEY]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(requestedBy);
-        logger.debug(requestedFrom);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", requestedBy);
+        logger.logVariable("variable", requestedFrom);
         event.setCreatedBy(lookupUser(createdBy));
         event.setRequestedBy(lookupUser(requestedBy));
         event.setRequestedFrom(lookupUser(requestedFrom));
@@ -196,10 +196,10 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final SendEvent event, final JabberId createdBy,
             final JabberId sentTo) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT SEND]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(sentTo);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", sentTo);
         event.setCreatedBy(lookupUser(createdBy));
         event.setSentTo(lookupUser(sentTo));
 		auditIO.audit(event);
@@ -207,24 +207,24 @@ class AuditModelImpl extends AbstractModelImpl {
 
 	void audit(final SendKeyEvent event, final JabberId createdBy,
             final JabberId sentTo) throws ParityException {
-		logger.info("[LMODEL] [AUDIT] [AUDIT SEND KEY]");
-		logger.debug(event);
-        logger.debug(createdBy);
-        logger.debug(sentTo);
+		logger.logApiId();
+		logger.logVariable("variable", event);
+        logger.logVariable("variable", createdBy);
+        logger.logVariable("variable", sentTo);
         event.setCreatedBy(lookupUser(createdBy));
         event.setSentTo(lookupUser(sentTo));
 		auditIO.audit(event);
 	}
 
 	void delete(final Long artifactId) {
-		logger.info("[LMODEL] [AUDIT] [DELETE]");
-		logger.debug(artifactId);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
 		auditIO.delete(artifactId);
 	}
 
 	List<AuditEvent> read(final Long artifactId) {
-		logger.info("[LMODEL] [AUDIT] [READ]");
-		logger.debug(artifactId);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
 		return auditIO.list(artifactId);
 	}
 

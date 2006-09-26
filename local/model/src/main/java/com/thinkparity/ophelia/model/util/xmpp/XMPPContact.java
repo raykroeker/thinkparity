@@ -233,10 +233,10 @@ class XMPPContact extends AbstractXMPP<ContactListener> {
      */
 	void acceptInvitation(final JabberId userId, final JabberId invitedBy,
             final Calendar acceptedOn) {
-		logApiId();
-        logVariable("userId", userId);
-        logVariable("invitedBy", invitedBy);
-        logVariable("acceptedOn", acceptedOn);
+		logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("invitedBy", invitedBy);
+        logger.logVariable("acceptedOn", acceptedOn);
 		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
         accept.setParameter("userId", userId);
         accept.setParameter("invitedBy", invitedBy);
@@ -287,10 +287,10 @@ class XMPPContact extends AbstractXMPP<ContactListener> {
      */
     void deleteInvitation(final JabberId userId, final EMail invitedAs,
             final Calendar deletedOn) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("invitedAs", invitedAs);
-        logVariable("deletedOn", deletedOn);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("invitedAs", invitedAs);
+        logger.logVariable("deletedOn", deletedOn);
         final XMPPMethod deleteInvitation = new XMPPMethod("contact:deleteinvitation");
         deleteInvitation.setParameter("userId", userId);
         deleteInvitation.setParameter("invitedAs", invitedAs);
@@ -312,10 +312,10 @@ class XMPPContact extends AbstractXMPP<ContactListener> {
      */
 	void extendInvitation(final JabberId userId, final EMail extendedTo,
             final Calendar extendedOn) {
-		logApiId();
-        logVariable("userId", userId);
-        logVariable("extendedTo", extendedTo);
-        logVariable("extendedOn", extendedOn);
+		logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("extendedTo", extendedTo);
+        logger.logVariable("extendedOn", extendedOn);
         final XMPPMethod extendInvitation = new XMPPMethod("contact:extendinvitation");
         extendInvitation.setParameter("userId", userId);
         extendInvitation.setParameter("extendedTo", extendedTo);
@@ -329,8 +329,8 @@ class XMPPContact extends AbstractXMPP<ContactListener> {
      * @return The list of contacts for the user.
      */
 	List<Contact> read(final JabberId userId) {
-		logApiId();
-        logVariable("userId", userId);
+		logger.logApiId();
+        logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
 
 		final XMPPMethod readIds = new XMPPMethod("contact:readids");
@@ -350,8 +350,8 @@ class XMPPContact extends AbstractXMPP<ContactListener> {
      * @return A contact.
      */
     Contact read(final JabberId userId, final JabberId contactId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
 
         final XMPPMethod read = new XMPPMethod("contact:read");

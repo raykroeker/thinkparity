@@ -49,13 +49,13 @@ class LibraryModelImpl extends AbstractModelImpl {
     Library create(final String artifactId, final String groupId,
             final String path, final Library.Type type, final String version,
             final byte[] bytes) {
-        logger.info("[LMODEL] [MODEL] [LIBRARY] [CREATE]");
-        logger.debug(artifactId);
-        logger.debug(groupId);
-        logger.debug(path);
-        logger.debug(type);
-        logger.debug(version);
-        logger.debug(null == bytes ? null : bytes.length);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
+        logger.logVariable("variable", groupId);
+        logger.logVariable("variable", path);
+        logger.logVariable("variable", type);
+        logger.logVariable("variable", version);
+        logger.logVariable("variable", null == bytes ? null : bytes.length);
         final Long libraryId = libraryIO.create(artifactId, groupId, path, type, version);
         final String checksum = MD5Util.md5Hex(bytes);
         libraryIO.createBytes(libraryId, bytes, checksum);
@@ -77,11 +77,11 @@ class LibraryModelImpl extends AbstractModelImpl {
      */
     Library read(final String artifactId, final String groupId,
             final Library.Type type, final String version) {
-        logger.info("[LMODEL] [MODEL] [LIBRARY] [READ]");
-        logger.debug(artifactId);
-        logger.debug(groupId);
-        logger.debug(type);
-        logger.debug(version);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
+        logger.logVariable("variable", groupId);
+        logger.logVariable("variable", type);
+        logger.logVariable("variable", version);
         return libraryIO.read(artifactId, groupId, type, version);
     }
 

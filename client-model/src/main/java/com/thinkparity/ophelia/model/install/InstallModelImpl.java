@@ -39,8 +39,8 @@ class InstallModelImpl extends AbstractModelImpl {
      *            A release.
      */
     void install(final Release release) throws ParityException {
-        logger.info("[LMODEL] [INSTALL MODEL] [INSTALL]");
-        logger.debug(release);
+        logger.logApiId();
+        logger.logVariable("variable", release);
 
         final File installRoot = new File(Directories.INSTALL, release.getVersion());
         final File downloadRoot = new File(Directories.DOWNLOAD, release.getVersion());

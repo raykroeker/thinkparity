@@ -5,20 +5,17 @@ package com.thinkparity.ophelia.model.io.db.hsqldb;
 
 import java.io.InputStream;
 import java.sql.*;
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
-import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -37,7 +34,7 @@ import com.thinkparity.ophelia.model.message.SystemMessageType;
 public class Session {
 
     /** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
     /** The sql connection. */
 	private final Connection connection;
@@ -68,7 +65,7 @@ public class Session {
 	Session(final SessionManager sessionManager, final Connection connection) {
 		super();
 		this.connection = connection;
-		this.logger = Logger.getLogger(getClass());
+		this.logger = new Log4JWrapper();
 		this.id = JVMUniqueId.nextId();
         this.sessionManager = sessionManager;
 	}
@@ -101,7 +98,7 @@ public class Session {
 
 	public void execute(final String sql) {
 		assertOpen("execute(String)");
-		debugSql(sql);
+		logger.logVariable("sql", sql);
 		try {
 			final Statement s = connection.createStatement();
 			s.execute(sql);
@@ -115,7 +112,7 @@ public class Session {
 
 	public void execute(final String[] sql) {
 		assertOpen("execute(String[]");
-		debug(sql);
+		logger.logVariable("sql", sql);
 		Statement statement = null;
 		try {
 			statement = connection.createStatement();
@@ -153,7 +150,7 @@ public class Session {
 	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : AuditEventType.fromId(value);
@@ -165,7 +162,7 @@ public class Session {
     public Boolean getBoolean(final String columnName) {
         assertOpen("[GET BOOLEAN]");
         assertOpenResult("[GET BOOLEAN]");
-        debugSql(columnName);
+        logger.logVariable("columnName", columnName);
         try {
             final Boolean value = resultSet.getBoolean(columnName);
             return resultSet.wasNull() ? null : value;
@@ -204,7 +201,7 @@ public class Session {
             final String columnName) {
         assertOpen("getStateFromString(String)");
         assertOpenResult("getStateFromString(String)");
-        debugSql(columnName);
+        logger.logVariable("columnName", columnName);
         try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : ContainerDraft.ArtifactState.valueOf(value);
@@ -232,7 +229,7 @@ public class Session {
 	public ArtifactFlag getFlagFromInteger(final String columnName) {
 		assertOpen("getFlagFromInteger(String)");
 		assertOpenResult("getFlagFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : ArtifactFlag.fromId(value);
@@ -244,7 +241,7 @@ public class Session {
 	public ArtifactFlag getFlagFromString(final String columnName) {
 		assertOpen("getFlagFromString(String)");
 		assertOpenResult("getFlagFromString(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : ArtifactFlag.valueOf(value);
@@ -288,7 +285,7 @@ public class Session {
     public InputStream getInputStream(final String columnName) {
         assertOpen("[GET INPUT STREAM]");
         assertOpenResult("[GET INPUT STREAM]");
-        debugSql(columnName);
+        logger.logVariable("columnName", columnName);
         try {
             final InputStream value = resultSet.getBinaryStream(columnName);
             return resultSet.wasNull() ? null : value;
@@ -300,7 +297,7 @@ public class Session {
     public Integer getInteger(final String columnName) {
         assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
-        debugSql(columnName);
+        logger.logVariable("columnName", columnName);
         try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : value;
@@ -312,7 +309,7 @@ public class Session {
     public Long getLong(final String columnName) {
 		assertOpen("getLong(String)");
 		assertOpenResult("getLong(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Long value = resultSet.getLong(columnName);
             return resultSet.wasNull() ? null : value;
@@ -334,7 +331,7 @@ public class Session {
 	public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
 		assertOpen("getMetaDataTypeFromInteger(String)");
 		assertOpenResult("getMetaDataTypeFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : MetaDataType.fromId(value);
@@ -346,7 +343,7 @@ public class Session {
 	public JabberId getQualifiedUsername(final String columnName) {
 		assertOpen("Cannot get values if the session is not open.");
 		assertOpenResult("Cannot get values if the result is not open.");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
 			final String value = resultSet.getString(columnName);
 			if (resultSet.wasNull()) {
@@ -364,7 +361,7 @@ public class Session {
 	public ArtifactState getStateFromInteger(final String columnName) {
 		assertOpen("getStateFromInteger(String)");
 		assertOpenResult("getStateFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : ArtifactState.fromId(value);
@@ -376,7 +373,7 @@ public class Session {
 	public ArtifactState getStateFromString(final String columnName) {
 		assertOpen("getStateFromString(String)");
 		assertOpenResult("getStateFromString(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : ArtifactState.valueOf(value);
@@ -388,7 +385,7 @@ public class Session {
 	public String getString(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : value;
@@ -401,7 +398,7 @@ public class Session {
 			final String columnName) {
 		assertOpen("getSystemMessageTypeFromInteger(String)");
 		assertOpenResult("getSystemMessageTypeFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : SystemMessageType.fromId(value);
@@ -413,7 +410,7 @@ public class Session {
 	public ArtifactType getTypeFromInteger(final String columnName) {
 		assertOpen("getTypeFromInteger(String)");
 		assertOpenResult("getTypeFromInteger(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final Integer value = resultSet.getInt(columnName);
             return resultSet.wasNull() ? null : ArtifactType.fromId(value);
@@ -425,7 +422,7 @@ public class Session {
 	public ArtifactType getTypeFromString(final String columnName) {
 		assertOpen("getTypeFromString(String)");
 		assertOpenResult("getTypeFromString(String)");
-		debugSql(columnName);
+		logger.logVariable("columnName", columnName);
 		try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : ArtifactType.valueOf(value);
@@ -473,7 +470,7 @@ public class Session {
 
 	public PreparedStatement prepareStatement(final String sql) {
 		assertOpen("prepareStatement(String)");
-		debugSql(sql);
+		logger.logVariable("sql", sql);
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			return preparedStatement;
@@ -490,232 +487,231 @@ public class Session {
 	public void setBoolean(final Integer index, final Boolean value) {
         assertOpen("setBoolean(Integer,Boolean)");
         assertPreparedStatement("setBoolean(Integer,Boolean)");
-        debugSql(value, index);
+        logIndexAndValue(index, value);
         try { preparedStatement.setBoolean(index, value); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setBytes(final Integer index, final byte[] bytes) {
+    public void setBytes(final Integer index, final byte[] value) {
 		assertOpen("setBytes(Integer,Byte[])");
 		assertPreparedStatement("setBytes(Integer,Byte[])");
-		debugSql(bytes, index);
-		try { preparedStatement.setBytes(index, bytes); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setBytes(index, value); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setCalendar(final Integer index, final Calendar calendar) {
+    public void setCalendar(final Integer index, final Calendar value) {
 		assertOpen("setCalendar(Integer,Calendar)");
 		assertPreparedStatement("setCalendar(Integer,Calendar)");
-		debugSql(calendar, index);
+        logIndexAndValue(index, value);
 		try {
 			preparedStatement.setTimestamp(index,
-					new Timestamp(calendar.getTimeInMillis()), calendar);
+					new Timestamp(value.getTimeInMillis()), value);
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setEMail(final Integer index, final EMail email) {
+	public void setEMail(final Integer index, final EMail value) {
         assertOpen("setEMail(Integer,EMail)");
         assertPreparedStatement("setEMail(Integer,EMail)");
-        debugSql(email, index);
+        logIndexAndValue(index, value);
         try {
-            preparedStatement.setString(index, email.toString());
+            preparedStatement.setString(index, value.toString());
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
     }
 
-	public void setEnumTypeAsString(final Integer index, final Enum<?> enumType) {
+	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertOpen("setEnumAsString(Integer,Enum<?>)");
         assertPreparedStatement("setEnumAsString(Integer,Enum<?>)");
-        debugSql(null == enumType ? null : enumType.toString(), index);
-        try { preparedStatement.setString(index, enumType.toString()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setString(index, value.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setFlagAsInteger(final Integer index, final ArtifactFlag flag) {
+	public void setFlagAsInteger(final Integer index, final ArtifactFlag value) {
 		assertOpen("setFlagAsInteger(Integer,ArtifactFlag)");
 		assertPreparedStatement("setFlagAsInteger(Integer,ArtifactFlag)");
-		debugSql(null == flag ? null : flag.getId(), index);
-		try { preparedStatement.setInt(index, flag.getId()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setFlagAsString(final Integer index, final ArtifactFlag flag) {
+	public void setFlagAsString(final Integer index, final ArtifactFlag value) {
 		assertOpen("setFlagAsString(Integer,ArtifactFlag)");
 		assertPreparedStatement("setFlagAsString(Integer,ArtifactFlag)");
-		debugSql(null == flag ? null : flag.toString(), index);
-		try { preparedStatement.setString(index, flag.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setInt(final Integer index, final Integer integer) {
+	public void setInt(final Integer index, final Integer value) {
 		assertOpen("setInt(Integer,Integer)");
 		assertPreparedStatement("setInt(Integer,Integer)");
-		debugSql(integer, index);
-		try { preparedStatement.setInt(index, integer); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setLong(final Integer index, final Long longInteger) {
+	public void setLong(final Integer index, final Long value) {
 		assertOpen("setLong(Integer,Long)");
 		assertPreparedStatement("setLong(Integer,Long)");
-		debugSql(longInteger, index);
-		try { preparedStatement.setLong(index, longInteger); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setLong(index, value); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setMetaDataAsString(final Integer index, final MetaData metaData) {
+    public void setMetaDataAsString(final Integer index, final MetaData value) {
 		assertOpen("setMetaDataAsString(Integer,MetaData)");
 		assertPreparedStatement("setMetaDataAsString(Integer,MetaData)");
-		debugSql(null == metaData ? null : metaData.toString(), index);
-		try { preparedStatement.setString(index, metaData.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setQualifiedUsername(final Integer index,
-			final JabberId jabberId) {
+	public void setQualifiedUsername(final Integer index, final JabberId value) {
 		assertOpen("Database session is not open.");
 		assertPreparedStatement("Prepared statement has not been set.");
-		debugSql(jabberId, index);
-		try { preparedStatement.setString(index, jabberId.getQualifiedUsername()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.getQualifiedUsername()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setStateAsInteger(final Integer index, final ArtifactState state) {
+    public void setStateAsInteger(final Integer index, final ArtifactState value) {
 		assertOpen("setStateAsInteger(Integer,ArtifactState)");
 		assertPreparedStatement("setStateAsInteger(Integer,ArtifactState)");
-		debugSql(null == state ? null : state.toString(), index);
-		try { preparedStatement.setInt(index, state.getId()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setStateAsString(final Integer index, final ArtifactState state) {
+    public void setStateAsString(final Integer index, final ArtifactState value) {
         assertOpen("setStateAsString(Integer,ArtifactState)");
         assertPreparedStatement("setStateAsString(Integer,ArtifactState)");
-        debugSql(null == state ? null : state.toString(), index);
-        try { preparedStatement.setString(index, state.toString()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setString(index, value.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState state) {
+    public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState value) {
         assertOpen("SESSION CONNECTION NOT OPEN");
         assertPreparedStatement("SESSION STATEMENT NOT PREPARED");
-        debugSql(null == state ? null : state.toString(), index);
-        try { preparedStatement.setString(index, state.toString()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setString(index, value.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setString(final Integer index, final String string) {
+    public void setString(final Integer index, final String value) {
 		assertOpen("setString(Integer,String)");
 		assertPreparedStatement("setString(Integer,String)");
-		debugSql(string, index);
-		try { preparedStatement.setString(index, string); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final ArtifactType type) {
+    public void setTypeAsInteger(final Integer index, final ArtifactType value) {
 		assertOpen("setTypeAsInteger(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,ArtifactType)");
-		debugSql(null == type ? null : type.getId(), index);
-		try { preparedStatement.setInt(index, type.getId()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final AuditEventType type) {
+	public void setTypeAsInteger(final Integer index, final AuditEventType value) {
 		assertOpen("setTypeAsInteger(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,AuditEventType)");
-		debugSql(null == type ? null : type.getId(), index);
-		try { preparedStatement.setInt(index, type.getId()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final Library.Type type) {
+    public void setTypeAsInteger(final Integer index, final Library.Type value) {
         assertOpen("setTypeAsInteger(Integer,Library.Type)");
         assertPreparedStatement("setTypeAsInteger(Integer,Library.Type)");
-        debugSql(null == type ? null : type.getId(), index);
-        try { preparedStatement.setInt(index, type.getId()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setInt(index, value.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setTypeAsInteger(final Integer index, final MetaDataType type) {
+    public void setTypeAsInteger(final Integer index, final MetaDataType value) {
 		assertOpen("setTypeAsInteger(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,MetaDataType)");
-		debugSql(null == type ? null : type.getId(), index);
-		try { preparedStatement.setInt(index, type.getId()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setInt(index, value.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final SystemMessageType type) {
+    public void setTypeAsInteger(final Integer index, final SystemMessageType value) {
         assertOpen("setTypeAsInteger(Integer,SystemMessageType)");
         assertPreparedStatement("setTypeAsInteger(Integer,SystemMessageType)");
-        debugSql(null == type ? null : type.getId(), index);
-        try { preparedStatement.setInt(index, type.getId()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setInt(index, value.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setTypeAsString(final Integer index, final ArtifactType type) {
+	public void setTypeAsString(final Integer index, final ArtifactType value) {
 		assertOpen("setTypeAsString(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeString(Integer,ArtifactType)");
-		debugSql(null == type ? null : type.toString(), index);
-		try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsString(final Integer index, final AuditEventType type) {
+	public void setTypeAsString(final Integer index, final AuditEventType value) {
 		assertOpen("setTypeAsString(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsString(Integer,AuditEventType)");
-		debugSql(null == type ? null : type.toString(), index);
-		try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsString(final Integer index, final Enum<?> type) {
+    public void setTypeAsString(final Integer index, final Enum<?> value) {
 		assertOpen("setTypeAsString(Integer,Enum<?>)");
 		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
-		debugSql(null == type ? null : type.toString(), index);
-		try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final Library.Type type) {
+    public void setTypeAsString(final Integer index, final Library.Type value) {
         assertOpen("setType(Integer,Library.Type)");
         assertPreparedStatement("setTypeString(Integer,Library.Type)");
-        debugSql(null == type ? null : type.toString(), index);
-        try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+        try { preparedStatement.setString(index, value.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setTypeAsString(final Integer index, final MetaDataType type) {
+	public void setTypeAsString(final Integer index, final MetaDataType value) {
 		assertOpen("setType(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeString(Integer,MetaDataType)");
-		debugSql(null == type ? null : type.toString(), index);
-		try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final SystemMessageType type) {
+	public void setTypeAsString(final Integer index, final SystemMessageType value) {
 		assertOpen("setTypeAsString(Integer,SystemMessageType)");
 		assertPreparedStatement("setTypeAsString(Integer,SystemMessageType)");
-		debugSql(null == type ? null : type.toString(), index);
-		try { preparedStatement.setString(index, type.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setUniqueId(final Integer index, final UUID uniqueId) {
+	public void setUniqueId(final Integer index, final UUID value) {
 		assertOpen("setUniqueId(Integer,UUID)");
 		assertPreparedStatement("setUniqueId(Integer,UUID)");
-		debugSql(null == uniqueId ? null : uniqueId.toString(), index);
-		try { preparedStatement.setString(index, uniqueId.toString()); }
+        logIndexAndValue(index, value);
+		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    private void assertMetaData() {
+	private void assertMetaData() {
         if (null == metaData)
             throw new HypersonicException("META-DATA IS NULL");
     }
 
-	private void assertOpen() {
+    private void assertOpen() {
         assertOpen("CONNECTION IS NULL");
     }
 
@@ -725,12 +721,12 @@ public class Session {
 		}
 	}
 
-    private void assertOpenResult(final String caller) {
+	private void assertOpenResult(final String caller) {
 		if(null == resultSet)
 			throw new HypersonicException("Result is closed:  " + caller);
 	}
 
-	private void assertPreparedStatement(final String caller) {
+    private void assertPreparedStatement(final String caller) {
 		if(null == preparedStatement)
 			throw new HypersonicException("Prepared statement is null:  " + caller);
 	}
@@ -750,62 +746,9 @@ public class Session {
 		close(resultSet);
 	}
 
-    private void debug(final String[] sql) {
-		if(null != sql) {
-			int index = 0;
-			for(final String s : sql) { debugSql(s, index++); }
-		}
-		else { debugSql((String) null, null); }
-	}
-
-    private void debugSql(final Boolean value, final Integer index) {
-        debugSql(null == value ? null : value.toString(), index);
-    }
-
-    private void debugSql(final byte[] bytes, final Integer sqlIndex) {
-        debugSql(null == bytes ? null : bytes.length, sqlIndex);
-    }
-
-	private void debugSql(final Calendar calendar, final Integer sqlIndex) {
-		debugSql(null == calendar ? null : DateUtil.format(calendar, DateImage.ISO), sqlIndex);
-	}
-
-	private void debugSql(final EMail email, final Integer sqlIndex) {
-        debugSql(null == email ? null : email.toString(), sqlIndex);
-    }
-
-	private void debugSql(final Integer integer, final Integer sqlIndex) {
-		debugSql(null == integer ? null : integer.toString(), sqlIndex);
-	}
-
-	private void debugSql(final JabberId jabberId, final Integer sqlIndex) {
-		debugSql(null == jabberId ? null : jabberId.toString(), sqlIndex);
-	}
-
-	private void debugSql(final Long longInteger, final Integer sqlIndex) {
-		debugSql(null == longInteger ? null : longInteger.toString(), sqlIndex);
-	}
-
-	private void debugSql(final String sql) {
-		debugSql(sql, null);
-	}
-
-    private void debugSql(final String sql, final Integer sqlIndex) {
-        if(logger.isDebugEnabled()) {
-            final String pattern;
-            if(null == sqlIndex) {
-                pattern = "SQL Statement:{0}";
-            } else {
-                pattern = "SQL Variable:{1}:{0}";
-            }
-            logger.debug(MessageFormat.format(pattern, sql, sqlIndex));
-            
-        }
-	}
-
-    private ResultSet list(final String sql) {
+	private ResultSet list(final String sql) {
 		assertOpen("list(String)");
-		debugSql(sql);
+		logger.logVariable("sql", sql);
 		Statement statement = null;
 		try {
 			statement = connection.createStatement();
@@ -814,4 +757,16 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 		finally { close(statement); }
 	}
+
+    /**
+     * Log the index and it's value.
+     * 
+     * @param index
+     *            A prepared statement index.
+     * @param value
+     *            The prepared statement's index value.
+     */
+    private void logIndexAndValue(final Integer index, final Object value) {
+        logger.logDebug("sql:{0}={1}", index, value);
+    }
 }

@@ -48,7 +48,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     @Override
     protected Credentials readCredentials() {
-        logApiId();
+        logger.logApiId();
         return super.readCredentials();
     }
 
@@ -59,8 +59,8 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            An <code>EMail</code>.
      */
     void addEmail(final EMail email) {
-        logApiId();
-        logVariable("email", email);
+        logger.logApiId();
+        logger.logVariable("email", email);
         try {
             assertOnline("USER NOT ONLINE");
             final Profile profile = read();
@@ -85,7 +85,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A profile.
      */
     Profile read() {
-        logApiId();
+        logger.logApiId();
         try {
             final Profile profile = profileIO.read(localUserId());
             if (null == profile) {
@@ -106,8 +106,8 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A <code>ProfileEmail</code>.
      */
     ProfileEMail readEmail(final Long emailId) {
-        logApiId();
-        logVariable("emailId", emailId);
+        logger.logApiId();
+        logger.logVariable("emailId", emailId);
         try {
             final Profile profile = read();
             return profileIO.readEmail(profile.getLocalId(), emailId);
@@ -122,7 +122,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A list of email addresses.
      */
     List<ProfileEMail> readEmails() {
-        logApiId();
+        logger.logApiId();
         try {
             final Profile profile = read();
             return profileIO.readEmails(profile.getLocalId());
@@ -137,7 +137,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A security question.
      */
     String readSecurityQuestion() {
-        logApiId();
+        logger.logApiId();
         try {
             final Profile profile = read();
             return getInternalSessionModel().readProfileSecurityQuestion(profile.getId());
@@ -153,8 +153,8 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            An email id <code>Long</code>.
      */
     void removeEmail(final Long emailId) {
-        logApiId();
-        logVariable("emailId", emailId);
+        logger.logApiId();
+        logger.logVariable("emailId", emailId);
         try {
             assertOnline("USER NOT ONLINE");
             final Profile profile = read();
@@ -173,7 +173,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      *
      */
     void resetPassword(final String securityAnswer) {
-        logApiId();
+        logger.logApiId();
         try {
             // update remote data.
             final String resetPassword =
@@ -195,8 +195,8 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            A profile.
      */
     void update(final Profile profile) {
-        logApiId();
-        logVariable("profile", profile);
+        logger.logApiId();
+        logger.logVariable("profile", profile);
         try {
             // update local data
             profileIO.update(profile);
@@ -216,9 +216,9 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     void updatePassword(final String password,
             final String newPassword) {
-        logApiId();
-        logVariable("password", "XXXXX");
-        logVariable("newPassword", "XXXXX");
+        logger.logApiId();
+        logger.logVariable("password", "XXXXX");
+        logger.logVariable("newPassword", "XXXXX");
         try {
             final Credentials credentials = readCredentials();
             Assert.assertTrue("PASSWORD INCORRECT",
@@ -244,9 +244,9 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            A verification key <code>String</code>.
      */
     void verifyEmail(final Long emailId, final String key) {
-        logApiId();
-        logVariable("emailId", emailId);
-        logVariable("key", key);
+        logger.logApiId();
+        logger.logVariable("emailId", emailId);
+        logger.logVariable("key", key);
         try {
             assertOnline("USER NOT ONLINE");
             final Profile profile = read();

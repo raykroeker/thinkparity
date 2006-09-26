@@ -22,7 +22,6 @@ import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.TestContext;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -834,7 +833,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected void setUp() throws Exception {
         super.setUp();
-        this.context = TestContext.CONTEXT;
+        this.context = TestModel.getModelContext();
 	}
 
     /**

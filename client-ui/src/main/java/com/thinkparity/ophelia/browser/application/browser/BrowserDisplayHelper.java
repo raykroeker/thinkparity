@@ -38,7 +38,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
      *            An avatar id.
      */
     void displayStatus(final AvatarId id) {
-        logApiId();
+        logger.logApiId();
         displayAvatar(id, DisplayId.STATUS);
     }
 
@@ -49,7 +49,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
      *            An avatar id.
      */
     void displayTab(final AvatarId id) {
-        logApiId();
+        logger.logApiId();
         displayAvatar(id, DisplayId.CONTENT);
     }
 
@@ -60,7 +60,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
      *            A tab extension.
      */
     void displayTab(final TabExtension tabExtension) {
-        logApiId();
+        logger.logApiId();
         try {
             final Avatar avatar = browserApplication.getAvatar(tabExtension);
 
@@ -78,7 +78,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
      *            An avatar id.
      */
     void displayTitle(final AvatarId id) {
-        logApiId();
+        logger.logApiId();
         displayAvatar(id, DisplayId.TITLE);
     }
 
@@ -115,7 +115,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
         final Display display = browserWindow.getDisplay(displayId);
 
         if (null == input) {
-            logWarning("Input for avatar {0} is null.", avatar);
+            logger.logWarning("Input for avatar {0} is null.", avatar);
         } else {
             avatar.setInput(input);
         }

@@ -25,7 +25,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
 import com.thinkparity.ophelia.model.Constants.Encoding;
@@ -164,9 +163,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return The document.
      */
     Document create(final String name, final InputStream content) {
-        logApiId();
-        logVariable("name", name);
-        logVariable("content", content);
+        logger.logApiId();
+        logger.logVariable("name", name);
+        logger.logVariable("content", content);
         assertIsSetCredentials();
         // create
         final Document document = create(UUIDGenerator.nextUUID(), name,
@@ -185,8 +184,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @throws ParityException
      */
     DocumentVersion createVersion(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
         try {
             assertDraftIsModified("[DRAFT IS NOT MODIFIED]", documentId);
             final LocalFile localFile = getLocalFile(read(documentId));
@@ -210,8 +209,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @throws ParityException
      */
     void delete(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
         deleteLocal(documentId);
         // fire event
         notifyDocumentDeleted(null, localEventGen);
@@ -229,9 +228,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 */
 	DocumentVersionContent getVersionContent(final Long documentId,
 			final Long versionId) {
-		logger.info("getVersionContent(Long,Long)");
-		logger.debug(documentId);
-		logger.debug(versionId);
+        logger.logApiId();
+		logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
 		try {
             return documentIO.readVersionContent(documentId, versionId);
 		} catch (final Throwable t) {
@@ -259,14 +258,14 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId, final Long versionId,
             final String name, final String checksum, final InputStream content) {
-        logApiId();
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedOn", publishedOn);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("checksum", checksum);
-        logVariable("content", content);
+        logger.logApiId();
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("checksum", checksum);
+        logger.logVariable("content", content);
         return handleDocumentSent(publishedBy, publishedOn, uniqueId,
                 versionId, name, checksum, content);
     }
@@ -292,23 +291,25 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     DocumentVersion handleDocumentSent(final JabberId sentBy,
             final Calendar sentOn, final UUID uniqueId, final Long versionId,
             final String name, final String checksum, final InputStream content) {
-        logApiId();
-        logVariable("sentBy", sentBy);
-        logVariable("sentOn", sentOn);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("checksum", checksum);
-        logVariable("content", content);
+        logger.logApiId();
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentOn", sentOn);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("checksum", checksum);
+        logger.logVariable("content", content);
         try {
             final InternalArtifactModel artifactModel  = getInternalArtifactModel();
             final Document document;
             final DocumentVersion version;
             if(artifactModel.doesExist(uniqueId)) {
-                logWarning("[DOCUMENT EXISTS]");
+                logger.logWarning("Document {0} already exists.", uniqueId);
                 document = read(uniqueId);
                 if(artifactModel.doesVersionExist(document.getId(), versionId)) {
-                    logWarning("[DOCUMENT VERSION EXISTS]");
+                    logger.logWarning(
+                            "Document version {0}:{1} already exists.",
+                            uniqueId, versionId);
                     version = readVersion(document.getId(), versionId);
                 }
                 else {
@@ -334,8 +335,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return True if the draft is different from the latest version.
      */
 	Boolean isDraftModified(final Long documentId) {
-		logApiId();
-		logVariable("documentId", documentId);
+		logger.logApiId();
+		logger.logVariable("documentId", documentId);
         try {
             final List<DocumentVersion> versions = listVersions(documentId);
             if (0 == versions.size()) {
@@ -362,7 +363,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @see #list(UUID, Comparator)
 	 */
 	Collection<Document> list() throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST]");
+		logger.logApiId();
 		return list(defaultComparator);
 	}
 
@@ -378,16 +379,14 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 */
 	Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED]");
-		logger.debug(comparator);
+        logger.logApiId();
+		logger.logVariable("comparator", comparator);
 		try {
 			final List<Document> documents = documentIO.list();
 			ModelSorter.sortDocuments(documents, comparator);
 			return documents;
-		}
-		catch(RuntimeException rx) {
-			logger.error("list(UUID,Comparator<Artifact>)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch (final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -403,9 +402,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
 	Collection<Document> list(final Comparator<Artifact> comparator,
 			final Filter<? super Artifact> filter) throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED & FILTERED]");
-		logger.debug(comparator);
-		logger.debug(filter);
+	    logger.logApiId();
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
 		final List<Document> documents = documentIO.list();
 		ArtifactFilterManager.filter(documents, filter);
 		ModelSorter.sortDocuments(documents, comparator);
@@ -422,8 +421,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
 	Collection<Document> list(final Filter<? super Artifact> filter)
 			throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST FILTERED]");
-		logger.debug(filter);
+        logger.logApiId();
+        logger.logVariable("filter", filter);
 		return list(defaultComparator, filter);
 	}
 
@@ -439,8 +438,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @see #listVersions(UUID, Comparator)
 	 */
 	List<DocumentVersion> listVersions(final Long documentId) {
-		logger.info("listVersions(Long)");
-		logger.debug(documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
 		return listVersions(documentId, defaultVersionComparator);
 	}
 
@@ -459,9 +458,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 */
 	List<DocumentVersion> listVersions(final Long documentId,
 			final Comparator<ArtifactVersion> comparator) {
-		logger.info("listVersions(Document)");
-		logger.debug(documentId);
-		logger.debug(comparator);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("comparator", comparator);
 		final List<DocumentVersion> versions = documentIO.listVersions(documentId);
 		ModelSorter.sortDocumentVersions(versions, comparator);
 		return versions;
@@ -475,8 +474,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @throws ParityException
 	 */
 	void open(final Long documentId) {
-		logApiId();
-        logVariable("documentId", documentId);
+		logger.logApiId();
+        logger.logVariable("documentId", documentId);
 		try {
 			final Document document = read(documentId);
 
@@ -497,9 +496,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 *            The version id.
 	 */
 	void openVersion(final Long documentId, final Long versionId) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
 		try {
 			final Document document = read(documentId);
 			final DocumentVersion version = readVersion(documentId, versionId);
@@ -521,9 +520,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return A list of document versions and their streams.
      */
     InputStream openVersionStream(final Long documentId, final Long versionId) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
         return documentIO.openStream(documentId, versionId);
     }
 
@@ -536,9 +535,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *            A document printer.
      */
     void printDraft(final Long documentId, final Printer printer) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("printer", printer);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("printer", printer);
         try {
             final Document document = read(documentId);
             final LocalFile localFile = getLocalFile(document);
@@ -560,10 +559,10 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
     void printVersion(final Long documentId, final Long versionId,
             final Printer printer) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("versionId", versionId);
-        logVariable("printer", printer);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("printer", printer);
         try {
             final Document document = read(documentId);
             final DocumentVersion version = readVersion(documentId, versionId);
@@ -582,8 +581,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return A document.
      */
     Document read(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
         return documentIO.get(documentId);
     }
 
@@ -595,8 +594,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @return The document.
 	 */
 	Document read(final UUID uniqueId) {
-		logApiId();
-        logVariable("uniqueId", uniqueId);
+		logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
 		try {
             return documentIO.get(uniqueId);
 		} catch (final Throwable t) {
@@ -612,8 +611,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return A list of audit events.
      */
     List<AuditEvent> readAuditEvents(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
         return getInternalAuditModel().read(documentId);
     }
 
@@ -625,8 +624,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return A list of history items.
      */
     List<DocumentHistoryItem> readHistory(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
 		return readHistory(documentId, defaultHistoryComparator);
 	}
 
@@ -641,9 +640,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<? super HistoryItem> comparator) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("comparator", comparator);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("comparator", comparator);
         return readHistory(documentId, comparator, defaultHistoryFilter);
     }
 
@@ -662,10 +661,10 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<? super HistoryItem> comparator,
             final Filter<? super HistoryItem> filter) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("comparator", comparator);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
 		final DocumentHistoryBuilder historyBuilder =
 		        new DocumentHistoryBuilder(getInternalDocumentModel(), l18n);
 		final List<DocumentHistoryItem> history =
@@ -686,9 +685,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Filter<? super HistoryItem> filter) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("filter", filter);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("filter", filter);
         return readHistory(documentId, defaultHistoryComparator, filter);
     }
 
@@ -700,8 +699,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @return The latest version.
 	 */
 	DocumentVersion readLatestVersion(final Long documentId) {
-		logApiId();
-		logVariable("documentId", documentId);
+		logger.logApiId();
+		logger.logVariable("documentId", documentId);
 		try {
             if (doesExistLatestVersion(documentId)) {
                 return documentIO.readLatestVersion(documentId);
@@ -723,9 +722,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @return A document version.
      */
     DocumentVersion readVersion(final Long documentId, final Long versionId) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
         try { return documentIO.getVersion(documentId, versionId); }
         catch(final Throwable t) {
             throw translateError(t);
@@ -741,9 +740,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *      A document name.
      */
     void rename(final Long documentId, final String documentName) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("documentName", documentName);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("documentName", documentName);
         try {
             final Document document = read(documentId);
             final String originalName = document.getName();
@@ -773,8 +772,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *            A version id.
      */
     void revertDraft(final Long documentId) {
-        logApiId();
-        logVariable("documentId", documentId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
         
         revertDraft(documentId, readLatestVersion(documentId).getVersionId());
     }
@@ -789,9 +788,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *            The new content.
      */
 	void updateDraft(final Long documentId, final InputStream content) {
-	    logApiId();
-        logVariable("documentId", documentId);
-        logVariable("content", content);
+	    logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("content", content);
         final LocalFile localFile = getLocalFile(read(documentId));
         try {
             localFile.write(content);
@@ -1033,9 +1032,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *            A version id.
      */
     private void revertDraft(final Long documentId, final Long versionId) {
-        logApiId();
-        logVariable("documentId", documentId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
         assertDraftIsModified("DRAFT IS NOT MODIFIED", documentId);
         try {
             final Document document = read(documentId);

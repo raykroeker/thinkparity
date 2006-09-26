@@ -59,9 +59,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The user id <code>JabberId</code>.
      */
 	TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
-	    logApiId();
-        logVariable("artifactId", artifactId);
-        logVariable("artifactId", userId);
+	    logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("artifactId", userId);
         assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
         assertOnline("USER NOT ONLINE");
         // create local user data
@@ -86,9 +86,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return A team member.
      */
     TeamMember addTeamMember(final Long artifactId, final Long userId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("userId", userId);
         artifactIO.createTeamRel(artifactId, userId);
         return artifactIO.readTeamRel(artifactId, userId);
     }
@@ -100,8 +100,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      */
     void applyFlagArchived(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
@@ -116,7 +116,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The artifact id.
 	 */
 	void applyFlagKey(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [APPLY KEY]");
+		logger.logApiId();
 		applyFlag(artifactId, ArtifactFlag.KEY);
 	}
 
@@ -127,7 +127,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The artifact id.
 	 */
 	void applyFlagSeen(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [APPLY SEEN]");
+		logger.logApiId();
 		applyFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
@@ -187,10 +187,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	void createRemoteInfo(final Long artifactId, final JabberId updatedBy,
 			final Calendar updatedOn) {
-		logger.info("[LMODEL] [ARTIFACT] [CREATE REMOTE INFO]");
-		logger.debug(artifactId);
-		logger.debug(updatedBy);
-		logger.debug(updatedOn);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
+		logger.logVariable("variable", updatedBy);
+		logger.logVariable("variable", updatedOn);
 		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
@@ -202,8 +202,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The single team member.
      */
     List<TeamMember> createTeam(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         // note that we are calling the "offline" version of the api
         addTeamMember(artifactId, localUser().getLocalId());
         return readTeam2(artifactId);
@@ -216,33 +216,33 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The artifact id.
      */
 	void deleteRemoteInfo(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [DELETE REMOTE INFO]");
-		logger.debug(artifactId);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
 		artifactIO.deleteRemoteInfo(artifactId);
 	}
 
 	void deleteTeam(final Long artifactId) {
-        logger.info("[LMODEL] [ARTIFACT] [DELETE TEAM]");
-        logger.debug(artifactId);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
         artifactIO.deleteTeamRel(artifactId);
     }
 
 	Boolean doesExist(final Long artifactId) {
-        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
-        logger.debug(artifactId);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
         return null != artifactIO.readUniqueId(artifactId);
     }
 
 	Boolean doesExist(final UUID uniqueId) {
-        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
-        logger.debug(uniqueId);
+        logger.logApiId();
+        logger.logVariable("variable", uniqueId);
         return null != artifactIO.readId(uniqueId);
     }
 
     Boolean doesVersionExist(final Long artifactId, final Long versionId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
-        logVariable("versionId", versionId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("versionId", versionId);
         return artifactIO.doesVersionExist(artifactId, versionId);
     }
 
@@ -258,10 +258,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void handleDraftCreated(final UUID uniqueId,
             final JabberId createdBy, final Calendar createdOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("createdBy", createdBy);
-        logVariable("createdOn", createdOn);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("createdBy", createdBy);
+        logger.logVariable("createdOn", createdOn);
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
@@ -284,10 +284,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void handleDraftDeleted(final UUID uniqueId,
             final JabberId deletedBy, final Calendar deletedOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("deletedBy", deletedBy);
-        logVariable("deletedOn", deletedOn);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("deletedBy", deletedBy);
+        logger.logVariable("deletedOn", deletedOn);
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
@@ -308,9 +308,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The user's jabber id.
      */
     void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
             // if receiving your own team member added event you have just been
@@ -326,7 +326,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
             }
         } catch (final TrueAssertion ta) {
             if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
-                logWarning(ta);
+                logger.logWarning(ta,
+                        "Team member {0} already exists for artifact {1}.",
+                        jabberId, uniqueId);
             } else {
                 throw ta;
             }
@@ -344,9 +346,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The user's jabber id.
      */
     void handleTeamMemberRemoved(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
             artifactIO.deleteTeamRel(artifactId);
@@ -363,7 +365,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @return True if the artifact has been seen.
 	 */
 	Boolean hasBeenSeen(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [HAS BEEN SEEN]");
+		logger.logApiId();
 		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
 	}
 
@@ -377,9 +379,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @return True if the flag is applied; false otherwise.
 	 */
 	Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
-		logger.info("[LMODEL] [ARTIFACT] [IS FLAG APPLIED]");
-		logger.debug(artifactId);
-		logger.debug(flag);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
+		logger.logVariable("variable", flag);
 		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
 		return flags.contains(flag);
 	}
@@ -392,8 +394,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The artifact id.
      */
     Long readId(final UUID uniqueId) {
-        logger.info("[LMODEL] [ARTIFACT] [READ ID]");
-        logger.debug(uniqueId);
+        logger.logApiId();
+        logger.logVariable("variable", uniqueId);
         return artifactIO.readId(uniqueId);
     }
 
@@ -405,8 +407,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The artifact key holder.
      */
     JabberId readKeyHolder(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         assertOnline();
         return getInternalSessionModel().readKeyHolder(
                 localUserId(), readUniqueId(artifactId));
@@ -420,8 +422,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return A version id.
      */
     Long readLatestVersionId(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         return artifactIO.readLatestVersionId(artifactId);
     }
 
@@ -433,8 +435,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The artifact team.
      */
     Set<User> readTeam(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel(artifactId);
     }
 
@@ -445,8 +447,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      */
     List<TeamMember> readTeam2(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel2(artifactId);
     }
 
@@ -458,8 +460,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return An <code>ArtifactType</code>.
      */
     ArtifactType readType(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         try {
             return artifactIO.readType(artifactId);
         } catch (final Throwable t) {
@@ -475,8 +477,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return An artifact unique id.
      */
     UUID readUniqueId(final Long artifactId) {
-        logger.info("[LMODEL] [ARTIFACT] [READ UNIQUE ID]");
-        logger.debug(artifactId);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
         return artifactIO.readUniqueId(artifactId);
     }
 
@@ -487,8 +489,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      */
     void removeFlagArchived(final Long artifactId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
         try {
             removeFlag(artifactId, ArtifactFlag.ARCHIVED);
         } catch (final Throwable t) {
@@ -503,7 +505,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The artifact id.
 	 */
 	void removeFlagKey(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [REMOVE KEY]");
+		logger.logApiId();
 		removeFlag(artifactId, ArtifactFlag.KEY);
 	}
 
@@ -514,7 +516,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The artifact id.
 	 */
 	void removeFlagSeen(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [REMOVE SEEN]");
+		logger.logApiId();
 		removeFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
@@ -529,9 +531,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The user.
      */
 	void removeTeamMember(final Long artifactId, final JabberId userId) {
-        logApiId();
-        logVariable("artifactId", artifactId);
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("userId", userId);
         assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
         final User user = getInternalUserModel().read(userId);
         artifactIO.deleteTeamRel(artifactId, user.getLocalId());
@@ -549,10 +551,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	void updateRemoteInfo(final Long artifactId, final JabberId updatedBy,
 			final Calendar updatedOn) {
-		logger.info("[LMODEL] [ARTIFACT] [UPDATE REMOTE INFO]");
-		logger.debug(artifactId);
-		logger.debug(updatedBy);
-		logger.debug(updatedOn);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
+		logger.logVariable("variable", updatedBy);
+		logger.logVariable("variable", updatedOn);
 		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
@@ -565,9 +567,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The artifact state.
      */
     void updateState(final Long artifactId, final ArtifactState state) {
-        logger.info("[LMODEL] [ARTIFACT] [UPDATE STATE]");
-        logger.debug(artifactId);
-        logger.debug(state);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
+        logger.logVariable("variable", state);
         final ArtifactState currentState = artifactIO.readState(artifactId);
         assertStateTransition(currentState, state);
         artifactIO.updateState(artifactId, state);
@@ -582,13 +584,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The flag.
 	 */
 	private void applyFlag(final Long artifactId, final ArtifactFlag flag) {
-		logger.info("[LMODEL] [ARTIFACT] [APPLY FLAG]");
-		logger.debug(artifactId);
-		logger.debug(flag);
+		logger.logApiId();
+		logger.logVariable("variable", artifactId);
+		logger.logVariable("variable", flag);
 		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
 		if(flags.contains(flag)) {
-			logger.warn("Artifact [" + artifactId
-					+ "] has already been flagged as [" + flag + "].");
+			logger.logWarning("Artifact {0} is already flagged as {1}.",
+                    artifactId, flag);
 		}
 		else {
 			flags.add(flag);
@@ -609,15 +611,15 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *             </ul>
 	 */
 	private void removeFlag(final Long artifactId, final ArtifactFlag flag) {
-		logger.info("[] [] []");
+		logger.logApiId();
 		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
 		if(flags.contains(flag)) {
 			flags.remove(flag);
 			artifactIO.updateFlags(artifactId, flags);
 		}
 		else {
-			logger.warn("Artifact [" + artifactId
-					+ "] has no flag [" + flag + "].");
+			logger.logWarning("Artifact {0} is not flagged as {1}.",
+                    artifactId, flag);
 		}
 	}
 }

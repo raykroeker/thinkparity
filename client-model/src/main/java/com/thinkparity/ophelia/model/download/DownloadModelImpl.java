@@ -36,8 +36,8 @@ class DownloadModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
     void download(final Release release) throws ParityException {
-        logger.info("[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD]");
-        logger.debug(release);
+        logger.logApiId();
+        logger.logVariable("variable", release);
         final List<Library> libraries = readLibraries(release.getId());
         final DownloadHelper helper = new DownloadHelper(internalModelFactory, release);
         try {
@@ -55,8 +55,8 @@ class DownloadModelImpl extends AbstractModelImpl {
      * @return True the download for the latest version is complete.
      */
     Boolean isComplete(final Release release) throws ParityException {
-        logger.info("[LMODEL] [DOWNLOAD MODEL] [IS COMPLETE]");
-        logger.debug(release);
+        logger.logApiId();
+        logger.logVariable("variable", release);
         // check to see if the latest release has already been downloaded
         final DownloadHelper download = new DownloadHelper(internalModelFactory, release);
         try { return download.isComplete(); }

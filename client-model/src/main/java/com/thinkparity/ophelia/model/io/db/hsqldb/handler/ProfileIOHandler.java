@@ -85,14 +85,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("where PROFILE_ID=? and EMAIL_ID=?")
             .toString();
 
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("[PROFILE]").append(" ").append(api);
-    }
-
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /** Email db io. */
     private final EmailIOHandler emailIO;
 
@@ -123,7 +115,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             // NOCOMMIT Profile vcard.
             session.setString(2, "");
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE PROFILE]"));
+                throw new HypersonicException("Could not create profile.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -242,7 +234,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.setString(1, "");
             session.setLong(2, profile.getLocalId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[UPDATE]", "[CANNOT UPDATE PROFILE]"));
+                throw new HypersonicException("Could not update profile.");
 
             session.commit();
         }

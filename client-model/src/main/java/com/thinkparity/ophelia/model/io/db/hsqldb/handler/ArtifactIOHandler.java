@@ -255,30 +255,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	/**
-     * Obtain a log4j api id.
-     * 
-     * @param api
-     *            The api.
-     * @return A log4j api id.
-     */
-    protected static StringBuffer getApiId(final String api) {
-        return getIOId("[ARTIFACT]").append(" ").append(api);
-    }
-
-	/**
-     * Obtain a log4j error id.
-     * 
-     * @param api
-     *            The api.
-     * @param error
-     *            The error.
-     * @return A log4j error id.
-     */
-    protected static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /** The user io interface. */
     private final UserIOHandler userIO;
 
@@ -331,7 +307,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             session.setLong(1, artifactId);
             session.setLong(2, userId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE TEAM REL]", "[COULD NOT CREATE TEAM RELATIONSHIP]"));
+                throw new HypersonicException("Could not create team relationship.");
 
             session.commit();
         }
@@ -649,7 +625,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             session.setStateAsInteger(1, state);
             session.setLong(2, artifactId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[UPDATE STATE]", "[CANNOT UPDATE STATE]"));
+                throw new HypersonicException("Could not update state.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -727,7 +703,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setString(8, version.getUpdatedBy());
 		session.setCalendar(9, version.getUpdatedOn());
 		if(1 != session.executeUpdate())
-			throw new HypersonicException(getErrorId("[CREATE VERSION]", "[COULD NOT CREATE VERSION]"));
+			throw new HypersonicException("Could not create version.");
 
 		setVersionMetaData(session, version.getArtifactId(), version
                 .getVersionId(), version.getMetaData());
@@ -764,7 +740,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         session.prepareStatement(SQL_DELETE_REMOTE_INFO);
         session.setLong(1, artifactId);
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("[DELETE REMOTE INFO]", "[COULD NOT DELETE REMOTE INFO]"));
+            throw new HypersonicException("Could not delete remote info.");
     }
 
 	/**

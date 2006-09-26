@@ -289,30 +289,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where ARTIFACT_ID=?")
             .toString();
 
-    /**
-     * Obtain a log4j api id.
-     * 
-     * @param api
-     *            The api.
-     * @return A log4j api id.
-     */
-    protected static StringBuffer getApiId(final String api) {
-        return getIOId("[CONTAINER] ").append(api);
-    }
-
-    /**
-     * Obtain a log4j error id.
-     * 
-     * @param api
-     *            The api.
-     * @param error
-     *            The error.
-     * @return A log4j error id.
-     */
-    protected static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
 
@@ -353,7 +329,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(4, artifactVersionId);
             session.setTypeAsInteger(5, artifactType);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[ADD VERSION]", "[CANNOT ADD VERSION]"));
+                throw new HypersonicException("Could not add version.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -375,7 +351,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, container.getId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE CONTAINER]"));
+                throw new HypersonicException("Could not create container.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -395,7 +371,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, draft.getContainerId());
             session.setLong(2, draft.getOwner().getLocalId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT]"));
+                throw new HypersonicException("Could not create draft.");
             
             session.prepareStatement(SQL_CREATE_DRAFT_ARTIFACT_REL);
             session.setLong(1, draft.getContainerId());
@@ -403,7 +379,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 session.setLong(2, artifact.getId());
                 session.setStateAsString(3, draft.getState(artifact));
                 if(1 != session.executeUpdate())
-                    throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT DOCUMENT]"));
+                    throw new HypersonicException("Could not create draft artifact relationship.");
             }
             session.commit();
         }
@@ -426,7 +402,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, artifactId);
             session.setEnumTypeAsString(3, state);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE DRAFT ARTIFACT REL]", "[COULD NOT CREATE DRAFT ARTIFACT REL]"));
+                throw new HypersonicException("Could not create draft artifact relationship.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -451,7 +427,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             for (final User publishedToUser : publishedTo) {
                 session.setLong(3, publishedToUser.getLocalId());
                 if (1 != session.executeUpdate())
-                    throw new HypersonicException(getErrorId("CREATE PUBLISHED TO", "CANNOT CREATE PUBLISHED TO"));
+                    throw new HypersonicException("Could not create published to entry.");
             }
 
             session.commit();
@@ -476,7 +452,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             for (final User sharedWithUser : sharedWith) {
                 session.setLong(3, sharedWithUser.getLocalId());
                 if (1 != session.executeUpdate())
-                    throw new HypersonicException(getErrorId("CREATE SHARED WITH", "CANNOT CREATE SHARED WITH"));
+                    throw new HypersonicException("Could not create shared with entry.");
             }
 
             session.commit();
@@ -500,7 +476,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, version.getArtifactId());
             session.setLong(2, version.getVersionId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE VERSION]", "[CANNOT CREATE CONTAINER VERSION]"));
+                throw new HypersonicException("Could not create version.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -520,7 +496,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_DELETE);
             session.setLong(1, containerId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT DELETE CONTAINER]"));
+                throw new HypersonicException("Could not delete container.");
             artifactIO.delete(session, containerId);
             session.commit();
         }
@@ -540,7 +516,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_DELETE_DRAFT);
             session.setLong(1, containerId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[DELETE DRAFT]", "[COULD NOT DELETE DRAFT]"));
+                throw new HypersonicException("Could not delete draft.");
 
             session.commit();
         }
@@ -561,7 +537,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, artifactId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[DELETE DRAFT ARTIFACT REL]", "[COULD NOT DELETE DRAFT ARTIFACT REL]"));
+                throw new HypersonicException("Could not delete draft artifact relationship.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -584,20 +560,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(1, versionId);
             if (publishedToCount != session.executeUpdate())
-                throw new HypersonicException(getErrorId("DELETE VERSION", "COULD NOT DELETE PUBLISHED TO"));
+                throw new HypersonicException("Could not delete published to entry.");
 
             final Integer sharedWithCount = readSharedWithCount(containerId, versionId);
             session.prepareStatement(SQL_DELETE_SHARED_WITH);
             session.setLong(1, containerId);
             session.setLong(1, versionId);
             if (sharedWithCount != session.executeUpdate())
-                throw new HypersonicException(getErrorId("DELETE VERSION", "COULD NOT DELETE SHARED WITH"));
+                throw new HypersonicException("Could not delete shared with entry.");
 
             session.prepareStatement(SQL_DELETE_VERSION);
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[DELETE VERSION]", "[COULD NOT DELETE VERSION]"));
+                throw new HypersonicException("Could not delete version.");
             artifactIO.deleteVersion(session, containerId, versionId);
             session.commit();
         }
@@ -810,7 +786,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(3, artifactId);
             session.setLong(4, artifactVersionId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[REMOVE VERSION]", "[CANNOT REMOVE VERSION]"));
+                throw new HypersonicException("Could not remove version.");
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -871,7 +847,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setString(1, name);
             session.setLong(2, containerId);
             if (1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("UPDATE NAME", "COULD NOT UPDATE NAME"));
+                throw new HypersonicException("Could not update name.");
 
             session.commit();
         } catch (final HypersonicException hx) {

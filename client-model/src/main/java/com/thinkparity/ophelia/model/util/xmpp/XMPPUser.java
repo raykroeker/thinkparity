@@ -71,12 +71,12 @@ class XMPPUser extends AbstractXMPP<UserListener> {
      * @throws SmackException
      */
     User read(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         final XMPPMethod read = new XMPPMethod("user:read");
         read.setParameter("userId", userId);
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
-        return logVariable("user", extract(response));
+        return logger.logVariable("user", extract(response));
     }
 
 	/**
@@ -88,8 +88,8 @@ class XMPPUser extends AbstractXMPP<UserListener> {
      * @throws SmackException
      */
 	Set<User> read(final Set<JabberId> jabberIds) throws SmackException {
-		logApiId();
-		logVariable("jabberIds", jabberIds);
+		logger.logApiId();
+		logger.logVariable("jabberIds", jabberIds);
 		final IQ iq = new IQReadUsers(jabberIds);
 		final IQReadUsersResult result =
 			(IQReadUsersResult) xmppCore.sendAndConfirmPacket(iq);

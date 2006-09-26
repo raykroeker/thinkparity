@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -17,11 +16,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
@@ -30,7 +26,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -95,8 +91,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		.append("Before you can create the first parity artifact; you will ")
 		.append("need to establish a parity session.").toString();
 
-    private static final String NO_WORKSPACE = "No workspace.";
-
     /**
 	 * Obtain the current date\time.
 	 * 
@@ -116,7 +110,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	protected final L18n l18n;
 
 	/** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
 	/** The thinkParity workspace <code>Preferences</code>. */
 	protected final Preferences preferences;
@@ -143,7 +137,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		super();
         this.internalModelFactory = new InternalModelFactory(getContext(), workspace);
 		this.l18n = new Localization(LocalizationContext.MODEL);
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
@@ -817,74 +811,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	}
 
     /**
-     * Log the api id of the caller.
-     *
-     */
-    protected void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}#{2}",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
-    }
-
-    protected final void logInfo(final String infoPattern,
-            final Object... infoArguments) {
-        if (logger.isInfoEnabled()) {
-            logger.info(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    null == workspace ? NO_WORKSPACE : workspace.getWorkspaceDirectory().getName(),
-                            Log4JHelper.renderAndFormat(logger, infoPattern, infoArguments)));
-        }
-    }
-
-    /**
-     * Log a variable. Note that only the variable value will be rendered.
-     * 
-     * @param name
-     *            The variable name.
-     * @param value
-     *            The variable value.
-     * @return The variable.
-     */
-    protected final void logVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0} {1}:{2}",
-                    null == workspace ? NO_WORKSPACE : workspace.getWorkspaceDirectory().getName(),
-                    name, Log4JHelper.render(logger, value)));
-        }
-    }
-
-    /**
-     * Log a warning message.
-     * 
-     * @param message A warning message.
-     */
-    protected void logWarning(final Object message) {
-        if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(MessageFormat.format("{0} {1}",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
-                    Log4JHelper.render(logger, message)));
-        }
-    }
-
-    /**
-     * Log a warning with a error.
-     * 
-     * @param message
-     *            A warning message.
-     * @param t
-     *            An error.
-     */
-    protected void logWarning(final Object message, final Throwable t) {
-        if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
-            logger.warn(MessageFormat.format("{0} {1}",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
-                    Log4JHelper.render(logger, message), t));
-        }
-    }
-
-    /**
      * Notify all event listeners.
      * 
      * @param notifier
@@ -968,8 +894,8 @@ public abstract class AbstractModelImpl<T extends EventListener>
             return (Assertion) t;
         }
         else {
-            final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(errorId, t);
             return ParityErrorTranslator.translateUnchecked(getContext(), errorId, t);
         }
     }
@@ -1109,19 +1035,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
             encryptionCipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
         }
         return encryptionCipher;
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @return An error id.
-     */
-    private Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                    null == workspace ? "null" : workspace.getWorkspaceDirectory().getName(),
-                    StackUtil.getFrameClassName(2).toUpperCase(),
-                    StackUtil.getFrameMethodName(2).toUpperCase(),
-                    t.getMessage());
     }
 
     /**

@@ -194,30 +194,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("where CONTACT_ID=?")
             .toString();
 
-    /**
-     * Return the api id.
-     * 
-     * @param api
-     *            The api.
-     * @return The api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getIOId("CONTACT").append(" ").append(api);
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @param api
-     *            The api.
-     * @param error
-     *            The error.
-     * @return The error id.
-     */
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
     /** The email db io. */
     private final EmailIOHandler emailIO;
 
@@ -248,7 +224,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             // NOCOMMIT Contact vcard.
             session.setString(2, "");
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE CONTACT]", "[CREATE CONTACT] [COULD NOT CREATE CONTACT]"));
+                throw new HypersonicException("Could not create contact.");
 
             session.commit();
         }
@@ -296,7 +272,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(2, emailId);
             session.setLong(3, user.getLocalId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("CREATE INCOMING INVITATION", "COULD NOT CREATE INCOMING INVITATION"));
+                throw new HypersonicException("Could not create incoming invitation.");
 
             session.commit();
         } catch (final HypersonicException hx) {
@@ -321,7 +297,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.setLong(1, outgoing.getId());
             session.setLong(2, emailId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("CREATE OUTGOING INVITATION", "COULD NOT CREATE OUTGOING INVITATION"));
+                throw new HypersonicException("COuld not create outgoing invitation.");
 
             session.commit();
         }
@@ -382,7 +358,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_DELETE_INCOMING_INVITATION);
             session.setLong(1, invitationId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("DELETE INCOMING INVITATION", "COULD NOT DELETE INCOMING INVITATION"));
+                throw new HypersonicException("Could not deleting incoming invitation.");
             deleteInvitation(session, invitationId);
             session.commit();
         } catch (final HypersonicException hx) {
@@ -404,7 +380,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_DELETE_OUTGOING_INVITATION);
             session.setLong(1, invitationId);
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("DELETE OUTGOING INVITATION", "COULD NOT DELETE OUTGOING INVITATION"));
+                throw new HypersonicException("Could not delete outgoing invitation.");
             deleteInvitation(session, invitationId);
             emailIO.delete(session, emailId);
             session.commit();
@@ -673,7 +649,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         session.prepareStatement(SQL_DELETE_INVITATION);
         session.setLong(1, invitationId);
         if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("DELETE INVITATION", "COULD NOT DELETE INVITATION"));
+            throw new HypersonicException("Could not delete invitation.");
     }
 
     /**

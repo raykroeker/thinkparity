@@ -29,15 +29,15 @@ class UserModelImpl extends AbstractModelImpl {
     }
 
     User create(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         final User remoteUser = getInternalSessionModel().readUser(userId);
         userIO.create(remoteUser);
         return read(userId);
     }
 
     User read() {
-        logApiId();
+        logger.logApiId();
         // NOTE User has not yet logged in.
         final JabberId localUserId = localUserId();
         if (null == localUserId) {
@@ -48,14 +48,14 @@ class UserModelImpl extends AbstractModelImpl {
     }
 
     User read(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         return userIO.read(userId);
     }
 
     User read(final Long userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         return userIO.read(userId);
     }
 
@@ -67,8 +67,8 @@ class UserModelImpl extends AbstractModelImpl {
      * @return A <code>User</code>.
      */
     User readLazyCreate(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         final User localUser = read(userId);
         if (null == localUser) {
             return create(userId);

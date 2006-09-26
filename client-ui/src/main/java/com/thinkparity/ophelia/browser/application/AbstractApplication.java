@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,18 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Constants.Logging;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -69,25 +65,11 @@ public abstract class AbstractApplication implements Application {
         });
 	}
 
-    /**
-     * Obtain the caller class name. This method uses a stack filter to remove
-     * all "logApiId()" stack trace elements from the stack before returning the
-     * caller.
-     * 
-     * @param filters
-     *            A list of stack util filters.
-     * @return A stack trace element..
-     */
-    private static StackTraceElement getCallerFrame(
-            final List<StackUtil.Filter> filters) {
-        return StackUtil.getFrame(filters);
-    }
-
     /** Application localization. */
 	protected final L18n l18n;
 
 	/** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
 	/** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
@@ -119,7 +101,7 @@ public abstract class AbstractApplication implements Application {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
 		this.l18n = new ApplicationL18n(l18nContext);
-		this.logger = platform.getLogger(getClass());
+		this.logger = new Log4JWrapper();
 		this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.platform = platform;
 		this.status = ApplicationStatus.NEW;
@@ -279,15 +261,8 @@ public abstract class AbstractApplication implements Application {
      * @param value
      *            The variable value.
      */
-    protected void debugVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0} {1}] [{2}] [{3}] [{4}:{5}]",
-                    Logging.APPLICATION_LOG_ID,
-                    getId().toString().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase(),
-                    name, Log4JHelper.render(logger, value)));
-        }
+    protected <V> V debugVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
     }
 
 	/**
@@ -355,13 +330,7 @@ public abstract class AbstractApplication implements Application {
 
     /** Log an api id. */
     protected final void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}]",
-                    Logging.APPLICATION_LOG_ID,
-                    getId().toString().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase()));
-        }
+        logger.logApiId();
     }
 
 	/**
@@ -371,14 +340,7 @@ public abstract class AbstractApplication implements Application {
      *            A message to log.
      */
     protected final void logApiId(final Object message) {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}] [{4}]",
-                    Logging.APPLICATION_LOG_ID,
-                    getId().toString().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
-                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase(),
-                    message));
-        }
+        logger.logApiId();
     }
 
     /**
@@ -389,10 +351,9 @@ public abstract class AbstractApplication implements Application {
      * @param t
      *            The cause of the error.
      */
-    protected void logError(final Object message, final Throwable t) {
-        if (logger.isEnabledFor(Level.ERROR)) {
-            logger.error(message, t);
-        }
+    protected <E extends Throwable> E logError(final E e,
+            final String errorPattern, final Object... errorArguments) {
+        return logger.logError(e, errorPattern, errorArguments);
     }
 
 
@@ -407,12 +368,7 @@ public abstract class AbstractApplication implements Application {
      * @return The variable.
      */
     protected final <V> V logVariable(final String name, final V value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0} {1}:{2}",
-                    Log4JHelper.render(logger, profile.getId()),
-                    name, Log4JHelper.render(logger, value)));
-        }
-        return value;
+        return logger.logVariable(name, value);
     }
 
     /**
@@ -421,11 +377,8 @@ public abstract class AbstractApplication implements Application {
      * @param message
      *            A warning message.
      */
-    protected final void logWarn(final Object message) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    profile.getId(), message));
-        }
+    protected final void logWarn(final Object warningArgument) {
+        logger.logWarning("{0}", warningArgument);
     }
 
     /**
@@ -436,13 +389,9 @@ public abstract class AbstractApplication implements Application {
      * @param arguments
      *            Warning arguments.
      */
-    protected final void logWarn(final String pattern,
-            final Object... arguments) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    profile.getId(), Log4JHelper.renderAndFormat(logger,
-                            pattern, arguments)));
-        }
+    protected final void logWarn(final String warningPattern,
+            final Object... warningArguments) {
+        logger.logWarning(warningPattern, warningArguments);
     }
 
     /**
@@ -451,28 +400,9 @@ public abstract class AbstractApplication implements Application {
      * @param message
      *            A warning message.
      */
-    protected final void logWarn(final Throwable cause, final Object message) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    profile.getId(), message), cause);
-        }
-    }
-
-    /**
-     * Log a warning.
-     * 
-     * @param pattern
-     *            A warning pattern.
-     * @param arguments
-     *            Warning arguments.
-     */
-    protected final void logWarn(final Throwable cause, final String pattern,
-            final Object... arguments) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    profile.getId(), Log4JHelper.renderAndFormat(logger,
-                            pattern, arguments)), cause);
-        }
+    protected final <W extends Throwable> W logWarn(final W w,
+            final String warningPattern, final Object... warningArguments) {
+        return logger.logWarning(w, warningPattern, warningArguments);
     }
 
 	/**
@@ -560,9 +490,9 @@ public abstract class AbstractApplication implements Application {
             return (BrowserException) t;
         }
         else {
-            final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
-            return new BrowserException(errorId.toString(), t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
+            return new BrowserException(errorId, t);
         }
     }
 
@@ -575,21 +505,6 @@ public abstract class AbstractApplication implements Application {
 				"Cannot move application status from:  " +
 				this.status + " to:  " + targetStatus + ".");
 	}
-
-    /**
-     * Obtain an error id.
-     * 
-     * @param t
-     *            An error.
-     * @return An error id.
-     */
-    private Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                Logging.APPLICATION_LOG_ID,
-                StackUtil.getFrameClassName(2).toUpperCase(),
-                StackUtil.getFrameMethodName(2).toUpperCase(),
-                t.getMessage());
-    }
 
     /**
 	 * Obtain the listeners for this class from the static list. Note that the

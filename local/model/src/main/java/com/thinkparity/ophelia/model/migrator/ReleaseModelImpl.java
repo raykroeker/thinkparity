@@ -47,11 +47,11 @@ class ReleaseModelImpl extends AbstractModelImpl {
      */
     Release create(final String artifactId, final String groupId,
             final String version, final List<Library> libraries) {
-        logger.info("");
-        logger.debug(artifactId);
-        logger.debug(groupId);
-        logger.debug(version);
-        logger.debug(libraries);
+        logger.logApiId();
+        logger.logVariable("variable", artifactId);
+        logger.logVariable("variable", groupId);
+        logger.logVariable("variable", version);
+        logger.logVariable("variable", libraries);
         final Long releaseId = releaseIO.create(
                 artifactId, groupId, version, extractLibraryIds(libraries));
         return read(releaseId);

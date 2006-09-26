@@ -476,11 +476,13 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      */
     private void updateCellMouseOver(final Integer index, final Boolean mouseOver) {
         saveSelection();
-        final TabCell cell = (TabCell) tabJList.getModel().getElementAt(index);
-        cell.setMouseOver(mouseOver);
-        model.getListModel().removeElementAt(index);
-        model.getListModel().add(index, cell);
-        restoreSelection();
+        if (index < tabJList.getModel().getSize()) {
+            final TabCell cell = (TabCell) tabJList.getModel().getElementAt(index);
+            cell.setMouseOver(mouseOver);
+            model.getListModel().removeElementAt(index);
+            model.getListModel().add(index, cell);
+            restoreSelection();
+        }
     }
 
     /**

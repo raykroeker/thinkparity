@@ -24,7 +24,17 @@ instruction to &quot;lock herself from [Hamlet&apos;s] resort.&quot;</comment>
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/ophelia - ant process-resources test-process-resources.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build.xml - process-resources test-process-resources.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build-plugins.xml - quick-release.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

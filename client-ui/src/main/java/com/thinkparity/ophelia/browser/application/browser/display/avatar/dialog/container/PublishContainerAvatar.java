@@ -232,6 +232,13 @@ public class PublishContainerAvatar extends Avatar {
         getController().runPublishContainer(containerId, teamMembers, contacts);    
     }
     
+    /**
+     * Read team members.
+     * 
+     * @param containerId
+     *          The container id.
+     * @return The list of team members.
+     */
     private List<TeamMember> readTeamMembers(final Long containerId) {
         if (null==containerId) {
             return null;
@@ -248,11 +255,29 @@ public class PublishContainerAvatar extends Avatar {
         }
     }
 
-    private List<Contact> readContacts() {
+    /**
+     * Read contacts. The list does not include any contacts
+     * that are in the list of team members.
+     * 
+     * @param teamMembers
+     *          The list of team members.
+     * 
+     * @return The list of contacts.
+     */
+    private List<Contact> readContacts(List<TeamMember> teamMembers) {
         final List<Contact> list = new LinkedList<Contact>();
         final Contact[] array = (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
         for (final Contact contact : array) {
-            list.add(contact);
+            Boolean found = Boolean.FALSE;
+            for (final TeamMember teamMember : teamMembers) {
+                if (teamMember.getId().equals(contact.getId())) {
+                    found = Boolean.TRUE;
+                    break;
+                }
+            }
+            if (!found) {
+                list.add((Contact) contact);
+            }
         }
         return list;
     }
@@ -336,7 +361,7 @@ public class PublishContainerAvatar extends Avatar {
                 publishTo = null;
             } else {
                 teamMembers = readTeamMembers(containerId);
-                contacts = readContacts();
+                contacts = readContacts(teamMembers);
                 publishTo = new ArrayList<Boolean>(getRowCount());
                 for (int i = 0; i < getRowCount(); i++) {
                     if (i < teamMembers.size()) {

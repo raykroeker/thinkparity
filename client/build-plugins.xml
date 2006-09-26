@@ -62,6 +62,7 @@
             <fileset file="${basedir}/LICENSE.txt"/>
             <fileset file="${basedir}/README.txt"/>
             <fileset dir="${target.classes.dir}">
+                <include name="localization/*"/>
                 <include name="META-INF/*"/>
             </fileset>
         </copy>

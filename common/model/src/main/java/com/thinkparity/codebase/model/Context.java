@@ -14,7 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 public final class Context {
 
 	/** A thinkParity model implementation. */
-	private final AbstractModel model;
+	private final Object context;
 
 	/**
      * Create Context.
@@ -22,9 +22,9 @@ public final class Context {
      * @param The
      *            context source.
      */
-	Context(final AbstractModel model) {
+	Context(final AbstractModel context) {
 		super();
-		this.model = model;
+		this.context = context;
 	}
 
 	/**
@@ -32,9 +32,9 @@ public final class Context {
 	 *
 	 */
 	public final void assertIsValid() {
-		Assert.assertNotNull(model, "Null context.");
+		Assert.assertNotNull(context, "Null context.");
 		Assert.assertTrue(isValid(),
-                "Illegal context.", model.getClass().getPackage().getName());
+                "Illegal context.", context.getClass().getPackage().getName());
 	}
 
     /**
@@ -43,7 +43,7 @@ public final class Context {
      * @return True if the context is valid.
      */
     private final Boolean isValid() {
-        return model.getClass().getPackage().getName().startsWith("com.thinkparity.ophelia.model") ||
-            model.getClass().getPackage().getName().startsWith("com.thinkparity.desdemona.model");
+        return context.getClass().getPackage().getName().startsWith("com.thinkparity.ophelia.model") ||
+            context.getClass().getPackage().getName().startsWith("com.thinkparity.desdemona.model");
     }
 }

@@ -359,6 +359,10 @@ Examples:
                 value="${junitx.log4j.console}" else="false">
             <isset property="junitx.log4j.console"/>
         </condition>
+        <condition property="inner.test"
+                value="**/${test}Test.class" else="**/*Test.class">
+            <isset property="test"/>
+        </condition>
 
         <junit fork="on" forkmode="once" reloading="false"
 		        errorproperty="junit.didError" failureproperty="junit.didFail">
@@ -368,15 +372,10 @@ Examples:
 			<classpath refid="project.test-classpath"/>
 			<formatter type="brief" usefile="false"/>
 
-            <!-- execute single test -->
-		    <test if="test" name="${test}" todir="${target.test-sessions.dir}">
-		        <formatter type="xml"/>
-		    </test>
-
 		    <!-- execute batch tests -->
-		    <batchtest unless="test" todir="${target.test-sessions.dir}">
+		    <batchtest todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
-                <fileset dir="${target.test-classes.dir}" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
 			</batchtest>
 		</junit>
         <antcall target="test-report" inheritRefs="true" inheritAll="true"/>

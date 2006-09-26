@@ -176,10 +176,12 @@ public class TestCaseHelper {
 	 */
 	private static File copyInputFile(final String inputName,
 			final String outputName) throws IOException {
-		final File outputFile = new File(getInputFilesDirectory(), outputName);
+        final File outputFile = new File(getInputFilesDirectory(), outputName);
 		Assert.assertTrue(outputFile.createNewFile());
-		final InputStream is = TestCaseHelper.class.getResourceAsStream(inputName);
-		final OutputStream os = new FileOutputStream(outputFile);
+		final InputStream is =
+            TestCaseHelper.class.getClassLoader().getResourceAsStream(
+                    "junitx-files/" + inputName);
+        final OutputStream os = new FileOutputStream(outputFile);
 		try {
 			int len;
 			final byte[] b = new byte[512];

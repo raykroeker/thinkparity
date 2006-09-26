@@ -115,7 +115,7 @@
         </condition>
 
         <!-- plugins/archive -->
-        <javac srcdir="${basedir}/plugins/archive/main/java"
+        <javac srcdir="${basedir}/local/browser-plugins/archive/main/java"
                 destdir="${target.classes.dir}/archive" debug="${compile.innerDebug}">
 			<classpath refid="project.classpath"/>
         </javac>
@@ -188,8 +188,8 @@ Examples:
     <!-- process resources -->
     <target name="process-resources" depends="init">
         <!-- plugins/archive -->
-        <copy todir="${target.classes.dir}/archive">
-            <fileset dir="${basedir}/plugins/archive/main/resources"/>
+        <copy todir="${target.classes.dir}">
+            <fileset dir="${basedir}/local/browser-plugins/archive/main/resources"/>
         </copy>
     </target>
 

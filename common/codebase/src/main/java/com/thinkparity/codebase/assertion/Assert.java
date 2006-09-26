@@ -48,7 +48,16 @@ public class Assert {
                     null == message ? NULL_MESSAGE : message.toString());
 	}
 
-	/**
+    public static void assertIsNull(final Object objectReference,
+            final String assertionPattern, final Object... assertionArguments) {
+        if (null != objectReference) {
+            throw new NotNullPointerAssertion(
+                createMessage(assertionPattern, assertionArguments));
+        }
+
+    }
+
+    /**
 	 * Assert that the object reference provided is not null. If it is, throw a
 	 * <code>org.kcs.projectmanager.client.util.NullPointerAssertion</code>.
 	 * 

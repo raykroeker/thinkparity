@@ -361,6 +361,9 @@ public abstract class StringUtil {
                 currentIndex = nextIndex + 1;
                 nextIndex = str.indexOf(delim, currentIndex);
             }
+            if (currentIndex < str.length()) {
+                tokenized.add(str.substring(currentIndex));
+            }
         }
         return tokenized;
     }

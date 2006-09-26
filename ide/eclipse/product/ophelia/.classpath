@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry path="common/codebase/src/main/java" kind="src"/>
-	<classpathentry path="local/browser-plugins/archive/main/java" kind="src"/>
 	<classpathentry path="common/model/src/main/java" kind="src"/>
 	<classpathentry path="local/browser/src/main/java" kind="src"/>
+	<classpathentry path="local/browser-plugins/archive/main/java" kind="src"/>
 	<classpathentry path="local/model/src/main/java" kind="src"/>
 	<classpathentry path="local/thinkparity/src/main/java" kind="src"/>
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>

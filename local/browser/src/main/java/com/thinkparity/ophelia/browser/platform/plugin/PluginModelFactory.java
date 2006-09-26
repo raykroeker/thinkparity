@@ -7,6 +7,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Model Factory<br>
@@ -48,5 +49,14 @@ public final class PluginModelFactory {
      */
     public ContainerModel getContainerModel() {
         return factory.getContainerModel(getClass());
+    }
+
+    /**
+     * Obtain A thinkParity <code>SessionModel</code> interface.
+     * 
+     * @return A thinkParity <code>SessionModel</code> interface.
+     */
+    public SessionModel getSessionModel() {
+        return factory.getSessionModel(getClass());
     }
 }

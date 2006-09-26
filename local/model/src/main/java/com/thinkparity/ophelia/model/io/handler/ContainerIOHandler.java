@@ -274,6 +274,14 @@ public interface ContainerIOHandler {
     public void removeVersions(final Long containerId, final Long versionId);
 
     /**
+     * Restore a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void restore(final Container container);
+
+    /**
      * Update a container.
      * 
      * @param containerId

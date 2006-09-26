@@ -237,24 +237,6 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
     }
 
 	/**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("artifact:archive");
-        archive.setParameter("userId", userId);
-        archive.setParameter("uniqueId", uniqueId);
-        execute(archive);
-    }
-
-	/**
      * Confirm artifact receipt.
      * 
      * @param receivedFrom

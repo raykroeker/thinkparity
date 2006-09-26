@@ -113,13 +113,14 @@ final class PluginInstaller extends PluginUtility {
      *
      */
     void reinstall() {
-        FileSystem pluginFileSystem = null;
+        File pluginInstallRoot = null;
         try {
-            pluginFileSystem = getPluginFileSystem();
+            pluginInstallRoot = new File(
+                    installFileSystem.getRoot(), getInstallName());
         } catch (final Throwable t) {
             throw translateError(t);
         }
-        FileUtil.deleteTree(pluginFileSystem.getRoot());
+        FileUtil.deleteTree(pluginInstallRoot);
         install();
     }
 

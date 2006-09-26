@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.Context;
@@ -109,7 +110,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         synchronized(getImplLock()) { return getImpl().create(name); }
     }
 
-	/**
+    /**
      * Create a container draft.
      * 
      * @param containerId
@@ -130,7 +131,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         synchronized(getImplLock()) { getImpl().delete(containerId); }
     }
 
-    /**
+	/**
      * Delete a draft.
      * 
      * @param containerId
@@ -497,7 +498,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-	/**
+    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -510,7 +511,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Read a container version.
      * 
      * @param containerId
@@ -622,6 +623,18 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     public void rename(final Long containerId, final String name) {
         synchronized (getImplLock()) {
             getImpl().rename(containerId, name);
+        }
+    }
+
+    /**
+     * Restore a container from an archive.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    public void restore(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().restore(uniqueId);
         }
     }
 

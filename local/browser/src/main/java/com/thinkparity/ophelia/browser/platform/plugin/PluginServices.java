@@ -13,6 +13,10 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Services<br>
@@ -25,6 +29,9 @@ import com.thinkparity.ophelia.browser.platform.Platform;
  */
 public final class PluginServices {
 
+    /** The connection. */
+    private Connection connection;
+
     /** The plugin's resource bundle. */
     private final PluginLoader loader;
 
@@ -33,6 +40,9 @@ public final class PluginServices {
 
     /** The plugin's model factory. */
     private final PluginModelFactory modelFactory;
+
+    /** The plugin wrapper. */
+    private final PluginWrapper wrapper;
 
     /**
      * Create PluginServices.
@@ -43,6 +53,18 @@ public final class PluginServices {
         this.loader = new PluginRegistry().getLoader(wrapper);
         this.logger = Logger.getLogger(getClass());
         this.modelFactory = new PluginModelFactory(platform);
+        this.modelFactory.getSessionModel().addListener(new SessionListener() {
+            public void sessionEstablished() {
+                connection = Connection.ONLINE;
+            }
+            public void sessionTerminated() {
+                connection = Connection.OFFLINE;
+            }
+            public void sessionTerminated(final Throwable cause) {
+                sessionTerminated();
+            }
+        });
+        this.wrapper = wrapper;
     }
 
     /**
@@ -54,6 +76,15 @@ public final class PluginServices {
      */
     public ResourceBundle getBundle(final String baseName) {
         return loader.loadBundle(baseName, Locale.getDefault());
+    }
+
+    /**
+     * Obtain the connection.
+     * 
+     * @return A <code>Connection</code>.
+     */
+    public Connection getConnection() {
+        return connection;
     }
 
     /**
@@ -145,6 +176,28 @@ public final class PluginServices {
             logger.error(errorId, cause);
             return PluginException.translate(errorId.toString(), cause);
         }
+    }
+
+    /**
+     * Obtain an action extension for the plugin with the given name.
+     * 
+     * @param name
+     *            An extension name.
+     * @return A <code>ActionExtension</code>.
+     */
+    ActionExtension getActionExtension(final String name) {
+        return (ActionExtension) wrapper.getExtension(name);
+    }
+
+    /**
+     * Obtain a tab extension for the plugin with the given name.
+     * 
+     * @param name
+     *            An extension name.
+     * @return A <code>TabExtension</code>.
+     */
+    TabExtension getTabExtension(final String name) {
+        return (TabExtension) wrapper.getExtension(name);
     }
 
     /**

@@ -14,11 +14,24 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 public abstract class TabExtensionModel<TEMCP extends TabExtensionModelContentProvider>
         extends TabModel {
 
+    /** The <code>TabExtension</code>. */
+    private final TabExtension extension;
+
     /**
      * Create ExtensionTabModel.
      * 
      */
-    protected TabExtensionModel() {
+    protected TabExtensionModel(final TabExtension extension) {
         super();
+        this.extension = extension;
+    }
+
+    /**
+     * Obtain the extension.
+     *
+     * @return The TabExtension.
+     */
+    protected TabExtension getExtension() {
+        return extension;
     }
 }

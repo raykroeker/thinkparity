@@ -3,12 +3,14 @@
  */
 package com.thinkparity.ophelia.model.archive;
 
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
@@ -54,6 +56,40 @@ class ArchiveModelImpl extends AbstractModelImpl {
         this.defaultFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
+    }
+
+    void archive(final Long artifactId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
+        try {
+            final UUID uniqueId = getInternalArtifactModel().readUniqueId(artifactId);
+            getInternalSessionModel().archiveArtifact(localUserId(), uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    InputStream openDocumentVersion(final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            return getInternalSessionModel().openArchiveDocumentVersion(
+                    localUserId(), uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    Container readContainer(final UUID containerUniqueId) {
+        logApiId();
+        logVariable("containerUniqueId", containerUniqueId);
+        try {
+            return getInternalSessionModel().readArchiveContainer(
+                    localUserId(), containerUniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     List<Container> readContainers() {
@@ -226,5 +262,27 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logVariable("filter", filter);
         return readDocumentVersions(uniqueId, versionId, documentUniqueId,
                 defaultVersionComparator, filter);
+    }
+
+
+    List<JabberId> readTeamIds(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        try {
+            return getInternalSessionModel().readArchiveTeamIds(localUserId(),
+                    uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    void restore(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        try {
+            getInternalSessionModel().restoreArtifact(localUserId(), uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 }

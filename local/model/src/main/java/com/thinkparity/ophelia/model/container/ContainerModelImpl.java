@@ -14,6 +14,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -29,6 +30,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.Constants.Versioning;
+import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -172,9 +174,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
-            getInternalSessionModel().archiveArtifact(
-                    localUserId(), container.getUniqueId());
-            deleteLocal(containerId);
+            getArchiveModel().archive(container.getId());
+            deleteLocal(container.getId());
             notifyContainerArchived(container, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -760,6 +761,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         notifyContainerShared(read(containerId), readVersion(containerId,
                 versionId), remoteEventGenerator);
     }
+
     /**
      * Print a container draft.
      * 
@@ -782,7 +784,6 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             throw translateError(t);
         }
     }
-
     /**
      * Print a container version.
      * 
@@ -1557,6 +1558,68 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.updateName(containerId, name);
         // fire event
         notifyContainerUpdated(read(containerId), localEventGenerator);
+    }
+
+    /**
+     * Restore a container from an archive.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    void restore(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        try {
+            final InternalArchiveModel archiveModel = getArchiveModel();
+            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            // restore container info
+            final Container container = archiveModel.readContainer(uniqueId);
+            final JabberId updatedByJabberId =
+                JabberIdBuilder.parseUsername(container.getUpdatedBy());
+            containerIO.create(container);
+            artifactModel.createRemoteInfo(container.getId(),
+                    updatedByJabberId, container.getUpdatedOn());
+            // restore team info
+            final List<JabberId> teamIds = archiveModel.readTeamIds(uniqueId);
+            for (final JabberId teamId : teamIds) {
+                artifactModel.addTeamMember(container.getId(), teamId);
+            }
+            // restore version info
+            final List<ContainerVersion> versions =
+                archiveModel.readContainerVersions(uniqueId);
+            List<Document> documents;
+            List<DocumentVersion> documentVersions;
+            InputStream documentVersionStream;
+            for (final ContainerVersion version : versions) {
+                version.setArtifactId(container.getId());
+                containerIO.createVersion(version);
+                // restore version links
+                documents = archiveModel.readDocuments(uniqueId, version.getVersionId());
+                for (final Document document : documents) {
+                    documentVersions = archiveModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
+                    for (final DocumentVersion documentVersion : documentVersions) {
+                        documentVersionStream =
+                            archiveModel.openDocumentVersion(uniqueId, documentVersion.getVersionId());
+                        try {
+                            documentModel.create(document.getName(), documentVersionStream);
+                        } finally {
+                            documentVersionStream.close();
+                        }
+                        documentModel.createVersion(document.getId());
+                        containerIO.addVersion(container.getId(),
+                                version.getVersionId(), document.getId(),
+                                documentVersion.getVersionId(),
+                                document.getType());
+                    }
+                }
+            }
+
+            archiveModel.restore(uniqueId);
+            
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

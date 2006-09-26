@@ -55,7 +55,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_DRAFT_ID,ARTIFACT_ID,ARTIFACT_STATE) ")
             .append("values (?,?,?)")
             .toString();
-    
+
     /** Sql to read the container published to list. */
     private static final String SQL_CREATE_PUBLISHED_TO =
             new StringBuffer("insert into CONTAINER_VERSION_PUBLISHED_TO ")
@@ -69,7 +69,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
             .append("values (?,?,?)")
             .toString();
-
+    
     /** Sql to create a container version. */
     private static final String SQL_CREATE_VERSION =
             new StringBuffer("insert into CONTAINER_VERSION ")
@@ -273,6 +273,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_REMOVE_VERSIONS_REL =
             new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_REL ")
             .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
+            .toString();
+
+    /** Sql to restore a container. */
+    private static final String SQL_RESTORE =
+            new StringBuffer("insert into CONTAINER ")
+            .append("(CONTAINER_ID) ")
+            .append("values (?)")
             .toString();
 
     /** Sql to update the container name. */
@@ -830,6 +837,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             throw hx;
         }
         finally { session.close(); }
+    }
+
+    
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#restore(com.thinkparity.codebase.model.container.Container)
+     */
+    public void restore(final Container container) {
+        final Session session = openSession();
+        try {
+            artifactIO.restore(session, container);
+            session.prepareStatement(SQL_RESTORE);
+            session.setLong(1, container.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not restore container.");
+
+            session.commit();
+        } catch (final HypersonicException hx) {  
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
     }
 
     /**

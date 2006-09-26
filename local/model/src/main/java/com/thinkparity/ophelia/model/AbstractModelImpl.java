@@ -41,6 +41,8 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
+import com.thinkparity.ophelia.model.archive.ArchiveModel;
+import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.AuditModel;
@@ -530,6 +532,10 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected TeamMember get(final List<TeamMember> team, final User user) {
         return team.get(indexOf(team, user));
+    }
+
+    protected InternalArchiveModel getArchiveModel() {
+        return ArchiveModel.getInternalModel(getContext(), workspace);
     }
 
     protected InternalIndexModel getIndexModel() {

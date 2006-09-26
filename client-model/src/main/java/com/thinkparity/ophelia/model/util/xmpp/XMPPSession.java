@@ -248,6 +248,20 @@ public interface XMPPSession {
 	public void logout() throws SmackException;
 
     /**
+     * Open a document version's content.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return The document version's content.
+     */
+    public InputStream openArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
+
+    /**
      * Process events queued on the server since last login.
      * 
      * @throws SmackException
@@ -273,6 +287,17 @@ public interface XMPPSession {
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws SmackException;
+
+    /**
+     * Read the archive's containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A list of containers.
+     */
+    public Container readArchiveContainer(final JabberId userId, final UUID uniqueId);
 
     /**
      * Read the archive's containers.
@@ -325,6 +350,18 @@ public interface XMPPSession {
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId);
+
+    /**
+     * Read the archive team for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return An archive team.
+     */
+    public List<JabberId> readArchiveTeamIds(final JabberId userId,
+            final UUID uniqueId);
 
     /**
      * Read the artifact team.
@@ -441,6 +478,16 @@ public interface XMPPSession {
             final String securityAnswer);
 
     /**
+     * Restore an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    public void restoreArtifact(final JabberId userId, final UUID uniqueId);
+
+    /**
      * Send a container.
      * 
      * @param container
@@ -496,4 +543,5 @@ public interface XMPPSession {
      */
     public void verifyProfileEmail(final JabberId userId, final EMail email,
             final String key);
+
 }

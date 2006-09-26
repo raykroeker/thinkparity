@@ -239,6 +239,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      *
      */
     protected void triggerPopup(final Component invoker, final MouseEvent e) {}
+
     /**
      * Get the index of the cell the event is over.
      * 

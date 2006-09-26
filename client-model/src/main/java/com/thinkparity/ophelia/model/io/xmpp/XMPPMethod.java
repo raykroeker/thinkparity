@@ -547,6 +547,12 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return value;
+            } else if (javaType.equals(Integer.class)) {
+                parser.next();
+                final Integer value = Integer.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return value;
             } else if(javaType.equals(String.class)) {
                 parser.next();
                 final String sValue = parser.getText();

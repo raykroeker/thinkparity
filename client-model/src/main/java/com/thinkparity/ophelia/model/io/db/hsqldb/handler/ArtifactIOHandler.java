@@ -66,18 +66,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.toString();
 
     /**
-	 * Sql to create the artifact.
-	 * 
-	 */
-	private static final String INSERT_ARTIFACT =
-		new StringBuffer("insert into ARTIFACT ")
-		.append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
-		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
-		.append("UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?,?,?)")
-		.toString();
-
-	/**
 	 * Sql to insert an artifact flag relationship.
 	 * 
 	 */
@@ -87,7 +75,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("values (?,?)")
 		.toString();
 
-	/**
+    /**
 	 * Sql query used to create an artifact version.
 	 * 
 	 */
@@ -124,6 +112,15 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("from ARTIFACT_VERSION_META_DATA ")
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
+
+	/** Sql to create an artifact. */
+    private static final String SQL_CREATE =
+        new StringBuffer("insert into ARTIFACT ")
+        .append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
+        .append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+        .append("UPDATED_ON) ")
+        .append("values (?,?,?,?,?,?,?,?)")
+        .toString();
 
 	/**
 	 * Sql to create the remote info.
@@ -162,7 +159,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
-	
+
 	/** Sql to determine if an artifact version exists. */
     private static final String SQL_DOES_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
@@ -170,8 +167,8 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
-
-    private static final String SQL_READ_ID =
+	
+	private static final String SQL_READ_ID =
         new StringBuffer("select A.ARTIFACT_ID ")
         .append("from ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
@@ -229,12 +226,21 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=?")
             .toString();
 
-	/** Sql to read an artifact unique id. */
+    /** Sql to read an artifact unique id. */
     private static final String SQL_READ_UNIQUE_ID =
             new StringBuffer("select A.ARTIFACT_UNIQUE_ID ")
             .append("from ARTIFACT A ")
             .append("Where A.ARTIFACT_ID=?")
             .toString();
+
+	/** Sql to restore an artifact. */
+    private static final String SQL_RESTORE =
+        new StringBuffer("insert into ARTIFACT ")
+        .append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
+        .append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+        .append("UPDATED_ON) ")
+        .append("values (?,?,?,?,?,?,?,?)")
+        .toString();
 
 	/** Sql to update the remote info of an artifact. */
 	private static final String SQL_UPDATE_REMOTE_INFO =
@@ -487,7 +493,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 
     
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readTeam(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readTeamIds(java.lang.Long)
      * 
      */
     public Set<User> readTeamRel(final Long artifactId) throws HypersonicException {
@@ -682,7 +688,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	 */
 	void create(final Session session, final Artifact artifact)
 			throws HypersonicException {
-		session.prepareStatement(INSERT_ARTIFACT);
+		session.prepareStatement(SQL_CREATE);
 		session.setString(1, artifact.getName());
 		session.setStateAsInteger(2, artifact.getState());
 		session.setTypeAsInteger(3, artifact.getType());
@@ -847,6 +853,25 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		}
 		return metaData;
 	}
+
+    void restore(final Session session, final Artifact artifact) {
+        session.prepareStatement(SQL_RESTORE);
+        session.setString(1, artifact.getName());
+        session.setStateAsInteger(2, artifact.getState());
+        session.setTypeAsInteger(3, artifact.getType());
+        session.setUniqueId(4, artifact.getUniqueId());
+        session.setString(5, artifact.getCreatedBy());
+        session.setCalendar(6, artifact.getCreatedOn());
+        session.setString(7, artifact.getUpdatedBy());
+        session.setCalendar(8, artifact.getUpdatedOn());
+        if(1 != session.executeUpdate())
+            throw new HypersonicException("Could not restore.");
+
+        artifact.setId(session.getIdentity());
+
+        deleteFlags(session, artifact.getId());
+        insertFlags(session, artifact.getId(), artifact.getFlags());
+    }
 
     /**
 	 * Set the flags for the artifact.

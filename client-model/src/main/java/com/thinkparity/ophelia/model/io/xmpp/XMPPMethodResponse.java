@@ -21,8 +21,6 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-
-
 /**
  * The parity bootstrap's xmpp method response.
  * 
@@ -57,6 +55,10 @@ public class XMPPMethodResponse extends IQ {
 
     public Calendar readResultCalendar(final String name) {
         return (Calendar) readResult(name);
+    }
+
+    public Container readResultContainer(final String name) {
+        return (Container) readResult(name);
     }
 
     public List<Container> readResultContainers(final String name) {

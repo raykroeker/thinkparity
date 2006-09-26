@@ -4,7 +4,13 @@
 package com.thinkparity.ophelia.model.archive;
 
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
+
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -28,5 +34,36 @@ public class InternalArchiveModel extends ArchiveModel implements InternalModel 
      */
     InternalArchiveModel(final Workspace workspace, final Context context) {
         super(workspace);
+    }
+
+    public void archive(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().archive(artifactId);
+        }
+    }
+
+    public InputStream openDocumentVersion(final UUID uniqueId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().openDocumentVersion(uniqueId, versionId);
+        }
+    }
+
+    public Container readContainer(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readContainer(uniqueId);
+        }
+    }
+
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeamIds(uniqueId);
+        }
+    }
+
+    public void restore(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().restore(uniqueId);
+        }
     }
 }

@@ -60,27 +60,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	}
 
     /**
-     * Read a contact.
-     * 
-     * @param contactId
-     *            A contact id.
-     * @return A contact.
-     */
-    public Contact readContact(final JabberId userId, final JabberId contactId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("contactId", contactId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.readContact(userId, contactId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-	/**
      * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -96,7 +75,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         return super.removeListener(listener);
     }
 
-    /**
+	/**
      * Accept the contact invitation.
      * 
      * @param userId
@@ -137,7 +116,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -229,7 +207,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -248,7 +226,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
 	 * Decline a user's invitation to their contact list.
 	 * 
 	 * @param jabberId
@@ -269,7 +247,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-    /**
+	/**
      * Delete an artifact.
      * 
      * @param uniqueId
@@ -311,7 +289,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -352,7 +330,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
 	 * Extend an invitation to a contact.
 	 * 
 	 * @param extendTo
@@ -398,7 +376,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         });
     }
 
-    /**
+	/**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -426,7 +404,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-	/**
+    /**
      * Establish a new xmpp session.
      * 
      * @throws ParityException
@@ -449,7 +427,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         login(environment, credentials);
     }
 
-    /**
+	/**
 	 * Terminate the current session.
 	 * 
 	 */
@@ -500,6 +478,21 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
+    Container readArchiveContainer(final JabberId userId,
+            final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readArchiveContainer(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read the archived containers.
      * 
@@ -520,7 +513,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -545,7 +538,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Read the archived containers.
      * 
      * @param userId
@@ -633,6 +626,27 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     Contact readContact() {
         logApiId();
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
+    }
+
+    /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+	Contact readContact(final JabberId userId, final JabberId contactId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("contactId", contactId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readContact(userId, contactId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -849,6 +863,28 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     }
 
     /**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void restoreArtifact(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.restoreArtifact(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Send a container version.
      * 
      * @param version
@@ -1027,4 +1063,43 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
+
+    /**
+     * Read the archive team.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of jabber ids.
+     */
+    List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readArchiveTeamIds(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    InputStream openArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.openArchiveDocumentVersion(userId, uniqueId, versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 }

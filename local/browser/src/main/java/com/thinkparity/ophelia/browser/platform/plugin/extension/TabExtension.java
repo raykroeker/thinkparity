@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin.extension;
 
+import com.thinkparity.ophelia.browser.platform.plugin.PluginAbstractExtension;
+
 
 /**
  * @author raymond@thinkparity.com
@@ -10,7 +12,7 @@ package com.thinkparity.ophelia.browser.platform.plugin.extension;
  */
 public abstract class TabExtension<TEA extends TabExtensionAvatar<TEM>,
         TEM extends TabExtensionModel, ECP extends TabExtensionModelContentProvider>
-        extends AbstractExtension {
+        extends PluginAbstractExtension {
 
     /**
      * Create TabExtension.
@@ -26,13 +28,6 @@ public abstract class TabExtension<TEA extends TabExtensionAvatar<TEM>,
      * @return A tab avatar.
      */
     public abstract TEA createAvatar();
-
-    /**
-     * Create the tab's model.
-     * 
-     * @return A tab model.
-     */
-    public abstract TEM createModel();
 
     /**
      * Obtain the tab avatar's content provider.

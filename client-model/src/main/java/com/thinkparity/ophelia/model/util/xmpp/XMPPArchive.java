@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,12 +28,40 @@ class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         super(core);
     }
 
+    /**
+     * Archive an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void archive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod archive = new XMPPMethod("archive:archive");
+        archive.setParameter("userId", userId);
+        archive.setParameter("uniqueId", uniqueId);
+        execute(archive);
+    }
+
+    Container readContainer(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod readArchive = new XMPPMethod("archive:readcontainer");
+        readArchive.setParameter("userId", userId);
+        readArchive.setParameter("uniqueId", uniqueId);
+        return execute(readArchive, Boolean.TRUE).readResultContainer("container");
+    }
+
     List<Container> readContainers(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
-        final XMPPMethod readArchive = new XMPPMethod("container:readarchive");
-        readArchive.setParameter("userId", userId);
-        return execute(readArchive, Boolean.TRUE).readResultContainers("containers");
+        final XMPPMethod readContainers = new XMPPMethod("archive:readcontainers");
+        readContainers.setParameter("userId", userId);
+        return execute(readContainers, Boolean.TRUE).readResultContainers("containers");
     }
 
     List<ContainerVersion> readContainerVersions(final JabberId userId,
@@ -39,10 +69,10 @@ class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logApiId();
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
-        final XMPPMethod readArchiveVersions = new XMPPMethod("container:readarchiveversions");
-        readArchiveVersions.setParameter("userId", userId);
-        readArchiveVersions.setParameter("uniqueId", uniqueId);
-        return execute(readArchiveVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
+        final XMPPMethod readContainerVersions = new XMPPMethod("archive:readcontainerversions");
+        readContainerVersions.setParameter("userId", userId);
+        readContainerVersions.setParameter("uniqueId", uniqueId);
+        return execute(readContainerVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
     }
 
     List<Document> readDocuments(final JabberId userId, final UUID uniqueId,
@@ -51,11 +81,25 @@ class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        final XMPPMethod readDocuments = new XMPPMethod("container:readarchivedocuments");
+        final XMPPMethod readDocuments = new XMPPMethod("archive:readdocuments");
         readDocuments.setParameter("userId", userId);
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
+    }
+
+    InputStream openDocumentVersion(final JabberId userId, final UUID uniqueId,
+            final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        final XMPPMethod readDocumentVersionContent = new XMPPMethod("archive:opendocumentversion");
+        readDocumentVersionContent.setParameter("userId", userId);
+        readDocumentVersionContent.setParameter("uniqueId", uniqueId);
+        readDocumentVersionContent.setParameter("versionId", versionId);
+        return new ByteArrayInputStream(
+                execute(readDocumentVersionContent, Boolean.TRUE).readBytes("content"));
     }
 
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
@@ -66,11 +110,39 @@ class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("documentUniqueId", documentUniqueId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("container:readarchivedocumentversions");
+        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         readDocumentVersions.setParameter("documentUniqueId", documentUniqueId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
+    }
+
+    List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod readTeam = new XMPPMethod("archive:readteamids");
+        readTeam.setParameter("userId", userId);
+        readTeam.setParameter("uniqueId", uniqueId);
+        return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
+    }
+
+    /**
+     * Restore an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     */
+    void restore(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod archive = new XMPPMethod("archive:restore");
+        archive.setParameter("userId", userId);
+        archive.setParameter("uniqueId", uniqueId);
+        execute(archive);
     }
 }

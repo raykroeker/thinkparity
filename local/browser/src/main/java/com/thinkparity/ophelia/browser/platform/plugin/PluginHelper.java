@@ -136,15 +136,17 @@ public final class PluginHelper {
             try {
                 services = new PluginServices(platform, wrapper);
                 wrapper.getPlugin().initialize(services);
-                for (final PluginExtension extensions : wrapper.getExtensions()) {
-                    extensions.initialize(services);
+                for (final PluginExtension extension : wrapper.getExtensions()) {
+                    extension.initialize(services);
                 }
             } catch (final Throwable t) {
+                registry.remove(wrapper);
                 logError(t, "Could not initialize plugin {0}.", wrapper.getPlugin());
             }
             try {
                 wrapper.getPlugin().start();
             } catch (final Throwable t) {
+                registry.remove(wrapper);
                 logError(t, "Could not start plugin {0}.", wrapper.getPlugin());
             }
         }

@@ -72,7 +72,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * The number of milliseconds to sleep immediately prior to executing the
      * login api.
      */
-    private static final int LOGIN_SLEEP_DURATION = 5 * 1000;
+    private static final int LOGIN_SLEEP_DURATION = 2 * 1000;
 
     private static final String NO_CONNECTION = "No connection id.";
 

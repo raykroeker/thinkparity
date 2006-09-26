@@ -376,9 +376,7 @@ Examples:
 		    <!-- execute batch tests -->
 		    <batchtest unless="test" todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
-                <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
-                <fileset dir="${target.test-classes.dir}/local/browser" includes="**/*Test.class"/>
-                <fileset dir="${target.test-classes.dir}/local/model" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}" includes="**/*Test.class"/>
 			</batchtest>
 		</junit>
         <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
@@ -444,9 +442,26 @@ Examples:
 
      <!-- update -->
     <target name="update">
+        <echo message="${cvs.compressionlevel}"/>
         <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.branch}"/>
+        <echo message="${cvs.modules}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
+        <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}"
             command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="checkout" compressionlevel="${cvs.compressionlevel}"
+            tag="${cvs.branch}" package="${cvs.modules}" dest="${basedir}"/>
+        <!-- ide files -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;"
+             compressionlevel="${cvs.compressionlevel}" tag="${cvs.branch}"
+             package="${cvs.modules.ide}" dest="${basedir}"/>
+        <move todir="${basedir}" overwrite="true">
+            <fileset dir="${basedir}/ide"/>
+        </move>
     </target>
 
     <!-- quick release -->

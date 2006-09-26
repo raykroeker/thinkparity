@@ -61,7 +61,7 @@
         <copy todir="${target.release.dir}/archive">
             <fileset file="${basedir}/LICENSE.txt"/>
             <fileset file="${basedir}/README.txt"/>
-            <fileset dir="${target.classes.dir}/archive">
+            <fileset dir="${target.classes.dir}">
                 <include name="META-INF/*"/>
             </fileset>
         </copy>

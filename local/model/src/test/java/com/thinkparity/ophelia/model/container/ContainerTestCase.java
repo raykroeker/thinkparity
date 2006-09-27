@@ -9,9 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
 
-
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 

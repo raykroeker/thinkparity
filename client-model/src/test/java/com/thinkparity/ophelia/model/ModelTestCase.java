@@ -33,6 +33,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.OpheliaTestCase;
 import com.thinkparity.ophelia.OpheliaTestUser;
+import com.thinkparity.ophelia.model.archive.ArchiveModel;
+import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -600,6 +602,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 
     protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
         return ContactModel.getInternalModel(context, testUser.getWorkspace());
+    }
+
+    protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
+        return ArchiveModel.getInternalModel(context, testUser.getWorkspace());
     }
 
     protected InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {

@@ -26,6 +26,7 @@
     <property name="target.release.dir" value="${target.dir}/release"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+    <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
 	<property name="target.test-report.dir" value="${target.dir}/test-report"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
@@ -264,6 +265,7 @@ Examples:
         <mkdir dir="${target.analyze-report.dir}"/>
         <mkdir dir="${target.classes.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
+        <mkdir dir="${target.test-javadoc.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
 		<mkdir dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
@@ -311,11 +313,27 @@ Examples:
                 doctitle="thinkParity"
                 group="thinkParity Codebase com.thinkparity.codebase*,thinkParity Model com.thinkparity.ophelia.model*,thinkParity Browser com.thinkparity.ophelia.browser*,thinkParity Bootstrap com.thinkparity.*"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/common/codebase/src/main/java:${basedir}/common/model/src/main/java:${basedir}/local/model/src/main/java:${basedir}/local/browser/src/main/java:${basedir}/local/thinkparity/src/main/java">
+                sourcepath="${basedir}/common/codebase/src/main/java:${basedir}/common/model/src/main/java:${basedir}/local/model/src/main/java:${basedir}/local/browser/src/main/java:${basedir}/local/browser-plugins/archive/main/java:${basedir}/local/thinkparity/src/main/java">
             <group packages="com.thinkparity*" title="thinkParity Bootstrap"/>
             <group packages="com.thinkparity.codebase*" title="thinkParity Codebase"/>
             <group packages="com.thinkparity.ophelia.model*" title="thinkParity Model"/>
             <group packages="com.thinkparity.ophelia.browser*" title="thinkParity Browser"/>
+            <group packages="com.thinkparity.ophelia.browser.plugin*" title="thinkParity Browser Plugins"/>
+        </javadoc>
+    </target>
+    <!-- document the test source -->
+    <target name="test-javadoc">
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.test-javadoc.dir}"
+                doctitle="thinkParity"
+                group="thinkParity Codebase com.thinkparity.codebase*,thinkParity Model com.thinkparity.ophelia.model*,thinkParity Browser com.thinkparity.ophelia.browser*,thinkParity Bootstrap com.thinkparity.*"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/common/codebase/src/test/java:${basedir}/common/model/src/test/java:${basedir}/local/model/src/test/java:${basedir}/local/browser/src/test/java">
+            <group packages="com.thinkparity*" title="thinkParity Bootstrap"/>
+            <group packages="com.thinkparity.codebase*" title="thinkParity Codebase"/>
+            <group packages="com.thinkparity.ophelia.model*" title="thinkParity Model"/>
+            <group packages="com.thinkparity.ophelia.browser*" title="thinkParity Browser"/>
+            <group packages="com.thinkparity.ophelia.browser.plugin*" title="thinkParity Browser Plugins"/>
         </javadoc>
     </target>
 

@@ -34,8 +34,6 @@ class WindowSize {
 
         // DIMENSION New Container
         REGISTRY.put(AvatarId.DIALOG_CONTAINER_CREATE, new Dimension(350,150));
-        // DIMENSION Publish Container
-        REGISTRY.put(AvatarId.DIALOG_CONTAINER_PUBLISH, new Dimension(600,350));
         // DIMENSION Add Contact
         REGISTRY.put(AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION, new Dimension(300, 125));
 	}

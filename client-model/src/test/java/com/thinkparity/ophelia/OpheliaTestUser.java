@@ -102,7 +102,7 @@ public class OpheliaTestUser extends User {
         SessionModel.getModel(workspace).login(credentials);
         try {
             ContactModel.getModel(workspace).download();
-            ProfileModel.getModel(workspace).read();
+            setId(ProfileModel.getModel(workspace).read().getId());
         } finally {
             SessionModel.getModel(workspace).logout();
         }

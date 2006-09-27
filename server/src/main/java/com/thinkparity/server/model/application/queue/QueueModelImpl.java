@@ -63,8 +63,8 @@ class QueueModelImpl extends AbstractModelImpl {
 	 */
 	QueueItem enqueue(final JID jid, final IQ iq) {
         logApiId();
-		logger.debug(jid);
-		logger.debug(iq);
+        logVariable("jid", jid);
+        logVariable("iq", iq);
 		try {
 			final String username = jid.getNode();
 			final String message = iq.toXML();

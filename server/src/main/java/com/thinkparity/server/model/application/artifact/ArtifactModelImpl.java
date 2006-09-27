@@ -91,7 +91,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         getArchiveModel().archive(userId, uniqueId);
     }
 
-	/**
+    /**
      * Confirm an artifact receipt.
      * 
      * @param uniqueId
@@ -103,9 +103,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void confirmReceipt(final UUID uniqueId, final Long versionId,
             final JabberId receivedFrom) throws ParityServerModelException {
         logApiId();
-        logger.debug(uniqueId);
-        logger.debug(versionId);
-        logger.debug(receivedFrom);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("receivedFrom", receivedFrom);
         try {
             final IQConfirmReceipt iq = new IQConfirmReceipt();
             iq.setUniqueId(uniqueId);
@@ -117,7 +117,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Create an artifact; and add the creator to the team immediately. Note
      * that we are deliberately not using the model api to add a team member
      * because we do not want to fire off notifications.
@@ -144,7 +144,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -152,7 +152,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void createDraft(final UUID uniqueId) {
         logApiId();
-        logger.debug(uniqueId);
+        logVariable("uniqueId", uniqueId);
         try {
             assertSystemIsKeyHolder("[SYSTEM IS NOT KEY HOLDER]", uniqueId);
             final Artifact artifact = read(uniqueId);
@@ -173,7 +173,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Delete a draft from an artifact.
      * 
      * @param uniqueId
@@ -230,7 +230,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	List<JabberId> readTeamIds(final UUID uniqueId) {
+    List<JabberId> readTeamIds(final UUID uniqueId) {
         logApiId();
 		logVariable("uniqueId", uniqueId);
 		try {
@@ -280,6 +280,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+	/**
+     * Restore an artifact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void restore(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        getArchiveModel().restore(userId, uniqueId);
     }
 
     /**

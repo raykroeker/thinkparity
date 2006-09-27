@@ -62,7 +62,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
             .append("values (?,?,?)")
             .toString();
-    
+
     /** Sql to read the container shared with list. */
     private static final String SQL_CREATE_SHARED_WITH =
             new StringBuffer("insert into CONTAINER_VERSION_SHARED_WITH ")
@@ -76,7 +76,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_ID,CONTAINER_VERSION_ID) ")
             .append("values (?,?)")
             .toString();
-
+    
     /** Sql to delete a container. */
     private static final String SQL_DELETE =
             new StringBuffer("delete from CONTAINER ")
@@ -548,6 +548,23 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteSharedWith(java.lang.Long, java.lang.Long)
+     */
+    public void deleteSharedWith(final Long containerId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            deleteSharedWith(session, containerId, versionId);
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -562,12 +579,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             if (publishedToCount != session.executeUpdate())
                 throw new HypersonicException("Could not delete published to entry.");
 
-            final Integer sharedWithCount = readSharedWithCount(containerId, versionId);
-            session.prepareStatement(SQL_DELETE_SHARED_WITH);
-            session.setLong(1, containerId);
-            session.setLong(1, versionId);
-            if (sharedWithCount != session.executeUpdate())
-                throw new HypersonicException("Could not delete shared with entry.");
+            deleteSharedWith(session, containerId, versionId);
 
             session.prepareStatement(SQL_DELETE_VERSION);
             session.setLong(1, containerId);
@@ -815,7 +827,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#restore(com.thinkparity.codebase.model.container.Container)
      */
@@ -837,6 +848,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateName(java.lang.Long, java.lang.String)
      */
@@ -942,6 +954,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             }
         }
         finally { session.close(); }
+    }
+
+    /**
+     * Delete the shared with list for the container version.
+     * 
+     * @param session
+     *            A database <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Logn</code>.
+     */
+    private void deleteSharedWith(final Session session,
+            final Long containerId, final Long versionId) {
+        final Integer sharedWithCount = readSharedWithCount(containerId, versionId);
+        session.prepareStatement(SQL_DELETE_SHARED_WITH);
+        session.setLong(1, containerId);
+        session.setLong(1, versionId);
+        if (sharedWithCount != session.executeUpdate())
+            throw new HypersonicException("Could not delete shared with entry.");
     }
 
     private DocumentVersion extractDocumentVersion(final Session session) {

@@ -67,6 +67,10 @@ public abstract class IQWriter {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
+    public final void writeContainer(final String name, final Container value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);

@@ -903,10 +903,15 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
             // build the publish to list then publish
             final List<JabberId> publishTo = new ArrayList<JabberId>();
-            for (final Contact contact : contacts)
+            final List<User> publishToUsers = new ArrayList<User>();
+            for (final Contact contact : contacts) {
                 publishTo.add(contact.getId());
-            for (final TeamMember teamMember : teamMembers)
+                publishToUsers.add(contact);
+            }
+            for (final TeamMember teamMember : teamMembers) {
                 publishTo.add(teamMember.getId());
+                publishToUsers.add(teamMember);
+            }
             publish(version, publishTo, localUserId(), currentDateTime);
 
             // update remote team
@@ -920,6 +925,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         container.getId(), artifact.getId());
             }
             containerIO.deleteDraft(container.getId());
+
+            // create published to list
+            containerIO.createPublishedTo(containerId,
+                    version.getVersionId(), publishToUsers);
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1686,18 +1695,28 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         assertDoesExistVersion("VERSION DOES NOT EXIST", containerId, versionId);
         assertOnline("USER NOT ONLINE");
         final List<JabberId> shareWith = new ArrayList<JabberId>(contacts.size() + teamMembers.size());
+        final List<User> shareWithUsers =
+            containerIO.readSharedWith(containerId, versionId);
         for (final Contact contact : contacts) {
             if (!contains(teamMembers, contact)) {
                 shareWith.add(contact.getId());
             }
+            if (!contains(shareWithUsers, contact)) {
+                shareWithUsers.add(contact);
+            }
         }
         for (final TeamMember teamMember : teamMembers) {
             shareWith.add(teamMember.getId());
+            if (!contains(shareWithUsers, teamMember)) {
+                shareWithUsers.add(teamMember);
+            }
         }
         getInternalSessionModel().send(
                 readVersion(containerId, versionId),
                 readDocumentVersionStreams(containerId, versionId),
                 shareWith, localUserId(), currentDateTime());
+        containerIO.deleteSharedWith(containerId, versionId);
+        containerIO.createSharedWith(containerId, versionId, shareWithUsers);
     }
 
     /**

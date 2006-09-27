@@ -51,6 +51,15 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
     public abstract List<T> read();
 
     /**
+     * Read an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A <code>T</code>.
+     */
+    public abstract T read(final UUID uniqueId);
+
+    /**
      * Read a list of archived artifact versions.
      * 
      * @param uniqueId

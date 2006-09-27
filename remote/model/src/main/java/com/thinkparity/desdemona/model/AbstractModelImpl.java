@@ -14,9 +14,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.wildfire.ClientSession;
 import org.jivesoftware.wildfire.SessionManager;
 import org.jivesoftware.wildfire.XMPPServer;
@@ -26,13 +23,14 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
@@ -56,7 +54,7 @@ public abstract class AbstractModelImpl
     private static final JabberId NO_SESSION = User.THINK_PARITY.getId();
 
     /** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
     /**
 	 * Handle to the user's session.
@@ -68,7 +66,7 @@ public abstract class AbstractModelImpl
 	 */
 	protected AbstractModelImpl(final Session session) {
 		super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
 		this.session = session;
 	}
 
@@ -325,12 +323,7 @@ public abstract class AbstractModelImpl
 
     /** Log an api id. */
     protected final void logApiId() {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}.{2}",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
+        logger.logApiId();
     }
 
     /**
@@ -340,13 +333,7 @@ public abstract class AbstractModelImpl
      *            A message.
      */
     protected final void logApiId(final Object message) {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}.{2} {3}",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(),
-                    Log4JHelper.render(logger, message)));
-        }
+        logger.logApiId();
     }
 
 	/**
@@ -359,24 +346,12 @@ public abstract class AbstractModelImpl
      */
     protected final void logInfo(final String infoPattern,
             final Object... infoArguments) {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    Log4JHelper.renderAndFormat(logger, infoPattern,
-                            infoArguments)));
-        }
+        logger.logInfo(infoPattern, infoArguments);
     }
 
 	/** Log a trace id. */
     protected final void logTraceId() {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("{0} {1}.{2}({3}:{4})",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(),
-                    StackUtil.getCallerFileName(),
-                    StackUtil.getCallerLineNumber()));
-        }
+        logger.logApiId();
     }
 
     /**
@@ -390,12 +365,7 @@ public abstract class AbstractModelImpl
      * @return The value.
      */
     protected final <T> T logVariable(final String name, final T value) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0} {1}={2}",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    name, Log4JHelper.render(logger, value)));
-        }
-        return value;
+        return logger.logVariable(name, value);
     }
 
     /**
@@ -404,16 +374,9 @@ public abstract class AbstractModelImpl
      * @param warning
      *            A warning.
      */
-    protected final void logWarning(final Object warning) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(MessageFormat.format("{0} {1}.{2}({3}:{4}) {5}",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(),
-                    StackUtil.getCallerFileName(),
-                    StackUtil.getCallerLineNumber(),
-                    Log4JHelper.render(logger, warning)));
-        }
+    protected final void logWarning(final String warningPattern,
+            final Object... warningArguments) {
+        logger.logWarning(warningPattern, warningArguments);
     }
 
     /**
@@ -514,8 +477,8 @@ public abstract class AbstractModelImpl
             return (ParityModelException) t;
         }
         else {
-            final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(errorId, t);
             return ParityErrorTranslator.translateUnchecked(session, errorId, t);
         }
     }

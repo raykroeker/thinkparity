@@ -27,6 +27,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
+import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
@@ -49,6 +50,9 @@ public abstract class AbstractHandler extends
 
     /** A thinkParity artifact interface. */
     private ArtifactModel artifactModel;
+
+    /** A thinkParity archive interface. */
+    private ArchiveModel archiveModel;
 
     /** A thinkParity contact interface. */
     private ContactModel contactModel;
@@ -117,6 +121,7 @@ public abstract class AbstractHandler extends
                     return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
                 }
             };
+            this.archiveModel = ArchiveModel.getModel(session);
             this.artifactModel = ArtifactModel.getModel(session);
             this.contactModel = ContactModel.getModel(session);
             this.containerModel = ContainerModel.getModel(session);
@@ -136,6 +141,15 @@ public abstract class AbstractHandler extends
      */
     protected ArtifactModel getArtifactModel() {
         return artifactModel;
+    }
+
+    /**
+     * Obtain a thinkParity archive interface.
+     * 
+     * @return A thinkParity archive interface.
+     */
+    protected ArchiveModel getArchiveModel() {
+        return archiveModel;
     }
 
     /**

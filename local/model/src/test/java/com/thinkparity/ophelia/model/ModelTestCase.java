@@ -797,6 +797,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Share a container.
+     * 
+     * @param container
+     *            The container.
+     */
+    protected void share(final OpheliaTestUser testUser,
+            final Container container, final ContainerVersion version) {
+        final List<TeamMember> teamMembers = Collections.emptyList();
+        final List<Contact> contacts = readContacts(testUser);
+        getContainerModel(testUser).share(container.getId(),
+                version.getVersionId(), contacts, teamMembers);
+    }
+
+    /**
      * Publish a container.
      * 
      * @param container

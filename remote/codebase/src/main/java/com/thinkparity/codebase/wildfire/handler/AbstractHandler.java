@@ -231,6 +231,10 @@ public abstract class AbstractHandler extends
         iqWriter.writeCalendar(name, value);
     }
 
+    protected final void writeContainer(final String name, final Container value) {
+        iqWriter.writeContainer(name, value);
+    }
+
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);

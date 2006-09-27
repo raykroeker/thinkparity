@@ -1,7 +1,7 @@
 /*
  * Created On: Sep 16, 2006 2:55:45 PM
  */
-package com.thinkparity.desdemona.wildfire.handler.container;
+package com.thinkparity.desdemona.wildfire.handler.archive;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,11 +15,11 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadArchiveDocumentVersions extends AbstractHandler {
+public class ReadDocumentVersions extends AbstractHandler {
 
     /** Create ReadArchiveDocumentVersions. */
-    public ReadArchiveDocumentVersions() {
-        super("container:readarchivedocumentversions");
+    public ReadDocumentVersions() {
+        super("archive:readdocumentversions");
     }
 
     /**

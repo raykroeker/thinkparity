@@ -50,6 +50,15 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.archive.ArchiveReader#read(java.util.UUID)
+     */
+    @Override
+    public Document read(final UUID uniqueId) {
+        final Long documentId = readArtifactId(uniqueId);
+        return documentModel.read(documentId);
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersions(java.util.UUID)
      */
     @Override

@@ -19,7 +19,7 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 public class ReadTeamIds extends AbstractHandler {
 
 	/**
-	 * Create a ReadIds.
+	 * Create ReadTeamIds.
 	 * 
 	 */
 	public ReadTeamIds() { super("artifact:readteamids"); }

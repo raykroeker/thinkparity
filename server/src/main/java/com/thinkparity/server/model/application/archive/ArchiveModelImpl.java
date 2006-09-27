@@ -4,6 +4,8 @@
 package com.thinkparity.desdemona.model.archive;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,8 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -151,6 +155,82 @@ class ArchiveModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Open a document version's input stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
+     */
+    InputStream openDocumentVersionStream(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            final ClientModelFactory modelFactory = getModelFactory(archiveId);
+            final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
+            final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
+            final Long documentId = artifactModel.readId(uniqueId);
+            return documentModel.openVersionStream(documentId, versionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            final InternalArtifactModel artifactModel =
+                getModelFactory(archiveId).getArtifactModel(getClass());
+            final Long artifactId = artifactModel.readId(uniqueId);
+            final List<TeamMember> teamMembers = artifactModel.readTeam2(artifactId);
+            final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
+            for (final TeamMember teamMember : teamMembers) {
+                teamIds.add(teamMember.getId());
+            }
+            return teamIds;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Restore an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void restore(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            final InternalArtifactModel artifactModel =
+                getModelFactory(archiveId).getArtifactModel(getClass());
+            final Long artifactId = artifactModel.readId(uniqueId);
+            artifactModel.removeFlagArchived(artifactId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+        
     }
 
     /**
@@ -288,6 +368,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
     }
 
+
     /**
      * Start an individual archive.
      * 
@@ -320,7 +401,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
         deleteContext(archiveId);
     }
 
-
     private static class ArchiveContext {
         private final ClientModelFactory modelFactory;
         private ArchiveContext(final Context context, final Workspace workspace) {
@@ -328,4 +408,5 @@ class ArchiveModelImpl extends AbstractModelImpl {
             this.modelFactory = new ClientModelFactory(context, workspace);
         }
     }
+
 }

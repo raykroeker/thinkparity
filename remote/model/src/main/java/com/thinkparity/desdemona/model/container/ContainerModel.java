@@ -134,6 +134,12 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
+    public Container readArchive(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchive(userId, uniqueId);
+        }
+    }
+
     /**
      * Read the archived documents for a user.
      * 

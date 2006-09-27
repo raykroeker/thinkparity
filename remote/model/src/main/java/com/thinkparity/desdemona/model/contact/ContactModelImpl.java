@@ -268,7 +268,7 @@ class ContactModelImpl extends AbstractModelImpl {
 
     Invitation readInvitation(final JabberId from) {
         logApiId();
-		logger.debug(from);
+        logVariable("from", from);
 		try {
             return invitationSql.read(from, session.getJabberId());
 		} catch (final Throwable t) {

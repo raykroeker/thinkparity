@@ -30,6 +30,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -455,6 +456,19 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected Boolean contains(final List<TeamMember> team, final User user) {
         return -1 != indexOf(team, user);
+    }
+
+    /**
+     * Determine if the list of users contains the team member.
+     * 
+     * @param users
+     *            A list of users.
+     * @param contact
+     *            A contact.
+     * @return True if the id of the team member matches one of the users.
+     */
+    protected Boolean contains(final List<User> users, final Contact contact) {
+        return -1 != indexOf(users, contact);
     }
 
     /**
@@ -1055,6 +1069,23 @@ public abstract class AbstractModelImpl<T extends EventListener>
 
     private InternalWorkspaceModel getWorkspaceModel() {
         return WorkspaceModel.getInternalModel(getContext());
+    }
+
+    /**
+     * Obtain the index of a team member in a user list.
+     * 
+     * @param users
+     *            A user list.
+     * @param teamMember
+     *            A team member.
+     * @return The index of the team member in the users list or -1 if the team
+     *         member does not exist in the list.
+     */
+    private int indexOf(final List<User> users, final Contact contact) {
+        for(int i = 0; i < users.size(); i++) {
+            if(users.get(i).getId().equals(contact.getId())) { return i; }
+        }
+        return -1;
     }
 
     /**

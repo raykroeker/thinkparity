@@ -1,7 +1,7 @@
 /*
  * Created On: Sep 16, 2006 2:55:45 PM
  */
-package com.thinkparity.desdemona.wildfire.handler.container;
+package com.thinkparity.desdemona.wildfire.handler.archive;
 
 import java.util.List;
 
@@ -14,11 +14,11 @@ import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadArchive extends AbstractHandler {
+public class ReadContainers extends AbstractHandler {
 
     /** Create ReadArchive. */
-    public ReadArchive() {
-        super("container:readarchive");
+    public ReadContainers() {
+        super("archive:readcontainers");
     }
 
     /**

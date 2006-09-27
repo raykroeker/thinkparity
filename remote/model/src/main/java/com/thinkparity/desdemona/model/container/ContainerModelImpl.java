@@ -180,6 +180,17 @@ class ContainerModelImpl extends AbstractModelImpl {
         return getArchiveModel().getContainerReader(userId).read();
     }
 
+    Container readArchive(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("unqiueId", uniqueId);
+        try {
+            return getArchiveModel().getContainerReader(userId).read(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read the archived documents for a user.
      * 
@@ -358,4 +369,5 @@ class ContainerModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+
 }

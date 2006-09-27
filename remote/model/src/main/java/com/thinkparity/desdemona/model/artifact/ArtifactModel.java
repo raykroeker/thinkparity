@@ -67,6 +67,20 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
     }
 
     /**
+     * Restore an artifact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void restore(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().restore(userId, uniqueId);
+        }
+    }
+
+    /**
      * Confrim receipt of an artifact.
      * 
      * @param uniqueId

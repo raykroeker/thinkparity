@@ -98,28 +98,23 @@ public class PublishContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        explanationJTextArea = new javax.swing.JTextArea();
+        eaJLabel = new javax.swing.JLabel();
         publishContainerJPanel = new javax.swing.JPanel();
-        commentJLabel = new javax.swing.JLabel();
-        commentJTextField = new javax.swing.JTextField();
         namesJScrollPane = new javax.swing.JScrollPane();
         namesJTable = new javax.swing.JTable();
-        okJButton = new javax.swing.JButton();
+        commentJLabel = new javax.swing.JLabel();
+        commentJTextField = new javax.swing.JTextField();
         cancelJButton = new javax.swing.JButton();
+        okJButton = new javax.swing.JButton();
 
-        explanationJTextArea.setColumns(20);
-        explanationJTextArea.setEditable(false);
-        explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
-        explanationJTextArea.setLineWrap(true);
-        explanationJTextArea.setRows(5);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJTextArea.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
-        explanationJTextArea.setWrapStyleWord(true);
-        explanationJTextArea.setBorder(null);
-        explanationJTextArea.setFocusable(false);
-        explanationJTextArea.setOpaque(false);
+        eaJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
 
         publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("PublishContainerDialog.BorderTitle"))); // NOI18N
+        namesJTable.setRowSelectionAllowed(false);
+        namesJTable.setShowVerticalLines(false);
+        namesJScrollPane.setViewportView(namesJTable);
+
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
 
         commentJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -128,10 +123,6 @@ public class PublishContainerAvatar extends Avatar {
             }
         });
 
-        namesJTable.setRowSelectionAllowed(false);
-        namesJTable.setShowVerticalLines(false);
-        namesJScrollPane.setViewportView(namesJTable);
-
         org.jdesktop.layout.GroupLayout publishContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(publishContainerJPanel);
         publishContainerJPanel.setLayout(publishContainerJPanelLayout);
         publishContainerJPanelLayout.setHorizontalGroup(
@@ -139,33 +130,23 @@ public class PublishContainerAvatar extends Avatar {
             .add(publishContainerJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
                     .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .add(10, 10, 10)
-                        .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(commentJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)
-                        .add(10, 10, 10))))
+                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         publishContainerJPanelLayout.setVerticalGroup(
             publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(publishContainerJPanelLayout.createSequentialGroup()
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 195, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commentJLabel)
-                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(commentJLabel))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        okJButton.setText(bundle.getString("PublishContainerDialog.Ok")); // NOI18N
-        okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
-            }
-        });
 
         cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -174,36 +155,40 @@ public class PublishContainerAvatar extends Avatar {
             }
         });
 
+        okJButton.setText(bundle.getString("PublishContainerDialog.Ok")); // NOI18N
+        okJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okJButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(explanationJTextArea)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(okJButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(cancelJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton)))
+                        .add(okJButton)))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 38, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(okJButton))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(okJButton)
+                    .add(cancelJButton))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -470,7 +455,7 @@ public class PublishContainerAvatar extends Avatar {
     private javax.swing.JButton cancelJButton;
     private javax.swing.JLabel commentJLabel;
     private javax.swing.JTextField commentJTextField;
-    private javax.swing.JTextArea explanationJTextArea;
+    private javax.swing.JLabel eaJLabel;
     private javax.swing.JScrollPane namesJScrollPane;
     private javax.swing.JTable namesJTable;
     private javax.swing.JButton okJButton;

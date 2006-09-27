@@ -398,7 +398,7 @@ public class PublishContainerAvatar extends Avatar {
             return 5;
         }
         
-        public Class getColumnClass(final int columnIndex) {
+        public Class<?> getColumnClass(final int columnIndex) {
             return types[columnIndex];
         }
         

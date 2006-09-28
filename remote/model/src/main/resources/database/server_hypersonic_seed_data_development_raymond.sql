@@ -8,6 +8,8 @@ insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.plain.port', '5226');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5227');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('thinkparity.environment', 'development.raymond');
 insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 

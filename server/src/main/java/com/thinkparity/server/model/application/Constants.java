@@ -21,21 +21,20 @@ public interface Constants {
         }
     }
 
-    public static final class Jdbc {
-        public static final String DRIVER = "org.hsqldb.jdbcDriver";
-    }
-
     /** Jabber Constants */
     public static final class Jabber {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.dyndns.org/parity";
     }
 
+    public static final class Jdbc {
+        public static final String DRIVER = "org.hsqldb.jdbcDriver";
+    }
+
 	/** Jive Messenger Property Names */
     public static final class JivePropertyNames {
-        public static final String XMPP_DOMAIN = "xmpp.domain";
-        public static final String XMPP_SOCKET_PLAIN_PORT = "xmpp.socket.plain.port";
-        public static final String THINKPARITY_ARCHIVE_HOST = "thinkparity.archive.host";
         public static final String THINKPARITY_ARCHIVE_ROOT = "thinkparity.archive.root";
+        public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
+        public static final String XMPP_DOMAIN = "xmpp.domain";
     }
 
     public static final class VCardFields {

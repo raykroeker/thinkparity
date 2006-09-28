@@ -21,7 +21,8 @@
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- wildfire configuration  -->
-    <property name="wildfire.home" value="${env.ProgramFiles}\Wildfire"/>
+    <property name="wildfire.development.home" value="${env.ProgramFiles}\Wildfire"/>
+    <property name="wildfire.testing.home" value="${env.USERPROFILE}\thinkParity\testing\wildfire\3.0.1"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
@@ -531,14 +532,26 @@ Examples:
         <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
     </target>
 
-    <!-- deploy the plugin into wildfire -->
-    <target name="wildfire.deploy" depends="quick-release">
+    <!-- install the plugin into the wildfire development environment -->
+    <target name="quick-release-install-development">
+        <antcall target="quick-release" inheritAll="true" inheritRefs="true"/>
         <delete includeemptydirs="true">
-            <fileset dir="${wildfire.home}/plugins">
+            <fileset dir="${wildfire.development.home}/plugins">
                 <include name="${release.name}*/**"/>
             </fileset>
         </delete>
         <copy file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
-            todir="${wildfire.home}/plugins"/>
+            todir="${wildfire.development.home}/plugins"/>
+    </target>
+    <!-- install the plugin the wildfire test environment -->
+    <target name="quick-release-install-testing">
+        <antcall target="quick-release" inheritAll="true" inheritRefs="true"/>
+        <delete includeemptydirs="true">
+            <fileset dir="${wildfire.testing.home}/plugins">
+                <include name="${release.name}*/**"/>
+            </fileset>
+        </delete>
+        <copy file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
+            todir="${wildfire.testing.home}/plugins"/>
     </target>
 </project>

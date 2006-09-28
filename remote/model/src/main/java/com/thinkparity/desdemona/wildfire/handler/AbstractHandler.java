@@ -7,8 +7,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
@@ -18,7 +16,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -67,7 +65,7 @@ public abstract class AbstractHandler extends
     private IQWriter iqWriter;
 
     /** An apache logger. */
-    private final Logger logger;
+    private final Log4JWrapper logger;
 
     /** A thinkParity profile interface. */
     private ProfileModel profileModel;
@@ -81,7 +79,7 @@ public abstract class AbstractHandler extends
     /** Create AbstractHandler. */
     public AbstractHandler(final String action) {
         super(action);
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
     }
 
     /**
@@ -203,23 +201,12 @@ public abstract class AbstractHandler extends
 
     /** Log an api id. */
     protected final void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    session.getJabberId().getUsername(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
+        logger.logApiId();
     }
 
     /** Log a trace id. */
     protected final void logTraceId() {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}:{3}]",
-                    session.getJabberId().getUsername(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName(),
-                    StackUtil.getCallerLineNumber()));
-        }
+        logger.logApiId();
     }
 
 
@@ -233,13 +220,8 @@ public abstract class AbstractHandler extends
      *            A variable.
      * @return The value.
      */
-    protected final <T> T logVariable(final String name, final T value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
-                    session.getJabberId().getUsername(),
-                    name, Log4JHelper.render(logger, value)));
-        }
-        return value;
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
     }
 
     /**

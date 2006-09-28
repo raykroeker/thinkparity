@@ -9,13 +9,7 @@ insert into jiveProperty (NAME,PROPVALUE)
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5223');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.driver', 'org.hsqldb.jdbcDriver');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.password', '');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/production/hsqldb/calpurnia/db');
-insert into jiveProperty (NAME,PROPVALUE)
-    values('com.thinkparity.calpurnia.db.username', 'sa');
+    values('thinkparity.environment', 'production');
 insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 

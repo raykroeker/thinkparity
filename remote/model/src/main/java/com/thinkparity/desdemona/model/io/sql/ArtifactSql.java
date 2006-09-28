@@ -90,7 +90,7 @@ public class ArtifactSql extends AbstractSql {
 
 	public void delete(final Long artifactId) throws SQLException {
         logApiId();
-		logger.debug(artifactId);
+		logVariable("variable", artifactId);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -184,7 +184,7 @@ public class ArtifactSql extends AbstractSql {
 
 	public String selectKeyHolder(final Long artifactId) throws SQLException {
         logApiId();
-		logger.debug(artifactId);
+		logVariable("variable", artifactId);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -211,8 +211,8 @@ public class ArtifactSql extends AbstractSql {
             final String artifactKeyHolder, final JabberId updatedBy)
             throws SQLException {
         logApiId();
-		logger.debug(artifactId);
-		logger.debug(artifactKeyHolder);
+		logVariable("variable", artifactId);
+		logVariable("variable", artifactKeyHolder);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -238,9 +238,9 @@ public class ArtifactSql extends AbstractSql {
 	public void updateState(final Integer artifactId, final ArtifactState currentState,
 			final ArtifactState newState, final JabberId updatedBy) throws SQLException {
         logApiId();
-		logger.debug(artifactId);
-		logger.debug(currentState);
-		logger.debug(newState);
+		logVariable("variable", artifactId);
+		logVariable("variable", currentState);
+		logVariable("variable", newState);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {

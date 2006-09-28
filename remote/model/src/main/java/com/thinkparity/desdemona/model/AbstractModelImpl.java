@@ -478,7 +478,7 @@ public abstract class AbstractModelImpl
         }
         else {
             final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(errorId, t);
+            logger.logError(t, errorId);
             return ParityErrorTranslator.translateUnchecked(session, errorId, t);
         }
     }

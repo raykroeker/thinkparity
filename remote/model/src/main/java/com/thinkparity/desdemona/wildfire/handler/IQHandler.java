@@ -27,7 +27,7 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -61,10 +61,8 @@ public abstract class IQHandler extends
         SERIALIZER = new Object();
     }
 
-    /**
-	 * Handle to an apache logger.
-	 */
-	protected final Logger logger;
+    /** An apache logger. */
+	protected final Log4JWrapper logger;
 
 	/**
 	 * Handler information for the iq.
@@ -79,7 +77,7 @@ public abstract class IQHandler extends
 		this.iqHandlerInfo = new IQHandlerInfo(
 				Xml.NAME,
 				action.getNamespace());
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
 	}
 
 	/**
@@ -135,13 +133,8 @@ public abstract class IQHandler extends
      *            A variable.
      * @return The value.
      */
-    protected final <T> T logVariable(final String name, final T value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}] [{1}:{2}]",
-                    session.getJabberId().getUsername(),
-                    name, Log4JHelper.render(logger, value)));
-        }
-        return value;
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
     }
 
     /**
@@ -311,12 +304,7 @@ public abstract class IQHandler extends
 
     /** Log an api id. */
     protected final void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
-                    session.getJabberId().getUsername(),
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
+        logger.logApiId();
     }
 
     /**

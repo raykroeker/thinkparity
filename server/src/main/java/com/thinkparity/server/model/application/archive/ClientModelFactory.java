@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.archive;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -33,31 +34,36 @@ class ClientModelFactory {
     /** A thinkParity client <code>Workspace</code>. */
     private final Workspace workspace;
 
+    /** A thinkParity <code>Environment</code>. */
+    private final Environment environment;
+
     /** Create ClientModelFactory. */
-    ClientModelFactory(final Context context, final Workspace workspace) {
+    ClientModelFactory(final Context context, final Environment environment,
+            final Workspace workspace) {
         super();
         this.context = context;
+        this.environment = environment;
         this.workspace = workspace;
     }
 
     InternalArtifactModel getArtifactModel(final Class clasz) {
-        return ArtifactModel.getInternalModel(context, workspace);
+        return ArtifactModel.getInternalModel(context, environment, workspace);
     }
 
     InternalContainerModel getContainerModel(final Class clasz) {
-        return ContainerModel.getInternalModel(context, workspace);
+        return ContainerModel.getInternalModel(context, environment, workspace);
     }
 
     InternalDocumentModel getDocumentModel(final Class clasz) {
-        return DocumentModel.getInternalModel(context, workspace);
+        return DocumentModel.getInternalModel(context, environment, workspace);
     }
 
     InternalProfileModel getProfileModel(final Class clasz) {
-        return ProfileModel.getInternalModel(context, workspace);
+        return ProfileModel.getInternalModel(context, environment, workspace);
     }
 
     InternalSessionModel getSessionModel(final Class clasz) {
-        return SessionModel.getInternalModel(context, workspace);
+        return SessionModel.getInternalModel(context, environment, workspace);
     }
 
     InternalWorkspaceModel getWorkspace(final Class clasz) {

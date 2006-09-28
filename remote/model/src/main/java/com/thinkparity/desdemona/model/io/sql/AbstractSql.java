@@ -7,17 +7,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
-
-import org.apache.log4j.Logger;
 
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.database.SequenceManager;
 
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.log4j.Log4JHelper;
-
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicConnectionProvider;
@@ -33,22 +30,10 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
 public abstract class AbstractSql implements HypersonicConnectionProvider {
 
 	/** An apache logger. */
-	protected static final  Logger logger;
+	protected static final  Log4JWrapper logger;
 
     static {
-        logger = Logger.getLogger(AbstractSql.class);
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @return An error id.
-     */
-    protected static final Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] - [{2}]",
-                    StackUtil.getFrameClassName(2),
-                    StackUtil.getFrameMethodName(2),
-                    t.getMessage());
+        logger = new Log4JWrapper();
     }
 
     protected static final HypersonicException translateError(final Throwable t) {
@@ -56,8 +41,8 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
             return (HypersonicException) t;
         }
         else {
-            final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             return new HypersonicException(t);
         }
     }
@@ -101,11 +86,8 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
      * @param value
      *            A variable value.
      */
-    protected final void debugVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[{0}:{1}]",
-                    name, Log4JHelper.render(logger, value)));
-        }
+    protected final <V> V debugVariable(final String name, final V value) {
+        return logVariable(name, value);
     }
 
     protected Connection getCx() throws SQLException {
@@ -113,20 +95,11 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 	}
 
     protected final <V> V logVariable(final String name, final V value)  {
-        if (logger.isDebugEnabled()) {
-            logger.debug(Log4JHelper.renderAndFormat(logger, "{0}:{1}", name,
-                    value));
-        }
-        return value;
-    }
+        return logger.logVariable(name, value);    }
 
     /** Log an api id. */
     protected final void logApiId() {
-        if(logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("[{0}] [{1}]",
-                    StackUtil.getCallerClassName(),
-                    StackUtil.getCallerMethodName()));
-        }
+        logger.logApiId();
     }
 
 	/**
@@ -136,9 +109,7 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
      *            An sql statement.
      */
     protected final void logStatement(final String statement) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[Sql:{0}]", statement));
-        }
+        logger.logVariable("sql", statement);
     }
 
 	/**
@@ -147,12 +118,10 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
      * @param statement
      *            An sql statement.
      */
-    protected final void logStatementParameter(final Integer index,
-            final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("[Sql variable index:{0} value:{1}]",
-                    index, value));
-        }
+    protected final <V> V logStatementParameter(final Integer index,
+            final V value) {
+        logger.logDebug("sql:{0}={1}", index, value);
+        return value;
     }
 
 	protected Integer nextId(final AbstractSql abstractSql) {

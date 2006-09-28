@@ -68,8 +68,8 @@ public class ArtifactSubscriptionSql extends AbstractSql {
     public void delete(final Long artifactId, final String username)
 			throws SQLException {
         logApiId();
-		logger.debug(artifactId);
-		logger.debug(username);
+		logVariable("variable", artifactId);
+		logVariable("variable", username);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -88,7 +88,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 	public Boolean existSubscriptions(final Long artifactId)
 			throws SQLException {
         logApiId();
-		logger.debug(artifactId);
+		logVariable("variable", artifactId);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -109,8 +109,8 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 	public Integer insert(final Long artifactId, final String username,
             final JabberId createdBy) throws SQLException {
         logApiId();
-		logger.debug(artifactId);
-		logger.debug(username);
+		logVariable("variable", artifactId);
+		logVariable("variable", username);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -161,7 +161,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 	public List<ArtifactSubscription> select(final Long artifactId)
 			throws SQLException {
         logApiId();
-		logger.debug(artifactId);
+		logVariable("variable", artifactId);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -185,8 +185,8 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 	public Integer selectCount(final Integer artifactId, final String username)
 			throws SQLException {
         logApiId();
-		logger.debug(artifactId);
-		logger.debug(username);
+		logVariable("variable", artifactId);
+		logVariable("variable", username);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;

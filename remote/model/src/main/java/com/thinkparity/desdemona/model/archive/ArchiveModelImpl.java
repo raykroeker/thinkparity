@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
@@ -52,19 +53,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
 
     static {
         ARCHIVE_CONTEXT_LOOKUP = new HashMap<JabberId, ArchiveContext>();
-
-        final JiveProperties jiveProperties = JiveProperties.getInstance();
-        // if the archive host is set; use it; otherwise use the local
-        // network interface
-        String thinkParityArchiveHost =
-            (String) jiveProperties.get(JivePropertyNames.THINKPARITY_ARCHIVE_HOST);
-        if (null == thinkParityArchiveHost) {
-            thinkParityArchiveHost = "127.0.0.1";
-        }
-        System.setProperty("parity.serverhost", thinkParityArchiveHost);
-        System.setProperty("parity.serverport",
-                (String) jiveProperties.get(JivePropertyNames.XMPP_SOCKET_PLAIN_PORT));
     }
+
     /** The archive file system. */
     private final FileSystem fileSystem;
 
@@ -85,9 +75,18 @@ class ArchiveModelImpl extends AbstractModelImpl {
     ArchiveModelImpl(final Session session) {
         super(session);
         this.jiveProperties = JiveProperties.getInstance();
-        this.fileSystem = new FileSystem(
-                new File((String) jiveProperties.get(
-                        JivePropertyNames.THINKPARITY_ARCHIVE_ROOT)));
+        this.fileSystem = readFileSystem();
+    }
+
+    /**
+     * Read the file system from the jive properties.
+     * 
+     * @return A <code>FileSystem</code>.
+     */
+    private FileSystem readFileSystem() {
+        final String thinkParityArchiveRoot =
+            (String) jiveProperties.get(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
+        return new FileSystem(new File(thinkParityArchiveRoot));
     }
 
     /**
@@ -281,11 +280,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @param archiveId
      *            An archive id <code>JabberId</code>.
      */
-    private void createContext(final JabberId archiveId, final Workspace workspace) {
+    private void createContext(final JabberId archiveId,
+            final Environment environment, final Workspace workspace) {
         synchronized (ARCHIVE_CONTEXT_LOOKUP) {
             Assert.assertNotTrue(ARCHIVE_CONTEXT_LOOKUP.containsKey(archiveId),
                     "Archive context for {0} already exists.", archiveId);
-            ARCHIVE_CONTEXT_LOOKUP.put(archiveId, new ArchiveContext(getContext(), workspace));
+            ARCHIVE_CONTEXT_LOOKUP.put(archiveId, new ArchiveContext(
+                    getContext(), environment, workspace));
         }
     }
 
@@ -368,6 +369,34 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
     }
 
+    /**
+     * Read the jive property for the environment.
+     * 
+     * @return An environment.
+     */
+    private Environment readEnvironment() {
+        final Environment environment;
+        final String thinkParityEnvironment =
+            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
+        if ("development.localhost".equals(thinkParityEnvironment)) {
+            environment = Environment.DEVELOPMENT_LOCALHOST;
+        } else if ("development.raymond".equals(thinkParityEnvironment)) {
+            environment = Environment.DEVELOPMENT_RAYMOND;
+        } else if ("development.robert".equals(thinkParityEnvironment)) {
+            environment = Environment.DEVELOPMENT_ROBERT;
+        } else if ("production".equals(thinkParityEnvironment)) {
+            environment = Environment.PRODUCTION;
+        } else if ("testing".equals(thinkParityEnvironment)) {
+            environment = Environment.TESTING;
+        } else if ("testing.localhost".equals(thinkParityEnvironment)) {
+            environment = Environment.TESTING_LOCALHOST;
+        } else if ("production".equals(thinkParityEnvironment)) {
+            environment = Environment.PRODUCTION;
+        } else {
+            throw Assert.createUnreachable("UNKNOWN ENVIRONMENT");
+        }
+        return environment;
+    }
 
     /**
      * Start an individual archive.
@@ -380,7 +409,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
     private void start(final JabberId archiveId, final Credentials credentials) {
         final FileSystem archiveFileSystem = readFileSystem(archiveId);
         final Workspace workspace = readWorkspace(archiveId, archiveFileSystem);
-        createContext(archiveId, workspace);
+        final Environment environment = readEnvironment();
+        createContext(archiveId, environment, workspace);
         getModelFactory(archiveId).getSessionModel(getClass()).login(credentials);
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
         if (workspaceModel.isFirstRun(workspace)) {
@@ -403,9 +433,10 @@ class ArchiveModelImpl extends AbstractModelImpl {
 
     private static class ArchiveContext {
         private final ClientModelFactory modelFactory;
-        private ArchiveContext(final Context context, final Workspace workspace) {
+        private ArchiveContext(final Context context,
+                final Environment environment, final Workspace workspace) {
             super();
-            this.modelFactory = new ClientModelFactory(context, workspace);
+            this.modelFactory = new ClientModelFactory(context, environment, workspace);
         }
     }
 

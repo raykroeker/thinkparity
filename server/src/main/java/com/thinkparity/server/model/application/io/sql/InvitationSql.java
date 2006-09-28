@@ -60,8 +60,8 @@ public class InvitationSql extends AbstractSql {
     public void create(final JabberId userId, final JabberId extendTo)
             throws SQLException {
         logApiId();
-        logger.debug(userId);
-        logger.debug(extendTo);
+        logVariable("variable", userId);
+        logVariable("variable", extendTo);
         Connection cx = null;
         PreparedStatement ps = null;
         try {
@@ -103,8 +103,8 @@ public class InvitationSql extends AbstractSql {
 	public void delete(final JabberId from, final JabberId to)
 			throws SQLException {
         logApiId();
-		logger.debug(from);
-		logger.debug(to);
+		logVariable("variable", from);
+		logVariable("variable", to);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -141,8 +141,8 @@ public class InvitationSql extends AbstractSql {
 
 	public Invitation read(final JabberId from, final JabberId to) throws SQLException {
         logApiId();
-		logger.debug(from);
-		logger.debug(to);
+		logVariable("variable", from);
+		logVariable("variable", to);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;

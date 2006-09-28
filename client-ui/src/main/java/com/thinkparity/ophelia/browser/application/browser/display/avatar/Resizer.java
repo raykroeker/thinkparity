@@ -23,8 +23,6 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftCell;
 
 /**
  * @author rob_masako@shaw.ca

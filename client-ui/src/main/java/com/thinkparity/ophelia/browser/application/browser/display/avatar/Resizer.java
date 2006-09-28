@@ -12,15 +12,19 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DraftCell;
 
 /**
  * @author rob_masako@shaw.ca
@@ -57,6 +61,15 @@ public class Resizer {
     
     /** The resize offset size in the y direction. */
     private static int resizeOffsetY;
+    
+    /** A list of all components that have listeners. */
+    private final List<Component> components;
+        
+    /** A map of components to mouse motion adapters. */
+    private Map<Component, MouseMotionAdapter> mouseMotionAdapters;
+    
+    /** A map of components to mouse adapters. */
+    private Map<Component, MouseAdapter> mouseAdapters; 
      
     /**
      * Create a Resizer (to resize the Browser or Avatar).
@@ -76,7 +89,26 @@ public class Resizer {
         this.component = component;
         this.supportMouseMove = supportMouseMove;
         this.resizeEdges = resizeEdges;
+        this.components = new LinkedList<Component>();
+        this.mouseMotionAdapters = new HashMap<Component, MouseMotionAdapter>(50, 0.75F);
+        this.mouseAdapters = new HashMap<Component, MouseAdapter>(50, 0.75F);
         initComponents();
+    }
+    
+    /**
+     * Remove all listeners for this resizer.
+     */
+    public void removeAllListeners() {
+        for(final Component component : components) {
+            final MouseMotionAdapter mouseMotionAdapter = mouseMotionAdapters.get(component);
+            if (null!=mouseMotionAdapter) {
+                component.removeMouseMotionListener(mouseMotionAdapter);
+            }
+            final MouseAdapter mouseAdapter = mouseAdapters.get(component);
+            if (null!=mouseAdapter) {
+                component.removeMouseListener(mouseAdapter);
+            }
+        }
     }
 
     /**
@@ -85,22 +117,29 @@ public class Resizer {
      * @param components
      *            List of components.
      */
-    public void addComponentsThatSupportMouseMove(final List<Component>components) {
-        if (null != components) {
-            for (final Component component : components) {
-                component.addMouseMotionListener(new MouseMotionAdapter() {
+    public void addComponentsThatSupportMouseMove(final List<Component>componentsThatSupportMouseMove) {
+        if (null != componentsThatSupportMouseMove) {
+            for (final Component component : componentsThatSupportMouseMove) {
+                final MouseMotionAdapter mouseMotionAdapter = new MouseMotionAdapter() {
                     public void mouseDragged(java.awt.event.MouseEvent evt) {
                         formMouseDragged(evt, component);
                     }
-                });
-                component.addMouseListener(new MouseAdapter() {
+                };
+                final MouseAdapter mouseAdapter = new MouseAdapter() {
                     public void mousePressed(java.awt.event.MouseEvent evt) {
                         formMousePressed(evt, component);
                     }
                     public void mouseReleased(java.awt.event.MouseEvent evt) {
                         formMouseReleased(evt, component);
                     }
-                });
+                };
+                component.addMouseMotionListener(mouseMotionAdapter);
+                component.addMouseListener(mouseAdapter);
+                
+                // Save so they can be removed later.
+                components.add(component);
+                mouseMotionAdapters.put(component, mouseMotionAdapter);
+                mouseAdapters.put(component, mouseAdapter);
             }
         }
     }
@@ -499,17 +538,16 @@ public class Resizer {
     }
     
     private void initComponents() {
-       if (!initialized) {
-            component.addMouseMotionListener(new MouseMotionAdapter() {
+        if (!initialized) {
+            final MouseMotionAdapter mouseMotionAdapter = new MouseMotionAdapter() {
                 public void mouseDragged(java.awt.event.MouseEvent evt) {
                     formMouseDragged(evt, component);
                 }
                 public void mouseMoved(java.awt.event.MouseEvent evt) {
                     formMouseMoved(evt, component);
                 }
-            });                   
-                   
-            component.addMouseListener(new MouseAdapter() {
+            };
+            final MouseAdapter mouseAdapter = new MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
                     formMouseEntered(evt, component);
                 }
@@ -522,20 +560,26 @@ public class Resizer {
                 public void mouseReleased(java.awt.event.MouseEvent evt) {
                     formMouseReleased(evt, component);
                 }
-            });
+            };
+            component.addMouseMotionListener(mouseMotionAdapter);
+            component.addMouseListener(mouseAdapter);
+            
+            // Save so they can be removed later.
+            components.add(component);
+            mouseMotionAdapters.put(component, mouseMotionAdapter);
+            mouseAdapters.put(component, mouseAdapter);
             
             final Window window = SwingUtilities.getWindowAncestor(component);
             if (null!=window && window instanceof JDialog) {
-                window.addMouseMotionListener(new MouseMotionAdapter() {
+                final MouseMotionAdapter mouseMotionAdapterWindow = new MouseMotionAdapter() {
                     public void mouseDragged(java.awt.event.MouseEvent evt) {
                         formMouseDragged(evt, window);
                     }
                     public void mouseMoved(java.awt.event.MouseEvent evt) {
                         formMouseMoved(evt, window);
                     }
-                });                   
-                       
-                window.addMouseListener(new MouseAdapter() {
+                };
+                final MouseAdapter mouseAdapterWindow = new MouseAdapter() {
                     public void mouseEntered(java.awt.event.MouseEvent evt) {
                         formMouseEntered(evt, window);
                     }
@@ -548,7 +592,14 @@ public class Resizer {
                     public void mouseReleased(java.awt.event.MouseEvent evt) {
                         formMouseReleased(evt, window);
                     }
-                });
+                };
+                window.addMouseMotionListener(mouseMotionAdapterWindow);
+                window.addMouseListener(mouseAdapterWindow);
+                
+                // Save so they can be removed later.
+                components.add(window);
+                mouseMotionAdapters.put(window, mouseMotionAdapterWindow);
+                mouseAdapters.put(window, mouseAdapterWindow);
             }
 
             initialized = Boolean.TRUE;

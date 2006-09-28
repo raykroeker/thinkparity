@@ -20,6 +20,11 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 /**
+ * This class was retreived from
+ * {@link http://java.sun.com/docs/books/tutorial/uiswing/components/examples/TableSorter.java
+ * TableSorter.java}.  The warnings have been manually suppressed.
+ * 
+ * 
  * TableSorter is a decorator for TableModels; adding sorting
  * functionality to a supplied TableModel. TableSorter does
  * not store or copy the data in its TableModel; instead it maintains
@@ -81,6 +86,7 @@ public class TableSorter extends AbstractTableModel {
     private static Directive EMPTY_DIRECTIVE = new Directive(-1, NOT_SORTED);
 
     public static final Comparator COMPARABLE_COMAPRATOR = new Comparator() {
+        @SuppressWarnings("unchecked")
         public int compare(Object o1, Object o2) {
             return ((Comparable) o1).compareTo(o2);
         }
@@ -185,6 +191,7 @@ public class TableSorter extends AbstractTableModel {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void setSortingStatus(int column, int status) {
         Directive directive = getDirective(column);
         if (directive != EMPTY_DIRECTIVE) {
@@ -209,6 +216,7 @@ public class TableSorter extends AbstractTableModel {
         sortingStatusChanged();
     }
 
+    @SuppressWarnings("unchecked")
     public void setColumnComparator(Class type, Comparator comparator) {
         if (comparator == null) {
             columnComparators.remove(type);
@@ -273,6 +281,7 @@ public class TableSorter extends AbstractTableModel {
         return tableModel.getColumnName(column);
     }
 
+    @SuppressWarnings("unchecked")
     public Class getColumnClass(int column) {
         return tableModel.getColumnClass(column);
     }
@@ -298,6 +307,7 @@ public class TableSorter extends AbstractTableModel {
             this.modelIndex = index;
         }
 
+        @SuppressWarnings("unchecked")
         public int compareTo(Object o) {
             int row1 = modelIndex;
             int row2 = ((Row) o).modelIndex;

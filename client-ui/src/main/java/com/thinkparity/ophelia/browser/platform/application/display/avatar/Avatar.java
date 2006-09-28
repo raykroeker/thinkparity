@@ -127,10 +127,12 @@ public abstract class Avatar extends AbstractJPanel {
      * Install the resizer.
      */
     public void installResizer() {
-        this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
-        final List<Component> componentsThatSupportMouseMove = getComponentsThatSupportMouseMove();
-        if (null!=componentsThatSupportMouseMove) {
-            resizer.addComponentsThatSupportMouseMove(componentsThatSupportMouseMove);
+        if (null==this.resizer) {
+            this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
+            final List<Component> componentsThatSupportMouseMove = getComponentsThatSupportMouseMove();
+            if (null!=componentsThatSupportMouseMove) {
+                resizer.addComponentsThatSupportMouseMove(componentsThatSupportMouseMove);
+            }
         }
     }
 

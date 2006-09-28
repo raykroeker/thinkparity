@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.util.UUID;
+
 import com.thinkparity.ophelia.browser.platform.plugin.PluginModelFactory;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginServices;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
@@ -33,6 +35,9 @@ public final class ArchiveTab extends
     /** A thinkParity <code>ArchiveModel</code> interface. */
     private ArchiveModel archiveModel;
 
+    /** The <code>ArchiveTabAvatar</code>. */
+    private ArchiveTabAvatar avatar;
+
     /**
      * Create ArchiveTab.
      * 
@@ -48,7 +53,32 @@ public final class ArchiveTab extends
      */
     @Override
     public ArchiveTabAvatar createAvatar() {
-        return new ArchiveTabAvatar(this);
+        this.avatar = new ArchiveTabAvatar(this);
+        return avatar;
+    }
+
+    /**
+     * Notify the plugin a container has been archived.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    public void fireContainerArchived(final UUID uniqueId) {
+        if (null != avatar) {
+            avatar.synchronizeContainer(uniqueId);
+        }
+    }
+
+    /**
+     * Notify the plugin a container has been restored.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    public void fireContainerRestored(final UUID uniqueId) {
+        if (null != avatar) {
+            avatar.synchronizeContainer(uniqueId);
+        }
     }
 
     /**

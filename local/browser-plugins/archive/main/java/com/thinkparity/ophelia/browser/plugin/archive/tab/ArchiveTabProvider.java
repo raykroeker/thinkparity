@@ -36,6 +36,17 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
     }
 
     /**
+     * Read a container from the archive.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    public Container readContainer(final UUID uniqueId) {
+        return archiveModel.readContainer(uniqueId);
+    }
+
+    /**
      * Read a list of containers from the archive.
      * 
      * @return A <code>List&lt;Container&gt;</code>.

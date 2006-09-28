@@ -169,6 +169,22 @@ final class ArchiveTabModel extends TabExtensionModel<ArchiveTabProvider> {
         tabCell.triggerPopup(getExtension().getConnection(), invoker, e);
     }
 
+    void synchronizeContainer(final UUID uniqueId) {
+        synchronizeContainerInternal(uniqueId);
+        synchronize();
+    }
+
+    /**
+     * Read the archived containers.
+     * 
+     * @return A <code>List&lt;ArchiveArtifactCell&gt;</code>.
+     */
+    private ArchiveArtifactCell readContainer(final UUID uniqueId) {
+        final Container container = ((ArchiveTabProvider) contentProvider).readContainer(uniqueId);
+        final ArchiveArtifactCell display = toDisplay(container);
+        return display;
+    }
+
     /**
      * Read the archived containers.
      * 
@@ -212,6 +228,41 @@ final class ArchiveTabModel extends TabExtensionModel<ArchiveTabProvider> {
             display.add(toDisplay(version));
         }
         return display;
+    }
+
+    /**
+     * Synchronize the model based upon the fact that the container represented
+     * by the unique id has changed.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    private void synchronizeContainerInternal(final UUID uniqueId) {
+        final ArchiveArtifactCell containerCell = readContainer(uniqueId);
+
+        // if the container is null; we can assume the container has been
+        // restored 
+        if(null == containerCell.getArtifact()) {
+            for (int i = 0; i < containerCells.size(); i++) {
+                if (containerCells.get(i).getArtifactUniqueId().equals(uniqueId)) {
+                    containerCells.remove(i);
+                    break;
+                }
+            }
+        }
+        // the container is not null; therefore it is either new; or updated
+        else {
+            // the container is new
+            if(!containerCells.contains(containerCell)) {
+                containerCells.add(0, containerCell);
+            }
+            // the container has been updated
+            else {
+                final int index = containerCells.indexOf(containerCell);
+                containerCells.remove(index);
+                containerCells.add(0, containerCell);
+            }
+        }
     }
 
     /**

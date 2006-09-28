@@ -3,9 +3,13 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.util.List;
+
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
+import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -45,6 +49,10 @@ public class RestoreTest extends ContainerTestCase {
         final Long containerId = datum.artifactModel.readId(datum.container.getUniqueId());
         final Container container = datum.containerModel.read(containerId);
         assertNotNull(NAME + " - Container is null.", container);
+
+        final List<ContainerVersion> versions =
+            datum.containerModel.readVersions(container.getId());
+        assertNotNull(NAME + " - Container versions is null.", versions);
     }
 
     /**
@@ -60,7 +68,8 @@ public class RestoreTest extends ContainerTestCase {
         addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
         containerModel.archive(container.getId());
-        datum = new Fixture(artifactModel, container, containerModel);
+        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT),
+                artifactModel, container, containerModel);
         datum.containerModel.addListener(datum);
     }
 
@@ -81,7 +90,8 @@ public class RestoreTest extends ContainerTestCase {
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
-        private Fixture(final InternalArtifactModel artifactModel,
+        private Fixture(final InternalArchiveModel archiveModel,
+                final InternalArtifactModel artifactModel,
                 final Container container, final ContainerModel containerModel) {
             super();
             this.artifactModel = artifactModel;

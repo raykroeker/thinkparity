@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -30,8 +31,9 @@ public class InternalArtifactModel extends ArtifactModel {
 	 * @param workspace
 	 *            The workspace.
 	 */
-	InternalArtifactModel(final Context context, final Workspace workspace) {
-		super(workspace);
+	InternalArtifactModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+		super(environment, workspace);
 	}
 
 	/**

@@ -10,9 +10,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.profile.Profile;
@@ -34,21 +34,13 @@ public class BrowserPlatformInitializer {
         final Properties log4j = ConfigFactory.newInstance("log4j.properties");
         switch(Version.getMode()) {
         case DEVELOPMENT:
-            if(isNetworkTargetReachable(log4j)) {
-                log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE,NETWORK");
-            } else {
-                log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
-            }
+            log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
             break;
         case PRODUCTION:
             log4j.setProperty("log4j.logger.com.thinkparity", "WARN,FILE");
             break;
         case TESTING:
-            if(isNetworkTargetReachable(log4j)) {
-                log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE,NETWORK");
-            } else {
-                log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE");
-            }
+            log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE");
             break;
         default:
             Assert.assertUnreachable("UNKNOWN MODE");
@@ -60,31 +52,11 @@ public class BrowserPlatformInitializer {
         Logger.getLogger(BrowserPlatformInitializer.class).info("PLATFORM INIT");
     }
 
-    private static void initParityServerHost() {
-        final String serverHost = System.getProperty("parity.serverhost");
-        if(null == serverHost) { System.setProperty("parity.serverhost", "thinkparity.dyndns.org"); }
-    }
-
-    private static void initParityServerPort() {
-        final Integer serverPort= Integer.getInteger("parity.serverport", null);
-        if(null == serverPort) { System.setProperty("parity.serverport", "5222"); }
-    }
-
-	/**
-     * Determine if the network target for logging is reachable.
-     * 
-     * @param log4j
-     *            The log4j configuration.
-     * @return True if the network host is reachable on the given port.
-     */
-    private static Boolean isNetworkTargetReachable(final Properties log4j) {
-        return NetworkUtil.isTargetReachable(
-                log4j.getProperty("log4j.appender.NETWORK.RemoteHost"),
-                Integer.parseInt(log4j.getProperty("log4j.appender.NETWORK.Port")));
-    }
-
-	/** A profile. */
+    /** A thinkParity browser platform <code>Profile</code>. */
     private final Profile profile;
+
+    /** A thinkParity <code>Environment</code>. */
+    private final Environment environment;
 
     /**
      * Create BrowserPlatformInitializer.
@@ -92,8 +64,11 @@ public class BrowserPlatformInitializer {
      * @param profile
      *            A browser profile to initialize.
      */
-    BrowserPlatformInitializer(final Profile profile) {
+    BrowserPlatformInitializer(final Profile profile,
+            final Environment environment) {
+        super();
         this.profile = profile;
+        this.environment = environment;
     }
 
     /**
@@ -101,16 +76,13 @@ public class BrowserPlatformInitializer {
 	 *
 	 */
 	void initialize() {
-		System.setProperty("parity.insecure", "true");
         initializePropertyParityArchive();
-        initParityServerHost();
-        initParityServerPort();
 
         // init model
         final Workspace workspace =
             WorkspaceModel.getModel().getWorkspace(
                     new File(profile.getParityWorkspace()));
-        ModelFactory.getInstance().initialize(workspace);
+        ModelFactory.getInstance().initialize(environment, workspace);
 
         initLogging(workspace);
 

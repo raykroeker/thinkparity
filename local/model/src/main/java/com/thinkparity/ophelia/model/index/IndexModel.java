@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.index;
 
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -25,8 +26,8 @@ public class IndexModel extends AbstractModel<IndexModelImpl> {
 	 * @return An internal index model.
 	 */
 	public static InternalIndexModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		return new InternalIndexModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+		return new InternalIndexModel(context, environment, workspace);
 	}
 
 	/**
@@ -36,14 +37,15 @@ public class IndexModel extends AbstractModel<IndexModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return The index model.
 	 */
-	public static IndexModel getModel(final Workspace workspace) {
-		return new IndexModel(workspace);
+	public static IndexModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new IndexModel(environment, workspace);
 	}
 
 	/**
 	 * Create a IndexModel.
 	 */
-	protected IndexModel(final Workspace workspace) {
-		super(new IndexModelImpl(workspace));
+	protected IndexModel(final Environment environment, final Workspace workspace) {
+		super(new IndexModelImpl(environment, workspace));
 	}
 }

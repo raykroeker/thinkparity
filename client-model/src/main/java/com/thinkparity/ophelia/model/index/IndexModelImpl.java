@@ -9,6 +9,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.index.contact.ContactIndexImpl;
@@ -38,8 +39,8 @@ class IndexModelImpl extends AbstractModelImpl {
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	IndexModelImpl(final Workspace workspace) {
-		super(workspace);
+	IndexModelImpl(final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
         this.containerIndex = new ContainerIndexImpl(workspace, internalModelFactory);
         this.documentIndex = new DocumentIndexImpl(workspace, internalModelFactory);
         this.contactIndex = new ContactIndexImpl(workspace, internalModelFactory);

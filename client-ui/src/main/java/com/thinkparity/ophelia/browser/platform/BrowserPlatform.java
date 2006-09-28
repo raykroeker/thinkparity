@@ -14,6 +14,7 @@ import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
@@ -52,9 +53,10 @@ public class BrowserPlatform implements Platform {
      *            A profile to open.
      * @return The platform.
      */
-    public static Platform create(final Profile profile) {
+    public static Platform create(final Profile profile,
+            final Environment environment) {
         Assert.assertIsNull("PLATFORM ALREADY CREATED", SINGLETON);
-        SINGLETON = new BrowserPlatform(profile);
+        SINGLETON = new BrowserPlatform(profile, environment);
         return BrowserPlatform.getInstance();
     }
 
@@ -89,6 +91,9 @@ public class BrowserPlatform implements Platform {
     /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
+	/** The thinkParity <code>Environment</code>. */
+    private final Environment environment;
+
 	/** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
@@ -98,13 +103,13 @@ public class BrowserPlatform implements Platform {
      */
     private final ListenerHelper listenerHelper;
 
-	/** The parity model factory. */
+    /** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-    /** The platform online helper. */
+	/** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
-	/** The platform settings. */
+    /** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
     /** The platform plugin helper. */
@@ -116,23 +121,24 @@ public class BrowserPlatform implements Platform {
     /** The platform update helper. */
     private final UpdateHelper updateHelper;
 
-    /**
+	/**
 	 * The window registry.
 	 * 
 	 */
 	private final WindowRegistry windowRegistry;
 
-	/**
+    /**
      * Create BrowserPlatform.
      * 
      * @param profile
      *            A profile to open.
      */
-	private BrowserPlatform(final Profile profile) {
-        new BrowserPlatformInitializer(profile).initialize();
+	private BrowserPlatform(final Profile profile, final Environment environment) {
+        new BrowserPlatformInitializer(profile, environment).initialize();
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
+        this.environment = environment;
 		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
@@ -154,7 +160,7 @@ public class BrowserPlatform implements Platform {
         listenerHelper.addListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#end()
      * 
      */
@@ -166,11 +172,18 @@ public class BrowserPlatform implements Platform {
         notifyLifeCycleEnded();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getAvatarRegistry()
 	 * 
 	 */
 	public AvatarRegistry getAvatarRegistry() { return avatarRegistry; }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getEnvironment()
+     */
+    public Environment getEnvironment() {
+        return environment;
+    }
 
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
@@ -293,8 +306,7 @@ public class BrowserPlatform implements Platform {
         if(properties.containsKey("parity.image.name"))
             commands.add(Java.OPTION_PARITY_IMAGE.format(new Object[] {properties.getProperty("parity.image.name")}));
         commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {Directories.PARITY_INSTALL.getAbsolutePath()}));
-        commands.add(Java.OPTION_PARITY_SERVER_HOST.format(new Object[] {preferences.getServerHost()}));
-        commands.add(Java.OPTION_PARITY_SERVER_PORT.format(new Object[] {preferences.getServerPort().toString()}));
+        Assert.assertNotYetImplemented("BrowserPlatform#restart");
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);
         commands.add(Java.MAIN_CLASS);

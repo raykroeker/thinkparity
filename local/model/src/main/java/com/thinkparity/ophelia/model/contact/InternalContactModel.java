@@ -9,6 +9,7 @@ import java.util.Calendar;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -30,8 +31,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param context
      *		A thinkParity internal context.
      */
-    InternalContactModel(final Workspace workspace, final Context context) {
-        super(workspace);
+    InternalContactModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+        super(environment, workspace);
     }
 
     /**

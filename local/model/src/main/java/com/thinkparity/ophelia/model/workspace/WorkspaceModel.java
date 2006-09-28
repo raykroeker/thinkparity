@@ -7,8 +7,6 @@ import java.io.File;
 
 import com.thinkparity.codebase.model.Context;
 
-import com.thinkparity.ophelia.model.AbstractModel;
-
 /**
  * WorkspaceModel
  * The workspace structure is as follows:
@@ -22,7 +20,14 @@ import com.thinkparity.ophelia.model.AbstractModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class WorkspaceModel extends AbstractModel<WorkspaceModelImpl> {
+public class WorkspaceModel {
+
+    /** The workspace implementation synchronization lock. */
+    private static final Object IMPL_LOCK;
+
+    static {
+        IMPL_LOCK = new Object();
+    }
 
     /**
      * Obtain a handle to a workspace model.
@@ -43,11 +48,15 @@ public class WorkspaceModel extends AbstractModel<WorkspaceModelImpl> {
         return workspaceModel;
     }
 
+    /** The thinkParity workspace interface implementation. */
+    private final WorkspaceModelImpl impl;
+
     /**
 	 * Create a WorkspaceModel
 	 */
 	protected WorkspaceModel() {
-		super(new WorkspaceModelImpl());
+		super();
+        this.impl = new WorkspaceModelImpl();
 	}
 
     /**
@@ -61,7 +70,7 @@ public class WorkspaceModel extends AbstractModel<WorkspaceModelImpl> {
 		}
 	}
 
-	/**
+    /**
      * Determine if this is the first run of the workspace.
      * 
      * @return True if this is the first run of the workspace; false otherwise.
@@ -70,5 +79,23 @@ public class WorkspaceModel extends AbstractModel<WorkspaceModelImpl> {
         synchronized (getImplLock()) {
             return getImpl().isFirstRun(workspace);
         }
+    }
+
+    /**
+     * Obtain the impl
+     *
+     * @return The WorkspaceModelImpl.
+     */
+    protected WorkspaceModelImpl getImpl() {
+        return impl;
+    }
+
+    /**
+     * Obtain the implementation synchroinization lock.
+     * 
+     * @return An implementation synchroinization lock.
+     */
+	protected Object getImplLock() {
+        return IMPL_LOCK;
     }
 }

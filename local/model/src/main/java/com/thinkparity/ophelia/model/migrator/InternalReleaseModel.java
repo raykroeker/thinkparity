@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.migrator;
 
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -18,7 +19,8 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public class InternalReleaseModel extends ReleaseModel {
 
     /** Create InternalReleaseModel. */
-    InternalReleaseModel(final Context context, final Workspace workspace) {
-        super(workspace);
+    InternalReleaseModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+        super(environment, workspace);
     }
 }

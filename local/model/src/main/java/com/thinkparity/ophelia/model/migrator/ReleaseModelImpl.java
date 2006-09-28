@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
-
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -28,8 +28,8 @@ class ReleaseModelImpl extends AbstractModelImpl {
     private final ReleaseIOHandler releaseIO;
 
     /** Create ReleaseModelImpl. */
-    ReleaseModelImpl(final Workspace workspace) {
-        super(workspace);
+    ReleaseModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.releaseIO = IOFactory.getXMPP(workspace).createReleaseHandler();
     }
     /**

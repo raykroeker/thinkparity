@@ -42,10 +42,10 @@ public class OpheliaTestUser extends User {
     private static final String PASSWORD = "parity";
 
 	static {
-        JUNIT = new OpheliaTestUser(Environment.TESTING, "junit");
-        JUNIT_X = new OpheliaTestUser(Environment.TESTING, "junit.x");
-        JUNIT_Y = new OpheliaTestUser(Environment.TESTING, "junit.y");
-        JUNIT_Z = new OpheliaTestUser(Environment.TESTING, "junit.z");
+        JUNIT = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit");
+        JUNIT_X = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.x");
+        JUNIT_Y = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.y");
+        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
     }
 
 	/** The test user's credentials. */
@@ -89,6 +89,15 @@ public class OpheliaTestUser extends User {
         return credentials;
     }
 
+    /**
+     * Obtain the environment
+     *
+     * @return The Environment.
+     */
+    public Environment getEnvironment() {
+        return environment;
+    }
+
     public Workspace getWorkspace() {
         return workspace;
     }
@@ -99,12 +108,12 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void initialize() {
-        SessionModel.getModel(workspace).login(credentials);
+        SessionModel.getModel(environment, workspace).login(credentials);
         try {
-            ContactModel.getModel(workspace).download();
-            setId(ProfileModel.getModel(workspace).read().getId());
+            ContactModel.getModel(environment, workspace).download();
+            setId(ProfileModel.getModel(environment, workspace).read().getId());
         } finally {
-            SessionModel.getModel(workspace).logout();
+            SessionModel.getModel(environment, workspace).logout();
         }
         setId(JabberIdBuilder.parseUsername(credentials.getUsername()));
     }

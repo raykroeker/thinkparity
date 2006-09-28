@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
@@ -25,13 +24,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -59,10 +59,10 @@ import com.thinkparity.ophelia.model.Constants.Xml.Service;
 public class XMPPMethod extends IQ {
 
     /** An apache logger. */
-    protected static final Logger logger;
+    protected static final Log4JWrapper logger;
 
     static {
-        logger = Logger.getLogger(XMPPMethod.class);
+        logger = new Log4JWrapper();
 
         ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
     }
@@ -115,8 +115,11 @@ public class XMPPMethod extends IQ {
         try {
             return (XMPPMethodResponse) idCollector.nextResult();
         } catch (final ClassCastException ccx) {
-            throw new XMPPException(
-                    MessageFormat.format("[XMPP] [XMPP METHOD] [REMOTE METHOD NOT AVAILABLE] [{0}]", name), ccx);
+            final String errorId = new ErrorHelper().getErrorId(ccx);
+            logger.logError(errorId, ccx);
+            logger.logError("name:{0}", name);
+            logger.logError("xmppConnection:{0}", xmppConnection);
+            throw new XMPPException(errorId);
         } finally {
             // re-set the parameters post execution
             logVariable("postResponseCollected", DateUtil.getInstance());
@@ -132,12 +135,8 @@ public class XMPPMethod extends IQ {
      * @param value
      *            The variable value.
      */
-    protected void logVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
-        }
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
     }
 
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */
@@ -148,7 +147,7 @@ public class XMPPMethod extends IQ {
             .append("\">")
             .append(getParametersXML())
             .append("</query>");
-        logger.debug(MessageFormat.format("[XML LENGTH] [{0}]", childElementXML.length()));
+        logVariable("childElementXML.length():", childElementXML.length());
         return childElementXML.toString();
     }
 

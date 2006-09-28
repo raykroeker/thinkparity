@@ -213,7 +213,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_PUBLISHED_TO_COUNT =
             new StringBuffer("select COUNT(*) PUBLISHED_TO_COUNT ")
             .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
-            .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=? ")
+            .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
             .toString();
 
     /** Sql to read the container published to list. */
@@ -575,9 +575,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             final Integer publishedToCount = readPublishedToCount(containerId, versionId);
             session.prepareStatement(SQL_DELETE_PUBLISHED_TO);
             session.setLong(1, containerId);
-            session.setLong(1, versionId);
-            if (publishedToCount != session.executeUpdate())
-                throw new HypersonicException("Could not delete published to entry.");
+            session.setLong(2, versionId);
+            final Integer publishedToDeleted = session.executeUpdate();
+            if (publishedToCount != publishedToDeleted)
+                throw translateError(
+                        "Could only delete {0} of {1} published to rows.",
+                        publishedToDeleted, publishedToCount);
 
             deleteSharedWith(session, containerId, versionId);
 
@@ -588,8 +591,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 throw new HypersonicException("Could not delete version.");
             artifactIO.deleteVersion(session, containerId, versionId);
             session.commit();
+        } catch (final Throwable t) {
+            session.rollback();
+            throw translateError(t);
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

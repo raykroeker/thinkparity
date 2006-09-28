@@ -50,7 +50,7 @@ public interface Workspace {
 	 */
 	public File getIndexDirectory();
 
-	/**
+    /**
      * Obtain the log file for the workspace.
      * 
      * @return A log <code>File</code>.

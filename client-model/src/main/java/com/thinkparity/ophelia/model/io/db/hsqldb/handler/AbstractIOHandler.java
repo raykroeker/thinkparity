@@ -3,9 +3,11 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
@@ -98,4 +100,31 @@ public abstract class AbstractIOHandler {
 	protected Session openSession() {
         return sessionManager.openSession(StackUtil.getCaller());
 	}
+
+    /**
+     * Translate an error into a hypersonic error.
+     * 
+     * @param t
+     *            An error.
+     * @return A hypersonic error.
+     */
+    protected HypersonicException translateError(final Throwable t) {
+        if (HypersonicException.class.isAssignableFrom(t.getClass())) {
+            return (HypersonicException) t;
+        } else {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            return HypersonicException.translate(errorId, t);
+        }
+    }
+
+    /**
+     * 
+     * @param errorId
+     * @return
+     */
+    protected HypersonicException translateError(final String errorPattern,
+            final Object... errorArguments) {
+        final String errorId = logger.getErrorId(errorPattern, errorArguments);
+        return HypersonicException.translate(errorId);
+    }
 }

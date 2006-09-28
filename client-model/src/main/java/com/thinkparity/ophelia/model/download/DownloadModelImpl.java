@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants;
@@ -26,7 +27,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 class DownloadModelImpl extends AbstractModelImpl {
 
     /** Create DownloadModelImpl. */
-    DownloadModelImpl(final Workspace workspace) { super(workspace); }
+    DownloadModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
+    }
 
     /**
      * Download a release.

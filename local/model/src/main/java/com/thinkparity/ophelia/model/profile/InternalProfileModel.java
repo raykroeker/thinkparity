@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.profile;
 
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -26,7 +27,8 @@ public class InternalProfileModel extends ProfileModel implements InternalModel 
      * @param context
      *		A thinkParity internal context.
      */
-    InternalProfileModel(final Workspace workspace, final Context context) {
-        super(workspace);
+    InternalProfileModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+        super(environment, workspace);
     }
 }

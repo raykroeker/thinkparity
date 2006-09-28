@@ -23,6 +23,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
@@ -85,8 +86,8 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @param workspace
 	 *            The workspace to work within.
 	 */
-	DocumentModelImpl(final Workspace workspace) {
-		super(workspace);
+	DocumentModelImpl(final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
 		this.auditor = new DocumentModelAuditor(internalModelFactory);
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);

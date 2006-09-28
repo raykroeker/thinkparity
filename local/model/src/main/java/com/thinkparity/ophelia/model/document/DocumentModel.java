@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -43,9 +44,8 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 * @return The internal document model.
 	 */
 	public static InternalDocumentModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		final InternalDocumentModel internalModel = new InternalDocumentModel(workspace, context);
-		return internalModel;
+            final Environment environment, final Workspace workspace) {
+		return new InternalDocumentModel(context, environment, workspace);
 	}
 
 	/**
@@ -55,15 +55,17 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return The handle to the model.
 	 */
-	public static DocumentModel getModel(final Workspace workspace) {
-		return new DocumentModel(workspace);
+	public static DocumentModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new DocumentModel(environment, workspace);
 	}
 
 	/**
 	 * Create a DocumentModel [Singleton]
 	 */
-	protected DocumentModel(final Workspace workspace) {
-		super(new DocumentModelImpl(workspace));
+	protected DocumentModel(final Environment environment,
+            final Workspace workspace) {
+		super(new DocumentModelImpl(environment, workspace));
 	}
 
 	/**

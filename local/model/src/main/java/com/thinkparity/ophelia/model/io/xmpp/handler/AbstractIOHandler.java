@@ -6,10 +6,9 @@ package com.thinkparity.ophelia.model.io.xmpp.handler;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.Constants.Connection;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.io.xmpp.XMPPSessionManager;
 
 /**
  * An abstraction of an xmpp io handler.
@@ -34,7 +33,6 @@ abstract class AbstractIOHandler {
      * @return An anonymous xmpp session.
      */
     protected XMPPSession openAnonymousSession() {
-        return XMPPSessionManager.openAnonymous(
-                Connection.SERVER_HOST, Connection.SERVER_PORT);
+        throw Assert.createNotYetImplemented("AbstractIOHandler#openAnonymousSession");
     }
 }

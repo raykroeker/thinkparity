@@ -27,16 +27,13 @@ public abstract class OpheliaTestCase extends TestCase {
     static final Integer TEST_SERVERPORT = 5224;
 
 	static {
-		// set non ssl mode
-		System.setProperty("parity.insecure", "true");
-        System.setProperty("parity.serverhost", TEST_SERVERHOST);
-        System.setProperty("parity.serverport", TEST_SERVERPORT.toString());
-
         testSession = TestCase.getTestSession();
         // init archive
 		initParityArchive(testSession.getSessionDirectory());
 		// init install
 		initParityInstall(testSession.getSessionDirectory());
+        // reference the class to run the static initializer
+        OpheliaTestUser.class.getName();
 	}
 
     /**

@@ -5,11 +5,10 @@
 package com.thinkparity.ophelia.model.io.xmpp.handler;
 
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.session.Credentials;
 
-import com.thinkparity.ophelia.model.Constants.Connection;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.io.xmpp.XMPPSessionManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -17,13 +16,9 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPSessionManager;
  */
 public abstract class AbstractRemoteHandler extends AbstractIOHandler {
 
-    /** The remote session credentials. */
-    private final Credentials credentials;
-
     /** Create AbstractRemoteHandler. */
     public AbstractRemoteHandler(final Credentials credentials) {
         super();
-        this.credentials = credentials;
     }
 
     /**
@@ -32,7 +27,6 @@ public abstract class AbstractRemoteHandler extends AbstractIOHandler {
      * @return An authenticated xmpp session.
      */
     protected XMPPSession openAuthenticatedSession() {
-        return XMPPSessionManager.openAuthenticated(
-                Connection.SERVER_HOST, Connection.SERVER_PORT, credentials);
+        throw Assert.createNotYetImplemented("AbstractRemoteHandler#openAuthenticatedSession");
     }
 }

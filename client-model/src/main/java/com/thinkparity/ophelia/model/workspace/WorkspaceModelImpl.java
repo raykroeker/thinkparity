@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
  * @version 1.1
  * @see com.thinkparity.ophelia.model.workspace.WorkspaceModel
  */
-class WorkspaceModelImpl extends AbstractModelImpl {
+class WorkspaceModelImpl {
 
     /** A list of workspaces. */
     private static final List<WorkspaceImpl> WORKSPACES;
@@ -61,7 +61,9 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	 * Create a WorkspaceModelImpl.
 	 * 
 	 */
-	WorkspaceModelImpl() { super(null); }
+	WorkspaceModelImpl() {
+        super();
+	}
 
     /**
      * Add a model's event listener.
@@ -126,7 +128,6 @@ class WorkspaceModelImpl extends AbstractModelImpl {
      * @return True if this is the first run of the workspace; false otherwise.
      */
     Boolean isFirstRun(final Workspace workspace) {
-        logger.logApiId();
         return findImpl(workspace).isFirstRun();
     }
 

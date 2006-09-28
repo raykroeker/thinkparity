@@ -11,6 +11,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.events.ContactListener;
@@ -36,8 +37,8 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
 	 * @return The internal Contact interface.
 	 */
 	public static InternalContactModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		return new InternalContactModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+		return new InternalContactModel(context, environment, workspace);
 	}
 
     /**
@@ -47,8 +48,9 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return The Contact interface.
 	 */
-	public static ContactModel getModel(final Workspace workspace) {
-		return new ContactModel(workspace);
+	public static ContactModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new ContactModel(environment, workspace);
 	}
 
     /**
@@ -57,8 +59,9 @@ public class ContactModel extends AbstractModel<ContactModelImpl> {
 	 * @param workspace
 	 *		The thinkParity workspace.
 	 */
-	protected ContactModel(final Workspace workspace) {
-		super(new ContactModelImpl(workspace));
+	protected ContactModel(final Environment environment,
+            final Workspace workspace) {
+		super(new ContactModelImpl(environment, workspace));
 	}
 
 	/**

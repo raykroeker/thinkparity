@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -32,8 +33,9 @@ public class InternalArchiveModel extends ArchiveModel implements InternalModel 
      * @param context
      *		A thinkParity model context.
      */
-    InternalArchiveModel(final Workspace workspace, final Context context) {
-        super(workspace);
+    InternalArchiveModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+        super(environment, workspace);
     }
 
     public void archive(final Long artifactId) {

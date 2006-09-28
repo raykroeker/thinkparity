@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.model.migrator;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Library;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -29,8 +30,8 @@ public class LibraryModel extends AbstractModel<LibraryModelImpl> {
      * @return The internal parity library interface.
      */
     public static InternalLibraryModel getInternalModel(final Context context,
-            final Workspace workspace) {
-        return new InternalLibraryModel(context, workspace);
+            final Environment environment, final Workspace workspace) {
+        return new InternalLibraryModel(context, environment, workspace);
     }
 
     /**
@@ -40,13 +41,15 @@ public class LibraryModel extends AbstractModel<LibraryModelImpl> {
      *      A thinkParity <code>Workspace</code>.
      * @return The parity library interface.
      */
-    public static LibraryModel getModel(final Workspace workspace) {
-        return new LibraryModel(workspace);
+    public static LibraryModel getModel(final Environment environment,
+            final Workspace workspace) {
+        return new LibraryModel(environment, workspace);
     }
 
     /** Create LibraryModel. */
-    protected LibraryModel(final Workspace workspace) {
-        super(new LibraryModelImpl(workspace));
+    protected LibraryModel(final Environment environment,
+            final Workspace workspace) {
+        super(new LibraryModelImpl(environment, workspace));
     }
 
     /**

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
@@ -33,9 +34,9 @@ public class InternalDocumentModel extends DocumentModel implements
 	 * @param context
 	 *            The parity context.
 	 */
-	InternalDocumentModel(final Workspace workspace,
-			final Context context) {
-		super(workspace);
+	InternalDocumentModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+		super(environment, workspace);
 	}
 
     public void auditRecieveKey(final Long artifactId,

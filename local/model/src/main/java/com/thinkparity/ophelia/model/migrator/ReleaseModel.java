@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -27,8 +28,8 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      * @return The parity bootstrap's internal release model interface.
      */
     public static InternalReleaseModel getInternalModel(final Context context,
-            final Workspace workspace) {
-        return new InternalReleaseModel(context, workspace);
+            final Environment environment, final Workspace workspace) {
+        return new InternalReleaseModel(context, environment, workspace);
     }
 
     /**
@@ -36,13 +37,15 @@ public class ReleaseModel extends AbstractModel<ReleaseModelImpl> {
      *
      * @return The parity bootstrap's release model interface.
      */
-    public static ReleaseModel getModel(final Workspace workspace) {
-        return new ReleaseModel(workspace);
+    public static ReleaseModel getModel(final Environment environment,
+            final Workspace workspace) {
+        return new ReleaseModel(environment, workspace);
     }
 
     /** Create ReleaseModel. */
-    protected ReleaseModel(final Workspace workspace) {
-        super(new ReleaseModelImpl(workspace));
+    protected ReleaseModel(final Environment environment,
+            final Workspace workspace) {
+        super(new ReleaseModelImpl(environment, workspace));
     }
 
     /**

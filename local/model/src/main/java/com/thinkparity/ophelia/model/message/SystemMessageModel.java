@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.message;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -24,8 +25,9 @@ public class SystemMessageModel extends AbstractModel<SystemMessageModelImpl> {
 	 * @return The internal system message model.
 	 */
 	public static InternalSystemMessageModel getInternalModel(
-            final Context context, final Workspace workspace) {
-		return new InternalSystemMessageModel(workspace, context);
+            final Context context, final Environment environment,
+            final Workspace workspace) {
+		return new InternalSystemMessageModel(context, environment, workspace);
 	}
 
 	/**
@@ -35,8 +37,9 @@ public class SystemMessageModel extends AbstractModel<SystemMessageModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return A SystemMessageModel.
 	 */
-	public static SystemMessageModel getModel(final Workspace workspace) {
-		return new SystemMessageModel(workspace);
+	public static SystemMessageModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new SystemMessageModel(environment, workspace);
 	}
 
 	/**
@@ -45,8 +48,8 @@ public class SystemMessageModel extends AbstractModel<SystemMessageModelImpl> {
      * @param workspace
      *            A thinkParity <code>Workspace</code>.
      */
-	protected SystemMessageModel(final Workspace workspace) {
-		super(new SystemMessageModelImpl(workspace));
+	protected SystemMessageModel(final Environment environment, final Workspace workspace) {
+		super(new SystemMessageModelImpl(environment, workspace));
 	}
 
 }

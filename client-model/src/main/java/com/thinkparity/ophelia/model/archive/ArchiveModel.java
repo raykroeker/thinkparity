@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -36,8 +37,8 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 	 * @return A thinkParity Archive interface.
 	 */
 	public static InternalArchiveModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		return new InternalArchiveModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+		return new InternalArchiveModel(context, environment, workspace);
 	}
 
 	/**
@@ -45,8 +46,9 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 	 * 
 	 * @return A thinkParity Archive interface.
 	 */
-	public static ArchiveModel getModel(final Workspace workspace) {
-		return new ArchiveModel(workspace);
+	public static ArchiveModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new ArchiveModel(environment, workspace);
 	}
 
 	/**
@@ -55,8 +57,9 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
 	 * @param workspace
 	 *		The thinkParity workspace.
 	 */
-	protected ArchiveModel(final Workspace workspace) {
-		super(new ArchiveModelImpl(workspace));
+	protected ArchiveModel(final Environment environment,
+            final Workspace workspace) {
+		super(new ArchiveModelImpl(environment, workspace));
 	}
 
     public List<Container> readContainers() {

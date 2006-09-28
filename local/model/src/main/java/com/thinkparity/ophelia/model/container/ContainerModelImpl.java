@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -107,8 +108,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param workspace
      *      The thinkParity workspace.
      */
-    ContainerModelImpl(final Workspace workspace) {
-        super(workspace);
+    ContainerModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.auditor = new ContainerAuditor(internalModelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
@@ -26,8 +27,8 @@ public class UserModel extends AbstractModel<UserModelImpl> {
      * @return The parity internal user interface.
      */
     public static InternalUserModel getInternalModel(final Context context,
-            final Workspace workspace) {
-        return new InternalUserModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+        return new InternalUserModel(context, environment, workspace);
     }
 
     /**
@@ -37,8 +38,9 @@ public class UserModel extends AbstractModel<UserModelImpl> {
      *      A thinkParity <code>Workspace</code>.
      * @return The parity user interface.
      */
-    public static UserModel getModel(final Workspace workspace) {
-        return new UserModel(workspace);
+    public static UserModel getModel(final Environment environment,
+            final Workspace workspace) {
+        return new UserModel(environment, workspace);
     }
 
     /**
@@ -47,8 +49,8 @@ public class UserModel extends AbstractModel<UserModelImpl> {
      * @param workspace
      *      The parity workspace.
      */
-    protected UserModel(final Workspace workspace) {
-        super(new UserModelImpl(workspace));
+    protected UserModel(final Environment environment, final Workspace workspace) {
+        super(new UserModelImpl(environment, workspace));
     }
 
     /**

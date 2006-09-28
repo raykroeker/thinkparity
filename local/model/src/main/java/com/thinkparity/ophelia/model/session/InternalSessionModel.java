@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -38,8 +39,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 * @param context
 	 *            The model context.
 	 */
-	InternalSessionModel(final Workspace workspace, final Context context) {
-		super(workspace);
+	InternalSessionModel(final Environment environment,
+            final Workspace workspace, final Context context) {
+		super(environment, workspace);
 	}
 
     /**

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -19,8 +20,9 @@ public class InternalUserModel extends UserModel implements InternalModel {
     /**
      * Create a InternalUserModel.
      */
-    InternalUserModel(final Workspace workspace, final Context context) {
-        super(workspace);
+    InternalUserModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+        super(environment, workspace);
     }
 
     /**

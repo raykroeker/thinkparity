@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.message;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -21,7 +22,8 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 	 * @param context
 	 *            The parity context.
 	 */
-	InternalSystemMessageModel(final Workspace workspace, final Context context) {
-		super(workspace);
+	InternalSystemMessageModel(final Context context,
+            final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
 	}
 }

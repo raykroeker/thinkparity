@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.install;
 
 
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;
@@ -22,8 +23,9 @@ public class InstallModel extends AbstractModel<InstallModelImpl> {
      * 
      * @return The parity install interface.
      */
-    public static InstallModel getModel(final Workspace workspace) {
-        return new InstallModel(workspace);
+    public static InstallModel getModel(final Environment environment,
+            final Workspace workspace) {
+        return new InstallModel(environment, workspace);
     }
 
     /**
@@ -32,8 +34,8 @@ public class InstallModel extends AbstractModel<InstallModelImpl> {
      * @param workspace
      *            The parity workspace.
      */
-    protected InstallModel(final Workspace workspace) {
-        super(new InstallModelImpl(workspace));
+    protected InstallModel(final Environment environment, final Workspace workspace) {
+        super(new InstallModelImpl(environment, workspace));
     }
 
     /**

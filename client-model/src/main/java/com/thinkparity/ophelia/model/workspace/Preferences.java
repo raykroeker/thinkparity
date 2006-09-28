@@ -22,12 +22,6 @@ public interface Preferences {
 
 	public String getPassword();
 
-	public String getServerHost();
-
-	public Integer getServerPort();
-
-    public String getServerProtocol();
-
 	public User getSystemUser();
 
 	public String getUsername();

@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.model.download;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;
@@ -28,8 +29,8 @@ public class DownloadModel extends AbstractModel<DownloadModelImpl> {
      * @return The parity bootstrap internal download interface.
      */
     public static InternalDownloadModel getInternalModel(final Context context,
-            final Workspace workspace) {
-        return new InternalDownloadModel(context, workspace);
+            final Environment environment, final Workspace workspace) {
+        return new InternalDownloadModel(context, environment, workspace);
     }
 
     /**
@@ -39,13 +40,15 @@ public class DownloadModel extends AbstractModel<DownloadModelImpl> {
      *      A thinkParity <code>Workspace</code>.
      * @return The parity bootstrap download interface.
      */
-    public static DownloadModel getModel(final Workspace workspace) {
-        return new DownloadModel(workspace);
+    public static DownloadModel getModel(final Environment environment,
+            final Workspace workspace) {
+        return new DownloadModel(environment, workspace);
     }
 
     /** Create DownloadModel. */
-    protected DownloadModel(final Workspace workspace) {
-        super(new DownloadModelImpl(workspace));
+    protected DownloadModel(final Environment environment,
+            final Workspace workspace) {
+        super(new DownloadModelImpl(environment, workspace));
     }
 
     /**

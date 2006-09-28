@@ -13,6 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -67,8 +68,8 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param workspace
      *		The thinkParity workspace.
      */
-    ContactModelImpl(final Workspace workspace) {
-        super(workspace);
+    ContactModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
         this.defaultComparator = new NameComparator(Boolean.TRUE);
         this.defaultFilter = new DefaultFilter();

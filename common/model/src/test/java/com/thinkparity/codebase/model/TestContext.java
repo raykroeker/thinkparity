@@ -21,6 +21,14 @@ public class TestContext {
         private TestModel() {
             super(new TestModelImpl());
         }
+
+        /**
+         * @see com.thinkparity.codebase.model.AbstractModel#getImplLock()
+         */
+        @Override
+        protected Object getImplLock() {
+            return this;
+        }
     }
 
     private static class TestModelImpl extends AbstractModelImpl {

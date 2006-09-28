@@ -7,6 +7,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
@@ -38,7 +40,14 @@ public interface Platform extends ApplicationListener {
 
     public AvatarRegistry getAvatarRegistry();
 
-    public Logger getLogger(final Class clasz);
+    /**
+     * Obtain the environment.
+     * 
+     * @return The <code>Environment</code>.
+     */
+    public Environment getEnvironment();
+
+	public Logger getLogger(final Class clasz);
 
 	public ModelFactory getModelFactory();
 
@@ -51,7 +60,7 @@ public interface Platform extends ApplicationListener {
      */
     public PluginRegistry getPluginRegistry();
 
-	public Preferences getPreferences();
+    public Preferences getPreferences();
 
     public WindowRegistry getWindowRegistry();
 
@@ -63,7 +72,7 @@ public interface Platform extends ApplicationListener {
 	 */
 	public void hibernate(final ApplicationId applicationId);
 
-    /**
+	/**
 	 * Indicates whether or not the platform is running in debug mode.
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.
@@ -72,7 +81,7 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isDevelopmentMode();
 
-	/**
+    /**
      * Determine if the user has online capability.
      * 
      * @return True if the user has online capability.
@@ -88,7 +97,7 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isTestingMode();
 
-    /**
+	/**
      * Add a platform life cycle listener.
      * 
      * @param listener
@@ -96,7 +105,7 @@ public interface Platform extends ApplicationListener {
      */
     public void removeListener(final LifeCycleListener listener);
 
-	/** Restart the platform. */
+    /** Restart the platform. */
     public void restart();
 
     /**

@@ -12,6 +12,16 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 
 /**
+ * <b>Title:</b>thinkParity Container Archive Test<br>
+ * <b>Description:</b>Test the archive api.
+ * <ol>
+ * <li>Create.
+ * <li>Add documents.
+ * <li>Publish to everyone.
+ * <li>Archive.
+ * </ol>
+ * <br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */

@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -42,8 +43,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @param workspace
 	 *            The parity workspace
 	 */
-	ArtifactModelImpl(final Workspace workspace) {
-		super(workspace);
+	ArtifactModelImpl(final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
 		this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
 		this.auditor = new ArtifactModelAuditor(internalModelFactory);
 	}
@@ -395,7 +396,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     Long readId(final UUID uniqueId) {
         logger.logApiId();
-        logger.logVariable("variable", uniqueId);
+        logger.logVariable("uniqueId", uniqueId);
         return artifactIO.readId(uniqueId);
     }
 

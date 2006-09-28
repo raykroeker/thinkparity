@@ -78,27 +78,6 @@ class PreferencesImpl implements Preferences {
         return javaProperties.getProperty("parity.password");
     }
 
-    public String getServerHost() {
-        final String override = System.getProperty("parity.serverhost");
-        if(null != override && 0 < override.length()) { return override; }
-        else { return "thinkparity.dyndns.org"; }
-    }
-
-    public Integer getServerPort() {
-        final Integer override = Integer.getInteger("parity.serverport");
-        if(null != override) { return override; }
-        else {
-            if(Boolean.getBoolean("parity.insecure")) { return 5222; }
-            else { return 5223; }
-        }
-    }
-
-    public String getServerProtocol() {
-        final String override = System.getProperty("parity.serverprotcol");
-        if(null != override && 0 < override.length()) { return override; }
-        else { return "XMPP"; }
-    }
-
     public User getSystemUser() { return User.THINK_PARITY; }
 
     public String getUsername() {

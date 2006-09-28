@@ -21,7 +21,6 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -32,13 +31,11 @@ import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.OpheliaTestCase;
+import com.thinkparity.ophelia.OpheliaTestModelFactory;
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
-import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
@@ -48,19 +45,12 @@ import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
-import com.thinkparity.ophelia.model.message.SystemMessageModel;
 import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
-import com.thinkparity.ophelia.model.migrator.LibraryModel;
-import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
-import com.thinkparity.ophelia.model.user.UserModel;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
@@ -459,8 +449,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
     }
 
-    /** A thinkParity context. */
-    protected Context context;
+    /** A test model factory. */
+    private OpheliaTestModelFactory modelFactory;
 
     /**
 	 * Create a ModelTestCase
@@ -468,7 +458,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 * @param name
 	 *            The test name.
 	 */
-	protected ModelTestCase(final String name) { super(name); }
+	protected ModelTestCase(final String name) {
+        super(name);
+	}
 
     /**
      * Add a document to a container.
@@ -595,26 +587,26 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return super.createFailMessage(t);
 	}
 
+    protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
+        return modelFactory.getArchiveModel(testUser);
+    }
+
     protected InternalArtifactModel getArtifactModel(
             final OpheliaTestUser testUser) {
-        return ArtifactModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getArtifactModel(testUser);
     }
 
     protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
-        return ContactModel.getInternalModel(context, testUser.getWorkspace());
-    }
-
-    protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
-        return ArchiveModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getContactModel(testUser);
     }
 
     protected InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
-        return ContainerModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getContainerModel(testUser);
     }
 
     protected InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
-        return DocumentModel.getInternalModel(context, testUser.getWorkspace());
-    }
+        return modelFactory.getDocumentModel(testUser);
+   }
 
     /**
 	 * Obtain a single test file.
@@ -640,12 +632,14 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return inputFiles;
 	}
 
-    protected InternalLibraryModel getLibraryModel(final Workspace workspace) {
-        return LibraryModel.getInternalModel(context, workspace);
+    protected InternalLibraryModel getLibraryModel(
+            final OpheliaTestUser testUser) {
+        return modelFactory.getLibraryModel(testUser);
     }
 
-    protected InternalSystemMessageModel getMessageModel(final Workspace workspace) {
-        return SystemMessageModel.getInternalModel(context, workspace);
+    protected InternalSystemMessageModel getMessageModel(
+            OpheliaTestUser testUser) {
+        return modelFactory.getSystemMessageModel(testUser);
     }
 
     protected File[] getModFiles() throws IOException {
@@ -656,21 +650,21 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 
     protected InternalProfileModel getProfileModel(
             final OpheliaTestUser testUser) {
-        return ProfileModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getProfileModel(testUser);
     }
 
 	protected InternalReleaseModel getReleaseModel(
             final OpheliaTestUser testUser) {
-        return ReleaseModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getReleaseModel(testUser);
     }
 
 	protected InternalSessionModel getSessionModel(
             final OpheliaTestUser testUser) {
-        return SessionModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getSessionModel(testUser);
     }
 
     protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
-        return UserModel.getInternalModel(context, testUser.getWorkspace());
+        return modelFactory.getUserModel(testUser);
     }
 
     /**
@@ -797,20 +791,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Share a container.
-     * 
-     * @param container
-     *            The container.
-     */
-    protected void share(final OpheliaTestUser testUser,
-            final Container container, final ContainerVersion version) {
-        final List<TeamMember> teamMembers = Collections.emptyList();
-        final List<Contact> contacts = readContacts(testUser);
-        getContainerModel(testUser).share(container.getId(),
-                version.getVersionId(), contacts, teamMembers);
-    }
-
-    /**
      * Publish a container.
      * 
      * @param container
@@ -853,14 +833,28 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected void setUp() throws Exception {
         super.setUp();
-        this.context = TestModel.getModelContext();
+        this.modelFactory = OpheliaTestModelFactory.getInstance(this);
 	}
+
+    /**
+     * Share a container.
+     * 
+     * @param container
+     *            The container.
+     */
+    protected void share(final OpheliaTestUser testUser,
+            final Container container, final ContainerVersion version) {
+        final List<TeamMember> teamMembers = Collections.emptyList();
+        final List<Contact> contacts = readContacts(testUser);
+        getContainerModel(testUser).share(container.getId(),
+                version.getVersionId(), contacts, teamMembers);
+    }
 
     /**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
         super.tearDown();
-        this.context = null;
+        this.modelFactory = null;
 	}
 }

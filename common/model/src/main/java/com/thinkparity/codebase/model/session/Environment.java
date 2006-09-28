@@ -11,6 +11,9 @@ import com.thinkparity.codebase.NetworkUtil;
  */
 public class Environment {
 
+    /** A localhost development environment. */
+    public static final Environment DEVELOPMENT_LOCALHOST;
+
     /** Raymond's development environment. */
     public static final Environment DEVELOPMENT_RAYMOND;
 
@@ -23,11 +26,16 @@ public class Environment {
     /** Testing environment. */
     public static final Environment TESTING;
 
+    /** A localhost testing environment. */
+    public static final Environment TESTING_LOCALHOST;
+
     static {
+        DEVELOPMENT_LOCALHOST = new Environment("localhost", 5226, Protocol.XMPP);
         DEVELOPMENT_RAYMOND = new Environment("thinkparity.dyndns.org", 5226, Protocol.XMPP);
         DEVELOPMENT_ROBERT = new Environment("thinkparity.dyndns.org", 5228, Protocol.XMPP);
         PRODUCTION = new Environment("thinkparity.dyndns.org", 5222, Protocol.XMPP);
         TESTING = new Environment("thinkparity.dyndns.org", 5224, Protocol.XMPP);
+        TESTING_LOCALHOST = new Environment("localhost", 5224, Protocol.XMPP);
     }
 
     /** The server host. */

@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -33,8 +34,8 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 	 * @return The internal Profile interface.
 	 */
 	public static InternalProfileModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		return new InternalProfileModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+		return new InternalProfileModel(context, environment, workspace);
 	}
 
     /**
@@ -44,8 +45,9 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return The Profile interface.
 	 */
-	public static ProfileModel getModel(final Workspace workspace) {
-		return new ProfileModel(workspace);
+	public static ProfileModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new ProfileModel(environment, workspace);
 	}
 
 	/**
@@ -54,8 +56,9 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 	 * @param workspace
 	 *		The thinkParity workspace.
 	 */
-	protected ProfileModel(final Workspace workspace) {
-		super(new ProfileModelImpl(workspace));
+	protected ProfileModel(final Environment environment,
+            final Workspace workspace) {
+		super(new ProfileModelImpl(environment, workspace));
 	}
 
     /**

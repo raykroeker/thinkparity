@@ -6,16 +6,12 @@ package com.thinkparity.ophelia.model.util.xmpp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketFilter;
@@ -30,7 +26,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -65,16 +61,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
 	 * Interal logger implemenation.
 	 */
-	private static final Logger logger =
-		Logger.getLogger(XMPPSessionImpl.class);
+	private static final Log4JWrapper logger = new Log4JWrapper();
 
     /**
      * The number of milliseconds to sleep immediately prior to executing the
      * login api.
      */
-    private static final int LOGIN_SLEEP_DURATION = 2 * 1000;
-
-    private static final String NO_CONNECTION = "No connection id.";
+    private static final int LOGIN_SLEEP_DURATION = 3 * 1000;
 
     /**
 	 * The number of milliseconds to sleep subsequent to each maual packet sent
@@ -87,6 +80,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     static {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+        logger.logInfo("Smack v{0}", SmackConfiguration.getVersion());
 	}
 
     /** A list of the session listeners. */
@@ -121,7 +115,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * 
 	 */
 	public XMPPSessionImpl() {
-		logger.info("Jive Software:  Smack:  " + SmackConfiguration.getVersion());
 		this.listeners = new ArrayList<SessionListener>();
         this.xmppArchive = new XMPPArchive(this);
 		this.xmppArtifact = new XMPPArtifact(this);
@@ -246,8 +239,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createDraft(java.util.UUID)
      */
     public void createDraft(final UUID uniqueId) {
-        logger.info("[XMPP SESSION] [CREATE DRAFT]");
-        logger.debug(uniqueId);
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
         xmppArtifact.createDraft(uniqueId);
     }
 
@@ -305,14 +298,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.codebase.model.artifact.ArtifactFlag)
 	 */
-	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
-			throws SmackException {
-		logger.info("send(UUID,ArtifactFlag)");
-		logger.debug(artifactUniqueId);
-		logger.debug(flag);
-		final IQArtifact iq = new IQArtifactFlag(artifactUniqueId, flag);
+	public void flag(final UUID uniqueId, final ArtifactFlag flag)
+            throws SmackException {
+		logger.logApiId();
+		logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("flag", flag);
+		final IQArtifact iq = new IQArtifactFlag(uniqueId, flag);
 		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
+		logger.logVariable("iq", iq);
 		sendPacket(iq);
 	}
 
@@ -335,7 +328,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
-		logger.info("isLoggedIn()");
+		logger.logApiId();
 		return (null != xmppConnection
 				&& xmppConnection.isConnected()
 				&& xmppConnection.isAuthenticated());
@@ -353,7 +346,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logout()
 	 */
 	public void logout() throws SmackException {
-		logger.info("logout()");
+		logger.logApiId();
         clearListeners();
         xmppConnection.close();
         xmppConnection = null;
@@ -373,7 +366,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * 
 	 */
 	public void processOfflineQueue() throws SmackException {
-		logger.info("processOfflineQueue()");
+		logger.logApiId();
 		final IQParity processOfflineQueue = new IQProcessOfflineQueue();
 		sendAndConfirmPacket(processOfflineQueue);
 	}
@@ -646,7 +639,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             xmppConnection.createPacketCollector(new PacketIDFilter(packetId));
         sendPacket(packet);
         final Packet confirmationPacket = collector.nextResult();
-        logger.debug(confirmationPacket);
+        logger.logVariable("confirmationPacket", confirmationPacket);
         if(null == confirmationPacket) {
         	throw new SmackException("Send and confirm packet timeout.");
         }
@@ -661,8 +654,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException {
-		logger.info("sendLogFileArchive(File)");
-		logger.debug(logFileArchive);
+		logger.logApiId();
+        logger.logVariable("logFileArchive", logFileArchive);
+        logger.logVariable("user", user);
 	}
 
 	/**
@@ -714,14 +708,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @param message
      *            An error message.
      */
-    protected void logError(final Throwable cause, final String pattern,
-            final Object... arguments) {
-        if (logger.isEnabledFor(Level.ERROR)) {
-            logger.error(Log4JHelper.renderAndFormat(logger, "{0} {1}",
-                    null == xmppConnection ? NO_CONNECTION : xmppConnection
-                            .getConnectionID(), Log4JHelper.renderAndFormat(
-                            logger, pattern, arguments)), cause);
-        }
+    protected final <E extends Throwable> E logError(final E e,
+            final String errorPattern, final Object... errorArguments) {
+        return logger.logError(e, errorPattern, errorArguments);
     }
 
     /**
@@ -732,13 +721,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @param value
      *            The variable value.
      */
-    protected <T> T logVariable(final String name, final T value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0} {1}:{2}",
-                    null == xmppConnection ? NO_CONNECTION : xmppConnection.getConnectionID(),
-                    name, Log4JHelper.render(logger, value)));
-        }
-        return value;
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
     }
 
     /**
@@ -850,7 +834,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			});
             xmppConnection.addPacketListener(new PacketListener() {
                     public void processPacket(final Packet packet) {
-                        logger.debug(packet);
+                        logger.logVariable("packet", packet);
                     }
                 }, new PacketFilter() {
                     public boolean accept(final Packet packet) {
@@ -873,7 +857,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
                 login(attempt + 1, environment, credentials);
             }
 		} catch (final XMPPException xmppx) {
-			logger.error("login(String,Integer,String,String)", xmppx);
+			logError(xmppx,
+                    "Could not login to environment {0} with credentials {1}.",
+                    environment, credentials);
 			throw XMPPErrorTranslator.translate(xmppx);
 		}
 	}
@@ -907,7 +893,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			final Message message = xmppConnection.createChat(
 					user.getUsername()).createMessage();
 			message.addExtension(packetExtension);
-			logger.info("messageSize:" + message.toXML().length());
+			logger.logVariable("messageSize", message.toXML().length());
 			sendPacket(message);
 		}
 	}
@@ -919,8 +905,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 *            The packet to send.
 	 */
 	private void sendPacket(final Packet packet) throws SmackException {
-		logger.debug("packet");
-		logger.debug(packet);
+		logger.logVariable("packet", packet);
         xmppConnection.sendPacket(packet);
 		// this sleep has been inserted because when packets are sent within
 		// x milliseconds of each other, they tend to get swallowed by the

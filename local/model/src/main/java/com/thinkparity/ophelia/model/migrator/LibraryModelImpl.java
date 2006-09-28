@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.model.migrator;
 
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.LibraryBytes;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -24,8 +25,8 @@ class LibraryModelImpl extends AbstractModelImpl {
     private final LibraryIOHandler libraryIO;
 
     /** Create LibraryModelImpl. */
-    LibraryModelImpl(final Workspace workspace) {
-        super(workspace);
+    LibraryModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.libraryIO = IOFactory.getXMPP(workspace).createLibraryHandler();
     }
 

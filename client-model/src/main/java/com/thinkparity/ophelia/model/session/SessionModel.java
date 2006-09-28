@@ -8,6 +8,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
 
@@ -34,26 +35,30 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
 	 * @return The internal interface.
 	 */
 	public static InternalSessionModel getInternalModel(final Context context,
-            final Workspace workspace) {
-	    return new InternalSessionModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+	    return new InternalSessionModel(environment, workspace, context);
 	}
 
 	/**
      * Obtain a handle to a session model interface.
      * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
      * @param workspace
      *            A thinkParity <code>Workspace</code>.
      * @return A handle to the session model interface.
      */
-	public static SessionModel getModel(final Workspace workspace) {
-	    return new SessionModel(workspace);
+	public static SessionModel getModel(final Environment environment,
+            final Workspace workspace) {
+	    return new SessionModel(environment, workspace);
 	}
 
 	/**
 	 * Create a SessionModel
 	 */
-	protected SessionModel(final Workspace workspace) {
-		super(new SessionModelImpl(workspace));
+	protected SessionModel(final Environment environment,
+            final Workspace workspace) {
+		super(new SessionModelImpl(environment, workspace));
 	}
 
 	/**

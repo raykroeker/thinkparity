@@ -27,8 +27,7 @@ public class StackUtil {
     private static final Filter STACK_UTIL_FILTER = new Filter() {
         public Boolean accept(final StackTraceElement stackElement) {
             return !stackElement.getClassName().equals(StackUtil.class.getName());
-            }
-        };
+        }};
 
     /**
      * Obtain the caller's formatted text.
@@ -177,7 +176,7 @@ public class StackUtil {
         return depth < stack.length ? stack[depth] : null;
     }
 
-	/**
+    /**
      * Obtain a filtered stack frame.
      * 
      * @param filters
@@ -192,6 +191,19 @@ public class StackUtil {
         final StackTraceElement[] stack = createFilteredStack(
                 internalFilters.toArray(new Filter[] {}));
         return 0 < stack.length ? stack[0] : null;
+    }
+
+    /**
+     * Obtain a filtered stack frame.
+     * 
+     * @param filter
+     *            A <code>StackUtil.Filter</code>.
+     * @return A stack trace element.
+     */
+    public static StackTraceElement getFrame(final StackUtil.Filter filter) {
+        final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>(1);
+        filters.add(filter);
+        return getFrame(filters);
     }
 
     /**
@@ -282,16 +294,18 @@ public class StackUtil {
         final ArrayList<StackTraceElement> filteredStack = new ArrayList<StackTraceElement>();
         final StackTraceElement[] stack = new Throwable().getStackTrace();
         Boolean doFilter;
-        for(final StackTraceElement stackElement : stack) {
+        for (final StackTraceElement stackElement : stack) {
             // if any filter rejects the element; do not include it in the list
             doFilter = Boolean.FALSE;
-            for(final Filter filter : filters) {
-                if(!filter.accept(stackElement)) {
+            for (final Filter filter : filters) {
+                if (!filter.accept(stackElement)) {
                     doFilter = Boolean.TRUE;
                     break;
                 }
             }
-            if(!doFilter) { filteredStack.add(stackElement); }
+            if (!doFilter) {
+                filteredStack.add(stackElement);
+            }
         }
         return filteredStack.toArray(new StackTraceElement[] {});
     }

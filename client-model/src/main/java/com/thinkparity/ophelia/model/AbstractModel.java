@@ -29,4 +29,12 @@ public abstract class AbstractModel<T extends AbstractModelImpl> extends
     protected AbstractModel(final T impl) {
         super(impl);
     }
+
+    /**
+     * @see com.thinkparity.codebase.model.AbstractModel#getImplLock()
+     */
+    @Override
+    protected Object getImplLock() {
+        return getImpl().workspace;
+    }
 }

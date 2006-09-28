@@ -16,10 +16,6 @@ public final class Constants {
     public static final class Compression {
         public static final Integer NONE = 0;
     }
-    public static final class Connection {
-        public static final String SERVER_HOST = System.getProperty("parity.serverhost");
-        public static final Integer SERVER_PORT = Integer.getInteger("parity.serverport");
-    }
     public static final class Directories {
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
         public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);

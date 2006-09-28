@@ -15,8 +15,7 @@ import com.thinkparity.ophelia.model.InternalModel;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class InternalWorkspaceModel extends WorkspaceModel implements
-        InternalModel {
+public class InternalWorkspaceModel extends WorkspaceModel implements InternalModel {
 
     /** Create InternalWorkspaceModel. */
     InternalWorkspaceModel(final Context context) {

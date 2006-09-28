@@ -115,14 +115,15 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             // NOCOMMIT Profile vcard.
             session.setString(2, "");
             if(1 != session.executeUpdate())
-                throw new HypersonicException("Could not create profile.");
+                throw translateError("Could not create user profile {0}.", profile);
             session.commit();
         }
-        catch(final HypersonicException hx) {
+        catch(final Throwable t) {
             session.rollback();
-            throw hx;
+            throw translateError(t);
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

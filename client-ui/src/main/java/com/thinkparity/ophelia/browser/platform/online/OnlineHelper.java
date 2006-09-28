@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 
 /**
  * @author raymond@thinkparity.com
@@ -32,11 +33,11 @@ public class OnlineHelper {
      * @return True if the platform is online.
      */
     public Boolean isOnline() {
-        final Preferences preferences = platform.getPreferences();
+        final Environment environment = platform.getEnvironment();
         Socket socket;
         try {
             socket = new Socket(
-                    preferences.getServerHost(), preferences.getServerPort());
+                    environment.getServerHost(), environment.getServerPort());
             socket.close();
             return Boolean.TRUE;
         } catch (final UnknownHostException uhx) {

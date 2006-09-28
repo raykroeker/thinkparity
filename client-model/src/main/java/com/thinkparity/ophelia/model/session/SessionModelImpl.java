@@ -23,7 +23,6 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.Session;
-import com.thinkparity.codebase.model.session.Environment.Protocol;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -40,23 +39,14 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 
-    /** The remote environment. */
-    private final Environment environment;
-
-
     /**
 	 * Create a SessionModelImpl
 	 * 
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	SessionModelImpl(final Workspace workspace) {
-		super(workspace);
-        this.environment = new Environment();
-        this.environment.setServerHost(workspace.getPreferences().getServerHost());
-        this.environment.setServerPort(workspace.getPreferences().getServerPort());
-        this.environment.setServerProtocol(
-                Protocol.valueOf(workspace.getPreferences().getServerProtocol()));
+	SessionModelImpl(final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
 	}
 
     /**
@@ -424,7 +414,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     void login(final Credentials credentials) {
         logger.logApiId();
         logger.logVariable("credentials", credentials);
-        login(environment, credentials);
+        login(1, credentials);
     }
 
 	/**
@@ -442,6 +432,22 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 			throw translateError(t);
 		}
 	}
+
+    InputStream openArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.openArchiveDocumentVersion(userId, uniqueId, versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Publish a container.
@@ -513,7 +519,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Read the archived containers.
      * 
      * @param userId
@@ -538,7 +544,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -599,6 +605,29 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     }
 
     /**
+     * Read the archive team.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of jabber ids.
+     */
+    List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readArchiveTeamIds(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -649,7 +678,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -666,7 +695,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-    /**
+	/**
      * Read the artifact key holder from the server.
      * 
      * @param artifactId
@@ -705,7 +734,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	List<EMail> readProfileEMails() {
+    List<EMail> readProfileEMails() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -717,7 +746,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Read the user profile's security question.
      * 
      * @param userId
@@ -1009,19 +1038,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     /**
      * Login to the environment with the credentials.
      * 
-     * @param environment
-     *            The environment to login to.
-     * @param credentials
-     *            The credentials to login with.
-     */
-    private void login(final Environment environment,
-            final Credentials credentials) {
-        login(1, environment, credentials);
-    }
-
-    /**
-     * Login to the environment with the credentials.
-     * 
      * @param attempt
      *            The attempt number.
      * @param environment
@@ -1029,8 +1045,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param credentials
      *            The credentials to login with.
      */
-    private void login(final Integer attempt, final Environment environment,
-            final Credentials credentials) {
+    private void login(final Integer attempt, final Credentials credentials) {
         logger.logVariable("attempt", attempt);
         logger.logVariable("environment", environment);
         logger.logVariable("credentials", credentials);
@@ -1060,46 +1075,6 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                 xmppSession.processOfflineQueue();
             }
         } catch(final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-
-    /**
-     * Read the archive team.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return A list of jabber ids.
-     */
-    List<JabberId> readArchiveTeamIds(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.readArchiveTeamIds(userId, uniqueId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    InputStream openArchiveDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.openArchiveDocumentVersion(userId, uniqueId, versionId);
-            }
-        } catch (final Throwable t) {
             throw translateError(t);
         }
     }

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.audit;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -30,8 +31,8 @@ class AuditModelImpl extends AbstractModelImpl {
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	AuditModelImpl(final Workspace workspace) {
-		super(workspace);
+	AuditModelImpl(final Environment environment, final Workspace workspace) {
+		super(environment, workspace);
 		this.auditIO = IOFactory.getDefault(workspace).createAuditHandler();
 	}
 

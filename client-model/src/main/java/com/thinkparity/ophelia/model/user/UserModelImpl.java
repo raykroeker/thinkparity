@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -23,8 +24,8 @@ class UserModelImpl extends AbstractModelImpl {
     /**
      * Create a UserModelImpl.
      */
-    UserModelImpl(final Workspace workspace) {
-        super(workspace);
+    UserModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.userIO = IOFactory.getDefault(workspace).createUserIOHandler();
     }
 

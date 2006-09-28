@@ -124,7 +124,7 @@
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
                     icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
-                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
+                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot;"/>
             </config>
         </launch4j>
         <copy todir="${target.release.dir}">

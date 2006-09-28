@@ -3,15 +3,21 @@
  */
 package com.thinkparity.ophelia.model;
 
+import com.thinkparity.codebase.model.Context;
+
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class TestModelImpl extends AbstractModelImpl {
+final class TestModelImpl extends AbstractModelImpl {
 
     /** Create TestModelImpl. */
-    public TestModelImpl() {
-        super(null);
+    TestModelImpl() {
+        super(null, null);
+    }
+
+    Context getTestContext() {
+        return super.getContext();
     }
 }

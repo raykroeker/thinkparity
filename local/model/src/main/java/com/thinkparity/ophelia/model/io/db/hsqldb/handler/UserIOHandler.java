@@ -145,7 +145,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setString(3, user.getOrganization());
         session.setString(4, user.getTitle());
         if(1 != session.executeUpdate())
-            throw new HypersonicException("Could not create user.");
+            throw translateError("Could not create user {0}.", user);
         user.setLocalId(session.getIdentity());
     }
 

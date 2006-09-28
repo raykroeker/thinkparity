@@ -104,39 +104,47 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
+	/** A thinkParity <code>Environment</code>. */
+    protected final Environment environment;
+
 	/** An internal model factory. */
     protected final InternalModelFactory internalModelFactory;
 
 	/** A localization interface. */
 	protected final L18n l18n;
 
-	/** An apache logger. */
+    /** An apache logger. */
 	protected final Log4JWrapper logger;
 
 	/** The thinkParity workspace <code>Preferences</code>. */
 	protected final Preferences preferences;
 
-    /** A thinkParity <code>Workspace</code>. */
+	/** A thinkParity <code>Workspace</code>. */
 	protected final Workspace workspace;
 
-	/** The decryption cipher. */
+    /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-	/** The encryption cipher. */
+    /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
     /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-    /**
-	 * Create an AbstractModelImpl
-	 * 
-	 * @param workspace
-	 *            The parity workspace.
-	 */
-	protected AbstractModelImpl(final Workspace workspace) {
+	/**
+     * Create an AbstractModelImpl
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+	protected AbstractModelImpl(final Environment environment,
+            final Workspace workspace) {
 		super();
-        this.internalModelFactory = new InternalModelFactory(getContext(), workspace);
+        this.environment = environment;
+        this.internalModelFactory = new InternalModelFactory(getContext(),
+                environment, workspace);
 		this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = new Log4JWrapper();
 		this.workspace = workspace;
@@ -543,11 +551,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     protected InternalArchiveModel getArchiveModel() {
-        return ArchiveModel.getInternalModel(getContext(), workspace);
+        return ArchiveModel.getInternalModel(getContext(), environment, workspace);
     }
 
     protected InternalIndexModel getIndexModel() {
-        return IndexModel.getInternalModel(getContext(), workspace);
+        return IndexModel.getInternalModel(getContext(), environment, workspace);
     }
 
     /**
@@ -556,7 +564,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity artifact interface.
      */
 	protected InternalArtifactModel getInternalArtifactModel() {
-		return ArtifactModel.getInternalModel(getContext(), workspace);
+		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
     /**
@@ -565,7 +573,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity audit interface.
      */
     protected InternalAuditModel getInternalAuditModel() {
-		return AuditModel.getInternalModel(getContext(), workspace);
+		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
 	/**
@@ -574,7 +582,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal thinkParity contact interface.
      */
     protected InternalContactModel getInternalContactModel() {
-        return ContactModel.getInternalModel(getContext(), workspace);
+        return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
     /**
@@ -583,7 +591,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal thinkParity container interface.
      */
     protected InternalContainerModel getInternalContainerModel() {
-        return ContainerModel.getInternalModel(getContext(), workspace);
+        return ContainerModel.getInternalModel(getContext(), environment, workspace);
     }
 
 	/**
@@ -592,7 +600,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
-		return DocumentModel.getInternalModel(getContext(), workspace);
+		return DocumentModel.getInternalModel(getContext(), environment, workspace);
 	};
 
 	/**
@@ -601,7 +609,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity download interface.
      */
     protected InternalDownloadModel getInternalDownloadModel() {
-        return DownloadModel.getInternalModel(getContext(), workspace);
+        return DownloadModel.getInternalModel(getContext(), environment, workspace);
     }
 
 	/**
@@ -610,7 +618,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity library interface.
      */
     protected InternalLibraryModel getInternalLibraryModel() {
-        return LibraryModel.getInternalModel(getContext(), workspace);
+        return LibraryModel.getInternalModel(getContext(), environment, workspace);
     }
 
 	/**
@@ -628,7 +636,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity release interface.
      */
     protected InternalReleaseModel getInternalReleaseModel() {
-        return ReleaseModel.getInternalModel(getContext(), workspace);
+        return ReleaseModel.getInternalModel(getContext(), environment, workspace);
     }
 
     /**
@@ -637,7 +645,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity session interface.
      */
 	protected InternalSessionModel getInternalSessionModel() {
-		return SessionModel.getInternalModel(getContext(), workspace);
+		return SessionModel.getInternalModel(getContext(), environment, workspace);
 	}
 
     /**
@@ -646,7 +654,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity system message interface.
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
-		return SystemMessageModel.getInternalModel(getContext(), workspace);
+		return SystemMessageModel.getInternalModel(getContext(), environment, workspace);
 	}
 
     /**
@@ -655,7 +663,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The internal parity user interface.
      */
     protected InternalUserModel getInternalUserModel() {
-        return UserModel.getInternalModel(getContext(), workspace);
+        return UserModel.getInternalModel(getContext(), environment, workspace);
     }
 
     /**
@@ -909,7 +917,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         }
         else {
             final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(errorId, t);
+            logger.logError(t, errorId);
             return ParityErrorTranslator.translateUnchecked(getContext(), errorId, t);
         }
     }

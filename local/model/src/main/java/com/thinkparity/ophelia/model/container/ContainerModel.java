@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
@@ -40,8 +41,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 	 * @return The internal Container interface.
 	 */
 	public static InternalContainerModel getInternalModel(
-            final Context context, final Workspace workspace) {
-		return new InternalContainerModel(workspace, context);
+            final Context context, final Environment environment,
+            final Workspace workspace) {
+		return new InternalContainerModel(context, environment, workspace);
 	}
 
     /**
@@ -49,8 +51,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 	 * 
 	 * @return The Container interface.
 	 */
-	public static ContainerModel getModel(final Workspace workspace) {
-		return new ContainerModel(workspace);
+	public static ContainerModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new ContainerModel(environment, workspace);
 	}
 
     /**
@@ -59,8 +62,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 	 * @param workspace
 	 *		The thinkParity workspace.
 	 */
-	protected ContainerModel(final Workspace workspace) {
-		super(new ContainerModelImpl(workspace));
+	protected ContainerModel(final Environment environment, final Workspace workspace) {
+		super(new ContainerModelImpl(environment, workspace));
 	}
 
     /**
@@ -84,7 +87,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container listener.
      */
     public void addListener(final ContainerListener listener) {
-        synchronized(getImplLock()) { getImpl().addListener(listener); }
+        synchronized(getImplLock()) {
+            getImpl().addListener(listener);
+        }
     }
 
     /**

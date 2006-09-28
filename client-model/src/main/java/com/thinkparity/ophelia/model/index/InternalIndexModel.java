@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -24,8 +25,9 @@ public class InternalIndexModel extends IndexModel {
 	 * @param context
 	 *            The parity context.
 	 */
-	InternalIndexModel(final Workspace workspace, final Context context) {
-		super(workspace);
+	InternalIndexModel(final Context context, final Environment environment,
+            final Workspace workspace) {
+		super(environment, workspace);
 	}
 
     /**

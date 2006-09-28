@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.audit;
 
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -25,8 +26,8 @@ public class AuditModel extends AbstractModel<AuditModelImpl> {
 	 * @return An internal audit model.
 	 */
 	public static InternalAuditModel getInternalModel(final Context context,
-            final Workspace workspace) {
-		return new InternalAuditModel(workspace, context);
+            final Environment environment, final Workspace workspace) {
+		return new InternalAuditModel(context, environment, workspace);
 	}
 
 	/**
@@ -36,8 +37,9 @@ public class AuditModel extends AbstractModel<AuditModelImpl> {
      *      A thinkParity <code>Workspace</code>.
 	 * @return An audit model.
 	 */
-	public static AuditModel getModel(final Workspace workspace) {
-		return new AuditModel(workspace);
+	public static AuditModel getModel(final Environment environment,
+            final Workspace workspace) {
+		return new AuditModel(environment, workspace);
 	}
 
 	/**
@@ -46,7 +48,8 @@ public class AuditModel extends AbstractModel<AuditModelImpl> {
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	protected AuditModel(final Workspace workspace) {
-		super(new AuditModelImpl(workspace));
+	protected AuditModel(final Environment environment,
+            final Workspace workspace) {
+		super(new AuditModelImpl(environment, workspace));
 	}
 }

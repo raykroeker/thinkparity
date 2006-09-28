@@ -14,7 +14,7 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Release;
-
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
@@ -30,7 +30,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 class InstallModelImpl extends AbstractModelImpl {
 
     /** Create InstallModelImpl. */
-    InstallModelImpl(final Workspace workspace) { super(workspace); }
+    InstallModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
+    }
 
     /**
      * Install a release.

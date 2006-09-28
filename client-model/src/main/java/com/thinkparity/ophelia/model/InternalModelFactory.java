@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -33,6 +34,9 @@ public class InternalModelFactory {
     /** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
+    /** A thinkParity <code>Environment</code>. */
+    private final Environment environment;
+
     /**
      * Create InternalModelFactory.
      * 
@@ -41,37 +45,39 @@ public class InternalModelFactory {
      * @param workspace
      *            A thinkParity <code>Workspace</code>.
      */
-    InternalModelFactory(final Context context, final Workspace workspace) {
+    InternalModelFactory(final Context context, final Environment environment,
+            final Workspace workspace) {
         super();
         this.context = context;
+        this.environment = environment;
         this.workspace = workspace;
     }
 
     public InternalArtifactModel getArtifactModel() {
-        return ArtifactModel.getInternalModel(context, workspace);
+        return ArtifactModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalAuditModel getAuditModel() {
-        return AuditModel.getInternalModel(context, workspace);
+        return AuditModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalContactModel getContactModel() {
-        return ContactModel.getInternalModel(context, workspace);
+        return ContactModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalContainerModel getContainerModel() {
-        return ContainerModel.getInternalModel(context, workspace);
+        return ContainerModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalSessionModel getSessionModel() {
-        return SessionModel.getInternalModel(context, workspace);
+        return SessionModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalDocumentModel getDocumentModel() {
-        return DocumentModel.getInternalModel(context, workspace);
+        return DocumentModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalLibraryModel getLibraryModel() {
-        return LibraryModel.getInternalModel(context, workspace);
+        return LibraryModel.getInternalModel(context, environment, workspace);
     }
 }

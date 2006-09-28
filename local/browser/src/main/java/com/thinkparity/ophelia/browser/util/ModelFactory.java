@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.util;
 
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
@@ -189,30 +190,31 @@ public class ModelFactory {
 	 * Initialize the model factory.
 	 * 
 	 */
-	public void initialize(final Workspace workspace) {
+	public void initialize(final Environment environment,
+            final Workspace workspace) {
         Assert.assertIsNull("MODEL FACTORY ALREADY INITIALIZED", this.workspace);
         this.workspace = workspace;
         this.preferences = workspace.getPreferences();
-        initializeModels();
+        initializeModels(environment);
     }
 
     /**
      * Initialize the models.
      *
      */
-    private void initializeModels() {
-        archiveModel = ArchiveModel.getModel(workspace);
-		artifactModel = ArtifactModel.getModel(workspace);
-        containerModel = ContainerModel.getModel(workspace);
-		documentModel = DocumentModel.getModel(workspace);
-        contactModel = ContactModel.getModel(workspace);
-        downloadModel = DownloadModel.getModel(workspace);
-        indexModel = IndexModel.getModel(workspace);
-        installModel = InstallModel.getModel(workspace);
-        profileModel = ProfileModel.getModel(workspace);
-        releaseModel = ReleaseModel.getModel(workspace);
-        sessionModel = SessionModel.getModel(workspace);
-        userModel = UserModel.getModel(workspace);
+    private void initializeModels(final Environment environment) {
+        archiveModel = ArchiveModel.getModel(environment, workspace);
+		artifactModel = ArtifactModel.getModel(environment, workspace);
+        containerModel = ContainerModel.getModel(environment, workspace);
+		documentModel = DocumentModel.getModel(environment, workspace);
+        contactModel = ContactModel.getModel(environment, workspace);
+        downloadModel = DownloadModel.getModel(environment, workspace);
+        indexModel = IndexModel.getModel(environment, workspace);
+        installModel = InstallModel.getModel(environment, workspace);
+        profileModel = ProfileModel.getModel(environment, workspace);
+        releaseModel = ReleaseModel.getModel(environment, workspace);
+        sessionModel = SessionModel.getModel(environment, workspace);
+        userModel = UserModel.getModel(environment, workspace);
         workspaceModel = WorkspaceModel.getModel();
     }
 }

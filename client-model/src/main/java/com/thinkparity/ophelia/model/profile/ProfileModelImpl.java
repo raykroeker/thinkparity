@@ -10,7 +10,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
-
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -36,8 +36,8 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @param workspace
      *      The thinkParity workspace.
      */
-    ProfileModelImpl(final Workspace workspace) {
-        super(workspace);
+    ProfileModelImpl(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
     }
 
@@ -94,6 +94,8 @@ class ProfileModelImpl extends AbstractModelImpl {
                 return profile;
             }
         } catch (final Throwable t) {
+            logger.logError("workspace:{0}", workspace);
+            logger.logError("localUserId:{0}", localUserId());
             throw translateError(t);
         }
     }

@@ -25,7 +25,8 @@ public class Log4JWrapper {
         LOG4J_STACK_FILTER = new StackUtil.Filter() {
             public Boolean accept(final StackTraceElement stackElement) {
                 return !stackElement.getClassName().equals(
-                        Log4JWrapper.class.getName());
+                        Log4JWrapper.class.getName()) &&
+                        !stackElement.getMethodName().equals("logApiId");
             }
         };
     }

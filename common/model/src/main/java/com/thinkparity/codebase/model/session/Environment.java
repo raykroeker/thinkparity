@@ -23,9 +23,6 @@ public class Environment {
     /** Production environment. */
     public static final Environment PRODUCTION;
 
-    /** A localhost production environment. */
-    public static final Environment PRODUCTION_LOCALHOST;
-
     /** Testing environment. */
     public static final Environment TESTING;
 

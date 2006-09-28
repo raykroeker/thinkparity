@@ -23,6 +23,9 @@ public class Environment {
     /** Production environment. */
     public static final Environment PRODUCTION;
 
+    /** A localhost production environment. */
+    public static final Environment PRODUCTION_LOCALHOST;
+
     /** Testing environment. */
     public static final Environment TESTING;
 
@@ -34,6 +37,7 @@ public class Environment {
         DEVELOPMENT_RAYMOND = new Environment("thinkparity.dyndns.org", 5226, Protocol.XMPP);
         DEVELOPMENT_ROBERT = new Environment("thinkparity.dyndns.org", 5228, Protocol.XMPP);
         PRODUCTION = new Environment("thinkparity.dyndns.org", 5222, Protocol.XMPP);
+        PRODUCTION_LOCALHOST = new Environment("localhost", 5222, Protocol.XMPP);
         TESTING = new Environment("thinkparity.dyndns.org", 5224, Protocol.XMPP);
         TESTING_LOCALHOST = new Environment("localhost", 5224, Protocol.XMPP);
     }

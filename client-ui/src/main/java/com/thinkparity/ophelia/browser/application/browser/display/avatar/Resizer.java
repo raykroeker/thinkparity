@@ -8,6 +8,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
@@ -16,6 +17,7 @@ import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
@@ -336,15 +338,18 @@ public class Resizer {
             if (component instanceof BrowserWindow) {
                 browser.resizeBrowserWindow(resizeOffset);
             } else {
-                final Dimension size = component.getSize();
+                Dimension size = component.getSize();
                 size.width += resizeOffset.width;
                 size.height += resizeOffset.height;
-                component.setSize(size);
-                component.validate();
+                size = adjustForMinimumSize(component, size);
+                if (!component.getSize().equals(size)) {
+                    component.setSize(size);
+                    component.validate();
+                }
             }
         }
     }
-    
+        
     /**
      * Resize and move the component.
      * 
@@ -361,14 +366,16 @@ public class Resizer {
             if (component instanceof BrowserWindow) {
                 browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
             } else {
-                final Dimension size = component.getSize();
-                final Point location = component.getLocation();
-                size.width += resizeOffset.width;
-                size.height += resizeOffset.height;
-                location.x += moveOffset.x;
-                location.y += moveOffset.y;
-                component.setBounds(location.x, location.y, (int)size.getWidth(), (int)size.getHeight());
-                component.validate();
+                Rectangle sizeAndLocation = component.getBounds();
+                sizeAndLocation.width += resizeOffset.width;
+                sizeAndLocation.height += resizeOffset.height;
+                sizeAndLocation.x += moveOffset.x;
+                sizeAndLocation.y += moveOffset.y;
+                sizeAndLocation = adjustForMinimumSize(component, sizeAndLocation);
+                if (!component.getBounds().equals(sizeAndLocation)) {
+                    component.setBounds(sizeAndLocation);
+                    component.validate();
+                }
             }
         }
     }
@@ -387,8 +394,58 @@ public class Resizer {
             location.x += moveOffset.x;
             location.y += moveOffset.y;
             component.setLocation(location.x, location.y);
-            component.validate();
         }
+    }
+    
+    /**
+     * Adjust size to account for minimum size.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param size
+     *          The size.
+     *          
+     * @return The adjusted size.
+     */
+    private Dimension adjustForMinimumSize(final Component component, final Dimension size) {
+        Dimension adjustedSize = new Dimension(size);
+        Dimension minSize = component.getMinimumSize();
+        if (size.getWidth() < minSize.getWidth()) {
+            adjustedSize.width = (int)minSize.getWidth();
+        }
+        if (size.getHeight() < minSize.getHeight()) {
+            adjustedSize.height = (int)minSize.getHeight();
+        }
+        
+        return adjustedSize;
+    }
+    
+    /**
+     * Adjust size and move to account for minimum size.
+     * 
+     * @param component
+     *          The component to resize and move.
+     * @param sizeAndLocation
+     *          The rectangle representing size and location.
+     *          
+     * @return The adjusted size and location.
+     */
+    private Rectangle adjustForMinimumSize(final Component component, final Rectangle sizeAndLocation) {
+        Rectangle adjustedSizeAndLocation = new Rectangle(sizeAndLocation);
+        Dimension minSize = component.getMinimumSize();
+        if (sizeAndLocation.getWidth() < minSize.getWidth()) {
+            if (sizeAndLocation.x != component.getLocation().x) {
+                adjustedSizeAndLocation.x += (sizeAndLocation.getWidth() - minSize.getWidth());
+            }
+            adjustedSizeAndLocation.width = (int)minSize.getWidth();
+        }
+        if (sizeAndLocation.getHeight() < minSize.getHeight()) {
+            if (sizeAndLocation.y != component.getLocation().y) {
+                adjustedSizeAndLocation.y += (sizeAndLocation.getHeight() - minSize.getHeight());
+            }
+            adjustedSizeAndLocation.height = (int)minSize.getHeight();
+        }
+        return adjustedSizeAndLocation;
     }
     
     private void formMouseDragged(final java.awt.event.MouseEvent evt, final Component component) {

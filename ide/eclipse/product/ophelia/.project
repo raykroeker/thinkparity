@@ -34,12 +34,14 @@ instruction to &quot;lock herself from [Hamlet&apos;s] resort.&quot;</comment>
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build-plugins.xml - quick-release.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build-plugin-archive.xml - quick-release-install.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.jem.beaninfo.BeanInfoNature</nature>
 	</natures>
 </projectDescription>

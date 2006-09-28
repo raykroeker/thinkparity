@@ -1,5 +1,5 @@
 /*
- * Oct 17, 2005
+ * Created On:  Oct 17, 2005
  */
 package com.thinkparity.ophelia;
 
@@ -73,7 +73,7 @@ public class OpheliaTestUser extends User {
         this.environment = environment;
         this.workspace =
             WorkspaceModel.getModel().getWorkspace(
-                    new File(OpheliaTestCase.testSession.getSessionDirectory(),
+                    new File(OpheliaTestCase.testSession.getOutputDirectory(),
                             "TEST." + username));
         this.workspace.getPreferences().setUsername(username);
         processOfflineQueue();
@@ -124,6 +124,7 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void processOfflineQueue() {
+        assertIsReachable(environment);
         XMPPSession session = null;
         try {
             session = new XMPPSessionImpl();
@@ -142,5 +143,18 @@ public class OpheliaTestUser extends User {
                 throw new RuntimeException(sx);
             }
         }
+    }
+
+	/**
+     * Assert that the environment is online.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param environment
+     *            An environment.
+     */
+    protected void assertIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isReachable(),
+                "Environment {0} is not reachable.", environment);
     }
 }

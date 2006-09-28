@@ -4,10 +4,12 @@
 package com.thinkparity.codebase.junitx;
 
 import java.io.File;
-import java.util.Properties;
 import java.util.logging.LogManager;
 
 import org.apache.log4j.PropertyConfigurator;
+
+import com.thinkparity.codebase.config.Config;
+import com.thinkparity.codebase.config.ConfigFactory;
 
 
 /**
@@ -45,9 +47,11 @@ class TestInitializer {
      *            The test session.
      */
     private void doInitialize(final TestSession testSession) {
-        final Properties log4j = new Properties();
+        final Config log4j = ConfigFactory.newInstance("log4j.properties");
+        final String existingLogger = log4j.getProperty("log4j.logger.com.thinkparity");
+        log4j.setProperty("log4j.logger.com.thinkparity", existingLogger + ",CONSOLE,FILE");
         log4j.setProperty("log4j.appender.FILE.File",
-                new File(testSession.getSessionDirectory(), "junitx.log").getAbsolutePath());
+                new File(testSession.getSessionDirectory(), JUnitX.getShortName() + ".log").getAbsolutePath());
         LogManager.getLogManager().reset();
         PropertyConfigurator.configure(log4j);
     }

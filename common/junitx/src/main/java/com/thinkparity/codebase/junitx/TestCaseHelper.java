@@ -73,12 +73,12 @@ public class TestCaseHelper {
 	private static char[] testTextAlphabet;
 
 	static {
-		testSession = new TestSession(getRootDirectory());
-        TestInitializer.initialize(testSession);
 		try {
+		    testSession = new TestSession(getRootDirectory());
+		    TestInitializer.initialize(testSession);
             getInputFiles();
 		} catch (final IOException iox) {
-            TestCase.fail(createFailMessage(iox));
+            throw new RuntimeException(iox);
 		}
 		Logger.getLogger(JUnitX.class).log(Level.INFO, JUnitX.MESSAGE_INIT);
 	}
@@ -135,7 +135,7 @@ public class TestCaseHelper {
 	 */
 	static File getInputFilesDirectory() {
 		if(null == inputFilesDirectory) {
-			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + "Input");
+			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + " Input");
 			Assert.assertTrue(inputFilesDirectory.mkdir());
 		}
 		return inputFilesDirectory;

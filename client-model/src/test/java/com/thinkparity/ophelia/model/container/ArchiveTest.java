@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Archive Test<br>
@@ -103,6 +104,8 @@ public class ArchiveTest extends ContainerTestCase {
     public void testArchive() {
         datum.containerModel.archive(datum.container.getId());
 
+        assertTrue("The archive event was not fired.", datum.didNotify);
+
         final Container container = datum.containerModel.read(datum.container.getId());
         assertNull(NAME + " - Container is not null.", container);
 
@@ -127,6 +130,7 @@ public class ArchiveTest extends ContainerTestCase {
         addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(archiveModel, container, containerModel);
+        datum.containerModel.addListener(datum);
     }
 
     /**
@@ -134,9 +138,10 @@ public class ArchiveTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
+        datum.containerModel.removeListener(datum);
         datum = null;
         logout(OpheliaTestUser.JUNIT);
+        super.tearDown();
     }
 
     /** Test datum definition. */
@@ -144,12 +149,25 @@ public class ArchiveTest extends ContainerTestCase {
         private final InternalArchiveModel archiveModel;
         private final Container container;
         private final ContainerModel containerModel;
+        private Boolean didNotify;
         private Fixture(final InternalArchiveModel archiveModel,
                 final Container container, final ContainerModel containerModel) {
             super();
             this.archiveModel = archiveModel;
             this.container = container;
             this.containerModel = containerModel;
+            this.didNotify = Boolean.FALSE;
+        }
+        @Override
+        public void containerArchived(final ContainerEvent e) {
+            didNotify = Boolean.TRUE;
+            assertTrue("Event generated is not local.", e.isLocal());
+            assertTrue("Event generated is remote .", !e.isRemote());
+            assertNotNull("The archive event's container is null.", e.getContainer());
+            assertNull("The archive event's document is not null.", e.getDocument());
+            assertNull("The archive event's draft is not null.", e.getDraft());
+            assertNull("The archive event's team member is not null.", e.getTeamMember());
+            assertNull("The archive event's version is not null.", e.getVersion());
         }
     }
 }

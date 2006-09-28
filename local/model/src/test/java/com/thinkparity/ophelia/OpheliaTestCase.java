@@ -29,9 +29,9 @@ public abstract class OpheliaTestCase extends TestCase {
 	static {
         testSession = TestCase.getTestSession();
         // init archive
-		initParityArchive(testSession.getSessionDirectory());
+		initParityArchive(testSession.getOutputDirectory());
 		// init install
-		initParityInstall(testSession.getSessionDirectory());
+		initParityInstall(testSession.getOutputDirectory());
         // reference the class to run the static initializer
         OpheliaTestUser.class.getName();
 	}

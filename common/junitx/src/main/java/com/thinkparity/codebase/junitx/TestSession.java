@@ -4,50 +4,50 @@
 package com.thinkparity.codebase.junitx;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Assert;
+
+import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FileUtil;
 
 /**
  * @author raykroeker@gmail.com
  */
 public class TestSession {
 
-	/**
-	 * The JUnit session data.
-	 * 
-	 */
+	/**  The test session's output directory. */
+    private File outputDirectory;
+
+	/** The session's data. */
 	private final Map<Object,Object> sessionData;
 
-	/**
-	 * Synchronization lock for the session data.
-	 * 
-	 */
+	/** A synchronization lock for the session data. */
 	private final Object sessionDataLock;
 
-	/**
-	 * The JUnit session sessionDirectory.
-	 * 
-	 */
+	/** The test session's root directory. */
 	private final File sessionDirectory;
 
-	/**
-	 * The JUnit session id.
-	 * 
-	 */
+	/** The test session id. */
 	private final String sessionId;
 
 	/**
-	 * Create a TestSession.
-	 * 
-	 */
-	TestSession(final File rootDirectory) {
+     * Create TestSession.
+     * 
+     * @param rootDirectory
+     *            The test session's parent.
+     */
+	TestSession(final File parent) throws IOException {
 		super();
 		this.sessionId = String.valueOf(System.currentTimeMillis());
 		this.sessionData = new Hashtable<Object,Object>(20, 0.75F);
 		this.sessionDataLock = new Object();
-		this.sessionDirectory = createSessionDirectory(rootDirectory);
+		this.sessionDirectory = createSessionDirectory(parent);
 	}
 
 	/**
@@ -63,21 +63,27 @@ public class TestSession {
 		}
 	}
 
-	/**
-	 * Obtain the session sessionDirectory.
-	 * 
-	 * @return The session sessionDirectory.
-	 */
-	public File getSessionDirectory() { return sessionDirectory; }
+    /**
+     * Obtain the session output directory.
+     * 
+     * @return An output directory <code>File</code>.
+     */
+    public File getOutputDirectory() {
+        if (null == outputDirectory) {
+            outputDirectory = new File(sessionDirectory, JUnitX.getShortName() + " Output");
+            Assert.assertTrue(outputDirectory.mkdir());
+        }
+        return outputDirectory;
+    }
 
-	/**
+    /**
 	 * Obtain the session id.
 	 * 
 	 * @return The session id.
 	 */
 	public String getSessionId() { return sessionId; }
 
-	/**
+    /**
 	 * Set session data.
 	 * 
 	 * @param key
@@ -101,13 +107,36 @@ public class TestSession {
 	}
 
 	/**
-	 * Create the session directory.
+	 * Obtain the session sessionDirectory.
 	 * 
-	 * @return The session directory.
+	 * @return The session sessionDirectory.
 	 */
-	private File createSessionDirectory(final File rootDirectory) {
-		final File sessionDirectory = new File(rootDirectory, sessionId);
+	File getSessionDirectory() { return sessionDirectory; }
+
+	/**
+     * Create the session directory. The session directory will use a static
+     * name. It will write the session id to a file within the directory so that
+     * previous session directories can be renamed when encountered.
+     * 
+     * @return The session directory <code>File</code>.
+     */
+	private File createSessionDirectory(final File parent) throws IOException {
+		final File sessionDirectory = new File(parent, JUnitX.getName());
+        if (sessionDirectory.exists()) {
+            final FileSystem fileSystem = new FileSystem(sessionDirectory);
+            final File sessionFile = fileSystem.findFile("/" + JUnitX.getShortName() + ".session");
+            final String sessionId = FileUtil.readString(sessionFile);
+            final Calendar sessionDate = DateUtil.getInstance(Long.valueOf(sessionId));
+            Assert.assertTrue(sessionFile.delete());
+            Assert.assertTrue("Cannot rename old session directory.",
+                    sessionDirectory.renameTo(new File(parent,
+                            MessageFormat.format("{0} {1,date, yyyy-MM-dd HH.mm}",
+                                    JUnitX.getName(), sessionDate.getTime()))));
+        }
 		Assert.assertTrue(sessionDirectory.mkdir());
+        FileUtil.writeBytes(
+                new File(sessionDirectory, JUnitX.getShortName() + ".session"),
+                this.sessionId.getBytes());
 		return sessionDirectory;
 	}
 }

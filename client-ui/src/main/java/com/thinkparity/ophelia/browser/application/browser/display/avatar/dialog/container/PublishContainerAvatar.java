@@ -76,7 +76,7 @@ public class PublishContainerAvatar extends Avatar {
     @Override
     protected List<Component> getComponentsThatSupportMouseMove() {
         List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
-        componentsThatSupportMouseMove.add(explanationJTextArea);
+        componentsThatSupportMouseMove.add(explanationJLabel);
         return componentsThatSupportMouseMove;
     }
 
@@ -114,7 +114,7 @@ public class PublishContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        explanationJTextArea = new javax.swing.JTextArea();
+        explanationJLabel = new javax.swing.JLabel();
         publishContainerJPanel = new javax.swing.JPanel();
         commentJLabel = new javax.swing.JLabel();
         commentJTextField = new javax.swing.JTextField();
@@ -123,18 +123,9 @@ public class PublishContainerAvatar extends Avatar {
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJTextArea.setColumns(20);
-        explanationJTextArea.setEditable(false);
-        explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
-        explanationJTextArea.setLineWrap(true);
-        explanationJTextArea.setRows(5);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJTextArea.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
-        explanationJTextArea.setWrapStyleWord(true);
-        explanationJTextArea.setBorder(null);
-        explanationJTextArea.setFocusable(false);
-        explanationJTextArea.setMinimumSize(new java.awt.Dimension(100, 70));
-        explanationJTextArea.setOpaque(false);
+        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("PublishContainerDialog.BorderTitle"))); // NOI18N
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
@@ -157,12 +148,12 @@ public class PublishContainerAvatar extends Avatar {
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(publishContainerJPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE))
+                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
                     .add(publishContainerJPanelLayout.createSequentialGroup()
                         .add(20, 20, 20)
                         .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)))
+                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         publishContainerJPanelLayout.setVerticalGroup(
@@ -194,15 +185,15 @@ public class PublishContainerAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE))
+                    .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -212,7 +203,7 @@ public class PublishContainerAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -497,7 +488,7 @@ public class PublishContainerAvatar extends Avatar {
     private javax.swing.JButton cancelJButton;
     private javax.swing.JLabel commentJLabel;
     private javax.swing.JTextField commentJTextField;
-    private javax.swing.JTextArea explanationJTextArea;
+    private javax.swing.JLabel explanationJLabel;
     private javax.swing.JScrollPane namesJScrollPane;
     private javax.swing.JTable namesJTable;
     private javax.swing.JButton okJButton;

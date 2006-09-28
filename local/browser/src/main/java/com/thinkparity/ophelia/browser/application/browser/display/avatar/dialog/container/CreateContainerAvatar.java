@@ -52,7 +52,7 @@ public class CreateContainerAvatar extends Avatar {
     @Override
     protected List<Component> getComponentsThatSupportMouseMove() {
         List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
-        componentsThatSupportMouseMove.add(explanationJTextArea);
+        componentsThatSupportMouseMove.add(explanationJLabel);
         return componentsThatSupportMouseMove;
     }
     
@@ -84,26 +84,14 @@ public class CreateContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        explanationJTextArea = new javax.swing.JTextArea();
         newContainerJPanel = new javax.swing.JPanel();
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
+        explanationJLabel = new javax.swing.JLabel();
 
-        explanationJTextArea.setColumns(20);
-        explanationJTextArea.setEditable(false);
-        explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
-        explanationJTextArea.setLineWrap(true);
-        explanationJTextArea.setRows(5);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJTextArea.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
-        explanationJTextArea.setWrapStyleWord(true);
-        explanationJTextArea.setBorder(null);
-        explanationJTextArea.setFocusable(false);
-        explanationJTextArea.setMinimumSize(new java.awt.Dimension(100, 70));
-        explanationJTextArea.setOpaque(false);
-
         newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("NewContainerDialog.BorderTitle"))); // NOI18N
         nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
@@ -148,19 +136,22 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
+        explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
-                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -170,7 +161,7 @@ public class CreateContainerAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -236,26 +227,26 @@ public class CreateContainerAvatar extends Avatar {
      */
     private void prepareExplanationText() {
         // Adjust the embedded assistance if a list of documents is provided.
-        explanationJTextArea.setText(getString("Explanation"));          
+        explanationJLabel.setText(getString("Explanation"));          
         if(null != input) {
             final Integer numFiles = (Integer) ((Data) input).get(DataKey.NUM_FILES);
             if (numFiles > 0) {
                 final List<File> files = getDataFiles((Data) input, DataKey.FILES);
                 if (numFiles == 1) {
                     final String name = (String) files.get(0).getName();
-                    explanationJTextArea.setText(
+                    explanationJLabel.setText(
                             getString("ExplanationForOneFile",
                             new Object[] { name }));
                 } else if (numFiles == 2) {
                     final String name1 = (String) files.get(0).getName();
                     final String name2 = (String) files.get(1).getName();
-                    explanationJTextArea.setText(
+                    explanationJLabel.setText(
                             getString("ExplanationForTwoFiles",
                             new Object[] { name1, name2 }));
                 } else if (numFiles > 2) {
                     final String name1 = (String) files.get(0).getName();
                     final String name2 = (String) files.get(1).getName();
-                    explanationJTextArea.setText(
+                    explanationJLabel.setText(
                             getString("ExplanationForManyFiles",
                             new Object[] { name1, name2, numFiles }));
                 }
@@ -297,7 +288,7 @@ public class CreateContainerAvatar extends Avatar {
       
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelJButton;
-    private javax.swing.JTextArea explanationJTextArea;
+    private javax.swing.JLabel explanationJLabel;
     private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JPanel newContainerJPanel;

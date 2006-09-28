@@ -33,6 +33,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     private Timer searchActivationTimer;
     
     /** The Resizer */
+    @SuppressWarnings("unused")
     private final Resizer resizer;
 
     /** Creates new form BrowserTitleSearch */

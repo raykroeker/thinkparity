@@ -71,6 +71,7 @@ public class BrowserWindow extends AbstractJFrame {
     protected final Persistence persistence;
     
     /** The Resizer */
+    @SuppressWarnings("unused")
     private final Resizer resizer;
 
 	/**
@@ -104,7 +105,7 @@ public class BrowserWindow extends AbstractJFrame {
         setMinimumSize(getMainWindowSize());
         setSize(getMainWindowSize());
 		initComponents();
-        this.resizer = new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
+        resizer = new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
 	}
 
 	/**

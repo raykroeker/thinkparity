@@ -44,6 +44,7 @@ public class BrowserMenuBar extends JMenuBar {
     private final PopupItemFactory popupItemFactory;
     
     /** The Resizer */
+    @SuppressWarnings("unused")
     private final Resizer resizer;
     
     /** Close label icon. */

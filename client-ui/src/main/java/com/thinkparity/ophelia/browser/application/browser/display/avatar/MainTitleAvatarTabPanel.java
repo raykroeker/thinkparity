@@ -60,6 +60,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private Tab selectedTab;
     
     /** The Resizer */
+    @SuppressWarnings("unused")
     private final Resizer resizer;
 
     /** Creates new form BrowserTitleTabs */

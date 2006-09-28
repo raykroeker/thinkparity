@@ -16,11 +16,10 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.hsqldb.util.TableSorter;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.swing.TableSorter;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -337,8 +336,6 @@ public class PublishContainerAvatar extends Avatar {
     private void initColumnSizes(javax.swing.JTable table) {
         TableSorter sorter = (TableSorter)table.getModel();
         CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
-        
-        //CustomTableModel model = (CustomTableModel)table.getModel();
         TableColumn column = null;
         Component comp = null;
         int headerWidth = 0;

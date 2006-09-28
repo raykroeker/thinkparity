@@ -314,16 +314,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
-            // if receiving your own team member added event you have just been
-            // added to the team; so download the entire team.
-            if (jabberId.equals(localUserId())) {
-                final List<JabberId> remoteTeam =
-                    getInternalSessionModel().readArtifactTeamIds(uniqueId);
-                for (final JabberId remoteUser : remoteTeam) {
-                    addTeamMember(artifactId, remoteUser);
-                }
+            if (null == artifactId) {
+                logger.logWarning("Artifact {0} no longer exists.", uniqueId);
             } else {
-                addTeamMember(artifactId, jabberId);
+                // if receiving your own team member added event you have just been
+                // added to the team; so download the entire team.
+                if (jabberId.equals(localUserId())) {
+                    final List<JabberId> remoteTeam =
+                        getInternalSessionModel().readArtifactTeamIds(uniqueId);
+                    for (final JabberId remoteUser : remoteTeam) {
+                        addTeamMember(artifactId, remoteUser);
+                    }
+                } else {
+                    addTeamMember(artifactId, jabberId);
+                }
             }
         } catch (final TrueAssertion ta) {
             if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {

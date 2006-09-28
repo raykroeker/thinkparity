@@ -104,6 +104,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /** The thinkParity xmpp profile interface. */
     private final XMPPProfile xmppProfile;
 
+    /** The thinKParity xmpp system interface. */
+    private final XMPPSystem xmppSystem;
+
 	/**
 	 * The xmpp user interface.
 	 * 
@@ -121,6 +124,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         this.xmppContainer = new XMPPContainer(this);
 		this.xmppContact = new XMPPContact(this);
         this.xmppProfile = new XMPPProfile(this);
+        this.xmppSystem = new XMPPSystem(this);
 		this.xmppUser = new XMPPUser(this);
 	}
 
@@ -537,6 +541,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
     /**
+     * Read the server version.
+     *
+     * @return The server version <code>String</code>.
+     */
+    private String readVersion() {
+        return xmppSystem.readVersion();
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPArtifactListener)
 	 * 
 	 */
@@ -847,6 +860,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			xmppUser.addEventHandlers();
             xmppConnection.login(
                     credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
+            logger.logInfo("{0}", readVersion());
             handleConnectionEstablished();
         } catch (final IllegalStateException isx) {
             logError(isx, "Login attempt {0} failed.", attempt);

@@ -6,18 +6,14 @@ package com.thinkparity.ophelia.browser.application.browser;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.codebase.swing.GradientPainter;
-
 
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;

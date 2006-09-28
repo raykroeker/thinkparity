@@ -3,6 +3,12 @@
  */
 package com.thinkparity.codebase.junitx;
 
+import java.io.File;
+import java.util.Properties;
+import java.util.logging.LogManager;
+
+import org.apache.log4j.PropertyConfigurator;
+
 
 /**
  * @author raymond@thinkparity.com
@@ -39,5 +45,10 @@ class TestInitializer {
      *            The test session.
      */
     private void doInitialize(final TestSession testSession) {
+        final Properties log4j = new Properties();
+        log4j.setProperty("log4j.appender.FILE.File",
+                new File(testSession.getSessionDirectory(), "junitx.log").getAbsolutePath());
+        LogManager.getLogManager().reset();
+        PropertyConfigurator.configure(log4j);
     }
 }

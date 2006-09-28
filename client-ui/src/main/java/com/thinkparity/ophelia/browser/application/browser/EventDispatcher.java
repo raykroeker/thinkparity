@@ -69,10 +69,6 @@ class EventDispatcher {
     private ContactListener createContactListener() {
         return new ContactAdapter() {
             @Override
-            public void outgoingInvitationAccepted(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getOutgoingInvitation().getId(), e.isRemote());
-            }
-            @Override
             public void incomingInvitationAccepted(final ContactEvent e) {
                 browser.fireIncomingContactInvitationAccepted(e.getContact().getId(), e.getIncomingInvitation().getId(), e.isRemote());
             }
@@ -83,6 +79,10 @@ class EventDispatcher {
             @Override
             public void incomingInvitationDeclined(final ContactEvent e) {
                 browser.fireIncomingContactInvitationDeclined(e.getIncomingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingInvitationAccepted(final ContactEvent e) {
+                browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
             public void outgoingInvitationCreated(final ContactEvent e) {
@@ -109,6 +109,11 @@ class EventDispatcher {
     private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
+            public void containerArchived(final ContainerEvent e) {
+                browser.fireContainerUpdated(e.getContainer().getId(), e
+                        .isRemote());
+            }
+            @Override
             public void containerCreated(final ContainerEvent e) {
                 browser.fireContainerCreated(e.getContainer().getId(), e.isRemote());
             }
@@ -117,44 +122,54 @@ class EventDispatcher {
                 browser.fireContainerDeleted(e.getContainer().getId(), Boolean.FALSE);
             }
             @Override
+            public void containerRestored(final ContainerEvent e) {
+                browser.fireContainerUpdated(e.getContainer().getId(), e
+                        .isRemote());
+            }
+            @Override
             public void containerShared(final ContainerEvent e) {
+                browser.fireContainerUpdated(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void containerUpdated(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerUpdated(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void documentAdded(final ContainerEvent e) {
-                browser.fireContainerDocumentAdded(
-                        e.getContainer().getId(), e.getDocument().getId());
+                browser.fireContainerDocumentAdded(e.getContainer().getId(), e
+                        .getDocument().getId(), e.isRemote());
             }
             @Override
             public void documentRemoved(final ContainerEvent e) {
-                browser.fireContainerDocumentRemoved(e.getContainer().getId(), e.getDocument().getId());
+                browser.fireContainerDocumentRemoved(e.getContainer().getId(),
+                        e.getDocument().getId(), e.isRemote());
             }
             @Override
             public void draftCreated(final ContainerEvent e) {
-                browser.fireContainerDraftCreated(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerDraftCreated(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void draftDeleted(final ContainerEvent e) {
-                browser.fireContainerDraftDeleted(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerDraftDeleted(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void draftPublished(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerUpdated(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void teamMemberAdded(final ContainerEvent e) {
-                if(e.isRemote()) {
-                    browser.fireContainerTeamMemberAdded(e.getContainer().getId());
-                }
+                browser.fireContainerTeamMemberAdded(e.getContainer().getId(),
+                        e.isRemote());
             }
             @Override
             public void teamMemberRemoved(ContainerEvent e) {
-                if(e.isRemote()) {
-                    browser.fireContainerTeamMemberRemoved(e.getContainer().getId());
-                }
+                browser.fireContainerTeamMemberRemoved(
+                        e.getContainer().getId(), e.isRemote());
             }
         };     
     }

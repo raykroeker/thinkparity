@@ -237,20 +237,6 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Display the "publish container" dialog.
-     * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    public void displayPublishContainerDialog(final Long containerId) {
-        final Data input = new Data(1);
-        input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
-        setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
-    }
-
-    /**
      * Handle a user error (show an error dialog).
      * 
      * @param messageKey
@@ -259,7 +245,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-    
+
     /**
      * Display an error dialog.
      *
@@ -272,7 +258,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-
+    
     /**
      * Display an error dialog
      * 
@@ -306,6 +292,20 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey,
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
+    }
+
+    /**
+     * Display the "publish container" dialog.
+     * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void displayPublishContainerDialog(final Long containerId) {
+        final Data input = new Data(1);
+        input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
 
     /**
@@ -442,10 +442,7 @@ public class Browser extends AbstractApplication {
      *            The container id.
      */
     public void fireContainerConfirmationReceived(final Long containerId) {
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.FALSE, select); }
-        });
+        syncContainerTabContainer(containerId, Boolean.FALSE, Boolean.FALSE);
     }
 
     /**
@@ -459,12 +456,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerCreated");
-        final Boolean select = Boolean.TRUE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote, select);
-            }
-        });
+        syncContainerTabContainer(containerId, remote, Boolean.TRUE);
     }
 
     /**
@@ -478,14 +470,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDeleted");
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote, select);
-            }
-        });
+        syncContainerTabContainer(containerId, remote, Boolean.FALSE);
     }
-    
+
     /**
      * Notify the application that a document has been added.
      * 
@@ -498,15 +485,11 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.
      */
     public void fireContainerDocumentAdded(final Long containerId,
-            final Long documentId) {
+            final Long documentId, final Boolean remote) {
         setStatus("DocumentCreated");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncDocument(containerId, documentId, Boolean.FALSE);
-            }
-        });
+        syncDocumentTabContainer(containerId, documentId, remote);
     }
-    
+
     /**
      * Notify the application that a document has been deleted.
      * 
@@ -519,15 +502,11 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.
      */
     public void fireContainerDocumentRemoved(final Long containerId,
-            final Long documentId) {
+            final Long documentId, final Boolean remote) {
         setStatus("DocumentDeleted");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncDocument(containerId, documentId, Boolean.FALSE);
-            }
-        });
+        syncDocumentTabContainer(containerId, documentId, remote);
     }
-
+    
     /**
      * Notify the application that the draft has been added.
      * 
@@ -537,12 +516,10 @@ public class Browser extends AbstractApplication {
      *            True if the action was the result of a remote event; false if
      *            the action was a local event.   
      */
-    public void fireContainerDraftCreated(final Long containerId, final Boolean remote) {
+    public void fireContainerDraftCreated(final Long containerId,
+            final Boolean remote) {
         setStatus("ContainerDraftCreated");
-        final Boolean select = !remote;  // Select if the local user did it.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
-        });         
+        syncContainerTabContainer(containerId, remote, !remote);
     }
 
     /**
@@ -556,12 +533,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftDeleted");
-        final Boolean select = !remote;  // Select if the local user did it.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
-        });         
+        syncContainerTabContainer(containerId, remote, !remote);
     }
-    
+
     /**
      * Notify the application that a container has been received (ie. package published)
      *
@@ -575,41 +549,33 @@ public class Browser extends AbstractApplication {
         final ArtifactModel aModel = getArtifactModel();
         aModel.removeFlagSeen(containerId);
 
-        // refresh the container in the main list
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-                public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
-        });
+        syncContainerTabContainer(containerId, Boolean.TRUE, Boolean.FALSE);
     }
-
+    
     /**
      * Notify the application a team member has been added to the container.
      *
      * @param containerId
      *            The container id.
      */
-    public void fireContainerTeamMemberAdded(final Long containerId) {
+    public void fireContainerTeamMemberAdded(final Long containerId,
+            final Boolean remote) {
         setStatus("ContainerTeamMemberAdded");
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
-        });
+        syncContainerTabContainer(containerId, Boolean.TRUE, remote);
     }
-    
+
     /**
      * Notify the application a team member has been removed from the document.
      *
      * @param containerId
      *            The container id.
      */
-    public void fireContainerTeamMemberRemoved(final Long containerId) {
+    public void fireContainerTeamMemberRemoved(final Long containerId,
+            final Boolean remote) {
         setStatus("ContainerTeamMemberRemoved");
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
-        });
+        syncContainerTabContainer(containerId, Boolean.TRUE, remote);
     }
-
+    
     /**
      * Notify the application that a container has in some way been updated.
      *
@@ -621,12 +587,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerUpdated(final Long containerId, final Boolean remote) {
         setStatus("ContainerUpdated");
-        final Boolean select = Boolean.FALSE;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote, select);
-            }
-        });
+        syncContainerTabContainer(containerId, remote, Boolean.FALSE);
     }
 
     /**
@@ -637,11 +598,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireDocumentDraftUpdated(final Long containerId, final Long documentId) {
         setStatus("DocumentUpdated");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncDocument(containerId, documentId, Boolean.FALSE);
-            }
-        });
+        syncDocumentTabContainer(containerId, documentId, Boolean.FALSE);
     }
 
     /**
@@ -654,12 +611,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireDocumentUpdated(final Long documentId, final Boolean remote) {
         setStatus("DocumentUpdated");
-        // refresh the document in the main list
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncDocument(documentId, remote);
-            }
-        });
+        syncDocumentTabContainer(documentId, remote);
     }
 
     /**
@@ -783,7 +735,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
      */
     public Connection getConnection() { return connection; }
@@ -833,12 +785,12 @@ public class Browser extends AbstractApplication {
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-    /**
+	/**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
-    
+
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate()
 	 * 
@@ -851,13 +803,13 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
-
+    
     /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-	/**
+    /**
 	 * Minimize the browser application.
 	 *
 	 */
@@ -884,8 +836,8 @@ public class Browser extends AbstractApplication {
         newS.height += s.height;
         mainWindow.setMainWindowSizeAndLocation(newL, newS);
     }
-    
-    /**
+
+	/**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -903,8 +855,8 @@ public class Browser extends AbstractApplication {
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
-
-	/**
+    
+    /**
      * Resize the browser window.
      * 
      * @param s
@@ -917,7 +869,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSize(newS);
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -937,9 +889,9 @@ public class Browser extends AbstractApplication {
 	 * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
 	 * 
 	 */
-	public void restoreState(final State state) {}    
-  
-	/**
+	public void restoreState(final State state) {}
+
+    /**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
@@ -949,9 +901,9 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitationId);
 		invoke(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, data);
-	}
-
-    /**
+	}    
+  
+	/**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -1038,7 +990,7 @@ public class Browser extends AbstractApplication {
             data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, email);
         invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
     }
-    
+
     /**
      * Run the create container (package) action. The user will
      * determine the container name.
@@ -1047,7 +999,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-
+    
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1058,7 +1010,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-    
+
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1068,7 +1020,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-
+    
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1110,7 +1062,7 @@ public class Browser extends AbstractApplication {
         data.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, data);
     }
-    
+
     /**
      * Run the delete contact action.
      * 
@@ -1137,7 +1089,7 @@ public class Browser extends AbstractApplication {
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
 	}
-  
+    
     /**
 	 * Run the open document version action.
 	 *
@@ -1154,8 +1106,8 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}    
-    
+	}
+  
     /**
      *  Publish the container.
      *  
@@ -1169,7 +1121,7 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });
-    }
+    }    
     
     /**
      * Publish the container.
@@ -1188,7 +1140,7 @@ public class Browser extends AbstractApplication {
         });
     }
     
-	/**
+    /**
      * Run the open contact action.
      * 
      * @param contactId
@@ -1200,7 +1152,7 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-
+    
 	/**
      * Run the profile's remove email action.
      *
@@ -1211,7 +1163,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
 
-    /**
+	/**
      * Run the document rename action.
      * 
      * @param containerId
@@ -1286,7 +1238,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-  
+
     /**
      * Update the user's profile.
      * 
@@ -1320,7 +1272,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-
+  
     /**
      * Run the profile's verify email action.  Since no key is specified; this
      * will display a dialog.
@@ -1389,8 +1341,8 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }        
     }
-    
-	/**
+
+    /**
      * Set the cursor.
      * 
      * @param cursor
@@ -1399,8 +1351,8 @@ public class Browser extends AbstractApplication {
     public void setCursor(Cursor cursor) {
         mainWindow.getContentPane().setCursor(cursor);
     }
-
-    /**
+    
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -1427,7 +1379,7 @@ public class Browser extends AbstractApplication {
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId)
      */
@@ -1435,7 +1387,7 @@ public class Browser extends AbstractApplication {
     protected Avatar getAvatar(final AvatarId id) {
         return super.getAvatar(id);
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
      */
@@ -1566,7 +1518,7 @@ public class Browser extends AbstractApplication {
         displayHelper.displayTab(tabExtension);
     }
 
-	/**
+    /**
      * Display an avatar on the title display.
      * 
      * @param id
@@ -1576,7 +1528,7 @@ public class Browser extends AbstractApplication {
         displayHelper.displayTitle(id);
     }
 
-    /** Dispose the main window. */
+	/** Dispose the main window. */
     private void disposeBrowserWindow() {
         Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispose();
@@ -1600,7 +1552,7 @@ public class Browser extends AbstractApplication {
         }
 	}
 
-	/**
+    /**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
@@ -1608,7 +1560,7 @@ public class Browser extends AbstractApplication {
         return (ConfirmDialog) getAvatar(AvatarId.DIALOG_CONFIRM);
     }
 
-    /**
+	/**
 	 * Obtain the file chooser.
 	 * 
 	 * @return The file chooser.
@@ -1633,7 +1585,7 @@ public class Browser extends AbstractApplication {
         return (MainStatusAvatar) getAvatar(AvatarId.MAIN_STATUS);
     }
 
-	/**
+    /**
      * Obtain the main title avatar.
      * 
      * @return The main title avatar.
@@ -1642,7 +1594,7 @@ public class Browser extends AbstractApplication {
         return (MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE);
     }
 
-    /**
+	/**
      * Obtain the tab input from the main title avatar.
      * 
      * @return A tab.
@@ -1650,7 +1602,7 @@ public class Browser extends AbstractApplication {
     private MainTitleAvatar.TabId getMainTitleAvatarTab() {
         return (MainTitleAvatar.TabId) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB_ID);
     }
-    
+
     /**
      * Obtain the contact tab avatar.
      * 
@@ -1659,7 +1611,7 @@ public class Browser extends AbstractApplication {
     private ContactAvatar getTabContactAvatar() {
         return (ContactAvatar) getAvatar(AvatarId.TAB_CONTACT);
     }
-
+    
     /**
      * Get the container tab avatar.
      * 
@@ -1669,7 +1621,7 @@ public class Browser extends AbstractApplication {
         return (ContainerAvatar) getAvatar(AvatarId.TAB_CONTAINER);
     }
 
-	private void invoke(final ActionId actionId, final Data data) {
+    private void invoke(final ActionId actionId, final Data data) {
 		try {
 			getAction(actionId).invoke(data);
 		} catch(final Throwable t) {
@@ -1679,15 +1631,15 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-    private Boolean isBrowserWindowMinimized() {
+	private Boolean isBrowserWindowMinimized() {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
 
-	private Boolean isBrowserWindowOpen() {
+    private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-    private void open(final WindowId windowId,
+	private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
 
@@ -1697,7 +1649,7 @@ public class Browser extends AbstractApplication {
         window.open(avatar);
     }
 
-	/**
+    /**
 	 * Open the main browser window.
 	 *
 	 */
@@ -1707,7 +1659,7 @@ public class Browser extends AbstractApplication {
 		mainWindow.open();
 	}
 
-    private void reOpenMainWindow() {
+	private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         displayHelper.setBrowserWindow(mainWindow);
         mainWindow.reOpen();
@@ -1781,5 +1733,62 @@ public class Browser extends AbstractApplication {
             input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
         }
         getMainStatusAvatar().setInput((Data) input.clone());
+    }
+
+    /**
+     * Synchronize a container within the container tab.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            The remote event indicator.
+     * @param select
+     *            The selection indicator.
+     */
+    private void syncContainerTabContainer(final Long containerId,
+            final Boolean remote, final Boolean select) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().syncContainer(containerId, remote, select);
+            }
+        });        
+    }
+
+    /**
+     * Synchronize a container within the container tab.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            The remote event indicator.
+     * @param select
+     *            The selection indicator.
+     */
+    private void syncDocumentTabContainer(final Long documentId,
+            final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().syncDocument(documentId, remote);
+            }
+        });        
+    }
+
+    /**
+     * Synchronize a container within the container tab.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            The remote event indicator.
+     * @param select
+     *            The selection indicator.
+     */
+    private void syncDocumentTabContainer(final Long containerId,
+            final Long documentId, final Boolean remote) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().syncDocument(containerId, documentId, remote);
+            }
+        });        
     }
 }

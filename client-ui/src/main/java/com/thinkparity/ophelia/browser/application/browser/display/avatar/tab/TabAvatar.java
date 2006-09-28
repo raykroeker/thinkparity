@@ -506,7 +506,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      * Save the current selection cell.
      *
      */
-    private void saveSelection() {
+    protected void saveSelection() {
         putClientProperty(ClientProperty.SAVE_SELECTION, getSelectedIndex());
     }
 
@@ -514,7 +514,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
      * Restore the saved selection.
      *
      */
-    private void restoreSelection() {
+    protected void restoreSelection() {
         final Integer selection =
             (Integer) getClientProperty(ClientProperty.SAVE_SELECTION);
         tabJList.setSelectedIndex(selection);

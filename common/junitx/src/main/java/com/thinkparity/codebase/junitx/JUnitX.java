@@ -20,11 +20,11 @@ public class JUnitX {
 
 	public static String getName() { return "JUnit eXtensions"; }
 
-	public static String getProvider() { return "raykroeker.com"; }
+	public static String getProvider() { return "thinkParity Solutions Inc."; }
 
 	public static String getShortName() { return "jUnitX"; }
 
-	public static String getVersion() { return "1.0.1"; }
+	public static String getVersion() { return "2006.09"; }
 
 	/**
 	 * Create a JUnitX [Singelton]

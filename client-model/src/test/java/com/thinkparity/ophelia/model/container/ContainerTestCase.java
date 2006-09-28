@@ -103,46 +103,46 @@ abstract class ContainerTestCase extends ModelTestCase {
      */
     protected abstract class Fixture implements ContainerListener {
         public void containerArchived(ContainerEvent e) {
-            fail(getName() + " - Container archived event fired.");
+            fail(getName() + " - Container archived event was fired.");
         }
         public void containerClosed(ContainerEvent e) {
-            fail(getName() + " [CONTAINER CLOSED EVENT FIRED]");
+            fail(getName() + " - Container closed event was fired.");
         }
         public void containerCreated(ContainerEvent e) {
-            fail(getName() + " [CONTAINER CREATED EVENT FIRED]");
+            fail(getName() + " - Container created event was fired.");
         }
         public void containerDeleted(ContainerEvent e) {
-            fail(getName() + " [CONTAINER DELETED EVENT FIRED]");
+            fail(getName() + " - Container deleted event was fired.");
         }
-        public void containerReactivated(ContainerEvent e) {
-            fail(getName() + " [CONTAINER REACTIVATED EVENT FIRED]");
+        public void containerRestored(ContainerEvent e) {
+            fail(getName() + " - Container restored event was fired.");
         }
         public void containerShared(ContainerEvent e) {
-            fail(getName() + " CONTAINER SHARED EVENT FIRED");
+            fail(getName() + " - Container shared event was fired.");
         }
         public void containerUpdated(ContainerEvent e) {
-            fail(getName() + " [CONTAINER UPDATED EVENT FIRED]");
+            fail(getName() + " - Container updated event was fired.");
         }
         public void documentAdded(ContainerEvent e) {
-            fail(getName() + " [DOCUMENT ADDED EVENT FIRED]");
+            fail(getName() + " - Document added event was fired.");
         }
         public void documentRemoved(ContainerEvent e) {
-            fail(getName() + " [DOCUMENT REMOVED EVENT FIRED]");
+            fail(getName() + " - Document removed event was fired.");
         }
         public void draftCreated(ContainerEvent e) {
-            fail(getName() + " [DRAFT CREATED EVENT FIRED]");
+            fail(getName() + " - Draft created event was fired.");
         }
         public void draftDeleted(ContainerEvent e) {
-            fail(getName() + " [CONTAINER DRAFT DELETED EVENT FIRED]");
+            fail(getName() + " - Draft deleted event was fired.");
         }
         public void draftPublished(ContainerEvent e) {
-            fail(getName() + " [DRAFT PUBLISHED EVENT FIRED]");
+            fail(getName() + " - Draft published event was fired.");
         }
         public void teamMemberAdded(ContainerEvent e) {
-            fail(getName() + " [TEAM MEMBER ADDED EVENT FIRED]");
+            fail(getName() + " - Team member added event was fired.");
         }
         public void teamMemberRemoved(ContainerEvent e) {
-            fail(getName() + " [TEAM MEMBER REMOVED EVENT FIRED]");
+            fail(getName() + " - Team member removed event was fired.");
         }
     }
 }

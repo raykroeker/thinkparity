@@ -188,7 +188,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         try {
-            assertDraftIsModified("[DRAFT IS NOT MODIFIED]", documentId);
+            assertDraftIsModified("Draft is not modified.", documentId);
             final LocalFile localFile = getLocalFile(read(documentId));
             final InputStream content = localFile.openStream();
             try {

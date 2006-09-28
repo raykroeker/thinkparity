@@ -124,14 +124,19 @@ public class TestSession {
 		final File sessionDirectory = new File(parent, JUnitX.getName());
         if (sessionDirectory.exists()) {
             final FileSystem fileSystem = new FileSystem(sessionDirectory);
-            final File sessionFile = fileSystem.findFile("/" + JUnitX.getShortName() + ".session");
+            final String sessionFileName = JUnitX.getShortName() + ".session";
+
+            final File sessionFile = fileSystem.findFile("/" + sessionFileName);
             final String sessionId = FileUtil.readString(sessionFile);
             final Calendar sessionDate = DateUtil.getInstance(Long.valueOf(sessionId));
-            Assert.assertTrue(sessionFile.delete());
+
+            final File newSessionDirectory = new File(parent,
+                    MessageFormat.format("{0} {1,date, yyyy-MM-dd HH.mm}",
+                            JUnitX.getName(), sessionDate.getTime()));
             Assert.assertTrue("Cannot rename old session directory.",
-                    sessionDirectory.renameTo(new File(parent,
-                            MessageFormat.format("{0} {1,date, yyyy-MM-dd HH.mm}",
-                                    JUnitX.getName(), sessionDate.getTime()))));
+                    sessionDirectory.renameTo(newSessionDirectory));
+            final File newSessionFile = new File(newSessionDirectory, sessionFileName);
+            Assert.assertTrue("Cannot delete session file.", newSessionFile.delete());
         }
 		Assert.assertTrue(sessionDirectory.mkdir());
         FileUtil.writeBytes(

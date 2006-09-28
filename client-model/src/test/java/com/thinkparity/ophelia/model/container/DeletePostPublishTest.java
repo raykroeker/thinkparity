@@ -3,9 +3,16 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
+import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
@@ -25,11 +32,37 @@ public class DeletePostPublishTest extends ContainerTestCase {
 
     /** Test the delete api. */
     public void testDelete() {
-        datum.containerModel.delete(datum.container.getId());
+        final List<ContainerVersion> versions =
+            datum.containerModel.readVersions(datum.container.getId());
+        final Map<ContainerVersion, List<Document>> documents = new HashMap<ContainerVersion, List<Document>>();
+        for (final ContainerVersion version : versions) {
+            documents.put(version,
+                    datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId()));
+        }
 
-        final Container container = datum.containerModel.read(datum.container.getId());
-        assertNull(NAME + " [CONTAINER IS NOT NULL]", container);
-        assertTrue(NAME + " [CONTAINER DELETION EVENT NOT FIRED]", datum.didNotify);
+        datum.containerModel.delete(datum.container.getId());
+        assertTrue("Container deleted event not fired.", datum.didNotify);
+
+        final Container postDeleteContainer = datum.containerModel.read(datum.container.getId());
+        assertNull(NAME + " - Deleted container is not null.", postDeleteContainer);
+
+        final List<ContainerVersion> postDeleteVersions =
+            datum.containerModel.readVersions(datum.container.getId());
+        assertNotNull(NAME + " - Deleted container versions is null.", postDeleteVersions);
+        assertEquals(NAME + " - Deleted versions' size does not match expectation.", 0, postDeleteVersions.size());
+
+        List<Document> postDeleteDocuments;
+        Document postDeleteDocument;
+        for (final ContainerVersion version : versions) {
+            postDeleteDocuments = datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId());   
+            assertNotNull(NAME + " - Deleted container documents is null.", postDeleteDocuments);
+            assertEquals(NAME + " - Deleted container documents' size does not match expectation.", 0, postDeleteDocuments.size());
+
+            for (final Document document : documents.get(version)) {
+                postDeleteDocument = datum.documentModel.get(document.getId());
+                assertNull(NAME + " - Deleted document is not null.", postDeleteDocument);
+            }
+        }
     }
 
     /**
@@ -44,7 +77,7 @@ public class DeletePostPublishTest extends ContainerTestCase {
         addDocuments(OpheliaTestUser.JUNIT, container);
         modifyDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
-        datum = new Fixture(container, containerModel);
+        datum = new Fixture(container, containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
         datum.containerModel.addListener(datum);
     }
 
@@ -64,11 +97,14 @@ public class DeletePostPublishTest extends ContainerTestCase {
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
+        private final DocumentModel documentModel;
         private Fixture(final Container container,
-                final ContainerModel containerModel) {
+                final ContainerModel containerModel,
+                final DocumentModel documentModel) {
             this.containerModel = containerModel;
             this.container = container;
             this.didNotify = Boolean.FALSE;
+            this.documentModel = documentModel;
         }
         @Override
         public void containerDeleted(ContainerEvent e) {

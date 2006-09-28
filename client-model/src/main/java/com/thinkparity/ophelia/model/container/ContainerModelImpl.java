@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
@@ -24,6 +25,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
@@ -40,7 +42,9 @@ import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
+import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
+import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -59,6 +63,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @version 1.1.2.3
  */
 class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
+
+    /** The artifact io layer. */
+    private final ArtifactIOHandler artifactIO;
 
     /** A container audit generator. */
     private final ContainerAuditor auditor;
@@ -96,6 +103,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     /** The default container version filter. */
     private final Filter<? super ArtifactVersion> defaultVersionFilter;
 
+    /** The document io layer. */
+    private final DocumentIOHandler documentIO;
+
     /** A local event generator. */
     private final ContainerEventGenerator localEventGenerator;
 
@@ -110,8 +120,10 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     ContainerModelImpl(final Environment environment, final Workspace workspace) {
         super(environment, workspace);
+        this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
         this.auditor = new ContainerAuditor(internalModelFactory);
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
+        this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = FilterManager.createDefault();
@@ -1581,19 +1593,20 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("uniqueId", uniqueId);
         try {
             final InternalArchiveModel archiveModel = getArchiveModel();
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final InternalUserModel userModel = getInternalUserModel();
             // restore container info
             final Container container = archiveModel.readContainer(uniqueId);
             final JabberId updatedByJabberId =
                 JabberIdBuilder.parseUsername(container.getUpdatedBy());
             containerIO.create(container);
-            artifactModel.createRemoteInfo(container.getId(),
-                    updatedByJabberId, container.getUpdatedOn());
+            artifactIO.createRemoteInfo(container.getId(), updatedByJabberId,
+                    container.getUpdatedOn());
             // restore team info
             final List<JabberId> teamIds = archiveModel.readTeamIds(uniqueId);
             for (final JabberId teamId : teamIds) {
-                artifactModel.addTeamMember(container.getId(), teamId);
+                artifactIO.createTeamRel(
+                        container.getId(),
+                        userModel.readLazyCreate(teamId).getLocalId());
             }
             // restore version info
             final List<ContainerVersion> versions =
@@ -1601,22 +1614,31 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             List<Document> documents;
             List<DocumentVersion> documentVersions;
             InputStream documentVersionStream;
+            DocumentVersionContent versionContent;
             for (final ContainerVersion version : versions) {
                 version.setArtifactId(container.getId());
                 containerIO.createVersion(version);
                 // restore version links
                 documents = archiveModel.readDocuments(uniqueId, version.getVersionId());
                 for (final Document document : documents) {
+                    documentIO.create(document);
+                    artifactIO.createRemoteInfo(document.getId(),
+                            updatedByJabberId, document.getUpdatedOn());
                     documentVersions = archiveModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
                     for (final DocumentVersion documentVersion : documentVersions) {
+                        documentVersion.setArtifactId(document.getId());
                         documentVersionStream =
-                            archiveModel.openDocumentVersion(uniqueId, documentVersion.getVersionId());
+                            archiveModel.openDocumentVersion(
+                                    document.getUniqueId(), documentVersion.getVersionId());
+                        versionContent = new DocumentVersionContent();
                         try {
-                            documentModel.create(document.getName(), documentVersionStream);
+                            versionContent.setContent(StreamUtil.read(documentVersionStream));
                         } finally {
                             documentVersionStream.close();
                         }
-                        documentModel.createVersion(document.getId());
+                        versionContent.setVersion(documentVersion);
+                        documentIO.createVersion(documentVersion, versionContent);
+
                         containerIO.addVersion(container.getId(),
                                 version.getVersionId(), document.getId(),
                                 documentVersion.getVersionId(),
@@ -1624,8 +1646,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     }
                 }
             }
-
             archiveModel.restore(uniqueId);
+            notifyContainerRestored(read(container.getId()), localEventGenerator);
             
         } catch (final Throwable t) {
             throw translateError(t);
@@ -2016,15 +2038,17 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final List<ContainerVersion> versions = readVersions(containerId);
         List<Document> documents;
         for (final ContainerVersion version : versions) {
+            documents = containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
+
             // remove the version's artifact versions
             containerIO.removeVersions(containerId, version.getVersionId());
 
-            documents = containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
             for(final Document document : documents) {
                 documentModel.delete(document.getId());
             }
             // delete the version
             containerIO.deleteVersion(containerId, version.getVersionId());
+
         }
         // delete the index
         getIndexModel().deleteContainer(containerId);
@@ -2200,6 +2224,23 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             public void notifyListener(final ContainerListener listener) {
                 listener.draftPublished(eventGenerator.generate(container,
                         draft, version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container restored notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerRestored(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerRestored(eventGenerator.generate(container));
             }
         });
     }

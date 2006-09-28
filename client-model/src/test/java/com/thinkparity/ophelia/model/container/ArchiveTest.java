@@ -3,13 +3,17 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
+import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
@@ -102,19 +106,45 @@ public class ArchiveTest extends ContainerTestCase {
 
     /** Test the archive api. */
     public void testArchive() {
+        final List<ContainerVersion> versions =
+            datum.containerModel.readVersions(datum.container.getId());
+        final Map<ContainerVersion, List<Document>> documents = new HashMap<ContainerVersion, List<Document>>();
+        for (final ContainerVersion version : versions) {
+            documents.put(version,
+                    datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId()));
+        }
+
         datum.containerModel.archive(datum.container.getId());
-
         assertTrue("The archive event was not fired.", datum.didNotify);
-
-        final Container container = datum.containerModel.read(datum.container.getId());
-        assertNull(NAME + " - Container is not null.", container);
 
         final Container archivedContainer =
             datum.archiveModel.readContainer(datum.container.getUniqueId());
         assertNotNull(NAME + " - Archived container is null.", archivedContainer);
         final List<ContainerVersion> archivedVersions =
             datum.archiveModel.readContainerVersions(datum.container.getUniqueId());
-        assertNotNull(NAME + " - Archived container versions are null.", archivedVersions);
+        assertNotNull(NAME + " - Archived container versions is null.", archivedVersions);
+        assertEquals(NAME + " - Archived container versions size is wrong.", 1, archivedVersions.size());
+
+        final Container postArchiveContainer = datum.containerModel.read(datum.container.getId());
+        assertNull(NAME + " - Archived container is not null.", postArchiveContainer);
+
+        final List<ContainerVersion> postArchiveVersions =
+            datum.containerModel.readVersions(datum.container.getId());
+        assertNotNull(NAME + " - Archived container versions is null.", postArchiveVersions);
+        assertEquals(NAME + " - Archived versions' size does not match expectation.", 0, postArchiveVersions.size());
+
+        List<Document> postArchiveDocuments;
+        Document postArchiveDocument;
+        for (final ContainerVersion version : versions) {
+            postArchiveDocuments = datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId());   
+            assertNotNull(NAME + " - Archived container documents is null.", postArchiveDocuments);
+            assertEquals(NAME + " - Archived container documents' size does not match expectation.", 0, postArchiveDocuments.size());
+
+            for (final Document document : documents.get(version)) {
+                postArchiveDocument = datum.documentModel.get(document.getId());
+                assertNull(NAME + " - Archived document is not null.", postArchiveDocument);
+            }
+        }
     }
 
     /**
@@ -129,7 +159,7 @@ public class ArchiveTest extends ContainerTestCase {
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
-        datum = new Fixture(archiveModel, container, containerModel);
+        datum = new Fixture(archiveModel, container, containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
         datum.containerModel.addListener(datum);
     }
 
@@ -150,13 +180,16 @@ public class ArchiveTest extends ContainerTestCase {
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
+        private final DocumentModel documentModel;
         private Fixture(final InternalArchiveModel archiveModel,
-                final Container container, final ContainerModel containerModel) {
+                final Container container, final ContainerModel containerModel,
+                final DocumentModel documentModel) {
             super();
             this.archiveModel = archiveModel;
             this.container = container;
             this.containerModel = containerModel;
             this.didNotify = Boolean.FALSE;
+            this.documentModel = documentModel;
         }
         @Override
         public void containerArchived(final ContainerEvent e) {

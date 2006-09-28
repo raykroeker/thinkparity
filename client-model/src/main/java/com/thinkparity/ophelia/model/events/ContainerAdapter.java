@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
  * @see ContainerModel#addListener
  */
 public class ContainerAdapter implements ContainerListener {
-
+    
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerArchived(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
@@ -36,6 +36,11 @@ public class ContainerAdapter implements ContainerListener {
      * 
      */
     public void containerDeleted(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRestored(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerRestored(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerShared(com.thinkparity.ophelia.model.events.ContainerEvent)

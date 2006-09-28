@@ -740,8 +740,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @throws FileNotFoundException
      * @throws IOException
      * @see DocumentModel#updateDraft(Long, InputStream)
+     * @return The file that contains the new content.
      */
-    protected void modifyDocument(final OpheliaTestUser testUser,
+    protected File modifyDocument(final OpheliaTestUser testUser,
             final Document document) throws FileNotFoundException, IOException {
         final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
         final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
@@ -757,6 +758,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } finally {
             content.close();
         }
+        return tempFile;
     }
 
     /**

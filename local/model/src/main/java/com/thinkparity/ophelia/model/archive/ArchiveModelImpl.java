@@ -85,13 +85,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    Container readContainer(final UUID containerUniqueId) {
+    Container readContainer(final UUID uniqueId) {
         logger.logApiId();
-        logger.logVariable("containerUniqueId", containerUniqueId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             assertArchiveOnline();
-            return getInternalSessionModel().readArchiveContainer(
-                    localUserId(), containerUniqueId);
+            // HACK A quck'n'dirty check to see if the container has exists
+            // locally
+            if (null != getInternalArtifactModel().readId(uniqueId)) {
+                return null;
+            } else {
+                return getInternalSessionModel().readArchiveContainer(
+                        localUserId(), uniqueId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

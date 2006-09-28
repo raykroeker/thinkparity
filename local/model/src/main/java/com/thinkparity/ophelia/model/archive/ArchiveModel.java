@@ -183,4 +183,10 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
                     documentUniqueId, filter);
         }
     }
+
+    public Container readContainer(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readContainer(uniqueId);
+        }
+    }
 }

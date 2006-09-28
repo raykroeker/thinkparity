@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -48,12 +47,6 @@ public class InternalArchiveModel extends ArchiveModel implements InternalModel 
             final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().openDocumentVersion(uniqueId, versionId);
-        }
-    }
-
-    public Container readContainer(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readContainer(uniqueId);
         }
     }
 

@@ -58,14 +58,17 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
     /** The selected tab. */
     private Tab selectedTab;
+    
+    /** The Resizer */
+    private final Resizer resizer;
 
     /** Creates new form BrowserTitleTabs */
     public MainTitleAvatarTabPanel() {
         super();
         this.allTabs = new HashMap<TabId, Tab>();
         this.pluginTabs = new HashMap<TabExtension, Tab>();
-        setResizeEdges(Resizer.FormLocation.LEFT);
         initComponents();
+        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.LEFT);
     }
 
     /**

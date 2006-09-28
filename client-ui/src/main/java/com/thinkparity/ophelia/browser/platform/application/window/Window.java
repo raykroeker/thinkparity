@@ -12,7 +12,6 @@ import javax.swing.JDialog;
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
-
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
@@ -132,6 +131,10 @@ public abstract class Window extends AbstractJDialog {
         windowPanel.addPanel(avatar);
 
         add(windowPanel);
+        
+        // Install the resizer here; if done earlier then the resizer
+        // can't successfully get the window ancestor.
+        avatar.installResizer();
     }
 
     /**

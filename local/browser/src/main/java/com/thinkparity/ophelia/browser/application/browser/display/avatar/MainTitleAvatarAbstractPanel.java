@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.event.MouseInputAdapter;
-
 import com.thinkparity.codebase.swing.AbstractJPanel;
+
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
 
 /**
@@ -24,12 +23,6 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
     /** The main title avatar. */
     protected MainTitleAvatar mainTitleAvatar;
 
-    /** Used to drag the window by this avatar. */
-    private final MouseInputAdapter mouseInputAdapter;
-        
-    /** The Resizer */
-    private final Resizer resizer;
-
     /**
      * Create MainTitleAvatarAbstractPanel.
      * 
@@ -38,25 +31,6 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
      */
     protected MainTitleAvatarAbstractPanel() {
         super();
-        this.resizer = new Resizer(null, this);
-        this.mouseInputAdapter = new MouseInputAdapter() {
-            int offsetX;
-            int offsetY;
-            public void mouseDragged(final MouseEvent e) {
-                if (!resizer.isResizeDragging()) {                
-                    mainTitleAvatar.getController().moveBrowserWindow(
-                            new Point(
-                                    e.getPoint().x - offsetX,
-                                    e.getPoint().y - offsetY));
-                }
-            }
-            public void mousePressed(final MouseEvent e) {
-                offsetX = e.getPoint().x;
-                offsetY = e.getPoint().y;
-            }
-        };
-        addMouseListener(mouseInputAdapter);
-        addMouseMotionListener(mouseInputAdapter);
     }
 
     /**
@@ -75,13 +49,15 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
      */
     protected void setMainTitleAvatar(final MainTitleAvatar mainTitleAvatar) {
         this.mainTitleAvatar = mainTitleAvatar;
-        resizer.setBrowser(mainTitleAvatar.getController());
     }
-
+    
     /**
-     * Set the behavior of resizing.
+     * Obtain the thinkParity browser application.
+     * 
+     * @return The thinkParity browser application.
      */
-    protected void setResizeEdges(Resizer.FormLocation formLocation) {
-        resizer.setResizeEdges(formLocation);        
+    protected Browser getBrowser() {
+        final ApplicationRegistry applicationRegistry = new ApplicationRegistry();
+        return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
     }
 }

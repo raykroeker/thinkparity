@@ -287,7 +287,16 @@ public class ContainerCell extends DefaultTabCell {
             if (needSeparator) {
                 jPopupMenu.addSeparator(); 
             }
-        }               
+        } 
+        
+        // TODO remove this code section, it is here for debug only.
+        if(connection != Connection.ONLINE) {
+            if (container.isDraft() && container.isLocalDraft()) {
+                final Data publishData = new Data(1);
+                publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
+            }
+        }                  
         
         if (container.isDraft() && container.isLocalDraft()) {
             final Data addDocumentData = new Data(2);

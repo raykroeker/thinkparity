@@ -21,6 +21,7 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.platform.application.display.Display;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
@@ -68,6 +69,9 @@ public class BrowserWindow extends AbstractJFrame {
 
     /** A parity persistence. */
     protected final Persistence persistence;
+    
+    /** The Resizer */
+    private final Resizer resizer;
 
 	/**
 	 * Create a BrowserWindow.
@@ -100,6 +104,7 @@ public class BrowserWindow extends AbstractJFrame {
         setMinimumSize(getMainWindowSize());
         setSize(getMainWindowSize());
 		initComponents();
+        this.resizer = new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
 	}
 
 	/**

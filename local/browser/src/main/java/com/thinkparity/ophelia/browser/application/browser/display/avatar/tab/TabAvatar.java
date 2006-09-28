@@ -18,6 +18,7 @@ import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCellRenderer;
@@ -53,8 +54,8 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         this.id = id;
         this.menuItemFactory = PopupItemFactory.getInstance();
         this.model = model;
-        setResizeEdges(Resizer.FormLocation.MIDDLE);
         initComponents();
+        installResizer();
     }
 
     /**
@@ -71,6 +72,22 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     @Override
     public final State getState() {
         return null;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     */
+    @Override
+    protected ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.MIDDLE;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isSupportMouseMove()
+     */
+    @Override
+    protected Boolean isSupportMouseMove() {
+        return Boolean.FALSE;
     }
 
     /**

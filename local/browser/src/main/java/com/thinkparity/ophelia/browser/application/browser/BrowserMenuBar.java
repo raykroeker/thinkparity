@@ -47,9 +47,6 @@ public class BrowserMenuBar extends JMenuBar {
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
     
-    /** Used to drag the window by this avatar. */
-    private final MouseInputAdapter mouseInputAdapter;
-    
     /** The Resizer */
     private final Resizer resizer;
     
@@ -106,27 +103,7 @@ public class BrowserMenuBar extends JMenuBar {
         this.browser = browser;
         this.localization = new JFrameLocalization("BrowserWindow.Menu");        
         this.popupItemFactory = PopupItemFactory.getInstance();
-        this.resizer = new Resizer(browser, this, Resizer.FormLocation.TOP);
-       
-        // Support moving the dialog
-        this.mouseInputAdapter = new MouseInputAdapter() {
-            int offsetX;
-            int offsetY;
-            public void mouseDragged(final MouseEvent e) {
-                if (!resizer.isResizeDragging()) {
-                    browser.moveBrowserWindow(
-                            new Point(
-                                    e.getPoint().x - offsetX,
-                                    e.getPoint().y - offsetY));
-                }
-            }
-            public void mousePressed(MouseEvent e) {
-                offsetX = e.getPoint().x;
-                offsetY = e.getPoint().y;
-            }
-        };
-        addMouseListener(mouseInputAdapter);
-        addMouseMotionListener(mouseInputAdapter);
+        this.resizer = new Resizer(browser, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
 
         // Create JMenus
         final JMenu newMenu = MenuFactory.create(localization.getString("New"),

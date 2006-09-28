@@ -4,10 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -15,6 +11,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
@@ -31,32 +28,11 @@ public class MainTitleAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    /** Used to drag the window by this avatar. */
-    private final MouseInputAdapter mouseInputAdapter;
-
     /** Creates MainTitleAvatar. */
     public MainTitleAvatar() {
         super("BrowserTitle");
-        this.mouseInputAdapter = new MouseInputAdapter() {
-            int offsetX;
-            int offsetY;
-            public void mouseDragged(final MouseEvent e) {
-                if (!isResizeDragging()) {
-                    getController().moveBrowserWindow(
-                            new Point(
-                                    e.getPoint().x - offsetX,
-                                    e.getPoint().y - offsetY));
-                }
-            }
-            public void mousePressed(MouseEvent e) {
-                offsetX = e.getPoint().x;
-                offsetY = e.getPoint().y;
-            }
-        };
-        addMouseListener(mouseInputAdapter);
-        addMouseMotionListener(mouseInputAdapter);
-        setResizeEdges(Resizer.FormLocation.MIDDLE);
         initComponents();
+        installResizer();
     }
 
     /**
@@ -70,6 +46,14 @@ public class MainTitleAvatar extends Avatar {
      */
     @Override
     public State getState() { return null; }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     */
+    @Override
+    protected ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.MIDDLE;
+    }
     
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getPluginRegistry()

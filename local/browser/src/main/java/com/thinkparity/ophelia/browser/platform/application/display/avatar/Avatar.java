@@ -49,7 +49,7 @@ public abstract class Avatar extends AbstractJPanel {
     private final ApplicationRegistry applicationRegistry;
 
 	/** The Resizer */
-    private final Resizer resizer;
+    protected Resizer resizer = null;
 
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
@@ -101,7 +101,6 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
-        this.resizer = new Resizer(getController(), this);
 	}
 
 	/**
@@ -122,8 +121,18 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
-        this.resizer = new Resizer(getController(), this);
 	}
+    
+    /**
+     * Install the resizer.
+     */
+    public void installResizer() {
+        this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
+        final List<Component> componentsThatSupportMouseMove = getComponentsThatSupportMouseMove();
+        if (null!=componentsThatSupportMouseMove) {
+            resizer.addComponentsThatSupportMouseMove(componentsThatSupportMouseMove);
+        }
+    }
 
 	/**
 	 * Set an error for display.
@@ -201,8 +210,12 @@ public abstract class Avatar extends AbstractJPanel {
      * These get and set methods are used by classes that intend to do their
      * own mouse dragging. (For example, the bottom right resize control.)
      */
-    public Boolean isResizeDragging() {
-        return resizer.isResizeDragging();
+    protected Boolean isResizeDragging() {
+        if (null==resizer) {
+            return Boolean.FALSE;
+        } else {
+            return resizer.isResizeDragging();
+        }
     }
     
 	/**
@@ -242,15 +255,40 @@ public abstract class Avatar extends AbstractJPanel {
 		reload();
 	}
 
-	public void setResizeDragging(Boolean dragging) {
-        resizer.setResizeDragging(dragging);
-    }
-
-	/**
-     * Set the behavior of resizing.
+    /**
+     * These get and set methods are used by classes that intend to do their
+     * own mouse dragging. (For example, the bottom right resize control.)
      */
-    public void setResizeEdges(Resizer.FormLocation formLocation) {
-        resizer.setResizeEdges(formLocation);        
+    protected void setResizeDragging(Boolean resizerDragging) {
+        if (null!=resizer) {
+            resizer.setResizeDragging(resizerDragging);
+        }
+    }
+    
+    /**
+     * Get the resize edges. Override this method if you don't want
+     * resize support for the avatar, or if only some of the avatar
+     * edges support resize.
+     */
+    protected Resizer.ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.ALL_EDGES;
+    }
+    
+    /**
+     * Get the list of components that a user can drag on to move the parent.
+     * Override this method for example if a dialog has a text label that
+     * can be used for dragging and moving the dialog.
+     */
+    protected List<Component> getComponentsThatSupportMouseMove() {
+        return null;
+    }
+    
+    /**
+     * Flag to indicate if dragging the centre of the control will cause moving.
+     * Override this method if you don't want the avatar to support movement.
+     */
+    protected Boolean isSupportMouseMove() {
+        return Boolean.TRUE;
     }
 
 	/**

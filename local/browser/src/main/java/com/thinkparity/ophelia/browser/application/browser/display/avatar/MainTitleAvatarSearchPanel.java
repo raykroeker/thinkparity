@@ -31,11 +31,15 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
     /** The search activation timer. */
     private Timer searchActivationTimer;
+    
+    /** The Resizer */
+    private final Resizer resizer;
 
     /** Creates new form BrowserTitleSearch */
     public MainTitleAvatarSearchPanel() {
         super();
         initComponents();
+        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.NO_EDGE);
     }
 
     /**

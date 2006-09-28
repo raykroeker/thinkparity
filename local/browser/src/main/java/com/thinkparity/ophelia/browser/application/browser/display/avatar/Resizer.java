@@ -8,10 +8,17 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionAdapter;
+import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
 
 /**
  * @author rob_masako@shaw.ca
@@ -24,12 +31,18 @@ public class Resizer {
     
     /** Component */
     private Component component;
-
-    /** Form location */
-    private FormLocation formLocation;
+   
+    /** Flag to indicate if dragging the centre of the control will cause moving */
+    private Boolean supportMouseMove;
     
-    /** Flag to indicate if currently dragging. */
-    private static Boolean dragging = Boolean.FALSE;
+    /** Resize edges */
+    private ResizeEdges resizeEdges;
+    
+    /** Flag to indicate if currently resize dragging. */
+    private static Boolean resizeDragging = Boolean.FALSE;
+    
+    /** Flag to indicate if currently movement dragging. */
+    private static Boolean moveDragging = Boolean.FALSE;
     
     /** Flag to indicate if initialized. */
     private Boolean initialized = Boolean.FALSE;
@@ -38,60 +51,55 @@ public class Resizer {
     private ResizeDirection resizeDirection = ResizeDirection.NONE;
     
     /** The resize offset size in the x direction. */
-    private int resizeOffsetX;    
+    private static int resizeOffsetX;    
     
     /** The resize offset size in the y direction. */
-    private int resizeOffsetY;
-      
-    /**
-     * Create a Resizer (to resize the Browser).
-     * 
-     * @param browser
-     *            The browser.
-     * @param component
-     *            The component.
-     */
-    public Resizer(final Browser browser, final Component component) {
-        this(browser, component, FormLocation.NO_EDGE);
-    }
+    private static int resizeOffsetY;
      
     /**
-     * Create a Resizer (to resize the Browser).
+     * Create a Resizer (to resize the Browser or Avatar).
      * 
      * @param browser
      *            The browser.
      * @param component
      *            The component.
-     * @param formLocation
-     *            The form location (eg. top, middle, bottom)
+     * @param supportMouseMove
+     *            Flag to indicate if dragging the centre of the control will cause moving.           
+     * @param resizeEdges
+     *            The resize edges (eg. top, middle, bottom)
      */
-    public Resizer(final Browser browser, final Component component, final FormLocation formLocation) {
+    public Resizer(final Browser browser, final Component component,
+            final Boolean supportMouseMove, final ResizeEdges resizeEdges) {
         this.browser = browser;
         this.component = component;
-        this.formLocation = formLocation;
-        setResizeEdges(formLocation);
+        this.supportMouseMove = supportMouseMove;
+        this.resizeEdges = resizeEdges;
+        initComponents();
     }
 
     /**
-     * Set the browser to resize.
+     * Add components that a user can drag on to move the parent.
      * 
-     * @param browser
-     *            The browser.
+     * @param components
+     *            List of components.
      */
-    public void setBrowser(final Browser browser) {
-        this.browser = browser;
-    }
-    
-    /**
-     * Set the behavior of resize.
-     * 
-     * @param formLocation
-     *            The form location (eg. top, middle, bottom)
-     */
-    public void setResizeEdges(FormLocation formLocation) {
-        this.formLocation = formLocation;
-        if (formLocation != FormLocation.NO_EDGE) {
-            initComponents();
+    public void addComponentsThatSupportMouseMove(final List<Component>components) {
+        if (null != components) {
+            for (final Component component : components) {
+                component.addMouseMotionListener(new MouseMotionAdapter() {
+                    public void mouseDragged(java.awt.event.MouseEvent evt) {
+                        formMouseDragged(evt, component);
+                    }
+                });
+                component.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(java.awt.event.MouseEvent evt) {
+                        formMousePressed(evt, component);
+                    }
+                    public void mouseReleased(java.awt.event.MouseEvent evt) {
+                        formMouseReleased(evt, component);
+                    }
+                });
+            }
         }
     }
     
@@ -100,13 +108,13 @@ public class Resizer {
      * their own resizing. (For example, the bottom right resize control.)
      */
     public Boolean isResizeDragging() {
-        return dragging;
+        return resizeDragging;
     }
-    public void setResizeDragging(Boolean newValue) {
-        Resizer.dragging = newValue;
+    public void setResizeDragging(final Boolean resizeDragging) {
+        Resizer.resizeDragging = resizeDragging;
     }
-       
-    private void initResize(java.awt.event.MouseEvent e) {
+          
+    private void initResize(final java.awt.event.MouseEvent e, final Component component) {
         final Point p = e.getPoint();
         final Dimension d = component.getSize();
         final Boolean lowX = (p.getX() < Resize.EDGE_PIXEL_BUFFER);
@@ -136,15 +144,18 @@ public class Resizer {
         
         resizeDirection = filterAllowedDirections(resizeDirection);
         
-        adjustCursor(resizeDirection);
+        adjustCursor(resizeDirection, component);
     }
     
-    private ResizeDirection filterAllowedDirections(ResizeDirection rd) {
+    private ResizeDirection filterAllowedDirections(final ResizeDirection rd) {
         ResizeDirection newDirection = rd;
         
-        switch (formLocation) {
+        switch (resizeEdges) {
         case NO_EDGE:
-            resizeDirection = ResizeDirection.NONE;
+            newDirection = ResizeDirection.NONE;
+            break;
+        case ALL_EDGES:
+            newDirection = rd;
             break;
         case LEFT:
             if (rd==ResizeDirection.SW) { newDirection = ResizeDirection.W; }
@@ -175,16 +186,15 @@ public class Resizer {
             else if (rd==ResizeDirection.N) { newDirection = ResizeDirection.NONE; }
             break;
         default:
-            resizeDirection = ResizeDirection.NONE;
+            newDirection = ResizeDirection.NONE;
             break;
         }
             
         return newDirection;
     }
     
-    private void adjustCursor(ResizeDirection resizeDirection) {
-        final Cursor cursor;
-        Boolean defaultCursor = Boolean.FALSE;
+    private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {
+        Cursor cursor;
         
         switch (resizeDirection) {
         case NW:
@@ -212,112 +222,215 @@ public class Resizer {
             cursor = new Cursor(Cursor.S_RESIZE_CURSOR);
             break;
         default:
-            cursor = new Cursor(Cursor.DEFAULT_CURSOR);
-            defaultCursor = Boolean.TRUE;
+            cursor = null;
             break;
         }
         
-        if (defaultCursor) {
-            component.setCursor(null);
-            browser.setCursor(null);
-        }
-        else {
-            component.setCursor(cursor);
-            browser.setCursor(cursor);
-        }
+        changeCursor(cursor, component);
     }
     
-    private void formMouseDragged(java.awt.event.MouseEvent evt) {
-        final double oldWidth = component.getSize().getWidth();
-        final double oldHeight = component.getSize().getHeight();
+    private void changeCursor(final Cursor cursor, final Component component) {
+        component.setCursor(cursor);
+        Window window = SwingUtilities.getWindowAncestor(component);
+        if (null!=window) {
+            window.setCursor(cursor);
+        }
+        browser.setCursor(cursor);
+    }
+    
+    private void formMouseDraggedMove(final java.awt.event.MouseEvent evt, final Component component) {
+        final Component componentToMove;
+        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
+            componentToMove = component;
+        } else {
+            componentToMove = SwingUtilities.getWindowAncestor(component);
+        }
         
+        Point moveOffset = new Point(evt.getPoint().x-resizeOffsetX, evt.getPoint().y-resizeOffsetY);
+        move(componentToMove, moveOffset);
+    }
+    
+    private void formMouseDraggedResize(final java.awt.event.MouseEvent evt, final Component component) {
+        final Component componentToResize;
+        Dimension resizeOffset = null;
+        Point moveOffset = null;
+        
+        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
+            componentToResize = component;
+        } else {
+            componentToResize = SwingUtilities.getWindowAncestor(component);
+        }
+               
         switch (resizeDirection) {
         case NW:
-            browser.moveAndResizeBrowserWindow(
-                    new Point(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY),
-                    new Dimension(resizeOffsetX - evt.getPoint().x, resizeOffsetY - evt.getPoint().y));
+            moveOffset = new Point(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY);
+            resizeOffset = new Dimension(resizeOffsetX - evt.getPoint().x, resizeOffsetY - evt.getPoint().y);
             break;
         case NE:
-            browser.moveAndResizeBrowserWindow(
-                    new Point(0, evt.getPoint().y - resizeOffsetY),
-                    new Dimension(evt.getPoint().x - resizeOffsetX, resizeOffsetY - evt.getPoint().y));
+            moveOffset = new Point(0, evt.getPoint().y - resizeOffsetY);
+            resizeOffset = new Dimension(evt.getPoint().x - resizeOffsetX, resizeOffsetY - evt.getPoint().y);
             break;
         case SW:
-            browser.moveAndResizeBrowserWindow(
-                    new Point(evt.getPoint().x - resizeOffsetX, 0),
-                    new Dimension(resizeOffsetX - evt.getPoint().x, evt.getPoint().y - resizeOffsetY));
+            moveOffset = new Point(evt.getPoint().x - resizeOffsetX, 0);
+            resizeOffset = new Dimension(resizeOffsetX - evt.getPoint().x, evt.getPoint().y - resizeOffsetY);
             break;
         case SE:           
-            browser.resizeBrowserWindow(
-                    new Dimension(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY));
+            resizeOffset = new Dimension(evt.getPoint().x - resizeOffsetX, evt.getPoint().y - resizeOffsetY);
             break;
         case W:
-            browser.moveAndResizeBrowserWindow(
-                    new Point(evt.getPoint().x - resizeOffsetX, 0),
-                    new Dimension(resizeOffsetX - evt.getPoint().x, 0));
+            moveOffset = new Point(evt.getPoint().x - resizeOffsetX, 0);
+            resizeOffset = new Dimension(resizeOffsetX - evt.getPoint().x, 0);
             break;            
         case E:
-            browser.resizeBrowserWindow(
-                    new Dimension(evt.getPoint().x - resizeOffsetX, 0));
+            resizeOffset = new Dimension(evt.getPoint().x - resizeOffsetX, 0);
             break;
         case N:
-            browser.moveAndResizeBrowserWindow(
-                    new Point(0, evt.getPoint().y - resizeOffsetY),
-                    new Dimension(0, resizeOffsetY - evt.getPoint().y));
+            moveOffset = new Point(0, evt.getPoint().y - resizeOffsetY);
+            resizeOffset = new Dimension(0, resizeOffsetY - evt.getPoint().y);
             break;
         case S:
-            browser.resizeBrowserWindow(
-                    new Dimension(0, evt.getPoint().y - resizeOffsetY));
+            resizeOffset = new Dimension(0, evt.getPoint().y - resizeOffsetY);
             break;
         default:
             break;
+        }
+        
+        // Save the component width (ie. the component that the mouse is dragging in)
+        final double oldComponentWidth = component.getSize().getWidth();
+        final double oldComponentHeight = component.getSize().getHeight();
+        
+        // Resize and maybe also move
+        if (null != resizeOffset) {
+            if (null != moveOffset) {
+                resizeAndMove(componentToResize, resizeOffset, moveOffset);
+            } else {
+                resize(componentToResize, resizeOffset);
+            }
         }
         
         // The width of the control may change when the window is resized.
         if ((resizeDirection == ResizeDirection.NE) ||
             (resizeDirection == ResizeDirection.E) ||
             (resizeDirection == ResizeDirection.SE)) {
-            resizeOffsetX += (component.getSize().getWidth() - oldWidth);
+            resizeOffsetX += (component.getSize().getWidth() - oldComponentWidth);
         }
         
         // The height of the control may change when the window is resized.
         if ((resizeDirection == ResizeDirection.SW) ||
             (resizeDirection == ResizeDirection.S) ||
             (resizeDirection == ResizeDirection.SE)) {
-            resizeOffsetY += (component.getSize().getHeight() - oldHeight);
+            resizeOffsetY += (component.getSize().getHeight() - oldComponentHeight);
         }
     }
     
-    private void formMouseEntered(java.awt.event.MouseEvent evt) {
-        if (!dragging) {
-            initResize(evt);
+    /**
+     * Resize the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param resizeOffset
+     *          The amount to resize.
+     */
+    private void resize(final Component component, final Dimension resizeOffset) {
+        if ((resizeOffset.width != 0) || (resizeOffset.height != 0)) {
+            if (component instanceof BrowserWindow) {
+                browser.resizeBrowserWindow(resizeOffset);
+            } else {
+                final Dimension size = component.getSize();
+                size.width += resizeOffset.width;
+                size.height += resizeOffset.height;
+                component.setSize(size);
+                component.validate();
+            }
         }
     }
     
-    private void formMouseMoved(java.awt.event.MouseEvent evt) {
-        if (!dragging) {
-            initResize(evt);
+    /**
+     * Resize and move the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param resizeOffset
+     *          The amount to resize.
+     * @param moveOffset
+     *          The amount to move.
+     */
+    private void resizeAndMove(final Component component, final Dimension resizeOffset, final Point moveOffset) {
+        if ((resizeOffset.width!=0) || (resizeOffset.height!=0) ||
+            (moveOffset.x != 0 ) || (moveOffset.y != 0 )) {        
+            if (component instanceof BrowserWindow) {
+                browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
+            } else {
+                final Dimension size = component.getSize();
+                final Point location = component.getLocation();
+                size.width += resizeOffset.width;
+                size.height += resizeOffset.height;
+                location.x += moveOffset.x;
+                location.y += moveOffset.y;
+                component.setBounds(location.x, location.y, (int)size.getWidth(), (int)size.getHeight());
+                component.validate();
+            }
         }
     }
     
-    private void formMouseExited(java.awt.event.MouseEvent evt) {
-        if (!dragging) {
+    /**
+     * Move the component.
+     * 
+     * @param component
+     *          The component to resize.
+     * @param moveOffset
+     *          The amount to move.
+     */    
+    private void move(final Component component, final Point moveOffset) {
+        if ((moveOffset.x != 0 ) || (moveOffset.y != 0 )) {
+            final Point location = component.getLocation();
+            location.x += moveOffset.x;
+            location.y += moveOffset.y;
+            component.setLocation(location.x, location.y);
+            component.validate();
+        }
+    }
+    
+    private void formMouseDragged(final java.awt.event.MouseEvent evt, final Component component) {
+        if (moveDragging) {
+            formMouseDraggedMove(evt, component);
+        } else if (resizeDragging) {
+            formMouseDraggedResize(evt, component);
+        }
+    }
+    
+    private void formMouseEntered(final java.awt.event.MouseEvent evt, final Component component) {
+        if ((!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
+            initResize(evt, component);
+        }
+    }
+    
+    private void formMouseMoved(final java.awt.event.MouseEvent evt, final Component component) {
+        if ((!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
+            initResize(evt, component);
+        }
+    }
+    
+    private void formMouseExited(final java.awt.event.MouseEvent evt, final Component component) {
+        if ((!resizeDragging) && (!moveDragging)) {
             resizeDirection = ResizeDirection.NONE;
-            component.setCursor(null);
-            browser.setCursor(null);
+            changeCursor(null, component);
         }
     }    
     
-    private void formMousePressed(java.awt.event.MouseEvent evt) {
+    private void formMousePressed(final java.awt.event.MouseEvent evt, final Component component) {
         resizeOffsetX = evt.getPoint().x;
         resizeOffsetY = evt.getPoint().y;
-        if (resizeDirection != ResizeDirection.NONE) {
-            dragging = Boolean.TRUE;
+        if ((resizeDirection == ResizeDirection.NONE) && (supportMouseMove)) {
+            moveDragging = Boolean.TRUE;
+        } else if (resizeDirection != ResizeDirection.NONE) {
+            resizeDragging = Boolean.TRUE;
         }
     }   
        
-    private void formMouseReleased(java.awt.event.MouseEvent evt) {
-        dragging = Boolean.FALSE;
+    private void formMouseReleased(final java.awt.event.MouseEvent evt, final Component component) {
+        resizeDragging = Boolean.FALSE;
+        moveDragging = Boolean.FALSE;
         
         // Sometimes when the mouse is released it is not over the
         // component anymore, for example, when minimizing beyond
@@ -325,38 +438,66 @@ public class Resizer {
         // best to reset the cursor rather than hope for the 
         // mouse exit event.
         resizeDirection = ResizeDirection.NONE;
-        component.setCursor(null);
-        browser.setCursor(null);
+        changeCursor(null, component);
     }
     
     private void initComponents() {
-        if (!initialized) {
-            component.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+       if (!initialized) {
+            component.addMouseMotionListener(new MouseMotionAdapter() {
                 public void mouseDragged(java.awt.event.MouseEvent evt) {
-                    formMouseDragged(evt);
+                    formMouseDragged(evt, component);
                 }
                 public void mouseMoved(java.awt.event.MouseEvent evt) {
-                    formMouseMoved(evt);
+                    formMouseMoved(evt, component);
                 }
-            });
-            component.addMouseListener(new java.awt.event.MouseAdapter() {
+            });                   
+                   
+            component.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    formMouseEntered(evt);
+                    formMouseEntered(evt, component);
                 }
                 public void mouseExited(java.awt.event.MouseEvent evt) {
-                    formMouseExited(evt);
+                    formMouseExited(evt, component);
                 }
                 public void mousePressed(java.awt.event.MouseEvent evt) {
-                    formMousePressed(evt);
+                    formMousePressed(evt, component);
                 }
                 public void mouseReleased(java.awt.event.MouseEvent evt) {
-                    formMouseReleased(evt);
+                    formMouseReleased(evt, component);
                 }
             });
+            
+            final Window window = SwingUtilities.getWindowAncestor(component);
+            if (null!=window && window instanceof JDialog) {
+                window.addMouseMotionListener(new MouseMotionAdapter() {
+                    public void mouseDragged(java.awt.event.MouseEvent evt) {
+                        formMouseDragged(evt, window);
+                    }
+                    public void mouseMoved(java.awt.event.MouseEvent evt) {
+                        formMouseMoved(evt, window);
+                    }
+                });                   
+                       
+                window.addMouseListener(new MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        formMouseEntered(evt, window);
+                    }
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        formMouseExited(evt, window);
+                    }
+                    public void mousePressed(java.awt.event.MouseEvent evt) {
+                        formMousePressed(evt, window);
+                    }
+                    public void mouseReleased(java.awt.event.MouseEvent evt) {
+                        formMouseReleased(evt, window);
+                    }
+                });
+            }
+
             initialized = Boolean.TRUE;
         }
     }
       
     private enum ResizeDirection { E, N, NE, NONE, NW, S, SE, SW, W }
-    public enum FormLocation { NO_EDGE, TOP, MIDDLE, BOTTOM, LEFT, RIGHT }
+    public enum ResizeEdges { NO_EDGE, ALL_EDGES, TOP, MIDDLE, BOTTOM, LEFT, RIGHT }
 }

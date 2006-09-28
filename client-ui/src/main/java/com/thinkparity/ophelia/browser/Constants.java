@@ -183,7 +183,7 @@ public final class Constants {
 
     /** Window resize constants. */
     public static final class Resize {
-        public static final Integer EDGE_PIXEL_BUFFER = 7;
+        public static final Integer EDGE_PIXEL_BUFFER = 6;
     }
     
     public static final class Search {

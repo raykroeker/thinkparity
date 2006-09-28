@@ -16,6 +16,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.hsqldb.util.TableSorter;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
@@ -45,7 +47,7 @@ public class PublishContainerAvatar extends Avatar {
         namesJScrollPane.getViewport().setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJTable.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
      */
@@ -68,12 +70,28 @@ public class PublishContainerAvatar extends Avatar {
     @Override
     public void setState(State state) {        
     }
-    
+        
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getComponentsThatSupportMouseMove()
+     */
+    @Override
+    protected List<Component> getComponentsThatSupportMouseMove() {
+        List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
+        componentsThatSupportMouseMove.add(explanationJTextArea);
+        return componentsThatSupportMouseMove;
+    }
+
     public void reload() {
         Long containerId = getInputContainerId();
-        namesJTable.setModel(new CustomTableModel(containerId));
-        initColumnSizes(namesJTable);
-        okJButton.setEnabled(isInputValid());
+        // If containerId is null then this call to reload() is too early,
+        // the input isn't set up yet.
+        if (null!=containerId) {                        
+            TableSorter sorter = new TableSorter(new CustomTableModel(containerId));
+            namesJTable.setModel(sorter);
+            sorter.setTableHeader(namesJTable.getTableHeader());
+            initColumnSizes(namesJTable);
+            okJButton.setEnabled(isInputValid());
+        }
     }
     
     /**
@@ -89,8 +107,7 @@ public class PublishContainerAvatar extends Avatar {
             return null;
         }
     }
-    
-    
+       
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -98,23 +115,29 @@ public class PublishContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        eaJLabel = new javax.swing.JLabel();
+        explanationJTextArea = new javax.swing.JTextArea();
         publishContainerJPanel = new javax.swing.JPanel();
-        namesJScrollPane = new javax.swing.JScrollPane();
-        namesJTable = new javax.swing.JTable();
         commentJLabel = new javax.swing.JLabel();
         commentJTextField = new javax.swing.JTextField();
-        cancelJButton = new javax.swing.JButton();
+        namesJScrollPane = new javax.swing.JScrollPane();
+        namesJTable = new javax.swing.JTable();
         okJButton = new javax.swing.JButton();
+        cancelJButton = new javax.swing.JButton();
 
+        explanationJTextArea.setColumns(20);
+        explanationJTextArea.setEditable(false);
+        explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        explanationJTextArea.setLineWrap(true);
+        explanationJTextArea.setRows(5);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        eaJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
+        explanationJTextArea.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
+        explanationJTextArea.setWrapStyleWord(true);
+        explanationJTextArea.setBorder(null);
+        explanationJTextArea.setFocusable(false);
+        explanationJTextArea.setMinimumSize(new java.awt.Dimension(100, 70));
+        explanationJTextArea.setOpaque(false);
 
         publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("PublishContainerDialog.BorderTitle"))); // NOI18N
-        namesJTable.setRowSelectionAllowed(false);
-        namesJTable.setShowVerticalLines(false);
-        namesJScrollPane.setViewportView(namesJTable);
-
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
 
         commentJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -123,37 +146,36 @@ public class PublishContainerAvatar extends Avatar {
             }
         });
 
+        namesJTable.setRowSelectionAllowed(false);
+        namesJTable.setShowVerticalLines(false);
+        namesJScrollPane.setViewportView(namesJTable);
+
         org.jdesktop.layout.GroupLayout publishContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(publishContainerJPanel);
         publishContainerJPanel.setLayout(publishContainerJPanelLayout);
         publishContainerJPanelLayout.setHorizontalGroup(
             publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishContainerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
+                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .add(commentJLabel)
+                        .addContainerGap()
+                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE))
+                    .add(publishContainerJPanelLayout.createSequentialGroup()
+                        .add(20, 20, 20)
+                        .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)))
+                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         publishContainerJPanelLayout.setVerticalGroup(
             publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishContainerJPanelLayout.createSequentialGroup()
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 195, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(commentJLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(commentJLabel)
+                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
-
-        cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
-        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
-            }
-        });
 
         okJButton.setText(bundle.getString("PublishContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -162,32 +184,42 @@ public class PublishContainerAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(cancelJButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(okJButton)))
+                        .add(cancelJButton))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 38, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(okJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(okJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -211,7 +243,8 @@ public class PublishContainerAvatar extends Avatar {
      */
     private void publishContainer() {
         Long containerId = getInputContainerId();
-        CustomTableModel model = (CustomTableModel)namesJTable.getModel();
+        TableSorter sorter = (TableSorter)namesJTable.getModel();
+        CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
         getController().runPublishContainer(containerId, teamMembers, contacts);    
@@ -266,7 +299,12 @@ public class PublishContainerAvatar extends Avatar {
         }
         return list;
     }
-    
+
+    /**
+     * Read the profile.
+     * 
+     * @return The profile.
+     */
     private Profile readProfile() {
         final Profile profile = (Profile) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, null);
         return profile;
@@ -279,7 +317,8 @@ public class PublishContainerAvatar extends Avatar {
      */
     public Boolean isInputValid() {
         Boolean valid = Boolean.FALSE;
-        CustomTableModel model = (CustomTableModel)namesJTable.getModel();
+        TableSorter sorter = (TableSorter)namesJTable.getModel();
+        CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
         for (int row = 0; row < model.getRowCount(); row++) {
             if (model.getValueAt(row, 0) == Boolean.TRUE) {
                 valid = Boolean.TRUE;
@@ -291,9 +330,15 @@ public class PublishContainerAvatar extends Avatar {
     
     /**
      * This method picks good column sizes.
+     * 
+     * @param table
+     *          The table.
      */
     private void initColumnSizes(javax.swing.JTable table) {
-        CustomTableModel model = (CustomTableModel)table.getModel();
+        TableSorter sorter = (TableSorter)table.getModel();
+        CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
+        
+        //CustomTableModel model = (CustomTableModel)table.getModel();
         TableColumn column = null;
         Component comp = null;
         int headerWidth = 0;
@@ -305,7 +350,7 @@ public class PublishContainerAvatar extends Avatar {
             column = table.getColumnModel().getColumn(i);
 
             comp = headerRenderer.getTableCellRendererComponent(
-                                 null, column.getHeaderValue(),
+                                 table, column.getHeaderValue(),
                                  false, false, 0, 0);
             headerWidth = comp.getPreferredSize().width;
 
@@ -455,7 +500,7 @@ public class PublishContainerAvatar extends Avatar {
     private javax.swing.JButton cancelJButton;
     private javax.swing.JLabel commentJLabel;
     private javax.swing.JTextField commentJTextField;
-    private javax.swing.JLabel eaJLabel;
+    private javax.swing.JTextArea explanationJTextArea;
     private javax.swing.JScrollPane namesJScrollPane;
     private javax.swing.JTable namesJTable;
     private javax.swing.JButton okJButton;

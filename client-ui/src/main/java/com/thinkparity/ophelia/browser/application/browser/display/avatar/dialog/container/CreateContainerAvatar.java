@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,6 @@ import java.util.List;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
-
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -34,12 +34,26 @@ public class CreateContainerAvatar extends Avatar {
         initNameJTextField();
         newContainerJPanel.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
     }
+    
+    public AvatarId getId() {
+        return AvatarId.DIALOG_CONTAINER_CREATE;
+    }
 
     public void setState(final State state) {
     }
 
     public State getState() {
         return null;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getComponentsThatSupportMouseMove()
+     */
+    @Override
+    protected List<Component> getComponentsThatSupportMouseMove() {
+        List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
+        componentsThatSupportMouseMove.add(explanationJTextArea);
+        return componentsThatSupportMouseMove;
     }
     
     /**
@@ -62,11 +76,7 @@ public class CreateContainerAvatar extends Avatar {
         okJButton.setEnabled(Boolean.FALSE);
         nameJTextField.requestFocusInWindow();
     }
-    
-    public AvatarId getId() {
-        return AvatarId.DIALOG_CONTAINER_CREATE;
-    }
-    
+       
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -91,6 +101,7 @@ public class CreateContainerAvatar extends Avatar {
         explanationJTextArea.setWrapStyleWord(true);
         explanationJTextArea.setBorder(null);
         explanationJTextArea.setFocusable(false);
+        explanationJTextArea.setMinimumSize(new java.awt.Dimension(100, 70));
         explanationJTextArea.setOpaque(false);
 
         newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("NewContainerDialog.BorderTitle"))); // NOI18N
@@ -148,7 +159,7 @@ public class CreateContainerAvatar extends Avatar {
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
-                    .add(explanationJTextArea)
+                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );

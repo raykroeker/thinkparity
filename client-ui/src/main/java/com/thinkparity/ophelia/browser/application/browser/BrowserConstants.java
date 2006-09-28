@@ -17,7 +17,7 @@ public final class BrowserConstants {
 
 	/** The default dialogue background colour.  A light blue. */
     public static final Color DIALOGUE_BACKGROUND =
-        new Color(237, 241, 244, 255);
+        new Color(231, 239, 250, 255);
 
 	public static final Cursor HandCursor = new Cursor(Cursor.HAND_CURSOR);
 	

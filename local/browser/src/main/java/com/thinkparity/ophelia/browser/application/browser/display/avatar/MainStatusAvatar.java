@@ -13,6 +13,7 @@ import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -39,8 +40,8 @@ public class MainStatusAvatar extends Avatar {
     /** Creates new form BrowserStatus */
     MainStatusAvatar() {
         super(AvatarId.MAIN_STATUS.toString());
-        setResizeEdges(Resizer.FormLocation.BOTTOM);
         initComponents();
+        installResizer();
     }
 
     /**
@@ -54,6 +55,22 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public State getState() { return null; }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     */
+    @Override
+    protected ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.BOTTOM;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isSupportMouseMove()
+     */
+    @Override
+    protected Boolean isSupportMouseMove() {
+        return Boolean.FALSE;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()

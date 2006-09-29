@@ -1638,6 +1638,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         }
                         versionContent.setVersion(documentVersion);
                         documentIO.createVersion(documentVersion, versionContent);
+                        getIndexModel().indexDocument(container.getId(), document.getId());
 
                         containerIO.addVersion(container.getId(),
                                 version.getVersionId(), document.getId(),
@@ -1646,6 +1647,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     }
                 }
             }
+            getIndexModel().indexContainer(container.getId());
             archiveModel.restore(uniqueId);
             notifyContainerRestored(read(container.getId()), localEventGenerator);
             

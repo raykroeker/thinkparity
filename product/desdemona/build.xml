@@ -21,8 +21,8 @@
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- wildfire configuration  -->
-    <property name="wildfire.development.home" value="${env.ProgramFiles}\Wildfire"/>
-    <property name="wildfire.testing.home" value="${env.USERPROFILE}\thinkParity\testing\wildfire\3.0.1"/>
+    <property name="wildfire.development.home" value="${env.USERPROFILE}/thinkParity/development/wildfire/3.0.1"/>
+    <property name="wildfire.testing.home" value="${env.USERPROFILE}/thinkParity/testing/wildfire/3.0.1"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>

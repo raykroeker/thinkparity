@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +41,11 @@ public class ContainerReader extends ArchiveReader<Container, ContainerVersion> 
     @Override
     public Container read(final UUID uniqueId) {
         final Long containerId = readArchivedArtifactId(uniqueId);
-        return containerModel.read(containerId);
+        if (null == containerId) {
+            return null;
+        } else {
+            return containerModel.read(containerId);
+        }
     }
 
     /**
@@ -49,6 +54,10 @@ public class ContainerReader extends ArchiveReader<Container, ContainerVersion> 
     @Override
     public List<ContainerVersion> readVersions(final UUID uniqueId) {
         final Long containerId = readArchivedArtifactId(uniqueId);
-        return containerModel.readVersions(containerId);
+        if (null == containerId) {
+            return Collections.emptyList();
+        } else {
+            return containerModel.readVersions(containerId);
+        }
     }
 }

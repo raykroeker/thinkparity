@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     @Override
     public List<Document> read() {
         final Long containerId = readArchivedArtifactId(containerUniqueId);
-        return containerModel.readDocuments(containerId, containerVersionId);
+        if (null == containerId) {
+            return Collections.emptyList();
+        } else {
+            return containerModel.readDocuments(containerId, containerVersionId);
+        }
     }
 
     /**
@@ -54,8 +59,14 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
      */
     @Override
     public Document read(final UUID uniqueId) {
-        final Long documentId = readArtifactId(uniqueId);
-        return documentModel.read(documentId);
+        // bit of a wierd workflow to ensure the container is archived
+        final Long containerId = readArchivedArtifactId(containerUniqueId);
+        if (null == containerId) {
+            return null;
+        } else {
+            final Long documentId = readArtifactId(uniqueId);
+            return documentModel.read(documentId);
+        }
     }
 
     /**
@@ -64,8 +75,12 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     @Override
     public List<DocumentVersion> readVersions(final UUID uniqueId) {
         // bit of a wierd workflow to ensure the container is archived
-        readArchivedArtifactId(containerUniqueId);
-        final Long documentId = readArtifactId(uniqueId);
-        return documentModel.readVersions(documentId);
+        final Long containerId = readArchivedArtifactId(containerUniqueId);
+        if (null == containerId) {
+            return Collections.emptyList();
+        } else {
+            final Long documentId = readArtifactId(uniqueId);
+            return documentModel.readVersions(documentId);
+        }
     }
 }

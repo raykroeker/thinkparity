@@ -10,17 +10,15 @@ package com.thinkparity.desdemona.model;
 public abstract class AbstractModel<T extends AbstractModelImpl> extends
         com.thinkparity.codebase.model.AbstractModel<T> {
 
-    private static final Object IMPL_LOCK;
-
-    static {
-        IMPL_LOCK = new Object();
-    }
+    /** The implementation synchronization lock. */
+    private final Object implLock;
 
 	/**
 	 * Create a AbstractModel.
 	 */
 	protected AbstractModel(final T impl) {
         super(impl);
+        this.implLock = new Object();
 	}
 
     /**
@@ -28,6 +26,6 @@ public abstract class AbstractModel<T extends AbstractModelImpl> extends
      */
     @Override
     protected Object getImplLock() {
-        return IMPL_LOCK;
+        return implLock;
     }
 }

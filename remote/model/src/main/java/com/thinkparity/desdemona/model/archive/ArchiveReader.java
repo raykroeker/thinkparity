@@ -6,7 +6,6 @@ package com.thinkparity.desdemona.model.archive;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -95,10 +94,11 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
      */
     protected Long readArchivedArtifactId(final UUID uniqueId) {
         final Long artifactId = readArtifactId(uniqueId);
-        Assert.assertTrue(artifactModel.isFlagApplied(artifactId,
-                ArtifactFlag.ARCHIVED), "Artifact {0} has not been archived.",
-                uniqueId);
-        return artifactId;
+        if (artifactModel.isFlagApplied(artifactId, ArtifactFlag.ARCHIVED)) {
+            return artifactId;
+        } else {
+            return null;
+        }
     }
 
     /**

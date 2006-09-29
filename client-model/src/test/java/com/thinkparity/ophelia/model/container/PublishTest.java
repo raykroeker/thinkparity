@@ -5,7 +5,7 @@
 package com.thinkparity.ophelia.model.container;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -37,14 +37,13 @@ public class PublishTest extends ContainerTestCase {
     public void testPublish() {
         datum.containerModel.publish(
                 datum.container.getId(), datum.contacts, datum.teamMembers);
-        // ensure the draft published event fired
-        assertTrue(NAME + " [DRAFT PUBLISHED EVENT NOT FIRED]", datum.didNotify);
+        assertTrue("The draft published event was not fired.", datum.didNotify);
+
         // ensure the system is the key holder again
         final JabberId keyHolder =
             getArtifactModel(OpheliaTestUser.JUNIT).readKeyHolder(datum.container.getId());
-        assertEquals(NAME + " KEY HOLDER DOES NOT EQUAL EXPECTATION", User.THINK_PARITY.getId(), keyHolder);
-        // ensure the local key flag is not still there
-        assertTrue(NAME + " KEY FLAG STILL APPLIED",
+        assertEquals("Local artifact key holder does not match expectation.", User.THINK_PARITY.getId(), keyHolder);
+        assertTrue("Local key flag is still mistakenly applied.",
                 !getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
         // ensure the local and remote team jive
         final List<TeamMember> localTeam =
@@ -60,8 +59,8 @@ public class PublishTest extends ContainerTestCase {
                 }
             }
             assertTrue(MessageFormat.format(
-                    "COULD NOT FIND LOCAL TEAM MEMBER IN REMOTE TEAM:  {0}",
-                    localTeamMember.getId()), didFindLocal);
+                    "Could not find local team member {0} in remote team.",
+                    localTeamMember), didFindLocal);
         }
         for (final JabberId remoteTeamMemberId : remoteTeam) {
             Boolean didFindRemote = Boolean.FALSE;
@@ -72,7 +71,7 @@ public class PublishTest extends ContainerTestCase {
                 }
             }
             assertTrue(MessageFormat.format(
-                    "COULD NOT FIND REMOTE TEAM MEMBER IN LOCAL TEAM:  {0}",
+                    "Could not find remote team member {0} in local team.",
                     remoteTeamMemberId), didFindRemote);
         }
     }
@@ -84,14 +83,11 @@ public class PublishTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        login(OpheliaTestUser.JUNIT_X);
-        login(OpheliaTestUser.JUNIT_Y);
-        login(OpheliaTestUser.JUNIT_Z);
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocument(OpheliaTestUser.JUNIT, container, getInputFiles()[0]);
+        addDocuments(OpheliaTestUser.JUNIT, container);
         final List<Contact> contacts = readContacts(OpheliaTestUser.JUNIT);
-        datum = new Fixture(contacts, container, containerModel, new ArrayList<TeamMember>(0));
+        datum = new Fixture(contacts, container, containerModel);
         containerModel.addListener(datum);
     }
 
@@ -102,9 +98,6 @@ public class PublishTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout(OpheliaTestUser.JUNIT_Z);
-        logout(OpheliaTestUser.JUNIT_Y);
-        logout(OpheliaTestUser.JUNIT_X);
         logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
@@ -117,13 +110,12 @@ public class PublishTest extends ContainerTestCase {
         private Boolean didNotify;
         private final List<TeamMember> teamMembers;
         private Fixture(final List<Contact> contacts,
-                final Container container, final ContainerModel containerModel,
-                final List<TeamMember> teamMembers) {
+                final Container container, final ContainerModel containerModel) {
             this.contacts = contacts;
             this.container = container;
             this.containerModel = containerModel;
             this.didNotify = Boolean.FALSE;
-            this.teamMembers = teamMembers;
+            this.teamMembers = Collections.emptyList();
         }
         @Override
         public void draftPublished(ContainerEvent e) {

@@ -168,22 +168,26 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                if (-1 != mouseOverIndex) {
-                    updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
-                    mouseOverIndex = -1;
+                if (!isResizeDragging()) {
+                    if (-1 != mouseOverIndex) {
+                        updateCellMouseOver(mouseOverIndex, Boolean.FALSE);
+                        mouseOverIndex = -1;
+                    }
                 }
             }
             @Override
             public void mouseMoved(MouseEvent e) {
-                final int mouseOverIndex = getMouseOverIndex(e);
-                if (mouseOverIndex != this.mouseOverIndex) {
-                    if (-1 != this.mouseOverIndex) {
-                        updateCellMouseOver(this.mouseOverIndex, Boolean.FALSE);
+                if (!isResizeDragging()) {
+                    final int mouseOverIndex = getMouseOverIndex(e);
+                    if (mouseOverIndex != this.mouseOverIndex) {
+                        if (-1 != this.mouseOverIndex) {
+                            updateCellMouseOver(this.mouseOverIndex, Boolean.FALSE);
+                        }
+                        if (-1 != mouseOverIndex) {
+                            updateCellMouseOver(mouseOverIndex, Boolean.TRUE);
+                        }
+                        this.mouseOverIndex = mouseOverIndex;
                     }
-                    if (-1 != mouseOverIndex) {
-                        updateCellMouseOver(mouseOverIndex, Boolean.TRUE);
-                    }
-                    this.mouseOverIndex = mouseOverIndex;
                 }
             }
         };

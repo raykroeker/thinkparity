@@ -28,7 +28,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class RestoreTest extends ContainerTestCase {
+public class ArchiveRestoreTest extends ContainerTestCase {
 
     /** Test name. */
     private static final String NAME = "Restore Test";
@@ -37,7 +37,7 @@ public class RestoreTest extends ContainerTestCase {
     private Fixture datum;
 
     /** Create RestoreTest. */
-    public RestoreTest() {
+    public ArchiveRestoreTest() {
         super(NAME);
     }
 

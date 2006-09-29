@@ -88,7 +88,7 @@
     </target>
 
     <!-- release -->
-    <target name="release-impl">
+    <target name="release-impl" depends="init">
         <mkdir dir="${target.release.dir}/${release.version}/core"/>
         <!-- /thinkparity.jar -->
         <jar destfile="${target.release.dir}/thinkParity.jar"
@@ -131,7 +131,6 @@
                 <include name="version.properties"/>
             </fileset>
         </jar>
-
         <!-- launch4j -->
         <mkdir dir="${target.release.dir}/${release.version}/lib"/>
         <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
@@ -144,7 +143,8 @@
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico">
-                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
+                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
             </config>
         </launch4j>
         <copy todir="${target.release.dir}">

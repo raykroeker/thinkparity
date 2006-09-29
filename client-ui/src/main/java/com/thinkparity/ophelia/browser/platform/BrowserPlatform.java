@@ -49,14 +49,17 @@ public class BrowserPlatform implements Platform {
     /**
      * Create an instance of the platform.
      * 
+     * @param environment
+     *            The <code>Environment</code> to connect to.
      * @param profile
-     *            A profile to open.
+     *            The platform <code>Profile</code> to open.
+     * 
      * @return The platform.
      */
-    public static Platform create(final Profile profile,
-            final Environment environment) {
-        Assert.assertIsNull("PLATFORM ALREADY CREATED", SINGLETON);
-        SINGLETON = new BrowserPlatform(profile, environment);
+    public static Platform create(final Environment environment,
+            final Profile profile) {
+        Assert.assertIsNull("The platform has already been created.", SINGLETON);
+        SINGLETON = new BrowserPlatform(environment, profile);
         return BrowserPlatform.getInstance();
     }
 
@@ -66,7 +69,7 @@ public class BrowserPlatform implements Platform {
      * @return The thinkParity platform.
      */
     public static Platform getInstance() {
-        Assert.assertNotNull("PLATFORM NOT YET CREATED", SINGLETON);
+        Assert.assertNotNull("The platform has not yet been created.", SINGLETON);
         return SINGLETON;
     }
 
@@ -133,8 +136,8 @@ public class BrowserPlatform implements Platform {
      * @param profile
      *            A profile to open.
      */
-	private BrowserPlatform(final Profile profile, final Environment environment) {
-        new BrowserPlatformInitializer(profile, environment).initialize();
+	private BrowserPlatform(final Environment environment, final Profile profile) {
+        new BrowserPlatformInitializer(environment, profile).initialize();
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();

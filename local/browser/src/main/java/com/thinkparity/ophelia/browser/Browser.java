@@ -30,9 +30,11 @@ public class Browser {
 	 */
 	public static void main(String[] args) {
         Swing.init();
-        final Profile profile = new ProfileManager().select();
         final Environment environment = new EnvironmentManager().select();
-        if(null != profile) { BrowserPlatform.create(profile, environment).start(); }
+        final Profile profile = new ProfileManager().select();
+        if (null != environment && null != profile) {
+            BrowserPlatform.create(environment, profile).start();
+        }
     }
 
 	/** Create Browser. */

@@ -5,11 +5,9 @@ package com.thinkparity.ophelia.browser.platform.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 
-import org.apache.log4j.Logger;
-
-import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
  * @author raymond@thinkparity.com
@@ -17,11 +15,13 @@ import com.thinkparity.codebase.StackUtil;
  */
 abstract class PluginUtility {
 
-    private final Logger logger;
+    /** An apache logger. */
+    protected final Log4JWrapper logger;
 
+    /** Create PluginUtility. */
     protected PluginUtility() {
         super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
     }
 
     /**
@@ -49,25 +49,9 @@ abstract class PluginUtility {
         if (PluginException.class.isAssignableFrom(t.getClass())) {
             return (PluginException) t;
         } else {
-            final Object errorId = getErrorId(t);
-            logger.error(errorId, t);
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             return PluginException.translate(errorId.toString(), t);
         }
-    }
-
-    /**
-     * Obtain the error id for an error.
-     * 
-     * @param t
-     *            An error <code>Throwable</code>.
-     * @return An error id.s
-     */
-    private Object getErrorId(final Throwable t) {
-        return MessageFormat.format("{0} {1} {2} {3}",
-                StackUtil.getFrameClassName(2),
-                StackUtil.getFrameMethodName(2),
-                StackUtil.getFrameFileName(2),
-                StackUtil.getFrameLineNumber(2),
-                t.getLocalizedMessage());
     }
 }

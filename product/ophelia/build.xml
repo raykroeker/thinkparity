@@ -252,8 +252,13 @@
     <target name="help">
         <echo>
 Options:
-    -Dcompile.debug=true,false  Generate compiler debug info.
-                                Default:true
+    -Dthinkparity.environment=DEVELOPMENT_LOCALHOST,DEVELOPMENT_RAYMOND,  Specify the location of the environment the compiled 
+                              DEVELOPMENT_ROBERT,PRODUCTION,TESTING,      executable will connect to.
+                              TESTING_LOCALHOST
+    -Dthinkparity.mode=DEVELOPMENT,PRODUCTION,TESTING                     Specify the mode of operation for the compiled
+                                                                          executable.  This will affect the size of the compiled
+                                                                          code as well
+
 Targets:
     analyze                     Analyze the source.   
     checkout                    Checkout all source.

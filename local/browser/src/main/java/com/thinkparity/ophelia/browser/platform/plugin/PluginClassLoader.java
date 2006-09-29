@@ -164,7 +164,9 @@ class PluginClassLoader extends PluginUtility {
             final List<URL> classpath = new ArrayList<URL>();
             classpath.addAll(getLibs());
             classpath.addAll(getResources());
-            classLoader = new URLClassLoader(classpath.toArray(new URL[] {}));
+            logger.logVariable("classpath", classpath);
+            classLoader = new URLClassLoader(
+                    classpath.toArray(new URL[] {}), getClass().getClassLoader());
         }
         return classLoader;
     }

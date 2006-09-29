@@ -12,6 +12,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.browser.Version;
@@ -32,7 +33,7 @@ public class BrowserPlatformInitializer {
      */
     private static void initLogging(final Workspace workspace) {
         final Properties log4j = ConfigFactory.newInstance("log4j.properties");
-        switch(Version.getMode()) {
+        switch (Version.getMode()) {
         case DEVELOPMENT:
             log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
             break;
@@ -45,11 +46,11 @@ public class BrowserPlatformInitializer {
         default:
             Assert.assertUnreachable("UNKNOWN MODE");
         }
-        log4j.setProperty("log4j.appender.FILE.File",
-                workspace.getLogFile().getAbsolutePath());
+        log4j.setProperty("log4j.appender.FILE.File", workspace.getLogFile().getAbsolutePath());
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(log4j);
-        Logger.getLogger(BrowserPlatformInitializer.class).info("PLATFORM INIT");
+        new Log4JWrapper().logInfo("{0} - {1} - {2}",
+                Version.getName(), Version.getMode(), Version.getBuildId());
     }
 
     /** A thinkParity browser platform <code>Profile</code>. */
@@ -64,11 +65,11 @@ public class BrowserPlatformInitializer {
      * @param profile
      *            A browser profile to initialize.
      */
-    BrowserPlatformInitializer(final Profile profile,
-            final Environment environment) {
+    BrowserPlatformInitializer(final Environment environment,
+            final Profile profile) {
         super();
-        this.profile = profile;
         this.environment = environment;
+        this.profile = profile;
     }
 
     /**

@@ -9,34 +9,25 @@ import com.thinkparity.codebase.NetworkUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.0
  */
-public class Environment {
+public enum Environment {
 
     /** A localhost development environment. */
-    public static final Environment DEVELOPMENT_LOCALHOST;
+    DEVELOPMENT_LOCALHOST("localhost", 5226, Protocol.XMPP),
 
     /** Raymond's development environment. */
-    public static final Environment DEVELOPMENT_RAYMOND;
+    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Protocol.XMPP),
 
     /** Robert's development environment. */
-    public static final Environment DEVELOPMENT_ROBERT;
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Protocol.XMPP),
 
     /** Production environment. */
-    public static final Environment PRODUCTION;
+    PRODUCTION("thinkparity.dyndns.org", 5222, Protocol.XMPP),
 
     /** Testing environment. */
-    public static final Environment TESTING;
+    TESTING("thinkparity.dyndns.org", 5224, Protocol.XMPP),
 
     /** A localhost testing environment. */
-    public static final Environment TESTING_LOCALHOST;
-
-    static {
-        DEVELOPMENT_LOCALHOST = new Environment("localhost", 5226, Protocol.XMPP);
-        DEVELOPMENT_RAYMOND = new Environment("thinkparity.dyndns.org", 5226, Protocol.XMPP);
-        DEVELOPMENT_ROBERT = new Environment("thinkparity.dyndns.org", 5228, Protocol.XMPP);
-        PRODUCTION = new Environment("thinkparity.dyndns.org", 5222, Protocol.XMPP);
-        TESTING = new Environment("thinkparity.dyndns.org", 5224, Protocol.XMPP);
-        TESTING_LOCALHOST = new Environment("localhost", 5224, Protocol.XMPP);
-    }
+    TESTING_LOCALHOST("localhost", 5224, Protocol.XMPP);
 
     /** The server host. */
     private transient String serverHost;
@@ -46,9 +37,6 @@ public class Environment {
 
     /** The server protocol. */
     private transient Protocol serverProtocol;
-
-    /** Create Environment. */
-    public Environment() { super(); }
 
     /**
      * Create Environment.
@@ -60,22 +48,9 @@ public class Environment {
      */
     private Environment(final String serverHost, final Integer serverPort,
             final Protocol serverProtocol) {
-        super();
         setServerHost(serverHost);
         setServerPort(serverPort);
         setServerProtocol(serverProtocol);
-    }
-
-    /**
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if(null != obj && obj instanceof Environment) {
-            return ((Environment) obj).serverHost.equals(serverHost) &&
-                    ((Environment) obj).serverPort.equals(serverPort);
-        }
-        return false;
     }
 
     /**
@@ -103,16 +78,6 @@ public class Environment {
      */
     public Protocol getServerProtocol() {
         return serverProtocol;
-    }
-
-    /**
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        return new StringBuffer(getClass().getName())
-                .append(serverHost).append(serverPort)
-                .toString().hashCode();
     }
 
     /**

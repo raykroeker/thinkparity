@@ -1,3 +1,2 @@
-com.thinkparity.parity.mode:DEVELOPMENT
-pom.artifactId=lBrowser
-pom.name=thinkParity Local Browser
+pom.artifactId=browser
+pom.name=thinkParity Browser

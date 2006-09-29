@@ -45,6 +45,12 @@ insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
     values('omid', 'What is my username?', 'omid');
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('omid', 1000);
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity.archive.0','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity.archive.0', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
+    values('omid', 'thinkparity.archive.0');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);

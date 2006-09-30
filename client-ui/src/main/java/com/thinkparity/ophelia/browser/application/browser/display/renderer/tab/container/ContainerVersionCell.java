@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
@@ -110,10 +111,13 @@ public class ContainerVersionCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.WEST) {
+        switch (textGroup) {
+        case WEST:
             return localization.getString("Text", new Object[] {containerVersion.getVersionId()});
-        } else {
-            return "Publish Person";
+        case EAST:
+            return containerVersion.getUpdatedBy();
+        default:
+            throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
         }
     }
 

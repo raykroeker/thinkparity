@@ -118,19 +118,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ =
             new StringBuffer("select C.CONTAINER_ID,A.ARTIFACT_NAME,")
             .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,")
-            .append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+            .append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
+            .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON, ")
             .append("CD.CONTAINER_DRAFT_USER_ID ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+            .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
             .append("left join CONTAINER_DRAFT CD on C.CONTAINER_ID=CD.CONTAINER_DRAFT_ID ")
-            .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+            .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID")
             .toString();
 
     /** Sql to read a container. */
     private static final String SQL_READ_BY_CONTAINER_ID =
-            new StringBuffer(SQL_READ)
+            new StringBuffer(SQL_READ).append(" ")
             .append("where C.CONTAINER_ID=?")
             .toString();
 
@@ -138,8 +141,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_DOCUMENT_VERSIONS =
             new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
             .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
-            .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
-            .append("A.UPDATED_BY,A.UPDATED_ON,D.DOCUMENT_ID,")
+            .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
+            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,D.DOCUMENT_ID,")
             .append("DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
             .append("DV.CONTENT_ENCODING,DV.DOCUMENT_VERSION_ID,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
@@ -150,6 +153,10 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
             .append("inner join DOCUMENT_VERSION DV on CVAVR.ARTIFACT_ID=DV.DOCUMENT_ID ")
             .append("and CVAVR.ARTIFACT_VERSION_ID=DV.DOCUMENT_VERSION_ID ")
+            .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
+            .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
             .toString();
 
@@ -157,12 +164,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_DOCUMENTS =
             new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
             .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
-            .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
-            .append("A.UPDATED_BY,A.UPDATED_ON,")
+            .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
+            .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
             .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
             .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
+            .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
             .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
@@ -182,13 +191,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_DRAFT_DOCUMENTS =
         new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
         .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
-        .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
-        .append("A.UPDATED_BY,A.UPDATED_ON,")
+        .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,A.CREATED_ON,")
+        .append("UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
         .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
         .append("ARI.UPDATED_ON REMOTE_UPDATED_ON, ")
         .append("CDAVR.ARTIFACT_STATE DRAFT_ARTIFACT_STATE ")
         .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAVR ")
         .append("inner join ARTIFACT A on CDAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
+        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
         .append("where CDAVR.CONTAINER_DRAFT_ID=?")
@@ -241,10 +252,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read a container version. */
     private static final String SQL_READ_VERSION =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
-            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,AV.CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.UPDATED_BY,AV.UPDATED_ON ")
+            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
+            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
+            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
             .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
@@ -253,10 +266,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read container versions. */
     private static final String SQL_READ_VERSIONS =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
-            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,AV.CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.UPDATED_BY,AV.UPDATED_ON ")
+            .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
+            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
+            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("and CV.CONTAINER_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
             .append("inner join ARTIFACT A on CV.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("where CV.CONTAINER_ID=?")
@@ -610,7 +625,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.executeQuery();
 
-            if(session.nextResult()) { return extractContainer(session, localUser); }
+            if (session.nextResult()) {
+                return extractContainer(session, localUser);
+            }
             else { return null; }
         }
         finally { session.close(); }
@@ -627,7 +644,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.executeQuery();
 
             final List<Container> containers = new ArrayList<Container>();
-            while(session.nextResult()) {
+            while (session.nextResult()) {
                 containers.add(extractContainer(session, localUser));
             }
             return containers;
@@ -669,7 +686,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, versionId);
             session.executeQuery();
             final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
-            while(session.nextResult()) {
+            while (session.nextResult()) {
                 versions.add(extractDocumentVersion(session));
             }
             return versions;
@@ -764,7 +781,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             session.executeQuery();
-            if(session.nextResult()) { return extractVersion(session); }
+            if (session.nextResult()) {
+                return extractVersion(session);
+            }
             else { return null; }
         }
         finally { session.close(); }
@@ -886,7 +905,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     Container extractContainer(final Session session, final User localUser) {
         final Container container = new Container();
-        container.setCreatedBy(session.getString("CREATED_BY"));
+        container.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         container.setCreatedOn(session.getCalendar("CREATED_ON"));
         container.setId(session.getLong("CONTAINER_ID"));
         final Long draftOwnerId = session.getLong("CONTAINER_DRAFT_USER_ID");
@@ -897,7 +916,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         container.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
         container.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
         container.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
-        container.setUpdatedBy(session.getString("UPDATED_BY"));
+        container.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
         container.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 
         container.setFlags(artifactIO.getFlags(container.getId()));
@@ -931,10 +950,10 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        version.setArtifactId(session.getLong("CONTAINER_ID"));
        version.setArtifactType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
        version.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
-       version.setCreatedBy(session.getString("CREATED_BY"));
+       version.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
        version.setCreatedOn(session.getCalendar("CREATED_ON"));
        version.setName(session.getString("ARTIFACT_NAME"));
-       version.setUpdatedBy(session.getString("UPDATED_BY"));
+       version.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
        version.setUpdatedOn(session.getCalendar("UPDATED_ON"));
        version.setVersionId(session.getLong("CONTAINER_VERSION_ID"));
        version.setMetaData(getVersionMetaData(version.getArtifactId(), version.getVersionId()));
@@ -990,11 +1009,11 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
         dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
         dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
-        dv.setCreatedBy(session.getString("CREATED_BY"));
+        dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         dv.setCreatedOn(session.getCalendar("CREATED_ON"));
         dv.setEncoding(session.getString("CONTENT_ENCODING"));
         dv.setName(session.getString("ARTIFACT_NAME"));
-        dv.setUpdatedBy(session.getString("UPDATED_BY"));
+        dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
         dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));
         dv.setVersionId(session.getLong("DOCUMENT_VERSION_ID"));
 

@@ -93,9 +93,10 @@ public class InternalAuditModel extends AuditModel {
 		synchronized(getImplLock()) { getImpl().audit(event, createdBy, requestedBy); }
 	}
 
-    public void audit(final PublishEvent event, final JabberId createdBy)
-            throws ParityException {
-        synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
+    public void audit(final PublishEvent event) {
+        synchronized (getImplLock()) {
+            getImpl().audit(event);
+        }
     }
 
     public void audit(final ReactivateEvent event, final JabberId createdBy,

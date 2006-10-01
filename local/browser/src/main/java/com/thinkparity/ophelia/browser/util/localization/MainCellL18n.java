@@ -73,7 +73,7 @@ public class MainCellL18n {
 	 *            The the arguments for the pattern.
 	 * @return The localised text.
 	 */
-	public String getString(final String localKey, final Object[] arguments) {
+	public String getString(final String localKey, final Object... arguments) {
 		return bundleHelper.getString(localKey, arguments);
 	}
 }

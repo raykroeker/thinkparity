@@ -11,7 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum MetaDataType {
 
-	STRING(0), LONG(1), BOOLEAN(2), JABBER_ID(3), USER_ID(4);
+	BOOLEAN(0), CALENDAR(1), JABBER_ID(2), LONG(3), STRING(4), USER_ID(5);
 
 	/**
 	 * Resolve the meta data type by it's id.
@@ -22,37 +22,34 @@ public enum MetaDataType {
 	 */
 	public static MetaDataType fromId(final Integer id) {
 		switch(id) {
-		case 0: return STRING;
-		case 1: return LONG;
-		case 2: return BOOLEAN;
-		case 3: return JABBER_ID;
-        case 4: return USER_ID;
+		case 0: return BOOLEAN;
+		case 1: return CALENDAR;
+		case 2: return JABBER_ID;
+		case 3: return LONG;
+		case 4: return STRING;
+        case 5: return USER_ID;
 		default:
-			throw Assert.createUnreachable(
-					"Could not determine meta data type:  " + id);
+			throw Assert.createUnreachable("UNKNOWN META DATA TYPE");
 		}
 	}
 
-	/**
-	 * Meta data type id.
-	 * 
-	 */
+	/** A meta data type id <code>Integer</code>. */
 	private final Integer id;
 
 	/**
-	 * Create a MetaDataType.
-	 * 
-	 * @param id
-	 *            The type id.
-	 */
+     * Create MetaDataType.
+     * 
+     * @param id
+     *            A meta data type id  <code>Integer</code>.
+     */
 	private MetaDataType(final Integer id) {
 		this.id = id;
 	}
 
 	/**
-	 * Obtain the type id.
+	 * Obtain the meta data type id.
 	 * 
-	 * @return The type id.
+	 * @return A meta data type id <code>Integer</code>.
 	 */
 	public Integer getId() { return id; }
 }

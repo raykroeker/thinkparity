@@ -113,7 +113,7 @@ public class ProviderFactory {
             provider = new ContactProvider(profile, contactModel, userModel);
             break;
         case TAB_CONTAINER:
-            provider = new ContainerProvider(profile, containerModel, documentModel);
+            provider = new ContainerProvider(profile, containerModel, documentModel, userModel);
             break;
         case DIALOG_CONTAINER_PUBLISH:
             provider = new ManageTeamProvider(profile, containerModel, contactModel);

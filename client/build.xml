@@ -176,6 +176,10 @@
         <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.release.dir}">
             <arg value="install.nsi"/>
         </exec>
+        <checksum file="${target.release.dir}/thinkParity-${release.version}.exe"
+            algorithm="MD5"/>
+        <checksum file="${target.release.dir}/thinkParity-${release.version}.exe"
+            algorithm="SHA"/>
     </target>
 
     <!-- release -->
@@ -389,7 +393,7 @@ Examples:
     </target>
 
     <!-- process resources -->
-    <target name="process-resources">
+    <target name="process-resources" depends="init">
         <copy todir="${target.classes.dir}">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
@@ -496,7 +500,7 @@ Examples:
 	</target>
 
     <!-- process test resources -->
-    <target name="test-process-resources">
+    <target name="test-process-resources" depends="init">
         <copy todir="${target.test-classes.dir}">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/test/resources"/>

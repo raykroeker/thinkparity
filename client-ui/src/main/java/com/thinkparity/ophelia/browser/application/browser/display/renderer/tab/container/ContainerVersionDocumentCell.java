@@ -44,9 +44,14 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
     /** Create a CellDocument. */
     public ContainerVersionDocumentCell(final ContainerVersionDocumentFolderCell versionDocumentFolder, final Document document) {
         super();
-        this.document = new Document(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
-                document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
-                document.getUpdatedOn());
+        this.document = new Document();
+        this.document.setCreatedBy(document.getCreatedBy());
+        this.document.setCreatedOn(document.getCreatedOn());
+        this.document.add(document.getFlags());
+        this.document.setUniqueId(document.getUniqueId());
+        this.document.setName(document.getName());
+        this.document.setUpdatedBy(document.getUpdatedBy());
+        this.document.setUpdatedOn(document.getUpdatedOn());
         this.document.setId(document.getId());
         this.document.setRemoteInfo(document.getRemoteInfo());
         this.document.setState(document.getState());

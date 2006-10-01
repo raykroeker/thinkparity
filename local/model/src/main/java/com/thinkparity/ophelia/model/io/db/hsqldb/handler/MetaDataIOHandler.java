@@ -3,6 +3,10 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.text.ParseException;
+import java.util.Calendar;
+
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
@@ -204,6 +208,12 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		switch(metaDataType) {
 		case BOOLEAN:
 			return Boolean.valueOf(session.getString(columnName));
+        case CALENDAR:
+            try {
+                return DateUtil.fromGMTISO(session.getString(columnName));
+            } catch (final ParseException px) {
+                throw translateError(px);
+            }
 		case LONG:
 		case USER_ID:
 			return Long.valueOf(session.getString(columnName));
@@ -295,6 +305,10 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		case BOOLEAN:
 			session.setString(index, ((Boolean) value).toString());
 			break;
+        case CALENDAR:
+            final String valueGMTISO = DateUtil.toGMTISO((Calendar) value);
+            session.setString(index, valueGMTISO);
+            break;
 		case LONG:
         case USER_ID:
 			session.setString(index, ((Long) value).toString());

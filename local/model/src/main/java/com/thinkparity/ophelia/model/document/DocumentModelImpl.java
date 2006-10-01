@@ -834,7 +834,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         try {
             // create document
             final Document document = new Document();
-            document.setCreatedBy(createdBy.getUsername());
+            document.setCreatedBy(createdBy);
             document.setCreatedOn(createdOn);
             document.setFlags(Collections.<ArtifactFlag>emptyList());
             document.setUniqueId(uniqueId);
@@ -891,7 +891,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     		version.setArtifactUniqueId(document.getUniqueId());
     		version.setChecksum(MD5Util.md5Hex(FileUtil.readBytes(tempContentFile)));
     		version.setCompression(Compression.NONE);
-    		version.setCreatedBy(createdBy.getUsername());
+    		version.setCreatedBy(createdBy);
     		version.setCreatedOn(createdOn);
     		version.setEncoding(Encoding.BASE_64);
     		version.setName(document.getName());

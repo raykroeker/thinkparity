@@ -1,28 +1,24 @@
 /*
  * Created On: Jun 29, 2006 8:30:14 AM
- * $Id$
  */
 package com.thinkparity.ophelia.model.container;
 
 import java.util.Calendar;
+import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AbstractAuditor;
-import com.thinkparity.ophelia.model.audit.event.AddTeamMemberEvent;
-import com.thinkparity.ophelia.model.audit.event.CloseEvent;
-import com.thinkparity.ophelia.model.audit.event.CreateEvent;
 import com.thinkparity.ophelia.model.audit.event.PublishEvent;
-import com.thinkparity.ophelia.model.audit.event.ReactivateEvent;
-import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
 
 /**
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.3
  */
-class ContainerAuditor extends AbstractAuditor {
+final class ContainerAuditor extends AbstractAuditor {
 
     /**
      * Create ContainerAuditor.
@@ -30,65 +26,20 @@ class ContainerAuditor extends AbstractAuditor {
      * @param modelFactory
      *            A thinkParity <code>InternalModelFactory</code>.
      */
-    public ContainerAuditor(final InternalModelFactory modelFactory) {
+    ContainerAuditor(final InternalModelFactory modelFactory) {
         super(modelFactory);
     }
 
-    void addTeamMember(final Long id, final JabberId createdBy,
-            final Calendar createdOn, final JabberId jabberId)
-            throws ParityException {
-        final AddTeamMemberEvent event = new AddTeamMemberEvent();
-        event.setArtifactId(id);
-        event.setCreatedOn(createdOn);
+    void create(final Container container) {}
 
-        getInternalAuditModel().audit(event, createdBy, jabberId);
-    }
-
-    void close(final Long id, final JabberId closedBy, final Calendar closedOn,
-            final JabberId createdBy, final Calendar createdOn)
-            throws ParityException {
-        final CloseEvent closeEvent = new CloseEvent();
-        closeEvent.setArtifactId(id);
-        closeEvent.setCreatedOn(createdOn);
-        getInternalAuditModel().audit(closeEvent, createdBy, closedBy);
-    }
-
-    void create(final Long id, final JabberId createdBy,
-            final Calendar createdOn) throws ParityException {
-        final CreateEvent event = new CreateEvent();
-        event.setArtifactId(id);
-        event.setCreatedOn(createdOn);
-        getInternalAuditModel().audit(event, createdBy);
-    }
-
-    void publish(final Long id, final Long versionId, final JabberId createdBy,
-            final Calendar createdOn) throws ParityException {
-        final PublishEvent event = new PublishEvent();
-        event.setArtifactId(id);
-        event.setArtifactVersionId(versionId);
-        event.setCreatedOn(createdOn);
-        getInternalAuditModel().audit(event, createdBy);
-    }
-
-    void reactivate(final Long id, final Long versionId,
-            final JabberId createdBy, final Calendar createdOn,
-            final JabberId reactivatedBy, Calendar reactivatedOn)
-            throws ParityException {
-        final ReactivateEvent event = new ReactivateEvent();
-        event.setArtifactId(id);
-        event.setArtifactVersionId(versionId);
-        event.setCreatedOn(createdOn);
-        getInternalAuditModel().audit(event, createdBy, reactivatedBy);
-    }
-
-    void sendKey(final Long id, final JabberId createdBy,
-            final Calendar createdOn, final Long versionId,
-            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo)
-            throws ParityException {
-        final SendKeyEvent sendKeyEvent = new SendKeyEvent();
-        sendKeyEvent.setArtifactId(id);
-        sendKeyEvent.setArtifactVersionId(versionId);
-        sendKeyEvent.setCreatedOn(sentOn);
-        getInternalAuditModel().audit(sendKeyEvent, createdBy, sentTo);
+    void publish(final Container container, final ContainerDraft draft,
+            final ContainerVersion version, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        final PublishEvent publishEvent = new PublishEvent();
+        publishEvent.setArtifactId(container.getId());
+        publishEvent.setArtifactVersionId(version.getVersionId());
+        publishEvent.setPublishedBy(publishedBy);
+        publishEvent.setPublishedOn(publishedOn);
+        getAuditModel().audit(publishEvent);
     }
 }

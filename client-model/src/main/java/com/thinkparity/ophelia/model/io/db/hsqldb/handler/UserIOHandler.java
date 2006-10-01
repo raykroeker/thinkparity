@@ -24,13 +24,6 @@ public class UserIOHandler extends AbstractIOHandler implements
         .append("values (?,?,?,?)")
         .toString();
 
-    /** Sql to update a user. */
-    private static final String SQL_UPDATE =
-            new StringBuffer("update USER ")
-            .append("set NAME=?,ORGANIZATION=?,TITLE=? ")
-            .append("where USER_ID=?")
-            .toString();
-
     /** Sql to read a user by their jabber id. */
     private static final String SQL_READ_BY_JABBER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
@@ -45,6 +38,27 @@ public class UserIOHandler extends AbstractIOHandler implements
         .append("from USER U ")
         .append("where U.USER_ID=?")
         .toString();
+
+    /** Sql to read a user's local user id. */
+    private static final String SQL_READ_LOCAL_ID =
+        new StringBuffer("select U.USER_ID ")
+        .append("from USER U ")
+        .append("where U.JABBER_ID=?")
+        .toString();
+
+    /** Sql to read a user's user id. */
+    private static final String SQL_READ_USER_ID =
+        new StringBuffer("select U.JABBER_ID ")
+        .append("from USER U ")
+        .append("where U.USER_ID=?")
+        .toString();
+
+    /** Sql to update a user. */
+    private static final String SQL_UPDATE =
+            new StringBuffer("update USER ")
+            .append("set NAME=?,ORGANIZATION=?,TITLE=? ")
+            .append("where USER_ID=?")
+            .toString();
 
     /**
      * Create a UserIOHandler.
@@ -113,24 +127,6 @@ public class UserIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Update a user.
-     * 
-     * @param session
-     *            A database <code>Session</code>.
-     * @param user
-     *            A <code>User</code>.
-     */
-    void update(final Session session, final User user) {
-        session.prepareStatement(SQL_UPDATE);
-        session.setString(1, user.getName());
-        session.setString(2, user.getOrganization());
-        session.setString(3, user.getTitle());
-        session.setLong(4, user.getLocalId());
-        if (1 != session.executeUpdate())
-            throw new HypersonicException("Could not update user.");
-    }
-
-    /**
      * Create a user.
      * 
      * @param session
@@ -169,5 +165,59 @@ public class UserIOHandler extends AbstractIOHandler implements
         u.setOrganization(session.getString("ORGANIZATION"));
         u.setTitle(session.getString("TITLE"));
         return u;
+    }
+
+    /**
+     * Read the local user id for the jabber id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    Long readLocalId(final Session session, final JabberId userId) {
+        session.prepareStatement(SQL_READ_LOCAL_ID);
+        session.setQualifiedUsername(1, userId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getLong("USER_ID");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Read the user id for the local id.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    JabberId readUserId(final Session session, final Long userId) {
+        session.prepareStatement(SQL_READ_USER_ID);
+        session.setLong(1, userId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getQualifiedUsername("JABBER_ID");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Update a user.
+     * 
+     * @param session
+     *            A database <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    void update(final Session session, final User user) {
+        session.prepareStatement(SQL_UPDATE);
+        session.setString(1, user.getName());
+        session.setString(2, user.getOrganization());
+        session.setString(3, user.getTitle());
+        session.setLong(4, user.getLocalId());
+        if (1 != session.executeUpdate())
+            throw new HypersonicException("Could not update user.");
     }
 }

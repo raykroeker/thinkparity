@@ -52,10 +52,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private static final String SQL_GET =
 		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
 		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+		.append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI ")
 		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_ID=?")
@@ -64,10 +67,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private static final String SQL_GET_BY_UNIQUE_ID =
 		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
 		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+		.append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_UNIQUE_ID=?")
 		.toString();
@@ -77,20 +83,25 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
-        .append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
+        .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
 		.append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
 		.toString();
 
 	private static final String SQL_LIST =
 		new StringBuffer("select D.CONTAINER_ID,A.ARTIFACT_ID,A.ARTIFACT_NAME,")
 		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
-		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+		.append("from DOCUMENT D ")
+        .append("inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("inner join USER UC on A.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("order by A.ARTIFACT_ID asc")
 		.toString();
@@ -99,10 +110,12 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
-        .append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+        .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+        .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+        .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
 		.append("where DV.DOCUMENT_ID=? ")
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
@@ -119,11 +132,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             new StringBuffer("select DV.DOCUMENT_ID,DV.DOCUMENT_VERSION_ID,")
             .append("DV.CONTENT,DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
             .append("DV.CONTENT_ENCODING,AV.ARTIFACT_NAME,AV.ARTIFACT_TYPE,")
-            .append("AV.ARTIFACT_UNIQUE_ID,AV.CREATED_BY,AV.CREATED_ON,")
-            .append("AV.UPDATED_BY,AV.UPDATED_ON ")
+            .append("AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
+            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from DOCUMENT_VERSION DV ")
             .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
             .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+            .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
+            .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
             .toString();
 
@@ -522,7 +537,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
      */
 	Document extractDocument(final Session session) {
 		final Document d = new Document();
-		d.setCreatedBy(session.getString("CREATED_BY"));
+		d.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		d.setCreatedOn(session.getCalendar("CREATED_ON"));
 		d.setId(session.getLong("ARTIFACT_ID"));
 		d.setName(session.getString("ARTIFACT_NAME"));
@@ -530,7 +545,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		d.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
 		d.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
 		d.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
-		d.setUpdatedBy(session.getString("UPDATED_BY"));
+		d.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
 		d.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 
 		d.setFlags(artifactIO.getFlags(d.getId()));
@@ -551,11 +566,11 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
 		dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
 		dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
-		dv.setCreatedBy(session.getString("CREATED_BY"));
+		dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		dv.setCreatedOn(session.getCalendar("CREATED_ON"));
 		dv.setEncoding(session.getString("CONTENT_ENCODING"));
 		dv.setName(session.getString("ARTIFACT_NAME"));
-		dv.setUpdatedBy(session.getString("UPDATED_BY"));
+		dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
 		dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 		dv.setVersionId(session.getLong("DOCUMENT_VERSION_ID"));
 

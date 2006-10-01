@@ -28,12 +28,21 @@ public class AbstractAuditor {
 		this.modelFactory = modelFactory;
 	}
 
-	/**
-	 * Obtain the internal audit model.
-	 * 
-	 * @return The internal audit model.
-	 */
-	protected InternalAuditModel getInternalAuditModel() {
-		return modelFactory.getAuditModel();
-	}
+    /**
+     * Obtain the internal audit model.
+     * 
+     * @return The internal audit model.
+     */
+    protected InternalAuditModel getAuditModel() {
+        return modelFactory.getAuditModel();
+    }
+
+    /**
+     * Obtain the internal audit model.
+     * 
+     * @return The internal audit model.
+     */
+    protected InternalAuditModel getInternalAuditModel() {
+        return getAuditModel();
+    }
 }

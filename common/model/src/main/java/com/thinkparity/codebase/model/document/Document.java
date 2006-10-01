@@ -3,12 +3,7 @@
  */
 package com.thinkparity.codebase.model.document;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.UUID;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 /**
@@ -30,71 +25,12 @@ public class Document extends Artifact {
 	/** Create Document. */
 	public Document() { super(); }
 
-    /**
-	 * Create a Document.
-	 * 
-	 * @param createdBy
-	 *            The creator.
-	 * @param createdOn
-	 *            The creation date.
-	 * @param description
-	 *            The description.
-	 * @param flags
-	 *            The object flags.
-	 * @param id
-	 *            The unique id.
-	 * @param name
-	 *            The name.
-	 * @param updatedBy
-	 *            The updator.
-	 * @param updatedOn
-	 *            The update date.
-	 */
-	public Document(final String createdBy, final Calendar createdOn,
-			final String description, final Collection<ArtifactFlag> flags,
-			final UUID uniqueId, final String name, final String updatedBy,
-			final Calendar updatedOn) {
-		this(createdBy, createdOn, description, flags, uniqueId, name, null,
-				updatedBy, updatedOn);
-	}
-
-    /**
-	 * Create a Document.
-	 * 
-	 * @param createdBy
-	 *            The creator.
-	 * @param createdOn
-	 *            The creation date.
-	 * @param description
-	 *            The description.
-	 * @param flags
-	 *            The object flags.
-	 * @param id
-	 *            The unique id.
-	 * @param name
-	 *            The name.
-	 * @param parentId
-	 *            The parent id.
-	 * @param updatedBy
-	 *            The updator.
-	 * @param updatedOn
-	 *            The update date.
-	 * @deprecated Remove this constructor.
-	 */
-	private Document(final String createdBy, final Calendar createdOn,
-			final String description, final Collection<ArtifactFlag> flags,
-			final UUID uniqueId, final String name, final UUID parentId,
-			final String updatedBy, final Calendar updatedOn) {
-		super(createdBy, createdOn, description, flags, uniqueId, name, parentId,
-				updatedBy, updatedOn);
-	}
-
 	/**
-	 * Obtain the type of parity object.
-	 * 
-	 * @return The type of parity object.
-	 * @see Artifact#getType()
-	 * @see ArtifactType#DOCUMENT
-	 */
+     * Obtain the type of parity object.
+     * 
+     * @return The type of parity object.
+     * @see Artifact#getType()
+     * @see ArtifactType#DOCUMENT
+     */
 	public ArtifactType getType() { return ArtifactType.DOCUMENT; }
 }

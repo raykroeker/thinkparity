@@ -1,5 +1,5 @@
 /*
- * Apr 16, 2005
+ * Created On: Apr 16, 2005
  */
 package com.thinkparity.codebase.model.artifact;
 
@@ -7,84 +7,53 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
- * ArtifactVersion
+ * <b>Title:</b>thinkParity Artifact Version<br>
+ * <b>Description:</b>An artifact version represents an <code>Artifact</code>
+ * in its entirety; as well as the revision information including an id; a
+ * timestamp and some custom meta data.
  * 
  * @author raykroeker@gmail.com
  * @version 1.2
+ * @see Artifact
  */
 public abstract class ArtifactVersion {
 
-	/**
-	 * The artifact id.
-	 * 
-	 */
-	private Long artifactId;
+	/** The created by user id <code>JabberId</code>. */
+	private JabberId createdBy;
 
-	/**
-	 * The artifact type.
-	 * 
-	 */
-	private ArtifactType artifactType;
-
-	/**
-	 * The artifact unique id.
-	 * 
-	 */
-	private UUID artifactUniqueId;
-
-	/**
-	 * The artifact creator.
-	 * 
-	 */
-	private String createdBy;
-
-	/**
-	 * The artifact creation date.
-	 * 
-	 */
+	/** The creation date <code>Calendar</code>. */
 	private Calendar createdOn;
 
-	/**
-	 * The artifact version meta data.
-	 * 
-	 */
+	/** The id <code>Long</code>. */
+	private Long id;
+
+	/** The meta data <code>Properties</code>. */
 	private final Properties metaData;
 
-	/**
-	 * The artifact name.
-	 * 
-	 */
+	/** The name <code>String</code>. */
 	private String name;
 
-	/**
-	 * The artifact updator.
-	 * 
-	 */
-	private String updatedBy;
+	/** The type <code>ArtifactType</code>. */
+	private ArtifactType type;
 
-	/**
-	 * The artifact version update date.
-	 * 
-	 */
+	/** The unique id <code>UUID</code>. */
+	private UUID uniqueId;
+
+	/** The updated by user id <code>JabberId</code>. */
+	private JabberId updatedBy;
+
+	/** The update date <code>Calendar</code>. */
 	private Calendar updatedOn;
 
-	/**
-	 * The artifact version id.
-	 * 
-	 */
+	/** The version id <code>Long</code>. */
 	private Long versionId;
 
 	/**
-	 * Create a ArtifactVersion
+	 * Create ArtifactVersion.
 	 * 
-	 * @param artifactId
-	 *            The artifact unique id.
-	 * @param artifactType
-	 *            The artifact type.
 	 */
 	protected ArtifactVersion() {
 		super();
@@ -96,28 +65,36 @@ public abstract class ArtifactVersion {
 	 * 
 	 * @return The artifact unique id.
 	 */
-	public Long getArtifactId() { return artifactId; }
+	public Long getArtifactId() {
+        return id;
+	}
 
 	/**
 	 * Obtain the artifact type.
 	 * 
 	 * @return The artifactType.
 	 */
-	public ArtifactType getArtifactType() { return artifactType; }
+	public ArtifactType getArtifactType() {
+        return type;
+	}
 
 	/**
 	 * Obtain the artifact unique id.
 	 * 
 	 * @return The artifact unique id.
 	 */
-	public UUID getArtifactUniqueId() { return artifactUniqueId; }
+	public UUID getArtifactUniqueId() {
+        return uniqueId;
+	}
 
 	/**
 	 * Obtain the aritfact creator.
 	 * 
 	 * @return The aritfact creator.
 	 */
-	public String getCreatedBy() { return createdBy; }
+	public JabberId getCreatedBy() {
+        return createdBy;
+    }
 
 	/**
 	 * Obtain the artifact creation date.
@@ -168,7 +145,9 @@ public abstract class ArtifactVersion {
 	 * 
 	 * @return The artifact updator.
 	 */
-	public String getUpdatedBy() { return updatedBy; }
+	public JabberId getUpdatedBy() {
+        return updatedBy;
+	}
 
 	/**
 	 * Obtain the artifact update date.
@@ -182,7 +161,9 @@ public abstract class ArtifactVersion {
 	 * 
 	 * @return The version id.
 	 */
-	public Long getVersionId() { return versionId; }
+	public Long getVersionId() {
+        return versionId;
+	}
 
     /**
 	 * Set the artifact id.
@@ -190,26 +171,26 @@ public abstract class ArtifactVersion {
 	 * @param artifactId
 	 *            The artifact id.
 	 */
-	public void setArtifactId(final Long artifactId) {
-		this.artifactId = artifactId;
+	public void setArtifactId(final Long id) {
+		this.id = id;
 	}
 
 	/**
 	 * Set the artifact type.
 	 * @param artifactType The artifact type.
 	 */
-	public void setArtifactType(final ArtifactType artifactType) {
-		this.artifactType = artifactType;
+	public void setArtifactType(final ArtifactType type) {
+		this.type = type;
 	}
 
 	/**
-	 * Set the artifact unique id.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 */
-	public void setArtifactUniqueId(final UUID artifactUniqueId) {
-		this.artifactUniqueId = artifactUniqueId;
+     * Set the unique id.
+     * 
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+	public void setArtifactUniqueId(final UUID uniqueId) {
+		this.uniqueId = uniqueId;
 	}
 
 	/**
@@ -218,7 +199,7 @@ public abstract class ArtifactVersion {
 	 * @param createdBy
 	 *            The aritfact creator.
 	 */
-	public void setCreatedBy(final String createdBy) {
+	public void setCreatedBy(final JabberId createdBy) {
 		this.createdBy = createdBy;
 	}
 
@@ -270,7 +251,7 @@ public abstract class ArtifactVersion {
 	 * @param updatedBy
 	 *            The artifact updator.
 	 */
-	public void setUpdatedBy(final String updatedBy) {
+	public void setUpdatedBy(final JabberId updatedBy) {
 		this.updatedBy = updatedBy;
 	}
 

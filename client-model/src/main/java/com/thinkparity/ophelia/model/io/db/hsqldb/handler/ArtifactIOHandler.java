@@ -669,9 +669,9 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setStateAsInteger(2, artifact.getState());
 		session.setTypeAsInteger(3, artifact.getType());
 		session.setUniqueId(4, artifact.getUniqueId());
-		session.setString(5, artifact.getCreatedBy());
+		session.setLong(5, readLocalId(artifact.getCreatedBy()));
 		session.setCalendar(6, artifact.getCreatedOn());
-		session.setString(7, artifact.getUpdatedBy());
+		session.setLong(7, readLocalId(artifact.getUpdatedBy()));
 		session.setCalendar(8, artifact.getUpdatedOn());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create.");
@@ -698,9 +698,9 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setString(3, version.getName());
 		session.setTypeAsString(4, version.getArtifactType());
 		session.setUniqueId(5, version.getArtifactUniqueId());
-		session.setString(6, version.getCreatedBy());
+		session.setLong(6, readLocalId(version.getCreatedBy()));
 		session.setCalendar(7, version.getCreatedOn());
-		session.setString(8, version.getUpdatedBy());
+		session.setLong(8, readLocalId(version.getUpdatedBy()));
 		session.setCalendar(9, version.getUpdatedOn());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create version.");
@@ -836,9 +836,9 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         session.setStateAsInteger(2, artifact.getState());
         session.setTypeAsInteger(3, artifact.getType());
         session.setUniqueId(4, artifact.getUniqueId());
-        session.setString(5, artifact.getCreatedBy());
+        session.setLong(5, readLocalId(artifact.getCreatedBy()));
         session.setCalendar(6, artifact.getCreatedOn());
-        session.setString(7, artifact.getUpdatedBy());
+        session.setLong(7, readLocalId(artifact.getUpdatedBy()));
         session.setCalendar(8, artifact.getUpdatedOn());
         if(1 != session.executeUpdate())
             throw new HypersonicException("Could not restore.");
@@ -847,6 +847,22 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 
         deleteFlags(session, artifact.getId());
         insertFlags(session, artifact.getId(), artifact.getFlags());
+    }
+
+    /**
+     * Read the local user id for the jabber id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    private Long readLocalId(final JabberId userId) {
+        final Session session = openSession();
+        try {
+            return userIO.readLocalId(session, userId);
+        } finally {
+            session.close();
+        }
     }
 
     /**

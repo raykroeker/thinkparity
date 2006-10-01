@@ -55,9 +55,16 @@ public class DraftDocumentCell extends DefaultTabCell {
      */
     public DraftDocumentCell(final DraftCell draft, final Document document) {
         super();
-        this.document = new Document(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
-                document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
-                document.getUpdatedOn());
+        // NOTE Not sure why we are creating a new reference to the same
+        // document here.
+        this.document = new Document();
+        this.document.setCreatedBy(document.getCreatedBy());
+        this.document.setCreatedOn(document.getCreatedOn());
+        this.document.add(document.getFlags());
+        this.document.setUniqueId(document.getUniqueId());
+        this.document.setName(document.getName());
+        this.document.setUpdatedBy(document.getUpdatedBy());
+        this.document.setUpdatedOn(document.getUpdatedOn());
         this.document.setId(document.getId());
         this.document.setRemoteInfo(document.getRemoteInfo());
         this.document.setState(document.getState());

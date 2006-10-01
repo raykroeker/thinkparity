@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -21,7 +22,7 @@ import java.util.Vector;
  */
 public abstract class DateUtil {
 
-	/**
+    /**
 	 * Obtain from a Calendar, the desired DateImage as a String.  The default
 	 * Locale will be used when obtaining the format.
 	 * @param calendar <code>java.util.Calendar</code>
@@ -33,7 +34,7 @@ public abstract class DateUtil {
 		DateImage dateImage) {
 		return format(calendar, dateImage, null);
 	}
-	
+
 	/**
 	 * Obtain from a Calendar, the desired DateImage as a String, using the Locale
 	 * to obtain the format.
@@ -50,7 +51,7 @@ public abstract class DateUtil {
 			return null;
 		return getSimpleDateFormat(dateImage, locale).format(calendar.getTime());
 	}
-
+	
 	public static synchronized String format(
 		Calendar calendar,
 		String image) {
@@ -63,7 +64,7 @@ public abstract class DateUtil {
 		Locale locale) {
 		return DateUtil.formatCalendar(calendar, image, locale);
 	}
-	
+
 	/**
 	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
 	 * @param milliseconds <code>long</code>
@@ -75,7 +76,7 @@ public abstract class DateUtil {
 		DateImage dateImage) {
 		return format(milliseconds, dateImage, null);
 	}
-
+	
 	/**
 	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
 	 * @param milliseconds <code>long</code>
@@ -90,6 +91,33 @@ public abstract class DateUtil {
 		return getSimpleDateFormat(dateImage, locale).format(
 			getInstance(milliseconds, locale).getTime());
 	}
+
+	/**
+     * Obtain the date\time as an ISO formatted string in the GMT time-zone.
+     * 
+     * @param calendar
+     *            A <code>Calendar</code>.
+     * @return An <code>DateImate.ISO</code> formatted string in the GMT
+     *         time-zone.
+     */
+    public static String toGMTISO(final Calendar calendar) {
+        final Calendar valueGMT =
+            getInstance(calendar.getTime(), new SimpleTimeZone(0, "GMT"));
+        return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
+    }
+
+    /**
+     * Parse a string as an iso date format; and construct a GMT time-zone based
+     * date.
+     * 
+     * @param string
+     *            A formatted date string.
+     * @return A <code>Calendar</code>.
+     */
+    public static Calendar fromGMTISO(final String string)
+            throws ParseException {
+        return parse(string, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
+    }
 
 	/**
 	 * Obtain a calendar initialized to the default TimeZone and Locale.

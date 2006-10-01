@@ -15,7 +15,6 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -26,7 +25,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
@@ -62,7 +60,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
+final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
     /** The artifact io layer. */
     private final ArtifactIOHandler artifactIO;
@@ -206,18 +204,15 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("name", name);
         try {
-            final Credentials credentials = readCredentials();
-            final Calendar currentDateTime = currentDateTime();
-    
             final Container container = new Container();
-            container.setCreatedBy(credentials.getUsername());
-            container.setCreatedOn(currentDateTime);
+            container.setCreatedBy(localUserId());
+            container.setCreatedOn(currentDateTime());
             container.setName(name);
             container.setState(ArtifactState.ACTIVE);
             container.setType(ArtifactType.CONTAINER);
             container.setUniqueId(UUIDGenerator.nextUUID());
-            container.setUpdatedBy(credentials.getUsername());
-            container.setUpdatedOn(currentDateTime);
+            container.setUpdatedBy(container.getCreatedBy());
+            container.setUpdatedOn(container.getCreatedOn());
             // local create
             containerIO.create(container);
     
@@ -226,10 +221,8 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             artifactModel.applyFlagKey(container.getId());
     
             // create remote info
-            artifactModel.createRemoteInfo(container.getId(), localUserId(), currentDateTime);
-    
-            // audit
-            auditor.create(container.getId(), localUserId(), currentDateTime);
+            artifactModel.createRemoteInfo(container.getId(),
+                    container.getCreatedBy(), container.getCreatedOn());
     
             // index
             getIndexModel().indexContainer(container.getId());
@@ -240,8 +233,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // create first draft
             createFirstDraft(container.getId(), teamMember);
     
-            // fire event
+            // audit\fire event
             final Container postCreation = read(container.getId());
+            auditContainerCreated(postCreation);
             notifyContainerCreated(postCreation, localEventGenerator);
             return postCreation;
         } catch (final Throwable t) {
@@ -435,7 +429,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 doesVersionExist = Boolean.FALSE;
 
                 container = new Container();
-                container.setCreatedBy(publishedBy.getUsername());
+                container.setCreatedBy(publishedBy);
                 container.setCreatedOn(publishedOn);
                 container.setName(name);
                 container.setState(ArtifactState.ACTIVE);
@@ -562,7 +556,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 doesVersionExist = Boolean.FALSE;
 
                 container = new Container();
-                container.setCreatedBy(sentBy.getUsername());
+                container.setCreatedBy(sentBy);
                 container.setCreatedOn(sentOn);
                 container.setName(name);
                 container.setState(ArtifactState.ACTIVE);
@@ -717,7 +711,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete draft
         final ContainerDraft draft = readDraft(containerId);
         if (null == draft) {
-            logger.logInfo("Draft did not previously exist for {0}.", name);
+            logger.logWarning("Draft did not previously exist for {0}.", name);
         } else {
             for (final Artifact artifact : draft.getArtifacts()) {
                 containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
@@ -726,9 +720,14 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         // create published to list
         containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
-        // fire event
-        notifyContainerPublished(read(containerId), readDraft(containerId),
-                readVersion(containerId, versionId), remoteEventGenerator);
+        // audit\fire event
+        final Container postPublish = read(containerId);
+        final ContainerDraft postPublishDraft = readDraft(containerId);
+        final ContainerVersion postPublishVersion = readVersion(containerId, versionId);
+        auditContainerPublished(postPublish, postPublishDraft,
+                postPublishVersion, publishedBy, publishedTo, publishedOn);
+        notifyContainerPublished(postPublish, postPublishDraft,
+                postPublishVersion, remoteEventGenerator);
     }
 
     /**
@@ -1596,11 +1595,9 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final InternalUserModel userModel = getInternalUserModel();
             // restore container info
             final Container container = archiveModel.readContainer(uniqueId);
-            final JabberId updatedByJabberId =
-                JabberIdBuilder.parseUsername(container.getUpdatedBy());
             containerIO.create(container);
-            artifactIO.createRemoteInfo(container.getId(), updatedByJabberId,
-                    container.getUpdatedOn());
+            artifactIO.createRemoteInfo(container.getId(),
+                    container.getUpdatedBy(), container.getUpdatedOn());
             // restore team info
             final List<JabberId> teamIds = archiveModel.readTeamIds(uniqueId);
             for (final JabberId teamId : teamIds) {
@@ -1623,7 +1620,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 for (final Document document : documents) {
                     documentIO.create(document);
                     artifactIO.createRemoteInfo(document.getId(),
-                            updatedByJabberId, document.getUpdatedOn());
+                            document.getUpdatedBy(), document.getUpdatedOn());
                     documentVersions = archiveModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
                     for (final DocumentVersion documentVersion : documentVersions) {
                         documentVersion.setArtifactId(document.getId());
@@ -1916,6 +1913,40 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Audit a container created event.
+     * 
+     * @param container
+     *            An container.
+     */
+    private void auditContainerCreated(final Container container) {
+        auditor.create(container);
+    }
+
+    /**
+     * Audit a container created event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param publishedBy
+     *            The publish user.
+     * @param publishedTo
+     *            The publish to users.
+     * @param publishedOn
+     *            The publish date.
+     */
+    private void auditContainerPublished(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        auditor.publish(container, draft, version, publishedBy, publishedTo,
+                publishedOn);
+    }
+
+    /**
      * Create the container in the distributed network.
      * 
      * @param container
@@ -2001,7 +2032,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         version.setArtifactId(container.getId());
         version.setArtifactType(container.getType());
         version.setArtifactUniqueId(container.getUniqueId());
-        version.setCreatedBy(createdBy.getUsername());
+        version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
         version.setName(container.getName());
         version.setUpdatedBy(container.getCreatedBy());
@@ -2058,6 +2089,7 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.delete(containerId);
     }
 
+
     /**
      * Determine whether or not a local draft exists.
      * 
@@ -2112,7 +2144,6 @@ class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         finally { inputStream.close(); }
     }
-
 
     /**
      * Handle the receipt of a document.

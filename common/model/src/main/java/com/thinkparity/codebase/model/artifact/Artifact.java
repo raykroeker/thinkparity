@@ -6,6 +6,7 @@ package com.thinkparity.codebase.model.artifact;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.note.Note;
 
 
@@ -23,73 +24,43 @@ import com.thinkparity.codebase.model.note.Note;
  */
 public abstract class Artifact {
 
-	/**
-	 * The creator of the object.
-	 * 
-	 */
-	private String createdBy;
+	/** The created by user id <code>JabberId</code>. */
+	private JabberId createdBy;
 
-	/**
-	 * The creation date of the object.
-	 */
+	/** The created on date <code>Calendar</code>. */
 	private Calendar createdOn;
 
-	/**
-	 * The custom properties of the parity object.
-	 */
+	/** Custom <code>Properties</code>. */
 	private Properties customProperties;
 
-	/**
-	 * The description of object.
-	 */
+	/** A description <code>String</code>. */
 	private String description;
 
-	/**
-	 * The current state of the object.
-	 */
-	private final Collection<ArtifactFlag> flags;
+	/** A list of all applied <code>ArtifactFlag</code>s. */
+	private final List<ArtifactFlag> flags;
 
-	/**
-	 * The local artifact id.
-	 * 
-	 */
+	/** The id <code>Long</code>. */
 	private Long id;
 
-	/**
-	 * The name of the object.
-	 */
+	/** The name <code>String</code>. */
 	private String name;
 
-	/**
-	 * List of notes.
-	 */
-	private Collection<Note> notes;
+	/** The list of notes. */
+	private final List<Note> notes;
 
-	/**
-	 * The artifact's remote info.
-	 * 
-	 */
+	/** The <code>ArtifactRemoteInfo</code>. */
 	private ArtifactRemoteInfo remoteInfo;
 
-	/**
-	 * The artifact state.
-	 * 
-	 */
+	/** The <code>ArtifactState</code>. */
 	private ArtifactState state;
 
-	/**
-	 * Unique id of the object.
-	 */
+	/** The unique id <code>UUID</code>. */
 	private UUID uniqueId;
 
-	/**
-	 * Updator of the object.
-	 */
-	private String updatedBy;
+	/** The updated by user id <code>JabberId</code>. */
+	private JabberId updatedBy;
 
-	/**
-	 * Update date of the object.
-	 */
+	/** The updated on date <code>Calendar</code>. */
 	private Calendar updatedOn;
 
 	/**
@@ -98,47 +69,8 @@ public abstract class Artifact {
 	 */
 	protected Artifact() {
 		super();
-		this.flags = new Vector<ArtifactFlag>(0);
-	}
-
-	/**
-	 * Create a Artifact.
-	 * 
-	 * @param createdBy
-	 *            The object creator.
-	 * @param createdOn
-	 *            The object creation date.
-	 * @param description
-	 *            The object description.
-	 * @param flags
-	 *            The flags to apply to this parity object.
-	 * @param id
-	 *            The object unique id.
-	 * @param name
-	 *            The object name.
-	 * @param parentId
-	 *            The object parent id.
-	 * @param updatedBy
-	 *            The object updator.
-	 * @param updatedOn
-	 *            The object update date.
-	 */
-	protected Artifact(final String createdBy, final Calendar createdOn,
-			final String description, final Collection<ArtifactFlag> flags,
-			final UUID uniqueId, final String name, final UUID parentId,
-			final String updatedBy, final Calendar updatedOn) {
-		super();
-		this.createdOn = createdOn;
-		this.createdBy = createdBy;
-		this.customProperties = new Properties(createDefaultCustomProperties(name, description));
-		this.description = description;
-		this.uniqueId = uniqueId;
-		this.name = name;
-		this.notes = new Vector<Note>(7);
-		this.flags = new Vector<ArtifactFlag>(flags.size());
-		add(flags);
-		this.updatedBy = updatedBy;
-		this.updatedOn = updatedOn;
+		this.flags = new ArrayList<ArtifactFlag>(0);
+        this.notes = new ArrayList<Note>();
 	}
 
 	/**
@@ -197,11 +129,13 @@ public abstract class Artifact {
 	}
 
 	/**
-	 * Get the object creator.
-	 * 
-	 * @return The object creator.
-	 */
-	public String getCreatedBy() { return createdBy; }
+     * Obtain the created by user id.
+     * 
+     * @return The created by user id <code>JabberId</code>.
+     */
+	public JabberId getCreatedBy() {
+        return createdBy;
+	}
 
 	/**
 	 * Get the object creation date.
@@ -210,23 +144,7 @@ public abstract class Artifact {
 	 */
 	public Calendar getCreatedOn() { return createdOn; }
 
-	/**
-	 * Obtain the description for the parity object.
-	 * 
-	 * @return The object description.
-	 */
-	public String getDescription() { return description; }
-
     /**
-     * Determine if the description for the parity object is set.
-     * 
-     * @return True if it is set.
-     */
-    public Boolean isSetDescription() {
-        return null != description;
-    }
-
-	/**
 	 * Obtain the current object state.
 	 * 
 	 * @return The current object state.
@@ -287,11 +205,13 @@ public abstract class Artifact {
 	public UUID getUniqueId() { return uniqueId; }
 
 	/**
-	 * Obtain the update date.
-	 * 
-	 * @return The updated date.
-	 */
-	public String getUpdatedBy() { return updatedBy; }
+     * Obtain the updated by user id.
+     * 
+     * @return The updated by user id <code>JabberId</code>.
+     */
+	public JabberId getUpdatedBy() {
+        return updatedBy;
+	}
 
 	/**
 	 * Obtain the updator.
@@ -304,6 +224,15 @@ public abstract class Artifact {
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() { return uniqueId.hashCode(); }
+
+	/**
+     * Determine if the description for the parity object is set.
+     * 
+     * @return True if it is set.
+     */
+    public Boolean isSetDescription() {
+        return null != description;
+    }
 
 	/**
 	 * Remove a flag from the object.
@@ -328,12 +257,12 @@ public abstract class Artifact {
 	}
 
 	/**
-	 * Set the creator.
-	 * 
-	 * @param createdBy
-	 *            The creator.
-	 */
-	public void setCreatedBy(final String createdBy) {
+     * Set the created by user id.
+     * 
+     * @param createdBy
+     *            The created by user id <code>JabberId</code>.
+     */
+	public void setCreatedBy(final JabberId createdBy) {
 		this.createdBy = createdBy;
 	}
 
@@ -444,12 +373,12 @@ public abstract class Artifact {
 	public void setUniqueId(final UUID uniqueId) { this.uniqueId = uniqueId; }
 
 	/**
-	 * Set the updator.
-	 * 
-	 * @param updatedBy
-	 *            The new updator.
-	 */
-	public void setUpdatedBy(final String updatedBy) {
+     * Set the updated by user id.
+     * 
+     * @param updatedBy
+     *            The updated by user id <code>JabberId</code>.
+     */
+	public void setUpdatedBy(final JabberId updatedBy) {
 		this.updatedBy = updatedBy;
 	}
 
@@ -461,20 +390,5 @@ public abstract class Artifact {
 	 */
 	public void setUpdatedOn(final Calendar updatedOn) {
 		this.updatedOn = updatedOn;
-	}
-
-    /**
-	 * Create a default instance of the custom properties.
-	 * 
-	 * @return The default custom properties.
-	 */
-	private Properties createDefaultCustomProperties(final String name,
-			final String description) {
-		if(null == name) { throw new NullPointerException(); }
-		final Properties customProperties = new Properties();
-		customProperties.setProperty("name", name);
-		if(null != description)
-			customProperties.setProperty("description", description);
-		return customProperties;
 	}
 }

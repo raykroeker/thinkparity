@@ -131,13 +131,16 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(event);
 	}
 
-    void audit(final PublishEvent event, final JabberId createdBy)
-            throws ParityException {
+    void audit(final PublishEvent event) {
         logger.logApiId();
-        logger.logVariable("variable", event);
-        logger.logVariable("variable", createdBy);
-        event.setCreatedBy(lookupUser(createdBy));
-        auditIO.audit(event);
+        logger.logVariable("event", event);
+        try {
+            final InternalUserModel userModel = getInternalUserModel();
+            userModel.readLazyCreate(event.getPublishedBy());
+            auditIO.audit(event);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     void audit(final ReactivateEvent event, final JabberId createdBy,

@@ -18,11 +18,14 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.*;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -33,11 +36,11 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  */
 public class ContainerModel extends TabModel {
 
-    /** An apache logger. */
-    protected final Logger logger;
-
     /** The application. */
     public final Browser browser;
+
+    /** An apache logger. */
+    protected final Logger logger;
 
     /** A list of all containers. */
     private final List<ContainerCell> containerCells;
@@ -72,11 +75,11 @@ public class ContainerModel extends TabModel {
     /** A map of the container cells to a list of their respective versions. */
     private final Map<ContainerCell, List<ContainerVersionCell>> versionCells;
     
-    /** A map of the container version to the "document folder" cell. */
-    private final Map<ContainerVersionCell, ContainerVersionDocumentFolderCell> versionDocumentFolderCells;
-
     /** A map of the "version document folder" cell to the version document cells. */
     private final Map<ContainerVersionDocumentFolderCell, List<ContainerVersionDocumentCell>> versionDocumentCells;
+
+    /** A map of the container version to the "document folder" cell. */
+    private final Map<ContainerVersionCell, ContainerVersionDocumentFolderCell> versionDocumentFolderCells;
     
     /** A map of the container version to the "sent to" cell. */
     private final Map<ContainerVersionCell, ContainerVersionSentToCell> versionSentToCells;
@@ -221,6 +224,14 @@ public class ContainerModel extends TabModel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
+     */
+    @Override
+    public DefaultListModel getListModel() {
+        return listModel;
+    }
+
+    /**
      * Determine whether or not the draft for the document has been
      * modified.
      * 
@@ -251,114 +262,7 @@ public class ContainerModel extends TabModel {
             synchronize();
         }
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
-     */
-    @Override
-    public DefaultListModel getListModel() {
-        return listModel;
-    }
     
-    /**
-     * Initialize the document model
-     * <ol>
-     * <li>Load the containers from the provider.
-     * <li>Load the documents from the provider.
-     * <li>Load the history from the provider.
-     * <li>Synchronize the data with the model.
-     * <ol>
-     */
-    @Override
-    protected void initialize() {
-        // read the containers from the provider into the list.
-        containerCells.clear();
-        containerCells.addAll(readContainers());
-        sortContainers();
-        
-        // Clear all the cells under the containers
-        draftCells.clear();
-        draftDocumentCells.clear();
-        versionCells.clear();
-        versionDocumentFolderCells.clear();
-        versionDocumentCells.clear();
-        versionSentToCells.clear();
-        versionSentToUserCells.clear();
-
-        // Add all the cells under each container
-        for(final ContainerCell container : containerCells) {
-            initializeDraft(container);
-            initializeVersion(container);
-        }
-        
-        synchronize();
-    }
-    
-    /**
-     * Initialize the draft for one container.
-     * 
-     * @param container
-     *          The container.
-     */
-    private void initializeDraft(ContainerCell container) {
-        if (container.isDraft() && container.isLocalDraft()) {
-            final DraftCell draft = readDraft(container);
-            draftCells.put(container, draft);
-            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
-            for(final DraftDocumentCell draftDocument : draftDocuments) {
-                containerIdLookup.put(draftDocument.getId(), container.getId());
-            }
-            draftDocumentCells.put(draft, draftDocuments);
-        }
-    }
-    
-    /**
-     * Initialize the versions for one container.
-     * 
-     * @param container
-     *          The container.
-     */
-    private void initializeVersion(ContainerCell container) {
-        final List<ContainerVersionCell> versions = readVersions(container);
-        versionCells.put(container, versions);
-        for(final ContainerVersionCell version : versions) {
-            final ContainerVersionDocumentFolderCell documentFolder = new ContainerVersionDocumentFolderCell(version);
-            versionDocumentFolderCells.put(version, documentFolder);
-                           
-            final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
-            versionSentToCells.put(version, sentTo);
-                           
-            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(documentFolder);
-            versionDocumentCells.put(documentFolder, versionDocuments);  
-            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
-                containerIdLookup.put(versionDocument.getId(), container.getId());
-            }
-            
-            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
-            versionSentToUserCells.put(sentTo, versionUsers);
-            sentTo.setNumberOfUsers(versionUsers.size());
-        }
-    }
- 
-    /**
-     * Sort containers, and also set the "firstInGroup" flag for CellContainers.
-     */
-    private void sortContainers() {
-        Collections.sort(containerCells, new ContainerCellComparator());
-        
-        ContainerCell prevContainer = null;
-        for(final ContainerCell container : containerCells) {
-            container.setFirstInGroup(Boolean.FALSE);
-            if (prevContainer!=null) {
-                if (prevContainer.isLocalDraft()!=container.isLocalDraft()) {
-                    container.setFirstInGroup(Boolean.TRUE);
-                    break;
-                }
-            }
-            prevContainer = container;
-        }
-    }
-
     /**
      * Create the final list of container cells; container draft cells; draft
      * document cells; container version cells and container version document
@@ -451,6 +355,84 @@ public class ContainerModel extends TabModel {
         }
         debug();
     }
+    
+    /**
+     * Initialize the document model
+     * <ol>
+     * <li>Load the containers from the provider.
+     * <li>Load the documents from the provider.
+     * <li>Load the history from the provider.
+     * <li>Synchronize the data with the model.
+     * <ol>
+     */
+    @Override
+    protected void initialize() {
+        // read the containers from the provider into the list.
+        containerCells.clear();
+        containerCells.addAll(readContainers());
+        sortContainers();
+        
+        // Clear all the cells under the containers
+        draftCells.clear();
+        draftDocumentCells.clear();
+        versionCells.clear();
+        versionDocumentFolderCells.clear();
+        versionDocumentCells.clear();
+        versionSentToCells.clear();
+        versionSentToUserCells.clear();
+
+        // Add all the cells under each container
+        for(final ContainerCell container : containerCells) {
+            initializeDraft(container);
+            initializeVersion(container);
+        }
+        
+        synchronize();
+    }
+    
+    /**
+     * Trigger a double click event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    @Override
+    protected void triggerDoubleClick(final TabCell tabCell) {
+        debug();
+       
+        if ((tabCell instanceof ContainerCell) ||
+            (tabCell instanceof DraftCell) ||
+            (tabCell instanceof ContainerVersionCell) ||
+            (tabCell instanceof ContainerVersionDocumentFolderCell) ||
+            (tabCell instanceof ContainerVersionSentToCell)) {
+            // Do nothing (every click does expand or collapse)
+        } else {
+            tabCell.triggerDoubleClickAction(browser);
+        }
+    }
+ 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
+     */
+    @Override
+    protected void triggerExpand(final TabCell tabCell) {
+        super.triggerExpand(tabCell);
+        if (tabCell.isExpanded() && tabCell instanceof ContainerCell) {
+            // flag the container as having been seen
+            browser.runApplyContainerFlagSeen(((ContainerCell) tabCell).getId());
+        }
+    }
+
+    /**
+     * Trigger a popup event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    protected void triggerPopup(final TabCell tabCell, final Component invoker,
+            final java.awt.event.MouseEvent e) {
+        tabCell.triggerPopup(browser.getConnection(), invoker, e);
+    }
 
     /**
      * Determine if the container is visible.
@@ -511,51 +493,6 @@ public class ContainerModel extends TabModel {
     }
 
     /**
-     * Trigger a double click event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    @Override
-    protected void triggerDoubleClick(final TabCell tabCell) {
-        debug();
-       
-        if ((tabCell instanceof ContainerCell) ||
-            (tabCell instanceof DraftCell) ||
-            (tabCell instanceof ContainerVersionCell) ||
-            (tabCell instanceof ContainerVersionDocumentFolderCell) ||
-            (tabCell instanceof ContainerVersionSentToCell)) {
-            // Do nothing (every click does expand or collapse)
-        } else {
-            tabCell.triggerDoubleClickAction(browser);
-        }
-    }
-
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
-     */
-    @Override
-    protected void triggerExpand(final TabCell tabCell) {
-        super.triggerExpand(tabCell);
-        if (tabCell.isExpanded() && tabCell instanceof ContainerCell) {
-            // flag the container as having been seen
-            browser.runApplyContainerFlagSeen(((ContainerCell) tabCell).getId());
-        }
-    }
-
-    /**
-     * Trigger a popup event for the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    protected void triggerPopup(final TabCell tabCell, final Component invoker,
-            final java.awt.event.MouseEvent e) {
-        tabCell.triggerPopup(browser.getConnection(), invoker, e);
-    }
-
-    /**
      * Perform a shallow clone of the containers list.
      * 
      * @return A copy of the containers list.
@@ -566,8 +503,55 @@ public class ContainerModel extends TabModel {
         return clone;
     }
 
+    
     private Object getDebugId(final String message, final Object ... arguments) {
         return new StringBuffer("[CONTAINER LIST] ").append(MessageFormat.format(message, arguments));
+    }
+
+    /**
+     * Initialize the draft for one container.
+     * 
+     * @param container
+     *          The container.
+     */
+    private void initializeDraft(ContainerCell container) {
+        if (container.isDraft() && container.isLocalDraft()) {
+            final DraftCell draft = readDraft(container);
+            draftCells.put(container, draft);
+            final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
+            for(final DraftDocumentCell draftDocument : draftDocuments) {
+                containerIdLookup.put(draftDocument.getId(), container.getId());
+            }
+            draftDocumentCells.put(draft, draftDocuments);
+        }
+    }
+
+    /**
+     * Initialize the versions for one container.
+     * 
+     * @param container
+     *          The container.
+     */
+    private void initializeVersion(ContainerCell container) {
+        final List<ContainerVersionCell> versions = readVersions(container);
+        versionCells.put(container, versions);
+        for(final ContainerVersionCell version : versions) {
+            final ContainerVersionDocumentFolderCell documentFolder = new ContainerVersionDocumentFolderCell(version);
+            versionDocumentFolderCells.put(version, documentFolder);
+                           
+            final ContainerVersionSentToCell sentTo = new ContainerVersionSentToCell(version);
+            versionSentToCells.put(version, sentTo);
+                           
+            final List<ContainerVersionDocumentCell> versionDocuments = readVersionDocuments(documentFolder);
+            versionDocumentCells.put(documentFolder, versionDocuments);  
+            for(final ContainerVersionDocumentCell versionDocument : versionDocuments) {
+                containerIdLookup.put(versionDocument.getId(), container.getId());
+            }
+            
+            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
+            versionSentToUserCells.put(sentTo, versionUsers);
+            sentTo.setNumberOfUsers(versionUsers.size());
+        }
     }
 
     /**
@@ -645,6 +629,25 @@ public class ContainerModel extends TabModel {
         for(final ContainerVersionDocumentCell c : a) { l.add(c); }
         return l;
     }
+
+    /**
+     * Read the container versions from the provider.
+     * 
+     * @param container
+     *            The container.
+     * @return The container versions.
+     */
+    private List<ContainerVersionCell> readVersions(
+            final ContainerCell container) {
+        final ContainerProvider provider = (ContainerProvider) contentProvider;
+        final List<ContainerVersionCell> display = new ArrayList<ContainerVersionCell>();
+        final List<ContainerVersion> versions = provider.readVersions(container.getId());
+        for(final ContainerVersion version : versions) {
+            display.add(toDisplay(container, version,
+                    provider.readUser(version.getUpdatedBy())));
+        }
+        return display;
+    }
     
     /**
      * Read the version users from the provider.
@@ -661,18 +664,22 @@ public class ContainerModel extends TabModel {
     }
 
     /**
-     * Read the container versions from the provider.
-     * 
-     * @param container
-     *            The container.
-     * @return The container versions.
+     * Sort containers, and also set the "firstInGroup" flag for CellContainers.
      */
-    private List<ContainerVersionCell> readVersions(
-            final ContainerCell container) {
-        final List<ContainerVersionCell> l = new LinkedList<ContainerVersionCell>();
-        final ContainerVersionCell[] a = (ContainerVersionCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(1, container);
-        for(final ContainerVersionCell c : a) { l.add(c); }
-        return l;
+    private void sortContainers() {
+        Collections.sort(containerCells, new ContainerCellComparator());
+        
+        ContainerCell prevContainer = null;
+        for(final ContainerCell container : containerCells) {
+            container.setFirstInGroup(Boolean.FALSE);
+            if (prevContainer!=null) {
+                if (prevContainer.isLocalDraft()!=container.isLocalDraft()) {
+                    container.setFirstInGroup(Boolean.TRUE);
+                    break;
+                }
+            }
+            prevContainer = container;
+        }
     }
 
     /**
@@ -736,6 +743,24 @@ public class ContainerModel extends TabModel {
             sortContainers();
         }
     }
+
+    /**
+     * Synchronize the container and document with the list. This method
+     * is called when there is a change to documents in a container.
+     * 
+     * @parem documentId
+     *            The document id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event.
+     * 
+     * @see #syncDocument(Long, Boolean)
+     * @see #synchronize()
+     */
+    private void syncDocumentInternal(final Long containerId,
+            final Long documentId, final Boolean remote) {
+        // If there is a document change then only the draft cells needs updating.
+        syncDraftInternal(containerId, remote);
+    }
     
     /**
      * Synchronize the draft with the list for one container.
@@ -794,24 +819,6 @@ public class ContainerModel extends TabModel {
     }
     
     /**
-     * Synchronize the container and document with the list. This method
-     * is called when there is a change to documents in a container.
-     * 
-     * @parem documentId
-     *            The document id.
-     * @param remote
-     *            Whether or not the reload is the result of a remote event.
-     * 
-     * @see #syncDocument(Long, Boolean)
-     * @see #synchronize()
-     */
-    private void syncDocumentInternal(final Long containerId,
-            final Long documentId, final Boolean remote) {
-        // If there is a document change then only the draft cells needs updating.
-        syncDraftInternal(containerId, remote);
-    }
-
-    /**
      * Create a draft display cell.
      * 
      * @param mcContainer
@@ -842,6 +849,26 @@ public class ContainerModel extends TabModel {
             documentCells.add(new DraftDocumentCell(draft, document));
         }
         return documentCells;
+    }
+
+    /**
+     * Create a container version display cell.
+     * 
+     * @param parent
+     *            The parent cell.
+     * @param version
+     *            The version.
+     * @param publishedBy
+     *            The published by user.
+     * @return The display cell.
+     */
+    private ContainerVersionCell toDisplay(final TabCell parent,
+            final ContainerVersion version, final User publishedBy) {
+        final ContainerVersionCell display = new ContainerVersionCell();
+        display.setParent(parent);
+        display.setPublishedBy(publishedBy);
+        display.setVersion(version);
+        return display;
     }
 
     /**

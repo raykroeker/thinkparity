@@ -484,7 +484,7 @@ public class XMPPMethod extends IQ {
             } else if (javaType.equals(Container.class)) {
                 parser.next();
                 final Container container = new Container();
-                container.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                container.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
                 container.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
                 container.setDraft((Boolean) parseJavaObject(parser, "draft", Boolean.class));
                 container.setLocalDraft((Boolean) parseJavaObject(parser, "localDraft", Boolean.class));
@@ -493,7 +493,7 @@ public class XMPPMethod extends IQ {
                 container.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
                 container.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
                 container.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
-                container.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                container.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 container.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 parser.next();
                 return container;
@@ -502,10 +502,10 @@ public class XMPPMethod extends IQ {
                 final ContainerVersion version = new ContainerVersion();
                 version.setArtifactType((ArtifactType) parseJavaObject(parser, "artifactType", ArtifactType.class));
                 version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
-                version.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                version.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
                 version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
                 version.setName((String) parseJavaObject(parser, "name", String.class));
-                version.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                version.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
                 parser.next();
@@ -513,14 +513,14 @@ public class XMPPMethod extends IQ {
             } else if (javaType.equals(Document.class)) {
                 parser.next();
                 final Document document = new Document();
-                document.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                document.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
                 document.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
                 document.setName((String) parseJavaObject(parser, "name", String.class));
                 document.setRemoteInfo((ArtifactRemoteInfo) parseJavaObject(parser, "remoteInfo", ArtifactRemoteInfo.class));
                 document.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
                 document.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
                 document.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
-                document.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                document.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 document.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 parser.next();
                 return document;
@@ -531,11 +531,11 @@ public class XMPPMethod extends IQ {
                 version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
                 version.setChecksum((String) parseJavaObject(parser, "checksum", String.class));
                 version.setCompression((Integer) parseJavaObject(parser, "checksum", Integer.class));
-                version.setCreatedBy((String) parseJavaObject(parser, "createdBy", String.class));
+                version.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
                 version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
                 version.setEncoding((String) parseJavaObject(parser, "encoding", String.class));
                 version.setName((String) parseJavaObject(parser, "name", String.class));
-                version.setUpdatedBy((String) parseJavaObject(parser, "updatedBy", String.class));
+                version.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
                 parser.next();

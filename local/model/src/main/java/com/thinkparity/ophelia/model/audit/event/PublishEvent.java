@@ -4,6 +4,10 @@
  */
 package com.thinkparity.ophelia.model.audit.event;
 
+import java.util.Calendar;
+
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.ophelia.model.audit.AuditEventType;
 
 /**
@@ -14,6 +18,51 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
  */
 public class PublishEvent extends AuditVersionEvent {
 
-	/** Create PublishEvent. */
-	public PublishEvent() { super(AuditEventType.PUBLISH); }
+    private JabberId publishedBy;
+
+    private Calendar publishedOn;
+
+	/**
+     * Create PublishEvent.
+     * 
+     */
+	public PublishEvent() {
+        super(AuditEventType.PUBLISH);
+	}
+
+    /**
+     * Obtain the publishedBy
+     *
+     * @return The JabberId.
+     */
+    public JabberId getPublishedBy() {
+        return publishedBy;
+    }
+
+    /**
+     * Obtain the publishedOn
+     *
+     * @return The Calendar.
+     */
+    public Calendar getPublishedOn() {
+        return publishedOn;
+    }
+
+    /**
+     * Set publishedBy.
+     *
+     * @param publishedBy The JabberId.
+     */
+    public void setPublishedBy(JabberId publishedBy) {
+        this.publishedBy = publishedBy;
+    }
+
+    /**
+     * Set publishedOn.
+     *
+     * @param publishedOn The Calendar.
+     */
+    public void setPublishedOn(Calendar publishedOn) {
+        this.publishedOn = publishedOn;
+    }
 }

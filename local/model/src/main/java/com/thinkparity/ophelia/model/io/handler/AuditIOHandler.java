@@ -22,7 +22,7 @@ public interface AuditIOHandler {
     public void audit(final CreateRemoteEvent event) throws HypersonicException;
 	public void audit(final KeyRequestDeniedEvent event) throws HypersonicException;
 	public void audit(final KeyResponseDeniedEvent event) throws HypersonicException;
-	public void audit(final PublishEvent event) throws HypersonicException;
+	public void audit(final PublishEvent event);
     public void audit(final ReactivateEvent event) throws HypersonicException;
 	public void audit(final ReceiveEvent event) throws HypersonicException;
 	public void audit(final ReceiveKeyEvent event) throws HypersonicException;

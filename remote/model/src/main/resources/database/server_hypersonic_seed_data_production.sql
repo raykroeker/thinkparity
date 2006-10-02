@@ -9,7 +9,7 @@ insert into jiveProperty (NAME,PROPVALUE)
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.ssl.port', '5223');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('thinkparity.environment', 'production');
+    values('thinkparity.environment', 'PRODUCTION');
 insert into PARITY_FEATURE (FEATURE)
 	values ('ARCHIVE');
 

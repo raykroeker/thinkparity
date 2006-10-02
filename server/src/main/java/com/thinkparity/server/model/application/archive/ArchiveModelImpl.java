@@ -375,27 +375,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return An environment.
      */
     private Environment readEnvironment() {
-        final Environment environment;
         final String thinkParityEnvironment =
             (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
-        if ("development.localhost".equals(thinkParityEnvironment)) {
-            environment = Environment.DEVELOPMENT_LOCALHOST;
-        } else if ("development.raymond".equals(thinkParityEnvironment)) {
-            environment = Environment.DEVELOPMENT_RAYMOND;
-        } else if ("development.robert".equals(thinkParityEnvironment)) {
-            environment = Environment.DEVELOPMENT_ROBERT;
-        } else if ("production".equals(thinkParityEnvironment)) {
-            environment = Environment.PRODUCTION;
-        } else if ("testing".equals(thinkParityEnvironment)) {
-            environment = Environment.TESTING;
-        } else if ("testing.localhost".equals(thinkParityEnvironment)) {
-            environment = Environment.TESTING_LOCALHOST;
-        } else if ("production".equals(thinkParityEnvironment)) {
-            environment = Environment.PRODUCTION;
-        } else {
-            throw Assert.createUnreachable("UNKNOWN ENVIRONMENT");
-        }
-        return environment;
+        return Environment.valueOf(thinkParityEnvironment);
     }
 
     /**

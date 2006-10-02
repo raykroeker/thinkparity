@@ -18,18 +18,8 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public interface ArtifactListener extends EventListener {
 
-    /**
-     * Confirm that an artifact was received.
-     *
-     * @param uniqueId
-     *      The artifact unique id.
-     * @param versionId
-     *      The artifact version id.
-     * @param receivedFrom
-     *      From whom the the confirmation was sent.
-     */
-    public void confirmReceipt(final UUID uniqueId, final Long versionId,
-            final JabberId receivedFrom);
+    public void handleReceived(final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn);
 
     public void handleDraftCreated(final UUID uniqueId,
             final JabberId createdBy, final Calendar createdOn);

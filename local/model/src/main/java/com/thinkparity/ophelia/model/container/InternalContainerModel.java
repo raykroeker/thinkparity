@@ -171,6 +171,13 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
         }
     }
 
+    public void handleReceived(final Long artifactId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleReceived(artifactId, versionId, receivedBy, receivedOn);
+        }
+    }
+
     /**
      * Handle the container shared remote event.  All we're doing here is saving
      * the sent to list and firing an event.

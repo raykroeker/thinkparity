@@ -4,6 +4,7 @@
  */
 package com.thinkparity.desdemona.model.artifact;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +12,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.session.Session;
 
 
@@ -83,18 +83,20 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
     /**
      * Confrim receipt of an artifact.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param receivedBy
+     *            The received by user id <code>JabberId</code>.
      * @param uniqueId
-     *            The artifact unique id.
+     *            The unique id <code>UUID</code>.
      * @param versionId
-     *            The artifact version id.
-     * @param receivedFrom
-     *            The original sender of the artifact.
-     * @throws ParityServerModelException
+     *            The version id <code>Long</code>.
      */
-    public void confirmReceipt(final UUID uniqueId, final Long versionId,
-            final JabberId receivedFrom) throws ParityServerModelException {
-        synchronized(getImplLock()) {
-            getImpl().confirmReceipt(uniqueId, versionId, receivedFrom);
+    public void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy,
+            final Calendar receivedOn) {
+        synchronized (getImplLock()) {
+            getImpl().confirmReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
         }
     }
 

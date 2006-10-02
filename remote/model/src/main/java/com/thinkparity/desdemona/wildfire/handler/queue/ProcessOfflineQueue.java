@@ -3,37 +3,38 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.queue;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-import org.xmpp.packet.IQ;
+import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.desdemona.model.ParityServerModelException;
-import com.thinkparity.desdemona.model.queue.QueueModel;
-import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.wildfire.handler.IQAction;
-import com.thinkparity.desdemona.wildfire.handler.IQHandler;
+import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ProcessOfflineQueue extends IQHandler {
+public class ProcessOfflineQueue extends AbstractHandler {
 
 	/**
 	 * Create a ProcessOfflineQueue.
 	 * 
 	 */
-	public ProcessOfflineQueue() { super(IQAction.PROCESSOFFLINEQUEUE); }
+	public ProcessOfflineQueue() { super("system:processofflinequeue"); }
 
-	/**
-	 * @see com.thinkparity.desdemona.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ, com.thinkparity.desdemona.model.session.Session)
-	 * 
-	 */
-	public IQ handleIQ(final IQ iq, final Session session)
-			throws ParityServerModelException, UnauthorizedException {
+    /**
+     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     */
+    @Override
+    public void service() {
         logApiId();
-		final QueueModel queueModel = getQueueModel(session);
-		queueModel.processOfflineQueue();
-		return createResult(iq);
-	}
+        processOfflineQueue(readJabberId("userId"));
+    }
+
+    /**
+     * Process the offline queue of messages for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    private void processOfflineQueue(final JabberId userId) {
+        getQueueModel().processOfflineQueue(userId);
+    }
 }

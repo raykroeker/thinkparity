@@ -38,6 +38,8 @@ final class ContainerAuditor extends AbstractAuditor {
         final PublishEvent publishEvent = new PublishEvent();
         publishEvent.setArtifactId(container.getId());
         publishEvent.setArtifactVersionId(version.getVersionId());
+        publishEvent.setCreatedBy(publishedBy);
+        publishEvent.setCreatedOn(publishedOn);
         publishEvent.setPublishedBy(publishedBy);
         publishEvent.setPublishedOn(publishedOn);
         getAuditModel().audit(publishEvent);

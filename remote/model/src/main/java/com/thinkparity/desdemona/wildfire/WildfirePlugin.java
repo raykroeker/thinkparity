@@ -62,7 +62,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * 
      */
 	public void destroyPlugin() {
-        stopArchive();
+//        stopArchive();
 	    destroyHandlers();
 		destroyLogging();
 	}
@@ -75,9 +75,11 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             final File pluginDirectory) {
 		initializeLogging();
 		initializeHandlers(pluginDirectory);
-        startArchive();
-		logger.info(MessageFormat.format("{0} - {1} - {2}",
-                Version.getName(), Version.getMode(), Version.getBuildId()));
+//        startArchive();
+        final String message = MessageFormat.format("{0} - {1} - {2}",
+                Version.getName(), Version.getMode(), Version.getBuildId());
+		logger.info(message);
+        System.out.println(message);
 	}
 
     /**

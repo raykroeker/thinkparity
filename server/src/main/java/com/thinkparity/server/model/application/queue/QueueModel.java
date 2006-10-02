@@ -6,6 +6,8 @@ package com.thinkparity.desdemona.model.queue;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.session.Session;
@@ -56,13 +58,14 @@ public class QueueModel extends AbstractModel<QueueModelImpl> {
 	}
 
 	/**
-	 * Process all pending queue items for the given session.
-	 * 
-	 * @throws ParityServerModelException
-	 */
-	public void processOfflineQueue() throws ParityServerModelException {
+     * Process all pending queue items for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+	public void processOfflineQueue(final JabberId userId) {
 		synchronized (getImplLock()) {
-            getImpl().processOfflineQueue();
+            getImpl().processOfflineQueue(userId);
 		}
 	}
 }

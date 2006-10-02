@@ -113,9 +113,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The artifact unique id.
      */
     public void confirmArtifactReceipt(final JabberId userId,
-            final UUID uniqueId, final Long versionId, final JabberId receivedBy) {
+            final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
         synchronized(getImplLock()) {
-            getImpl().confirmArtifactReceipt(userId, uniqueId, versionId, receivedBy);
+            getImpl().confirmArtifactReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
         }
     }
 

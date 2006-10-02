@@ -27,7 +27,6 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.browser.util.ModelUtil;
 import com.thinkparity.ophelia.model.message.SystemMessage;
 
 /**
@@ -384,7 +383,9 @@ public class SystemApplication extends AbstractApplication {
         impl.fireNotification(notification);
     }
 
-    private String getName(final User user) { return ModelUtil.getName(user); }
+    private String getName(final User user) {
+        return user.getName();
+    }
 
     /**
      * Run an action.

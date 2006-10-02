@@ -58,9 +58,10 @@ public class InternalAuditModel extends AuditModel {
 		synchronized(getImplLock()) { getImpl().audit(event, createdBy, closedBy); }
 	}
 
-	public void audit(final CreateEvent event, final JabberId createdBy)
-            throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
+	public void audit(final CreateEvent event) {
+		synchronized (getImplLock()) {
+            getImpl().audit(event);
+		}
 	}
 
 	public void audit(final CreateRemoteEvent event, final JabberId createdBy,
@@ -75,10 +76,10 @@ public class InternalAuditModel extends AuditModel {
         synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
     }
 
-    public void audit(final SendConfirmEvent event,
-            final JabberId createdBy, final JabberId receivedFrom)
-            throws ParityException {
-        synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
+    public void audit(final SendConfirmEvent event) {
+        synchronized (getImplLock()) {
+            getImpl().audit(event);
+        }
     }
 
 	public void audit(final KeyRequestDeniedEvent event,
@@ -104,9 +105,10 @@ public class InternalAuditModel extends AuditModel {
         synchronized(getImplLock()) { getImpl().audit(event, createdBy, reactivatedBy); }
     }
 
-	public void audit(final ReceiveEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
-		synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
+	public void audit(final ReceiveEvent event) {
+		synchronized (getImplLock()) {
+            getImpl().audit(event);
+		}
 	}
 
 	public void audit(final ReceiveKeyEvent event, final JabberId createdBy,

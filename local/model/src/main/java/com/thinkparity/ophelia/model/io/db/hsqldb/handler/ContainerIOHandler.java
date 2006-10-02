@@ -4,9 +4,11 @@
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
@@ -303,6 +305,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("set ARTIFACT_NAME=? ")
             .append("where ARTIFACT_ID=?")
             .toString();
+
+    private static final String SQL_UPDATE_PUBLISHED_TO =
+        new StringBuffer("update CONTAINER_VERSION_PUBLISHED_TO ")
+        .append("set RECEIVED_ON=? ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=?")
+        .toString();
+
+    private static final String SQL_UPDATE_SHARED_WITH =
+        new StringBuffer("update CONTAINER_VERSION_SHARED_WITH ")
+        .append("set RECEIVED_ON=? ")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=?")
+        .toString();
 
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
@@ -834,6 +848,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -874,7 +889,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateName(java.lang.Long, java.lang.String)
      */
@@ -893,6 +907,44 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             throw hx;
         } finally {
             session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updatePublishedTo()
+     */
+    public void updatePublishedTo(final Long containerId, final Long versionId,
+            final JabberId userId, final Calendar receivedOn) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_PUBLISHED_TO);
+            session.setCalendar(1, receivedOn);
+            session.setLong(2, containerId);
+            session.setLong(3, versionId);
+            session.setLong(4, readLocalId(userId));
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateSharedWith()
+     */
+    public void updateSharedWith(final Long containerId, final Long versionId,
+            final JabberId userId, final Calendar receivedOn) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_SHARED_WITH);
+            session.setCalendar(1, receivedOn);
+            session.setLong(2, containerId);
+            session.setLong(3, versionId);
+            session.setLong(4, readLocalId(userId));
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
         }
     }
 
@@ -1036,6 +1088,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             return artifactIO.getVersionMetaData(session, containerId, versionId);
         }
         finally { session.close(); }
+    }
+
+    private Long readLocalId(final JabberId userId) {
+        final Session session = openSession();
+        try {
+            return userIO.readLocalId(session, userId);
+        } finally {
+            session.close();
+        }
     }
 
     /**

@@ -82,11 +82,12 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	 */
 	private static final String SQL_READ_BY_ARTIFACT_ID =
 		new StringBuffer("select AA.ARTIFACT_AUDIT_ID,AA.ARTIFACT_AUDIT_TYPE_ID,")
-		.append("AA.ARTIFACT_ID,AA.CREATED_ON,AA.CREATED_BY,")
+		.append("AA.ARTIFACT_ID,AA.CREATED_ON,UC.JABBER_ID CREATED_BY,")
 		.append("AAV.ARTIFACT_VERSION_ID ")
 		.append("from ARTIFACT_AUDIT AA ")
 		.append("inner join ARTIFACT_AUDIT_TYPE AAT on ")
 		.append("AA.ARTIFACT_AUDIT_TYPE_ID=AAT.ARTIFACT_AUDIT_TYPE_ID ")
+        .append("inner join USER UC on AA.CREATED_BY=UC.USER_ID ")
 		.append("left join ARTIFACT_AUDIT_VERSION AAV on ")
 		.append("AA.ARTIFACT_AUDIT_ID=AAV.ARTIFACT_AUDIT_ID ")
 		.append("where AA.ARTIFACT_ID=?")
@@ -275,7 +276,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         try {
             audit(session, event);
             auditVersion(session, event, event.getArtifactVersionId());
-            
+
             auditMetaData(session, event,
                     MetaDataType.USER_ID, MetaDataKey.PUBLISHED_BY,
                     readLocalId(session, event.getPublishedBy()));
@@ -323,8 +324,12 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, event);
 			auditVersion(session, event, event.getArtifactVersionId());
 
-			auditMetaData(session, event,
-					MetaDataType.USER_ID, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
+            auditMetaData(session, event,
+                    MetaDataType.USER_ID, MetaDataKey.RECEIVED_BY,
+                    readLocalId(session, event.getReceivedBy()));
+            auditMetaData(session, event,
+                    MetaDataType.CALENDAR, MetaDataKey.RECEIVED_ON,
+                    event.getReceivedOn());
             session.commit();
         }
 		catch(final HypersonicException hx) {
@@ -538,12 +543,21 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		session.setTypeAsInteger(1, auditEvent.getType());
 		session.setLong(2, auditEvent.getArtifactId());
 		session.setCalendar(3, auditEvent.getCreatedOn());
-		session.setLong(4, auditEvent.getCreatedBy().getLocalId());
+		session.setLong(4, readLocalId(auditEvent.getCreatedBy()));
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create audit.");
 
 		auditEvent.setId(session.getIdentity());
 	}
+
+    private Long readLocalId(final JabberId userId) {
+        final Session session = openSession();
+        try {
+            return userIO.readLocalId(session, userId);
+        } finally {
+            session.close();
+        }
+    }
 
 	private void auditMetaData(final Session session,
 			final AuditEvent auditEvent, final MetaDataType metaDataType,
@@ -620,7 +634,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private AuditEvent extractAddTeamMember(final Session session) {
         final AddTeamMemberEvent event = new AddTeamMemberEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -633,7 +648,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private AuditEvent extractAddTeamMemberConfirm(final Session session) {
         final AddTeamMemberConfirmEvent event = new AddTeamMemberConfirmEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -646,7 +661,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private ArchiveEvent extractArchive(final Session session) {
 		final ArchiveEvent event = new ArchiveEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -656,7 +671,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private CloseEvent extractClose(final Session session) {
 		final CloseEvent event = new CloseEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -669,7 +684,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private CreateEvent extractCreate(final Session session) {
 		final CreateEvent event = new CreateEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		return event;
@@ -678,7 +693,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private CreateRemoteEvent extractCreateRemote(final Session session) {
 		final CreateRemoteEvent event = new CreateRemoteEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -691,7 +706,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private KeyRequestDeniedEvent extractKeyRequestDenied(final Session session) {
 		final KeyRequestDeniedEvent event = new KeyRequestDeniedEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -704,7 +719,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private KeyResponseDeniedEvent extractKeyResponseDenied(final Session session) {
 		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -718,7 +733,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         final PublishEvent event = new PublishEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -734,7 +749,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         final ReactivateEvent event = new ReactivateEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -748,19 +763,22 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final ReceiveEvent event = new ReceiveEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
-		final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.RECEIVED_FROM);
-		event.setReceivedFrom(userIO.read((Long) metaData[0].getValue()));
+        MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.RECEIVED_BY);
+        event.setReceivedBy(readUserId((Long) metaData[0].getValue()));
 
+        metaData = readMetaData(event.getId(), MetaDataKey.RECEIVED_ON);
+        event.setReceivedOn((Calendar) metaData[0].getValue());
 		return event;
 	}
+
 	private ReceiveKeyEvent extractReceiveKey(final Session session) {
 		final ReceiveKeyEvent event = new ReceiveKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -773,7 +791,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private AuditEvent extractRename(final Session session) {
         final RenameEvent event = new RenameEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -789,7 +807,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
     private RequestKeyEvent extractRequestKey(final Session session) {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -806,7 +824,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final SendEvent event = new SendEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -827,7 +845,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
         final SendConfirmEvent event = new SendConfirmEvent();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -841,7 +859,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final SendKeyEvent event = new SendKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
 		event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+		event.setCreatedBy(session.getQualifiedUsername(("CREATED_BY")));
 		event.setCreatedOn(session.getCalendar("CREATED_ON"));
 		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 
@@ -942,7 +960,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
     private enum MetaDataKey {
         CLOSED_BY, CONFIRMED_BY, DENIED_BY, PUBLISHED_BY, PUBLISHED_ON,
-        REACTIVATED_BY, RECEIVED_BY, RECEIVED_FROM, RENAMED_FROM, RENAMED_TO,
-        REQUESTED_BY, REQUESTED_FROM, SENT_TO, TEAM_MEMBER
+        REACTIVATED_BY, RECEIVED_BY, RECEIVED_FROM, RECEIVED_ON, RENAMED_FROM,
+        RENAMED_TO, REQUESTED_BY, REQUESTED_FROM, SENT_TO, TEAM_MEMBER
     }
 }

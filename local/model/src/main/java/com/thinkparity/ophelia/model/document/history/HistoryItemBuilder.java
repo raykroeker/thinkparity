@@ -91,9 +91,6 @@ public class HistoryItemBuilder {
             case REACTIVATE:
                 history.add(customize(historyItem, (ReactivateEvent) auditEvent));
                 break;
-            case RECEIVE:
-                history.add(customize(historyItem, (ReceiveEvent) auditEvent));
-                break;
             case RECEIVE_KEY:
                 history.add(customize(historyItem, (ReceiveKeyEvent) auditEvent));
                 break;
@@ -279,14 +276,6 @@ public class HistoryItemBuilder {
                 new Object[] {getName(event.getReactivatedBy())}));
         return item;
     }
-
-	private HistoryItem customize(final HistoryItem item,
-            final ReceiveEvent event) {
-		item.setEvent(getString(
-                "eventText.RECEIVE",
-                new Object[] {getName(event.getReceivedFrom())}));
-		return item;
-	}
 
 	private HistoryItem customize(final HistoryItem item,
             final ReceiveKeyEvent event) {

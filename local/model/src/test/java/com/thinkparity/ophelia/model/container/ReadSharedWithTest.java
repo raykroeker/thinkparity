@@ -3,8 +3,9 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.util.List;
+import java.util.Map;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -29,15 +30,15 @@ public class ReadSharedWithTest extends ContainerTestCase {
     }
 
     public void testReadSharedWith() {
-        final List<User> sharedWith = datum.containerModel.readSharedWith(
+        final Map<User, ArtifactReceipt> sharedWith = datum.containerModel.readSharedWith(
                 datum.container.getId(), datum.version.getVersionId());
         assertNotNull(NAME + " - Published to user list is null.", sharedWith);
         assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_X,
-                sharedWith.contains(OpheliaTestUser.JUNIT_X));
+                sharedWith.containsKey(OpheliaTestUser.JUNIT_X));
         assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Y,
-                sharedWith.contains(OpheliaTestUser.JUNIT_Y));
+                sharedWith.containsKey(OpheliaTestUser.JUNIT_Y));
         assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Z,
-                sharedWith.contains(OpheliaTestUser.JUNIT_Z));
+                sharedWith.containsKey(OpheliaTestUser.JUNIT_Z));
     }
 
 

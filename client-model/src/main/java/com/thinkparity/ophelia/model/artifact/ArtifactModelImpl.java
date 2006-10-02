@@ -132,17 +132,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		applyFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-    void auditConfirmationReceipt(final Long artifactId, final Long versionId,
-            final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedFrom) {
-        try {
-            auditor.confirmationReceipt(artifactId, versionId, createdBy,
-                    createdOn, receivedFrom);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /**
 	 * Audit the denial of a key request for an artifact.
 	 * 
@@ -173,7 +162,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final UUID uniqueId = readArtifactUniqueId(artifactId);
         final JabberId localUserId = localUserId();
         getInternalSessionModel().confirmArtifactReceipt(localUserId, uniqueId,
-                versionId, localUserId);
+                versionId, localUserId, currentDateTime());
     }
 
     /**
@@ -299,6 +288,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
+    void handleReceived(final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("receivedBy", receivedBy);
+        logger.logVariable("receivedOn", receivedOn);
+        final Long artifactId = artifactIO.readId(uniqueId);
+        switch (artifactIO.readType(artifactId)) {
+        case CONTAINER:
+            getInternalContainerModel().handleReceived(artifactId, versionId, receivedBy, receivedOn);
+            break;
+        default:
+            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        }
+    }
+
     /**
      * Handle the remote event generated when a team member is added. This will
      * download the user's info if required and create the team data locally.
@@ -362,7 +368,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -391,7 +397,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return flags.contains(flag);
 	}
 
-	/**
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -419,7 +425,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-    /**
+	/**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -445,7 +451,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel(artifactId);
     }
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -562,7 +568,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", updatedOn);
 		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
-
+    
     /**
      * Update an artifact's state.
      * 
@@ -579,7 +585,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         assertStateTransition(currentState, state);
         artifactIO.updateState(artifactId, state);
     }
-    
+
     /**
 	 * Apply a flag to an artifact.
 	 * 
@@ -627,4 +633,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
                     artifactId, flag);
 		}
 	}
+
+
 }

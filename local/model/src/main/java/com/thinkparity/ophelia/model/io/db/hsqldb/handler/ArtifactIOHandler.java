@@ -23,7 +23,7 @@ import com.thinkparity.ophelia.model.user.TeamMember;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ArtifactIOHandler extends AbstractIOHandler implements
+public final class ArtifactIOHandler extends AbstractIOHandler implements
 		com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler {
 
     /** Sql query to delete the artifact. */

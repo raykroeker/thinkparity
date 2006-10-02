@@ -6,12 +6,15 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.Constants.InsetFactors;
@@ -31,47 +34,30 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
  */
 public class ContainerVersionSentToUserCell extends DefaultTabCell {
     
-    /** The user's parent cell. */
-    private final ContainerVersionSentToCell versionSentTo;
+    /** The parent cell. */
+    private TabCell parent;
     
-    /** The user's parent version (grandparent cell). */
-    private final ContainerVersionCell version;
-    
-    /** The user associated with this cell. */
+    /** An <code>ArtifactReceipt</code>. */
+    private ArtifactReceipt receipt;
+
+    /** A <code>User</code>.*/
     private User user;
 
     /** Create ContainerVersionSentToCell. */
-    public ContainerVersionSentToUserCell(final ContainerVersionSentToCell versionSentTo, final User user) { 
+    public ContainerVersionSentToUserCell() { 
         super();
-        this.user = new User();
-        this.user.setId(user.getId());
-        this.user.setLocalId(user.getLocalId());
-        this.user.setName(user.getName());
-        this.user.setOrganization(user.getOrganization());
-        this.user.setTitle(user.getTitle());
-        this.versionSentTo = versionSentTo;
-        this.version = (ContainerVersionCell) versionSentTo.getParent();
     }
-    
+
     /**
      * @see com.thinkparity.codebase.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof ContainerVersionSentToUserCell) {           
-            return ((ContainerVersionSentToUserCell) obj).user.equals(user) &&
-                   ((ContainerVersionSentToUserCell) obj).version.equals(version);
+        if (null != obj && obj instanceof ContainerVersionSentToUserCell) {
+            final ContainerVersionSentToUserCell cell = (ContainerVersionSentToUserCell) obj;
+            return cell.user.equals(user) && cell.parent.equals(parent);
         }
         return false;
-    }
-    
-    /**
-     * Get the user Id.
-     * 
-     * @return The user id.
-     */
-    public JabberId getId() {
-        return user.getId();
     }
 
     /**
@@ -83,11 +69,20 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
     }
 
     /**
+     * Get the user Id.
+     * 
+     * @return The user id.
+     */
+    public JabberId getId() {
+        return user.getId();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getParent()
      * 
      */
     public TabCell getParent() {
-        return versionSentTo;
+        return parent;
     }
     
     /**
@@ -95,32 +90,6 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
      */
     public ImageIcon getSecondNodeIcon() {
         return imageCacheTest.read(TabCellIconTest.CONTACT); 
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
-     *
-     */
-    public String getTextNoClipping(TextGroup textGroup) {
-        if (textGroup == TextGroup.WEST) {
-            String text = new String(user.getName());
-            if (user.isSetTitle() || user.isSetOrganization()) {
-                text += "  (";
-                if (user.isSetTitle()) {
-                    text += user.getTitle();
-                    if (user.isSetOrganization()) {
-                        text += ", ";
-                    }
-                }
-                if (user.isSetOrganization()) {
-                    text += user.getOrganization();
-                }
-                text += ")";
-            }
-            return text;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -132,12 +101,74 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
+     *
+     */
+    public String getTextNoClipping(final TextGroup textGroup) {
+        final StringBuffer textNoClipping;
+        switch(textGroup) {
+        case WEST:
+            textNoClipping = new StringBuffer();
+            if (user.isSetOrganization() && user.isSetTitle()) {
+                textNoClipping.append(MessageFormat.format("{0} ({1}, {2})",
+                            user.getName(), user.getOrganization(), user.getTitle()));
+            } else if (user.isSetOrganization()) {
+                textNoClipping.append(MessageFormat.format("{0} ({1})",
+                            user.getName(), user.getOrganization()));
+            } else if (user.isSetTitle()) {
+                textNoClipping.append(MessageFormat.format("{0} ({1})",
+                            user.getName(), user.getTitle()));
+            } else {
+                textNoClipping.append(user.getName());
+            }
+            if (null != receipt) {
+                textNoClipping.append(MessageFormat.format(" - {0,date,yyyy-MM-dd HH:mm:ss.SSS}",
+                        receipt.getReceivedOn().getTime()));
+            }
+            break;
+        case EAST:
+            textNoClipping = null;
+            break;
+        default:
+            throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
+        }
+        return null == textNoClipping ? null : textNoClipping.toString();
+    }
+    
+    /**
      * @see com.thinkparity.codebase.model.artifact.Artifact#hashCode()
      * 
      */
     @Override
     public int hashCode() {
         return toString().hashCode();
+    }
+
+    /**
+     * Set parent.
+     *
+     * @param parent The TabCell.
+     */
+    public void setParent(final TabCell parent) {
+        this.parent = parent;
+    }
+
+    /**
+     * Set receipt.
+     *
+     * @param receipt The ArtifactReceipt.
+     */
+    public void setReceipt(final ArtifactReceipt receipt) {
+        this.receipt = receipt;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param user The User.
+     */
+    public void setUser(final User user) {
+        this.user = user;
     }
     
     /**
@@ -146,10 +177,15 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
     @Override
     public String toString() {
         return new StringBuffer(getClass().getName()).append("//")
-            .append(user.getId()).append("/")
-            .append(version.getArtifactId()).append("/")
-            .append(version.getVersionId())
+            .append(user)
             .toString();
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
+     */
+    public void triggerDoubleClickAction(Browser browser) {  
+        browser.runReadContact(user.getId());
     }
 
     /**
@@ -164,12 +200,5 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
 
         jPopupMenu.show(invoker, e.getX(), e.getY());
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#triggerDoubleClickAction(com.thinkparity.ophelia.browser.application.browser.Browser)
-     */
-    public void triggerDoubleClickAction(Browser browser) {  
-        browser.runReadContact(user.getId());
     }
 }

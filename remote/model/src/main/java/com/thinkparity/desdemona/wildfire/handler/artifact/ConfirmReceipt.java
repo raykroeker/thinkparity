@@ -4,38 +4,37 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-import org.xmpp.packet.IQ;
+import java.util.Calendar;
+import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.ParityServerModelException;
-import com.thinkparity.desdemona.model.artifact.ArtifactModel;
-import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.wildfire.handler.IQAction;
-import com.thinkparity.desdemona.wildfire.handler.IQHandler;
+import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ConfirmReceipt extends IQHandler {
+public class ConfirmReceipt extends AbstractHandler {
 
     /**
      * Create a ConfirmReceipt.
      * @param action
      */
-    public ConfirmReceipt() { super(IQAction.ARTIFACTCONFIRMRECEIPT); }
+    public ConfirmReceipt() { super("artifact:confirmreceipt"); }
 
     /**
-     * @see com.thinkparity.desdemona.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
-     *      com.thinkparity.desdemona.model.session.Session)
-     * 
+     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
      */
-    public IQ handleIQ(final IQ iq, final Session session)
-            throws ParityServerModelException, UnauthorizedException {
+    @Override
+    public void service() {
         logApiId();
-        final ArtifactModel artifactModel = getArtifactModel(session);
-        artifactModel.confirmReceipt(extractUniqueId(iq), extractVersionId(iq), extractJabberId(iq));
-        return createResult(iq);
+        confirmReceipt(readJabberId("userId"), readUUID("uniqueId"),
+                readLong("versionId"), readJabberId("receivedBy"), readCalendar("receivedOn"));
+    }
+
+    private void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy, final Calendar receivedOn) {
+        getArtifactModel().confirmReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
     }
 }

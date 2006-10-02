@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
@@ -85,7 +87,7 @@ public class ContainerModel extends TabModel {
     private final Map<ContainerVersionCell, ContainerVersionSentToCell> versionSentToCells;
     
     /** A map of the "sent to" cell to the "sent to users" cells. */
-    private final Map<ContainerVersionSentToCell, List<ContainerVersionSentToUserCell>> versionSentToUserCells;
+    private final Map<ContainerVersionSentToCell, List<TabCell>> versionSentToUserCells;
 
     /** A list of all visible cells. */
     private final List<TabCell> visibleCells;
@@ -107,7 +109,7 @@ public class ContainerModel extends TabModel {
         this.versionDocumentFolderCells = new HashMap<ContainerVersionCell, ContainerVersionDocumentFolderCell>(50, 0.75F);
         this.versionDocumentCells = new HashMap<ContainerVersionDocumentFolderCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.versionSentToCells = new HashMap<ContainerVersionCell, ContainerVersionSentToCell>(50, 0.75F);
-        this.versionSentToUserCells = new HashMap<ContainerVersionSentToCell, List<ContainerVersionSentToUserCell>>(50, 0.75F);
+        this.versionSentToUserCells = new HashMap<ContainerVersionSentToCell, List<TabCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
     }
 
@@ -321,7 +323,7 @@ public class ContainerModel extends TabModel {
                                 visibleCells.add(sentTo);
                                 if (sentTo.isExpanded()) {
                                     // add sent-to users
-                                    final List<ContainerVersionSentToUserCell> users = this.versionSentToUserCells.get(sentTo);
+                                    final List<TabCell> users = this.versionSentToUserCells.get(sentTo);
                                     if (null != users) {
                                         visibleCells.addAll(users);
                                     }
@@ -548,9 +550,9 @@ public class ContainerModel extends TabModel {
                 containerIdLookup.put(versionDocument.getId(), container.getId());
             }
             
-            final List<ContainerVersionSentToUserCell> versionUsers = readVersionUsers(sentTo);
-            versionSentToUserCells.put(sentTo, versionUsers);
-            sentTo.setNumberOfUsers(versionUsers.size());
+            final List<TabCell> users = readUsers(sentTo, version.getArtifactId(), version.getVersionId());
+            versionSentToUserCells.put(sentTo, users);
+            sentTo.setNumberOfUsers(users.size());
         }
     }
 
@@ -616,6 +618,35 @@ public class ContainerModel extends TabModel {
     }
 
     /**
+     * Read the published to users.
+     * 
+     * @param parent
+     *            A parent <code>TabCell</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A list of cells.
+     */
+    private List<TabCell> readUsers(final TabCell parent,
+            final Long containerId, final Long versionId) {
+        final List<TabCell> display = new ArrayList<TabCell>();
+        final Map<User, ArtifactReceipt> publishedTo = ((ContainerProvider) contentProvider).readPublishedTo(containerId, versionId);
+        final Map<User, ArtifactReceipt> sharedWith = ((ContainerProvider) contentProvider).readSharedWith(containerId, versionId);
+        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+            display.add(toDisplay(parent, entry.getKey(), entry.getValue()));
+        }
+        TabCell displayCell;
+        for (final Entry<User, ArtifactReceipt> entry : sharedWith.entrySet()) {
+            displayCell = toDisplay(parent, entry.getKey(), entry.getValue());
+            if (!display.contains(displayCell)) {
+                display.add(displayCell);
+            }
+        }
+        return display;
+    }
+
+    /**
      * Read the version documents from the provider.
      * 
      * @param version
@@ -629,7 +660,7 @@ public class ContainerModel extends TabModel {
         for(final ContainerVersionDocumentCell c : a) { l.add(c); }
         return l;
     }
-
+    
     /**
      * Read the container versions from the provider.
      * 
@@ -647,20 +678,6 @@ public class ContainerModel extends TabModel {
                     provider.readUser(version.getUpdatedBy())));
         }
         return display;
-    }
-    
-    /**
-     * Read the version users from the provider.
-     * 
-     * @param version
-     *            The version.
-     * @return A list of display users.
-     */
-    private List<ContainerVersionSentToUserCell> readVersionUsers(final ContainerVersionSentToCell sentToCell) {
-        final List<ContainerVersionSentToUserCell> l = new LinkedList<ContainerVersionSentToUserCell>();
-        final ContainerVersionSentToUserCell[] a = (ContainerVersionSentToUserCell[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(3, sentToCell);
-        for(final ContainerVersionSentToUserCell c : a) { l.add(c); }
-        return l;
     }
 
     /**
@@ -761,7 +778,7 @@ public class ContainerModel extends TabModel {
         // If there is a document change then only the draft cells needs updating.
         syncDraftInternal(containerId, remote);
     }
-    
+
     /**
      * Synchronize the draft with the list for one container.
      * 
@@ -831,7 +848,7 @@ public class ContainerModel extends TabModel {
             final ContainerDraft containerDraft) {
         return new DraftCell(mcContainer, containerDraft);
     }
-
+    
     /**
      * Create a list of draft document display cells.
      * 
@@ -868,6 +885,27 @@ public class ContainerModel extends TabModel {
         display.setParent(parent);
         display.setPublishedBy(publishedBy);
         display.setVersion(version);
+        return display;
+    }
+
+    /**
+     * Create a display cell from a parent cell; a user; and an artifact
+     * receipt.
+     * 
+     * @param parent
+     *            A parent <code>TabCell</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param receipt
+     *            A <code>ArtifactReceipt</code>.
+     * @return A <code>TabCell</code>.
+     */
+    private TabCell toDisplay(final TabCell parent, final User user,
+            final ArtifactReceipt receipt) {
+        final ContainerVersionSentToUserCell display = new ContainerVersionSentToUserCell();
+        display.setParent(parent);
+        display.setReceipt(receipt);
+        display.setUser(user);
         return display;
     }
 

@@ -11,13 +11,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
@@ -45,11 +43,12 @@ class SessionModelEventDispatcher {
         logger.logApiId();
         xmppSession.clearListeners();
         xmppSession.addListener(new ArtifactListener() {
-            public void confirmReceipt(final UUID uniqueId,
-                    final Long versionId, final JabberId receivedFrom) {
-                final InternalDocumentModel documentModel = getDocumentModel();
-                final Document document = documentModel.get(uniqueId);
-                documentModel.confirmSend(document.getId(), versionId, receivedFrom);
+            public void handleReceived(final UUID uniqueId,
+                    final Long versionId, final JabberId receivedBy,
+                    final Calendar receivedOn) {
+                logger.logApiId();
+                getArtifactModel().handleReceived(uniqueId, versionId,
+                        receivedBy, receivedOn);
             }
             public void handleDraftCreated(final UUID uniqueId,
                     final JabberId createdBy, final Calendar createdOn) {
@@ -163,10 +162,6 @@ class SessionModelEventDispatcher {
 
     private InternalContainerModel getContainerModel() {
         return modelFactory.getContainerModel();
-    }
-
-    private InternalDocumentModel getDocumentModel() {
-        return modelFactory.getDocumentModel();
     }
 
     private InternalSessionModel getSessionModel() {

@@ -42,7 +42,6 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", teamMember);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setTeamMember(lookupUser(teamMember));
         auditIO.audit(event);
     }
@@ -53,7 +52,6 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", teamMember);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setTeamMember(lookupUser(teamMember));
         auditIO.audit(event);
     }
@@ -63,7 +61,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
-        event.setCreatedBy(lookupUser(createdBy));
 		auditIO.audit(event);
 	}
 
@@ -73,28 +70,19 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", closedBy);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setClosedBy(lookupUser(closedBy));
 		auditIO.audit(event);
 	}
 
-    void audit(final SendConfirmEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
+    void audit(final SendConfirmEvent event) {
         logger.logApiId();
-        logger.logVariable("variable", event);
-        logger.logVariable("variable", createdBy);
-        logger.logVariable("variable", receivedFrom);
-        event.setCreatedBy(lookupUser(createdBy));
-        event.setConfirmedBy(lookupUser(receivedFrom));
+        logger.logVariable("event", event);
         auditIO.audit(event);
     }
 
-	void audit(final CreateEvent event, final JabberId createdBy)
-            throws ParityException {
+	void audit(final CreateEvent event) {
 		logger.logApiId();
-        logger.logVariable("variable", event);
-        logger.logVariable("variable", createdBy);
-        event.setCreatedBy(lookupUser(createdBy));
+        logger.logVariable("event", event);
 		auditIO.audit(event);
 	}
 
@@ -104,7 +92,6 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", receivedFrom);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
 	}
@@ -115,7 +102,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", deniedBy);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setDeniedBy(lookupUser(deniedBy));
 		auditIO.audit(event);
 	}
@@ -126,7 +112,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", requestedBy);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setRequestedBy(lookupUser(requestedBy));
 		auditIO.audit(event);
 	}
@@ -149,19 +134,13 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", reactivatedBy);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setReactivatedBy(lookupUser(reactivatedBy));
         auditIO.audit(event);
     }
 
-	void audit(final ReceiveEvent event, final JabberId createdBy,
-            final JabberId receivedFrom) throws ParityException {
+	void audit(final ReceiveEvent event) {
 		logger.logApiId();
-		logger.logVariable("variable", event);
-        logger.logVariable("variable", createdBy);
-        logger.logVariable("variable", receivedFrom);
-        event.setCreatedBy(lookupUser(createdBy));
-        event.setReceivedFrom(lookupUser(receivedFrom));
+		logger.logVariable("event", event);
 		auditIO.audit(event);
 	}
 
@@ -170,7 +149,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logApiId();
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
 	}
@@ -180,7 +158,6 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
-        event.setCreatedBy(lookupUser(createdBy));
         auditIO.audit(event);
     }
 
@@ -192,7 +169,6 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", requestedBy);
         logger.logVariable("variable", requestedFrom);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setRequestedBy(lookupUser(requestedBy));
         event.setRequestedFrom(lookupUser(requestedFrom));
 		auditIO.audit(event);
@@ -204,7 +180,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", sentTo);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setSentTo(lookupUser(sentTo));
 		auditIO.audit(event);
 	}
@@ -215,7 +190,6 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", event);
         logger.logVariable("variable", createdBy);
         logger.logVariable("variable", sentTo);
-        event.setCreatedBy(lookupUser(createdBy));
         event.setSentTo(lookupUser(sentTo));
 		auditIO.audit(event);
 	}

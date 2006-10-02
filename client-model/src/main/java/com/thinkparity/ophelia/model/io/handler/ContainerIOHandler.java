@@ -4,15 +4,16 @@
  */
 package com.thinkparity.ophelia.model.io.handler;
 
+import java.util.Calendar;
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
@@ -300,4 +301,10 @@ public interface ContainerIOHandler {
      *            A container.
      */
     public void updateName(final Long containerId, final String name);
+
+    public void updatePublishedTo(final Long containerId, final Long versionId,
+            final JabberId userId, final Calendar receivedOn);
+
+    public void updateSharedWith(final Long containerId, final Long versionId,
+            final JabberId userId, final Calendar receivedOn);
 }

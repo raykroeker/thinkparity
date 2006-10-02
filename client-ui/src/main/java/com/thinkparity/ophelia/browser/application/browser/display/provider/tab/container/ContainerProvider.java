@@ -5,9 +5,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.tab
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -21,8 +23,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentFolderCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionSentToUserCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -70,9 +70,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 
     /** Reads a list of documents. */
     private final FlatContentProvider versionDocuments;
-
-    /** Reads a list of users. */
-    private final FlatContentProvider versionUsers;
 
     /**
      * Create ContainerProvider.
@@ -122,18 +119,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 return toDisplay(typedInput, containerModel.readDocuments(containerId, versionId));
             }
         };
-        this.versionUsers = new FlatContentProvider(profile) {
-            @Override
-            public Object[] getElements(final Object input) {
-                Assert.assertNotNull("[NULL INPUT]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionSentToCell.class, input);
-                final ContainerVersionSentToCell typedInput = (ContainerVersionSentToCell) input;
-                final Long containerId = ((ContainerVersionCell)typedInput.getParent()).getArtifactId();
-                final Long versionId = ((ContainerVersionCell)typedInput.getParent()).getVersionId();
-                return toDisplay(typedInput, containerModel.readPublishedTo(containerId, versionId),
-                        containerModel.readSharedWith(containerId, versionId));
-            }
-        };
         this.draftProvider = new SingleContentProvider(profile) {
             public Object getElement(Object input) {
                 Assert.assertNotNull("[NULL INPUT]", input);
@@ -150,7 +135,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             }
         };
         this.flatProviders = new FlatContentProvider[] {
-                containers, null, versionDocuments, versionUsers, searchResults
+                containers, null, versionDocuments, null, searchResults
         };
         this.singleProviders = new SingleContentProvider[] {containerProvider, draftProvider, documentIsDraftModifiedProvider};
     }
@@ -202,6 +187,34 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<ContainerVersion> readVersions(final Long containerId) {
         return containerModel.readVersions(containerId);
     }  
+
+    /**
+     * Read the published to user list.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
+            final Long versionId) {
+        return containerModel.readPublishedTo(containerId, versionId);
+    }
+
+    /**
+     * Read the shared with user list.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
+            final Long versionId) {
+        return containerModel.readSharedWith(containerId, versionId);
+    }
 
     /**
      * Obtain a displayable version of a container.
@@ -256,48 +269,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             list.add(toDisplay(versionDocumentFolder, document));
         }
         return list.toArray(new ContainerVersionDocumentCell[] {});
-    }
-    
-    /**
-     * Create an array of display sent-to users for a version.
-     * 
-     * @param sentToCell
-     *            A "sent-to" cell (parent of sent-to users).
-     * @param versionUsersPublishedTo
-     *            A list of users.
-     * @param versionUsersSharedWith
-     *            A list of users.
-     * @return An array of display users.
-     */
-    private ContainerVersionSentToUserCell[] toDisplay(
-            final ContainerVersionSentToCell sentToCell,
-            final List<User> versionUsersPublishedTo,
-            final List<User> versionUsersSharedWith) {
-        final Integer size = versionUsersPublishedTo.size() + versionUsersSharedWith.size();
-        final List<ContainerVersionSentToUserCell> list =
-            new ArrayList<ContainerVersionSentToUserCell>(size);
-        for(final User user : versionUsersPublishedTo) {
-            list.add(toDisplay(sentToCell, user));
-        }
-        for(final User user : versionUsersSharedWith) {
-            list.add(toDisplay(sentToCell, user));
-        }
-        return list.toArray(new ContainerVersionSentToUserCell[] {});
-    }
-
-    /**
-     * Create a display user for a version.
-     * 
-     * @param sentToCell
-     *            A "sent-to" cell (parent of sent-to users).
-     * @param user
-     *            A user.
-     * @return A display user.
-     */
-    private ContainerVersionSentToUserCell toDisplay(
-            final ContainerVersionSentToCell sentToCell, final User user) {
-        final ContainerVersionSentToUserCell display = new ContainerVersionSentToUserCell(sentToCell, user);
-        return display;
     }
 
     /**

@@ -11,7 +11,7 @@ import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.AbstractAuditor;
 import com.thinkparity.ophelia.model.audit.event.KeyRequestDeniedEvent;
-import com.thinkparity.ophelia.model.audit.event.SendConfirmEvent;
+import com.thinkparity.ophelia.model.audit.event.ReceiveEvent;
 import com.thinkparity.ophelia.model.audit.event.SendKeyEvent;
 
 /**
@@ -42,16 +42,13 @@ class ArtifactModelAuditor extends AbstractAuditor {
      * @param receivedBy
      *            The recipient of the artifact.
      */
-    void confirmationReceipt(final Long artifactId,
-            final Long artifactVersionId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom)
-            throws ParityException {
-        final SendConfirmEvent event = new SendConfirmEvent();
+    void received(final Long artifactId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
+        final ReceiveEvent event = new ReceiveEvent();
         event.setArtifactId(artifactId);
-        event.setArtifactVersionId(artifactVersionId);
-        event.setCreatedOn(createdOn);
-
-        getInternalAuditModel().audit(event, createdBy, receivedFrom);
+        event.setArtifactVersionId(versionId);
+        event.setCreatedOn(receivedOn);
+        getInternalAuditModel().audit(event);
     }
 
     /**

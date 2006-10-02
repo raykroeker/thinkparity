@@ -25,7 +25,6 @@ import com.thinkparity.desdemona.model.io.sql.ArtifactSubscriptionSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
-import com.thinkparity.desdemona.util.xmpp.packet.artifact.IQConfirmReceipt;
 
 /**
  * @author raykroeker@gmail.com
@@ -100,18 +99,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The original sender of the document.
      * @throws ParityServerModelException
      */
-	void confirmReceipt(final UUID uniqueId, final Long versionId,
-            final JabberId receivedFrom) throws ParityServerModelException {
+	void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy, final Calendar receivedOn) {
         logApiId();
+        logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        logVariable("receivedFrom", receivedFrom);
+        logVariable("receivedBy", receivedBy);
+        logVariable("receivedOn", receivedOn);
         try {
-            final IQConfirmReceipt iq = new IQConfirmReceipt();
-            iq.setUniqueId(uniqueId);
-            iq.setVersionId(versionId);
-            iq.setConfirmedBy(session.getJabberId());
-            send(receivedFrom, iq);
+            assertIsAuthenticatedUser(userId);
+            final IQWriter notification = createIQWriter("artifact:received");
+            notification.writeUniqueId("uniqueId", uniqueId);
+            notification.writeLong("versionId", versionId);
+            notification.writeJabberId("receivedBy", receivedBy);
+            notification.writeCalendar("receivedOn", receivedOn);
+            notifyTeam(uniqueId, notification.getIQ());
         } catch (final Throwable t) {
             throw translateError(t);
         }

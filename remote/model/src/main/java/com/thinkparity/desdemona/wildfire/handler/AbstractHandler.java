@@ -30,6 +30,7 @@ import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
+import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQReader;
@@ -46,11 +47,21 @@ import com.thinkparity.desdemona.util.xmpp.IQWriter;
 public abstract class AbstractHandler extends
         com.thinkparity.codebase.wildfire.handler.AbstractHandler {
 
-    /** A thinkParity artifact interface. */
-    private ArtifactModel artifactModel;
+    /**
+     * A synchronization lock used to serialize all incoming iq handler
+     * requests.
+     */
+    private static final Object SERIALIZER;
+
+    static {
+        SERIALIZER = new Object();
+    }
 
     /** A thinkParity archive interface. */
     private ArchiveModel archiveModel;
+
+    /** A thinkParity artifact interface. */
+    private ArtifactModel artifactModel;
 
     /** A thinkParity contact interface. */
     private ContactModel contactModel;
@@ -69,6 +80,9 @@ public abstract class AbstractHandler extends
 
     /** A thinkParity profile interface. */
     private ProfileModel profileModel;
+
+    /** A thinkParity queue interface. */
+    private QueueModel queueModel;
 
     /** A thinkParity user session. */
     private Session session;
@@ -102,7 +116,7 @@ public abstract class AbstractHandler extends
      * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#handleIQ(org.xmpp.packet.IQ)
      */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-        synchronized (IQHandler.SERIALIZER) {
+        synchronized (SERIALIZER) {
             this.session = new Session() {
                 private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
                 private final JiveProperties jiveProperties = JiveProperties.getInstance();
@@ -124,6 +138,7 @@ public abstract class AbstractHandler extends
             this.contactModel = ContactModel.getModel(session);
             this.containerModel = ContainerModel.getModel(session);
             this.profileModel = ProfileModel.getModel(session);
+            this.queueModel = QueueModel.getModel(session);
             this.userModel = UserModel.getModel(session);
             logVariable("iq", iq);
             final IQ response = super.handleIQ(iq);
@@ -133,21 +148,21 @@ public abstract class AbstractHandler extends
     }
 
     /**
-     * Obtain a thinkParity artifact interface.
-     * 
-     * @return A thinkParity artifact interface.
-     */
-    protected ArtifactModel getArtifactModel() {
-        return artifactModel;
-    }
-
-    /**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
      */
     protected ArchiveModel getArchiveModel() {
         return archiveModel;
+    }
+
+    /**
+     * Obtain a thinkParity artifact interface.
+     * 
+     * @return A thinkParity artifact interface.
+     */
+    protected ArtifactModel getArtifactModel() {
+        return artifactModel;
     }
 
     /**
@@ -188,6 +203,15 @@ public abstract class AbstractHandler extends
      */
     protected ProfileModel getProfileModel() {
         return profileModel;
+    }
+
+    /**
+     * Obtain a thinkParity queue interface.
+     * 
+     * @return A thinkParity queue interface.
+     */
+    protected QueueModel getQueueModel() {
+        return queueModel;
     }
 
     /**

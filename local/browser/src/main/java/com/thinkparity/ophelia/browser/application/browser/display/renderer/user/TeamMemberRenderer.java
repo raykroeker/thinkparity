@@ -9,8 +9,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 
-
-import com.thinkparity.ophelia.browser.util.ModelUtil;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
@@ -34,7 +32,7 @@ public class TeamMemberRenderer extends DefaultListCellRenderer {
             final boolean cellHasFocus) {
         final JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, value,
                 index, isSelected, cellHasFocus);
-        jLabel.setText(ModelUtil.getName((TeamMember) value));
+        jLabel.setText(((TeamMember) value).getName());
         return jLabel;
     }
 }

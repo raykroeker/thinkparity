@@ -16,6 +16,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -428,6 +429,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             } else { 
                 doesVersionExist = Boolean.FALSE;
 
+                // ensure the published by user exists locally
+                getInternalUserModel().readLazyCreate(publishedBy);
+
                 container = new Container();
                 container.setCreatedBy(publishedBy);
                 container.setCreatedOn(publishedOn);
@@ -720,6 +724,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         // create published to list
         containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
+        // send confirmation
+        getInternalSessionModel().confirmArtifactReceipt(localUserId(),
+                uniqueId, versionId, localUserId(), currentDateTime());
         // audit\fire event
         final Container postPublish = read(containerId);
         final ContainerDraft postPublishDraft = readDraft(containerId);
@@ -728,6 +735,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 postPublishVersion, publishedBy, publishedTo, publishedOn);
         notifyContainerPublished(postPublish, postPublishDraft,
                 postPublishVersion, remoteEventGenerator);
+    }
+
+    void handleReceived(final Long containerId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("receivedBy", receivedBy);
+        logger.logVariable("receivedOn", receivedOn);
+        containerIO.updatePublishedTo(containerId, versionId, receivedBy, receivedOn);
+        containerIO.updateSharedWith(containerId, versionId, receivedBy, receivedOn);
     }
 
     /**
@@ -769,11 +787,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             sharedWithUsers.add(userModel.readLazyCreate(sentToId));
         }
         containerIO.createSharedWith(containerId, versionId, sharedWithUsers);
+        // send confirmation
+        getInternalSessionModel().confirmArtifactReceipt(localUserId(),
+                uniqueId, versionId, localUserId(), currentDateTime());
         // fire event
         notifyContainerShared(read(containerId), readVersion(containerId,
                 versionId), remoteEventGenerator);
     }
-
     /**
      * Print a container draft.
      * 
@@ -796,6 +816,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             throw translateError(t);
         }
     }
+
     /**
      * Print a container version.
      * 
@@ -1259,7 +1280,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readPublishedTo(final Long containerId,
+    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1279,7 +1300,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readPublishedTo(final Long containerId,
+    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1302,7 +1323,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readPublishedTo(final Long containerId,
+    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         logger.logApiId();
@@ -1310,10 +1331,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
-        final List<User> publishedTo =
+        final List<User> users =
             containerIO.readPublishedTo(containerId, versionId);
-        FilterManager.filter(publishedTo, filter);
-        ModelSorter.sortUsers(publishedTo, comparator);
+        FilterManager.filter(users, filter);
+        ModelSorter.sortUsers(users, comparator);
+        final Map<User, ArtifactReceipt> publishedTo = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
+        for (final User user : users) {
+            final ArtifactReceipt receipt = new ArtifactReceipt();
+            receipt.setArtifactId(containerId);
+            receipt.setReceivedOn(currentDateTime());
+            receipt.setUserId(user.getId());
+            publishedTo.put(user, receipt);
+        }
         return publishedTo;
     }
 
@@ -1328,7 +1357,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readPublishedTo(final Long containerId,
+    Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1347,7 +1376,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readSharedWith(final Long containerId,
+    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1367,7 +1396,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readSharedWith(final Long containerId,
+    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -1390,7 +1419,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readSharedWith(final Long containerId,
+    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         logger.logApiId();
@@ -1398,10 +1427,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
-        final List<User> sharedWith =
-            containerIO.readSharedWith(containerId, versionId);
-        FilterManager.filter(sharedWith, filter);
-        ModelSorter.sortUsers(sharedWith, comparator);
+        final List<User> users = containerIO.readSharedWith(containerId, versionId);
+        FilterManager.filter(users, filter);
+        ModelSorter.sortUsers(users, comparator);
+        final Map<User, ArtifactReceipt> sharedWith = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
+        for (final User user : users) {
+            sharedWith.put(user, new ArtifactReceipt());
+        }
         return sharedWith;
     }
 
@@ -1416,7 +1448,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    List<User> readSharedWith(final Long containerId,
+    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
@@ -2044,6 +2076,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         
     }
 
+
     /**
      * Delete the local info for this container.
      * 
@@ -2088,7 +2121,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete the container
         containerIO.delete(containerId);
     }
-
 
     /**
      * Determine whether or not a local draft exists.
@@ -2447,4 +2479,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         return documentVersionStreams;
     }
+
+
 }

@@ -33,7 +33,7 @@ public abstract class ModelTestCase extends TestCase {
 
     static {
         final TestSession testSession = getTestSession();
-        final File log4jFile = new File(testSession.getSessionDirectory(), "desdemona.log4j");
+        final File log4jFile = new File(testSession.getOutputDirectory(), "desdemona.log4j");
         System.setProperty("thinkparity.log4j.file", log4jFile.getAbsolutePath());
     }
 
@@ -113,7 +113,7 @@ public abstract class ModelTestCase extends TestCase {
         arguments.add("-silent");
         arguments.add("false");
         arguments.add("-database.0");
-        final String databaseLocation = new StringBuffer(getTestSession().getSessionDirectory().getAbsolutePath())
+        final String databaseLocation = new StringBuffer(getTestSession().getOutputDirectory().getAbsolutePath())
                 .append(File.separator).append("hsqldb")
                 .append(File.separator).append("desdemona")
                 .append(File.separator).append("db")
@@ -167,7 +167,7 @@ public abstract class ModelTestCase extends TestCase {
             commands.add(argument);
         final ProcessBuilder pb = new ProcessBuilder();
         pb.command(commands);
-        pb.directory(getTestSession().getSessionDirectory());
+        pb.directory(getTestSession().getOutputDirectory());
         pb.redirectErrorStream(true);
         final Process p = pb.start();
         final BufferedReader outputReader = new BufferedReader(new InputStreamReader(

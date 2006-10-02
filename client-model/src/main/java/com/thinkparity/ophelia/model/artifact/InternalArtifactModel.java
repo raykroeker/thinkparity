@@ -76,24 +76,6 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-    /**
-     * Audit the confirmation receipt of the artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param receivedBy
-     *            By whom the artifact was received.
-     * @throws ParityException
-     */
-    public void auditConfirmationReceipt(final Long artifactId,
-            final Long versionId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom) {
-        synchronized (getImplLock()) {
-            getImpl().auditConfirmationReceipt(
-                    artifactId, versionId, createdBy, createdOn, receivedFrom);
-        }
-    }
-
 	/**
 	 * Audit the denial of a key request for an artifact.
 	 * 
@@ -239,6 +221,13 @@ public class InternalArtifactModel extends ArtifactModel {
             final JabberId createdBy, final Calendar createdOn) {
         synchronized (getImplLock()) {
             getImpl().handleDraftCreated(uniqueId, createdBy, createdOn);
+        }
+    }
+
+    public void handleReceived(final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar recievedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleReceived(uniqueId, versionId, receivedBy, recievedOn);
         }
     }
 

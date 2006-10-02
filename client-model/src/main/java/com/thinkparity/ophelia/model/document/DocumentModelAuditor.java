@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.model.document;
 import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.ParityException;
@@ -68,13 +69,13 @@ class DocumentModelAuditor extends AbstractAuditor {
         getInternalAuditModel().audit(event, createdBy, teamMember);
     }
 
-    void create(final Long documentId, final JabberId createdBy,
-			final Calendar createdOn) throws ParityException {
-		final CreateEvent createEvent = new CreateEvent();
-		createEvent.setArtifactId(documentId);
-		createEvent.setCreatedOn(createdOn);
-
-		getInternalAuditModel().audit(createEvent, createdBy);
+    void create(final Document document, final JabberId createdBy,
+            final Calendar createdOn) {
+		final CreateEvent event = new CreateEvent();
+		event.setArtifactId(document.getId());
+		event.setCreatedBy(createdBy);
+		event.setCreatedOn(createdOn);
+		getInternalAuditModel().audit(event);
 	}
 
     void createRemote(final Long documentId, final JabberId createdBy,
@@ -86,18 +87,6 @@ class DocumentModelAuditor extends AbstractAuditor {
 
         getInternalAuditModel().audit(event, createdBy, receivedFrom);
     }
-
-    void receive(final Long artifactId, final Calendar createdOn,
-            final JabberId createdBy, final Long artifactVersionId,
-            final JabberId receivedFrom, final JabberId receivedBy,
-            final Calendar receivedOn) throws ParityException {
-		final ReceiveEvent receiveEvent = new ReceiveEvent();
-		receiveEvent.setArtifactId(artifactId);
-		receiveEvent.setArtifactVersionId(artifactVersionId);
-		receiveEvent.setCreatedOn(createdOn);
-
-		getInternalAuditModel().audit(receiveEvent, createdBy, receivedFrom);
-	}
 
     void receiveKey(final Long artifactId, final JabberId createdBy,
             final Calendar createdOn, final JabberId receivedFrom)

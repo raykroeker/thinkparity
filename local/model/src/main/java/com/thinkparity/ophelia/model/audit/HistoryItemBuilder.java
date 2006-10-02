@@ -307,22 +307,6 @@ public abstract class HistoryItemBuilder<T extends HistoryItem> {
     }
 
     /**
-     * Customize a history item for a receive event.
-     * 
-     * @param item
-     *            A history item.
-     * @param event
-     *            A receieve event.
-     * @return A custom history item.
-     */
-    protected HistoryItem customize(final HistoryItem item, final ReceiveEvent event) {
-    	item.setEvent(getString(
-                "eventText.RECEIVE",
-                new Object[] {getName(event.getReceivedFrom())}));
-    	return item;
-    }
-
-    /**
      * Customize a history item for a receive key event.
      * 
      * @param item

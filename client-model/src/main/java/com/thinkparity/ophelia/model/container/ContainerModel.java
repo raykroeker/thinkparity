@@ -5,11 +5,13 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -365,7 +367,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readPublishedTo(containerId, versionId);
@@ -383,7 +385,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
         synchronized (getImplLock()) {
             return getImpl().readPublishedTo(containerId, versionId, comparator);
@@ -403,7 +405,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         synchronized (getImplLock()) {
@@ -422,7 +424,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
         synchronized (getImplLock()) {
             return getImpl().readPublishedTo(containerId, versionId, filter);
@@ -438,7 +440,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readSharedWith(final Long containerId,
+    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readSharedWith(containerId, versionId);
@@ -456,7 +458,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readSharedWith(final Long containerId,
+    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator) {
         synchronized (getImplLock()) {
             return getImpl().readSharedWith(containerId, versionId, comparator);
@@ -476,7 +478,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readSharedWith(final Long containerId,
+    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Comparator<User> comparator,
             final Filter<? super User> filter) {
         synchronized (getImplLock()) {
@@ -496,7 +498,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readSharedWith(final Long containerId,
+    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
             final Long versionId, final Filter<? super User> filter) {
         synchronized (getImplLock()) {
             return getImpl().readSharedWith(containerId, versionId, filter);

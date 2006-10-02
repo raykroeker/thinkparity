@@ -14,7 +14,6 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -78,19 +77,20 @@ class QueueModelImpl extends AbstractModelImpl {
 
     
     /**
-	 * Process all pending queue items for the given session.
-	 * 
-	 * @throws ParityServerModelException
-	 */
-	void processOfflineQueue() throws ParityServerModelException {
+     * Process all pending queue items for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+	void processOfflineQueue(final JabberId userId) {
         logApiId();
+        logVariable("userId", userId);
 		try {
-			final Collection<QueueItem> queueItems = list();
+            assertIsAuthenticatedUser(userId);
+			final Collection<QueueItem> queueItems = list(userId);
 			Element rootElement;
-            JabberId userId;
-			for(final QueueItem queueItem : queueItems) {
+			for (final QueueItem queueItem : queueItems) {
                 rootElement = readRootElement(queueItem.getQueueMessage());
-                userId = JabberIdBuilder.parseUsername(queueItem.getUsername());
 
                 if (isOnline(userId)) {
                     getClientSession(userId).process(new IQ(rootElement));
@@ -119,8 +119,8 @@ class QueueModelImpl extends AbstractModelImpl {
 	 * 
 	 * @return A list of queued items.
 	 */
-	private Collection<QueueItem> list() throws SQLException {
-		return queueSql.select(session.getJID().getNode());
+	private Collection<QueueItem> list(final JabberId userId) throws SQLException {
+		return queueSql.select(userId.getUsername());
 	}
 
 	/**

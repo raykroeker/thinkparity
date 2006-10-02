@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 
 final class XMPPSystem extends AbstractXMPP {
@@ -26,5 +28,12 @@ final class XMPPSystem extends AbstractXMPP {
         logger.logApiId();
         final XMPPMethod readVersion = new XMPPMethod("system:readversion");
         return execute(readVersion, Boolean.TRUE).readResultString("version");
+    }
+
+    void processOfflineQueue(final JabberId userId) {
+        logger.logApiId();
+        final XMPPMethod processOfflineQueue = new XMPPMethod("system:processofflinequeue");
+        processOfflineQueue.setParameter("userId", userId);
+        execute(processOfflineQueue);
     }
 }

@@ -77,9 +77,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-    /** A document event generator for remote events. */
-    private final DocumentModelEventGenerator remoteEventGen;
-
 	/**
 	 * Create a DocumentModelImpl
 	 * 
@@ -97,7 +94,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
-        this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
 	}
 
     /**
@@ -133,26 +129,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             throws ParityException {
 		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
-
-    /**
-     * Confirm that the document sent previously has been received by the
-     * specified user.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param confirmedBy
-     *            To whom the document was sent.
-     * @throws ParityException
-     */
-    void confirmSend(final Long documentId, final Long versionId,
-            final JabberId confirmedBy) {
-        // audit the receipt
-        getInternalArtifactModel().auditConfirmationReceipt(documentId,
-                versionId, localUserId(), currentDateTime(), confirmedBy);
-        // fire event
-        notifyConfirmationReceived(read(documentId),
-                readVersion(documentId, versionId), remoteEventGen);
-    }
 
     /**
      * Create a document.
@@ -814,6 +790,21 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
 	/**
+     * Audit the document's creation.
+     * 
+     * @param document
+     *            A document.
+     * @param createdBy
+     *            The created by user id <code>JabberId</code>.
+     * @param createdOn
+     *            The created on date <code>Calendar</code>.
+     */
+    private void auditDocumentCreated(final Document document,
+            final JabberId createdBy, final Calendar createdOn) {
+        auditor.create(document, createdBy, createdOn);
+    }
+
+    /**
      * Create a document.
      * 
      * @param uniqueId
@@ -846,12 +837,14 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             // create remote info
             final InternalArtifactModel aModel = getInternalArtifactModel();
             aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
-            // audit creation
-            auditor.create(document.getId(), createdBy, document.getCreatedOn());
             // create local file
             final LocalFile localFile = getLocalFile(document);
             localFile.write(StreamUtil.read(content));
-            return read(document.getId());
+
+            final Document postCreation = read(document.getId());
+            // audit
+            this.auditDocumentCreated(postCreation, createdBy, createdOn);
+            return postCreation;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -970,25 +963,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 			final DocumentVersion version) {
 		return new LocalFile(workspace, document, version);
 	}
-
-	/**
-     * Fire confirmation received.
-     *
-     * @param document
-     *      A document
-     * @param eventGen
-     *      The event generator.
-     */
-    private void notifyConfirmationReceived(final Document document,
-            final DocumentVersion version,
-            final DocumentModelEventGenerator eventGen) {
-        notifyListeners(new EventNotifier<DocumentListener>() {
-            public void notifyListener(final DocumentListener listener) {
-                listener.confirmationReceived(eventGen.generate(document,
-                        version));
-            }
-        });
-    }
 
     /**
 	 * Fire document created.

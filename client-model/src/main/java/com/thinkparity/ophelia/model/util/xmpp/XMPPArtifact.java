@@ -72,18 +72,20 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
                 return query;
             }
         });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactconfirmreceipt", new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifact:received", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleArtifactReceivedIQ query = new HandleArtifactReceivedIQ();
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
-                    if (isStartTag("uuid")) {
+                    if (isStartTag("uniqueId")) {
                         query.uniqueId = readUniqueId2();
-                    } else if (isStartTag("versionid")) {
+                    } else if (isStartTag("versionId")) {
                         query.versionId = readLong2();
-                    } else if (isStartTag("jid")) {
+                    } else if (isStartTag("receivedBy")) {
                         query.receivedBy = readJabberId2();
+                    } else if (isStartTag("receivedOn")) {
+                        query.receivedOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -247,17 +249,20 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      *            The artifact version id.
      */
 	void confirmReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy) {
+            final Long versionId, final JabberId receivedBy,
+            final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("receivedBy", receivedBy);
+        logger.logVariable("receivedOn", receivedOn);
         final XMPPMethod confirmReceipt = new XMPPMethod("artifact:confirmreceipt");
         confirmReceipt.setParameter("userId", userId);
         confirmReceipt.setParameter("uniqueId", uniqueId);
         confirmReceipt.setParameter("versionId", versionId);
         confirmReceipt.setParameter("receivedBy", receivedBy);
+        confirmReceipt.setParameter("receivedOn", receivedOn);
         execute(confirmReceipt);
 	}
 
@@ -357,8 +362,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
     private void handleArtifactReceived(final HandleArtifactReceivedIQ query) {
         notifyListeners(new EventNotifier<ArtifactListener>() {
             public void notifyListener(final ArtifactListener listener) {
-                listener.confirmReceipt(query.uniqueId, query.versionId,
-                        query.receivedBy);
+                listener.handleReceived(query.uniqueId, query.versionId,
+                        query.receivedBy, query.receivedOn);
             }
         });
     }
@@ -412,6 +417,8 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
     private static class HandleArtifactReceivedIQ extends AbstractThinkParityIQ {
         /** Who is confirming receipt. */
         private JabberId receivedBy;
+        /** The received on date <code>Calendar</code>. */
+        private Calendar receivedOn;
         /** The artifact unique id. */
         private UUID uniqueId;
         /** The artifact version id. */

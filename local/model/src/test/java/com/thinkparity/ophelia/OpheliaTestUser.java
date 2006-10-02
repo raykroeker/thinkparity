@@ -129,7 +129,7 @@ public class OpheliaTestUser extends User {
         try {
             session = new XMPPSessionImpl();
             session.login(environment, credentials);
-            session.processOfflineQueue();
+            session.processOfflineQueue(session.readCurrentUser().getId());
         } catch (final SmackException sx) {
             throw new RuntimeException(sx);
         } finally {

@@ -161,16 +161,18 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 *            The artifact unique id.
 	 */
 	void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy) {
+            final Long versionId, final JabberId receivedBy,
+            final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("receivedBy", receivedBy);
+        logger.logVariable("receivedOn", receivedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
     	    synchronized(xmppSession) {
-    	        xmppSession.confirmArtifactReceipt(userId, uniqueId, versionId, receivedBy);
+    	        xmppSession.confirmArtifactReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
     	    }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1072,7 +1074,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     createCredentials(
                             credentials.getUsername(), credentials.getPassword());
                 }
-                xmppSession.processOfflineQueue();
+                xmppSession.processOfflineQueue(xmppSession.readCurrentUser().getId());
             }
         } catch(final Throwable t) {
             throw translateError(t);

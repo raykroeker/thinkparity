@@ -48,25 +48,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
 	/**
-     * Confirm that the document sent previously has been received by the
-     * specified user.
-     * 
-     * @param documentId
-     *      The document id.
-     * @param versionId
-     *      The document version id.
-     * @param confirmedBy
-     *      To whom the document was sent.
-     * @throws ParityException
-     */
-    public void confirmSend(final Long documentId, final Long versionId,
-            final JabberId confirmedBy) {
-        synchronized(getImplLock()) {
-            getImpl().confirmSend(documentId, versionId, confirmedBy);
-        }
-    }
-
-	/**
      * Delete a document.
      * 
      * @param documentId

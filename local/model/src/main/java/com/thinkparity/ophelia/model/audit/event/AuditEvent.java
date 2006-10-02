@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.model.audit.event;
 
 import java.util.Calendar;
 
-import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.audit.AuditEventType;
 
@@ -22,10 +22,10 @@ public abstract class AuditEvent {
     /** The artifact id. */
     protected Long artifactId;
 
-    /** The creator. */
-	protected User createdBy;
+    /** The created by user id <code>JabberId</code>. */
+	protected JabberId createdBy;
 
-    /** The creation date. */
+    /** The created on date <code>Calendar</code>. */
 	protected Calendar createdOn;
 
     /** The audit id. */
@@ -57,7 +57,9 @@ public abstract class AuditEvent {
      *
 	 * @return The createor.
 	 */
-	public User getCreatedBy() { return createdBy; }
+	public JabberId getCreatedBy() {
+        return createdBy;
+	}
 
 	/**
      * Obtain the creation date.
@@ -96,7 +98,7 @@ public abstract class AuditEvent {
 	 * @param createdBy
      *      The creator.
 	 */
-	public void setCreatedBy(final User createdBy) {
+	public void setCreatedBy(final JabberId createdBy) {
 		this.createdBy = createdBy;
 	}
 

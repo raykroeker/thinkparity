@@ -4,7 +4,9 @@
  */
 package com.thinkparity.ophelia.model.audit.event;
 
-import com.thinkparity.codebase.model.user.User;
+import java.util.Calendar;
+
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.audit.AuditEventType;
 
@@ -17,24 +19,46 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 public class ReceiveEvent extends AuditVersionEvent {
 
     /** From whom the document was received. */
-	private User receivedFrom;
+	private JabberId receivedBy;
+
+    private Calendar receivedOn;
 
 	/** Create  ReceiveEvent. */
-	public ReceiveEvent() { super(AuditEventType.RECEIVE); }
+	public ReceiveEvent() {
+        super(AuditEventType.RECEIVE);
+	}
 
 	/**
      * Obtain the received from user.
      *
 	 * @return A user.
 	 */
-	public User getReceivedFrom() { return receivedFrom; }
+	public JabberId getReceivedBy() { return receivedBy; }
 
 	/**
+     * Obtain the receivedOn
+     *
+     * @return The Calendar.
+     */
+    public Calendar getReceivedOn() {
+        return receivedOn;
+    }
+
+    /**
      * Set the received from user.
      *
 	 * @param receivedFrom A user.
 	 */
-	public void setReceivedFrom(final User receivedFrom) {
-		this.receivedFrom = receivedFrom;
+	public void setReceivedBy(final JabberId receivedBy) {
+		this.receivedBy = receivedBy;
 	}
+
+    /**
+     * Set receivedOn.
+     *
+     * @param receivedOn The Calendar.
+     */
+    public void setReceivedOn(final Calendar receivedOn) {
+        this.receivedOn = receivedOn;
+    }
 }

@@ -23,7 +23,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.container.PrintVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.Share;
-import com.thinkparity.ophelia.browser.util.ModelUtil;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 
@@ -107,7 +106,7 @@ public class ContainerVersionCell extends DefaultTabCell {
         case WEST:
             return localization.getString("Text", version.getVersionId());
         case EAST:
-            return ModelUtil.getName(publishedBy);
+            return publishedBy.getName();
         default:
             throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
         }

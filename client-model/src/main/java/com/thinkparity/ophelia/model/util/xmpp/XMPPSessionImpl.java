@@ -43,8 +43,6 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifact;
 import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifactFlag;
-import com.thinkparity.ophelia.model.util.smackx.packet.IQParity;
-import com.thinkparity.ophelia.model.util.smackx.packet.IQProcessOfflineQueue;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
@@ -227,8 +225,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      com.thinkparity.codebase.jabber.JabberId)
      */
     public void confirmArtifactReceipt(final JabberId userId,
-            final UUID uniqueId, final Long versionId, final JabberId receivedBy) {
-        xmppArtifact.confirmReceipt(userId, uniqueId, versionId, receivedBy);
+            final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
+        xmppArtifact.confirmReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
     }
 
 	/**
@@ -369,10 +368,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#processOfflineQueue()
 	 * 
 	 */
-	public void processOfflineQueue() throws SmackException {
-		logger.logApiId();
-		final IQParity processOfflineQueue = new IQProcessOfflineQueue();
-		sendAndConfirmPacket(processOfflineQueue);
+	public void processOfflineQueue(final JabberId userId) {
+        xmppSystem.processOfflineQueue(userId);
 	}
 
     /**

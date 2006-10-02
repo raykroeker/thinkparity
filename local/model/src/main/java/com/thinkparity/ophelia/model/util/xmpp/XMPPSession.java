@@ -137,7 +137,8 @@ public interface XMPPSession {
      *            By whom the artifact was received <code>JabberId</code>.
      */
     public void confirmArtifactReceipt(final JabberId userId,
-            final UUID uniqueId, final Long versionId, final JabberId receivedBy);
+            final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar recievedOn);
 
     /**
      * Create an artifact
@@ -266,7 +267,7 @@ public interface XMPPSession {
      * 
      * @throws SmackException
      */
-    public void processOfflineQueue() throws SmackException;
+    public void processOfflineQueue(final JabberId userId);
 
     /**
      * Publish a container.

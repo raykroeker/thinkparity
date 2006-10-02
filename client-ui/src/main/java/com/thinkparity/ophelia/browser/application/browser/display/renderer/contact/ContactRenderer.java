@@ -11,8 +11,6 @@ import javax.swing.JList;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
-import com.thinkparity.ophelia.browser.util.ModelUtil;
-
 
 /**
  * @author raykroeker@gmail.com
@@ -42,7 +40,7 @@ public class ContactRenderer extends DefaultListCellRenderer {
 			final boolean cellHasFocus) {
 		final JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, value,
 				index, isSelected, cellHasFocus);
-		jLabel.setText(ModelUtil.getName((Contact) value));
+		jLabel.setText(((Contact) value).getName());
 		return jLabel;
 	}
 }

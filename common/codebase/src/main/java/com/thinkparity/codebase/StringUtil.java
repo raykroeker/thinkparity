@@ -432,6 +432,9 @@ public abstract class StringUtil {
 	 */
 	public static final class Separator extends Enum {
 
+        /** The at character. */
+        public static final Separator At = new Separator("@");
+
 		/**
 		 * Close parenthesis
 		 */
@@ -467,7 +470,10 @@ public abstract class StringUtil {
 		 * Equals
 		 */
 		public static final Separator Equals = new Separator("=");
-		
+
+        /** The forward slash character. */
+        public static final Separator ForwardSlash = new Separator("/");
+
 		/**
 		 * Full colon
 		 */

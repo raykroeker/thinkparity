@@ -90,9 +90,9 @@
         <exec executable="${nsis.install.dir}/makensis.exe" dir="${basedir}/target/release">
             <arg value="install-plugin-archive.nsi"/>
         </exec>
-        <checksum file="${target.release.dir}/thinkParity-${release.version} Archive.exe"
+        <checksum file="${basedir}/target/release/thinkParity-${release.version} Archive.exe"
             algorithm="MD5"/>
-        <checksum file="${target.release.dir}/thinkParity-${release.version} Archive.exe"
+        <checksum file="${basedir}/target/release/thinkParity-${release.version} Archive.exe"
             algorithm="SHA"/>
     </target>
 

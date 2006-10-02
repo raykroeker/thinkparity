@@ -40,16 +40,11 @@ public class JiveHandlerPlugin extends QDoxPlugin {
     @Override
     public boolean shouldGenerate(final Object metadata) {
         final JavaClass javaClass = (JavaClass) metadata;
-        final boolean isAHandler = javaClass.isA("org.jivesoftware.wildfire.handler.IQHandler");
-        final boolean isAnAbstractController = javaClass.isA("com.thinkparity.desdemona.wildfire.handler.AbstractHandler");
+        final boolean isHandler = javaClass.isA("com.thinkparity.desdemona.wildfire.handler.AbstractHandler");
         final boolean isAbstract = javaClass.isAbstract();
         final boolean isInterface = javaClass.isInterface();
-        if (!isAbstract && !isInterface) {
-            if (isAHandler || isAnAbstractController) {
-                return true;
-            } else {
-                return false;
-            }
+        if (isHandler && !isAbstract && !isInterface) {
+            return true;
         } else {
             return false;
         }

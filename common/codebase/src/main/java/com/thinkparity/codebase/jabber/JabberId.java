@@ -32,12 +32,24 @@ public class JabberId {
      * @param resource
      *            The jabber resource.
      */
-    protected JabberId(final String username, final String host,
+    JabberId(final String username, final String host,
             final String resource) {
         super();
         this.username = username;
         this.host = host;
         this.resource = resource;
+    }
+
+    /**
+     * Create a JabberId.
+     * 
+     * @param username
+     *            The jabber username <code>String</code>.
+     * @param service
+     *            The jabber service <code>String</code>.
+     */
+    JabberId(final String username, final String service) {
+        this(username, service, null);
     }
 
     /**
@@ -60,11 +72,18 @@ public class JabberId {
             .toString();
     }
 
+    /**
+     * Obtain the qualified username in the form of:
+     * 
+     * <pre>
+     *  username@service
+     * </pre>
+     * 
+     * @return A qualified username <code>String</code>.
+     */
     public String getQualifiedUsername() {
-        return new StringBuffer(username)
-            .append("@")
-            .append(host)
-            .toString();
+        return new StringBuffer(username).append("@")
+            .append(host).toString();
     }
 
     public String getUsername() { return username; }

@@ -4,8 +4,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.application.window;
 
-import java.awt.*;
-import java.awt.geom.GeneralPath;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.util.Stack;
 
 import javax.swing.border.AbstractBorder;
@@ -33,7 +36,8 @@ public class WindowBorder extends AbstractBorder {
     private static final long serialVersionUID = 1;
 
     static {
-        BORDER_INSETS = new Insets(2, 2, 1, 2);
+        //BORDER_INSETS = new Insets(2, 2, 1, 2);
+        BORDER_INSETS = new Insets(6, 6, 5, 6);
         COLOURS = new Color[] {
                 new Color(139, 142, 143, 255),
                 new Color(228, 229, 233, 255),
@@ -133,53 +137,6 @@ public class WindowBorder extends AbstractBorder {
                 Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_OUTER.getWidth(),
                 Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_OUTER.getHeight(), c);
         
-        // Shadow border.
-
-/*        final Shape shape = createShape(width, height);
-        paintBorderShadow((Graphics2D)g, 10, shape);*/
-
-
         popColour(g);
-    }
-    
-    /** Paint a border shadow.
-     * From http://java.sun.com/mailers/techtips/corejava/2006/tt0923.html?feed=JSC
-     * 
-     */
-    private void paintBorderShadow(final Graphics2D g2, final int shadowWidth, final Shape shape) {
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
-        int sw = shadowWidth*2;
-        for (int i=sw; i >= 2; i-=2) {
-            float pct = (float)(sw - i) / (sw - 1);
-            g2.setColor(getMixedColor(Color.LIGHT_GRAY, pct,
-                                      Color.WHITE, 1.0f-pct));
-            g2.setStroke(new BasicStroke(i));
-            g2.draw(shape);
-        }
-    }
-    
-    /**
-     * Get a mixed color.
-     * From http://java.sun.com/mailers/techtips/corejava/2006/tt0923.html?feed=JSC
-     * 
-     */
-    private static Color getMixedColor(Color c1, float pct1, Color c2, float pct2) {
-        float[] clr1 = c1.getComponents(null);
-        float[] clr2 = c2.getComponents(null);
-        for (int i = 0; i < clr1.length; i++) {
-            clr1[i] = (clr1[i] * pct1) + (clr2[i] * pct2);
-        }
-        return new Color(clr1[0], clr1[1], clr1[2], clr1[3]);
-    }
-    
-    private Shape createShape(final int width, final int height) {
-        GeneralPath gp = new GeneralPath();
-        gp.moveTo(0, 0);
-        gp.lineTo(width - 1, 0);
-        gp.lineTo(width - 1, height - 1);
-        gp.lineTo(0, height - 1);
-        gp.closePath();
-        return gp;
     }
 }

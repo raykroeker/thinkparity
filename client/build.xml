@@ -18,7 +18,7 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/nativeskin/6.7 vendor/i686/win32/nativeskin/6.7 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/ophelia"/>
 
     <!-- output directories -->
@@ -39,6 +39,7 @@
 		<include name="jdic/0.9.1/jdic.jar"/>
         <include name="log4j/1.2.13/log4j.jar"/>
 		<include name="lucene/1.9.1/lucene.jar"/>
+		<include name="nativeskin/6.7/nativeskin.jar"/>
 		<include name="smack/2.2.1/smack.jar"/>
 		<include name="smackx/2.2.1/smackx.jar"/>
 		<include name="swing-layout/1.0/swing-layout.jar"/>
@@ -49,6 +50,7 @@
     <!-- runtime vendor win32 libs -->
     <fileset id="project.runtimevendorlibwin32" dir="${basedir}/vendor/i686/win32">
         <include name="jdic/0.9.1/tray.dll"/>
+	<include name="nativeskin/6.7/nativeskinwin32JAWT.dll"/>
     </fileset>   
 
     <!-- classpath -->
@@ -61,6 +63,7 @@
 		<pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
 		<pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
 		<pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
+		<pathelement location="${basedir}/vendor/nativeskin/6.7/nativeskin.jar"/>
 		<pathelement location="${basedir}/vendor/swing-layout/1.0/swing-layout.jar"/>
 		<pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
 		<pathelement location="${basedir}/vendor/jdic/0.9.1/jdic.jar"/>

@@ -469,19 +469,18 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Create the user credentials.
+     * Create the user's credentials.
      * 
-     * @param username
-     *            The user's username.
-     * @param password
-     *            The user's password.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     * @return The user's <code>Credentials</code>.
      */
-    protected Credentials createCredentials(final String username,
-            final String password) {
+    protected Credentials createCredentials(final Credentials credentials) {
         final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
         try {
-            getConfigurationHandler().create(ConfigurationKeys.USERNAME, encrypt(cipherKey, username));
-            getConfigurationHandler().create(ConfigurationKeys.PASSWORD, encrypt(cipherKey, password));
+            getConfigurationHandler().create(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
+            getConfigurationHandler().create(ConfigurationKeys.RESOURCE, encrypt(cipherKey, credentials.getResource()));
+            getConfigurationHandler().create(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             return readCredentials();
         } catch (final Throwable t) {
             throw translateError(t);
@@ -495,8 +494,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected void deleteCredentials() {
         assertIsSetCredentials();
         try {
-            getConfigurationHandler().delete(ConfigurationKeys.USERNAME);
             getConfigurationHandler().delete(ConfigurationKeys.PASSWORD);
+            getConfigurationHandler().delete(ConfigurationKeys.RESOURCE);
+            getConfigurationHandler().delete(ConfigurationKeys.USERNAME);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -804,8 +804,12 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	 */
 	protected JabberId localUserId() {
         final Credentials credentials = readCredentials();
-        if(null == credentials) { return null; }
-        else { return JabberIdBuilder.parseUsername(credentials.getUsername()); }
+        if (null == credentials) {
+            return null;
+        } else {
+            return JabberIdBuilder.build(credentials.getUsername(),
+                    Constants.Jabber.DOMAIN, credentials.getResource());
+        }
 	}
 
     /**
@@ -839,15 +843,17 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected Credentials readCredentials() {
         final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
-        final String username = getConfigurationHandler().read(ConfigurationKeys.USERNAME);
         final String password = getConfigurationHandler().read(ConfigurationKeys.PASSWORD);
+        final String resource = getConfigurationHandler().read(ConfigurationKeys.RESOURCE);
+        final String username = getConfigurationHandler().read(ConfigurationKeys.USERNAME);
 
-        if (null == username || null == password) {
+        if (null == username || null == password || null == resource) {
             return null;
         } else {
             final Credentials credentials = new Credentials();
             try {
                 credentials.setPassword(decrypt(cipherKey, password));
+                credentials.setResource(decrypt(cipherKey, resource));
                 credentials.setUsername(decrypt(cipherKey, username));
                 return credentials;
             }
@@ -907,8 +913,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected void updateCredentials(final Credentials credentials) {
         final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
         try {
-            getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             getConfigurationHandler().update(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
+            getConfigurationHandler().update(ConfigurationKeys.RESOURCE, encrypt(cipherKey, credentials.getResource()));
+            getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
         }
         catch(final Throwable t) { throw translateError(t); }
     }
@@ -1111,6 +1118,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** Configuration keys. */
     private static class ConfigurationKeys {
         private static final String PASSWORD = "PASSWORD";
+        private static final String RESOURCE = "RESOURCE";
         private static final String USERNAME = "USERNAME";
     }
 }

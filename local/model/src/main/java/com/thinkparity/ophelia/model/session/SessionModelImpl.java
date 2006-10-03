@@ -1071,10 +1071,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 
                 // save the user's credentials
                 if(null == storedCredentials) {
-                    createCredentials(
-                            credentials.getUsername(), credentials.getPassword());
+                    createCredentials(credentials);
                 }
-                xmppSession.processOfflineQueue(xmppSession.readCurrentUser().getId());
+                xmppSession.processOfflineQueue(localUserId());
             }
         } catch(final Throwable t) {
             throw translateError(t);

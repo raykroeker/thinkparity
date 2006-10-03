@@ -16,9 +16,15 @@ public class JabberIdBuilder {
 
 	static { SINGLETON = new JabberIdBuilder(); }
 
-	public static JabberId build(final String username, final String service) {
+    public static JabberId build(final String username, final String service) {
         return SINGLETON.doBuild(username, service);
     }
+
+    public static JabberId build(final String username, final String service,
+            final String resource) {
+        return SINGLETON.doBuild(username, service, resource);
+    }
+
     public static JabberId parse(final String jabberId) {
         return SINGLETON.doParse(jabberId);
     }
@@ -57,8 +63,22 @@ public class JabberIdBuilder {
      *            A service <code>String</code>.
      * @return A well-formed <code>JabberId</code>.
      */
-	private JabberId doBuild(final String username, final String service) {
+    private JabberId doBuild(final String username, final String service) {
         return new JabberId(username, service);
+    }
+
+    /**
+     * Build a jabber id.
+     * 
+     * @param username
+     *            A username <code>String</code>.
+     * @param service
+     *            A service <code>String</code>.
+     * @return A well-formed <code>JabberId</code>.
+     */
+    private JabberId doBuild(final String username, final String service,
+            final String resource) {
+        return new JabberId(username, service, resource);
     }
 
     /**

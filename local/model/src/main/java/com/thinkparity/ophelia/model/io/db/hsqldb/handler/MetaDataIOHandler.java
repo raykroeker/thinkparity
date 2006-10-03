@@ -9,7 +9,6 @@ import java.util.Calendar;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
@@ -220,7 +219,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		case STRING:
 			return session.getString(columnName);
 		case JABBER_ID:
-			return JabberIdBuilder.parseQualifiedUsername(session.getString(columnName));
+			return session.getQualifiedUsername(columnName);
 		default:
 			throw Assert.createUnreachable("Unknown meta data type:  " + metaDataType);
 		}

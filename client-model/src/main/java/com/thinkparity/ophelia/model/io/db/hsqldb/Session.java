@@ -349,7 +349,7 @@ public class Session {
 			if (resultSet.wasNull()) {
                 return null;
 			} else {
-                return JabberIdBuilder.parseQualifiedUsername(value);
+                return JabberIdBuilder.parse(value);
 			}
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);

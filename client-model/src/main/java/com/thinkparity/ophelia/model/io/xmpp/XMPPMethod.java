@@ -364,7 +364,7 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         }
         else if(parameter.javaType.equals(JabberId.class)) {
-            return ((JabberId) parameter.javaValue).getQualifiedJabberId();
+            return ((JabberId) parameter.javaValue).getQualifiedUsername();
         }
         else if(parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
@@ -561,7 +561,7 @@ public class XMPPMethod extends IQ {
             }
             else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
                 parser.next();
-                final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
+                final JabberId jabberId = JabberIdBuilder.parse(parser.getText());
                 parser.next();
                 parser.next();
                 return jabberId;

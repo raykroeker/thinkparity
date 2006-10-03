@@ -416,30 +416,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-	 * Build a jabber id from a parity user.
-	 * 
-	 * @param user
-	 *            The parity user.
-	 * @return The jabber id.
-	 */
-	protected JabberId buildJabberId(final User user) {
-		JabberId jabberId = null;
-		try { jabberId =
-			JabberIdBuilder.parseQualifiedJabberId(user.getUsername()); }
-		catch(final IllegalArgumentException iax) {}
-		if(null != jabberId) {
-			try {
-				jabberId =
-					JabberIdBuilder.parseQualifiedUsername(user.getUsername());
-			}
-			catch(final IllegalArgumentException iax) {}
-			if(null != jabberId)
-				jabberId = JabberIdBuilder.parseUsername(user.getUsername());
-		}
-		return jabberId;
-	}
-
-    /**
      * Determine if the list of team members contains the user id..
      * 
      * @param team

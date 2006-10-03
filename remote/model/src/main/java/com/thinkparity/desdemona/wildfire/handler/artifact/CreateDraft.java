@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.wildfire.handler.artifact;
 
 import java.util.UUID;
 
-
 import com.thinkparity.desdemona.model.Constants.Xml;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 

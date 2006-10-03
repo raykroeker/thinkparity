@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.jivesoftware.wildfire.ClientSession;
 import org.jivesoftware.wildfire.SessionManager;
+import org.jivesoftware.wildfire.SessionResultFilter;
 import org.jivesoftware.wildfire.XMPPServer;
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
@@ -124,8 +126,9 @@ public abstract class AbstractModelImpl
      * @see #isAuthenticatedUser(JabberId)
      */
     protected void assertIsAuthenticatedUser(final JabberId userId) {
-        Assert.assertTrue("USER DOES NOT MATCH AUTHENTICATED USER",
-                isAuthenticatedUser(userId));
+        Assert.assertTrue(isAuthenticatedUser(userId),
+                "User {0} does not match authenticated user {1}.",
+                userId, session.getJabberId());
     }
 
     /**
@@ -226,8 +229,25 @@ public abstract class AbstractModelImpl
      *            A user id <code>JabberId</code>.
      * @return A client session.
      */
-    protected final ClientSession getClientSession(final JabberId userId) {
-        return getSessionManager().getSession(getJID(userId));
+    protected final List<ClientSession> getClientSessions(final JabberId userId) {
+        final Collection<ClientSession> sessions =
+            getSessionManager().getSessions(createClientSessionFilter(userId));
+        final List<ClientSession> sessionList = new ArrayList<ClientSession>(sessions.size());
+        sessionList.addAll(sessions);
+        return sessionList;
+    }
+
+    /**
+     * Create a client session filter for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>SessionResultFilter</code>.
+     */
+    private SessionResultFilter createClientSessionFilter(final JabberId userId) {
+        final SessionResultFilter filter = new SessionResultFilter();
+        filter.setUsername(userId.getUsername());
+        return filter;
     }
 
 	/**
@@ -442,7 +462,9 @@ public abstract class AbstractModelImpl
         for (final JabberId toUserId : toUserIds) {
             query.setTo(getJID(toUserId));
             if (isOnline(toUserId)) {
-                getClientSession(toUserId).process(query);
+                for (final ClientSession session : getClientSessions(toUserId)) {
+                    session.process(query);
+                }
             } else {
                 enqueue(toUserId, query);
             }
@@ -496,7 +518,9 @@ public abstract class AbstractModelImpl
         if (null != archiveId) {
             query.setTo(getJID(archiveId));
             if (isOnline(archiveId)) {
-                getClientSession(archiveId).process(query);
+                for (final ClientSession session : getClientSessions(archiveId)) {
+                    session.process(query);
+                }
             } else {
                 logWarning(MessageFormat.format("Archive {0} not online.", archiveId));
                 enqueue(archiveId, query);

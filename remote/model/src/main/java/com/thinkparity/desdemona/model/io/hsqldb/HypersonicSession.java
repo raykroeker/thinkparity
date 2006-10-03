@@ -19,7 +19,6 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 /** 
@@ -271,7 +270,7 @@ public class HypersonicSession {
 			if (resultSet.wasNull()) {
                 return null;
 			} else {
-                return JabberIdBuilder.parseQualifiedUsername(value);
+                return JabberIdBuilder.parse(value);
 			}
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);

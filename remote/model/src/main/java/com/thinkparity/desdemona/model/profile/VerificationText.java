@@ -8,7 +8,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.codebase.model.profile.VerificationKey;
 
 /** 

@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-
 import com.thinkparity.desdemona.model.artifact.ArtifactSubscription;
 import com.thinkparity.desdemona.util.dom4j.ElementBuilder;
 import com.thinkparity.desdemona.util.dom4j.ElementName;

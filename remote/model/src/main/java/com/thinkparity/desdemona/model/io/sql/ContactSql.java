@@ -104,6 +104,7 @@ public class ContactSql extends AbstractSql {
 	}
 
 	private JabberId extractJabberId(final ResultSet rs) throws SQLException {
-		return JabberIdBuilder.parseQualifiedUsername(rs.getString("contactUsername"));
+        // contact username is a qualified jabber id
+		return JabberIdBuilder.parse(rs.getString("contactUsername"));
 	}
 }

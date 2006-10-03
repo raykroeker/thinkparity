@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.util.logging.or;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-
 import com.thinkparity.codebase.model.user.User;
 
 /**

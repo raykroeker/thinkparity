@@ -163,8 +163,9 @@ public class InvitationSql extends AbstractSql {
 	private Invitation extractInvitation(final ResultSet rs)
 			throws SQLException {
 		final Invitation i = new Invitation();
-		i.setFrom(JabberIdBuilder.parseQualifiedUsername(rs.getString("invitationFrom")));
-		i.setTo(JabberIdBuilder.parseQualifiedUsername(rs.getString("invitationTo")));
+        // from and to are simple usernames
+		i.setFrom(JabberIdBuilder.parseUsername(rs.getString("invitationFrom")));
+		i.setTo(JabberIdBuilder.parseUsername(rs.getString("invitationTo")));
 		return i;
 	}
 }

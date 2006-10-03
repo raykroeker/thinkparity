@@ -18,10 +18,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
@@ -51,7 +47,7 @@ public abstract class AbstractHandler extends
      * A synchronization lock used to serialize all incoming iq handler
      * requests.
      */
-    private static final Object SERIALIZER;
+    static final Object SERIALIZER;
 
     static {
         SERIALIZER = new Object();
@@ -246,47 +242,6 @@ public abstract class AbstractHandler extends
      */
     protected final <V> V logVariable(final String name, final V value) {
         return logger.logVariable(name, value);
-    }
-
-    /**
-     * Marshal a list of containers to the xml response.
-     * 
-     * @param containers
-     *            A list of containers.
-     */
-    protected final void marshalContainers(final List<Container> containers) {
-        iqWriter.marshalContainers(containers);
-    }
-
-    /**
-     * Marshal a list of containers to the xml response.
-     * 
-     * @param containers
-     *            A list of containers.
-     */
-    protected final void marshalContainerVersions(
-            final List<ContainerVersion> versions) {
-        iqWriter.marshalContainerVersions(versions);
-    }
-
-    /**
-     * Marshal a list of documents to the xml response.
-     * 
-     * @param documents
-     *            A <code>List&lt;Document&gt;</code>.
-     */
-    protected final void marshalDocuments(final List<Document> documents) {
-        iqWriter.marshalDocuments(documents);
-    }
-
-    /**
-     * Marshal a list of document versions to the xml response.
-     * 
-     * @param versions
-     *            A <code>List&lt;DocumentVersion&gt;</code>.
-     */
-    protected final void marshalDocumentVersions(final List<DocumentVersion> versions) {
-        iqWriter.marshalDocumentVersions(versions);
     }
 
     /**

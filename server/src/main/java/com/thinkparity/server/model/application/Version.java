@@ -4,9 +4,9 @@
  */
 package com.thinkparity.desdemona.model;
 
+import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
-import com.thinkparity.codebase.Mode;
 
 /**
  * Remote model version info.

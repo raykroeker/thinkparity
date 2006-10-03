@@ -11,10 +11,9 @@ import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.http.Link;
 import com.thinkparity.codebase.http.LinkFactory;
-
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.Version;
-import com.thinkparity.codebase.model.user.User;
 
 
 /**

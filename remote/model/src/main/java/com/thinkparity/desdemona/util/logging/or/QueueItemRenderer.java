@@ -7,7 +7,6 @@ import java.util.Calendar;
 
 import org.apache.log4j.or.ObjectRenderer;
 
-
 import com.thinkparity.desdemona.model.queue.QueueItem;
 
 /**

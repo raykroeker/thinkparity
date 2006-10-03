@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.util.logging.or;
 
 import org.apache.log4j.or.ObjectRenderer;
+
 import org.dom4j.Element;
 
 

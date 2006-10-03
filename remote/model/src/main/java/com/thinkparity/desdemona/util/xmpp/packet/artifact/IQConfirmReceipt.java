@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.util.dom4j.ElementBuilder;
 import com.thinkparity.desdemona.util.dom4j.ElementName;

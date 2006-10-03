@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.desdemona.model.Constants.Xml.Service;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 

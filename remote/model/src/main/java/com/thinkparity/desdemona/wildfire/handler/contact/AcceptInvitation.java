@@ -7,7 +7,6 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 

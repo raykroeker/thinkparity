@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 

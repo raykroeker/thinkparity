@@ -33,6 +33,10 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 		return userModel;
 	}
 
+    public static UserModel getModel() {
+        return new UserModel();
+    }
+
 	/**
 	 * Create a UserModel.
 	 * 
@@ -42,6 +46,10 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 	private UserModel(final Session session) {
 		super(new UserModelImpl(session));
 	}
+
+    private UserModel() {
+        super(new UserModelImpl());
+    }
 
     /**
      * Determine if the user is an archive.

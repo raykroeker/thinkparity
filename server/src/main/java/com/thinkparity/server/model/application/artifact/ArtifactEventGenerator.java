@@ -9,7 +9,6 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.desdemona.model.EventGenerator;
 import com.thinkparity.desdemona.model.Constants.Xml;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;

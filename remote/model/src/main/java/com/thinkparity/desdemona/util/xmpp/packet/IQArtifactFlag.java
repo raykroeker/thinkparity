@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.desdemona.util.dom4j.ElementBuilder;
 import com.thinkparity.desdemona.util.dom4j.ElementName;
 import com.thinkparity.desdemona.util.dom4j.NamespaceName;
+import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 
 /**
  * A jabber iq extension for parity. This extension is used to flag artifacts

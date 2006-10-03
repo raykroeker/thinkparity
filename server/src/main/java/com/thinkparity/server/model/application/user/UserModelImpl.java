@@ -48,6 +48,10 @@ class UserModelImpl extends AbstractModelImpl {
 		this.vcardManager = VCardManager.getInstance();
 	}
 
+    UserModelImpl() {
+        this(null);
+    }
+
     /**
      * Determine if the user is an archive.
      * 

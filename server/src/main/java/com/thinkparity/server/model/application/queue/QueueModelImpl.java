@@ -7,6 +7,8 @@ import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jivesoftware.wildfire.ClientSession;
+
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -65,10 +67,13 @@ class QueueModelImpl extends AbstractModelImpl {
         logVariable("jid", jid);
         logVariable("iq", iq);
 		try {
+            // deliberately remove the to portion of the query
+            iq.setTo((JID) null);
+
 			final String username = jid.getNode();
 			final String message = iq.toXML();
-			final Integer queueId = queueSql.insert(
-					username, message, session.getJabberId());
+			final Integer queueId =
+                queueSql.insert(username, message, session.getJabberId());
 			return queueSql.select(queueId);
 		} catch (final Throwable t) {
 			throw translateError(t);
@@ -93,7 +98,11 @@ class QueueModelImpl extends AbstractModelImpl {
                 rootElement = readRootElement(queueItem.getQueueMessage());
 
                 if (isOnline(userId)) {
-                    getClientSession(userId).process(new IQ(rootElement));
+                    final IQ query = new IQ(rootElement);
+                    for (final ClientSession session : getClientSessions(userId)) {
+                        query.setTo(session.getAddress());
+                        session.process(query);
+                    }
                     dequeue(queueItem);
                 }
 			}

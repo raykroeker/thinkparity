@@ -86,9 +86,13 @@ public abstract class IQReader {
      * @return The data; or null if the data does not exist.
      */
     public final JabberId readJabberId(final String name) {
-        final String sData = readString(name);
-        if(null == sData) { return null; }
-        else { return JabberIdBuilder.parseQualifiedJabberId(sData); }
+        final String value = readString(name);
+        if (null == value) {
+            return null;
+        }
+        else {
+            return JabberIdBuilder.parse(value);
+        }
     }
 
     /**
@@ -106,7 +110,7 @@ public abstract class IQReader {
         final Iterator iChildren = element.elementIterator(name);
         final List<JabberId> jabberIds = new LinkedList<JabberId>();
         while(iChildren.hasNext()) {
-            jabberIds.add(JabberIdBuilder.parseQualifiedJabberId(((String) ((Element) iChildren.next()).getData())));
+            jabberIds.add(JabberIdBuilder.parse(((String) ((Element) iChildren.next()).getData())));
         }
         return jabberIds;
     }

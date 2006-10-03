@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 import com.thinkparity.desdemona.model.Constants.Xml.Service;

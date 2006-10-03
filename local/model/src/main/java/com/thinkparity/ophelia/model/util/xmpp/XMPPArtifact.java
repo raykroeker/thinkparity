@@ -235,7 +235,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         final XMPPMethod method = new XMPPMethod(Xml.Method.Artifact.ADD_TEAM_MEMBER);
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);
-        method.execute(xmppCore.getConnection());
+        execute(method);
     }
 
 	/**
@@ -286,7 +286,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod method = new XMPPMethod("artifact:createdraft");
         method.setParameter("uniqueId", uniqueId);
-        method.execute(xmppCore.getConnection());
+        execute(method);
     }
 
     /**
@@ -298,7 +298,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod delete = new XMPPMethod(Xml.Method.Artifact.DELETE);
         delete.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
-        delete.execute(xmppCore.getConnection());
+        execute(delete);
     }
 
 	void deleteDraft(final UUID uniqueId) {
@@ -306,7 +306,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
         deleteDraft.setParameter("uniqueId", uniqueId);
-        deleteDraft.execute(xmppCore.getConnection());
+        execute(deleteDraft);
     }
 
     /**
@@ -320,7 +320,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         final XMPPMethod method = new XMPPMethod("artifact:readkeyholder");
         method.setParameter("userId", userId);
         method.setParameter("uniqueId", uniqueId);
-        final XMPPMethodResponse result = method.execute(xmppCore.getConnection());
+        final XMPPMethodResponse result = execute(method);
         return result.readResultJabberId("keyHolder");
     }
 
@@ -356,7 +356,7 @@ class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         final XMPPMethod method = new XMPPMethod("artifact:removeteammember");
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);
-        method.execute(xmppCore.getConnection());
+        execute(method);
     }
 
     private void handleArtifactReceived(final HandleArtifactReceivedIQ query) {

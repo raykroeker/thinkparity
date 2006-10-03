@@ -63,7 +63,7 @@ abstract class AbstractXMPP<T extends EventListener> {
     protected <U extends AbstractThinkParityIQ> void addEventHandler(
             final XMPPEventHandler<U> eventHandler,
             final Class<? extends U> queryType) {
-        xmppCore.getConnection().addPacketListener(
+        xmppCore.addPacketListener(
                 new PacketListener() {
                     @SuppressWarnings("unchecked")
                     public void processPacket(final Packet packet) {
@@ -100,13 +100,6 @@ abstract class AbstractXMPP<T extends EventListener> {
     }
 
     /**
-     * @param response
-     */
-    protected void assertContainsResult(final XMPPMethodResponse response) {
-        xmppCore.assertContainsResult("XMPP RESPONSE IS EMPTY", response);
-    }
-
-    /**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -136,7 +129,7 @@ abstract class AbstractXMPP<T extends EventListener> {
      * @return An xmpp method response.
      */
     protected XMPPMethodResponse execute(final XMPPMethod method) {
-        return execute(method, Boolean.FALSE);
+        return xmppCore.execute(method);
     }
 
     /**
@@ -144,17 +137,13 @@ abstract class AbstractXMPP<T extends EventListener> {
      * 
      * @param method
      *            An xmpp method.
-     * @param expectedResponse
+     * @param assertResponse
      *            A <code>Boolean</code> flag indicating an expected response.
      * @return An xmpp method response.
      */
     protected XMPPMethodResponse execute(final XMPPMethod method,
-            final Boolean expectedResponse) {
-        final XMPPMethodResponse response = method.execute(xmppCore.getConnection());
-        if (expectedResponse) {
-            assertContainsResult(response);
-        }
-        return response;
+            final Boolean assertResponse) {
+        return xmppCore.execute(method, assertResponse);
     }
 
     /**

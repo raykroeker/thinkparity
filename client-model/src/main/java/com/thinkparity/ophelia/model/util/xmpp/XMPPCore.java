@@ -3,14 +3,13 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.filter.PacketFilter;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
+import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
-import com.thinkparity.ophelia.model.util.smack.SmackException;
 
 /**
  * Provides core xmpp functionality.
@@ -19,10 +18,10 @@ import com.thinkparity.ophelia.model.util.smack.SmackException;
  * @version 1.1
  */
 public interface XMPPCore {
-	public void assertContainsResult(final Object assertion,
-            final XMPPMethodResponse response);
-	public XMPPConnection getConnection();
+	public XMPPMethodResponse execute(final XMPPMethod method);
+    public XMPPMethodResponse execute(final XMPPMethod method,
+            final Boolean assertResult);
     public JabberId getJabberId();
-    public Packet sendAndConfirmPacket(final Packet packet)
-			throws SmackException;
+    public void addPacketListener(final PacketListener listener,
+            final PacketFilter filter);
 }

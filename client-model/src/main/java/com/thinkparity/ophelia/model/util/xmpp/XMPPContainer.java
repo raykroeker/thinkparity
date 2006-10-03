@@ -276,7 +276,7 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
             publishArtifact.setParameter("publishTo", "publishTo", publishTo);
             publishArtifact.setParameter("publishedBy", publishedBy);
             publishArtifact.setParameter("publishedOn", publishedOn);
-            publishArtifact.execute(xmppCore.getConnection());
+            execute(publishArtifact);
         }
         // publish
         final XMPPMethod publish = new XMPPMethod(Service.Container.PUBLISH);
@@ -287,7 +287,7 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedTo", "publishedTo", publishTo);
         publish.setParameter("publishedOn", publishedOn);
-        publish.execute(xmppCore.getConnection());
+        execute(publish);
     }
 
     /**
@@ -334,7 +334,7 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
             sendArtifact.setParameter("sendTo", "sendTo", sendTo);
             sendArtifact.setParameter("sentBy", sentBy);
             sendArtifact.setParameter("sentOn", sentOn);
-            sendArtifact.execute(xmppCore.getConnection());
+            execute(sendArtifact);
         }
         final XMPPMethod send = new XMPPMethod(Service.Container.SEND);
         send.setParameter("uniqueId", container.getArtifactUniqueId());
@@ -344,7 +344,7 @@ class XMPPContainer extends AbstractXMPP<ContainerListener> {
         send.setParameter("sentBy", sentBy);
         send.setParameter("sentTo", "sentTo", sendTo);
         send.setParameter("sentOn", sentOn);
-        send.execute(xmppCore.getConnection());
+        execute(send);
     }
 
     /**

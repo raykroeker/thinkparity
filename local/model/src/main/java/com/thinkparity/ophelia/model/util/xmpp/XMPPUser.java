@@ -3,10 +3,7 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.util.Set;
-
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
@@ -14,8 +11,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.smackx.packet.user.IQReadUsers;
-import com.thinkparity.ophelia.model.util.smackx.packet.user.IQReadUsersResult;
 import com.thinkparity.ophelia.model.util.xmpp.events.UserListener;
 
 /**
@@ -78,21 +73,4 @@ class XMPPUser extends AbstractXMPP<UserListener> {
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
         return logger.logVariable("user", extract(response));
     }
-
-	/**
-     * Read a set of users.
-     * 
-     * @param jabberIds
-     *            A set of user ids.
-     * @return A set of users.
-     * @throws SmackException
-     */
-	Set<User> read(final Set<JabberId> jabberIds) throws SmackException {
-		logger.logApiId();
-		logger.logVariable("jabberIds", jabberIds);
-		final IQ iq = new IQReadUsers(jabberIds);
-		final IQReadUsersResult result =
-			(IQReadUsersResult) xmppCore.sendAndConfirmPacket(iq);
-		return result.getUsers();
-	}
 }

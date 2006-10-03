@@ -71,6 +71,15 @@ public class Credentials {
     }
 
     /**
+     * Determine whether or not the resource is set.
+     * 
+     * @return True if the resource is set; false otherwise.
+     */
+    public Boolean isSetResource() {
+        return null != resource;
+    }
+
+    /**
      * Set password.
      *
      * @param password The password.

@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
+import com.l2fprod.gui.nativeskin.NativeSkin;
+import com.l2fprod.gui.region.Region;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
 import com.thinkparity.ophelia.browser.util.Swing.Constants.Images;
@@ -68,7 +70,18 @@ class ProfileManagerWindow extends AbstractJFrame {
         add(avatar);
         pack();
         avatar.reload();
+        avatar.setRoundCorners(Boolean.TRUE);
         setLocation(calculateLocation());
+        roundCorners();
         setVisible(true);
+    }
+    
+    /**
+     * Make the corners round.
+     */
+    private void roundCorners() {
+        final NativeSkin nativeSkin = NativeSkin.getInstance();
+        Region region = nativeSkin.createRoundRectangleRegion(0,0,this.getWidth()+1,this.getHeight()+1,9,9);
+        nativeSkin.setWindowRegion(this, region, true);
     }
 }

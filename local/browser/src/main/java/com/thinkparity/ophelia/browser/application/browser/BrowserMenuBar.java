@@ -15,6 +15,7 @@ import javax.swing.JMenuBar;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -86,6 +87,18 @@ public class BrowserMenuBar extends JMenuBar {
             GradientPainter.paintVertical(g2, getSize(),
                     com.thinkparity.ophelia.browser.Constants.Colors.Browser.MainTitleTop.BG_GRAD_START,
                     com.thinkparity.ophelia.browser.Constants.Colors.Browser.MainTitleTop.BG_GRAD_FINISH);
+            
+            // These images help to make the rounded corner look good.
+            g2.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+                    0,
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
+            g2.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
+                    getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                    0,
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
         }
         finally { g2.dispose(); }
     }

@@ -12,6 +12,8 @@ import javax.swing.JDialog;
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
+import com.l2fprod.gui.nativeskin.NativeSkin;
+import com.l2fprod.gui.region.Region;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
@@ -77,6 +79,7 @@ public abstract class Window extends AbstractJDialog {
         else
             pack();
         setLocation(calculateLocation());
+        roundCorners();
         invalidate();
         setVisible(true);
 	}
@@ -134,7 +137,8 @@ public abstract class Window extends AbstractJDialog {
         
         // Install the resizer here; if done earlier then the resizer
         // can't successfully get the window ancestor.
-        avatar.installResizer();
+        avatar.installResizer();        
+        avatar.setRoundCorners(Boolean.TRUE);
     }
 
     /**
@@ -151,5 +155,14 @@ public abstract class Window extends AbstractJDialog {
      */
     protected String getString(final String localKey, final Object[] arguments) {
     	return localization.getString(localKey, arguments);
+    }
+    
+    /**
+     * Make the corners round.
+     */
+    private void roundCorners() {
+        final NativeSkin nativeSkin = NativeSkin.getInstance();
+        Region region = nativeSkin.createRoundRectangleRegion(0,0,this.getWidth()+1,this.getHeight()+1,9,9);
+        nativeSkin.setWindowRegion(this, region, true);
     }
 }

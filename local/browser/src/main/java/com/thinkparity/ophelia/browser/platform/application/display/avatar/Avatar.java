@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.platform.application.display.avatar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -23,6 +25,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -53,6 +56,9 @@ public abstract class Avatar extends AbstractJPanel {
 
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
+    
+    /** Flag indicating if this avatar has rounded corners */
+    private Boolean roundCorners = Boolean.FALSE;
 
     /**
      * Create Avatar.
@@ -123,6 +129,41 @@ public abstract class Avatar extends AbstractJPanel {
 		this.scrollPolicy = scrollPolicy;
 	}
     
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        if (isRoundCorners()) {
+            final Graphics g2 = g.create();
+            try {           
+                // These images help to make the rounded corners look good.
+                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT_INNER,
+                        0,
+                        0,
+                        Images.BrowserTitle.DIALOG_TOP_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.DIALOG_TOP_LEFT_INNER.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER,
+                        0,
+                        getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getHeight(),
+                        Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getWidth(),
+                        0,
+                        Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getHeight(), this);
+                g2.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                        getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getHeight(),
+                        Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
+            }
+            finally { g2.dispose(); }
+        }
+    }
+
     /**
      * Install the resizer.
      */
@@ -258,6 +299,23 @@ public abstract class Avatar extends AbstractJPanel {
 		this.input = input;
 		reload();
 	}
+
+    /**
+     * @return True if round corners
+     */
+    public Boolean isRoundCorners() {
+        return roundCorners;
+    }
+
+    /**
+     * Set round corners on or off.
+     * 
+     * @param roundCorners
+     *          True if round corners.
+     */
+    public void setRoundCorners(Boolean roundCorners) {
+        this.roundCorners = roundCorners;
+    }
 
     /**
      * These get and set methods are used by classes that intend to do their

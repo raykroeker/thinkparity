@@ -20,6 +20,8 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
+import com.l2fprod.gui.nativeskin.NativeSkin;
+import com.l2fprod.gui.region.Region;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
@@ -381,6 +383,7 @@ public class Resizer {
                 size = adjustForMinimumSize(component, size);
                 if (!component.getSize().equals(size)) {
                     component.setSize(size);
+                    roundCorners(component);
                     component.validate();
                 }
             }
@@ -411,10 +414,20 @@ public class Resizer {
                 sizeAndLocation = adjustForMinimumSize(component, sizeAndLocation);
                 if (!component.getBounds().equals(sizeAndLocation)) {
                     component.setBounds(sizeAndLocation);
+                    roundCorners(component);
                     component.validate();
                 }
             }
         }
+    }
+    
+    /**
+     * Make the corners round.
+     */
+    private void roundCorners(final Component component) {
+        final NativeSkin nativeSkin = NativeSkin.getInstance();
+        Region region = nativeSkin.createRoundRectangleRegion(0,0,component.getWidth()+1,component.getHeight()+1,9,9);
+        nativeSkin.setWindowRegion((Window)component, region, true);
     }
     
     /**

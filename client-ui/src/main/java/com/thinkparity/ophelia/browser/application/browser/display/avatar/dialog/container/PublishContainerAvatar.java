@@ -101,8 +101,7 @@ public class PublishContainerAvatar extends Avatar {
     private Long getInputContainerId() {
         if (input!=null) {
             return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -411,6 +410,7 @@ public class PublishContainerAvatar extends Avatar {
             return selectedContacts;
         }
         
+        // The "long value" is used to set up default column widths
         public Object getLongValue(final int columnIndex) {
             if (columnIndex==0) {
                 return Boolean.TRUE;

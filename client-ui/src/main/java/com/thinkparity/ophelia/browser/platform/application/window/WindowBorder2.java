@@ -13,6 +13,8 @@ import java.util.Stack;
 
 import javax.swing.border.AbstractBorder;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
+
 /**
  * The thinkParity window border.
  * 
@@ -103,6 +105,28 @@ public class WindowBorder2 extends AbstractBorder {
         g.drawLine(0, 0, 0, height - 1);                    // left line 1
         g.drawLine(width - 1, 0, width - 1, height);        // right line 2
         g.drawLine(0, height - 1, width, height - 1);       // bottom
+        
+        // These images put borders on rounded corners.
+        g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER,
+                0,
+                0,
+                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getWidth(),
+                Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER.getHeight(), c);
+        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER,
+                0,
+                height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(),
+                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getWidth(),
+                Images.BrowserTitle.BROWSER_BOTTOM_LEFT_OUTER.getHeight(), c);
+        g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER,
+                width - Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
+                0,
+                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getWidth(),
+                Images.BrowserTitle.BROWSER_TOP_RIGHT_OUTER.getHeight(), c);
+        g.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER,
+                width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
+                height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(),
+                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getWidth(),
+                Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_OUTER.getHeight(), c);
 
         popColour(g);
     }

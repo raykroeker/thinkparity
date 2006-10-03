@@ -119,6 +119,40 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
+            
+            public static final BufferedImage BROWSER_TOP_LEFT_OUTER =
+                ImageIOUtil.read("BrowserTopLeftOuter.png");
+            public static final BufferedImage BROWSER_TOP_LEFT_INNER =
+                ImageIOUtil.read("BrowserTopLeftInner.png");
+            public static final BufferedImage BROWSER_BOTTOM_LEFT_OUTER =
+                ImageIOUtil.read("BrowserBottomLeftOuter.png");
+            public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("BrowserBottomLeftInner.png");
+            public static final BufferedImage BROWSER_TOP_RIGHT_OUTER =
+                ImageIOUtil.read("BrowserTopRightOuter.png");
+            public static final BufferedImage BROWSER_TOP_RIGHT_INNER =
+                ImageIOUtil.read("BrowserTopRightInner.png");
+            public static final BufferedImage BROWSER_BOTTOM_RIGHT_OUTER =
+                ImageIOUtil.read("BrowserBottomRightOuter.png");
+            public static final BufferedImage BROWSER_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("BrowserBottomRightInner.png");
+            
+            public static final BufferedImage DIALOG_TOP_LEFT_OUTER =
+                ImageIOUtil.read("DialogTopLeftOuter.png");
+            public static final BufferedImage DIALOG_TOP_LEFT_INNER =
+                ImageIOUtil.read("DialogTopLeftInner.png");
+            public static final BufferedImage DIALOG_BOTTOM_LEFT_OUTER =
+                ImageIOUtil.read("DialogBottomLeftOuter.png");
+            public static final BufferedImage DIALOG_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("DialogBottomLeftInner.png");
+            public static final BufferedImage DIALOG_TOP_RIGHT_OUTER =
+                ImageIOUtil.read("DialogTopRightOuter.png");
+            public static final BufferedImage DIALOG_TOP_RIGHT_INNER =
+                ImageIOUtil.read("DialogTopRightInner.png");
+            public static final BufferedImage DIALOG_BOTTOM_RIGHT_OUTER =
+                ImageIOUtil.read("DialogBottomRightOuter.png");
+            public static final BufferedImage DIALOG_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("DialogBottomRightInner.png");
         }
     }
 

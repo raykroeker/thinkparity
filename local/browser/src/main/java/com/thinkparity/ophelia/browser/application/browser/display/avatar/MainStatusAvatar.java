@@ -12,6 +12,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -109,6 +110,18 @@ public class MainStatusAvatar extends Avatar {
             GradientPainter.paintVertical(g2, getSize(),
                     Browser.MainStatus.BG_GRAD_START,
                     Browser.MainStatus.BG_GRAD_FINISH);
+            
+            // These images help to make the rounded corner look good.
+            g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER,
+                    0,
+                    getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_LEFT_INNER.getHeight(), this);
+            g2.drawImage(Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER,
+                    getSize().width - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
+                    getSize().height - Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.BROWSER_BOTTOM_RIGHT_INNER.getHeight(), this);
         }
         finally { g2.dispose(); }
     }

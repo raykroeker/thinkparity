@@ -36,8 +36,7 @@ public class WindowBorder extends AbstractBorder {
     private static final long serialVersionUID = 1;
 
     static {
-        //BORDER_INSETS = new Insets(2, 2, 1, 2);
-        BORDER_INSETS = new Insets(6, 6, 5, 6);
+        BORDER_INSETS = new Insets(2, 2, 1, 2);
         COLOURS = new Color[] {
                 new Color(139, 142, 143, 255),
                 new Color(228, 229, 233, 255),

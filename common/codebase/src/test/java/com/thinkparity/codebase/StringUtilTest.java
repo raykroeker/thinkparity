@@ -4,8 +4,6 @@ import java.nio.charset.Charset;
 
 import junit.framework.Assert;
 
-import com.thinkparity.codebase.StringUtil;
-
 public class StringUtilTest extends CodebaseTestCase {
 
 	public static void main(String[] args) {

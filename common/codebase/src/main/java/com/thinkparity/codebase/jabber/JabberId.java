@@ -58,7 +58,8 @@ public class JabberId {
      */
     public boolean equals(final Object obj) {
         if(null != obj && obj instanceof JabberId) {
-            return toString().equals(obj.toString());
+            return ((JabberId) obj).username.equals(username) &&
+                    ((JabberId) obj).host.equals(host);
         }
         return false;
     }

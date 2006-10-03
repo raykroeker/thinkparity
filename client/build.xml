@@ -50,7 +50,7 @@
     <!-- runtime vendor win32 libs -->
     <fileset id="project.runtimevendorlibwin32" dir="${basedir}/vendor/i686/win32">
         <include name="jdic/0.9.1/tray.dll"/>
-	<include name="nativeskin/6.7/nativeskinwin32JAWT.dll"/>
+        <include name="nativeskin/6.7/nativeskinwin32JAWT.dll"/>
     </fileset>   
 
     <!-- classpath -->

@@ -3,8 +3,8 @@
  */
 package ${proxyImpl.packageName};
 
-import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity ${proxyImpl.name} Model Implementation</br>
@@ -13,7 +13,7 @@ import com.thinkparity.server.model.session.Session;
  * @author ${environment.author}
  * @version 1.1
  */
-${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
+final ${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
 
     /**
      * Create ${proxyImpl.className}.

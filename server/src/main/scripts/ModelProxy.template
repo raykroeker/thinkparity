@@ -3,8 +3,8 @@
  */
 package ${proxy.packageName};
 
-import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.desdemona.model.AbstractModel;
+import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity ${proxy.name} Model<br>
@@ -13,7 +13,7 @@ import com.thinkparity.server.model.session.Session;
  * @author ${environment.author}
  * @version 1.1
  */
-${proxy.classModifier}class ${proxy.className} extends AbstractModel {
+${proxy.classModifier}class ${proxy.className} extends AbstractModel<${proxyImpl.className}> {
 
 	/**
 	 * Obtain a thinkParity ${proxy.name} interface.
@@ -24,12 +24,6 @@ ${proxy.classModifier}class ${proxy.className} extends AbstractModel {
 		return new ${proxy.className}(session);
 	}
 
-	/** The model implementation. */
-	private final ${proxyImpl.className} impl;
-
-	/** The model implementation synchronization lock. */
-	private final Object implLock;
-
 	/**
 	 * Create ${proxy.className}.
 	 *
@@ -37,22 +31,6 @@ ${proxy.classModifier}class ${proxy.className} extends AbstractModel {
 	 *		The thinkParity workspace.
 	 */
 	protected ${proxy.className}(final Session session) {
-		super();
-		this.impl = new ${proxyImpl.className}(session);
-		this.implLock = new Object();
+		super(new ${proxyImpl.className}(session));
 	}
-
-	/**
-	 * Obtain the model implementation.
-	 * 
-	 * @return The model implementation.
-	 */
-	protected ${proxyImpl.className} getImpl() { return impl; }
-
-	/**
-	 * Obtain the model implementation synchronization lock.
-	 * 
-	 * @return The model implementation synchrnoization lock.
-	 */
-	protected Object getImplLock() { return implLock; }
 }

@@ -44,6 +44,8 @@ import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.AuditModel;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
+import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -530,6 +532,19 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ArchiveModel.getInternalModel(getContext(), environment, workspace);
     }
 
+    protected InternalBackupModel getBackupModel() {
+        return BackupModel.getInternalModel(getContext(), environment, workspace);
+    }
+
+    /**
+     * Obtain the internal thinkParity container interface.
+     * 
+     * @return The internal thinkParity container interface.
+     */
+    protected InternalContainerModel getContainerModel() {
+        return ContainerModel.getInternalModel(getContext(), environment, workspace);
+    }
+
     protected InternalIndexModel getIndexModel() {
         return IndexModel.getInternalModel(getContext(), environment, workspace);
     }
@@ -543,7 +558,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -552,22 +567,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
      */
     protected InternalContactModel getInternalContactModel() {
         return ContactModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-    /**
-     * Obtain the internal thinkParity container interface.
-     * 
-     * @return The internal thinkParity container interface.
-     */
-    protected InternalContainerModel getContainerModel() {
-        return ContainerModel.getInternalModel(getContext(), environment, workspace);
     }
 
 	/**
@@ -614,15 +620,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected InternalReleaseModel getInternalReleaseModel() {
         return ReleaseModel.getInternalModel(getContext(), environment, workspace);
     }
-
-    /**
-     * Obtain the internal parity session interface.
-     * 
-     * @return The internal parity session interface.
-     */
-	protected InternalSessionModel getSessionModel() {
-		return SessionModel.getInternalModel(getContext(), environment, workspace);
-	}
 
     /**
      * Obtain the internal parity system message interface.
@@ -674,6 +671,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
                         release.getCreatedOn(), DateUtil.DateImage.ISO));
         }
     }
+
+    /**
+     * Obtain the internal parity session interface.
+     * 
+     * @return The internal parity session interface.
+     */
+	protected InternalSessionModel getSessionModel() {
+		return SessionModel.getInternalModel(getContext(), environment, workspace);
+	}
 
     /**
 	 * @see Localization#getString(String)

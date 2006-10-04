@@ -36,6 +36,7 @@ import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
+import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
@@ -2495,9 +2496,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 }
             }
 
-            final InternalArchiveModel archiveModel = getArchiveModel();
-            final List<Container> archivedContainers = archiveModel.readContainers();
-            logger.logVariable("archivedContainers.size()", archivedContainers.size());
+            final InternalBackupModel backupModel = getBackupModel();
+            final List<Container> backupContainers = backupModel.readContainers();
+            logger.logVariable("backupContainers.size()", backupContainers.size());
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -1059,9 +1059,12 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                 // check that the user's credentials match
                 final Credentials storedCredentials = readCredentials();
                 if(null != storedCredentials) {
-                    Assert.assertTrue(storedCredentials.equals(credentials),
+                    Assert.assertTrue(
+                            storedCredentials.getUsername().equals(credentials.getUsername()) &&
+                                storedCredentials.getPassword().equals(credentials.getPassword()),
                             "Credentials {0} do not match stored credentials {1}.",
                             credentials, storedCredentials);
+                    credentials.setResource(storedCredentials.getResource());
                 }
                 // register with xmpp event listeners
                 new SessionModelEventDispatcher(workspace, internalModelFactory, xmppSession);

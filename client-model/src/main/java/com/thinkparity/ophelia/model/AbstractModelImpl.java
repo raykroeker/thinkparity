@@ -172,7 +172,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A container id.
      */
     protected void assertContainerDraftDoesNotExist(final Object assertion, final Long containerId) {
-        Assert.assertIsNull(assertion, getInternalContainerModel().readDraft(containerId));
+        Assert.assertIsNull(assertion, getContainerModel().readDraft(containerId));
     }
 
     /**
@@ -184,7 +184,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A container id.
      */
     protected void assertContainerDraftExists(final Object assertion, final Long containerId) {
-        Assert.assertNotNull(assertion, getInternalContainerModel().readDraft(containerId));
+        Assert.assertNotNull(assertion, getContainerModel().readDraft(containerId));
     }
 
     /**
@@ -566,7 +566,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * 
      * @return The internal thinkParity container interface.
      */
-    protected InternalContainerModel getInternalContainerModel() {
+    protected InternalContainerModel getContainerModel() {
         return ContainerModel.getInternalModel(getContext(), environment, workspace);
     }
 
@@ -620,7 +620,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * 
      * @return The internal parity session interface.
      */
-	protected InternalSessionModel getInternalSessionModel() {
+	protected InternalSessionModel getSessionModel() {
 		return SessionModel.getInternalModel(getContext(), environment, workspace);
 	}
 
@@ -771,7 +771,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return True if the user is online; false otherwise.
      */
     protected Boolean isOnline() {
-        return getInternalSessionModel().isLoggedIn();
+        return getSessionModel().isLoggedIn();
     }
 
     /**
@@ -1105,7 +1105,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     private Boolean isRemoteKeyHolder(final UUID uniqueId) {
         return localUserId().equals(
-                getInternalSessionModel().readKeyHolder(localUserId(), uniqueId));
+                getSessionModel().readKeyHolder(localUserId(), uniqueId));
     }
 
     /**

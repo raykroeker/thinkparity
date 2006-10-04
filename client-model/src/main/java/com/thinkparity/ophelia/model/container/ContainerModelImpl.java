@@ -289,7 +289,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.createDraft(draft);
         getInternalArtifactModel().applyFlagKey(container.getId());
         // remote create
-        getInternalSessionModel().createDraft(container.getUniqueId());
+        getSessionModel().createDraft(container.getUniqueId());
         // fire event
         final Container postCreation= read(containerId);
         final ContainerDraft postCreationDraft = readDraft(containerId);
@@ -311,7 +311,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (isDistributed(container.getId())) {
                 final TeamMember localTeamMember = localTeamMember(container.getId());
                 deleteLocal(container.getId());
-                getInternalSessionModel().removeTeamMember(
+                getSessionModel().removeTeamMember(
                         container.getUniqueId(), localTeamMember.getId());
             } else {
                 deleteLocal(container.getId());
@@ -336,7 +336,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         assertIsDistributed("CANNOT DELETE FIRST DRAFT", containerId);
         assertOnline("USER NOT ONLINE");
         final Container container = read(containerId);
-        getInternalSessionModel().deleteDraft(container.getUniqueId());
+        getSessionModel().deleteDraft(container.getUniqueId());
         // delete local data
         final ContainerDraft draft = readDraft(containerId);
         for (final Artifact artifact : draft.getArtifacts()) {
@@ -725,7 +725,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // create published to list
         containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
         // send confirmation
-        getInternalSessionModel().confirmArtifactReceipt(localUserId(),
+        getSessionModel().confirmArtifactReceipt(localUserId(),
                 uniqueId, versionId, localUserId(), currentDateTime());
         // audit\fire event
         final Container postPublish = read(containerId);
@@ -788,7 +788,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         containerIO.createSharedWith(containerId, versionId, sharedWithUsers);
         // send confirmation
-        getInternalSessionModel().confirmArtifactReceipt(localUserId(),
+        getSessionModel().confirmArtifactReceipt(localUserId(),
                 uniqueId, versionId, localUserId(), currentDateTime());
         // fire event
         notifyContainerShared(read(containerId), readVersion(containerId,
@@ -948,7 +948,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             publish(version, publishTo, localUserId(), currentDateTime);
 
             // update remote team
-            final InternalSessionModel sessionModel = getInternalSessionModel();
+            final InternalSessionModel sessionModel = getSessionModel();
             for (final Contact contact : contacts)
                 sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
 
@@ -1230,7 +1230,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
         final ContainerHistoryBuilder historyBuilder =
-            new ContainerHistoryBuilder(getInternalContainerModel(), l18n);
+            new ContainerHistoryBuilder(getContainerModel(), l18n);
         final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
         FilterManager.filter(history, filter);
         ModelSorter.sortHistory(history, defaultHistoryComparator);
@@ -1765,7 +1765,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 shareWithUsers.add(teamMember);
             }
         }
-        getInternalSessionModel().send(
+        getSessionModel().send(
                 readVersion(containerId, versionId),
                 readDocumentVersionStreams(containerId, versionId),
                 shareWith, localUserId(), currentDateTime());
@@ -1786,7 +1786,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
         artifactModel.removeTeamMember(containerId, localUserId());
-        getInternalSessionModel().removeTeamMember(containerUniqueId, localUserId());
+        getSessionModel().removeTeamMember(containerUniqueId, localUserId());
     }
 
     /**
@@ -1802,7 +1802,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
         artifactModel.addTeamMember(containerId, localUserId());
-        getInternalSessionModel().addTeamMember(containerUniqueId, localUserId());
+        getSessionModel().addTeamMember(containerUniqueId, localUserId());
     }
 
     /**
@@ -1985,7 +1985,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The container.
      */
     private void createDistributed(final Container container) {
-        final InternalSessionModel sessionModel = getInternalSessionModel();
+        final InternalSessionModel sessionModel = getSessionModel();
         sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
 
@@ -2448,7 +2448,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private void publish(final ContainerVersion container,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) {
-        getInternalSessionModel().publish(
+        getSessionModel().publish(
                 container,
                 readDocumentVersionStreams(container.getArtifactId(), container
                         .getVersionId()), publishTo, publishedBy, publishedOn);
@@ -2480,5 +2480,26 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return documentVersionStreams;
     }
 
+    /**
+     * Restore all containers from the backup.
+     *
+     */
+    void restoreBackup() {
+        logger.logApiId();
+        try {
+            final List<Container> containers = read();
+            if (0 < containers.size()) {
+                logger.logWarning("{0} containers will be deleted.", containers.size());
+                for (final Container container : containers) {
+                    delete(container.getId());
+                }
+            }
 
+            final InternalArchiveModel archiveModel = getArchiveModel();
+            final List<Container> archivedContainers = archiveModel.readContainers();
+            logger.logVariable("archivedContainers.size()", archivedContainers.size());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 }

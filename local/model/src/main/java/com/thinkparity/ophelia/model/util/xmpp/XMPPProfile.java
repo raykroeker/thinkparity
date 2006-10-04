@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ProfileListener;
  * @version
  * @see XMPPCore
  */
-class XMPPProfile extends AbstractXMPP<ProfileListener> {
+final class XMPPProfile extends AbstractXMPP<ProfileListener> {
 
     /** Create XMPPProfile. */
     XMPPProfile(final XMPPCore xmppCore) {

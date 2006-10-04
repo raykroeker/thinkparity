@@ -31,7 +31,7 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
+final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 
     static {
         ProviderManager.addIQProvider(Service.NAME, EventHandler.Artifact.DRAFT_CREATED, new AbstractThinkParityIQProvider() {

@@ -1,9 +1,8 @@
 /*
- * Generated On: Sep 01 06 10:06:21 AM
+ * Generated On: Oct 04 06 09:40:46 AM
  */
-package com.thinkparity.ophelia.model.archive;
+package com.thinkparity.ophelia.model.backup;
 
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -26,13 +25,13 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity Archive Model Implementation</br>
+ * <b>Title:</b>thinkParity Backup Model Implementation</br>
  * <b>Description:</b><br>
  *
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-class ArchiveModelImpl extends AbstractModelImpl {
+final class BackupModelImpl extends AbstractModelImpl {
 
     /** A default artifact comparator. */
     private final Comparator<Artifact> defaultComparator;
@@ -47,12 +46,14 @@ class ArchiveModelImpl extends AbstractModelImpl {
     private final Filter<ArtifactVersion> defaultVersionFilter;
 
     /**
-     * Create ArchiveModelImpl.
+     * Create BackupModelImpl.
      *
+     * @param environment
+     *      A thinkParity <code>Environment</code>.
      * @param workspace
-     *		The thinkParity workspace.
+     *		The thinkParity <code>Workspace</code>.
      */
-    ArchiveModelImpl(final Environment environment, final Workspace workspace) {
+    BackupModelImpl(final Environment environment, final Workspace workspace) {
         super(environment, workspace);
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
@@ -60,69 +61,54 @@ class ArchiveModelImpl extends AbstractModelImpl {
         this.defaultVersionFilter = FilterManager.createDefault();
     }
 
-    void archive(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        try {
-            assertArchiveOnline();
-            final UUID uniqueId = getInternalArtifactModel().readUniqueId(artifactId);
-            getSessionModel().archiveArtifact(localUserId(), uniqueId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    InputStream openDocumentVersion(final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        try {
-            assertArchiveOnline();
-            return getSessionModel().openArchiveDocumentVersion(
-                    localUserId(), uniqueId, versionId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     Container readContainer(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
-            assertArchiveOnline();
-            // HACK A quck'n'dirty check to see if the container has exists
-            // locally
-            if (null != getInternalArtifactModel().readId(uniqueId)) {
-                return null;
-            } else {
-                return getSessionModel().readArchiveContainer(
-                        localUserId(), uniqueId);
-            }
+            assertBackupOnline();
+            return getSessionModel().readBackupContainer(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
+    /**
+     * Read the containers from the backup.
+     * 
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
     List<Container> readContainers() {
         logger.logApiId();
         return readContainers(defaultComparator);
     }
 
+    /**
+     * Read the containers from the backup.
+     * 
+     * @param comparator
+     *            A <code>Comparator&lt;Artifact&gt;</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
     List<Container> readContainers(final Comparator<Artifact> comparator) {
         logger.logApiId();
-        logger.logVariable("comparator", comparator);
         return readContainers(comparator, defaultFilter);
     }
 
-    List<Container> readContainers(final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
+    /**
+     * Read the containers from the backup.
+     * 
+     * @param comparator
+     *            A <code>Comparator&lt;Artifact&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super Artifact&gt;</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
         logger.logApiId();
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
         try {
-            assertArchiveOnline();
+            assertBackupOnline();
             final List<Container> containers =
-                getSessionModel().readArchiveContainers(localUserId());
+                getSessionModel().readBackupContainers(localUserId());
             FilterManager.filter(containers, filter);
             ModelSorter.sortContainers(containers, comparator);
             return containers;
@@ -131,9 +117,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * Read the containers from the backup.
+     * 
+     * @param filter
+     *            A <code>Filter&lt;Artifact&gt;</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
     List<Container> readContainers(final Filter<? super Artifact> filter) {
         logger.logApiId();
-        logger.logVariable("filter", filter);
         return readContainers(defaultComparator, filter);
     }
 
@@ -153,6 +145,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
+
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
@@ -161,12 +154,12 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
         try {
-            assertArchiveOnline();
+            assertBackupOnline();
             final List<ContainerVersion> versions =
-                getSessionModel().readArchiveContainerVersions(
+                getSessionModel().readBackupContainerVersions(
                         localUserId(), uniqueId);
-            ModelSorter.sortContainerVersions(versions, comparator);
             FilterManager.filter(versions, filter);
+            ModelSorter.sortContainerVersions(versions, comparator);
             return versions;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -208,12 +201,12 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("versionId", versionId);
         logger.logVariable("filter", filter);
         try {
-            assertArchiveOnline();
+            assertBackupOnline();
             final List<Document> documents =
-                getSessionModel().readArchiveDocuments(localUserId(),
+                getSessionModel().readBackupDocuments(localUserId(),
                         uniqueId, versionId);
-            ModelSorter.sortDocuments(documents, comparator);
             FilterManager.filter(documents, filter);
+            ModelSorter.sortDocuments(documents, comparator);
             return documents;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -261,9 +254,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("comparator", comparator);
         try {
-            assertArchiveOnline();
+            assertBackupOnline();
             final List<DocumentVersion> versions =
-                getSessionModel().readArchiveDocumentVersions(
+                getSessionModel().readBackupDocumentVersions(
                         localUserId(), uniqueId, versionId, documentUniqueId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortDocumentVersions(versions, comparator);
@@ -285,36 +278,34 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionComparator, filter);
     }
 
-
     List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
-            assertArchiveOnline();
-            return getSessionModel().readArchiveTeamIds(localUserId(),
+            assertBackupOnline();
+            return getSessionModel().readBackupTeamIds(localUserId(),
                     uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    void restore(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        try {
-            assertArchiveOnline();
-            getSessionModel().restoreArtifact(localUserId(), uniqueId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
+    /**
+     * Assert that the backup server is online.
+     *
+     */
+    private void assertBackupOnline() {
+        Assert.assertTrue(isBackupOnline(),
+                "The backup server is not online.");
     }
 
-    private void assertArchiveOnline() {
-        Assert.assertTrue(isArchiveOnline(), "Archive is not online.");
-    }
-
-    private Boolean isArchiveOnline() {
-        // TODO Determine if the archive is actually online or not.
+    /**
+     * Determine whether or not the backup is online or not.
+     * 
+     * @return True if the backup is online; false otherwise.
+     */
+    private Boolean isBackupOnline() {
+        // TODO Determine if the backup is actually online or not.
         return Boolean.TRUE;
     }
 }

@@ -15,51 +15,47 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.xmpp.events.ArchiveListener;
+import com.thinkparity.ophelia.model.util.xmpp.events.BackupListener;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
+final class XMPPBackup extends AbstractXMPP<BackupListener> {
 
-    /** Create XMPPArchive. */
-    XMPPArchive(final XMPPCore core) {
+    /** Create XMPPBackup. */
+    XMPPBackup(final XMPPCore core) {
         super(core);
     }
 
-    /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    void archive(final JabberId userId, final UUID uniqueId) {
+    InputStream openDocumentVersion(final JabberId userId, final UUID uniqueId,
+            final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("archive:archive");
-        archive.setParameter("userId", userId);
-        archive.setParameter("uniqueId", uniqueId);
-        execute(archive);
+        logger.logVariable("versionId", versionId);
+        final XMPPMethod readDocumentVersionContent = new XMPPMethod("backup:opendocumentversion");
+        readDocumentVersionContent.setParameter("userId", userId);
+        readDocumentVersionContent.setParameter("uniqueId", uniqueId);
+        readDocumentVersionContent.setParameter("versionId", versionId);
+        return new ByteArrayInputStream(
+                execute(readDocumentVersionContent, Boolean.TRUE).readBytes("content"));
     }
 
     Container readContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readArchive = new XMPPMethod("archive:readcontainer");
-        readArchive.setParameter("userId", userId);
-        readArchive.setParameter("uniqueId", uniqueId);
-        return execute(readArchive, Boolean.TRUE).readResultContainer("container");
+        final XMPPMethod readContainer = new XMPPMethod("backup:readcontainer");
+        readContainer.setParameter("userId", userId);
+        readContainer.setParameter("uniqueId", uniqueId);
+        return execute(readContainer, Boolean.TRUE).readResultContainer("container");
     }
 
     List<Container> readContainers(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final XMPPMethod readContainers = new XMPPMethod("archive:readcontainers");
+        final XMPPMethod readContainers = new XMPPMethod("backup:readcontainers");
         readContainers.setParameter("userId", userId);
         return execute(readContainers, Boolean.TRUE).readResultContainers("containers");
     }
@@ -69,7 +65,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readContainerVersions = new XMPPMethod("archive:readcontainerversions");
+        final XMPPMethod readContainerVersions = new XMPPMethod("backup:readcontainerversions");
         readContainerVersions.setParameter("userId", userId);
         readContainerVersions.setParameter("uniqueId", uniqueId);
         return execute(readContainerVersions, Boolean.TRUE).readResultContainerVersions("containerVersions");
@@ -81,25 +77,11 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocuments = new XMPPMethod("archive:readdocuments");
+        final XMPPMethod readDocuments = new XMPPMethod("backup:readdocuments");
         readDocuments.setParameter("userId", userId);
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
-    }
-
-    InputStream openDocumentVersion(final JabberId userId, final UUID uniqueId,
-            final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersionContent = new XMPPMethod("archive:opendocumentversion");
-        readDocumentVersionContent.setParameter("userId", userId);
-        readDocumentVersionContent.setParameter("uniqueId", uniqueId);
-        readDocumentVersionContent.setParameter("versionId", versionId);
-        return new ByteArrayInputStream(
-                execute(readDocumentVersionContent, Boolean.TRUE).readBytes("content"));
     }
 
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
@@ -110,7 +92,7 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("documentUniqueId", documentUniqueId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversions");
+        final XMPPMethod readDocumentVersions = new XMPPMethod("backup:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
@@ -122,27 +104,9 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod readTeam = new XMPPMethod("archive:readteamids");
+        final XMPPMethod readTeam = new XMPPMethod("backup:readteamids");
         readTeam.setParameter("userId", userId);
         readTeam.setParameter("uniqueId", uniqueId);
         return execute(readTeam, Boolean.TRUE).readResultJabberIds("teamIds");
-    }
-
-    /**
-     * Restore an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    void restore(final JabberId userId, final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        final XMPPMethod archive = new XMPPMethod("archive:restore");
-        archive.setParameter("userId", userId);
-        archive.setParameter("uniqueId", uniqueId);
-        execute(archive);
     }
 }

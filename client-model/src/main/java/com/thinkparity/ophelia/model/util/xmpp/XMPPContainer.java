@@ -45,7 +45,7 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
  * @version
  * @see XMPPCore
  */
-class XMPPContainer extends AbstractXMPP<ContainerListener> {
+final class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
     static {
         ProviderManager.addIQProvider(Service.NAME, Publish.EVENT_NAME, new AbstractThinkParityIQProvider() {

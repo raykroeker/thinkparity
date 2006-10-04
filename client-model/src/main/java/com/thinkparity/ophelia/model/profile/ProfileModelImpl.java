@@ -71,7 +71,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             profileEMail.setVerified(Boolean.FALSE);
             profileIO.createEmail(profile.getLocalId(), profileEMail);
             // add email remotely
-            getInternalSessionModel().addProfileEmail(localUserId(), profileEMail);
+            getSessionModel().addProfileEmail(localUserId(), profileEMail);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -142,7 +142,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         logger.logApiId();
         try {
             final Profile profile = read();
-            return getInternalSessionModel().readProfileSecurityQuestion(profile.getId());
+            return getSessionModel().readProfileSecurityQuestion(profile.getId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -164,7 +164,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             // remove email data
             profileIO.deleteEmail(email.getProfileId(), email.getEmailId());
             // remove email remotely
-            getInternalSessionModel().removeProfileEmail(localUserId(), email);
+            getSessionModel().removeProfileEmail(localUserId(), email);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -179,7 +179,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         try {
             // update remote data.
             final String resetPassword =
-                getInternalSessionModel().resetProfilePassword(localUserId(),
+                getSessionModel().resetProfilePassword(localUserId(),
                     securityAnswer);
             // update local data
             final Credentials credentials = readCredentials();
@@ -202,7 +202,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         try {
             // update local data
             profileIO.update(profile);
-            getInternalSessionModel().updateProfile(localUserId(), profile);
+            getSessionModel().updateProfile(localUserId(), profile);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -229,7 +229,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             credentials.setPassword(newPassword);
             updateCredentials(credentials);
             // update remote data.
-            getInternalSessionModel().updateProfileCredentials(localUserId(),
+            getSessionModel().updateProfileCredentials(localUserId(),
                     credentials);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -253,7 +253,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             assertOnline("USER NOT ONLINE");
             final Profile profile = read();
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
-            getInternalSessionModel().verifyProfileEmail(localUserId(), email, key);
+            getSessionModel().verifyProfileEmail(localUserId(), email, key);
             profileIO.verifyEmail(email.getProfileId(), email.getEmailId(), Boolean.TRUE);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -268,11 +268,11 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A profile.
      */
     private Profile lazyCreateProfile() {
-        final Profile remoteProfile = getInternalSessionModel().readProfile();
+        final Profile remoteProfile = getSessionModel().readProfile();
         // NOTE Only verified emails are downloaded and created in the local
         // profile.
         final List<EMail> remoteEmails =
-                getInternalSessionModel().readProfileEmails();
+                getSessionModel().readProfileEmails();
         profileIO.create(remoteProfile);
         ProfileEMail profileEmail;
         for (final EMail remoteEmail : remoteEmails) {

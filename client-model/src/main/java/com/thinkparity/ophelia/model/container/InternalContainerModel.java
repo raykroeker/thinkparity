@@ -230,4 +230,14 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     public ContainerDraft readDraft(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
     }
+
+    /**
+     * Restore all containers from the backup.
+     *
+     */
+    public void restoreBackup() {
+        synchronized (getImplLock()) {
+            getImpl().restoreBackup();
+        }
+    }
 }

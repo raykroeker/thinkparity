@@ -32,7 +32,7 @@ class UserModelImpl extends AbstractModelImpl {
     User create(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final User remoteUser = getInternalSessionModel().readUser(userId);
+        final User remoteUser = getSessionModel().readUser(userId);
         userIO.create(remoteUser);
         return read(userId);
     }

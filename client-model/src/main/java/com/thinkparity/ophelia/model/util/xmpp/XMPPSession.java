@@ -309,7 +309,7 @@ public interface XMPPSession {
      */
     public List<Container> readArchiveContainers(final JabberId userId);
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -335,7 +335,7 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
-    /**
+	/**
      * Read the archived document versions.
      * 
      * @param userId
@@ -372,6 +372,81 @@ public interface XMPPSession {
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
     public List<JabberId> readArtifactTeamIds(final UUID artifactUniqueId);
+
+    /**
+     * Read the backup's containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A list of containers.
+     */
+    public Container readBackupContainer(final JabberId userId, final UUID uniqueId);
+
+    /**
+     * Read the backup's containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    public List<Container> readBackupContainers(final JabberId userId);
+
+    /**
+     * Read the backup containers versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    public List<ContainerVersion> readBackupContainerVersions(
+            final JabberId userId, final UUID uniqueId);
+
+    /**
+     * Read the backup's documents.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    public List<Document> readBackupDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read the backup's document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readBackupDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId);
+
+    /**
+     * Read the backup's team for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A backup team.
+     */
+    public List<JabberId> readBackupTeamIds(final JabberId userId,
+            final UUID uniqueId);
 
     /**
      * Read a user's contact.

@@ -371,7 +371,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             return getImpl().readArchiveTeamIds(userId, uniqueId);
         }
     }
-
     /**
      * Read the artifact team.
      * 
@@ -382,6 +381,98 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public List<JabberId> readArtifactTeamIds(final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readArtifactTeamIds(uniqueId);
+        }
+    }
+
+    public Container readBackupContainer(final JabberId userId,
+            final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupContainer(userId, uniqueId);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    public List<Container> readBackupContainers(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupContainers(userId);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    public List<ContainerVersion> readBackupContainerVersions(
+            final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupContainerVersions(userId, uniqueId);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    public List<Document> readBackupDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupDocuments(userId, uniqueId, versionId);
+        }
+    }
+
+    /**
+     * Read the backup document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readBackupDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupDocumentVersions(userId, uniqueId,
+                    versionId, documentUniqueId);
+        }
+    }
+
+    /**
+     * Read the backup team.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of jabber ids.
+     */
+    public List<JabberId> readBackupTeamIds(final JabberId userId,
+            final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupTeamIds(userId, uniqueId);
         }
     }
 

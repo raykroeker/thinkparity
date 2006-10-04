@@ -21,10 +21,10 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ArchiveListener;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-class XMPPArchive extends AbstractXMPP<ArchiveListener> {
+final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
 
     /** Create XMPPArchive. */
-    public XMPPArchive(final XMPPCore core) {
+    XMPPArchive(final XMPPCore core) {
         super(core);
     }
 

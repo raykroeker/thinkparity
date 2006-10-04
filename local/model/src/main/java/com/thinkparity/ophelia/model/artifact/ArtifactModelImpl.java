@@ -161,7 +161,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
     void confirmReceipt(final Long artifactId, final Long versionId) {
         final UUID uniqueId = readArtifactUniqueId(artifactId);
         final JabberId localUserId = localUserId();
-        getInternalSessionModel().confirmArtifactReceipt(localUserId, uniqueId,
+        getSessionModel().confirmArtifactReceipt(localUserId, uniqueId,
                 versionId, localUserId, currentDateTime());
     }
 
@@ -255,7 +255,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
-            getInternalContainerModel().handleDraftCreated(artifactId, createdBy, createdOn);
+            getContainerModel().handleDraftCreated(artifactId, createdBy, createdOn);
             break;
         default:
             Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
@@ -281,7 +281,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
-            getInternalContainerModel().handleDraftDeleted(artifactId, deletedBy, deletedOn);
+            getContainerModel().handleDraftDeleted(artifactId, deletedBy, deletedOn);
             break;
         default:
             Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
@@ -298,7 +298,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
-            getInternalContainerModel().handleReceived(artifactId, versionId, receivedBy, receivedOn);
+            getContainerModel().handleReceived(artifactId, versionId, receivedBy, receivedOn);
             break;
         default:
             Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
@@ -327,7 +327,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 // added to the team; so download the entire team.
                 if (jabberId.equals(localUserId())) {
                     final List<JabberId> remoteTeam =
-                        getInternalSessionModel().readArtifactTeamIds(uniqueId);
+                        getSessionModel().readArtifactTeamIds(uniqueId);
                     for (final JabberId remoteUser : remoteTeam) {
                         addTeamMember(artifactId, remoteUser);
                     }
@@ -421,7 +421,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         assertOnline();
-        return getInternalSessionModel().readKeyHolder(
+        return getSessionModel().readKeyHolder(
                 localUserId(), readUniqueId(artifactId));
     }
 

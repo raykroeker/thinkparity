@@ -27,7 +27,7 @@ public class ContainerHistoryItemRenderer implements ObjectRenderer {
         }
         else {
             final ContainerHistoryItem item = (ContainerHistoryItem) o;
-            final StringBuffer buffer = new StringBuffer(getClass().getName())
+            final StringBuffer buffer = new StringBuffer(ContainerHistoryItem.class.getName())
                 .append("//id=").append(item.getId())
                 .append(",containerId=").append(item.getContainerId());
             if(item.isSetVersionId())

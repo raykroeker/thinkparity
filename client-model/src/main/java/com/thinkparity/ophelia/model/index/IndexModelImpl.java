@@ -73,7 +73,7 @@ class IndexModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            final Container c = getInternalContainerModel().read(containerId);
+            final Container c = getContainerModel().read(containerId);
             containerIndex.delete(c);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -124,7 +124,7 @@ class IndexModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            final Container container = getInternalContainerModel().read(containerId);
+            final Container container = getContainerModel().read(containerId);
             containerIndex.index(container);
         } catch (final Throwable t) {
             throw translateError(t);

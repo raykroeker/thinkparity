@@ -66,7 +66,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             final UUID uniqueId = getInternalArtifactModel().readUniqueId(artifactId);
-            getInternalSessionModel().archiveArtifact(localUserId(), uniqueId);
+            getSessionModel().archiveArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -78,7 +78,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("versionId", versionId);
         try {
             assertArchiveOnline();
-            return getInternalSessionModel().openArchiveDocumentVersion(
+            return getSessionModel().openArchiveDocumentVersion(
                     localUserId(), uniqueId, versionId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -95,7 +95,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
             if (null != getInternalArtifactModel().readId(uniqueId)) {
                 return null;
             } else {
-                return getInternalSessionModel().readArchiveContainer(
+                return getSessionModel().readArchiveContainer(
                         localUserId(), uniqueId);
             }
         } catch (final Throwable t) {
@@ -122,7 +122,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             final List<Container> containers =
-                getInternalSessionModel().readArchiveContainers(localUserId());
+                getSessionModel().readArchiveContainers(localUserId());
+            FilterManager.filter(containers, filter);
+            ModelSorter.sortContainers(containers, comparator);
             return containers;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -161,7 +163,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             final List<ContainerVersion> versions =
-                getInternalSessionModel().readArchiveContainerVersions(
+                getSessionModel().readArchiveContainerVersions(
                         localUserId(), uniqueId);
             ModelSorter.sortContainerVersions(versions, comparator);
             FilterManager.filter(versions, filter);
@@ -208,7 +210,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             final List<Document> documents =
-                getInternalSessionModel().readArchiveDocuments(localUserId(),
+                getSessionModel().readArchiveDocuments(localUserId(),
                         uniqueId, versionId);
             ModelSorter.sortDocuments(documents, comparator);
             FilterManager.filter(documents, filter);
@@ -261,7 +263,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             final List<DocumentVersion> versions =
-                getInternalSessionModel().readArchiveDocumentVersions(
+                getSessionModel().readArchiveDocumentVersions(
                         localUserId(), uniqueId, versionId, documentUniqueId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortDocumentVersions(versions, comparator);
@@ -289,7 +291,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("uniqueId", uniqueId);
         try {
             assertArchiveOnline();
-            return getInternalSessionModel().readArchiveTeamIds(localUserId(),
+            return getSessionModel().readArchiveTeamIds(localUserId(),
                     uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -301,7 +303,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("uniqueId", uniqueId);
         try {
             assertArchiveOnline();
-            getInternalSessionModel().restoreArtifact(localUserId(), uniqueId);
+            getSessionModel().restoreArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

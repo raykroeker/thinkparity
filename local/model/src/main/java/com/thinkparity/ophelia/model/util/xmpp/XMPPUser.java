@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.model.util.xmpp.events.UserListener;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPUser extends AbstractXMPP<UserListener> {
+final class XMPPUser extends AbstractXMPP<UserListener> {
 
     /**
 	 * Create a XMPPUser.
@@ -25,7 +25,7 @@ class XMPPUser extends AbstractXMPP<UserListener> {
 	 * @param xmppCore
 	 *            The core xmpp interface.
 	 */
-	public XMPPUser(final XMPPCore xmppCore) {
+	XMPPUser(final XMPPCore xmppCore) {
 		super(xmppCore);
 	}
 

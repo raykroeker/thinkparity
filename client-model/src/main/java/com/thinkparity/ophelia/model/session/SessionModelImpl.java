@@ -486,8 +486,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    Container readArchiveContainer(final JabberId userId,
-            final UUID uniqueId) {
+    Container readArchiveContainer(final JabberId userId, final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
@@ -521,7 +520,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -545,6 +544,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
+
 
     /**
      * Read the archived containers.
@@ -648,6 +648,148 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 			throw translateError(t);
 		}
 	}
+
+    Container readBackupContainer(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupContainer(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    List<Container> readBackupContainers(final JabberId userId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupContainers(userId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    List<ContainerVersion> readBackupContainerVersions(final JabberId userId,
+            final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupContainerVersions(userId,
+                        uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    List<Document> readBackupDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupDocuments(userId, uniqueId,
+                        versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup document versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    List<DocumentVersion> readBackupDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupDocumentVersions(userId,
+                        uniqueId, versionId, documentUniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup team.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of jabber ids.
+     */
+    List<JabberId> readBackupTeamIds(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readBackupTeamIds(userId, uniqueId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Read the session user's contact info.
@@ -894,7 +1036,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     }
 
     /**
-     * Archive an artifact.
+     * Restore an artifact from the archive.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -1075,6 +1217,9 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                 // save the user's credentials
                 if(null == storedCredentials) {
                     createCredentials(credentials);
+
+                    // restore the entire container backup
+                    getContainerModel().restoreBackup();
                 }
                 xmppSession.processOfflineQueue(localUserId());
             }

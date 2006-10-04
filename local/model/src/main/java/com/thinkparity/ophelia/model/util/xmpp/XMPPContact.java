@@ -31,7 +31,7 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
  * @author raykroeker@gmail.com
  * @version 1.1.2.10
  */
-class XMPPContact extends AbstractXMPP<ContactListener> {
+final class XMPPContact extends AbstractXMPP<ContactListener> {
 
 	static {
         ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contactdeleted", new AbstractThinkParityIQProvider() {

@@ -263,6 +263,20 @@ public interface XMPPSession {
             final UUID uniqueId, final Long versionId);
 
     /**
+     * Open a document version's content.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return The document version's content.
+     */
+    public InputStream openBackupDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId);
+
+    /**
      * Process events queued on the server since last login.
      * 
      * @throws SmackException

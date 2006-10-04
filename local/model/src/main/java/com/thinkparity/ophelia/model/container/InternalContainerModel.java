@@ -24,7 +24,8 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.2.12
  */
-public class InternalContainerModel extends ContainerModel implements InternalModel {
+public class InternalContainerModel extends ContainerModel implements
+        InternalModel {
 
     /**
      * Create InternalContainerModel

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.profile;
 
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -30,5 +31,15 @@ public class InternalProfileModel extends ProfileModel implements InternalModel 
     InternalProfileModel(final Context context, final Environment environment,
             final Workspace workspace) {
         super(environment, workspace);
+    }
+
+    /**
+     * Create the user's profile locally.
+     *
+     */
+    public Profile create() {
+        synchronized (getImplLock()) {
+            return getImpl().create();
+        }
     }
 }

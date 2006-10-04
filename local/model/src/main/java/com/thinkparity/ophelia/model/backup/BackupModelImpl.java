@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.backup;
 
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +60,24 @@ final class BackupModelImpl extends AbstractModelImpl {
         this.defaultFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#openDocumentVersion(java.util.UUID, java.lang.Long)
+     */
+    InputStream openDocumentVersion(final UUID uniqueId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            assertBackupOnline();
+            return getSessionModel().openBackupDocumentVersion(
+                    localUserId(), uniqueId, versionId);
+
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     Container readContainer(final UUID uniqueId) {
@@ -136,6 +155,7 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultVersionFilter);
     }
 
+
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
@@ -144,7 +164,6 @@ final class BackupModelImpl extends AbstractModelImpl {
         return readContainerVersions(uniqueId, comparator,
                 defaultVersionFilter);
     }
-
 
     List<ContainerVersion> readContainerVersions(final UUID uniqueId,
             final Comparator<ArtifactVersion> comparator,

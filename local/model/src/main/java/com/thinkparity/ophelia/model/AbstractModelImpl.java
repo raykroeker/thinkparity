@@ -64,6 +64,8 @@ import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
 import com.thinkparity.ophelia.model.migrator.LibraryModel;
 import com.thinkparity.ophelia.model.migrator.ReleaseModel;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -558,7 +560,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -567,7 +569,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -576,14 +578,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
-	/**
+    /**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
-	};
+	}
 
 	/**
      * Obtain the internal parity download interface.
@@ -592,7 +594,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    }
+    };
 
 	/**
      * Obtain the internal parity library interface.
@@ -612,7 +614,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-    /**
+	/**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -670,6 +672,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 .append(":").append(DateUtil.format(
                         release.getCreatedOn(), DateUtil.DateImage.ISO));
         }
+    }
+
+    /**
+     * Obtain the thinkParity internal profile interface.
+     * 
+     * @return A thinkParity internal profile interface.
+     */
+    protected InternalProfileModel getProfileModel() {
+        return ProfileModel.getInternalModel(getContext(), environment, workspace);
     }
 
     /**

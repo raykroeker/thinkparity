@@ -26,11 +26,11 @@ public class InternalArchiveModel extends ArchiveModel implements InternalModel 
 
     /**
      * Create InternalArchiveModel
-     *
+     * 
      * @param workspace
-     *		A thinkParity workspace.
+     *            A thinkParity workspace.
      * @param context
-     *		A thinkParity model context.
+     *            A thinkParity model context.
      */
     InternalArchiveModel(final Context context, final Environment environment,
             final Workspace workspace) {

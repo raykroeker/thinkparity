@@ -3,11 +3,13 @@
  */
 package com.thinkparity.ophelia.model.backup;
 
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -44,6 +46,19 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
         super(environment, workspace);
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#openDocumentVersion(java.util.UUID, java.lang.Long)
+     */
+    public InputStream openDocumentVersion(final UUID uniqueId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().openDocumentVersion(uniqueId, versionId);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readContainer(java.util.UUID)
+     */
     public Container readContainer(final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readContainer(uniqueId);
@@ -196,6 +211,15 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersions(uniqueId, versionId,
                     documentUniqueId, filter);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)
+     */
+    public List<JabberId> readTeamIds(UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeamIds(uniqueId);
         }
     }
 }

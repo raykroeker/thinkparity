@@ -1625,62 +1625,82 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("uniqueId", uniqueId);
         try {
             final InternalArchiveModel archiveModel = getArchiveModel();
-            final InternalUserModel userModel = getInternalUserModel();
             // restore container info
             final Container container = archiveModel.readContainer(uniqueId);
-            containerIO.create(container);
-            artifactIO.createRemoteInfo(container.getId(),
-                    container.getUpdatedBy(), container.getUpdatedOn());
-            // restore team info
-            final List<JabberId> teamIds = archiveModel.readTeamIds(uniqueId);
-            for (final JabberId teamId : teamIds) {
-                artifactIO.createTeamRel(
-                        container.getId(),
-                        userModel.readLazyCreate(teamId).getLocalId());
-            }
-            // restore version info
-            final List<ContainerVersion> versions =
-                archiveModel.readContainerVersions(uniqueId);
-            List<Document> documents;
-            List<DocumentVersion> documentVersions;
-            InputStream documentVersionStream;
-            DocumentVersionContent versionContent;
-            for (final ContainerVersion version : versions) {
-                version.setArtifactId(container.getId());
-                containerIO.createVersion(version);
-                // restore version links
-                documents = archiveModel.readDocuments(uniqueId, version.getVersionId());
-                for (final Document document : documents) {
-                    documentIO.create(document);
-                    artifactIO.createRemoteInfo(document.getId(),
-                            document.getUpdatedBy(), document.getUpdatedOn());
-                    documentVersions = archiveModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
-                    for (final DocumentVersion documentVersion : documentVersions) {
-                        documentVersion.setArtifactId(document.getId());
-                        documentVersionStream =
-                            archiveModel.openDocumentVersion(
-                                    document.getUniqueId(), documentVersion.getVersionId());
-                        versionContent = new DocumentVersionContent();
-                        try {
-                            versionContent.setContent(StreamUtil.read(documentVersionStream));
-                        } finally {
-                            documentVersionStream.close();
-                        }
-                        versionContent.setVersion(documentVersion);
-                        documentIO.createVersion(documentVersion, versionContent);
-                        getIndexModel().indexDocument(container.getId(), document.getId());
-
-                        containerIO.addVersion(container.getId(),
-                                version.getVersionId(), document.getId(),
-                                documentVersion.getVersionId(),
-                                document.getType());
-                    }
+            restore(container, new RestoreModel() {
+                public InputStream openDocumentVersion(final UUID uniqueId,
+                        final Long versionId) {
+                    return archiveModel.openDocumentVersion(uniqueId, versionId);
                 }
-            }
-            getIndexModel().indexContainer(container.getId());
+                public List<ContainerVersion> readContainerVersions(
+                        final UUID uniqueId) {
+                    return archiveModel.readContainerVersions(uniqueId);
+                }
+                public List<Document> readDocuments(final UUID uniqueId,
+                        final Long versionId) {
+                    return archiveModel.readDocuments(uniqueId, versionId);
+                }
+                public List<DocumentVersion> readDocumentVersions(
+                        final UUID uniqueId, final Long versionId,
+                        final UUID documentUniqueId) {
+                    return archiveModel.readDocumentVersions(uniqueId,
+                            versionId, documentUniqueId);
+                }
+                public List<JabberId> readTeamIds(final UUID uniqueId) {
+                    return archiveModel.readTeamIds(uniqueId);
+                }
+            });
             archiveModel.restore(uniqueId);
             notifyContainerRestored(read(container.getId()), localEventGenerator);
-            
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Restore all containers from the backup.
+     *
+     */
+    void restoreBackup() {
+        logger.logApiId();
+        try {
+            final List<Container> containers = read();
+            if (0 < containers.size()) {
+                logger.logWarning("{0} containers will be deleted.", containers.size());
+                for (final Container container : containers) {
+                    delete(container.getId());
+                }
+            }
+
+            final InternalBackupModel backupModel = getBackupModel();
+            final List<Container> backupContainers = backupModel.readContainers();
+            logger.logVariable("backupContainers.size()", backupContainers.size());
+            for (final Container backupContainer : backupContainers) {
+                restore(backupContainer, new RestoreModel() {
+                    public InputStream openDocumentVersion(final UUID uniqueId,
+                            final Long versionId) {
+                        return backupModel.openDocumentVersion(uniqueId,
+                                versionId);
+                    }
+                    public List<ContainerVersion> readContainerVersions(
+                            final UUID uniqueId) {
+                        return backupModel.readContainerVersions(uniqueId);
+                    }
+                    public List<Document> readDocuments(final UUID uniqueId,
+                            final Long versionId) {
+                        return backupModel.readDocuments(uniqueId, versionId);
+                    }
+                    public List<DocumentVersion> readDocumentVersions(
+                            final UUID uniqueId, final Long versionId,
+                            final UUID documentUniqueId) {
+                        return backupModel.readDocumentVersions(uniqueId,
+                                versionId, documentUniqueId);
+                    }
+                    public List<JabberId> readTeamIds(final UUID uniqueId) {
+                        return backupModel.readTeamIds(uniqueId);
+                    }
+                });
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2482,25 +2502,104 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Restore all containers from the backup.
-     *
+     * Restore a container to the local database.
+     * 
+     * @param container
+     *            A container.
+     * @param archiveReader
+     *            An archive reader.
+     * @throws IOException
      */
-    void restoreBackup() {
-        logger.logApiId();
-        try {
-            final List<Container> containers = read();
-            if (0 < containers.size()) {
-                logger.logWarning("{0} containers will be deleted.", containers.size());
-                for (final Container container : containers) {
-                    delete(container.getId());
+    private void restore(final Container container, final RestoreModel restoreModel)
+            throws IOException {
+        final InternalUserModel userModel = getInternalUserModel();
+
+        userModel.readLazyCreate(container.getCreatedBy());
+        userModel.readLazyCreate(container.getUpdatedBy());
+        containerIO.create(container);
+        artifactIO.createRemoteInfo(container.getId(),
+                container.getUpdatedBy(), container.getUpdatedOn());
+        // restore team info
+        final List<JabberId> teamIds = restoreModel.readTeamIds(container.getUniqueId());
+        for (final JabberId teamId : teamIds) {
+            artifactIO.createTeamRel(
+                    container.getId(),
+                    userModel.readLazyCreate(teamId).getLocalId());
+        }
+        // restore version info
+        final List<ContainerVersion> versions =
+            restoreModel.readContainerVersions(container.getUniqueId());
+        List<Document> documents;
+        List<DocumentVersion> documentVersions;
+        InputStream documentVersionStream;
+        DocumentVersionContent versionContent;
+        for (final ContainerVersion version : versions) {
+            userModel.readLazyCreate(version.getCreatedBy());
+            userModel.readLazyCreate(version.getUpdatedBy());
+
+            version.setArtifactId(container.getId());
+            containerIO.createVersion(version);
+            // restore version links
+            documents = restoreModel.readDocuments(container.getUniqueId(), version.getVersionId());
+            for (final Document document : documents) {
+                userModel.readLazyCreate(document.getCreatedBy());
+                userModel.readLazyCreate(document.getUpdatedBy());
+
+                documentIO.create(document);
+                artifactIO.createRemoteInfo(document.getId(),
+                        document.getUpdatedBy(), document.getUpdatedOn());
+                documentVersions = restoreModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
+                for (final DocumentVersion documentVersion : documentVersions) {
+                    userModel.readLazyCreate(documentVersion.getCreatedBy());
+                    userModel.readLazyCreate(documentVersion.getUpdatedBy());
+
+                    documentVersion.setArtifactId(document.getId());
+                    documentVersionStream =
+                        restoreModel.openDocumentVersion(
+                                document.getUniqueId(), documentVersion.getVersionId());
+                    versionContent = new DocumentVersionContent();
+                    try {
+                        versionContent.setContent(StreamUtil.read(documentVersionStream));
+                    } finally {
+                        documentVersionStream.close();
+                    }
+                    versionContent.setVersion(documentVersion);
+                    documentIO.createVersion(documentVersion, versionContent);
+                    getIndexModel().indexDocument(container.getId(), document.getId());
+
+                    containerIO.addVersion(container.getId(),
+                            version.getVersionId(), document.getId(),
+                            documentVersion.getVersionId(),
+                            document.getType());
                 }
             }
-
-            final InternalBackupModel backupModel = getBackupModel();
-            final List<Container> backupContainers = backupModel.readContainers();
-            logger.logVariable("backupContainers.size()", backupContainers.size());
-        } catch (final Throwable t) {
-            throw translateError(t);
         }
+        getIndexModel().indexContainer(container.getId());
+    }
+
+    private interface RestoreModel {
+
+        /**
+         * Open a document version stream.
+         * 
+         * @param uniqueId
+         *            A document unique id <code>UUID</code>.
+         * @param versionId
+         *            A document version id <code>Long</code>.
+         * @return An <code>InputStream</code>.
+         */
+        public InputStream openDocumentVersion(final UUID uniqueId,
+                final Long versionId);
+
+        public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
+
+        public List<Document> readDocuments(final UUID uniqueId,
+                final Long versionId);
+
+        public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+                final Long versionId, final UUID documentUniqueId);
+
+        public List<JabberId> readTeamIds(final UUID uniqueId);
+
     }
 }

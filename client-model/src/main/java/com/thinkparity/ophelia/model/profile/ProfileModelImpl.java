@@ -24,11 +24,10 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author CreateModel.groovy
  * @version 1.1.1.1
  */
-class ProfileModelImpl extends AbstractModelImpl {
+final class ProfileModelImpl extends AbstractModelImpl {
 
     /** The profile db io. */
     private final ProfileIOHandler profileIO;
-
 
     /**
      * Create ProfileModelImpl.
@@ -39,6 +38,33 @@ class ProfileModelImpl extends AbstractModelImpl {
     ProfileModelImpl(final Environment environment, final Workspace workspace) {
         super(environment, workspace);
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
+    }
+
+    /**
+     * Create the user's profile.
+     *
+     */
+    Profile create() {
+        logger.logApiId();
+        try {
+            final Profile remoteProfile = getSessionModel().readProfile();
+            // NOTE Only verified emails are downloaded and created in the local
+            // profile.
+            final List<EMail> remoteEmails =
+                    getSessionModel().readProfileEmails();
+            profileIO.create(remoteProfile);
+            ProfileEMail profileEmail;
+            for (final EMail remoteEmail : remoteEmails) {
+                profileEmail = new ProfileEMail();
+                profileEmail.setEmail(remoteEmail);
+                profileEmail.setProfileId(remoteProfile.getLocalId());
+                profileEmail.setVerified(Boolean.TRUE);
+                profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
+            }
+            return profileIO.read(localUserId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -87,18 +113,12 @@ class ProfileModelImpl extends AbstractModelImpl {
     Profile read() {
         logger.logApiId();
         try {
-            final Profile profile = profileIO.read(localUserId());
-            if (null == profile) {
-                return lazyCreateProfile();
-            } else {
-                return profile;
-            }
+            return profileIO.read(localUserId());
         } catch (final Throwable t) {
-            logger.logError("workspace:{0}", workspace);
-            logger.logError("localUserId:{0}", localUserId());
             throw translateError(t);
         }
     }
+
 
     /**
      * Read a profile email.
@@ -236,7 +256,6 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
-
     /**
      * Verify an email.
      * 
@@ -259,30 +278,4 @@ class ProfileModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
-
-
-    /**
-     * Read the profile from the server; along with any email addresses and
-     * store them locally.
-     * 
-     * @return A profile.
-     */
-    private Profile lazyCreateProfile() {
-        final Profile remoteProfile = getSessionModel().readProfile();
-        // NOTE Only verified emails are downloaded and created in the local
-        // profile.
-        final List<EMail> remoteEmails =
-                getSessionModel().readProfileEmails();
-        profileIO.create(remoteProfile);
-        ProfileEMail profileEmail;
-        for (final EMail remoteEmail : remoteEmails) {
-            profileEmail = new ProfileEMail();
-            profileEmail.setEmail(remoteEmail);
-            profileEmail.setProfileId(remoteProfile.getLocalId());
-            profileEmail.setVerified(Boolean.TRUE);
-            profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
-        }
-        return read();
-    }
-
 }

@@ -37,7 +37,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.37
  */
-class SessionModelImpl extends AbstractModelImpl<SessionListener> {
+final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 
     /**
 	 * Create a SessionModelImpl
@@ -435,6 +435,7 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
+    
     InputStream openArchiveDocumentVersion(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -445,6 +446,22 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.openArchiveDocumentVersion(userId, uniqueId, versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+    
+    InputStream openBackupDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.openBackupDocumentVersion(userId, uniqueId, versionId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1214,11 +1231,12 @@ class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                 // login
                 xmppSession.login(environment, credentials);
 
-                // save the user's credentials
+                // this is essentially the first login with this resource
                 if(null == storedCredentials) {
                     createCredentials(credentials);
-
-                    // restore the entire container backup
+                    // create the user's profile
+                    getProfileModel().create();
+                    // restore the container backup
                     getContainerModel().restoreBackup();
                 }
                 xmppSession.processOfflineQueue(localUserId());

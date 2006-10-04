@@ -257,6 +257,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    public InputStream openBackupDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().openBackupDocumentVersion(userId, uniqueId, versionId);
+        }
+    }
+
     /**
      * Publish a container version.
      * 

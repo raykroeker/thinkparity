@@ -26,7 +26,8 @@ class Environment {
 				.append(File.separator).append("java").toString());
 		this.scripts = new File(user, new StringBuffer("src")
 				.append(File.separator).append("main")
-				.append(File.separator).append("scripts").toString());
+				.append(File.separator).append("scripts")
+                .append(File.separator).append("model").toString());
 		this.version = "1.1.2.1";
 	}
 
@@ -63,7 +64,7 @@ abstract class ModelClass {
 		this.className = className;
 		this.interfaceClassNames = interfaceClassNames;
 		this.name = modelGenerator.getName();
-		this.packageName = "com.thinkparity.model.parity.model." + modelGenerator.getName().toLowerCase();
+		this.packageName = "com.thinkparity.ophelia.model." + modelGenerator.getName().toLowerCase();
 		this.startArticle = modelGenerator.getStartArticle();
 		this.superClassName = superClassName;
 		this.version = version;
@@ -73,8 +74,7 @@ abstract class ModelClass {
 		return new File(environment.getJava(), new StringBuffer()
 				.append("com").append(File.separator)
 				.append("thinkparity").append(File.separator)
-				.append("model").append(File.separator)
-				.append("parity").append(File.separator)
+				.append("ophelia").append(File.separator)
 				.append("model").append(File.separator)
 				.append(name.toLowerCase()).append(File.separator)
 				.append(className).append(".java")
@@ -90,11 +90,6 @@ abstract class ModelClass {
 
 	public void loadTemplate() {
 		final File templateFile = new File(environment.getScripts(), new StringBuffer()
-				.append("com").append(File.separator)
-				.append("thinkparity").append(File.separator)
-				.append("model").append(File.separator)
-				.append("parity").append(File.separator)
-				.append("model").append(File.separator)
 				.append(getClass().getSimpleName())
 				.append(".template")
 				.toString());

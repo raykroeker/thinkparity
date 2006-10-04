@@ -926,6 +926,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } catch (final HypersonicException hx) {
             session.rollback();
             throw hx;
+        } finally {
+            session.close();
         }
     }
 
@@ -945,6 +947,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } catch (final HypersonicException hx) {
             session.rollback();
             throw hx;
+        } finally {
+            session.close();
         }
     }
 

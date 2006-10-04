@@ -112,27 +112,25 @@ class SessionManagerImpl extends SessionManager implements
     public void stop() {
         // close abandoned sessions
         final List<Session> sessions = getSessions();
-        synchronized (sessions) {
-            if (0 < sessions.size()) {
-                logger.logWarning("{0} abandoned database sessions.", sessions.size());
-            }
-            StackTraceElement sessionCaller;
-            for (final Session session : sessions) {
-                sessionCaller = getSessionCaller(session);
-                logger.logWarning("{0} - {1}.{2}({3}:{4})",
-                                session.getId(),
-                                sessionCaller.getClassName(),
-                                sessionCaller.getMethodName(),
-                                sessionCaller.getFileName(),
-                                sessionCaller.getLineNumber());
-                close(session);
-            }
-            final Session session = openSession();
-            try {
-                session.execute("SHUTDOWN COMPACT");
-            } finally {
-                session.close();
-            }
+        if (0 < sessions.size()) {
+            logger.logWarning("{0} abandoned database sessions.", sessions.size());
+        }
+        StackTraceElement sessionCaller;
+        for (final Session session : sessions) {
+            sessionCaller = getSessionCaller(session);
+            logger.logWarning("{0} - {1}.{2}({3}:{4})",
+                            session.getId(),
+                            sessionCaller.getClassName(),
+                            sessionCaller.getMethodName(),
+                            sessionCaller.getFileName(),
+                            sessionCaller.getLineNumber());
+            close(session);
+        }
+        final Session session = openSession();
+        try {
+            session.execute("SHUTDOWN COMPACT");
+        } finally {
+            session.close();
         }
     }
 

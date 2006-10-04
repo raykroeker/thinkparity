@@ -548,10 +548,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ_TYPE);
             session.setLong(1, artifactId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getTypeFromInteger("ARTIFACT_TYPE_ID"); }
-            else { return null; }
+            if (session.nextResult()) {
+                return session.getTypeFromInteger("ARTIFACT_TYPE_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

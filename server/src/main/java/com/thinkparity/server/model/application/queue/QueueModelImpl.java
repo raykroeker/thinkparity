@@ -95,6 +95,7 @@ class QueueModelImpl extends AbstractModelImpl {
 			final Collection<QueueItem> queueItems = list(userId);
 			Element rootElement;
 			for (final QueueItem queueItem : queueItems) {
+                logVariable("queueItem", queueItem);
                 rootElement = readRootElement(queueItem.getQueueMessage());
 
                 if (isOnline(userId)) {

@@ -61,7 +61,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             final UserModel userModel = getUserModel();
-            if (getUserModel().isArchive(userId)) {
+            if (userModel.isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
                 final User user = userModel.read(userId);
@@ -109,12 +109,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("receivedOn", receivedOn);
         try {
             assertIsAuthenticatedUser(userId);
-            final IQWriter notification = createIQWriter("artifact:received");
-            notification.writeUniqueId("uniqueId", uniqueId);
-            notification.writeLong("versionId", versionId);
-            notification.writeJabberId("receivedBy", receivedBy);
-            notification.writeCalendar("receivedOn", receivedOn);
-            notifyTeam(uniqueId, notification.getIQ());
+            if (getUserModel().isArchive(userId)) {
+                logInfo("Ignoring archive user {0}.", userId);
+            } else {
+                final IQWriter notification = createIQWriter("artifact:received");
+                notification.writeUniqueId("uniqueId", uniqueId);
+                notification.writeLong("versionId", versionId);
+                notification.writeJabberId("receivedBy", receivedBy);
+                notification.writeCalendar("receivedOn", receivedOn);
+                notifyTeam(uniqueId, notification.getIQ());
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -177,14 +177,29 @@ class ContainerModelImpl extends AbstractModelImpl {
     List<Container> readArchive(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
-        return getArchiveModel().getContainerReader(userId).read();
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getContainerReader(userId).read();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
+    /**
+     * Read an archive container for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
     Container readArchive(final JabberId userId, final UUID uniqueId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("unqiueId", uniqueId);
         try {
+            assertIsAuthenticatedUser(userId);
             return getArchiveModel().getContainerReader(userId).read(uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -208,8 +223,13 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
-                .read();
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId,
+                    versionId).read();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -233,8 +253,13 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("documentUniqueId", documentUniqueId);
-        return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
-                .readVersions(documentUniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
+                    .readVersions(documentUniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -248,7 +273,128 @@ class ContainerModelImpl extends AbstractModelImpl {
             final UUID uniqueId) {
         logApiId();
         logVariable("userId", userId);
-        return getArchiveModel().getContainerReader(userId).readVersions(uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getContainerReader(userId).readVersions(
+                    uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup containers for user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;Container&gt;</code>.
+     */
+    List<Container> readBackup(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getContainerReader(userId).read();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a backup container for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    Container readBackup(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("unqiueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getContainerReader(userId).read(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup documents for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;Document&gt;</code>.
+     */
+    List<Document> readBackupDocuments(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getDocumentReader(userId, uniqueId,
+                    versionId).read();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup document versions for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id </code>UUID </code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param documentUniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
+            final UUID uniqueId, final Long versionId,
+            final UUID documentUniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("documentUniqueId", documentUniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getDocumentReader(userId, uniqueId, versionId)
+                    .readVersions(documentUniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the backup container versions for user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
+    List<ContainerVersion> readBackupVersions(final JabberId userId,
+            final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getContainerReader(userId).readVersions(
+                    uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

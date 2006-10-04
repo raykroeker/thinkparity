@@ -38,6 +38,8 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.archive.InternalArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
+import com.thinkparity.desdemona.model.backup.BackupModel;
+import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -203,13 +205,22 @@ public abstract class AbstractModelImpl
         return DateUtil.getInstance();
     }
 
-	/**
+    /**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
      */
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), session);
+    }
+
+    /**
+     * Obtain a thinkParity backup interface.
+     * 
+     * @return A thinkParity backup interface.
+     */
+    protected InternalBackupModel getBackupModel() {
+        return BackupModel.getInternalModel(getContext(), session);
     }
 
     /**

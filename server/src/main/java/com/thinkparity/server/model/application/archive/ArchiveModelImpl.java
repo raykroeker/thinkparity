@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.archive;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,17 +80,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read the file system from the jive properties.
-     * 
-     * @return A <code>FileSystem</code>.
-     */
-    private FileSystem readFileSystem() {
-        final String thinkParityArchiveRoot =
-            (String) jiveProperties.get(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
-        return new FileSystem(new File(thinkParityArchiveRoot));
-    }
-
-    /**
      * Archive an artifact.
      * 
      * @param userId
@@ -125,7 +115,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return new ContainerReader(getModelFactory(readArchiveId(userId)));
+            return createContainerReader(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -149,10 +139,22 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logVariable("containerVersionId", containerVersionId);
         try {
             assertIsAuthenticatedUser(userId);
-            return new DocumentReader(getModelFactory(readArchiveId(userId)),
-                containerUniqueId, containerVersionId);
+            return createDocumentReader(userId, containerUniqueId, containerVersionId);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * Obtain the archive's model factory.
+     * 
+     * @param archiveId
+     *            An archive id <code>JabberId</code>.
+     * @return An archive's <code>ClientModelFactory</code>.
+     */
+    ClientModelFactory getModelFactory(final JabberId archiveId) {
+        synchronized (ARCHIVE_CONTEXT_LOOKUP) {
+            return ((ArchiveContext) ARCHIVE_CONTEXT_LOOKUP.get(archiveId)).modelFactory;
         }
     }
 
@@ -176,11 +178,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final JabberId archiveId = readArchiveId(userId);
-            final ClientModelFactory modelFactory = getModelFactory(archiveId);
-            final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
-            final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
-            final Long documentId = artifactModel.readId(uniqueId);
-            return documentModel.openVersionStream(documentId, versionId);
+            if (null == archiveId) {
+                return null;
+            } else {
+                final ClientModelFactory modelFactory = getModelFactory(archiveId);
+                final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
+                final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
+                final Long documentId = artifactModel.readId(uniqueId);
+                return documentModel.openVersionStream(documentId, versionId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -193,15 +199,19 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final JabberId archiveId = readArchiveId(userId);
-            final InternalArtifactModel artifactModel =
-                getModelFactory(archiveId).getArtifactModel(getClass());
-            final Long artifactId = artifactModel.readId(uniqueId);
-            final List<TeamMember> teamMembers = artifactModel.readTeam2(artifactId);
-            final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
-            for (final TeamMember teamMember : teamMembers) {
-                teamIds.add(teamMember.getId());
+            if (null == archiveId) {
+                return Collections.emptyList();
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                final List<TeamMember> teamMembers = artifactModel.readTeam2(artifactId);
+                final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
+                for (final TeamMember teamMember : teamMembers) {
+                    teamIds.add(teamMember.getId());
+                }
+                return teamIds;
             }
-            return teamIds;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -222,10 +232,14 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final JabberId archiveId = readArchiveId(userId);
-            final InternalArtifactModel artifactModel =
-                getModelFactory(archiveId).getArtifactModel(getClass());
-            final Long artifactId = artifactModel.readId(uniqueId);
-            artifactModel.removeFlagArchived(artifactId);
+            if (null == archiveId) {
+                logWarning("No archive exists for user {0}.", userId);
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                artifactModel.removeFlagArchived(artifactId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -275,6 +289,23 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Create a container archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return An <code>ArchiveReader&lt;Container, ContainerVersion&gt;</code>.
+     */
+    private ArchiveReader<Container, ContainerVersion> createContainerReader(final JabberId userId) {
+        final JabberId archiveId = readArchiveId(userId);
+        if (null == archiveId) {
+            logInfo("No archive exists for user {0}.", userId);
+            return ArchiveReader.emptyReader();
+        } else {
+            return new ContainerReader(getModelFactory(readArchiveId(userId)));
+        }
+    }
+
+    /**
      * Add a context from the archive context map.
      * 
      * @param archiveId
@@ -291,6 +322,30 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Create a container archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param containerUniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param containerVersionId
+     *            A container version id <code>Long</code>.
+     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     */
+    private ArchiveReader<Document, DocumentVersion> createDocumentReader(
+            final JabberId userId, final UUID containerUniqueId,
+            final Long containerVersionId) {
+        final JabberId archiveId = readArchiveId(userId);
+        if (null == archiveId) {
+            logInfo("No archive exists for user {0}.", userId);
+            return ArchiveReader.emptyReader();
+        } else {
+            return new DocumentReader(getModelFactory(readArchiveId(userId)),
+                    containerUniqueId, containerVersionId);
+        }
+    }
+
+    /**
      * Remove a context from the archive context map.
      * 
      * @param archiveId
@@ -301,19 +356,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
             Assert.assertTrue(ARCHIVE_CONTEXT_LOOKUP.containsKey(archiveId),
                     "Archive context for {0} does not exist.", archiveId);
             ARCHIVE_CONTEXT_LOOKUP.remove(archiveId);
-        }
-    }
-
-    /**
-     * Obtain the archive's model factory.
-     * 
-     * @param archiveId
-     *            An archive id <code>JabberId</code>.
-     * @return An archive's <code>ClientModelFactory</code>.
-     */
-    private ClientModelFactory getModelFactory(final JabberId archiveId) {
-        synchronized (ARCHIVE_CONTEXT_LOOKUP) {
-            return ((ArchiveContext) ARCHIVE_CONTEXT_LOOKUP.get(archiveId)).modelFactory;
         }
     }
 
@@ -340,6 +382,28 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the jive property for the environment.
+     * 
+     * @return An environment.
+     */
+    private Environment readEnvironment() {
+        final String thinkParityEnvironment =
+            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
+        return Environment.valueOf(thinkParityEnvironment);
+    }
+
+    /**
+     * Read the file system from the jive properties.
+     * 
+     * @return A <code>FileSystem</code>.
+     */
+    private FileSystem readFileSystem() {
+        final String thinkParityArchiveRoot =
+            (String) jiveProperties.get(JivePropertyNames.THINKPARITY_ARCHIVE_ROOT);
+        return new FileSystem(new File(thinkParityArchiveRoot));
+    }
+
+    /**
      * Read the archive file system for an archive id.
      * 
      * @param archiveId
@@ -347,7 +411,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      * @return A <code>FileSystem</code>.
      */
     private FileSystem readFileSystem(final JabberId archiveId) {
-        final String path = archiveId.getQualifiedJabberId();
+        final String path = archiveId.getQualifiedUsername();
         if (!fileSystem.pathExists(path)) {
             fileSystem.createDirectory(path);
         }
@@ -357,27 +421,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
     /**
      * Read an archive workspace.
      * 
-     * @param archiveId
-     *            An archive id.
      * @param archiveFileSystem
      *            An archive file system.
      * @return An archive <code>Workspace</code>.
      */
-    private Workspace readWorkspace(final JabberId archiveId,
-            final FileSystem archiveFileSystem) {
+    private Workspace readWorkspace(final FileSystem archiveFileSystem) {
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
         return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
-    }
-
-    /**
-     * Read the jive property for the environment.
-     * 
-     * @return An environment.
-     */
-    private Environment readEnvironment() {
-        final String thinkParityEnvironment =
-            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
-        return Environment.valueOf(thinkParityEnvironment);
     }
 
     /**
@@ -390,7 +440,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
      */
     private void start(final JabberId archiveId, final Credentials credentials) {
         final FileSystem archiveFileSystem = readFileSystem(archiveId);
-        final Workspace workspace = readWorkspace(archiveId, archiveFileSystem);
+        final Workspace workspace = readWorkspace(archiveFileSystem);
         final Environment environment = readEnvironment();
         createContext(archiveId, environment, workspace);
         getModelFactory(archiveId).getSessionModel(getClass()).login(credentials);

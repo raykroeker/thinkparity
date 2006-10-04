@@ -23,6 +23,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
+import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
@@ -58,6 +59,9 @@ public abstract class AbstractHandler extends
 
     /** A thinkParity artifact interface. */
     private ArtifactModel artifactModel;
+
+    /** A thinkParity backup interface. */
+    private BackupModel backupModel;
 
     /** A thinkParity contact interface. */
     private ContactModel contactModel;
@@ -131,6 +135,7 @@ public abstract class AbstractHandler extends
             };
             this.archiveModel = ArchiveModel.getModel(session);
             this.artifactModel = ArtifactModel.getModel(session);
+            this.backupModel = BackupModel.getModel(session);
             this.contactModel = ContactModel.getModel(session);
             this.containerModel = ContainerModel.getModel(session);
             this.profileModel = ProfileModel.getModel(session);
@@ -159,6 +164,15 @@ public abstract class AbstractHandler extends
      */
     protected ArtifactModel getArtifactModel() {
         return artifactModel;
+    }
+
+    /**
+     * Obtain a thinkParity archive interface.
+     * 
+     * @return A thinkParity archive interface.
+     */
+    protected BackupModel getBackupModel() {
+        return backupModel;
     }
 
     /**

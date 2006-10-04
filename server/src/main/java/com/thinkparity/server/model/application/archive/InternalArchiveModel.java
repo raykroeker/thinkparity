@@ -36,7 +36,6 @@ public class InternalArchiveModel extends ArchiveModel {
         }
     }
 
-
     /**
      * Obtain a document archive reader.
      * 
@@ -52,6 +51,19 @@ public class InternalArchiveModel extends ArchiveModel {
         synchronized (getImplLock()) {
             return getImpl().getDocumentReader(userId, containerUniqueId,
                     containerVersionId);
+        }
+    }
+
+    /**
+     * Obtain a model factory for the archive.
+     * 
+     * @param archiveId
+     *            An archive id <code>JabberId</code>.
+     * @return An archive's <code>ClientModelFactory</code>.
+     */
+    public ClientModelFactory getModelFactory(final JabberId archiveId) {
+        synchronized (getImplLock()) {
+            return getImpl().getModelFactory(archiveId);
         }
     }
 }

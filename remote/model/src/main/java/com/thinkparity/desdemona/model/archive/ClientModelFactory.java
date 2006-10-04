@@ -26,7 +26,7 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-class ClientModelFactory {
+public final class ClientModelFactory {
 
     /** A thinkParity context. */
     private final Context context;
@@ -46,27 +46,27 @@ class ClientModelFactory {
         this.workspace = workspace;
     }
 
-    InternalArtifactModel getArtifactModel(final Class clasz) {
+    public InternalArtifactModel getArtifactModel(final Class clasz) {
         return ArtifactModel.getInternalModel(context, environment, workspace);
     }
 
-    InternalContainerModel getContainerModel(final Class clasz) {
+    public InternalContainerModel getContainerModel(final Class clasz) {
         return ContainerModel.getInternalModel(context, environment, workspace);
     }
 
-    InternalDocumentModel getDocumentModel(final Class clasz) {
+    public InternalDocumentModel getDocumentModel(final Class clasz) {
         return DocumentModel.getInternalModel(context, environment, workspace);
     }
 
-    InternalProfileModel getProfileModel(final Class clasz) {
+    public InternalProfileModel getProfileModel(final Class clasz) {
         return ProfileModel.getInternalModel(context, environment, workspace);
     }
 
-    InternalSessionModel getSessionModel(final Class clasz) {
+    public InternalSessionModel getSessionModel(final Class clasz) {
         return SessionModel.getInternalModel(context, environment, workspace);
     }
 
-    InternalWorkspaceModel getWorkspace(final Class clasz) {
+    public InternalWorkspaceModel getWorkspace(final Class clasz) {
         return WorkspaceModel.getInternalModel(context);
     }
 }

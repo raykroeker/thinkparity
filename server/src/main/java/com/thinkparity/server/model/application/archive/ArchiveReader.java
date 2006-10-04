@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,32 @@ import com.thinkparity.ophelia.model.document.InternalDocumentModel;
  * @version 1.1.2.1
  */
 public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersion> {
+
+    /**
+     * Obtain an empty archive reader.
+     * 
+     * @param <T>
+     *            An archive reader artifact type.
+     * @param <U>
+     *            An archive reader artifact version type.
+     * @return An <code>ArchiveReader&lt;T, U&gt;</code>.
+     */
+    static <T extends Artifact, U extends ArtifactVersion> ArchiveReader<T, U> emptyReader() {
+        return new ArchiveReader<T, U>() {
+            @Override
+            public List<T> read() {
+                return Collections.emptyList();
+            }
+            @Override
+            public T read(final UUID uniqueId) {
+                return null;
+            }
+            @Override
+            public List<U> readVersions(final UUID uniqueId) {
+                return Collections.emptyList();
+            }
+        };
+    }
 
     /** A thinkParity client artifact interface. */
     protected final InternalArtifactModel artifactModel;
@@ -40,6 +67,17 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
         };
         this.modelFactory = modelFactory;
         this.artifactModel = modelFactory.getArtifactModel(getClass());
+    }
+
+    /**
+     * Create ArchiveReader. To be used by the empty reader singleton only.
+     * 
+     */
+    private ArchiveReader() {
+        super();
+        this.filter = null;
+        this.modelFactory = null;
+        this.artifactModel = null;
     }
 
     /**

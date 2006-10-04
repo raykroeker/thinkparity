@@ -1,7 +1,7 @@
 /*
  * Created On: Sep 17, 2006 2:55:25 PM
  */
-package com.thinkparity.desdemona.model.archive;
+package com.thinkparity.desdemona.model.backup;
 
 import java.util.UUID;
 
@@ -18,9 +18,17 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class InternalArchiveModel extends ArchiveModel {
+public class InternalBackupModel extends BackupModel {
 
-    InternalArchiveModel(final Context context, final Session session) {
+    /**
+     * Create InternalBackupModel.
+     * 
+     * @param context
+     *            A thinkParity model <code>Context</code>.
+     * @param session
+     *            A thinkParity <code>Session</code>.
+     */
+    InternalBackupModel(final Context context, final Session session) {
         super(session);
     }
 
@@ -29,7 +37,7 @@ public class InternalArchiveModel extends ArchiveModel {
      * 
      * @return A container archive reader.
      */
-    public ArchiveReader<Container, ContainerVersion> getContainerReader(
+    public BackupReader<Container, ContainerVersion> getContainerReader(
             final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().getContainerReader(userId);
@@ -45,25 +53,12 @@ public class InternalArchiveModel extends ArchiveModel {
      *            A container unique id <code>UUID</code>.
      * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
      */
-    public ArchiveReader<Document, DocumentVersion> getDocumentReader(
+    public BackupReader<Document, DocumentVersion> getDocumentReader(
             final JabberId userId, final UUID containerUniqueId,
             final Long containerVersionId) {
         synchronized (getImplLock()) {
             return getImpl().getDocumentReader(userId, containerUniqueId,
                     containerVersionId);
-        }
-    }
-
-    /**
-     * Obtain a model factory for the archive.
-     * 
-     * @param archiveId
-     *            An archive id <code>JabberId</code>.
-     * @return An archive's <code>ClientModelFactory</code>.
-     */
-    public ClientModelFactory getModelFactory(final JabberId archiveId) {
-        synchronized (getImplLock()) {
-            return getImpl().getModelFactory(archiveId);
         }
     }
 }

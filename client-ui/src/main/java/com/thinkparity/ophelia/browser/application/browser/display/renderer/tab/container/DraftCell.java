@@ -123,11 +123,7 @@ public class DraftCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
      */
     public ImageIcon getSecondNodeIcon() {
-        if (isExpanded()) {
-            return imageCacheTest.read(TabCellIconTest.FOLDER_OPEN); 
-        } else {
-            return imageCacheTest.read(TabCellIconTest.FOLDER_CLOSED); 
-        }
+        return imageCacheTest.read(TabCellIconTest.DRAFT); 
     }
     
     /**

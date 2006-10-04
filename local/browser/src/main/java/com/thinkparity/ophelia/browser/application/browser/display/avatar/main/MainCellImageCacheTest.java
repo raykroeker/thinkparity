@@ -111,6 +111,11 @@ public class MainCellImageCacheTest {
     public enum TabCellIconTest {
         INFO("Invisible20x20.png"),
         PACKAGE("IconPackage.png"),
+        PACKAGE32x32("IconPackage32x32.png"),
+        DRAFT("IconDraft.png"),
+        DRAFT32x32("IconDraft32x32.png"),
+        VERSION("IconVersion.png"),
+        VERSION32x32("IconVersion32x32.png"),
         FOLDER_OPEN("IconFolderOpen.png"),
         FOLDER_CLOSED("IconFolderClosed.png"),
         CONTACT("IconContact.png"),

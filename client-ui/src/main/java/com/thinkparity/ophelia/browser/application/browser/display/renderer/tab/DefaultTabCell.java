@@ -61,7 +61,7 @@ public abstract class DefaultTabCell implements TabCell {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER);
         BORDER_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER, new Insets(2,0,0,0));
         BORDER_CHILD_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_CHILD, new Insets(2,0,0,0));
-        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 2, new Insets(3,0,0,0));
+        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER_GROUP, 3, new Insets(4,0,0,0));
         
         TEXT_FG = Colors.Browser.TabCell.TEXT;
         TEXT_FG_MOUSEOVER = Colors.Browser.TabCell.TEXT_MOUSEOVER;

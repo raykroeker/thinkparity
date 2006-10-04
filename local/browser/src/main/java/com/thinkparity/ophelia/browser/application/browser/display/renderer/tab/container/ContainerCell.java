@@ -187,7 +187,7 @@ public class ContainerCell extends DefaultTabCell {
     public ImageIcon getSecondNodeIcon() {
         return imageCacheTest.read(TabCellIconTest.PACKAGE); 
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabCell#getTextNoClipping(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup)
      */

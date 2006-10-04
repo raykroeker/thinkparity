@@ -33,16 +33,13 @@ import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 public class ContainerVersionDocumentCell extends DefaultTabCell {
     
     /** The document's parent cell. */
-    private final ContainerVersionDocumentFolderCell versionDocumentFolder;
-
-    /** The document's version (grandparent cell). */
     private final ContainerVersionCell version;
     
     /** The document associated with this cell. */
     private Document document;
     
     /** Create a CellDocument. */
-    public ContainerVersionDocumentCell(final ContainerVersionDocumentFolderCell versionDocumentFolder, final Document document) {
+    public ContainerVersionDocumentCell(final ContainerVersionCell version, final Document document) {
         super();
         this.document = new Document();
         this.document.setCreatedBy(document.getCreatedBy());
@@ -55,8 +52,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
         this.document.setId(document.getId());
         this.document.setRemoteInfo(document.getRemoteInfo());
         this.document.setState(document.getState());
-        this.versionDocumentFolder = versionDocumentFolder;
-        this.version = (ContainerVersionCell) versionDocumentFolder.getParent();
+        this.version = version;
     }
 
     /**
@@ -92,7 +88,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * 
      */
     public TabCell getParent() {
-        return versionDocumentFolder;
+        return version;
     }
     
     /**
@@ -125,7 +121,7 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_3;
+        return InsetFactors.LEVEL_2;
     }
 
     /**
@@ -157,14 +153,14 @@ public class ContainerVersionDocumentCell extends DefaultTabCell {
 
         final Data openData = new Data(2);
         openData.set(OpenVersion.DataKey.DOCUMENT_ID, document.getId());
-        openData.set(OpenVersion.DataKey.VERSION_ID, ((ContainerVersionCell)getParent()).getVersionId());
+        openData.set(OpenVersion.DataKey.VERSION_ID, version.getVersionId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN_VERSION, openData));
         
         jPopupMenu.addSeparator();
         
         final Data printData = new Data(2);
         printData.set(PrintVersion.DataKey.DOCUMENT_ID, document.getId());
-        openData.set(PrintVersion.DataKey.VERSION_ID, ((ContainerVersionCell)getParent()).getVersionId());
+        openData.set(PrintVersion.DataKey.VERSION_ID, version.getVersionId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_VERSION, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }

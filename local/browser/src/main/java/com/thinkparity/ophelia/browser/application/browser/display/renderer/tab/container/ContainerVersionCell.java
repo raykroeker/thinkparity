@@ -5,6 +5,9 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
@@ -32,7 +35,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContainerVersionCell extends DefaultTabCell {
 
-    /** The draft cell localization. */
+    /** The cell localization. */
     private final MainCellL18n localization;
 
     /** The parent <code>TabCell</code>. */
@@ -82,11 +85,7 @@ public class ContainerVersionCell extends DefaultTabCell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
      */
     public ImageIcon getSecondNodeIcon() {
-        if (isExpanded()) {
-            return imageCacheTest.read(TabCellIconTest.FOLDER_OPEN); 
-        } else {
-            return imageCacheTest.read(TabCellIconTest.FOLDER_CLOSED); 
-        }
+        return imageCacheTest.read(TabCellIconTest.VERSION); 
     }
     
     /**
@@ -102,14 +101,22 @@ public class ContainerVersionCell extends DefaultTabCell {
      *
      */
     public String getTextNoClipping(final TextGroup textGroup) {
-        switch (textGroup) {
+        final String textNoClipping;
+        switch(textGroup) {
         case WEST:
-            return localization.getString("Text", version.getVersionId());
+            if (isToday(version.getCreatedOn().getTime())) {
+                textNoClipping = localization.getString("TextToday", version.getCreatedOn().getTime(), publishedBy.getName());
+            } else {
+                textNoClipping =  localization.getString("Text", version.getCreatedOn().getTime(), publishedBy.getName()); 
+            }            
+            break;
         case EAST:
-            return publishedBy.getName();
+            textNoClipping =  null;
+            break;
         default:
             throw Assert.createUnreachable("UNKNOWN TEXT GROUP");
         }
+        return textNoClipping;
     }
 
     /**
@@ -186,4 +193,12 @@ public class ContainerVersionCell extends DefaultTabCell {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_VERSION, printData));
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }  
+    
+    private Boolean isToday(Date date) {
+        final StringBuffer dateStr = new StringBuffer();
+        final StringBuffer todayStr = new StringBuffer();
+        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
+        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
+        return dateStr.toString().equals(todayStr.toString());
+    }
 }

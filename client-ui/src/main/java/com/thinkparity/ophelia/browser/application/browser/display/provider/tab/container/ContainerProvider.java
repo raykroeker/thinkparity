@@ -22,7 +22,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Sing
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentFolderCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -112,10 +111,10 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             @Override
             public Object[] getElements(final Object input) {
                 Assert.assertNotNull("[NULL INPUT]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionDocumentFolderCell.class, input);
-                final ContainerVersionDocumentFolderCell typedInput = (ContainerVersionDocumentFolderCell) input;
-                final Long containerId = ((ContainerVersionCell)typedInput.getParent()).getArtifactId();
-                final Long versionId = ((ContainerVersionCell)typedInput.getParent()).getVersionId();
+                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionCell.class, input);
+                final ContainerVersionCell typedInput = (ContainerVersionCell) input;
+                final Long containerId = typedInput.getArtifactId();
+                final Long versionId = typedInput.getVersionId();
                 return toDisplay(typedInput, containerModel.readDocuments(containerId, versionId));
             }
         };
@@ -239,34 +238,34 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /**
      * Create a display document for a version.
      * 
-     * @param versionDocumentFolder
-     *            A "version document folder" cell (parent of version document).
+     * @param version
+     *            A container version cell.
      * @param document
      *            A document.
      * @return A display document.
      */
     private ContainerVersionDocumentCell toDisplay(
-            final ContainerVersionDocumentFolderCell versionDocumentFolder, final Document document) {
-        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(versionDocumentFolder, document);
+            final ContainerVersionCell version, final Document document) {
+        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(version, document);
         return display;
     }
     
     /**
      * Create an array of display documents for a version.
      * 
-     * @param versionDocumentFolder
-     *            A "version document folder" cell (parent of version document).
+     * @param version
+     *            A container version cell.
      * @param versionDocuments
      *            A list of documents.
      * @return An array of display documents.
      */
     private ContainerVersionDocumentCell[] toDisplay(
-            final ContainerVersionDocumentFolderCell versionDocumentFolder,
+            final ContainerVersionCell version,
             final List<Document> documents) {
         final List<ContainerVersionDocumentCell> list =
             new ArrayList<ContainerVersionDocumentCell>(documents.size());
         for(final Document document : documents) {
-            list.add(toDisplay(versionDocumentFolder, document));
+            list.add(toDisplay(version, document));
         }
         return list.toArray(new ContainerVersionDocumentCell[] {});
     }

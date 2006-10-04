@@ -7,6 +7,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
@@ -27,12 +29,16 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
+import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public class ContainerVersionSentToUserCell extends DefaultTabCell {
+    
+    /** The cell localization. */
+    private final MainCellL18n localization;
     
     /** The parent cell. */
     private TabCell parent;
@@ -46,6 +52,7 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
     /** Create ContainerVersionSentToCell. */
     public ContainerVersionSentToUserCell() { 
         super();
+        this.localization = new MainCellL18n("MainCellContainerVersionSentToUser");
     }
 
     /**
@@ -97,7 +104,7 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
      * 
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_3;
+        return InsetFactors.LEVEL_2;
     }
 
     /**
@@ -121,9 +128,13 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
             } else {
                 textNoClipping.append(user.getName());
             }
-            if (null != receipt) {
-                textNoClipping.append(MessageFormat.format(" - {0,date,yyyy-MM-dd HH:mm:ss.SSS}",
-                        receipt.getReceivedOn().getTime()));
+            textNoClipping.append(" ");
+            if (null == receipt) {
+                textNoClipping.append(localization.getString("TextNotReceived"));
+            } else if (isToday(receipt.getReceivedOn().getTime())) {
+                textNoClipping.append(localization.getString("TextReceivedToday",receipt.getReceivedOn().getTime()));
+            } else {
+                textNoClipping.append(localization.getString("TextReceived",receipt.getReceivedOn().getTime()));
             }
             break;
         case EAST:
@@ -200,5 +211,13 @@ public class ContainerVersionSentToUserCell extends DefaultTabCell {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
 
         jPopupMenu.show(invoker, e.getX(), e.getY());
+    }
+    
+    private Boolean isToday(Date date) {
+        final StringBuffer dateStr = new StringBuffer();
+        final StringBuffer todayStr = new StringBuffer();
+        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
+        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
+        return dateStr.toString().equals(todayStr.toString());
     }
 }

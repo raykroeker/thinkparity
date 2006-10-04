@@ -7,15 +7,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StackUtil;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
@@ -51,7 +47,7 @@ class SessionManagerImpl extends SessionManager implements
     private final String connectionURL;
 
     /** An apache logger. */
-    private final Logger logger;
+    private final Log4JWrapper logger;
 
     /**
      * Create SessionManagerImpl.
@@ -68,7 +64,7 @@ class SessionManagerImpl extends SessionManager implements
             .append(File.separator)
             .append(FileNames.Workspace.Data.DB)
             .toString();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
     }
 
     /**
@@ -116,36 +112,27 @@ class SessionManagerImpl extends SessionManager implements
     public void stop() {
         // close abandoned sessions
         final List<Session> sessions = getSessions();
-        logWarning(MessageFormat.format("{0} ABANDONDED SESSSIONS", sessions.size()));
-        StackTraceElement sessionCaller;
-        for (final Session session : sessions) {
-            sessionCaller = getSessionCaller(session);
-            logger.warn(MessageFormat
-                    .format("{0} - {1}.{2}({3}:{4})",
-                            session.getId(),
-                            sessionCaller.getClassName(),
-                            sessionCaller.getMethodName(),
-                            sessionCaller.getFileName(),
-                            sessionCaller.getLineNumber()));
-            close(session);
-        }
-        final Session session = openSession();
-        try {
-            session.execute("SHUTDOWN COMPACT");
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Log a warning.
-     * 
-     * @param warning
-     *            A warning.
-     */
-    private void logWarning(final Object warning) {
-        if (logger.isEnabledFor(Level.WARN)) {
-            logger.warn(Log4JHelper.render(logger, warning));
+        synchronized (sessions) {
+            if (0 < sessions.size()) {
+                logger.logWarning("{0} abandoned database sessions.", sessions.size());
+            }
+            StackTraceElement sessionCaller;
+            for (final Session session : sessions) {
+                sessionCaller = getSessionCaller(session);
+                logger.logWarning("{0} - {1}.{2}({3}:{4})",
+                                session.getId(),
+                                sessionCaller.getClassName(),
+                                sessionCaller.getMethodName(),
+                                sessionCaller.getFileName(),
+                                sessionCaller.getLineNumber());
+                close(session);
+            }
+            final Session session = openSession();
+            try {
+                session.execute("SHUTDOWN COMPACT");
+            } finally {
+                session.close();
+            }
         }
     }
 

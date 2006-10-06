@@ -110,8 +110,8 @@ public class MainCellImageCacheTest {
     /** All tab cell icons. */
     public enum TabCellIconTest {
         INFO("Invisible20x20.png"),
-        PACKAGE("IconPackage.png"),
-        PACKAGE32x32("IconPackage32x32.png"),
+        CONTAINER("IconContainer.png"),
+        CONTAINER32x32("IconContainer32x32.png"),
         DRAFT("IconDraft.png"),
         DRAFT32x32("IconDraft32x32.png"),
         VERSION("IconVersion.png"),

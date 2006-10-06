@@ -20,11 +20,10 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 
-import com.l2fprod.gui.nativeskin.NativeSkin;
-import com.l2fprod.gui.region.Region;
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserWindow;
+import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
  * @author rob_masako@shaw.ca
@@ -292,14 +291,14 @@ public class Resizer {
     }
     
     private void formMouseDraggedResize(final java.awt.event.MouseEvent evt, final Component component) {
-        final Component componentToResize;
         Dimension resizeOffset = null;
         Point moveOffset = null;
-        
-        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
-            componentToResize = component;
+
+        final Window componentAncestor;
+        if (component instanceof JDialog || component instanceof BrowserWindow) {
+        	componentAncestor = (Window) component;
         } else {
-            componentToResize = SwingUtilities.getWindowAncestor(component);
+        	componentAncestor = SwingUtilities.getWindowAncestor(component);
         }
                
         switch (resizeDirection) {
@@ -343,9 +342,9 @@ public class Resizer {
         // Resize and maybe also move
         if (null != resizeOffset) {
             if (null != moveOffset) {
-                resizeAndMove(componentToResize, resizeOffset, moveOffset);
+                resizeAndMove(componentAncestor, resizeOffset, moveOffset);
             } else {
-                resize(componentToResize, resizeOffset);
+                resize(componentAncestor, resizeOffset);
             }
         }
         
@@ -372,19 +371,19 @@ public class Resizer {
      * @param resizeOffset
      *          The amount to resize.
      */
-    private void resize(final Component component, final Dimension resizeOffset) {
+    private void resize(final Window window, final Dimension resizeOffset) {
         if ((resizeOffset.width != 0) || (resizeOffset.height != 0)) {
-            if (component instanceof BrowserWindow) {
+            if (window instanceof BrowserWindow) {
                 browser.resizeBrowserWindow(resizeOffset);
             } else {
-                Dimension size = component.getSize();
+                Dimension size = window.getSize();
                 size.width += resizeOffset.width;
                 size.height += resizeOffset.height;
-                size = adjustForMinimumSize(component, size);
-                if (!component.getSize().equals(size)) {
-                    component.setSize(size);
-                    roundCorners(component);
-                    component.validate();
+                size = adjustForMinimumSize(window, size);
+                if (!window.getSize().equals(size)) {
+                	window.setSize(size);
+                    roundCorners(window);
+                    window.validate();
                 }
             }
         }
@@ -400,22 +399,23 @@ public class Resizer {
      * @param moveOffset
      *          The amount to move.
      */
-    private void resizeAndMove(final Component component, final Dimension resizeOffset, final Point moveOffset) {
+    private void resizeAndMove(final Window window,
+			final Dimension resizeOffset, final Point moveOffset) {
         if ((resizeOffset.width!=0) || (resizeOffset.height!=0) ||
             (moveOffset.x != 0 ) || (moveOffset.y != 0 )) {        
-            if (component instanceof BrowserWindow) {
+            if (window instanceof BrowserWindow) {
                 browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
             } else {
-                Rectangle sizeAndLocation = component.getBounds();
+                Rectangle sizeAndLocation = window.getBounds();
                 sizeAndLocation.width += resizeOffset.width;
                 sizeAndLocation.height += resizeOffset.height;
                 sizeAndLocation.x += moveOffset.x;
                 sizeAndLocation.y += moveOffset.y;
-                sizeAndLocation = adjustForMinimumSize(component, sizeAndLocation);
-                if (!component.getBounds().equals(sizeAndLocation)) {
-                    component.setBounds(sizeAndLocation);
-                    roundCorners(component);
-                    component.validate();
+                sizeAndLocation = adjustForMinimumSize(window, sizeAndLocation);
+                if (!window.getBounds().equals(sizeAndLocation)) {
+                	window.setBounds(sizeAndLocation);
+                    roundCorners(window);
+                    window.validate();
                 }
             }
         }
@@ -424,10 +424,8 @@ public class Resizer {
     /**
      * Make the corners round.
      */
-    private void roundCorners(final Component component) {
-        final NativeSkin nativeSkin = NativeSkin.getInstance();
-        Region region = nativeSkin.createRoundRectangleRegion(0,0,component.getWidth()+1,component.getHeight()+1,9,9);
-        nativeSkin.setWindowRegion((Window)component, region, true);
+    private void roundCorners(final Window window) {
+    	new NativeSkin().roundCorners(window);
     }
     
     /**

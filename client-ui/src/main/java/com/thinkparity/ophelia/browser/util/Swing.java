@@ -6,11 +6,14 @@ package com.thinkparity.ophelia.browser.util;
 
 import java.awt.image.BufferedImage;
 
+import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-
+import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 
@@ -40,7 +43,20 @@ public class Swing {
         defaults.put("MenuItem.selectionBackground", Colors.Swing.MENU_ITEM_SELECTION_BG);
         defaults.put("MenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
 
-        try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
+        try {
+        	final LookAndFeel laf;
+        	switch (OSUtil.getOS()) {
+        	case WINDOWS_XP:
+        		laf = new WindowsLookAndFeel();
+        		break;
+        	case LINUX:
+        		laf = new GTKLookAndFeel();
+        		break;
+    		default:
+    			throw Assert.createUnreachable("UNSUPPORTED OPERATING SYSTEM");
+        	}
+        	UIManager.setLookAndFeel(laf);
+        }
         catch(final Throwable t) { throw new RuntimeException(t); }
     }
 

@@ -11,11 +11,9 @@ import javax.swing.JDialog;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
-
-import com.l2fprod.gui.nativeskin.NativeSkin;
-import com.l2fprod.gui.region.Region;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
 
 /**
@@ -161,8 +159,6 @@ public abstract class Window extends AbstractJDialog {
      * Make the corners round.
      */
     private void roundCorners() {
-        final NativeSkin nativeSkin = NativeSkin.getInstance();
-        Region region = nativeSkin.createRoundRectangleRegion(0,0,this.getWidth()+1,this.getHeight()+1,9,9);
-        nativeSkin.setWindowRegion(this, region, true);
+    	new NativeSkin().roundCorners(this);
     }
 }

@@ -3,7 +3,15 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
 
 import org.apache.log4j.Logger;
 
@@ -14,8 +22,6 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-
-
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
@@ -279,12 +285,11 @@ class LocalFile {
 	private File getFile(final Workspace workspace, final Document document,
 			final DocumentVersion version) {
 		// MyDocument.v1.doc
-		final String name = new StringBuffer(FileUtil.getName(document.getName()))
-			.append(Separator.Period)
-			.append("v")
-			.append(version.getVersionId())
-			.append(FileUtil.getExtension(document.getName())).toString();
-		return new File(getFileParent(workspace, version.getArtifactId()), name);
+		final String child =
+			MessageFormat.format("{0}.{1,date,yyyyMMdd-HHmmss}.{2}",
+					FileUtil.getName(document.getName()),
+					version.getCreatedOn(), FileUtil.getExtension(document.getName()));
+		return new File(getFileParent(workspace, version.getArtifactId()), child);
 	}
 
     /**

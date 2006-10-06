@@ -195,7 +195,7 @@ public class TabCellRenderer extends AbstractJPanel implements
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         nestedJPanel.add(iconJLabel, gridBagConstraints);
 
-        icon2JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconPackage.png")));
+        icon2JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;

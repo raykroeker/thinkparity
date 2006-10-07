@@ -36,9 +36,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -146,7 +146,7 @@ public class Browser extends AbstractApplication {
 	public void applySearch(final String expression) {
 	    final Data data = new Data(1);
 	    if (null != expression)
-	        data.set(TabAvatar.DataKey.SEARCH_EXPRESSION, expression);
+	        data.set(TabListAvatar.DataKey.SEARCH_EXPRESSION, expression);
         switch(getMainTitleAvatarTab()) {
         case CONTACT:
             setInput(AvatarId.TAB_CONTACT, data);
@@ -1617,8 +1617,8 @@ public class Browser extends AbstractApplication {
      * 
      * @return The container tab avatar.
      */
-    private ContainerAvatar getTabContainerAvatar() {
-        return (ContainerAvatar) getAvatar(AvatarId.TAB_CONTAINER);
+    private TabPanelAvatar getTabContainerAvatar() {
+        return (TabPanelAvatar) getAvatar(AvatarId.TAB_CONTAINER);
     }
 
     private void invoke(final ActionId actionId, final Data data) {
@@ -1749,7 +1749,7 @@ public class Browser extends AbstractApplication {
             final Boolean remote, final Boolean select) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote, select);
+//                getTabContainerAvatar().syncContainer(containerId, remote, select);
             }
         });        
     }
@@ -1768,7 +1768,7 @@ public class Browser extends AbstractApplication {
             final Boolean remote) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncDocument(documentId, remote);
+//                getTabContainerAvatar().syncDocument(documentId, remote);
             }
         });        
     }
@@ -1787,7 +1787,7 @@ public class Browser extends AbstractApplication {
             final Long documentId, final Boolean remote) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncDocument(containerId, documentId, remote);
+//                getTabContainerAvatar().syncDocument(containerId, documentId, remote);
             }
         });        
     }

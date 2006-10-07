@@ -1,9 +1,8 @@
-/**
+/*
  * Created On: 13-Jul-06 11:42:46 AM
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +14,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.FlatContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -43,32 +36,8 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /** A thinkParity container interface. */
     private final ContainerModel containerModel;
 
-    /** Reads a single container. */
-    private final SingleContentProvider containerProvider;
-
-    /** Reads a list of containers. */
-    private final FlatContentProvider containers;
-
-    /** Reads the draft modified property for a document. */
-    private final SingleContentProvider documentIsDraftModifiedProvider;
-
-    /** Reads a draft. */
-    private final SingleContentProvider draftProvider;
-
-    /** Contains containers; container versions; version documents. */
-    private final FlatContentProvider[] flatProviders;
-
-    /** A container id list provider (search). */
-    private final FlatContentProvider searchResults;
-
-    /** Containers the container; is draft modified; and draft providers. */
-    private final SingleContentProvider[] singleProviders;
-    
     /** A thinkParity user interface. */
     private final UserModel userModel;
-
-    /** Reads a list of documents. */
-    private final FlatContentProvider versionDocuments;
 
     /**
      * Create ContainerProvider.
@@ -88,103 +57,63 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         super(profile);
         this.containerModel = containerModel;
         this.userModel = userModel;
-        this.containerProvider = new SingleContentProvider(profile) {
-            public Object getElement(final Object input) {
-                final Long containerId = (Long) input;
-                return toDisplay(containerModel.read(containerId), containerModel);
-            }
-        };
-        this.containers = new FlatContentProvider(profile) {
-            public Object[] getElements(final Object input) {
-                return toDisplay(containerModel.read(), containerModel);
-            }            
-        };
-        this.documentIsDraftModifiedProvider = new SingleContentProvider(profile) {
-            @Override
-            public Object getElement(final Object input) {
-                Assert.assertNotNull("[INPUT IS NULL]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", Long.class, input);
-                return documentModel.isDraftModified((Long) input);
-            }
-        };
-        this.versionDocuments = new FlatContentProvider(profile) {
-            @Override
-            public Object[] getElements(final Object input) {
-                Assert.assertNotNull("[NULL INPUT]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerVersionCell.class, input);
-                final ContainerVersionCell typedInput = (ContainerVersionCell) input;
-                final Long containerId = typedInput.getArtifactId();
-                final Long versionId = typedInput.getVersionId();
-                return toDisplay(typedInput, containerModel.readDocuments(containerId, versionId));
-            }
-        };
-        this.draftProvider = new SingleContentProvider(profile) {
-            public Object getElement(Object input) {
-                Assert.assertNotNull("[NULL INPUT]", input);
-                Assert.assertOfType("[INPUT IS OF WRONG TYPE]", Long.class, input);
-                return containerModel.readDraft((Long) input);
-            }
-        };
-        this.searchResults = new FlatContentProvider(profile) {
-            @Override
-            public Object[] getElements(final Object input) {
-                Assert.assertNotNull("NULL INPUT", input);
-                Assert.assertOfType("INPUT IS OF WRONG TYPE", String.class, input);
-                return containerModel.search((String) input).toArray(new Long[] {});
-            }
-        };
-        this.flatProviders = new FlatContentProvider[] {
-                containers, null, versionDocuments, null, searchResults
-        };
-        this.singleProviders = new SingleContentProvider[] {containerProvider, draftProvider, documentIsDraftModifiedProvider};
+    }
+
+    @Override
+	public Object getElement(Integer index, Object input) {
+		// TODO Auto-generated method stub
+		throw Assert.createNotYetImplemented("ContainerProvider#getElement");
+	}
+
+	@Override
+	public Object[] getElements(Integer index, Object input) {
+		// TODO Auto-generated method stub
+		throw Assert.createNotYetImplemented("ContainerProvider#getElements");
+	}
+
+	/**
+	 * Read a list of containers.
+	 * 
+	 * @return A list of containers.
+	 */
+    public List<Container> read() {
+    	return containerModel.read();
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider#getElement(java.lang.Integer,
-     *      java.lang.Object)
-     * 
-     */
-    public Object getElement(final Integer index, final Object input) {
-        Assert.assertNotNull("Index cannot be null.", index);
-        Assert.assertTrue(
-                "Index must lie within [0," + (singleProviders.length - 1) + "]",
-                index >= 0 && index < singleProviders.length);
-        return singleProviders[index].getElement(input);
+	 * Read a container.
+	 * 
+	 * @param containerId
+	 *            A container id <code>Long</code>.
+	 * @return A <code>Container</code>.
+	 */
+    public Container read(final Long containerId) {
+    	return containerModel.read(containerId);
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatContentProvider#getElements(java.lang.Integer,
-     *      java.lang.Object)
-     * 
-     */
-    public Object[] getElements(final Integer index, final Object input) {
-        Assert.assertNotNull("Index cannot be null.", index);
-        Assert.assertTrue(
-                "Index must lie within [0," + (flatProviders.length - 1) + "]",
-                index >= 0 && index < flatProviders.length);
-        return flatProviders[index].getElements(input);
+	 * Read the documents.
+	 * 
+	 * @param containerId
+	 *            A container id <code>Long</code>.
+	 * @param versionId
+	 *            A container version id <code>Long</code>.
+	 * @return A <code>List&lt;Document&gt;</code>.
+	 */
+    public List<Document> readDocuments(final Long containerId,
+			final Long versionId) {
+    	return containerModel.readDocuments(containerId, versionId);
     }
 
     /**
-     * Read a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>User</code>.
-     */
-    public User readUser(final JabberId userId) {
-        return userModel.read(userId);
-    }
-    
-    /**
-     * Read a list of container versions.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>List&lt;ContainerVersion&gt;</code>.
-     */
-    public List<ContainerVersion> readVersions(final Long containerId) {
-        return containerModel.readVersions(containerId);
+	 * Read a container draft.
+	 * 
+	 * @param containerId
+	 *            A container id <code>Long</code>.
+	 * @return A <code>ContainerDraft</code>.
+	 */
+    public ContainerDraft readDraft(final Long containerId) {
+    	return containerModel.readDraft(containerId);
     }  
 
     /**
@@ -216,76 +145,35 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-     * Obtain a displayable version of a container.
+     * Read a user.
      * 
-     * @param container
-     *          The container
-     * @param ctrModel
-     *          The parity container interface.
-     *          
-     * @return The displayable container.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
      */
-    private ContainerCell toDisplay(final Container container,
-            final ContainerModel ctrModel) {
-        if (null == container) {
-            return null;
-        } else {
-            final ContainerDraft containerDraft = ctrModel.readDraft(container.getId());
-            return new ContainerCell(container, containerDraft);
-        }
+    public User readUser(final JabberId userId) {
+        return userModel.read(userId);
     }
 
     /**
-     * Create a display document for a version.
+     * Read a list of container versions.
      * 
-     * @param version
-     *            A container version cell.
-     * @param document
-     *            A document.
-     * @return A display document.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
-    private ContainerVersionDocumentCell toDisplay(
-            final ContainerVersionCell version, final Document document) {
-        final ContainerVersionDocumentCell display = new ContainerVersionDocumentCell(version, document);
-        return display;
+    public List<ContainerVersion> readVersions(final Long containerId) {
+        return containerModel.readVersions(containerId);
     }
     
     /**
-     * Create an array of display documents for a version.
-     * 
-     * @param version
-     *            A container version cell.
-     * @param versionDocuments
-     *            A list of documents.
-     * @return An array of display documents.
-     */
-    private ContainerVersionDocumentCell[] toDisplay(
-            final ContainerVersionCell version,
-            final List<Document> documents) {
-        final List<ContainerVersionDocumentCell> list =
-            new ArrayList<ContainerVersionDocumentCell>(documents.size());
-        for(final Document document : documents) {
-            list.add(toDisplay(version, document));
-        }
-        return list.toArray(new ContainerVersionDocumentCell[] {});
-    }
-
-    /**
-     * Obtain a displayable version of a list of containers.
-     * 
-     * @param containers
-     *          The containers
-     * @param ctrModel
-     *          The parity container interface.
-     *          
-     * @return The displayable containers.
-     */
-    private ContainerCell[] toDisplay(final List<Container> containers,
-            final ContainerModel ctrModel) {
-        final List<ContainerCell> display = new ArrayList<ContainerCell>();
-        for(final Container container : containers) {
-            display.add(toDisplay(container, ctrModel));
-        }
-        return display.toArray(new ContainerCell[] {});      
+	 * Search for containers.
+	 * 
+	 * @param expression
+	 *            A search expression <code>String</code>.
+	 * @return A <code>List&lt;Long&gt;</code>.
+	 */
+    public List<Long> search(final String expression) {
+    	return containerModel.search(expression);
     }
 }

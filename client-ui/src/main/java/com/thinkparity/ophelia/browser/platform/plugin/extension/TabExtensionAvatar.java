@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin.extension;
 
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
 
 /**
  * 
@@ -13,7 +13,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
  *            The tab extension model type.
  */
 public abstract class TabExtensionAvatar<TEM extends TabExtensionModel> extends
-        TabAvatar<TEM> {
+        TabListAvatar<TEM> {
 
     /** The tab extension this avatar belongs to. */
     private final TabExtension extension;

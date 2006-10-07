@@ -13,7 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -25,7 +25,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version 1.1.2.11
  */
-public class ContactAvatar extends TabAvatar<ContactModel> {
+public class ContactAvatar extends TabListAvatar<ContactModel> {
 
     /** Create a BrowserContactsAvatar. */
     public ContactAvatar() {

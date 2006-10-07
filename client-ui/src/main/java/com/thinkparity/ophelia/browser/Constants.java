@@ -56,8 +56,11 @@ public final class Constants {
             }
         }
         public static final class Swing {
-            public static final Color LIST_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color LIST_SELECTION_FG = Color.BLACK;
+            public static final Color LIST_EVEN_BG = new Color(231, 238, 248, 255);
+            public static final Color LIST_FG = Color.BLACK;
+        	public static final Color LIST_ODD_BG = Color.WHITE;
+            public static final Color LIST_SELECTION_BG = Color.BLUE;
+            public static final Color LIST_SELECTION_FG = Color.WHITE;
             public static final Color MENU_ITEM_SELECTION_BG = new Color(231, 238, 248, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
             public static final Color MENU_SELECTION_BG = new Color(231, 238, 248, 255);
@@ -99,8 +102,8 @@ public final class Constants {
     }
 
     public static final class FileExtensions {
-        public static final String PAR = ".par";
         public static final String JAR = ".jar";
+        public static final String PAR = ".par";
     }
 
     public static final class Icons {
@@ -122,44 +125,44 @@ public final class Constants {
 
     public static final class Images {
         public static final class BrowserTitle {
+            public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("BrowserBottomLeftInner.png");
+            public static final BufferedImage BROWSER_BOTTOM_LEFT_OUTER =
+                ImageIOUtil.read("BrowserBottomLeftOuter.png");
+            
+            public static final BufferedImage BROWSER_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("BrowserBottomRightInner.png");
+            public static final BufferedImage BROWSER_BOTTOM_RIGHT_OUTER =
+                ImageIOUtil.read("BrowserBottomRightOuter.png");
+            public static final BufferedImage BROWSER_TOP_LEFT_INNER =
+                ImageIOUtil.read("BrowserTopLeftInner.png");
+            public static final BufferedImage BROWSER_TOP_LEFT_OUTER =
+                ImageIOUtil.read("BrowserTopLeftOuter.png");
+            public static final BufferedImage BROWSER_TOP_RIGHT_INNER =
+                ImageIOUtil.read("BrowserTopRightInner.png");
+            public static final BufferedImage BROWSER_TOP_RIGHT_OUTER =
+                ImageIOUtil.read("BrowserTopRightOuter.png");
+            public static final BufferedImage DIALOG_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("DialogBottomLeftInner.png");
+            public static final BufferedImage DIALOG_BOTTOM_LEFT_OUTER =
+                ImageIOUtil.read("DialogBottomLeftOuter.png");
+            
+            public static final BufferedImage DIALOG_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("DialogBottomRightInner.png");
+            public static final BufferedImage DIALOG_BOTTOM_RIGHT_OUTER =
+                ImageIOUtil.read("DialogBottomRightOuter.png");
+            public static final BufferedImage DIALOG_TOP_LEFT_INNER =
+                ImageIOUtil.read("DialogTopLeftInner.png");
+            public static final BufferedImage DIALOG_TOP_LEFT_OUTER =
+                ImageIOUtil.read("DialogTopLeftOuter.png");
+            public static final BufferedImage DIALOG_TOP_RIGHT_INNER =
+                ImageIOUtil.read("DialogTopRightInner.png");
+            public static final BufferedImage DIALOG_TOP_RIGHT_OUTER =
+                ImageIOUtil.read("DialogTopRightOuter.png");
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
-            
-            public static final BufferedImage BROWSER_TOP_LEFT_OUTER =
-                ImageIOUtil.read("BrowserTopLeftOuter.png");
-            public static final BufferedImage BROWSER_TOP_LEFT_INNER =
-                ImageIOUtil.read("BrowserTopLeftInner.png");
-            public static final BufferedImage BROWSER_BOTTOM_LEFT_OUTER =
-                ImageIOUtil.read("BrowserBottomLeftOuter.png");
-            public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
-                ImageIOUtil.read("BrowserBottomLeftInner.png");
-            public static final BufferedImage BROWSER_TOP_RIGHT_OUTER =
-                ImageIOUtil.read("BrowserTopRightOuter.png");
-            public static final BufferedImage BROWSER_TOP_RIGHT_INNER =
-                ImageIOUtil.read("BrowserTopRightInner.png");
-            public static final BufferedImage BROWSER_BOTTOM_RIGHT_OUTER =
-                ImageIOUtil.read("BrowserBottomRightOuter.png");
-            public static final BufferedImage BROWSER_BOTTOM_RIGHT_INNER =
-                ImageIOUtil.read("BrowserBottomRightInner.png");
-            
-            public static final BufferedImage DIALOG_TOP_LEFT_OUTER =
-                ImageIOUtil.read("DialogTopLeftOuter.png");
-            public static final BufferedImage DIALOG_TOP_LEFT_INNER =
-                ImageIOUtil.read("DialogTopLeftInner.png");
-            public static final BufferedImage DIALOG_BOTTOM_LEFT_OUTER =
-                ImageIOUtil.read("DialogBottomLeftOuter.png");
-            public static final BufferedImage DIALOG_BOTTOM_LEFT_INNER =
-                ImageIOUtil.read("DialogBottomLeftInner.png");
-            public static final BufferedImage DIALOG_TOP_RIGHT_OUTER =
-                ImageIOUtil.read("DialogTopRightOuter.png");
-            public static final BufferedImage DIALOG_TOP_RIGHT_INNER =
-                ImageIOUtil.read("DialogTopRightInner.png");
-            public static final BufferedImage DIALOG_BOTTOM_RIGHT_OUTER =
-                ImageIOUtil.read("DialogBottomRightOuter.png");
-            public static final BufferedImage DIALOG_BOTTOM_RIGHT_INNER =
-                ImageIOUtil.read("DialogBottomRightInner.png");
         }
     }
 

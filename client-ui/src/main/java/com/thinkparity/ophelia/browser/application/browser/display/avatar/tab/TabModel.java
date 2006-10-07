@@ -174,7 +174,7 @@ public abstract class TabModel {
         if (null == input) {
             return null;
         } else {
-            return (String) ((Data) input).get(TabAvatar.DataKey.SEARCH_EXPRESSION);
+            return (String) ((Data) input).get(TabListAvatar.DataKey.SEARCH_EXPRESSION);
         }
     }
 }

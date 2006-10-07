@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;

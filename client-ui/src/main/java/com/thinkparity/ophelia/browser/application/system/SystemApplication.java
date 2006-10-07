@@ -229,11 +229,12 @@ public class SystemApplication extends AbstractApplication {
         connection = getSessionModel().isLoggedIn() ?
                 Connection.ONLINE : Connection.OFFLINE;
 
-		impl = new SystemApplicationImpl(this);
-		impl.start();
-
-		ed = new EventDispatcher(this);
-		ed.start();
+// NOCOMMIT
+//		impl = new SystemApplicationImpl(this);
+//		impl.start();
+//
+//		ed = new EventDispatcher(this);
+//		ed.start();
 
 		notifyStart();
 	}

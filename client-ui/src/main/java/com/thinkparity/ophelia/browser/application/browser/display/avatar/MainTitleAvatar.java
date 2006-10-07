@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -89,12 +90,18 @@ public class MainTitleAvatar extends Avatar {
             GradientPainter.paintVertical(g2, getSize(),
                     Browser.MainTitle.BG_GRAD_START,
                     Browser.MainTitle.BG_GRAD_FINISH);
-            // Note subtract 10 pixels from height to account for menu bar
+            
+            // Draw the logo. Subtract some pixels from height to account for menu bar.
             g2.drawImage(Images.BrowserTitle.LOGO,
                     (getWidth() - Images.BrowserTitle.LOGO.getWidth()) / 2,
-                    (getHeight() - Images.BrowserTitle.LOGO.getHeight()) / 2 - 10,
+                    (getHeight() - Images.BrowserTitle.LOGO.getHeight()) / 2 - 15,
                     Images.BrowserTitle.LOGO.getWidth(),
                     Images.BrowserTitle.LOGO.getHeight(), MainTitleAvatar.this);
+            
+            // Draw a bottom line. Not a border because we want the selected tab
+            // to draw on top of it.
+            g2.setColor(Browser.MainTitle.BOTTOM_BORDER);
+            g2.drawLine(0, getSize().height - 1, getSize().width - 1, getSize().height - 1 );
         }
         finally { g2.dispose(); }
     }

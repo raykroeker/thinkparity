@@ -40,7 +40,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     public MainTitleAvatarSearchPanel() {
         super();
         initComponents();
-        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.NO_EDGE);
+        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.RIGHT);
     }
 
     /**
@@ -104,7 +104,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 5, 7);
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 3, 4);
         add(rightJLabel, gridBagConstraints);
 
         searchJTextField.setMinimumSize(new java.awt.Dimension(11, 20));
@@ -128,7 +128,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.ipadx = 82;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 3, 0);
         add(searchJTextField, gridBagConstraints);
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
@@ -137,7 +137,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 4, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(12, 4, 3, 0);
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

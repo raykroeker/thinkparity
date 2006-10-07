@@ -3,18 +3,16 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 
 import com.thinkparity.codebase.model.profile.Profile;
@@ -39,6 +37,9 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
  * @version 1.1.2.1
  */
 public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
+    
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
     /** A resource bundle. */
     private static final ResourceBundle BUNDLE;
@@ -69,7 +70,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         this.allTabs = new HashMap<TabId, Tab>();
         this.pluginTabs = new HashMap<TabExtension, Tab>();
         initComponents();
-        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.LEFT);
+        this.resizer = new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);        
     }
 
     /**
@@ -106,7 +107,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             gridBagConstraints.gridy = 1;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
             gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
-            add(createTab(archivePlugin, archiveTab).jLabel, gridBagConstraints);
+            add(createTab(archivePlugin, archiveTab, Boolean.FALSE).jLabel, gridBagConstraints);
         }
     }
 
@@ -143,26 +144,29 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
-     * Create a plugin extension tab.
+     * Create a plugin extension tab (not leftmost).
      * 
      * @param tabExtension
      *            A tab extension.
      * @return A <code>Tab</code>.
      */
-    private Tab createTab(final Plugin plugin, final TabExtension tabExtension) {
-        final Tab tab = new Tab(tabExtension);
+    private Tab createTab(final Plugin plugin, final TabExtension tabExtension, Boolean leftmost) {
+        final Tab tab = new Tab(tabExtension, leftmost);
         pluginTabs.put(tabExtension, tab);
         return tab;
     }
+    
     /**
      * Create a tab.
      * 
      * @param tabId
      *            An enumerated tab <code>TabId</code>.
+     * @param leftmost
+     *            Indicates if this is the leftmost tab.
      * @return A <code>Tab</code>.
      */
-    private Tab createTab(final TabId tabId) {
-        allTabs.put(tabId, new Tab(tabId));
+    private Tab createTab(final TabId tabId, Boolean leftmost) {
+        allTabs.put(tabId, new Tab(tabId, leftmost));
         return allTabs.get(tabId);
     }
 
@@ -175,8 +179,8 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        containerJLabel = createTab(TabId.CONTAINER).jLabel;
-        contactJLabel = createTab(TabId.CONTACT).jLabel;
+        containerJLabel = createTab(TabId.CONTAINER, Boolean.TRUE).jLabel;
+        contactJLabel = createTab(TabId.CONTACT, Boolean.FALSE).jLabel;
 
         nameJLabel = new javax.swing.JLabel();
         fillJLabel = new javax.swing.JLabel();
@@ -184,15 +188,20 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
-        containerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_TabSelected.png")));
+        containerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_LeftmostTabSelected.png")));
+        containerJLabel.setMaximumSize(new java.awt.Dimension(76, 25));
+        containerJLabel.setMinimumSize(new java.awt.Dimension(76, 25));
+        containerJLabel.setPreferredSize(new java.awt.Dimension(76, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(containerJLabel, gridBagConstraints);
 
         contactJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
+        contactJLabel.setMaximumSize(new java.awt.Dimension(76, 25));
+        contactJLabel.setMinimumSize(new java.awt.Dimension(76, 25));
+        contactJLabel.setPreferredSize(new java.awt.Dimension(76, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -250,12 +259,32 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     private void reloadDisplayTab() {
         for (final Tab tab : pluginTabs.values()) {
-            tab.jLabel.setIcon(BrowserTitle.TAB);
+            tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE));
         }
         for (final Tab tab : allTabs.values()) {
-            tab.jLabel.setIcon(BrowserTitle.TAB);
+            tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE));
         }
-        selectedTab.jLabel.setIcon(BrowserTitle.TAB_SELECTED);
+        selectedTab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.TRUE, Boolean.FALSE));
+    }
+    
+
+    /**
+     * Get the appropriate tab icon.
+     */
+    private Icon getTabIcon(final Boolean leftmost, final Boolean selected, final Boolean rollover) {
+        final Icon icon;
+        
+        if (leftmost && selected) {
+            icon = BrowserTitle.LEFTMOST_TAB_SELECTED;  
+        } else if (selected) {
+            icon = BrowserTitle.TAB_SELECTED;
+        } else if (rollover) {
+            icon = BrowserTitle.TAB_ROLLOVER;
+        } else {
+            icon = BrowserTitle.TAB;  
+        }
+        
+        return icon;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -273,16 +302,22 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
         /** The tab text. */
         private final String jLabelText;
-
+        
+        // Flag to indicate if this is the leftmost tab.
+        private Boolean leftmost;
+        
         /**
          * Create Tab.
          * 
          * @param tabExtension
-         *            A plugin tab extension.
+         *            A plugin tab extension
+         * @param leftmost
+         *            Indicate if this tab is the leftmost tab or not.
          */
-        private Tab(final TabExtension tabExtension) {
+        private Tab(final TabExtension tabExtension, final Boolean leftmost) {
             super();
-            this.jLabel = LabelFactory.create(BrowserTitle.TAB);
+            this.leftmost = leftmost;
+            this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
             this.jLabelText = tabExtension.getText();
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
@@ -294,17 +329,19 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                 }
                 @Override
                 public void mouseEntered(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
-                        jLabel.setIcon(BrowserTitle.TAB_ROLLOVER);
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
+                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.TRUE));
+                    }
                 }
                 @Override
                 public void mouseExited(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
-                        jLabel.setIcon(BrowserTitle.TAB);
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
+                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
+                    }
                 }
             });
             final Dimension minimumSize = jLabel.getMinimumSize();
-            minimumSize.height = 20;
+            minimumSize.height = 25;
             minimumSize.width = 76;
             this.jLabel.setMinimumSize(minimumSize);
         }
@@ -314,10 +351,13 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          * 
          * @param tabId
          *            A tab id.
+         * @param leftmost
+         *            Indicate if this tab is the leftmost tab or not.
          */
-        private Tab(final TabId tabId) {
+        private Tab(final TabId tabId, final Boolean leftmost) {
             super();
-            this.jLabel = LabelFactory.create(BrowserTitle.TAB);
+            this.leftmost = leftmost;
+            this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
             this.jLabelText = BUNDLE.getString(
                     new StringBuffer("MAIN_TITLE.MainTitleAvatar$TabId.")
                             .append(tabId).toString());
@@ -330,19 +370,28 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                 }
                 @Override
                 public void mouseEntered(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
-                        jLabel.setIcon(BrowserTitle.TAB_ROLLOVER);
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
+                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.TRUE));
+                    }
                 }
                 @Override
                 public void mouseExited(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab))
-                        jLabel.setIcon(BrowserTitle.TAB);
+                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
+                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
+                    }
                 }
             });
             final Dimension minimumSize = jLabel.getMinimumSize();
-            minimumSize.height = 20;
+            minimumSize.height = 25;
             minimumSize.width = 76;
             this.jLabel.setMinimumSize(minimumSize);
+        }       
+
+        /**
+         * @return the leftmost
+         */
+        public Boolean isLeftmost() {
+            return leftmost;
         }
 
         /**
@@ -360,7 +409,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             final int textHeight = fm.getHeight();
             g2.drawString(jLabelText,
                     labelLocation.x + (labelSize.width - textWidth) / 2,
-                    labelLocation.y + (labelSize.height - textHeight) / 2 + 12);
+                    labelLocation.y + (labelSize.height - textHeight) / 2 + 13);
         }
     }
 }

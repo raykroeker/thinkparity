@@ -31,7 +31,7 @@ public final class Constants {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
                 public static final Color BG_GRAD_START = Color.WHITE;
                 public static final Color CONNECTION_FOREGROUND = new Color(255, 96, 6, 255);
-                public static final Color TOP_BORDER = new Color(92, 102, 127, 255);
+                public static final Color TOP_BORDER = new Color(130, 130, 130, 255);
             }
             public static final class MainTitle {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
@@ -39,6 +39,7 @@ public final class Constants {
                 public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
+                public static final Color BOTTOM_BORDER = new Color(167, 167, 167, 255);
             }
             public static final class MainTitleTop {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
@@ -110,6 +111,12 @@ public final class Constants {
                 ImageIOUtil.readIcon("BrowserTitle_TabRollover.png");
             public static final Icon TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
+            public static final Icon LEFTMOST_TAB =
+                ImageIOUtil.readIcon("BrowserTitle_LeftmostTab.png");
+            public static final Icon LEFTMOST_TAB_ROLLOVER =
+                ImageIOUtil.readIcon("BrowserTitle_LeftmostTabRollover.png");
+            public static final Icon LEFTMOST_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelected.png");
         }
     }
 

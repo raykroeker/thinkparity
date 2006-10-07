@@ -28,12 +28,16 @@ public class WindowBorder2 extends AbstractBorder {
 
     /** A colour stack used when modifying the graphics object. */
     private static final Stack<Color> COLOUR_STACK;
+    
+    /** The border colour. */
+    private static final Color BORDER_COLOUR;
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
     static {
-        BORDER_INSETS = new Insets(2, 2, 1, 2);
+        BORDER_INSETS = new Insets(1, 1, 1, 1);
+        BORDER_COLOUR = new Color(130, 130, 130, 255);
         COLOUR_STACK = new Stack<Color>();
     }
 
@@ -93,18 +97,12 @@ public class WindowBorder2 extends AbstractBorder {
             final int y, final int width, final int height) {
         pushColour(g);
 
-        g.setColor(new Color(109, 109, 109, 255));
-        g.drawLine(0, 0, width, 0);                         // top line 1
-        g.drawLine(1, 1, 1, height - 2);                    // left line 2
-        g.drawLine(width - 2, 1, width - 2, height - 2);    // right line 1
-
-        g.setColor(new Color(226, 226, 226, 255));
-        g.drawLine(2, 1, width - 4, 1);                     // top line 2
-
-        g.setColor(new Color(71, 71, 71, 255));
-        g.drawLine(0, 0, 0, height - 1);                    // left line 1
-        g.drawLine(width - 1, 0, width - 1, height);        // right line 2
-        g.drawLine(0, height - 1, width, height - 1);       // bottom
+        g.setColor(BORDER_COLOUR);
+        
+        g.drawLine(0, 0, width - 1, 0);                     // top line
+        g.drawLine(0, 0, 0, height - 1);                    // left line
+        g.drawLine(width - 1, 0, width - 1, height - 1);    // right line
+        g.drawLine(0, height - 1, width - 1, height - 1);   // bottom line
         
         // These images put borders on rounded corners.
         g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_OUTER,

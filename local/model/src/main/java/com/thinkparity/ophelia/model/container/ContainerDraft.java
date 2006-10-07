@@ -97,6 +97,15 @@ public class ContainerDraft {
     }
 
     /**
+     * Obtain the document count for the draft.
+     *
+     * @return A document count <code>Integer</code>.
+     */
+    public Integer getDocumentCount() {
+       return getDocuments().size(); 
+    }
+
+    /**
      * Obtain the id
      *
      * @return The Long.

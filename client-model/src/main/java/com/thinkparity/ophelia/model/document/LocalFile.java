@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StreamUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -288,7 +287,8 @@ class LocalFile {
 		final String child =
 			MessageFormat.format("{0}.{1,date,yyyyMMdd-HHmmss}.{2}",
 					FileUtil.getName(document.getName()),
-					version.getCreatedOn(), FileUtil.getExtension(document.getName()));
+					version.getCreatedOn().getTime(),
+					FileUtil.getExtension(document.getName()));
 		return new File(getFileParent(workspace, version.getArtifactId()), child);
 	}
 

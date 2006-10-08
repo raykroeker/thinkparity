@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Component;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,12 +17,10 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 
 /**
  * @author raymond@thinkparity.com
@@ -173,16 +170,16 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         versionsJList.setCellRenderer(new VersionCellRenderer());
         versionsJList.setVisibleRowCount(5);
         versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsJListMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsJListMouseReleased(evt);
             }
         });
         versionsJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
-                versionsJListMouseWheelMoved(e);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                versionsJListMouseWheelMoved(evt);
             }
         });
 
@@ -193,16 +190,16 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseReleased(evt);
             }
         });
         versionsContentJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
-                versionsContentJListMouseWheelMoved(e);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                versionsContentJListMouseWheelMoved(evt);
             }
         });
 
@@ -214,15 +211,15 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 326, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(versionsContentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE)
+                .add(versionsContentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .add(versionsContentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

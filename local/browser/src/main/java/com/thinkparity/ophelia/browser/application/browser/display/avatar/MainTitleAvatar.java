@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 import com.thinkparity.codebase.assertion.Assert;

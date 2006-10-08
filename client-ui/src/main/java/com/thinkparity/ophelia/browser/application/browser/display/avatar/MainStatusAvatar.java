@@ -3,12 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Insets;
-import java.util.Stack;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.GradientPainter;

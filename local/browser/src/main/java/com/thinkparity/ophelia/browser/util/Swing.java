@@ -10,10 +10,11 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 
@@ -50,7 +51,7 @@ public class Swing {
         		laf = new WindowsLookAndFeel();
         		break;
         	case LINUX:
-        		laf = new GTKLookAndFeel();
+        		laf = new MotifLookAndFeel();
         		break;
     		default:
     			throw Assert.createUnreachable("UNSUPPORTED OPERATING SYSTEM");

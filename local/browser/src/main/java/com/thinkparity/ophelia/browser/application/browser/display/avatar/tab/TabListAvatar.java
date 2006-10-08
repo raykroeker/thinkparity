@@ -257,14 +257,13 @@ public abstract class TabListAvatar<T extends TabModel> extends TabAvatar<T> {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         headerJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                headerJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                headerJLabelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                headerJLabelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                headerJLabelMouseReleased(evt);
             }
         });
 
@@ -274,24 +273,24 @@ public abstract class TabListAvatar<T extends TabModel> extends TabAvatar<T> {
         tabJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabJList.setCellRenderer(new TabCellRenderer());
         tabJList.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent e) {
-                tabJListKeyPressed(e);
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tabJListKeyPressed(evt);
             }
         });
         tabJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                tabJListValueChanged(e);
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                tabJListValueChanged(evt);
             }
         });
         tabJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                tabJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                tabJListMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tabJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                tabJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tabJListMouseReleased(evt);
             }
         });
 
@@ -301,21 +300,15 @@ public abstract class TabListAvatar<T extends TabModel> extends TabAvatar<T> {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE))
-                .addContainerGap())
+            .add(headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+            .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(headerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     

@@ -72,7 +72,7 @@ public class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         tabJScrollPane.setBorder(null);
         tabJPanel.setLayout(new java.awt.GridBagLayout());
 
-        tabJPanel.setOpaque(false);
+        tabJPanel.setBackground(new java.awt.Color(255, 255, 255));
         tabJPanel.add(fillJLabel, new java.awt.GridBagConstraints());
 
         tabJScrollPane.setViewportView(tabJPanel);
@@ -81,21 +81,15 @@ public class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
-                    .add(headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE))
-                .addContainerGap())
+            .add(headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+            .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(headerJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

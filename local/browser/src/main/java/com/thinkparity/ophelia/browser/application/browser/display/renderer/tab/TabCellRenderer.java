@@ -3,7 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JList;
@@ -82,11 +87,19 @@ public class TabCellRenderer extends AbstractJPanel implements
         nestedJPanel.add(westPaddingJLabel, gridBagConstraints);
 
         if (isSelected) {
-            nestedJPanel.setBackground(Colors.Swing.LIST_SELECTION_BG);
             iconJLabel.setIcon(cell.getNodeIconSelected());
+            nestedJPanel.setBackground(Colors.Swing.LIST_SELECTION_BG);
+            eastTextJLabel.setForeground(Colors.Swing.LIST_SELECTION_FG);
+            westTextJLabel.setForeground(Colors.Swing.LIST_SELECTION_FG);
         } else {
-            nestedJPanel.setBackground(Color.WHITE);
             iconJLabel.setIcon(cell.getNodeIcon());
+            eastTextJLabel.setForeground(Colors.Swing.LIST_FG);
+            westTextJLabel.setForeground(Colors.Swing.LIST_FG);
+            if (0 == index % 2) {
+                nestedJPanel.setBackground(Colors.Swing.LIST_EVEN_BG);
+            } else {
+                nestedJPanel.setBackground(Colors.Swing.LIST_ODD_BG);
+            }
         }
         icon2JLabel.setIcon(cell.getSecondNodeIcon());
         final Boolean lastCell = (index == list.getModel().getSize()-1);
@@ -103,12 +116,10 @@ public class TabCellRenderer extends AbstractJPanel implements
         westSize = widthToUse - eastSize - inset;
 
         westTextJLabel.setFont(cell.getTextFont(TextGroup.WEST));
-        westTextJLabel.setForeground(cell.getTextForeground(TextGroup.WEST));
         westTextJLabel.setText(cell.getText(TextGroup.WEST));
         westTextJLabel.setPreferredSize(new Dimension(westSize,14));  
         
         eastTextJLabel.setFont(cell.getTextFont(TextGroup.EAST));
-        eastTextJLabel.setForeground(cell.getTextForeground(TextGroup.EAST));
         eastTextJLabel.setText(cell.getText(TextGroup.EAST));
         // These two lines make the east text left justified.
         eastTextJLabel.setPreferredSize(new Dimension(eastSize, 14));

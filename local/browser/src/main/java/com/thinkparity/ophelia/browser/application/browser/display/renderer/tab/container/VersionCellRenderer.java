@@ -1,9 +1,6 @@
 /*
- * VersionCellRenderer.java
- *
- * Created on October 7, 2006, 1:34 PM
+ * Created On: October 7, 2006, 1:34 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Component;
@@ -18,13 +15,13 @@ import com.thinkparity.ophelia.browser.Constants.Colors.Swing;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.VersionCell;
 
 /**
- *
- * @author  raymond
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class VersionCellRenderer extends AbstractJPanel implements ListCellRenderer {
+final class VersionCellRenderer extends AbstractJPanel implements ListCellRenderer {
     
     /** Creates new form VersionCellRenderer */
-    public VersionCellRenderer() {
+    VersionCellRenderer() {
         initComponents();
     }
 

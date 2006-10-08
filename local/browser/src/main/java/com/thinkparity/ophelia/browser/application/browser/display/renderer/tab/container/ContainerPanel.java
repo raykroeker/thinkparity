@@ -76,8 +76,8 @@ public class ContainerPanel extends DefaultTabPanel {
 
         setOpaque(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                formMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
             }
         });
 

@@ -26,9 +26,11 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 
 /**
@@ -55,7 +57,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private final Map<TabId, Tab> allTabs;
 
     /** A list of all plugin tabs. */
-    private final Map<TabExtension, Tab> pluginTabs;
+    private final Map<PluginExtension, Tab> pluginTabs;
 
     /** A thinkParity user's profile. */
     private Profile profile;
@@ -71,7 +73,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     public MainTitleAvatarTabPanel() {
         super();
         this.allTabs = new HashMap<TabId, Tab>();
-        this.pluginTabs = new HashMap<TabExtension, Tab>();
+        this.pluginTabs = new HashMap<PluginExtension, Tab>();
         initComponents();
         this.resizer = new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);        
     }
@@ -103,8 +105,8 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     void initPluginTabs(final PluginRegistry pluginRegistry) {
         final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
         if (null != archivePlugin) {
-            final TabExtension archiveTab =
-                pluginRegistry.getTabExtension(PluginId.ARCHIVE, "ArchiveTab");
+            final TabPanelExtension archiveTab =
+                pluginRegistry.getTabPanelExtension(PluginId.ARCHIVE, "ArchiveTab");
             final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 1;
@@ -120,8 +122,19 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      * @param tabExtension
      *            A tab extension.
      */
-    void selectTab(final TabExtension tabExtension) {
-        this.selectedTab = pluginTabs.get(tabExtension);
+    void selectTab(final TabListExtension tabListExtension) {
+        this.selectedTab = pluginTabs.get(tabListExtension);
+        reloadDisplay();
+    }
+
+    /**
+     * Select a tab.
+     * 
+     * @param tabExtension
+     *            A tab extension.
+     */
+    void selectTab(final TabPanelExtension tabPanelExtension) {
+        this.selectedTab = pluginTabs.get(tabPanelExtension);
         reloadDisplay();
     }
 
@@ -153,9 +166,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      *            A tab extension.
      * @return A <code>Tab</code>.
      */
-    private Tab createTab(final Plugin plugin, final TabExtension tabExtension, Boolean leftmost) {
-        final Tab tab = new Tab(tabExtension, leftmost);
-        pluginTabs.put(tabExtension, tab);
+    private Tab createTab(final Plugin plugin, final TabPanelExtension tabPanelExtension, Boolean leftmost) {
+        final Tab tab = new Tab(tabPanelExtension, leftmost);
+        pluginTabs.put(tabPanelExtension, tab);
         return tab;
     }
     
@@ -317,17 +330,17 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          * @param leftmost
          *            Indicate if this tab is the leftmost tab or not.
          */
-        private Tab(final TabExtension tabExtension, final Boolean leftmost) {
+        private Tab(final TabPanelExtension tabPanelExtension, final Boolean leftmost) {
             super();
             this.leftmost = leftmost;
             this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
-            this.jLabelText = tabExtension.getText();
+            this.jLabelText = tabPanelExtension.getText();
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(final MouseEvent e) {
                     final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
                     data.unset(MainTitleAvatar.DataKey.TAB_ID);
-                    data.set(MainTitleAvatar.DataKey.TAB_EXTENSION, tabExtension);
+                    data.set(MainTitleAvatar.DataKey.TAB_PANEL_EXTENSION, tabPanelExtension);
                     mainTitleAvatar.setInput(data);
                 }
                 @Override

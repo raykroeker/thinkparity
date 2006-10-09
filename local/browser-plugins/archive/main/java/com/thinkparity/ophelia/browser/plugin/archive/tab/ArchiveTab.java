@@ -7,7 +7,8 @@ import java.util.UUID;
 
 import com.thinkparity.ophelia.browser.platform.plugin.PluginModelFactory;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginServices;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
+
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 
 /**
@@ -19,7 +20,7 @@ import com.thinkparity.ophelia.model.archive.ArchiveModel;
  * @version 1.1.2.1
  */
 public final class ArchiveTab extends
-        TabExtension<ArchiveTabAvatar, ArchiveTabModel, ArchiveTabProvider> {
+        TabPanelExtension<ArchiveTabAvatar, ArchiveTabModel, ArchiveTabProvider> {
 
     /** The extension's localization base name. */
     private static final String LOCALIZATION_BASE_NAME;

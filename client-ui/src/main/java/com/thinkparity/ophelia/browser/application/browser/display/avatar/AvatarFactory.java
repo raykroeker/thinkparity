@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
@@ -20,7 +21,9 @@ import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -54,8 +57,19 @@ public class AvatarFactory {
      *            A <code>TabExtension</code>.
      * @return An <code>Avatar</code>.
      */
-    public static Avatar create(final TabExtension tabExtension) {
-        return SINGLETON.doCreate(tabExtension);
+    public static Avatar create(final TabListExtension tabListExtension) {
+        return SINGLETON.doCreate(tabListExtension);
+    }
+
+    /**
+     * Create an avatar.
+     * 
+     * @param tabExtension
+     *            A <code>TabExtension</code>.
+     * @return An <code>Avatar</code>.
+     */
+    public static Avatar create(final TabPanelExtension tabPanelExtension) {
+        return SINGLETON.doCreate(tabPanelExtension);
     }
 
 	/** The avatar registry. */
@@ -148,10 +162,24 @@ public class AvatarFactory {
      *            A <code>TabExtension</code>.
      * @return An <code>Avatar</code>.
      */
-    private Avatar doCreate(final TabExtension tabExtension) {
-        final Avatar avatar = tabExtension.createAvatar();
-        avatar.setContentProvider(tabExtension.getProvider());
-        register(avatar, tabExtension);
+    private Avatar doCreate(final TabListExtension tabListExtension) {
+        final Avatar avatar = tabListExtension.createAvatar();
+        avatar.setContentProvider(tabListExtension.getProvider());
+        register(avatar, tabListExtension);
+        return avatar;
+    }
+
+    /**
+     * Create an avatar.
+     * 
+     * @param tabExtension
+     *            A <code>TabExtension</code>.
+     * @return An <code>Avatar</code>.
+     */
+    private Avatar doCreate(final TabPanelExtension tabPanelExtension) {
+        final Avatar avatar = tabPanelExtension.createAvatar();
+        avatar.setContentProvider(tabPanelExtension.getProvider());
+        register(avatar, tabPanelExtension);
         return avatar;
     }
 
@@ -175,9 +203,9 @@ public class AvatarFactory {
      * @param tabExtension
      *            The <code>TabExtension</code> the avatar belongs to.
      */
-    private void register(final Avatar avatar, final TabExtension tabExtension) {
-        Assert.assertNotTrue(avatarRegistry.contains(tabExtension),
-                "Avatar for tab extension {0} already registered.", tabExtension);
-        avatarRegistry.put(tabExtension, avatar);
+    private void register(final Avatar avatar, final PluginExtension extension) {
+        Assert.assertNotTrue(avatarRegistry.contains(extension),
+                "Avatar for tab extension {0} already registered.", extension);
+        avatarRegistry.put(extension, avatar);
     }
 }

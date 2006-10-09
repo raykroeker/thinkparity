@@ -15,7 +15,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resize
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 
@@ -40,29 +41,13 @@ public class MainTitleAvatar extends Avatar {
      */
     @Override
     public AvatarId getId() { return AvatarId.MAIN_TITLE; }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
      */
     @Override
     public State getState() { return null; }
     
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
-     */
-    @Override
-    protected ResizeEdges getResizeEdges() {
-        return Resizer.ResizeEdges.MIDDLE;
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getPluginRegistry()
-     */
-    @Override
-    protected PluginRegistry getPluginRegistry() {
-        return super.getPluginRegistry();
-    }
-
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
@@ -77,6 +62,22 @@ public class MainTitleAvatar extends Avatar {
      */
     @Override
     public void setState(final State state) {}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getPluginRegistry()
+     */
+    @Override
+    protected PluginRegistry getPluginRegistry() {
+        return super.getPluginRegistry();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     */
+    @Override
+    protected ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.MIDDLE;
+    }
 
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
@@ -119,19 +120,6 @@ public class MainTitleAvatar extends Avatar {
     }
 
     /**
-     * Obtain the input tab extension.
-     * 
-     * @return The input tab extension.
-     */
-    private TabExtension getInputTabExtension() {
-        if (null == input) {
-            return null;
-        } else {
-            return (TabExtension) ((Data) input).get(DataKey.TAB_EXTENSION);
-        }
-    }
-
-    /**
      * Obtain the input tab.
      * 
      * @return The input tab.
@@ -141,6 +129,32 @@ public class MainTitleAvatar extends Avatar {
             return null;
         } else {
             return (TabId) ((Data) input).get(DataKey.TAB_ID);
+        }
+    }
+
+    /**
+     * Obtain the input tab list extension.
+     * 
+     * @return The input tab list extension.
+     */
+    private TabListExtension getInputTabListExtension() {
+        if (null == input) {
+            return null;
+        } else {
+            return (TabListExtension) ((Data) input).get(DataKey.TAB_LIST_EXTENSION);
+        }
+    }
+
+    /**
+     * Obtain the input tab extension.
+     * 
+     * @return The input tab extension.
+     */
+    private TabPanelExtension getInputTabPanelExtension() {
+        if (null == input) {
+            return null;
+        } else {
+            return (TabPanelExtension) ((Data) input).get(DataKey.TAB_PANEL_EXTENSION);
         }
     }
 
@@ -207,10 +221,15 @@ public class MainTitleAvatar extends Avatar {
                 Assert.assertUnreachable("UNKNOWN TAB");
             }
         } else {
-            final TabExtension tabExtension = getInputTabExtension();
-            if (null != tabExtension) {
-                tabPanel.selectTab(tabExtension);
-                getController().displayTabExtension(tabExtension);
+            final TabListExtension tabListExtension = getInputTabListExtension();
+            if (null != tabListExtension) {
+                tabPanel.selectTab(tabListExtension);
+                getController().displayTabExtension(tabListExtension);
+            }
+            final TabPanelExtension tabPanelExtension = getInputTabPanelExtension();
+            if (null != tabPanelExtension) {
+                tabPanel.selectTab(tabPanelExtension);
+                getController().displayTabExtension(tabPanelExtension);
             }
         }
     }
@@ -219,7 +238,7 @@ public class MainTitleAvatar extends Avatar {
     private com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatarTabPanel tabPanel;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { PROFILE, TAB_ID, TAB_EXTENSION }
+    public enum DataKey { PROFILE, TAB_ID, TAB_LIST_EXTENSION, TAB_PANEL_EXTENSION }
 
     public enum TabId { CONTACT, CONTAINER }
 }

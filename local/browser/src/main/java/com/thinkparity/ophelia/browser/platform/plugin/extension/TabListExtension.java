@@ -10,15 +10,15 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginAbstractExtension;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class TabExtension<TEA extends TabExtensionAvatar<TEM>,
-        TEM extends TabExtensionModel, ECP extends TabExtensionModelContentProvider>
+public abstract class TabListExtension<TLEA extends TabListExtensionAvatar<TLEM>,
+        TLEM extends TabListExtensionModel, ECP extends TabExtensionModelContentProvider>
         extends PluginAbstractExtension {
 
     /**
      * Create TabExtension.
      * 
      */
-    protected TabExtension() {
+    protected TabListExtension() {
         super();
     }
 
@@ -27,7 +27,7 @@ public abstract class TabExtension<TEA extends TabExtensionAvatar<TEM>,
      * 
      * @return A tab avatar.
      */
-    public abstract TEA createAvatar();
+    public abstract TLEA createAvatar();
 
     /**
      * Obtain the tab avatar's content provider.

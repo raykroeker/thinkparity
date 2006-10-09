@@ -20,14 +20,15 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell.TextGroup;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.IncomingInvitationCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.DefaultInvitationCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.IncomingInvitationCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.OutgoingInvitationCell;
+
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
@@ -35,7 +36,7 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
  * @author rob_masako@shaw.ca; raymond@thinkparity.com
  * @version $Revision$
  */
-public class ContactModel extends TabModel {
+public class ContactModel extends TabListModel {
 
     /** An apache logger. */
     protected final Logger logger;

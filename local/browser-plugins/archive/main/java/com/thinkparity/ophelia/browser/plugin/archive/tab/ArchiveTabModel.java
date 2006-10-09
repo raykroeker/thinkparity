@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,14 +16,14 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtensionModel;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class ArchiveTabModel extends TabExtensionModel<ArchiveTabProvider> {
+final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
 
     /** A list of the archived containers. */
     private final List<ArchiveArtifactCell> containerCells;
@@ -43,7 +41,7 @@ final class ArchiveTabModel extends TabExtensionModel<ArchiveTabProvider> {
     private final List<ArchiveCell> visibleCells;
 
     /** Create ArchiveTabModel. */
-    ArchiveTabModel(final TabExtension extension) {
+    ArchiveTabModel(final TabPanelExtension extension) {
         super(extension);
         this.containerCells = new ArrayList<ArchiveArtifactCell>();
         this.containerVersionCells = new HashMap<ArchiveCell, List<ArchiveArtifactVersionCell>>();
@@ -149,24 +147,6 @@ final class ArchiveTabModel extends TabExtensionModel<ArchiveTabProvider> {
             }
         }
         debug();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
-     */
-    @Override
-    protected void triggerExpand(final TabCell tabCell) {
-        tabCell.setExpanded(!tabCell.isExpanded());
-        synchronize();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerPopup(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell, java.awt.Component, java.awt.event.MouseEvent)
-     */
-    @Override
-    protected void triggerPopup(final TabCell tabCell, final Component invoker,
-            final MouseEvent e) {
-        tabCell.triggerPopup(getExtension().getConnection(), invoker, e);
     }
 
     void synchronizeContainer(final UUID uniqueId) {

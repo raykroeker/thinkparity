@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin.extension;
 
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -11,17 +11,17 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
  * @param <TEMCP>
  *            The extension content provider type.
  */
-public abstract class TabExtensionModel<TEMCP extends TabExtensionModelContentProvider>
-        extends TabModel {
+public abstract class TabListExtensionModel<TEMCP extends TabExtensionModelContentProvider>
+        extends TabListModel {
 
     /** The <code>TabExtension</code>. */
-    private final TabExtension extension;
+    private final TabListExtension extension;
 
     /**
      * Create ExtensionTabModel.
      * 
      */
-    protected TabExtensionModel(final TabExtension extension) {
+    protected TabListExtensionModel(final TabListExtension extension) {
         super();
         this.extension = extension;
     }
@@ -31,7 +31,7 @@ public abstract class TabExtensionModel<TEMCP extends TabExtensionModelContentPr
      *
      * @return The TabExtension.
      */
-    protected TabExtension getExtension() {
+    protected TabListExtension getExtension() {
         return extension;
     }
 }

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,19 +22,23 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerVersionsPanel extends DefaultTabPanel {
+public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     /** The <code>Container</code>. */
     private Container container;
 
     /** The version's <code>Document</code>s. */
     private final Map<ContainerVersion, List<Document>> documents;
+
+    /** The <code>ContainerModel</code>. */
+    private final ContainerModel model;
 
     /** The version's published by <code>User</code>. */
     private final Map<ContainerVersion, User> publishedBy;
@@ -48,9 +54,6 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
 
     /** The version's list model. */
     private final DefaultListModel versionsModel;
-
-    /** The <code>ContainerModel</code>. */
-    private final ContainerModel model;
 
     /**
      * Create ContainerVersionsPanel
@@ -147,6 +150,21 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerPopup(java.awt.Component,
+     *      java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void triggerPopup(final Component invoker, final MouseEvent e) {
+        new ContainerPopup(model, container).show(invoker, e);
+    }
+
+    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
+    }//GEN-LAST:event_formMouseClicked
+
+    private void formMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseReleased
+    }//GEN-LAST:event_formMouseReleased
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -165,21 +183,30 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList = new javax.swing.JList();
 
         setOpaque(false);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                formMouseClicked(e);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                formMouseReleased(e);
+            }
+        });
+
         versionsJScrollPane.setBorder(null);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
         versionsJList.setVisibleRowCount(5);
         versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                versionsJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                versionsJListMouseClicked(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                versionsJListMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                versionsJListMouseReleased(e);
             }
         });
         versionsJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
-                versionsJListMouseWheelMoved(evt);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+                versionsJListMouseWheelMoved(e);
             }
         });
 
@@ -190,16 +217,16 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                versionsContentJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                versionsContentJListMouseClicked(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                versionsContentJListMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                versionsContentJListMouseReleased(e);
             }
         });
         versionsContentJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
-                versionsContentJListMouseWheelMoved(evt);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+                versionsContentJListMouseWheelMoved(e);
             }
         });
 
@@ -223,26 +250,26 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void versionsContentJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsContentJListMouseWheelMoved
-    }//GEN-LAST:event_versionsContentJListMouseWheelMoved
-
-    private void versionsJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsJListMouseWheelMoved
-    }//GEN-LAST:event_versionsJListMouseWheelMoved
-
-    private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
-    }//GEN-LAST:event_versionsJListMouseReleased
+    private void versionsContentJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
+    }//GEN-LAST:event_versionsContentJListMouseClicked
 
     private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
     }//GEN-LAST:event_versionsContentJListMouseReleased
 
-    private void versionsContentJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
-    }//GEN-LAST:event_versionsContentJListMouseClicked
+    private void versionsContentJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsContentJListMouseWheelMoved
+    }//GEN-LAST:event_versionsContentJListMouseWheelMoved
 
     private void versionsJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
     }//GEN-LAST:event_versionsJListMouseClicked
+
+    private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
+    }//GEN-LAST:event_versionsJListMouseReleased
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+
+    private void versionsJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsJListMouseWheelMoved
+    }//GEN-LAST:event_versionsJListMouseWheelMoved
 
     /** The version list cell wrapper. */
     class VersionCell {

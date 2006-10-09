@@ -3,14 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
@@ -133,37 +129,6 @@ public abstract class TabModel {
      *
      */
     protected abstract void synchronize();
-
-    /**
-     * Trigger a double click on a tab cell.
-     * 
-     * @param tabCell
-     *            A <code>TabCell</code>.
-     */
-    protected void triggerDoubleClick(final TabCell tabCell) {}
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#triggerExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell)
-     */
-    protected void triggerExpand(final TabCell tabCell) {
-        if (tabCell.isChildren()) {
-            tabCell.setExpanded(!tabCell.isExpanded());         
-            synchronize();
-        }
-    }
-
-    /**
-     * Trigger a popup menu for a tab cell.
-     * 
-     * @param tabCell
-     *            A <code>TabCell</code>.
-     * @param invoker
-     *            The <code>Component</code> invoking the popup.
-     * @param e
-     *          The <code>MouseEvent</code>.
-     */
-    protected void triggerPopup(final TabCell tabCell, final Component invoker,
-            final MouseEvent e) {}
 
     /**
      * Obtain the input search expression.

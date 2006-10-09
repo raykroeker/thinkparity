@@ -36,7 +36,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
@@ -73,10 +72,12 @@ import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.Window;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
@@ -356,9 +357,14 @@ public class Browser extends AbstractApplication {
         displayTab(AvatarId.TAB_CONTAINER);
     }
 
-    /** Display a tab extension. */
-    public void displayTabExtension(final TabExtension tabExtension) {
-        displayTab(tabExtension);
+    /** Display a tab list extension. */
+    public void displayTabExtension(final TabListExtension tabListExtension) {
+        displayTab(tabListExtension);
+    }
+
+    /** Display a tab panel extension. */
+    public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
+        displayTab(tabPanelExtension);
     }
 
     /**
@@ -1392,8 +1398,16 @@ public class Browser extends AbstractApplication {
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
      */
     @Override
-    protected Avatar getAvatar(final TabExtension tabExtension) {
-        return super.getAvatar(tabExtension);
+    protected Avatar getAvatar(final TabListExtension tabListExtension) {
+        return super.getAvatar(tabListExtension);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
+     */
+    @Override
+    protected Avatar getAvatar(final TabPanelExtension tabPanelExtension) {
+        return super.getAvatar(tabPanelExtension);
     }
 
     /** Display the main status avatar. */
@@ -1511,11 +1525,21 @@ public class Browser extends AbstractApplication {
     /**
      * Display a tab.
      * 
-     * @param tabExtension
-     *            A tab extension.
+     * @param tabListExtension
+     *            A tab list extension.
      */
-    private void displayTab(final TabExtension tabExtension) {
-        displayHelper.displayTab(tabExtension);
+    private void displayTab(final TabListExtension tabListExtension) {
+        displayHelper.displayTab(tabListExtension);
+    }
+
+    /**
+     * Display a tab.
+     * 
+     * @param tabExtension
+     *            A tab panel extension.
+     */
+    private void displayTab(final TabPanelExtension tabPanelExtension) {
+        displayHelper.displayTab(tabPanelExtension);
     }
 
     /**
@@ -1610,15 +1634,6 @@ public class Browser extends AbstractApplication {
      */
     private ContactAvatar getTabContactAvatar() {
         return (ContactAvatar) getAvatar(AvatarId.TAB_CONTACT);
-    }
-    
-    /**
-     * Get the container tab avatar.
-     * 
-     * @return The container tab avatar.
-     */
-    private TabPanelAvatar getTabContainerAvatar() {
-        return (TabPanelAvatar) getAvatar(AvatarId.TAB_CONTAINER);
     }
 
     private void invoke(final ActionId actionId, final Data data) {

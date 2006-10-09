@@ -13,6 +13,7 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -24,7 +25,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class TabListAvatar<T extends TabModel> extends TabAvatar<T> {
+public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T> {
 
     /** Variables used to modify behavior of selection. */
     private Integer selectedIndex = -1;

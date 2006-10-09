@@ -3,16 +3,21 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+
 import com.thinkparity.codebase.model.container.Container;
+
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerPanel extends DefaultTabPanel {
+public final class ContainerPanel extends DefaultTabPanel {
 
     /** A <code>Container</code>. */
     private Container container;
@@ -28,6 +33,7 @@ public class ContainerPanel extends DefaultTabPanel {
         super();
         this.model = model;
         initComponents();
+        installMouseOverTracker();
     }
 
     /**
@@ -38,8 +44,7 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     public Object getId() {
         return new StringBuffer(getClass().getName()).append("//")
-                .append(container.getId())
-                .toString();
+            .append(container.getId()).toString();
     }
 
     /**
@@ -64,6 +69,25 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerSingleClick(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void triggerSingleClick(final MouseEvent e) {
+        model.triggerExpand(this);
+    }
+
+    /**
+     * Show the popup menu for the container.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    @Override
+    protected void triggerPopup(final Component invoker, final MouseEvent e) {
+        new ContainerPopup(model, container).show(invoker, e);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -75,12 +99,6 @@ public class ContainerPanel extends DefaultTabPanel {
         draftOwnerJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                formMouseClicked(evt);
-            }
-        });
-
         containerNameJLabel.setText("!Package!");
 
         draftOwnerJLabel.setText("!Draft Owner!");
@@ -107,9 +125,20 @@ public class ContainerPanel extends DefaultTabPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
-        model.triggerClick(e);
-    }//GEN-LAST:event_formMouseClicked
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setMouseOver(java.lang.Boolean)
+     */
+    @Override
+    public void setMouseOver(final Boolean mouseOver) {
+        if (mouseOver) {
+            containerNameJLabel.setText(new StringBuffer("<html><u>")
+                .append(container.getName()).append("</u></html>").toString());
+        } else {
+            containerNameJLabel.setText(new StringBuffer("<html>")
+                .append(container.getName()).append("</html>").toString());
+        }
+        repaint();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel containerNameJLabel;

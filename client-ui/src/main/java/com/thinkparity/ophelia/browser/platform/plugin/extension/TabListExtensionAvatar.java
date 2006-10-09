@@ -12,11 +12,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
  * @param <TEM>
  *            The tab extension model type.
  */
-public abstract class TabExtensionAvatar<TEM extends TabExtensionModel> extends
-        TabListAvatar<TEM> {
+public abstract class TabListExtensionAvatar<TLEM extends TabListExtensionModel> extends
+        TabListAvatar<TLEM> {
 
     /** The tab extension this avatar belongs to. */
-    private final TabExtension extension;
+    private final TabListExtension extension;
 
     /**
      * Create ExtensionTabAvatar.
@@ -24,7 +24,8 @@ public abstract class TabExtensionAvatar<TEM extends TabExtensionModel> extends
      * @param model
      *            The tab extension model.
      */
-    protected TabExtensionAvatar(final TabExtension extension, final TEM model) {
+    protected TabListExtensionAvatar(final TabListExtension extension,
+            final TLEM model) {
         super(null, model);
         this.extension = extension;
     }
@@ -34,7 +35,7 @@ public abstract class TabExtensionAvatar<TEM extends TabExtensionModel> extends
      *
      * @return The TabExtension.
      */
-    protected TabExtension getExtension() {
+    protected TabListExtension getExtension() {
         return extension;
     }
 }

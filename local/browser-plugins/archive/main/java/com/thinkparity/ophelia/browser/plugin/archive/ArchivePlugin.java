@@ -88,7 +88,6 @@ public final class ArchivePlugin implements Plugin {
      * @return An archive tab.
      */
     private ArchiveTab getArchiveTab() {
-        return (ArchiveTab) new PluginRegistry().getTabExtension(PluginId.ARCHIVE, "ArchiveTab");
+        return (ArchiveTab) new PluginRegistry().getTabPanelExtension(PluginId.ARCHIVE, "ArchiveTab");
     }
-
 }

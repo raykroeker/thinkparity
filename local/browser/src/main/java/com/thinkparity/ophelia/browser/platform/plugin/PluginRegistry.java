@@ -12,7 +12,8 @@ import java.util.Map;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
  * <b>Title:</b>thinkParity Browser Platform Plugin Registry<br>
@@ -81,10 +82,19 @@ public class PluginRegistry {
         return Collections.unmodifiableList(plugins);
     }
 
-    public TabExtension getTabExtension(final PluginId id, final String name) {
+    public TabListExtension getTabListExtension(final PluginId id, final String name) {
         if (PLUGINS.containsKey(toId(id))) {
             final PluginWrapper wrapper = PLUGINS.get(toId(id));
-            return (TabExtension) wrapper.getExtension(name);
+            return (TabListExtension) wrapper.getExtension(name);
+        } else {
+            return null;
+        }
+    }
+
+    public TabPanelExtension getTabPanelExtension(final PluginId id, final String name) {
+        if (PLUGINS.containsKey(toId(id))) {
+            final PluginWrapper wrapper = PLUGINS.get(toId(id));
+            return (TabPanelExtension) wrapper.getExtension(name);
         } else {
             return null;
         }

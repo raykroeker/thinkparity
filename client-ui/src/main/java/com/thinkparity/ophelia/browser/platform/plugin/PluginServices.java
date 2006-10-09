@@ -15,7 +15,9 @@ import com.thinkparity.codebase.log4j.Log4JHelper;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
+
 import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
@@ -196,8 +198,19 @@ public final class PluginServices {
      *            An extension name.
      * @return A <code>TabExtension</code>.
      */
-    TabExtension getTabExtension(final String name) {
-        return (TabExtension) wrapper.getExtension(name);
+    TabListExtension getTabListExtension(final String name) {
+        return (TabListExtension) wrapper.getExtension(name);
+    }
+
+    /**
+     * Obtain a tab extension for the plugin with the given name.
+     * 
+     * @param name
+     *            An extension name.
+     * @return A <code>TabExtension</code>.
+     */
+    TabPanelExtension getTabPanelExtension(final String name) {
+        return (TabPanelExtension) wrapper.getExtension(name);
     }
 
     /**

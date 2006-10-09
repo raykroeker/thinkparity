@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 
 /**
  * @author raykroeker@gmail.com
@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
 public class AvatarRegistry {
 
     /** The underlying avatar registry. */
-    private static Map<TabExtension, Object> EXTENSION_REGISTRY;
+    private static Map<PluginExtension, Object> EXTENSION_REGISTRY;
 
     /** The underlying avatar registry. */
     private static Map<AvatarId, Object> REGISTRY;
@@ -25,7 +25,7 @@ public class AvatarRegistry {
         final Integer avatarCount = AvatarId.values().length;
         REGISTRY = new HashMap<AvatarId, Object>(avatarCount, 1.0F);
 
-        EXTENSION_REGISTRY = new HashMap<TabExtension, Object>(2, 1.0F);
+        EXTENSION_REGISTRY = new HashMap<PluginExtension, Object>(2, 1.0F);
 	}
 
 	/**
@@ -52,9 +52,9 @@ public class AvatarRegistry {
      *            A <code>TabExtension</code>.
      * @return True if the registry contains the avatar.
      */
-    public Boolean contains(final TabExtension tabExtension) {
+    public Boolean contains(final PluginExtension extension) {
         synchronized (EXTENSION_REGISTRY) {
-            return EXTENSION_REGISTRY.containsKey(tabExtension);
+            return EXTENSION_REGISTRY.containsKey(extension);
         }
     }
 
@@ -76,9 +76,9 @@ public class AvatarRegistry {
      *            The avatar id.
      * @return The avatar; or null if the avatar has not yet been displayed.
      */
-    public Avatar get(final TabExtension tabExtension) {
+    public Avatar get(final PluginExtension extension) {
         synchronized (EXTENSION_REGISTRY) {
-            return (Avatar) EXTENSION_REGISTRY.get(tabExtension);
+            return (Avatar) EXTENSION_REGISTRY.get(extension);
         }
     }
 
@@ -94,9 +94,9 @@ public class AvatarRegistry {
 		synchronized(REGISTRY) { return (Avatar) REGISTRY.put(avatarId, avatar); }
 	}
 
-    Avatar put(final TabExtension tabExtension, final Avatar avatar) {
+    Avatar put(final PluginExtension extension, final Avatar avatar) {
         synchronized(EXTENSION_REGISTRY) {
-            return (Avatar) EXTENSION_REGISTRY.put(tabExtension, avatar);
+            return (Avatar) EXTENSION_REGISTRY.put(extension, avatar);
         }
     }
 }

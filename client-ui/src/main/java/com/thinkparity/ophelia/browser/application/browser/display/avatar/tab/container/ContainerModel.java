@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +18,15 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
+import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -36,14 +38,14 @@ public final class ContainerModel extends TabPanelModel {
     /** An application. */
     public final Browser browser;
 
-    /** A list of the panel expanded flags. */
-    private final Map<TabPanel, Boolean> expanded;
-
     /** An apache logger. */
     protected final Log4JWrapper logger;
 
     /** A list of all container panels. */
     private final List<TabPanel> containerPanels;
+
+    /** A list of the panel expanded flags. */
+    private final Map<TabPanel, Boolean> expanded;
 
     /** A list model. */
     private final DefaultListModel listModel;
@@ -136,6 +138,15 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Determine whether or not the user is online.
+     * 
+     * @return True if the user is online.
+     */
+    public Boolean isOnline() {
+        return browser.getConnection() == Connection.ONLINE;
+    }
+
+    /**
      * Remove the search.
      * 
      * @see #searchExpression
@@ -193,28 +204,20 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
-     * Determine if the panel is expanded.
-     * @param tabPanel
-     * @return
+     * Toggle the expansion of a panel on and off.
+     *
+     * @param panel
+     *      The container <code>TabPanel</code>.
      */
-    private Boolean isExpanded(final TabPanel tabPanel) {
-        return expanded.get(tabPanel);
-    }
-
-    /**
-     * Trigger a click event on the panel. If the click is a double-click; we
-     * will add the versions to the list model.
-     * 
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    public void triggerClick(final MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (2 == e.getClickCount()) {
-            e.consume();
-            toggleExpand((TabPanel) e.getSource());
+    @Override
+    public void triggerExpand(final TabPanel tabPanel) {
+        if (isExpanded(tabPanel)) {
+            expanded.put(tabPanel, Boolean.FALSE);
         }
+        else {
+            expanded.put(tabPanel, Boolean.TRUE);
+        }
+        synchronize();
     }
 
     /**
@@ -256,6 +259,15 @@ public final class ContainerModel extends TabPanelModel {
     private void clearPanels() {
         containerPanels.clear();
         versionsPanels.clear();
+    }
+
+    /**
+     * Determine if the panel is expanded.
+     * @param tabPanel
+     * @return
+     */
+    private Boolean isExpanded(final TabPanel tabPanel) {
+        return expanded.get(tabPanel);
     }
 
     /**
@@ -383,22 +395,5 @@ public final class ContainerModel extends TabPanelModel {
                     
         }
         return panel;
-    }
-
-    /**
-     * Toggle the expansion of a panel on and off.
-     *
-     * @param panel
-     *      The container <code>TabPanel</code>.
-     */
-    private void toggleExpand(final TabPanel panel) {
-        final TabPanel versionsPanel = versionsPanels.get(panel);
-        if (visiblePanels.contains(versionsPanel)) {
-            expanded.put(panel, Boolean.FALSE);
-        }
-        else {
-            expanded.put(panel, Boolean.TRUE);
-        }
-        synchronize();
     }
 }

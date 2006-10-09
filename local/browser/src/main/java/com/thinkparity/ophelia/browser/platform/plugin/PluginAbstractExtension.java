@@ -11,7 +11,8 @@ import com.thinkparity.codebase.l10n.ResourceBundleHelper;
 
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
  * @author raymond@thinkparity.com
@@ -103,16 +104,29 @@ public abstract class PluginAbstractExtension implements PluginExtension {
     }
 
     /**
-     * Obtain a tab extension for the plugin with the given name.
+     * Obtain a tab list extension for the plugin with the given name.
      * 
      * @param name
      *            An extension name.
-     * @return A <code>TabExtension</code>.
+     * @return A <code>TabListExtension</code>.
      */
-    protected final TabExtension getTabExtension(final String name) {
+    protected final TabListExtension getTabListExtension(final String name) {
         Assert.assertNotNull(services,
                 "Services have not been initialized for plugin extension {0}.", this);
-        return services.getTabExtension(name);
+        return services.getTabListExtension(name);
+    }
+
+    /**
+     * Obtain a tab panel extension for the plugin with the given name.
+     * 
+     * @param name
+     *            An extension name.
+     * @return A <code>TabPanelExtension</code>.
+     */
+    protected final TabPanelExtension getTabPanelExtension(final String name) {
+        Assert.assertNotNull(services,
+                "Services have not been initialized for plugin extension {0}.", this);
+        return services.getTabPanelExtension(name);
     }
 
     /**

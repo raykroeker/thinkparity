@@ -10,7 +10,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
@@ -19,10 +18,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
-
-    /** An apache logger. */
-    private final Log4JWrapper logger;
+public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     /** The filler constraints. */
     private final GridBagConstraints fillConstraints;
@@ -39,7 +35,6 @@ public class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.fillConstraints.weighty = 1.0F;
         this.fillConstraints.gridx = 0;
         this.fillConstraints.gridy = GridBagConstraints.RELATIVE;
-        this.logger = new Log4JWrapper(super.logger);
         this.panelConstraints = new GridBagConstraints();
         this.panelConstraints.fill = GridBagConstraints.BOTH;
         this.panelConstraints.gridx = 0;

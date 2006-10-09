@@ -27,10 +27,12 @@ import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.ApplicationL18n;
+
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -282,17 +284,32 @@ public abstract class AbstractApplication implements Application {
 	}
 
     /**
-     * Obtain an avatar for a tab extension.
+     * Obtain an avatar for a tab list extension.
      * 
      * @param tabExtension
      *            A <code>TabExtension</code>.
      * @return An avatar.
      */
-    protected Avatar getAvatar(final TabExtension tabExtension) {
-        if (avatarRegistry.contains(tabExtension)) {
-            return avatarRegistry.get(tabExtension);
+    protected Avatar getAvatar(final TabListExtension tabListExtension) {
+        if (avatarRegistry.contains(tabListExtension)) {
+            return avatarRegistry.get(tabListExtension);
         } else {
-            return AvatarFactory.create(tabExtension);
+            return AvatarFactory.create(tabListExtension);
+        }
+    }
+
+    /**
+     * Obtain an avatar for a tab panel extension.
+     * 
+     * @param tabExtension
+     *            A <code>TabExtension</code>.
+     * @return An avatar.
+     */
+    protected Avatar getAvatar(final TabPanelExtension tabPanelExtension) {
+        if (avatarRegistry.contains(tabPanelExtension)) {
+            return avatarRegistry.get(tabPanelExtension);
+        } else {
+            return AvatarFactory.create(tabPanelExtension);
         }
     }
 

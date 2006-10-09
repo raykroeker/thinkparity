@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
@@ -134,6 +135,10 @@ public class AvatarFactory {
         case DIALOG_CONTAINER_PUBLISH:
             avatar = new PublishContainerAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+            
+        case DIALOG_PLATFORM_DISPLAY_INFO:
+            avatar = new DisplayInfoAvatar();
             break;
 
         case DIALOG_PROFILE_RESET_PASSWORD:

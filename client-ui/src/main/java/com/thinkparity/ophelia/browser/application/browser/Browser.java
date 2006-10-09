@@ -295,6 +295,13 @@ public class Browser extends AbstractApplication {
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
     }
+    
+    /**
+     * Display the info (or Help About) dialog.
+     */
+    public void displayInfoDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
+    }
 
     /**
      * Display the "publish container" dialog.

@@ -4,9 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform.browser;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -18,6 +15,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class DisplayInfo extends AbstractAction {
     
+    /** The browser application. */
+    private final Browser browser;
+    
     /**
      * Create a Create.
      * 
@@ -26,6 +26,7 @@ public class DisplayInfo extends AbstractAction {
      */
     public DisplayInfo(final Browser browser) {
         super(ActionId.PLATFORM_BROWSER_DISPLAY_INFO);
+        this.browser = browser;
     }
     
     /**
@@ -33,6 +34,7 @@ public class DisplayInfo extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("OpenHelp About");                
+        // Launch help about dialog
+        browser.displayInfoDialog();              
     }
 }

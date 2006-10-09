@@ -118,7 +118,7 @@ class ContainerPopup {
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
 
             final Data deleteDraftData = new Data(1);
-            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
+            deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData));
         }
 

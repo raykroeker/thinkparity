@@ -191,18 +191,21 @@ public final class ContainerModel extends TabPanelModel {
         }
         
         // add visible cells not in the model
-        for (final TabPanel visiblePanel : visiblePanels) {
-            if (!listModel.contains(visiblePanel)) {
-                listModel.add(visiblePanels.indexOf(visiblePanel), visiblePanel);
+        for (int i = 0; i < visiblePanels.size(); i++) {
+            if (listModel.contains(visiblePanels.get(i))) {
+                listModel.remove(i);
+                listModel.add(i, visiblePanels.get(i));
+            } else {
+                listModel.add(i, visiblePanels.get(i));
             }
         }
 
         // prune cells in the model no longer visible
-        final TabPanel[] obsolutePanels = new TabPanel[listModel.size()];
-        listModel.copyInto(obsolutePanels);
-        for (final TabPanel obsoletePanel : obsolutePanels) {
-            if (!visiblePanels.contains(obsoletePanel)) {
-                listModel.removeElement(obsoletePanel);
+        final TabPanel[] obsoletePanels = new TabPanel[listModel.size()];
+        listModel.copyInto(obsoletePanels);
+        for (int i = 0; i < obsoletePanels.length; i++) {
+            if (!visiblePanels.contains(obsoletePanels[i])) {
+                listModel.removeElement(obsoletePanels[i]);
             }
         }
         debug();
@@ -257,17 +260,16 @@ public final class ContainerModel extends TabPanelModel {
             removeContainerPanel(container);
         } else {
             if (containsContainerPanel(container)) {
-                final TabPanel containerPanel = getContainerPanel(container);
-                containerPanel.setMouseOver(isExpanded(containerPanel));
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
                 final Integer indexOfContainerPanel = indexOfContainerPanel(container);
+                final Boolean expanded = isExpanded(getContainerPanel(container));
                 removeContainerPanel(container);
                 if (remote) {
-                    addContainerPanel(0, container);
+                    addContainerPanel(0, expanded, container);
                 } else {
-                    addContainerPanel(indexOfContainerPanel, container);
+                    addContainerPanel(indexOfContainerPanel, expanded, container);
                 }
             } else {
                 addContainerPanel(0, container);
@@ -308,16 +310,21 @@ public final class ContainerModel extends TabPanelModel {
      * 
      * @param index
      *            An <code>Integer</code> index.
+     * @param expanded
+     *            An expanded <code>Boolean</code> flag.
      * @param container
      *            A <code>container</code>.
      */
-    private void addContainerPanel(final Integer index, final Container container) {
+    private void addContainerPanel(final Integer index, final Boolean expanded,
+            final Container container) {
         final TabPanel containerPanel = toDisplay(container);
         containerPanels.add(index, containerPanel);
-        expanded.put(containerPanel, Boolean.FALSE);
+        this.expanded.put(containerPanel, expanded);
         final ContainerDraft draft = readDraft(container.getId());
-        for (final Document document : draft.getDocuments()) {
-            containerIdLookup.put(document.getId(), container.getId());
+        if (null != draft) {
+            for (final Document document : draft.getDocuments()) {
+                containerIdLookup.put(document.getId(), container.getId());
+            }
         }
         final List<ContainerVersion> versions = readVersions(container.getId());
         final Map<ContainerVersion, List<Document>> documents = new HashMap<ContainerVersion, List<Document>>(versions.size(), 1.0F);
@@ -338,6 +345,18 @@ public final class ContainerModel extends TabPanelModel {
         versionsPanels.put(containerPanel,
                 toDisplay(container, draft, versions, documents, users,
                         publishedBy));
+    }
+
+    /**
+     * Add a container to the panel.
+     * 
+     * @param index
+     *            The index in the list.
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void addContainerPanel(final Integer index, final Container container) {
+        addContainerPanel(index, Boolean.FALSE, container);
     }
 
     /**
@@ -391,11 +410,13 @@ public final class ContainerModel extends TabPanelModel {
 
     /**
      * Determine if the panel is expanded.
+     * 
      * @param tabPanel
-     * @return
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is expanded; false otherwise.
      */
     private Boolean isExpanded(final TabPanel tabPanel) {
-        return expanded.get(tabPanel);
+        return expanded.containsKey(tabPanel) ? expanded.get(tabPanel) : Boolean.FALSE;
     }
 
     /**

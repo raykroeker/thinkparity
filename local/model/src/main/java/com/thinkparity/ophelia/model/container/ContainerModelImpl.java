@@ -269,28 +269,32 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     ContainerDraft createDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        assertContainerDraftDoesNotExist("DRAFT ALREADY EXISTS", containerId);
-        assertOnline("USER NOT ONLINE");
-        final Container container = read(containerId);
-        if (!isDistributed(container.getId())) {
-            createDistributed(container);
+        assertContainerDraftDoesNotExist("Draft already exist.", containerId);
+        if (isFirstDraft(containerId)) {
+            createFirstDraft(containerId, localTeamMember(containerId));
+        } else {
+            assertOnline("The user is not online.");
+            final Container container = read(containerId);
+            if (!isDistributed(container.getId())) {
+                createDistributed(container);
+            }
+            final ContainerVersion latestVersion =
+                    readLatestVersion(container.getId());
+            final List<Document> documents = readDocuments(
+                    latestVersion.getArtifactId(), latestVersion.getVersionId());
+            // create
+            final ContainerDraft draft = new ContainerDraft();
+            draft.setOwner(localTeamMember(containerId));
+            draft.setContainerId(containerId);
+            for (final Document document : documents) {
+                draft.addDocument(document);
+                draft.putState(document, ContainerDraft.ArtifactState.NONE);
+            }
+            containerIO.createDraft(draft);
+            getInternalArtifactModel().applyFlagKey(container.getId());
+            // remote create
+            getSessionModel().createDraft(container.getUniqueId());
         }
-        final ContainerVersion latestVersion =
-                readLatestVersion(container.getId());
-        final List<Document> documents = readDocuments(
-                latestVersion.getArtifactId(), latestVersion.getVersionId());
-        // create
-        final ContainerDraft draft = new ContainerDraft();
-        draft.setOwner(localTeamMember(containerId));
-        draft.setContainerId(containerId);
-        for (final Document document : documents) {
-            draft.addDocument(document);
-            draft.putState(document, ContainerDraft.ArtifactState.NONE);
-        }
-        containerIO.createDraft(draft);
-        getInternalArtifactModel().applyFlagKey(container.getId());
-        // remote create
-        getSessionModel().createDraft(container.getUniqueId());
         // fire event
         final Container postCreation= read(containerId);
         final ContainerDraft postCreationDraft = readDraft(containerId);
@@ -333,11 +337,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     void deleteDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        assertDoesExistLocalDraft("DRAFT DOES NOT EXIST", containerId);
-        assertIsDistributed("CANNOT DELETE FIRST DRAFT", containerId);
-        assertOnline("USER NOT ONLINE");
+        assertDoesExistLocalDraft("Draft does not exist.", containerId);
         final Container container = read(containerId);
-        getSessionModel().deleteDraft(container.getUniqueId());
+        if (!isFirstDraft(container.getId())) {
+            assertOnline("User is not online.");
+            assertIsDistributed("Draft has not been distributed.", containerId);
+            getSessionModel().deleteDraft(container.getUniqueId());
+        }
         // delete local data
         final ContainerDraft draft = readDraft(containerId);
         for (final Artifact artifact : draft.getArtifacts()) {
@@ -345,6 +351,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         containerIO.deleteDraft(containerId);
         notifyDraftDeleted(container, draft, localEventGenerator);
+    }
+
+    /**
+     * Determine whether or not the draft is the first draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the draft is the first draft.
+     */
+    private Boolean isFirstDraft(final Long containerId) {
+        return 0 == readVersions(containerId).size();
     }
 
     /**

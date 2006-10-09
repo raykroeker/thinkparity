@@ -18,6 +18,8 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 /**
  * An abstraction of a swing JPanel.  Used by all thinkParity panels as a root
  * class.
@@ -57,7 +59,7 @@ public class AbstractJPanel extends JPanel {
     }
 
     /** An apache logger. */
-	protected final Logger logger;
+	protected final Log4JWrapper logger;
 
 	/** Swing container tools. */
 	private final ContainerTools containerTools;
@@ -98,7 +100,7 @@ public class AbstractJPanel extends JPanel {
 	protected AbstractJPanel(final Color background) {
 		super();
 		this.containerTools = new ContainerTools(this);
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper(Logger.getLogger(getClass()));
 		addMouseListener(debugMouseAdapter);
 		setOpaque(true);
 		setBackground(background);

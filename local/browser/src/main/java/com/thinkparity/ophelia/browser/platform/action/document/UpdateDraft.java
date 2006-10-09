@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -37,12 +36,11 @@ public class UpdateDraft extends AbstractAction {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final File file = (File) data.get(DataKey.FILE);
-
         try {
             final InputStream content = new FileInputStream(file);
             try {
                 getDocumentModel().updateDraft(documentId, content);
-                browser.fireDocumentDraftUpdated(containerId, documentId);
+                browser.fireDocumentDraftUpdated(documentId);
             } finally {
                 content.close();
             }

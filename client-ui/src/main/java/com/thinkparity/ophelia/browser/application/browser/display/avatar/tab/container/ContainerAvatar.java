@@ -19,4 +19,28 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
     public ContainerAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerModel());
     }
+
+    /**
+     * Synchronize a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    public void syncContainer(final Long containerId, final Boolean remote) {
+        model.syncContainer(containerId, remote);
+    }
+
+    /**
+     * Synchronize a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    public void syncDocument(final Long documentId, final Boolean remote) {
+        model.syncDocument(documentId, remote);
+    }
 }

@@ -37,6 +37,15 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Obtain the container id.
+     * 
+     * @return A container id <code>Long</code>.
+     */
+    public Long getContainerId() {
+        return container.getId();
+    }
+
+    /**
      * Obtain the id for the tab panel.  In this case it's a container id.
      *
      * @return An id <code>Object</code>.

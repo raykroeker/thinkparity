@@ -119,7 +119,7 @@ class EventDispatcher {
             }
             @Override
             public void containerDeleted(final ContainerEvent e) {
-                browser.fireContainerDeleted(e.getContainer().getId(), Boolean.FALSE);
+                browser.fireContainerDeleted(e.getContainer().getId(), e.isRemote());
             }
             @Override
             public void containerRestored(final ContainerEvent e) {
@@ -138,13 +138,11 @@ class EventDispatcher {
             }
             @Override
             public void documentAdded(final ContainerEvent e) {
-                browser.fireContainerDocumentAdded(e.getContainer().getId(), e
-                        .getDocument().getId(), e.isRemote());
+                browser.fireContainerDocumentAdded(e.getContainer().getId(), e.getDocument().getId(), e.isRemote());
             }
             @Override
             public void documentRemoved(final ContainerEvent e) {
-                browser.fireContainerDocumentRemoved(e.getContainer().getId(),
-                        e.getDocument().getId(), e.isRemote());
+                browser.fireContainerDocumentRemoved(e.getContainer().getId(), e.getDocument().getId(), e.isRemote());
             }
             @Override
             public void draftCreated(final ContainerEvent e) {

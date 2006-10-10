@@ -72,7 +72,7 @@ public class DeletePostPublishTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         modifyDocuments(OpheliaTestUser.JUNIT, container);
@@ -95,11 +95,11 @@ public class DeletePostPublishTest extends ContainerTestCase {
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
         private final Container container;
-        private final ContainerModel containerModel;
+        private final InternalContainerModel containerModel;
         private Boolean didNotify;
         private final DocumentModel documentModel;
         private Fixture(final Container container,
-                final ContainerModel containerModel,
+                final InternalContainerModel containerModel,
                 final DocumentModel documentModel) {
             this.containerModel = containerModel;
             this.container = container;

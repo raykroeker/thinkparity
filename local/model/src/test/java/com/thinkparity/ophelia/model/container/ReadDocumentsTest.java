@@ -53,7 +53,7 @@ public class ReadDocumentsTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
@@ -76,10 +76,10 @@ public class ReadDocumentsTest extends ContainerTestCase {
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
         private final Container container;
-        private final ContainerModel containerModel;
+        private final InternalContainerModel containerModel;
         private final List<Document> documents;
         private final ContainerVersion version;
-        private Fixture(final Container container, final ContainerModel containerModel, 
+        private Fixture(final Container container, final InternalContainerModel containerModel, 
                 final List<Document> documents, final ContainerVersion version) {
             this.container = container;
             this.containerModel = containerModel;

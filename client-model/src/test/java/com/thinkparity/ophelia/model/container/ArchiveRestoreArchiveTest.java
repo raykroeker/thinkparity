@@ -11,11 +11,12 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Container Restore Test<br>
@@ -170,12 +171,12 @@ public class ArchiveRestoreArchiveTest extends ContainerTestCase {
     private class Fixture extends ContainerTestCase.Fixture {
         private final InternalArchiveModel archiveModel;
         private final Container container;
-        private final ContainerModel containerModel;
+        private final InternalContainerModel containerModel;
         private Boolean didNotify;
         private final InternalDocumentModel documentModel;
         private Fixture(final InternalArchiveModel archiveModel,
                 final InternalArtifactModel artifactModel,
-                final Container container, final ContainerModel containerModel,
+                final Container container, final InternalContainerModel containerModel,
                 final InternalDocumentModel documentModel) {
             super();
             this.archiveModel = archiveModel;

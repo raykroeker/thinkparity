@@ -36,6 +36,10 @@ public abstract class OpheliaTestCase extends TestCase {
         OpheliaTestUser.class.getName();
 	}
 
+    public static File getOutputDirectory() {
+        return testSession.getOutputDirectory();
+    }
+
     /**
      * Assert that two byte arrays are equal.
      * 

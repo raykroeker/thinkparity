@@ -155,7 +155,7 @@ public class ArchiveTest extends ContainerTestCase {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
         final InternalArchiveModel archiveModel = getArchiveModel(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
@@ -178,11 +178,11 @@ public class ArchiveTest extends ContainerTestCase {
     private class Fixture extends ContainerTestCase.Fixture {
         private final InternalArchiveModel archiveModel;
         private final Container container;
-        private final ContainerModel containerModel;
+        private final InternalContainerModel containerModel;
         private Boolean didNotify;
         private final DocumentModel documentModel;
         private Fixture(final InternalArchiveModel archiveModel,
-                final Container container, final ContainerModel containerModel,
+                final Container container, final InternalContainerModel containerModel,
                 final DocumentModel documentModel) {
             super();
             this.archiveModel = archiveModel;

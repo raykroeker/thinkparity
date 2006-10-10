@@ -66,7 +66,7 @@ public class CreateDraftTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         publish(OpheliaTestUser.JUNIT, container);
@@ -88,11 +88,11 @@ public class CreateDraftTest extends ContainerTestCase {
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
         private final Container container;
-        private final ContainerModel containerModel;
+        private final InternalContainerModel containerModel;
         private Boolean didNotify;
         private final User loginUser;
         private Fixture(final Container container,
-                final ContainerModel containerModel, final User loginUser) {
+                final InternalContainerModel containerModel, final User loginUser) {
             this.containerModel = containerModel;
             this.container = container;
             this.didNotify = Boolean.FALSE;

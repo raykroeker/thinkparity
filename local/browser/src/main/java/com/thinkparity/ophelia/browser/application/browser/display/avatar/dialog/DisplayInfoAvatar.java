@@ -6,6 +6,9 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
+import java.awt.Cursor;
+
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -19,6 +22,9 @@ public class DisplayInfoAvatar extends Avatar {
       
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** An apache logger error statement. */
+    private static final String LAUNCH_WEB_BROWSER_ERROR = "[LAUNCH WEB BROWSER ERROR]";
     
     /** Creates new form DisplayInfoAvatar */
     public DisplayInfoAvatar() {
@@ -44,68 +50,155 @@ public class DisplayInfoAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         logoJLabel = new javax.swing.JLabel();
         versionJLabel = new javax.swing.JLabel();
         copyrightJLabel = new javax.swing.JLabel();
+        fillLeftJLabel = new javax.swing.JLabel();
+        webPageJLabel = new javax.swing.JLabel();
+        fillRightJLabel = new javax.swing.JLabel();
         okJButton = new javax.swing.JButton();
+        fillBottomLeftJLabel = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
 
         logoJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         logoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/thinkParityLogo.png")));
         logoJLabel.setFocusable(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 20, 0);
+        add(logoJLabel, gridBagConstraints);
 
         versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         versionJLabel.setText(bundle.getString("DisplayInfoAvatar.Version")); // NOI18N
         versionJLabel.setFocusable(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(2, 15, 0, 15);
+        add(versionJLabel, gridBagConstraints);
 
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         copyrightJLabel.setText(bundle.getString("DisplayInfoAvatar.Copyright")); // NOI18N
         copyrightJLabel.setFocusable(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(2, 15, 0, 15);
+        add(copyrightJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(fillLeftJLabel, gridBagConstraints);
+
+        webPageJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        webPageJLabel.setText(bundle.getString("DisplayInfoAvatar.WebPage")); // NOI18N
+        webPageJLabel.setFocusable(false);
+        webPageJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                webPageJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                webPageJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                webPageJLabelMouseExited(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
+        add(webPageJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        add(fillRightJLabel, gridBagConstraints);
 
         okJButton.setText("OK");
+        okJButton.setPreferredSize(new java.awt.Dimension(65, 23));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, logoJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, copyrightJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, versionJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
-                    .add(okJButton))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(22, 22, 22)
-                .add(logoJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 30, Short.MAX_VALUE)
-                .add(versionJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(copyrightJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(okJButton)
-                .addContainerGap())
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
+        add(okJButton, gridBagConstraints);
+
+        fillBottomLeftJLabel.setPreferredSize(new java.awt.Dimension(65, 23));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        add(fillBottomLeftJLabel, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void webPageJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseClicked
+        try {
+            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler http://www.thinkparity.com/");
+        } catch (final Throwable t) {
+            throw new BrowserException(LAUNCH_WEB_BROWSER_ERROR, t);            
+        }
+        
+    }//GEN-LAST:event_webPageJLabelMouseClicked
+
+    private void webPageJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseExited
+        webPageJLabel.setText(getString("WebPage"));
+        setCursor(null);
+    }//GEN-LAST:event_webPageJLabelMouseExited
+
+    private void webPageJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseEntered
+        webPageJLabel.setText(getString("WebPageHighlighted"));
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }//GEN-LAST:event_webPageJLabelMouseEntered
 
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_okJButtonActionPerformed
     
+/*    Runtime rt = Runtime.getRuntime();
+    rt.exec ( "start http://www.memi.umss.edu.bo/progra/" )*/
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel copyrightJLabel;
+    private javax.swing.JLabel fillBottomLeftJLabel;
+    private javax.swing.JLabel fillLeftJLabel;
+    private javax.swing.JLabel fillRightJLabel;
     private javax.swing.JLabel logoJLabel;
     private javax.swing.JButton okJButton;
     private javax.swing.JLabel versionJLabel;
+    private javax.swing.JLabel webPageJLabel;
     // End of variables declaration//GEN-END:variables
     
 }

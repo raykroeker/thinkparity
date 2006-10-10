@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -22,8 +23,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * @author raymond@thinkparity.com
@@ -51,6 +52,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     /** The version's content list model. */
     private final DefaultListModel versionsContentModel;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList versionsJList;
+    // End of variables declaration//GEN-END:variables
 
     /** The version's list model. */
     private final DefaultListModel versionsModel;
@@ -95,26 +100,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.users.put(version, users);
         this.publishedBy.put(version, publishedBy);
 
-        versionsModel.addElement(new VersionCell(MessageFormat.format(
-                "Version - {0,date,MMM d, yyyy h:mm a} - {1}", version
-                        .getCreatedOn().getTime(), publishedBy.getName(),
-                publishedBy.getTitle(), publishedBy.getOrganization())));
+        final List<VersionContentCell> contents =
+            new ArrayList<VersionContentCell>(documents.size() + users.size());
         for (final Document document : documents) {
-            versionsContentModel.addElement(new VersionContentCell(
-                    MessageFormat.format("{0}", document.getName())));
+            contents.add(new VersionContentCell(version, document));
         }
         for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
-            if (null == entry.getValue()) {
-                versionsContentModel.addElement(new VersionContentCell(
-                        MessageFormat.format("{0}", entry.getKey().getName())));
-            } else {
-                versionsContentModel.addElement(new VersionContentCell(
-                        MessageFormat.format(
-                                "{0} - {1,date,MMM d, yyyy h:mm a}", entry
-                                        .getKey().getName(), entry.getValue()
-                                        .getReceivedOn().getTime())));
-            }
+            contents.add(new VersionContentCell(entry.getKey(), entry.getValue()));
         }
+        versionsModel.addElement(new VersionCell(contents, version, publishedBy));
     }
 
     /**
@@ -123,8 +117,17 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     @Override
     public Object getId() {
         return new StringBuffer(getClass().getName()).append("//")
-                .append(container.getId())
-                .toString();
+                .append(container.getId()).toString();
+    }
+
+    /**
+     * Select the first version cell.
+     *
+     */
+    public void selectFirstVersion() {
+        if (0 < versionsModel.size()) {
+            versionsJList.setSelectedIndex(0);
+        }
     }
 
     /**
@@ -139,14 +142,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.container = container;
 
         if (null != draft) {
-            versionsModel.addElement(new VersionCell(
-                    MessageFormat.format("Draft - {0} documents.",
-                            draft.getDocumentCount())));
+            final List<VersionContentCell> contents =
+                new ArrayList<VersionContentCell>(documents.size() + users.size());
             for (final Document document : draft.getDocuments()) {
-                versionsContentModel.addElement(new VersionContentCell(
-                        MessageFormat.format("{0} - {1}", document.getName(),
-                            draft.getState(document))));
+                contents.add(new VersionContentCell(document, draft.getState(document)));
             }
+
+            versionsModel.addElement(new VersionCell(contents, draft));
         }
     }
 
@@ -174,7 +176,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void initComponents() {
         javax.swing.JList versionsContentJList;
         javax.swing.JScrollPane versionsContentJScrollPane;
-        javax.swing.JList versionsJList;
         javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJScrollPane = new javax.swing.JScrollPane();
@@ -184,11 +185,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         setOpaque(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                formMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                formMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
             }
         });
 
@@ -196,17 +197,22 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
         versionsJList.setVisibleRowCount(5);
-        versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsJListMouseClicked(e);
+        versionsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                versionsJListValueChanged(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsJListMouseReleased(e);
+        });
+        versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsJListMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsJListMouseReleased(evt);
             }
         });
         versionsJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
-                versionsJListMouseWheelMoved(e);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                versionsJListMouseWheelMoved(evt);
             }
         });
 
@@ -217,16 +223,16 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseReleased(evt);
             }
         });
         versionsContentJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
-                versionsContentJListMouseWheelMoved(e);
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                versionsContentJListMouseWheelMoved(evt);
             }
         });
 
@@ -265,26 +271,60 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
     }//GEN-LAST:event_versionsJListMouseReleased
     
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
-
     private void versionsJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsJListMouseWheelMoved
     }//GEN-LAST:event_versionsJListMouseWheelMoved
 
+    private void versionsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_versionsJListValueChanged
+        if (!evt.getValueIsAdjusting()) {
+            logger.logVariable("evt", evt);
+            versionsContentModel.clear();
+            for (final Object selectedValue : versionsJList.getSelectedValues()) {
+                for (final VersionContentCell contentCell : ((VersionCell) selectedValue).contents) {
+                    versionsContentModel.addElement(contentCell);
+                }
+            }
+        }
+    }//GEN-LAST:event_versionsJListValueChanged
+
     /** The version list cell wrapper. */
     class VersionCell {
+
+        /** The cell contents. */
+        private final List<VersionContentCell> contents;
 
         /** The cell text <code>String</code>. */
         private final String text;
 
         /**
          * Create VersionCell.
-         *
-         * @param text
-         *      The cell text <code>String</code>.
+         * 
+         * @param draft
+         *            The cell <code>ContainerDraft</code>.
          */
-        private VersionCell(final String text) {
-            this.text = text;
+        private VersionCell(final List<VersionContentCell> contents,
+                final ContainerDraft draft) {
+            this.contents = contents;
+            final Integer documentCount = draft.getDocumentCount();
+            this.text = 1 == documentCount ?
+                    "Draft - 1 Document" :
+                    MessageFormat.format("Draft - {0} Documents",
+                            documentCount);
+        }
+
+        /**
+         * Create VersionCell.
+         * 
+         * @param version
+         *            The cell <code>ContainerVersion</code>.
+         */
+        private VersionCell(final List<VersionContentCell> contents,
+                final ContainerVersion version, final User publishedBy) {
+            this.contents = contents;
+            this.text = MessageFormat.format(
+                    "Version - {0,date,MMM d, yyyy h:mm a} - {1}",
+                    version.getCreatedOn().getTime(),
+                    publishedBy.getName(), publishedBy.getTitle(),
+                    publishedBy.getOrganization());
         }
 
         /**
@@ -305,12 +345,50 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         /**
          * Create VersionContentCell.
-         *
-         * @param text
-         *      The cell text <code>String</code>.
+         * 
+         * @param document
+         *            A <code>Document</code>.
          */
-        private VersionContentCell(final String text) {
-            this.text = text;
+        private VersionContentCell(final ContainerVersion version,
+                final Document document) {
+            this.text = MessageFormat.format("{0}", document.getName());
+        }
+
+        /**
+         * Create VersionContentCell.
+         * 
+         * @param document
+         *            A <code>Document</code>.
+         */
+        private VersionContentCell(final Document document,
+                final ArtifactState state) {
+            final String formatPattern;
+            switch (state) {
+            case ADDED:
+            case MODIFIED:
+            case REMOVED:
+                formatPattern = "{0} - {1}";
+                break;
+            case NONE:
+                formatPattern = "{0}";
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
+            }
+            this.text = MessageFormat.format(formatPattern,
+                    document.getName(), state);
+        }
+
+
+        private VersionContentCell(final User user, final ArtifactReceipt receipt) {
+            if (receipt.isSetReceivedOn()) {
+                this.text = MessageFormat.format("{0} - {3,date,MMM dd, yyyy h:mm a}",
+                        user.getName(), user.getOrganization(), user.getTitle(),
+                        receipt.getReceivedOn().getTime());
+            } else {
+                this.text = MessageFormat.format("{0}",
+                        user.getName(), user.getOrganization(), user.getTitle());
+            }
         }
 
         /**

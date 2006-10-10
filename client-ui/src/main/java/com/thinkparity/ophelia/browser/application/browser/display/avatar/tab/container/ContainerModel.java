@@ -27,7 +27,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -576,8 +575,8 @@ public final class ContainerModel extends TabPanelModel {
         panel.setDraft(container, draft);
         for (final ContainerVersion version : versions) {
             panel.add(version, documents.get(version), users.get(version), publishedBy.get(version));
-                    
         }
+        panel.selectFirstVersion();
         return panel;
     }
 }

@@ -51,6 +51,10 @@ public class ArtifactReceipt {
         return userId;
     }
 
+    public Boolean isSetReceivedOn() {
+        return null != receivedOn;
+    }
+
     /**
      * Set artifactId.
      *

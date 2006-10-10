@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
@@ -151,6 +152,23 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     }
 
     /**
+     * Export a container version to a directory. The 
+     * 
+     * @param exportDirectory
+     *            A file output stream representing a zip file.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     */
+    public void export(final File exportDirectory, final Long containerId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            getImpl().export(exportDirectory, containerId, versionId);
+        }
+    }
+
+    /**
      * Print a container draft.
      * 
      * @param containerId
@@ -270,7 +288,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     }
 
     /**
-     * Read the documents for the container.
+     * Read the document versions for a container version.
      * 
      * @param containerId
      *            A container id.
@@ -278,13 +296,15 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A version id.
      * @return A list of documents.
      */
-    public List<Document> readDocuments(final Long containerId,
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId) {
-        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId); }
+        synchronized (getImplLock()) {
+            return getImpl().readDocumentVersions(containerId, versionId);
+        }
     }
 
     /**
-     * Read the documents for the container.
+     * Read the document versions for a container version.
      * 
      * @param containerId
      *            A container id.
@@ -294,13 +314,15 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A document comparator.
      * @return A list of documents.
      */
-    public List<Document> readDocuments(final Long containerId,
-            final Long versionId, final Comparator<Artifact> comparator) {
-        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, comparator); }
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Comparator<ArtifactVersion> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readDocumentVersions(containerId, versionId, comparator);
+        }
     }
 
     /**
-     * Read the documents for the container.
+     * Read the document versions for a container version.
      * 
      * @param containerId
      *            A container id.
@@ -312,14 +334,17 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A document filter.
      * @return A list of documents.
      */
-    public List<Document> readDocuments(final Long containerId,
-            final Long versionId, final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) {
-        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, comparator, filter); }
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
+            final Filter<? super ArtifactVersion> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readDocumentVersions(containerId, versionId,
+                    comparator, filter);
+        }
     }
 
     /**
-     * Read the document versions for the container.
+     * Read the document versions for a container version.
      * 
      * @param containerId
      *            A container id.
@@ -329,9 +354,11 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A document filter.
      * @return A list of document versions.
      */
-    public List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Filter<? super Artifact> filter) {
-        synchronized(getImplLock()) { return getImpl().readDocuments(containerId, versionId, filter); }
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Filter<? super ArtifactVersion> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readDocumentVersions(containerId, versionId, filter);
+        }
     }
 
     /**
@@ -505,7 +532,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Read the team for the container.
      * 
      * @param containerId
@@ -518,7 +545,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-	/**
+    /**
      * Read a container version.
      * 
      * @param containerId

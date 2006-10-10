@@ -194,6 +194,20 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
+     * Obtain a document name generator.
+     * 
+     * @return A <code>DocumentNameGenerator</code>.
+     */
+    DocumentNameGenerator getNameGenerator() {
+        logger.logApiId();
+        try {
+            return new DocumentNameGenerator();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
 	 * Obtain the content for a specific version.
 	 * 
 	 * @param documentId
@@ -215,7 +229,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
-    /**
+	/**
      * Handle the publish of a document from the thinkParity network. The
      * implementation is identical to sending a document.
      * 
@@ -247,7 +261,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 versionId, name, checksum, content);
     }
 
-	/**
+    /**
      * Handle the receipt of a document from the thinkParity network. If the
      * document does not exist; it will be created; if the version does not
      * exist it will be created.
@@ -330,7 +344,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
+	/**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -367,7 +381,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
-	/**
+    /**
      * Obtain a filtered and sorted list of documents.
      * 
      * @param comparator
@@ -388,7 +402,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return documents;
 	}
 
-    /**
+	/**
      * Obtain a filtered list of documents.
      * 
      * @param filter
@@ -503,7 +517,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return documentIO.openStream(documentId, versionId);
     }
 
-	/**
+    /**
      * Print a document draft.
      * 
      * @param documentId
@@ -651,7 +665,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return history;
 	}
 
-    /**
+	/**
      * Read the document history.
      * 
      * @param documentId
@@ -668,7 +682,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return readHistory(documentId, defaultHistoryComparator, filter);
     }
 
-	/**
+    /**
 	 * Obtain the latest document version.
 	 * 
 	 * @param documentId
@@ -776,7 +790,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
+	/**
      * Assert that the document's draft is modified.
      * 
      * @param assertion
@@ -789,7 +803,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         Assert.assertTrue(assertion, isDraftModified(documentId));
     }
 
-	/**
+    /**
      * Audit the document's creation.
      * 
      * @param document
@@ -914,7 +928,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
 	}
 
-    /**
+	/**
      * Delete only the local document data.
      * 
      * @param document
@@ -941,7 +955,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		documentIO.delete(documentId);
     }
 
-	/**
+    /**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document

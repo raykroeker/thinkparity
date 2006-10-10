@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -239,6 +240,18 @@ public class InternalContainerModel extends ContainerModel implements
     public void restoreBackup() {
         synchronized (getImplLock()) {
             getImpl().restoreBackup();
+        }
+    }
+
+    /**
+     * Read a list of o
+     * @param containerId
+     * @param versionId
+     * @return
+     */
+    public List<Document> readDocuments(final Long containerId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readDocuments(containerId, versionId);
         }
     }
 }

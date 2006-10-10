@@ -17,9 +17,34 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 public interface Workspace {
 
     /**
+     * Create a temporary directory within the workspace. The workspace will
+     * attempt to delete the directory when thinkParity shuts down. If the jvm
+     * abrubptly exits; the directory will be deleted the next time the
+     * workspace is opened.
+     * 
+     * @return A temporary directory <code>File</code>.
+     * @throws IOException
+     */
+    public File createTempDirectory() throws IOException;
+
+    /**
+     * Create a temporary directory within the workspace. The workspace will
+     * attempt to delete the directory when thinkParity shuts down. If the jvm
+     * abrubptly exits; the directory will be deleted the next time the
+     * workspace is opened.
+     * 
+     * @param suffix
+     *            The suffix string to be used in generating the directory's
+     *            name.
+     * @return A temporary directory <code>File</code>.
+     * @throws IOException
+     */
+    public File createTempDirectory(final String suffix) throws IOException;
+
+    /**
      * Create a temporary file within the workspace. The workspace will attempt
      * to delete the file when thinkParity shuts down. If the jvm abrubpty
-     * exists the file will be deleted the next time the workspace is opened.
+     * exits the file will be deleted the next time the workspace is opened.
      * 
      * @return A <code>File</code>.
      */

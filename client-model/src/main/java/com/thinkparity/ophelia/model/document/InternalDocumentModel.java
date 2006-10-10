@@ -70,6 +70,17 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
     /**
+     * Obtain a document name generator.
+     * 
+     * @return A <code>DocumentNameGenerator</code>.
+     */
+    public DocumentNameGenerator getNameGenerator() {
+        synchronized (getImplLock()) {
+            return getImpl().getNameGenerator();
+        }
+    }
+
+    /**
      * Handle the receipt of a document from the thinkParity network.
      * 
      * @param uniqueId

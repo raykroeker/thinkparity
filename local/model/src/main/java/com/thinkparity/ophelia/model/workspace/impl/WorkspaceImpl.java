@@ -1,6 +1,5 @@
 /*
  * Created On: Oct 17, 2005
- * $Id$
  */
 package com.thinkparity.ophelia.model.workspace.impl;
 
@@ -117,17 +116,38 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#createTempFile()
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#createTempDirectory()
      */
-    public File createTempFile() throws IOException {
-        final File temp = initChild(DirectoryNames.Workspace.TEMP);
+    public File createTempDirectory() throws IOException {
         final StackTraceElement caller = StackUtil.getCaller();
         final String tempFileSuffix = new StringBuffer(".")
                 .append(StringUtil.searchAndReplace(caller.getClassName(), ".", "_"))
                 .append("#").append(caller.getMethodName())
                 .toString();
-        return File.createTempFile(Files.TEMP_FILE_PREFIX, tempFileSuffix, temp);
+        return createTempDirectory(tempFileSuffix);
+    }
 
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#createTempDirectory(java.lang.String)
+     */
+    public File createTempDirectory(final String suffix) throws IOException {
+        final File temp = initChild(DirectoryNames.Workspace.TEMP);
+        final File tempDirectory = new File(temp, suffix);
+        Assert.assertTrue(tempDirectory.mkdir(),
+                "Could not create temp directory {0}.", tempDirectory);
+        return tempDirectory;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#createTempFile()
+     */
+    public File createTempFile() throws IOException {
+        final StackTraceElement caller = StackUtil.getCaller();
+        final String tempFileSuffix = new StringBuffer(".")
+                .append(StringUtil.searchAndReplace(caller.getClassName(), ".", "_"))
+                .append("#").append(caller.getMethodName())
+                .toString();
+        return createTempFile(tempFileSuffix);
     }
 
     /**

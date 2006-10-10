@@ -3,24 +3,16 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-
-import org.apache.log4j.Logger;
+import java.io.*;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
@@ -55,16 +47,14 @@ class LocalFile {
 		myRuntime = Runtime.getRuntime();
 	}
 
-	/**
-	 * Apache logger.
-	 * 
-	 */
-	protected final Logger logger;
+	/** An apache logger. */
+	protected final Log4JWrapper logger;
 
-	/**
-	 * The file representing the document's content.
-	 */
+	/** The local <code>File</code>. */
 	private final File file;
+
+    /** A document name generator. */ 
+    private final DocumentNameGenerator nameGenerator;
 
 	/**
 	 * File content.
@@ -84,7 +74,8 @@ class LocalFile {
 	 */
 	LocalFile(final Workspace workspace, final Document document) {
 		super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
+        this.nameGenerator = new DocumentNameGenerator();
         this.file = getFile(workspace, document);
 	}
 
@@ -99,7 +90,8 @@ class LocalFile {
 	LocalFile(final Workspace workspace, final Document document,
 			final DocumentVersion version) {
 		super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
+        this.nameGenerator = new DocumentNameGenerator();
 		this.file = getFile(workspace, document, version);
 	}
 
@@ -267,7 +259,8 @@ class LocalFile {
 	 * @return The file.
 	 */
 	private File getFile(final Workspace workspace, final Document document) {
-		return new File(getFileParent(workspace, document.getId()), document.getName());
+        final String child = nameGenerator.fileName(document);
+		return new File(getFileParent(workspace, document), child);
 	}
 
 	/**
@@ -282,14 +275,9 @@ class LocalFile {
 	 * @return The file.
 	 */
 	private File getFile(final Workspace workspace, final Document document,
-			final DocumentVersion version) {
-		// MyDocument.v1.doc
-		final String child =
-			MessageFormat.format("{0}.{1,date,yyyyMMdd-HHmmss}.{2}",
-					FileUtil.getName(document.getName()),
-					version.getCreatedOn().getTime(),
-					FileUtil.getExtension(document.getName()));
-		return new File(getFileParent(workspace, version.getArtifactId()), child);
+            final DocumentVersion version) {
+        final String child = nameGenerator.fileName(version);
+		return new File(getFileParent(workspace, document), child);
 	}
 
     /**
@@ -299,13 +287,14 @@ class LocalFile {
 	 *            The document.
 	 * @return The parent file.
 	 */
-	private File getFileParent(final Workspace workspace, final Long documentId) {
+	private File getFileParent(final Workspace workspace,
+            final Document document) {
 		final File cache = new File(workspace.getDataDirectory(),
                 DirectoryNames.Workspace.Data.LOCAL);
 		if(!cache.exists()) {
 			Assert.assertTrue("getFileParent(Document)", cache.mkdir());
 		}
-		final File parent = new File(cache, documentId.toString());
+		final File parent = new File(cache, nameGenerator.directoryName(document));
 		if(!parent.exists()) {
 			Assert.assertTrue("getFileParent(Document)", parent.mkdir());
 		}

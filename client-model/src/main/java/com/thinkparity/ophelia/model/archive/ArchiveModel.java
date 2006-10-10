@@ -87,6 +87,13 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
         }
     }
 
+    /**
+     * Read a list of versions for a container.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List&lt;ContainerVersion&gt;</code>.
+     */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readContainerVersions(uniqueId);

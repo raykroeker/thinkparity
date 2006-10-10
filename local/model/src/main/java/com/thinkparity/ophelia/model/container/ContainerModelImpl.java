@@ -5,10 +5,14 @@ package com.thinkparity.ophelia.model.container;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.*;
 
+import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -37,6 +41,7 @@ import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
+import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
@@ -54,6 +59,9 @@ import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -81,6 +89,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
     /** The default document filter. */
     private final Filter<? super Artifact> defaultDocumentFilter;
+
+    /** A default document version comparator. */
+    private final Comparator<ArtifactVersion> defaultDocumentVersionComparator;
 
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
@@ -127,6 +138,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = FilterManager.createDefault();
+        this.defaultDocumentVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultFilter = FilterManager.createDefault();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
         this.defaultHistoryFilter = FilterManager.createDefault();
@@ -354,14 +366,61 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Determine whether or not the draft is the first draft.
+     * Export a container version to a directory. The 
      * 
+     * @param exportDirectory
+     *            A file output stream representing a zip file.
      * @param containerId
      *            A container id <code>Long</code>.
-     * @return True if the draft is the first draft.
+     * @param versionId
+     *            A container version id <code>Long</code>.
      */
-    private Boolean isFirstDraft(final Long containerId) {
-        return 0 == readVersions(containerId).size();
+    void export(final File exportDirectory, final Long containerId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("exportDirectory", exportDirectory);
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final File exportRoot =
+                workspace.createTempDirectory(MessageFormat.format("export_{0}", containerId));
+            final FileSystem exportFileSystem = new FileSystem(exportRoot);
+            final List<ContainerVersion> versions = readVersions(containerId);
+
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final DocumentNameGenerator nameGenerator = documentModel.getNameGenerator();
+            List<DocumentVersion> documentVersions;
+            InputStream documentStream;
+            for (final ContainerVersion version : versions) {
+                documentVersions = containerIO.readDocumentVersions(version.getArtifactId(), version.getVersionId());
+                for (final DocumentVersion documentVersion : documentVersions) {
+                    exportFileSystem.createDirectory(MessageFormat.format(
+                            "/Version - {0,date,MMM dd, yyyy h mm ss a}",
+                            version.getUpdatedOn().getTime()));
+
+                    documentStream = documentModel.openVersionStream(documentVersion.getArtifactId(), documentVersion.getVersionId());
+                    try {
+                        
+                    } finally {
+                        documentStream.close();
+                    }
+                }
+            }
+            
+            
+            
+            
+            final com.lowagie.text.Document document = new com.lowagie.text.Document();
+            try {
+                PdfWriter.getInstance(document, new FileOutputStream(new File(exportDirectory, "HelloWorld.pdf")));
+                document.open();
+                document.add(new Paragraph("Hello World"));
+            } finally {
+                document.close();
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -1172,7 +1231,99 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
-        return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+        return readDocumentVersions(containerId, latestVersion.getVersionId());
+    }
+
+    /**
+     * Read the document versions for a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @return A list of documents.
+     */
+    List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        return readDocumentVersions(containerId, versionId,
+                defaultDocumentVersionComparator);
+    }
+
+    /**
+     * Read the document versions for a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @param comparator
+     *            A document comparator.
+     * @return A list of documents.
+     */
+    List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Comparator<ArtifactVersion> comparator) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        return readDocumentVersions(containerId, versionId, comparator,
+                FilterManager.createDefault());
+    }
+
+    /**
+     * Read the document versions for a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @param comparator
+     *            A document comparator.
+     * @param filter
+     *            A document filter.
+     * @return A list of documents.
+     */
+    List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
+            final Filter<? super ArtifactVersion> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        try {
+            final List<DocumentVersion> documentVersions =
+                containerIO.readDocumentVersions(containerId, versionId);
+            FilterManager.filter(documentVersions, filter);
+            ModelSorter.sortDocumentVersions(documentVersions, comparator);
+            return documentVersions;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the document versions for a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @param filter
+     *            A document filter.
+     * @return A list of document versions.
+     */
+    List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId, final Filter<? super ArtifactVersion> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
+        return readDocumentVersions(containerId, versionId,
+                defaultDocumentVersionComparator, filter);
     }
 
     /**
@@ -2027,6 +2178,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
 
+
     /**
      * Create the first draft for a cotnainer.
      * 
@@ -2113,7 +2265,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return containerIO.readVersion(version.getArtifactId(), version.getVersionId());
         
     }
-
 
     /**
      * Delete the local info for this container.
@@ -2257,6 +2408,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private Boolean isDistributed(final Long containerId) {
         return getInternalArtifactModel().doesVersionExist(containerId, Versioning.START);
+    }
+
+    /**
+     * Determine whether or not the draft is the first draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the draft is the first draft.
+     */
+    private Boolean isFirstDraft(final Long containerId) {
+        return 0 == readVersions(containerId).size();
     }
 
     /**
@@ -2594,6 +2756,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         getIndexModel().indexContainer(container.getId());
     }
 
+    /**
+     * A private interface used by the restore api such that it can be shared
+     * by both restore and restoreBackup.
+     */
     private interface RestoreModel {
 
         /**
@@ -2608,15 +2774,48 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         public InputStream openDocumentVersion(final UUID uniqueId,
                 final Long versionId);
 
+        /**
+         * Read a list of versions for a container.
+         * 
+         * @param uniqueId
+         *            A container unique id <code>UUID</code>.
+         * @return A <code>List&lt;ContainerVersion&gt;</code>.
+         */
         public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
 
+        /**
+         * Read a list of documents for a container version.
+         * 
+         * @param uniqueId
+         *            A container unique id <code>UUID</code>.
+         * @param versionId
+         *            A container version id <code>Long</code>.
+         * @return A <code>List&lt;Document&gt;</code>.
+         */
         public List<Document> readDocuments(final UUID uniqueId,
                 final Long versionId);
 
+        /**
+         * Read a list of document versions for a container version's document.
+         * 
+         * @param uniqueId
+         *            A container unique id <code>UUID</code>.
+         * @param versionId
+         *            A container version id <code>Long</code>.
+         * @param documentUniqueId
+         *            A document unique id <code>UUID</code>.
+         * @return A <code>List&lt;DocumentVersion&gt;</code>.
+         */
         public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
                 final Long versionId, final UUID documentUniqueId);
 
+        /**
+         * Read the team for an artifact.
+         * 
+         * @param uniqueId
+         *            An artifact unique id <code>UUID</code>.
+         * @return A <code>List&lt;JabberId&gt;</code>.
+         */
         public List<JabberId> readTeamIds(final UUID uniqueId);
-
     }
 }

@@ -11,8 +11,9 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
+
 import com.thinkparity.ophelia.browser.Constants.Colors.Swing;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.VersionCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractVersionCell;
 
 /**
  * @author raymond@thinkparity.com
@@ -44,7 +45,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
      * @see ListModel
      */
     public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
-        final VersionCell cell = (VersionCell) value;
+        final AbstractVersionCell cell = (AbstractVersionCell) value;
         textJLabel.setText(cell.getText());
 
         if (isSelected) {

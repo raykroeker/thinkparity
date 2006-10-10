@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.browser.platform.action.document;
 
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -18,9 +20,6 @@ public class OpenVersion extends AbstractAction {
 	/** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-	/** The browser application. */
-	private final Browser browser;
-
 	/**
 	 * Create an OpenVersion.
 	 * 
@@ -28,7 +27,6 @@ public class OpenVersion extends AbstractAction {
 	 */
 	public OpenVersion(final Browser browser) {
 		super(ActionId.DOCUMENT_OPEN_VERSION);
-		this.browser = browser;
 	}
 
 	/**
@@ -36,12 +34,7 @@ public class OpenVersion extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) {
-		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
-		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
-		getDocumentModel().openVersion(documentId, versionId);
-
-        // Flag the document as having been seen
-        browser.runApplyDocumentFlagSeen(documentId);
+	    Assert.assertNotYetImplemented("OpenVersion#invoke()");
 	}
 
 	/**

@@ -7,14 +7,17 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JList;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -23,8 +26,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * @author raymond@thinkparity.com
@@ -53,12 +56,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The version's content list model. */
     private final DefaultListModel versionsContentModel;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList versionsJList;
-    // End of variables declaration//GEN-END:variables
-
     /** The version's list model. */
     private final DefaultListModel versionsModel;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JList versionsContentJList;
+
+    private javax.swing.JList versionsJList;
+    // End of variables declaration//GEN-END:variables
 
     /**
      * Create ContainerVersionsPanel
@@ -100,15 +105,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.users.put(version, users);
         this.publishedBy.put(version, publishedBy);
 
-        final List<VersionContentCell> contents =
-            new ArrayList<VersionContentCell>(documents.size() + users.size());
-        for (final Document document : documents) {
-            contents.add(new VersionContentCell(version, document));
-        }
-        for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
-            contents.add(new VersionContentCell(entry.getKey(), entry.getValue()));
-        }
-        versionsModel.addElement(new VersionCell(contents, version, publishedBy));
+        versionsModel.addElement(new VersionCell(version, documents, users,
+                publishedBy));
     }
 
     /**
@@ -142,13 +140,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.container = container;
 
         if (null != draft) {
-            final List<VersionContentCell> contents =
-                new ArrayList<VersionContentCell>(documents.size() + users.size());
-            for (final Document document : draft.getDocuments()) {
-                contents.add(new VersionContentCell(document, draft.getState(document)));
-            }
-
-            versionsModel.addElement(new VersionCell(contents, draft));
+            versionsModel.addElement(new DraftCell(draft));
         }
     }
 
@@ -174,10 +166,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JList versionsContentJList;
         javax.swing.JScrollPane versionsContentJScrollPane;
         javax.swing.JScrollPane versionsJScrollPane;
+        javax.swing.JSplitPane versionsJSplitPane;
 
+        versionsJSplitPane = new javax.swing.JSplitPane();
         versionsJScrollPane = new javax.swing.JScrollPane();
         versionsJList = new javax.swing.JList();
         versionsContentJScrollPane = new javax.swing.JScrollPane();
@@ -185,58 +178,61 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         setOpaque(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                formMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                formMouseClicked(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                formMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                formMouseReleased(e);
             }
         });
 
+        versionsJSplitPane.setBorder(null);
+        versionsJSplitPane.setMinimumSize(new java.awt.Dimension(52, 75));
+        versionsJSplitPane.setOneTouchExpandable(true);
         versionsJScrollPane.setBorder(null);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
         versionsJList.setVisibleRowCount(5);
         versionsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                versionsJListValueChanged(evt);
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                versionsJListValueChanged(e);
             }
         });
         versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                versionsJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                versionsJListMouseClicked(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                versionsJListMouseReleased(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                versionsJListMousePressed(e);
             }
-        });
-        versionsJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
-                versionsJListMouseWheelMoved(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                versionsJListMouseReleased(e);
             }
         });
 
         versionsJScrollPane.setViewportView(versionsJList);
+
+        versionsJSplitPane.setLeftComponent(versionsJScrollPane);
 
         versionsContentJScrollPane.setBorder(null);
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                versionsContentJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                versionsContentJListMouseClicked(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                versionsContentJListMouseReleased(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                versionsContentJListMousePressed(e);
             }
-        });
-        versionsContentJList.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
-            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
-                versionsContentJListMouseWheelMoved(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                versionsContentJListMouseReleased(e);
             }
         });
 
         versionsContentJScrollPane.setViewportView(versionsContentJList);
+
+        versionsJSplitPane.setRightComponent(versionsContentJScrollPane);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -244,126 +240,153 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 326, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(versionsContentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
+                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(versionsContentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-            .add(versionsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void triggerJListPopup(final AbstractContentCell selectedContent,
+            final MouseEvent e) {
+        selectedContent.showPopupMenu(versionsContentJList, e);
+    }
+
+    private void triggerJListPopup(final AbstractVersionCell selectedVersion,
+            final MouseEvent e) {
+        selectedVersion.showPopupMenu(versionsJList, e);
+    }
+    
     private void versionsContentJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
     }//GEN-LAST:event_versionsContentJListMouseClicked
 
-    private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
-    }//GEN-LAST:event_versionsContentJListMouseReleased
+    private void versionsContentJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            triggerJListPopup((AbstractContentCell) ((JList) e.getSource()).getSelectedValue(), e);
+            e.consume();
+        }
+    }//GEN-LAST:event_versionsContentJListMousePressed
 
-    private void versionsContentJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsContentJListMouseWheelMoved
-    }//GEN-LAST:event_versionsContentJListMouseWheelMoved
+    private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            triggerJListPopup((AbstractContentCell) ((JList) e.getSource()).getSelectedValue(), e);
+            e.consume();
+        }
+    }//GEN-LAST:event_versionsContentJListMouseReleased
 
     private void versionsJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
     }//GEN-LAST:event_versionsJListMouseClicked
+    private void versionsJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            triggerJListPopup(
+                    (AbstractVersionCell) ((JList) e.getSource()).getSelectedValue(), e);
+            e.consume();
+        }
+    }//GEN-LAST:event_versionsJListMousePressed
 
     private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            triggerJListPopup((AbstractVersionCell) ((JList) e.getSource()).getSelectedValue(), e);
+            e.consume();
+        }
     }//GEN-LAST:event_versionsJListMouseReleased
-    
-    private void versionsJListMouseWheelMoved(java.awt.event.MouseWheelEvent e) {//GEN-FIRST:event_versionsJListMouseWheelMoved
-    }//GEN-LAST:event_versionsJListMouseWheelMoved
-
     private void versionsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_versionsJListValueChanged
         if (!evt.getValueIsAdjusting()) {
             logger.logVariable("evt", evt);
             versionsContentModel.clear();
             for (final Object selectedValue : versionsJList.getSelectedValues()) {
-                for (final VersionContentCell contentCell : ((VersionCell) selectedValue).contents) {
+                for (final AbstractContentCell contentCell : ((AbstractVersionCell) selectedValue).contentCells) {
                     versionsContentModel.addElement(contentCell);
                 }
             }
         }
     }//GEN-LAST:event_versionsJListValueChanged
 
-    /** The version list cell wrapper. */
-    class VersionCell {
+    /** The version's content list cell. */
+    abstract class AbstractContentCell {
+        private String text;
+        protected AbstractContentCell() {
+            super();
+        }
+        protected String getText() {
+            return text;
+        }
+        protected void setText(final String text) {
+            this.text = text;
+        }
+        protected abstract void showPopupMenu(final Component invoker,
+                final MouseEvent e);
+    }
 
-        /** The cell contents. */
-        private final List<VersionContentCell> contents;
+    /** The version's list cell. */
+    abstract class AbstractVersionCell {
+        private final List<AbstractContentCell> contentCells;
+        private String text;
+        protected AbstractVersionCell() {
+            super();
+            this.contentCells = new ArrayList<AbstractContentCell>();
+        }
+        protected void addContentCell(final AbstractContentCell contentCell) {
+            this.contentCells.add(contentCell);
+        }
+        protected List<AbstractContentCell> getContentCells() {
+            return Collections.unmodifiableList(contentCells);
+        }
+        protected String getText() {
+            return text;
+        }
+        protected void setText(final String text) {
+            this.text = text;
+        }
+        protected abstract void showPopupMenu(final Component invoker,
+                final MouseEvent e);
+    }
 
-        /** The cell text <code>String</code>. */
-        private final String text;
-
-        /**
-         * Create VersionCell.
-         * 
-         * @param draft
-         *            The cell <code>ContainerDraft</code>.
-         */
-        private VersionCell(final List<VersionContentCell> contents,
-                final ContainerDraft draft) {
-            this.contents = contents;
+    /** A draft cell. */
+    final class DraftCell extends AbstractVersionCell {
+        private final ContainerDraft draft;
+        private DraftCell(final ContainerDraft draft) {
+            super();
+            this.draft = draft;
             final Integer documentCount = draft.getDocumentCount();
-            this.text = 1 == documentCount ?
+            setText(1 == documentCount ?
                     "Draft - 1 Document" :
                     MessageFormat.format("Draft - {0} Documents",
-                            documentCount);
+                            documentCount));
+            for (final Document document : draft.getDocuments()) {
+                addContentCell(new DraftDocumentCell(draft, document));
+            }
         }
-
-        /**
-         * Create VersionCell.
-         * 
-         * @param version
-         *            The cell <code>ContainerVersion</code>.
-         */
-        private VersionCell(final List<VersionContentCell> contents,
-                final ContainerVersion version, final User publishedBy) {
-            this.contents = contents;
-            this.text = MessageFormat.format(
-                    "Version - {0,date,MMM d, yyyy h:mm a} - {1}",
-                    version.getCreatedOn().getTime(),
-                    publishedBy.getName(), publishedBy.getTitle(),
-                    publishedBy.getOrganization());
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
         }
-
-        /**
-         * Obtain the cell text.
-         *
-         * @return The cell text <code>String</code>.
-         */
-        String getText() {
-            return text;
+        Long getContainerId() {
+            return draft.getContainerId();
         }
     }
 
-    /** The content list cell wrapper. */
-    class VersionContentCell {
-
-        /** The cell text <code>String</code>. */
-        private final String text;
-
-        /**
-         * Create VersionContentCell.
-         * 
-         * @param document
-         *            A <code>Document</code>.
-         */
-        private VersionContentCell(final ContainerVersion version,
+    /** A draft document cell. */
+    final class DraftDocumentCell extends AbstractContentCell {
+        private final ContainerDraft draft;
+        private final Document document;
+        private DraftDocumentCell(final ContainerDraft draft,
                 final Document document) {
-            this.text = MessageFormat.format("{0}", document.getName());
-        }
-
-        /**
-         * Create VersionContentCell.
-         * 
-         * @param document
-         *            A <code>Document</code>.
-         */
-        private VersionContentCell(final Document document,
-                final ArtifactState state) {
+            super();
+            this.document = document;
+            this.draft = draft;
             final String formatPattern;
-            switch (state) {
+            switch (draft.getState(document)) {
             case ADDED:
             case MODIFIED:
             case REMOVED:
@@ -375,29 +398,99 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            this.text = MessageFormat.format(formatPattern,
-                    document.getName(), state);
+            setText(MessageFormat.format(formatPattern,
+                    document.getName(), draft.getState(document)));
         }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+        Long getContainerId() {
+            return draft.getContainerId();
+        }
+        Long getId() {
+            return document.getId();
+        }
+        ContainerDraft.ArtifactState getState() {
+            return draft.getState(document);
+        }
+    }
 
-
-        private VersionContentCell(final User user, final ArtifactReceipt receipt) {
+    /** A user cell. */
+    final class UserCell extends AbstractContentCell {
+        private final User user;
+        private UserCell(final User user, final ArtifactReceipt receipt) {
+            this.user = user;
             if (receipt.isSetReceivedOn()) {
-                this.text = MessageFormat.format("{0} - {3,date,MMM dd, yyyy h:mm a}",
+                setText(MessageFormat.format("{0} - {3,date,MMM dd, yyyy h:mm a}",
                         user.getName(), user.getOrganization(), user.getTitle(),
-                        receipt.getReceivedOn().getTime());
+                        receipt.getReceivedOn().getTime()));
             } else {
-                this.text = MessageFormat.format("{0}",
-                        user.getName(), user.getOrganization(), user.getTitle());
+                setText(MessageFormat.format("{0}",
+                        user.getName(), user.getOrganization(), user.getTitle()));
             }
         }
+        JabberId getId() {
+            return user.getId();
+        }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+    }
 
-        /**
-         * Obtain the cell text.
-         *
-         * @return The cell text <code>String</code>.
-         */
-        String getText() {
-            return text;
+    /** A version cell. */
+    final class VersionCell extends AbstractVersionCell {
+        private final ContainerVersion version;
+        private VersionCell(final ContainerVersion version,
+                final List<Document> documents,
+                final Map<User, ArtifactReceipt> users, final User publishedBy) {
+            super();
+            this.version = version;
+            setText(MessageFormat.format(
+                    "Version - {0,date,MMM d, yyyy h:mm a} - {1}",
+                    version.getCreatedOn().getTime(),
+                    publishedBy.getName(), publishedBy.getTitle(),
+                    publishedBy.getOrganization()));
+            for (final Document document : documents) {
+                addContentCell(new VersionDocumentCell(version, document));
+            }
+            for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
+                addContentCell(new UserCell(entry.getKey(), entry.getValue()));
+            }
+        }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+        Long getArtifactId() {
+            return version.getArtifactId();
+        }
+        Long getVersionId() {
+            return version.getVersionId();
+        }
+    }
+
+    /** A version document cell. */
+    final class VersionDocumentCell extends AbstractContentCell {
+        private final Document document;
+        private final ContainerVersion version;
+        private VersionDocumentCell(final ContainerVersion version,
+                final Document document) {
+            super();
+            this.document = document;
+            this.version = version;
+            setText(MessageFormat.format("{0}", document.getName()));
+        }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+        Long getDocumentId() {
+            return document.getId();
+        }
+        Long getVersionId() {
+            return version.getVersionId();
         }
     }
 }

@@ -97,10 +97,31 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         final DefaultListModel listModel = model.getListModel();
         listModel.addListDataListener(new ListDataListener() {
             public void contentsChanged(final ListDataEvent e) {
+                debug();
+                logger.logApiId();
+                logger.logVariable("e", e);
+
+                tabJPanel.remove(fillJLabel);
+                for (int i = e.getIndex0(); i < e.getIndex1(); i++) {
+                    panelConstraints.gridy = i;
+                    tabJPanel.remove(i);
+                    tabJPanel.add((DefaultTabPanel) listModel.getElementAt(i), panelConstraints.clone(), i);
+                }
+                tabJPanel.add(fillJLabel, fillConstraints);
+
+                tabJPanel.revalidate();
+                tabJScrollPane.revalidate();
+                revalidate();
+                repaint();
+
+                debug();
             }
             public void intervalAdded(final ListDataEvent e) {
-                final int index0 = e.getIndex0();
                 debug();
+                logger.logApiId();
+                logger.logVariable("e", e);
+
+                final int index0 = e.getIndex0();
                 tabJPanel.remove(fillJLabel);
                 for (int i = index0; i < tabJPanel.getComponentCount(); i++) {
                     tabJPanel.remove(i);
@@ -110,23 +131,30 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     tabJPanel.add((DefaultTabPanel) listModel.getElementAt(i), panelConstraints.clone(), i);
                 }
                 tabJPanel.add(fillJLabel, fillConstraints);
+
                 tabJPanel.revalidate();
                 tabJScrollPane.revalidate();
                 revalidate();
+                repaint();
+
                 debug();
             }
             public void intervalRemoved(final ListDataEvent e) {
-                final int index0 = e.getIndex0();
-                final int index1 = e.getIndex1();
                 debug();
+                logger.logApiId();
+                logger.logVariable("e", e);
+
                 tabJPanel.remove(fillJLabel);
-                for (int i = index0; i < index1 + 1; i++) {
+                for (int i = e.getIndex0(); i < e.getIndex1() + 1; i++) {
                     tabJPanel.remove(i);
                 }
                 tabJPanel.add(fillJLabel, fillConstraints);
+
                 tabJPanel.revalidate();
                 tabJScrollPane.revalidate();
                 revalidate();
+                repaint();
+
                 debug();
             }
         });

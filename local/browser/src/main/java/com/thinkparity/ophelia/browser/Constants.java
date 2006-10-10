@@ -56,15 +56,19 @@ public final class Constants {
             }
         }
         public static final class Swing {
-            public static final Color LIST_EVEN_BG = new Color(231, 238, 248, 255);
+            public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
             public static final Color LIST_FG = Color.BLACK;
         	public static final Color LIST_ODD_BG = Color.WHITE;
-            public static final Color LIST_SELECTION_BG = Color.BLUE;
+            public static final Color LIST_SELECTION_BG = new Color(87, 136, 206, 255);
             public static final Color LIST_SELECTION_FG = Color.WHITE;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(231, 238, 248, 255);
-            public static final Color MENU_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(39, 102, 192, 255);
+            public static final Color MENU_ITEM_SELECTION_FG = Color.WHITE;
+            public static final Color MENU_ITEM_BG = Color.WHITE;
+            public static final Color MENU_ITEM_FG = Color.BLACK;
+            public static final Color MENU_SELECTION_BG = new Color(39, 102, 192, 255);
+            public static final Color MENU_SELECTION_FG = Color.WHITE;
+            public static final Color MENU_BG = Color.WHITE;
+            public static final Color MENU_FG = Color.BLACK;
         }
     }
 

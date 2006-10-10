@@ -129,12 +129,6 @@ public class PublishContainerAvatar extends Avatar {
         publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("PublishContainerDialog.BorderTitle"))); // NOI18N
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
 
-        commentJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commentJTextFieldActionPerformed(evt);
-            }
-        });
-
         namesJTable.setRowSelectionAllowed(false);
         namesJTable.setShowVerticalLines(false);
         namesJScrollPane.setViewportView(namesJTable);
@@ -223,9 +217,6 @@ public class PublishContainerAvatar extends Avatar {
             disposeWindow();
         }
     }//GEN-LAST:event_okJButtonActionPerformed
-
-    private void commentJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commentJTextFieldActionPerformed
-    }//GEN-LAST:event_commentJTextFieldActionPerformed
     
     /**
      * Publish the container. (Expect to call this if the user presses "OK" and input is valid.)
@@ -236,7 +227,8 @@ public class PublishContainerAvatar extends Avatar {
         CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
-        getController().runPublishContainer(containerId, teamMembers, contacts);    
+        final String comment = commentJTextField.getText();
+        getController().runPublishContainer(containerId, teamMembers, contacts, comment);    
     }
     
     /**

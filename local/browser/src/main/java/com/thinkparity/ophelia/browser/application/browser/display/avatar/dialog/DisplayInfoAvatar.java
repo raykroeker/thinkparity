@@ -9,6 +9,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.Cursor;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -30,6 +31,9 @@ public class DisplayInfoAvatar extends Avatar {
     public DisplayInfoAvatar() {
         super("DisplayInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
+        initVersionJLabel();
+        initBuildJLabel();
+        initWebPageJLabel();
     }
     
     public void setState(final State state) {
@@ -43,6 +47,21 @@ public class DisplayInfoAvatar extends Avatar {
         return AvatarId.DIALOG_PLATFORM_DISPLAY_INFO;
     }
     
+    private void initVersionJLabel() {
+        versionJLabel.setText(getString("Version", new Object[] { Version.getVersion() }));
+    }
+    
+    private void initBuildJLabel() {
+        buildJLabel.setText(getString("Build", new Object[] { Version.getBuildId() }));
+    }
+    
+    private void initWebPageJLabel() {
+        // TODO Get www.thinkparity.com from somewhere. Below returns thinkparity.dyndns.org
+        //final String webPage = LinkFactory.getInstance(Application.OPHELIA, Version.getMode()).create().toString();
+        //webPageJLabel.setText(webPage);
+    }
+    
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -54,6 +73,7 @@ public class DisplayInfoAvatar extends Avatar {
 
         logoJLabel = new javax.swing.JLabel();
         versionJLabel = new javax.swing.JLabel();
+        buildJLabel = new javax.swing.JLabel();
         copyrightJLabel = new javax.swing.JLabel();
         fillLeftJLabel = new javax.swing.JLabel();
         webPageJLabel = new javax.swing.JLabel();
@@ -88,12 +108,23 @@ public class DisplayInfoAvatar extends Avatar {
         gridBagConstraints.insets = new java.awt.Insets(2, 15, 0, 15);
         add(versionJLabel, gridBagConstraints);
 
+        buildJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        buildJLabel.setText(bundle.getString("DisplayInfoAvatar.Build")); // NOI18N
+        buildJLabel.setFocusable(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(12, 15, 0, 15);
+        add(buildJLabel, gridBagConstraints);
+
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         copyrightJLabel.setText(bundle.getString("DisplayInfoAvatar.Copyright")); // NOI18N
         copyrightJLabel.setFocusable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(2, 15, 0, 15);
@@ -101,7 +132,7 @@ public class DisplayInfoAvatar extends Avatar {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -125,13 +156,13 @@ public class DisplayInfoAvatar extends Avatar {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
         add(webPageJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
@@ -147,8 +178,7 @@ public class DisplayInfoAvatar extends Avatar {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 10);
         add(okJButton, gridBagConstraints);
@@ -156,8 +186,7 @@ public class DisplayInfoAvatar extends Avatar {
         fillBottomLeftJLabel.setPreferredSize(new java.awt.Dimension(65, 23));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         add(fillBottomLeftJLabel, gridBagConstraints);
@@ -191,6 +220,7 @@ public class DisplayInfoAvatar extends Avatar {
     rt.exec ( "start http://www.memi.umss.edu.bo/progra/" )*/
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel buildJLabel;
     private javax.swing.JLabel copyrightJLabel;
     private javax.swing.JLabel fillBottomLeftJLabel;
     private javax.swing.JLabel fillLeftJLabel;

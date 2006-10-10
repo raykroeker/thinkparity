@@ -11,6 +11,8 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -40,6 +42,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.panelConstraints.gridx = 0;
     	installDataListener();
         initComponents();
+        installResizer();
     }
 
     /**
@@ -49,6 +52,14 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 	public void reload() {
     	super.reload();
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     */
+    @Override
+    protected ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.MIDDLE;
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -57,14 +68,24 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         headerJLabel = new javax.swing.JLabel();
         tabJScrollPane = new javax.swing.JScrollPane();
         tabJPanel = new javax.swing.JPanel();
         fillJLabel = new javax.swing.JLabel();
 
+        setLayout(new java.awt.GridBagLayout());
+
         headerJLabel.setText(" ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 4;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        add(headerJLabel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
+        tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
         tabJPanel.setLayout(new java.awt.GridBagLayout());
 
         tabJPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -72,20 +93,15 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         tabJScrollPane.setViewportView(tabJPanel);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
-            .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(headerJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        add(tabJScrollPane, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
 
     /**

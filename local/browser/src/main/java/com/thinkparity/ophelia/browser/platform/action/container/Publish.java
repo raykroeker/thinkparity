@@ -45,6 +45,7 @@ public class Publish extends AbstractAction {
 		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
+        final String comment = (String) data.get(DataKey.COMMENT);
         
         if (((null==contactsIn) || contactsIn.isEmpty()) &&
             ((null==teamMembersIn) || teamMembersIn.isEmpty())) {
@@ -86,5 +87,5 @@ public class Publish extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { CONTAINER_ID, CONTACTS, TEAM_MEMBERS }
+	public enum DataKey { CONTAINER_ID, CONTACTS, TEAM_MEMBERS, COMMENT }
 }

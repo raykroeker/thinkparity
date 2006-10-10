@@ -40,9 +40,13 @@ public class Swing {
         defaults.put("Menu.font", BrowserConstants.Fonts.DefaultFont);
         defaults.put("Menu.selectionBackground", Colors.Swing.MENU_SELECTION_BG);
         defaults.put("Menu.selectionForeground", Colors.Swing.MENU_SELECTION_FG);
+        defaults.put("Menu.background", Colors.Swing.MENU_BG);
+        defaults.put("Menu.foreground", Colors.Swing.MENU_FG);
         defaults.put("MenuItem.font", BrowserConstants.Fonts.DefaultFont);
         defaults.put("MenuItem.selectionBackground", Colors.Swing.MENU_ITEM_SELECTION_BG);
         defaults.put("MenuItem.selectionForeground", Colors.Swing.MENU_ITEM_SELECTION_FG);
+        defaults.put("MenuItem.background", Colors.Swing.MENU_ITEM_BG);
+        defaults.put("MenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
 
         try {
         	final LookAndFeel laf;

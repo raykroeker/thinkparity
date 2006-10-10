@@ -258,7 +258,13 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        setLayout(new java.awt.GridBagLayout());
+
+        headerJLabel.setMaximumSize(new java.awt.Dimension(3, 14));
+        headerJLabel.setMinimumSize(new java.awt.Dimension(3, 14));
+        headerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
         headerJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 headerJLabelMousePressed(evt);
@@ -268,8 +274,15 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 4;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        add(headerJLabel, gridBagConstraints);
+
         tabJScrollPane.setBorder(null);
         tabJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabJScrollPane.setMinimumSize(new java.awt.Dimension(23, 24));
         tabJList.setModel(model.getListModel());
         tabJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabJList.setCellRenderer(new TabCellRenderer());
@@ -297,20 +310,15 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
 
         tabJScrollPane.setViewportView(tabJList);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(headerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-            .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(headerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tabJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        add(tabJScrollPane, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
     
     /**

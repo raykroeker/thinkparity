@@ -1140,11 +1140,13 @@ public class Browser extends AbstractApplication {
      *              The container id.     
      */
     public void runPublishContainer(final Long containerId,
-            final List<TeamMember> teamMembers, final List<Contact> contacts) {
-        final Data data = new Data(3);
+            final List<TeamMember> teamMembers, final List<Contact> contacts,
+            final String comment) {
+        final Data data = new Data(4);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
         data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
         data.set(Publish.DataKey.CONTACTS, contacts);
+        data.set(Publish.DataKey.COMMENT, comment);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });

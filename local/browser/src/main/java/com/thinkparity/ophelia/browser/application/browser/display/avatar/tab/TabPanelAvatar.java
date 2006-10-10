@@ -98,19 +98,18 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         listModel.addListDataListener(new ListDataListener() {
             public void contentsChanged(final ListDataEvent e) {
                 debug();
-                logger.logApiId();
-                logger.logVariable("e", e);
 
-                tabJPanel.remove(fillJLabel);
-                for (int i = e.getIndex0(); i < e.getIndex1(); i++) {
+                // update from index 0 to index 1
+                for (int i = e.getIndex0(); i < e.getIndex1() + 1; i++) {
                     panelConstraints.gridy = i;
                     tabJPanel.remove(i);
-                    tabJPanel.add((DefaultTabPanel) listModel.getElementAt(i), panelConstraints.clone(), i);
+                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
                 }
-                tabJPanel.add(fillJLabel, fillConstraints);
 
                 tabJPanel.revalidate();
+                tabJPanel.repaint();
                 tabJScrollPane.revalidate();
+                tabJScrollPane.repaint();
                 revalidate();
                 repaint();
 
@@ -118,22 +117,25 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             }
             public void intervalAdded(final ListDataEvent e) {
                 debug();
-                logger.logApiId();
-                logger.logVariable("e", e);
 
-                final int index0 = e.getIndex0();
                 tabJPanel.remove(fillJLabel);
-                for (int i = index0; i < tabJPanel.getComponentCount(); i++) {
-                    tabJPanel.remove(i);
-                }
-                for (int i = index0; i < listModel.size(); i++) {
+
+                // add index 0
+                panelConstraints.gridy = e.getIndex0();
+                tabJPanel.add((DefaultTabPanel) listModel.get(e.getIndex0()), panelConstraints.clone(), e.getIndex0());
+
+                // refresh the elements below index 0
+                for (int i = e.getIndex0() + 1; i < listModel.size(); i++) {
                     panelConstraints.gridy = i;
-                    tabJPanel.add((DefaultTabPanel) listModel.getElementAt(i), panelConstraints.clone(), i);
+                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
                 }
-                tabJPanel.add(fillJLabel, fillConstraints);
+
+                tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
 
                 tabJPanel.revalidate();
+                tabJPanel.repaint();
                 tabJScrollPane.revalidate();
+                tabJScrollPane.repaint();
                 revalidate();
                 repaint();
 
@@ -141,17 +143,24 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             }
             public void intervalRemoved(final ListDataEvent e) {
                 debug();
-                logger.logApiId();
-                logger.logVariable("e", e);
 
                 tabJPanel.remove(fillJLabel);
-                for (int i = e.getIndex0(); i < e.getIndex1() + 1; i++) {
-                    tabJPanel.remove(i);
+
+                // remove index 0
+                tabJPanel.remove(e.getIndex0());
+
+                // refresh from index 0 forward
+                for (int i = e.getIndex0(); i < listModel.size(); i++) {
+                    panelConstraints.gridy = i;
+                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
                 }
-                tabJPanel.add(fillJLabel, fillConstraints);
+
+                tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
 
                 tabJPanel.revalidate();
+                tabJPanel.repaint();
                 tabJScrollPane.revalidate();
+                tabJScrollPane.repaint();
                 revalidate();
                 repaint();
 

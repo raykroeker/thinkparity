@@ -36,11 +36,18 @@ public class LinkFactory {
         PREFIXES.put(Mode.PRODUCTION, "https://");
 
         SUFFIXES = new HashMap<Application, Map<Mode, String>>(1, 1.0F);
+
         final Map<Mode, String> ROSALINE = new HashMap<Mode, String>();
         ROSALINE.put(Mode.DEVELOPMENT, ":8082/katherina");
         ROSALINE.put(Mode.TESTING, ":8081/katherina");
         ROSALINE.put(Mode.PRODUCTION, ":8080/katherina");
         SUFFIXES.put(Application.ROSALINE, ROSALINE);
+
+        final Map<Mode, String> OPHELIA = new HashMap<Mode, String>();
+        OPHELIA.put(Mode.DEVELOPMENT, "");
+        OPHELIA.put(Mode.TESTING, ":81");
+        OPHELIA.put(Mode.PRODUCTION, ":82");
+        SUFFIXES.put(Application.OPHELIA, OPHELIA);
     }
 
     /**
@@ -76,14 +83,23 @@ public class LinkFactory {
     }
 
     /**
+     * Create a root link.
+     * 
+     * @return A <code>Link</code>.
+     */
+    public Link create() {
+        final String linkRoot = new StringBuffer(prefix)
+            .append("thinkparity.dyndns.org").append(suffix).toString();
+        return new Link(linkRoot);
+    }
+
+    /**
      * Create a link.
      * 
      * @return A link.
      */
     public Link create(final String module, final String action) { 
-        final String linkRoot = new StringBuffer(prefix)
-                .append("thinkparity.dyndns.org").append(suffix).toString();
-        final Link link = new Link(linkRoot);
+        final Link link = create();
         link.addContext(module);
         link.addContext(action);
         return link;

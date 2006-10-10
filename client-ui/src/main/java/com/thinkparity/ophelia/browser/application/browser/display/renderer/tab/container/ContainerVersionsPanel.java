@@ -26,7 +26,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -265,8 +264,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsContentJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            triggerJListPopup((AbstractContentCell) ((JList) e.getSource()).getSelectedValue(), e);
+        final JList jList = (JList) e.getSource();
+        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
+            triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
             e.consume();
         }
     }//GEN-LAST:event_versionsContentJListMousePressed
@@ -274,8 +274,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            triggerJListPopup((AbstractContentCell) ((JList) e.getSource()).getSelectedValue(), e);
+        final JList jList = (JList) e.getSource();
+        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
+            triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
             e.consume();
         }
     }//GEN-LAST:event_versionsContentJListMouseReleased
@@ -285,9 +286,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            triggerJListPopup(
-                    (AbstractVersionCell) ((JList) e.getSource()).getSelectedValue(), e);
+        final JList jList = (JList) e.getSource();
+        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
+            triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
             e.consume();
         }
     }//GEN-LAST:event_versionsJListMousePressed
@@ -295,8 +296,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            triggerJListPopup((AbstractVersionCell) ((JList) e.getSource()).getSelectedValue(), e);
+        final JList jList = (JList) e.getSource();
+        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
+            triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
             e.consume();
         }
     }//GEN-LAST:event_versionsJListMouseReleased

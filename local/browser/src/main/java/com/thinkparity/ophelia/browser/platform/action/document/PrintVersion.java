@@ -4,12 +4,21 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.document;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.io.File;
+
+import org.jdesktop.jdic.desktop.DesktopException;
+
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
+import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.util.Printer;
 
 /**
  * @author rob_masako@shaw.ca
@@ -32,8 +41,26 @@ public class PrintVersion extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("PrintVersion#invoke()");
+        final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+        final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+        final DocumentModel documentModel = getDocumentModel();
+        final Document document = documentModel.get(documentId);
+        final DocumentVersion version = documentModel.getVersion(documentId, versionId);
+
+        final Browser browser = getBrowserApplication();
+        if(browser.confirm(getId().toString(), new Object[] {
+            document.getName(), version.getCreatedOn().getTime() })) {
+            documentModel.printVersion(documentId, versionId, new Printer() {
+                public void print(final File file) {
+                    try {
+                        DesktopUtil.print(file);
+                    } catch (final DesktopException dx) {
+                        throw translateError(dx);
+                    }
+                }
+            });
+        }
     }
 
-    public enum DataKey { CONTAINER_ID, CONTAINER_VERSION_ID, DOCUMENT_ID }
+    public enum DataKey { DOCUMENT_ID, VERSION_ID }
 }

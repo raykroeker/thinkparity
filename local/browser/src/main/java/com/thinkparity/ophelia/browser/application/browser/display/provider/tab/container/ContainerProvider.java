@@ -11,10 +11,12 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -98,11 +100,11 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 *            A container id <code>Long</code>.
 	 * @param versionId
 	 *            A container version id <code>Long</code>.
-	 * @return A <code>List&lt;Document&gt;</code>.
+	 * @return A <code>List&lt;DocumentVersion&gt;</code>.
 	 */
-    public List<Document> readDocuments(final Long containerId,
-			final Long versionId) {
-    	return containerModel.readDocuments(containerId, versionId);
+    public List<DocumentVersion> readDocumentVersions(final Long containerId,
+            final Long versionId) {
+    	return containerModel.readDocumentVersions(containerId, versionId);
     }
 
     /**

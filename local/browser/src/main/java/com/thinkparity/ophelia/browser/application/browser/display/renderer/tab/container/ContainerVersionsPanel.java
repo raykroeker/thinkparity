@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -37,8 +38,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The <code>Container</code>. */
     private Container container;
 
-    /** The version's <code>Document</code>s. */
-    private final Map<ContainerVersion, List<Document>> documents;
+    /** The version's <code>DocumentVersion</code>s. */
+    private final Map<ContainerVersion, List<DocumentVersion>> documentVersions;
 
     /** The <code>ContainerModel</code>. */
     private final ContainerModel model;
@@ -72,7 +73,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public ContainerVersionsPanel(final ContainerModel model) {
         super();
-        this.documents = new HashMap<ContainerVersion, List<Document>>();
+        this.documentVersions = new HashMap<ContainerVersion, List<DocumentVersion>>();
         this.model = model;
         this.publishedBy = new HashMap<ContainerVersion, User>();
         this.users = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
@@ -89,7 +90,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * 
      * @param version
      *            A <code>ContainerVersion</code>.
-     * @param documents
+     * @param documentVersions
      *            A <code>List&lt;Document&gt;</code>.
      * @param users
      *            A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
@@ -97,15 +98,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      *            A <code>User</code>.
      */
     public void add(final ContainerVersion version,
-            final List<Document> documents,
+            final List<DocumentVersion> documentVersions,
             final Map<User, ArtifactReceipt> users, final User publishedBy) {
         this.versions.add(version);
-        this.documents.put(version, documents);
+        this.documentVersions.put(version, documentVersions);
         this.users.put(version, users);
         this.publishedBy.put(version, publishedBy);
 
-        versionsModel.addElement(new VersionCell(version, documents, users,
-                publishedBy));
+        versionsModel.addElement(new VersionCell(version, documentVersions,
+                users, publishedBy));
     }
 
     /**
@@ -445,7 +446,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     final class VersionCell extends AbstractVersionCell {
         private final ContainerVersion version;
         private VersionCell(final ContainerVersion version,
-                final List<Document> documents,
+                final List<DocumentVersion> documentVersions,
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             super();
             this.version = version;
@@ -454,8 +455,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     version.getCreatedOn().getTime(),
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
-            for (final Document document : documents) {
-                addContentCell(new VersionDocumentCell(version, document));
+            for (final DocumentVersion documentVersion : documentVersions) {
+                addContentCell(new DocumentVersionCell(documentVersion));
             }
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
                 addContentCell(new UserCell(entry.getKey(), entry.getValue()));
@@ -474,22 +475,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
 
     /** A version document cell. */
-    final class VersionDocumentCell extends AbstractContentCell {
-        private final Document document;
-        private final ContainerVersion version;
-        private VersionDocumentCell(final ContainerVersion version,
-                final Document document) {
+    final class DocumentVersionCell extends AbstractContentCell {
+        private final DocumentVersion version;
+        private DocumentVersionCell(final DocumentVersion version) {
             super();
-            this.document = document;
             this.version = version;
-            setText(MessageFormat.format("{0}", document.getName()));
+            setText(MessageFormat.format("{0}", version.getName()));
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
         }
         Long getDocumentId() {
-            return document.getId();
+            return version.getArtifactId();
         }
         Long getVersionId() {
             return version.getVersionId();

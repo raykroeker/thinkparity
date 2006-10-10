@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -27,6 +28,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -325,23 +327,23 @@ public final class ContainerModel extends TabPanelModel {
             }
         }
         final List<ContainerVersion> versions = readVersions(container.getId());
-        final Map<ContainerVersion, List<Document>> documents = new HashMap<ContainerVersion, List<Document>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<DocumentVersion>> documentVersions = new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> users = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
 
-        List<Document> versionDocuments;
+        List<DocumentVersion> versionDocumentVersions;
         for (final ContainerVersion version : versions) {
-            versionDocuments = readDocuments(version.getArtifactId(),
+            versionDocumentVersions = readDocumentVersions(version.getArtifactId(),
                     version.getVersionId());
-            for (final Document versionDocument : versionDocuments) { 
-                containerIdLookup.put(versionDocument.getId(), container.getId());
+            for (final DocumentVersion versionDocumentVersion : versionDocumentVersions) { 
+                containerIdLookup.put(versionDocumentVersion.getArtifactId(), container.getId());
             }
-            documents.put(version, versionDocuments);
+            documentVersions.put(version, versionDocumentVersions);
             users.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
         versionsPanels.put(containerPanel,
-                toDisplay(container, draft, versions, documents, users,
+                toDisplay(container, draft, versions, documentVersions, users,
                         publishedBy));
     }
 
@@ -446,10 +448,10 @@ public final class ContainerModel extends TabPanelModel {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;Document&gt;</code>.
      */
-    private List<Document> readDocuments(final Long containerId,
+    private List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId) {
-        return ((ContainerProvider) contentProvider).readDocuments(containerId,
-                versionId);
+        return ((ContainerProvider) contentProvider).readDocumentVersions(
+                containerId, versionId);
     }
 
     /**
@@ -568,13 +570,13 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container,
             final ContainerDraft draft, final List<ContainerVersion> versions,
-            final Map<ContainerVersion, List<Document>> documents,
+            final Map<ContainerVersion, List<DocumentVersion>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerVersionsPanel panel = new ContainerVersionsPanel(this);
         panel.setDraft(container, draft);
         for (final ContainerVersion version : versions) {
-            panel.add(version, documents.get(version), users.get(version), publishedBy.get(version));
+            panel.add(version, documentVersions.get(version), users.get(version), publishedBy.get(version));
         }
         panel.selectFirstVersion();
         return panel;

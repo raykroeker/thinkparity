@@ -14,11 +14,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DocumentVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftDocumentCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.UserCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.VersionCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.VersionDocumentCell;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
@@ -97,7 +97,7 @@ final class ContainerVersionsPopup {
 
     /**
      * Create ContainerVersionsPopup. This will construct a popup menu for a
-     * container version document cell.
+     * document version cell.
      * 
      * @param model
      *            The <code>ContainerModel</code>.
@@ -105,22 +105,21 @@ final class ContainerVersionsPopup {
      *            A <code>VersionDocumentCell</code>.
      */
     ContainerVersionsPopup(final ContainerModel model,
-            final VersionDocumentCell versionDocument) {
+            final DocumentVersionCell documentVersion) {
         super();
         // TODO New UI:  The version documents popup will not work.  Need more data.
         this.jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
         final Data openData = new Data(2);
-        openData.set(OpenVersion.DataKey.DOCUMENT_ID, -1L);
-        openData.set(OpenVersion.DataKey.VERSION_ID, -1L);
+        openData.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getDocumentId());
+        openData.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN_VERSION, openData));
 
         jPopupMenu.addSeparator();
 
         final Data printData = new Data(2);
-        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.CONTAINER_ID, -1L);
-        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.CONTAINER_VERSION_ID, -1L);
-        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, -1L);
+        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentVersion.getDocumentId());
+        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_VERSION, printData));
     }
 

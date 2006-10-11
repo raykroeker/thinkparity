@@ -96,6 +96,7 @@ public class DisplayInfoAvatar extends Avatar {
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 20, 0);
         add(logoJLabel, gridBagConstraints);
 
+        versionJLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
         versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         versionJLabel.setText(bundle.getString("DisplayInfoAvatar.Version")); // NOI18N

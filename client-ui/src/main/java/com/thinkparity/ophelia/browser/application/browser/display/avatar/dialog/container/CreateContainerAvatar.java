@@ -87,12 +87,12 @@ public class CreateContainerAvatar extends Avatar {
         newContainerJPanel = new javax.swing.JPanel();
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
+        explanationJLabel = new javax.swing.JLabel();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
-        explanationJLabel = new javax.swing.JLabel();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("NewContainerDialog.BorderTitle"))); // NOI18N
+        newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("NewContainerDialog.BorderTitle"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
         nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -101,26 +101,8 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
-        org.jdesktop.layout.GroupLayout newContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(newContainerJPanel);
-        newContainerJPanel.setLayout(newContainerJPanelLayout);
-        newContainerJPanelLayout.setHorizontalGroup(
-            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(newContainerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        newContainerJPanelLayout.setVerticalGroup(
-            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(newContainerJPanelLayout.createSequentialGroup()
-                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJLabel)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        newContainerJPanel.getAccessibleContext().setAccessibleName(bundle.getString("NewContainerDialog.BorderTitle")); // NOI18N
+        explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         okJButton.setText(bundle.getString("NewContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -136,8 +118,42 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
-        explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        org.jdesktop.layout.GroupLayout newContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(newContainerJPanel);
+        newContainerJPanel.setLayout(newContainerJPanelLayout);
+        newContainerJPanelLayout.setHorizontalGroup(
+            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(newContainerJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                    .add(newContainerJPanelLayout.createSequentialGroup()
+                        .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, newContainerJPanelLayout.createSequentialGroup()
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)))
+                .addContainerGap())
+        );
+
+        newContainerJPanelLayout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        newContainerJPanelLayout.setVerticalGroup(
+            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(newContainerJPanelLayout.createSequentialGroup()
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(nameJLabel)
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 15, Short.MAX_VALUE)
+                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelJButton)
+                    .add(okJButton))
+                .addContainerGap())
+        );
+        newContainerJPanel.getAccessibleContext().setAccessibleName(bundle.getString("NewContainerDialog.BorderTitle")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -145,29 +161,14 @@ public class CreateContainerAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(okJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(okJButton))
+                .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents

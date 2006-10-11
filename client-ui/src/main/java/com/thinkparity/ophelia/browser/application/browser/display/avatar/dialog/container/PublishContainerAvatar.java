@@ -113,52 +113,26 @@ public class PublishContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        explanationJLabel = new javax.swing.JLabel();
         publishContainerJPanel = new javax.swing.JPanel();
         commentJLabel = new javax.swing.JLabel();
         commentJTextField = new javax.swing.JTextField();
         namesJScrollPane = new javax.swing.JScrollPane();
         namesJTable = new javax.swing.JTable();
+        explanationJLabel = new javax.swing.JLabel();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
-        publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("PublishContainerDialog.BorderTitle"))); // NOI18N
+        publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("PublishContainerDialog.BorderTitle"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
 
         namesJTable.setRowSelectionAllowed(false);
+        namesJTable.setShowHorizontalLines(false);
         namesJTable.setShowVerticalLines(false);
         namesJScrollPane.setViewportView(namesJTable);
 
-        org.jdesktop.layout.GroupLayout publishContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(publishContainerJPanel);
-        publishContainerJPanel.setLayout(publishContainerJPanelLayout);
-        publishContainerJPanelLayout.setHorizontalGroup(
-            publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
-                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
-                    .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .add(20, 20, 20)
-                        .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        publishContainerJPanelLayout.setVerticalGroup(
-            publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commentJLabel)
-                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         okJButton.setText(bundle.getString("PublishContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -174,36 +148,65 @@ public class PublishContainerAvatar extends Avatar {
             }
         });
 
+        org.jdesktop.layout.GroupLayout publishContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(publishContainerJPanel);
+        publishContainerJPanel.setLayout(publishContainerJPanelLayout);
+        publishContainerJPanelLayout.setHorizontalGroup(
+            publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(publishContainerJPanelLayout.createSequentialGroup()
+                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(publishContainerJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
+                    .add(publishContainerJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
+                    .add(publishContainerJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
+                        .addContainerGap(346, Short.MAX_VALUE)
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)))
+                .addContainerGap())
+        );
+
+        publishContainerJPanelLayout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        publishContainerJPanelLayout.setVerticalGroup(
+            publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(publishContainerJPanelLayout.createSequentialGroup()
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(commentJLabel)
+                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 171, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelJButton)
+                    .add(okJButton))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(okJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton))
-                    .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(okJButton))
-                .addContainerGap())
+                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

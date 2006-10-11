@@ -8,11 +8,20 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 
 
 import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -21,6 +30,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.swing.TableSorter;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -45,6 +55,7 @@ public class PublishContainerAvatar extends Avatar {
         publishContainerJPanel.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJScrollPane.getViewport().setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJTable.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
+        namesJTable.getTableHeader().setDefaultRenderer(new PublishTableHeaderRenderer(namesJTable.getTableHeader()));
     }
 
     /**
@@ -114,25 +125,27 @@ public class PublishContainerAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         publishContainerJPanel = new javax.swing.JPanel();
+        explanationJLabel = new javax.swing.JLabel();
         commentJLabel = new javax.swing.JLabel();
         commentJTextField = new javax.swing.JTextField();
         namesJScrollPane = new javax.swing.JScrollPane();
-        namesJTable = new javax.swing.JTable();
-        explanationJLabel = new javax.swing.JLabel();
+        namesJTable = new PublishJTable();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         publishContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("PublishContainerDialog.BorderTitle"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
 
+        namesJScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(231, 239, 250)));
+        namesJTable.setIntercellSpacing(new java.awt.Dimension(0, 0));
         namesJTable.setRowSelectionAllowed(false);
         namesJTable.setShowHorizontalLines(false);
         namesJTable.setShowVerticalLines(false);
         namesJScrollPane.setViewportView(namesJTable);
-
-        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         okJButton.setText(bundle.getString("PublishContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -153,20 +166,15 @@ public class PublishContainerAvatar extends Avatar {
         publishContainerJPanelLayout.setHorizontalGroup(
             publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(publishContainerJPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
                     .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
-                    .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE))
-                    .add(publishContainerJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
                         .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, publishContainerJPanelLayout.createSequentialGroup()
-                        .addContainerGap(346, Short.MAX_VALUE)
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton)))
@@ -184,7 +192,7 @@ public class PublishContainerAvatar extends Avatar {
                     .add(commentJLabel)
                     .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 171, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
@@ -205,7 +213,7 @@ public class PublishContainerAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(publishContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -479,6 +487,136 @@ public class PublishContainerAvatar extends Avatar {
         }
     }
     
+    /**
+     * This class extends JTable with support for odd and even row background colours
+     */
+    private class PublishJTable extends javax.swing.JTable {
+        
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+        
+        /**
+         * @see javax.swing.JTable#prepareRenderer(javax.swing.table.TableCellRenderer, int, int)
+         */
+        @Override
+        public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            Component c = super.prepareRenderer(renderer, row, column);
+            if (!isCellSelected(row, column)) {
+                if (row % 2 == 0) {
+                    c.setBackground(Colors.Browser.Table.ROW_EVEN_BG);
+                } else {
+                    c.setBackground(Colors.Browser.Table.ROW_ODD_BG);
+                }
+            } else {
+                // If not shaded, match the table's background
+                c.setBackground(getBackground());
+            }
+            
+            return c;
+        }
+    }
+    
+    /**
+     * This class changes the rendering of the table header.
+     * Starting point taken from:
+     *     http://www.chka.de/swing/table/faq.html
+     * Mechanism to adjust the color during mouse rollover from:
+     *     http://forum.java.sun.com/thread.jspa?forumID=57&threadID=435791
+     */
+    private class PublishTableHeaderRenderer extends DefaultTableCellRenderer {
+        
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+        
+        // Table header
+        private final JTableHeader tableHeader;
+        
+        // Mouse rollover column
+        private int rolloverColumn = -1;
+        
+        public PublishTableHeaderRenderer(JTableHeader tableHeader) {
+            this.tableHeader = tableHeader;
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setOpaque(true);
+
+            // This call is needed because DefaultTableCellRenderer calls
+            // setBorder() in its constructor, which is executed after updateUI()
+            setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+            
+            // Add listeners so know when the mouse is over a column header
+            tableHeader.addMouseListener(new MouseAdapter() {
+                public void mouseEntered(MouseEvent e) {
+                    updateRolloverColumn(e);
+                }
+                public void mouseExited(MouseEvent e) {
+                    endRolloverColumn();
+                }
+            });
+            tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
+                public void mouseMoved(MouseEvent e) { 
+                    updateRolloverColumn(e);
+                }
+            });
+            
+        }
+        
+        public void updateRolloverColumn(MouseEvent e) {
+            int col = tableHeader.columnAtPoint(e.getPoint());
+            if (col != rolloverColumn) {
+                rolloverColumn = col;
+                tableHeader.repaint();
+            }
+        }
+        
+        public void endRolloverColumn() {
+            rolloverColumn = -1;
+            tableHeader.repaint();
+        }
+
+        public void updateUI() {
+            super.updateUI();
+            setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        }
+
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean selected, boolean focused, int row,
+                int column) {
+            JTableHeader h = table != null ? table.getTableHeader() : null;
+
+            if (h != null) {
+                setEnabled(h.isEnabled());
+                setComponentOrientation(h.getComponentOrientation());
+
+                if (column == rolloverColumn) {
+                    setBackground(Colors.Browser.Table.HEADER_ROLLOVER_BG);  
+                    setForeground(Colors.Browser.Table.HEADER_ROLLOVER_FG); 
+                } else if (selected || focused) {
+                    setBackground(h.getBackground());
+                    setForeground(h.getForeground()); 
+                } else {
+                    setBackground(Colors.Browser.Table.HEADER_BG);
+                    setForeground(Colors.Browser.Table.HEADER_FG);
+                }
+                setFont(h.getFont());
+            } else {
+                /*
+                 * Use sensible values instead of random leftover values from
+                 * the last call
+                 */
+                setEnabled(true);
+                setComponentOrientation(ComponentOrientation.UNKNOWN);
+
+                setForeground(UIManager.getColor("TableHeader.foreground"));
+                setBackground(UIManager.getColor("TableHeader.background"));
+                setFont(UIManager.getFont("TableHeader.font"));
+            }
+
+            setValue(value);
+
+            return this;
+        }
+    }
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelJButton;
     private javax.swing.JLabel commentJLabel;

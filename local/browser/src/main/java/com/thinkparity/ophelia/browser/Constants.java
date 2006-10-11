@@ -54,6 +54,14 @@ public final class Constants {
                 public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
                 public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
+            public static final class Table {
+                public static final Color HEADER_BG = new Color(245, 248, 252, 255);
+                public static final Color HEADER_FG = Color.BLACK;
+                public static final Color HEADER_ROLLOVER_BG = new Color(87, 136, 206, 255);
+                public static final Color HEADER_ROLLOVER_FG = Color.WHITE;
+                public static final Color ROW_EVEN_BG = new Color(245, 248, 252, 255);
+                public static final Color ROW_ODD_BG = Color.WHITE;
+            }
         }
         public static final class Swing {
             public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);

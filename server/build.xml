@@ -17,25 +17,25 @@
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet lib/xstream"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model vendor/iText/1.4.5 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet lib/xstream"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
-    <!-- wildfire configuration  -->
-    <property name="wildfire.development.home" value="${env.USERPROFILE}/thinkParity/development/wildfire/3.0.1"/>
-    <property name="wildfire.testing.home" value="${env.USERPROFILE}/thinkParity/testing/wildfire/3.0.1"/>
+    <!-- local configuration  -->
+    <property file="local.properties"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
-    <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
-	<property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>
+    <property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.release.dir" value="${target.dir}/release"/>
-	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
-	<property name="target.test-report.dir" value="${target.dir}/test-report"/>
-	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+    <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+    <property name="target.test-report.dir" value="${target.dir}/test-report"/>
+    <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
     <!-- input directories/files/paths -->
     <property name="vendor.dir" value="${basedir}/vendor"/>
+    <property name="vendor.iText.lib" value="${vendor.dir}/iText/1.4.5/iText.jar"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
     <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>   
     <property name="vendor.lucene.lib" value="${vendor.dir}/lucene/1.9.1/lucene.jar"/>
@@ -48,17 +48,18 @@
         <pathelement location="${target.classes.dir}/common/codebase"/>
         <pathelement location="${target.classes.dir}/common/model"/>
         <pathelement location="${target.classes.dir}/local/model"/>
-		<pathelement location="${target.classes.dir}/remote/codebase"/>
-		<pathelement location="${target.classes.dir}/remote/model"/>
+        <pathelement location="${target.classes.dir}/remote/codebase"/>
+        <pathelement location="${target.classes.dir}/remote/model"/>
 
-		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
+        <pathelement location="${basedir}/vendor/iText/1.4.5/iText.jar"/>
+        <pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
         <pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
-		<pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
-		<pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
-		<pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
-		<pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
-		<pathelement location="${basedir}/vendor/wildfire/3.0.1/wildfire.jar"/>
-		<pathelement location="${basedir}/vendor/wildfire/3.0.1/mail.jar"/>
+        <pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
+        <pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
+        <pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
+        <pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
+        <pathelement location="${basedir}/vendor/wildfire/3.0.1/wildfire.jar"/>
+        <pathelement location="${basedir}/vendor/wildfire/3.0.1/mail.jar"/>
     </path>
     <!-- test-classpath -->
     <path id="project.test-classpath">
@@ -409,6 +410,7 @@ Examples:
         <mkdir dir="${target.release.plugin.dir}/lib"/>
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
+            <fileset file="${vendor.iText.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
             <fileset file="${vendor.lucene.lib}"/>
             <fileset file="${vendor.smack.lib}"/>
@@ -446,32 +448,32 @@ Examples:
         <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
             algorithm="SHA"/>
     </target>
-   
+
     <!-- unit test -->
-	<target name="test" depends="test-compile">
-		<junit fork="on" forkmode="once" reloading="false"
-		errorproperty="junit.didError" failureproperty="junit.didFail">
-			<classpath refid="project.test-classpath"/>
-			<formatter type="brief" usefile="false"/>
+    <target name="test" depends="test-compile">
+        <junit fork="on" forkmode="once" reloading="false"
+                errorproperty="junit.didError" failureproperty="junit.didFail">
+            <classpath refid="project.test-classpath"/>
+            <formatter type="brief" usefile="false"/>
 
             <!-- execute single test -->
-		    <test if="test" name="${test}" todir="${target.test-sessions.dir}">
-		        <formatter type="xml"/>
-		    </test>
+            <test if="test" name="${test}" todir="${target.test-sessions.dir}">
+                <formatter type="xml"/>
+            </test>
 
-		    <!-- execute batch tests -->
-		    <batchtest unless="test" todir="${target.test-sessions.dir}">
+            <!-- execute batch tests -->
+            <batchtest unless="test" todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
                 <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
                 <fileset dir="${target.test-classes.dir}/local/model" includes="**/*Test.class"/>
                 <fileset dir="${target.test-classes.dir}/remote/model" includes="**/*Test.class"/>
-			</batchtest>
-		</junit>
+            </batchtest>
+        </junit>
         <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
 
         <fail message="JUnit failure." if="junit.didFail"/>
         <fail message="JUnit error." if="junit.didError"/>
-	</target>
+    </target>
 
     <!-- unit test report -->
     <target name="test-report">

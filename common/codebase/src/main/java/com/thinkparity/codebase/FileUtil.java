@@ -5,6 +5,8 @@ package com.thinkparity.codebase;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.text.Format;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
@@ -34,13 +36,17 @@ public abstract class FileUtil {
 	 */
 	private static final int READ_BUFFER_SIZE;
 
-	static {
+	/** Format for file sizes. */
+    private static Format SIZE_FORMAT;
+
+    static {
 		fileUtilConfig = ConfigFactory.newInstance(FileUtil.class);
 		READ_BUFFER_SIZE = Integer.parseInt(fileUtilConfig.getProperty("read.buffer.size"));
 		BLOCK_SIZE = Integer.parseInt(fileUtilConfig.getProperty("block.size"));
+        SIZE_FORMAT =  new DecimalFormat("###.#");
 	}
 
-	/**
+    /**
 	 * Copy a file.
 	 * 
 	 * @param file
@@ -63,7 +69,6 @@ public abstract class FileUtil {
 			bos.close();
 		}
 	}
-	
 	/**
 	 * Delete a filesystem tree.
 	 * 
@@ -95,6 +100,31 @@ public abstract class FileUtil {
 				"Could not delete directory:  " + directory.getAbsolutePath(),
 				directory.delete());
 	}
+	
+	/**
+     * Format a file size.
+     * 
+     * @param bytes
+     *            A number of bytes.
+     * @return A formatted size <code>String</code>.
+     */
+    public static String formatSize(final Integer bytes) {
+        if (bytes >= 1073741824) {
+            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F / 1024F / 1024F))
+                .append(" GB").toString();
+        } else if (bytes >= 1048576) {
+            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F / 1024F))
+                .append(" MB").toString();
+        } else if (bytes >= 1024) {
+            return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F))
+                .append(" KB").toString();
+        } else if (bytes > 0 && bytes < 1024) {
+            return new StringBuffer(SIZE_FORMAT.format(bytes)).append(" B")
+                .toString();
+        } else {
+            return "0 B";
+        }
+    }
 	
 	/**
 	 * Obtain the extension portion of a file name. If none exists; the full
@@ -252,6 +282,30 @@ public abstract class FileUtil {
         file.setLastModified(DateUtil.getInstance().getTimeInMillis());
     }
 
+    /**
+     * Write a stream to a file.
+     * 
+     * @param input
+     *            An <code>InputStream</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static void write(final InputStream input, final File file)
+            throws FileNotFoundException, IOException {
+        if (null == file)
+            throw new NullPointerException();
+        final FileOutputStream output = new FileOutputStream(file);
+        try {
+            StreamUtil.copy(input, output);
+        } finally {
+            output.flush();
+            output.close();
+        }
+    }
+
+    
     /**
 	 * Write a byte[] to a file.
 	 * 

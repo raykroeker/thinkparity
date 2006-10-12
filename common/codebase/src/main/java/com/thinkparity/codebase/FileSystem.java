@@ -6,6 +6,7 @@ package com.thinkparity.codebase;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -70,6 +71,27 @@ public class FileSystem {
         Assert.assertTrue(absoluteDirectory.mkdirs(),
                 "Cannot create directory:  {0}", absoluteDirectory);
         return findDirectory(path);
+    }
+
+    /**
+     * Create a file at the given path.
+     * 
+     * @param path
+     *            A path.
+     * @return The new file.
+     */
+    public File createFile(final String path) throws IOException {
+        Assert.assertNotTrue(pathExists(path), "Path exists:  {0}", path);
+        final String absolutePath = resolvePath(path);
+        final File absoluteFile = new File(absolutePath);
+        final File parentFile = absoluteFile.getParentFile();
+        if (!parentFile.exists()) {
+            Assert.assertTrue(parentFile.mkdirs(),
+                    "Cannot create directory:  {0}", parentFile);
+        }
+        Assert.assertTrue(absoluteFile.createNewFile(),
+                "Cannot create file:  {0}", absoluteFile);
+        return findFile(path);
     }
 
     /** @see java.lang.Object#equals(java.lang.Object) */

@@ -44,6 +44,15 @@ public class Log4JWrapper {
     }
 
     /**
+     * Obtain the apache logger.
+     * 
+     * @return An apache logger.
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
      * Create Log4JWrapper.
      * 
      * @param clasz

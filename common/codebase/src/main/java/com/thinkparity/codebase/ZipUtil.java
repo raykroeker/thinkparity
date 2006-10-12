@@ -3,13 +3,11 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -17,29 +15,9 @@ import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class ZipUtil {
-
-	/**
-	 * Assertion statement for the zip file creation.
-	 * 
-	 */
-	private static final String ASSERT_NOT_ZIP_FILE_EXISTS;
-
-	/**
-	 * Assertion statement for the zip file creation.
-	 * 
-	 */
-	private static final String ASSERT_ZIP_FILE_CREATE;
-
-	static {
-		ASSERT_NOT_ZIP_FILE_EXISTS = new StringBuffer("")
-			.append("Zip file ''{0}'' already exists.").toString();
-
-		ASSERT_ZIP_FILE_CREATE = new StringBuffer("[")
-			.append("Zip file ''{0}'' could not be created.").toString();
-	}
 
 	/**
 	 * Create a zip file.
@@ -53,52 +31,51 @@ public class ZipUtil {
 	 * @throws IOException
 	 */
 	public static void createZipFile(final File zipFile,
-			final File inputDirectory) throws FileNotFoundException,
-			IOException {
-		Assert.assertNotTrue(
-				formatAssertion(
-						ASSERT_NOT_ZIP_FILE_EXISTS,
-						new String[] {zipFile.getAbsolutePath()}),
-						zipFile.exists());
-		Assert.assertTrue(
-				formatAssertion(
-						ASSERT_ZIP_FILE_CREATE,
-						new String[] {zipFile.getAbsolutePath()}),
-						zipFile.createNewFile());
-		final ZipOutputStream zipOutputStream =
+            final File inputDirectory) throws FileNotFoundException,
+            IOException {
+		Assert.assertNotTrue(zipFile.exists(),
+                "Zip file ''{0}'' already exists.", zipFile);
+		Assert.assertTrue(zipFile.createNewFile(),
+                "Zip file ''{0}'' could not be created.", zipFile);
+		final ZipOutputStream zipStream =
 			new ZipOutputStream(new FileOutputStream(zipFile));
-		zipOutputStream.setLevel(9);
-		final File[] inputFiles = inputDirectory.listFiles();
-		BufferedInputStream bis = null;
+        zipStream.setLevel(9);
+		final File[] files = new FileSystem(inputDirectory).listFiles("/", Boolean.TRUE);
 		try {
-			for(File inputFile : inputFiles) {
-				zipOutputStream.putNextEntry(new ZipEntry(inputFile.getName()));
+		    FileInputStream fileStream = null;
+			for (final File file : files) {
+                // dont' add the zipFile
+                if (file.getAbsolutePath().equals(zipFile.getAbsolutePath()))
+                    break;
 
-				bis =
-					new BufferedInputStream(new FileInputStream(inputFile), 512);
-				try { StreamUtil.copy(bis, zipOutputStream, 512); }
-				finally { bis.close(); }
-
-				zipOutputStream.closeEntry();
+                zipStream.putNextEntry(new ZipEntry(resolveName(inputDirectory, file)));
+                fileStream  = new FileInputStream(file);
+				try {
+                    StreamUtil.copy(fileStream, zipStream);
+				} finally {
+                    fileStream.close();
+				}
+                zipStream.closeEntry();
 			}
-			zipOutputStream.flush();
+            zipStream.flush();
+		} finally {
+            zipStream.close();
 		}
-		finally { zipOutputStream.close(); }
 	}
 
-	/**
-	 * Format the assertion statement.
-	 * 
-	 * @param pattern
-	 *            The assertion statement pattern.
-	 * @param arguments
-	 *            The assertion statement arguments.
-	 * @return The formatted assertion statement.
-	 */
-	private static String formatAssertion(final String pattern,
-			final Object[] arguments) {
-		return MessageFormat.format(pattern, arguments);
-	}
+    /**
+     * Resolve the zip entry name.
+     * 
+     * @param zipRoot
+     *            The root of the zip archive.
+     * @param zipEntry
+     *            The zip archive entry.
+     * @return The zip entry name.
+     */
+    private static String resolveName(final File zipRoot, final File zipEntry) {
+        return StringUtil.searchAndReplace(zipEntry.getAbsolutePath(),
+                zipRoot.getAbsolutePath(), "").toString();
+    }
 
 	/**
 	 * Create a ZipUtil [Singleton]

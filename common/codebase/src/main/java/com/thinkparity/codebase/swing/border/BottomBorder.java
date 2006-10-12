@@ -22,11 +22,15 @@ public class BottomBorder extends AbstractBorder {
 	 */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * The border color.
-	 * 
-	 */
-	private final Color color;
+    /**
+     * The border colors.
+     */
+    private final Color[] colors;
+    
+    /**
+     * The border thinkness.
+     */
+    private final Integer thickness;  
     
     /**
      * The border insets.
@@ -34,7 +38,7 @@ public class BottomBorder extends AbstractBorder {
     private final Insets insets;
 
 	/**
-	 * Create a black TopBorder.
+	 * Create a black BottomBorder.
 	 * 
 	 */
 	public BottomBorder() { this(Color.BLACK); }
@@ -46,10 +50,30 @@ public class BottomBorder extends AbstractBorder {
 	 *            The border color.
 	 */
 	public BottomBorder(final Color color) {
-		super();
-		this.color = color;
+        super();
+        this.colors = new Color[1];
+        this.colors[0] = color;
+        this.thickness = 1;
         this.insets = new Insets(0, 0, 1, 0);  // Offset bottom is 1
 	}
+    
+    /**
+     * Create a BottomBorder.
+     * 
+     * @param color
+     *            The border color.
+     * @param thickness
+     *            The border thinkness
+     */
+    public BottomBorder(final Color color, final Integer thickness) {
+        super();
+        this.colors = new Color[thickness];
+        for (int i=0; i<thickness; i++) {
+            this.colors[i] = color;
+        }
+        this.thickness = thickness;
+        this.insets = new Insets(0, 0, 1, 0);  // Offset bottom is 1
+    }
     
     /**
      * Create a BottomBorder.
@@ -65,6 +89,43 @@ public class BottomBorder extends AbstractBorder {
         this.insets.left = insets.left;
         this.insets.bottom = insets.bottom;
         this.insets.right = insets.right;       
+    }
+    
+    /**
+     * Create a BottomBorder.
+     * 
+     * @param color
+     *            The border color.
+     * @param thickness
+     *            The border thinkness.
+     * @param Insets
+     *            The border insets.
+     */
+    public BottomBorder(final Color color, final Integer thickness, Insets insets) {
+        this(color, thickness);
+        this.insets.top = insets.top;
+        this.insets.left = insets.left;
+        this.insets.bottom = insets.bottom;
+        this.insets.right = insets.right;    
+    }
+    
+    /**
+     * Create a BottomBorder.
+     * 
+     * @param colors
+     *            The border colors, from bottom to top.
+     * @param thickness
+     *            The border thinkness.
+     * @param Insets
+     *            The border insets.
+     */
+    public BottomBorder(final Color[] colors, final Integer thickness, Insets insets) {
+        this(colors[0], thickness, insets);
+        if (colors.length >= thickness) {
+            for (int i=0; i<thickness; i++) {
+                this.colors[i] = colors[i];
+            }
+        }
     }
 
 	/**
@@ -111,8 +172,12 @@ public class BottomBorder extends AbstractBorder {
 	 */
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		final Color oColor = g.getColor();
-		g.setColor(color);
-		g.drawLine(x + this.insets.left, y + height - 1, x + width - 1 - this.insets.right, y + height - 1);
+		g.setColor(colors[0]);
+        g.drawLine(x + this.insets.left, y + height - 1, x + width - 1 - this.insets.right, y + height - 1);
+        for (Integer i = 1; i < thickness; i++) {
+            g.setColor(colors[i]);
+            g.drawLine(x + this.insets.left, y + height - 1 - i, x + width - 1 - this.insets.right, y + height - 1 - i);
+        }
 		g.setColor(oColor);
 	}
 }

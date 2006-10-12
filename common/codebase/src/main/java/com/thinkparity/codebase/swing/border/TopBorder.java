@@ -21,12 +21,11 @@ public class TopBorder extends AbstractBorder {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
-
-	/**
-	 * The border color.
-	 * 
-	 */
-	private final Color color;
+    
+    /**
+     * The border colors.
+     */
+    private final Color[] colors;
     
     /**
      * The border thinkness.
@@ -52,7 +51,8 @@ public class TopBorder extends AbstractBorder {
 	 */
 	public TopBorder(final Color color) {
 		super();
-		this.color = color;
+        this.colors = new Color[1];
+		this.colors[0] = color;
         this.thickness = 1;
         this.insets = new Insets(1, 0, 0, 0);  // Offset top is 1
 	}
@@ -67,7 +67,10 @@ public class TopBorder extends AbstractBorder {
      */
     public TopBorder(final Color color, final Integer thickness) {
         super();
-        this.color = color;
+        this.colors = new Color[thickness];
+        for (int i=0; i<thickness; i++) {
+            this.colors[i] = color;
+        }
         this.thickness = thickness;
         this.insets = new Insets(1, 0, 0, 0);  // Offset top is 1
     }
@@ -104,6 +107,25 @@ public class TopBorder extends AbstractBorder {
         this.insets.left = insets.left;
         this.insets.bottom = insets.bottom;
         this.insets.right = insets.right;    
+    }
+    
+    /**
+     * Create a TopBorder.
+     * 
+     * @param colors
+     *            The border colors, from top to bottom.
+     * @param thickness
+     *            The border thinkness.
+     * @param Insets
+     *            The border insets.
+     */
+    public TopBorder(final Color[] colors, final Integer thickness, Insets insets) {
+        this(colors[0], thickness, insets);
+        if (colors.length >= thickness) {
+            for (int i=0; i<thickness; i++) {
+                this.colors[i] = colors[i];
+            }
+        }
     }
 
 	/**
@@ -150,9 +172,10 @@ public class TopBorder extends AbstractBorder {
 	 */
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		final Color oColor = g.getColor();
-		g.setColor(color);
+		g.setColor(colors[0]);
 		g.drawLine(x + this.insets.left, y, x + width - 1 - this.insets.right, y);
         for (Integer i = 1; i < thickness; i++) {
+            g.setColor(colors[i]);
             g.drawLine(x + this.insets.left, y + i, x + width - 1 - this.insets.right, y + i);
         }
 		g.setColor(oColor);

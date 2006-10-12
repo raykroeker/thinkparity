@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container;
 
 
+import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -79,6 +80,22 @@ abstract class ContainerTestCase extends ModelTestCase {
      *            The test name.
      */
     protected ContainerTestCase(final String name) { super(name); }
+
+    /**
+     * Obtain an output directory for a container test case. This will locate
+     * the output directory in a per-test director beneath a common container
+     * root.
+     * 
+     * @return A directory <code>File</code>.
+     */
+    @Override
+    public File getOutputDirectory() {
+        final File parentFile = new File(super.getOutputDirectory(), "Container");
+        final File outputDirectory = new File(parentFile, getName());
+        if (!outputDirectory.exists())
+            assertTrue(outputDirectory.mkdirs());
+        return outputDirectory;
+    }
 
     /**
      * @see junit.framework.TestCase#setUp()

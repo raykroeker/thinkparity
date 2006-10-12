@@ -337,7 +337,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             }
         } catch (final TrueAssertion ta) {
             if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
-                logger.logWarning(ta,
+                logger.logWarning(
                         "Team member {0} already exists for artifact {1}.",
                         jabberId, uniqueId);
             } else {

@@ -6,14 +6,17 @@ package com.thinkparity.ophelia.model.container;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
+import javax.xml.transform.TransformerException;
+
 import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
+import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
@@ -41,6 +44,7 @@ import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
+import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -59,9 +63,6 @@ import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -315,6 +316,24 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Create a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    ContainerVersion createVersion(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            return createVersion(containerId, readNextVersionId(containerId),
+                    localUserId(), currentDateTime());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Delete a container.
      * 
      * @param containerId
@@ -366,7 +385,30 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Export a container version to a directory. The 
+     * Export a container.
+     * 
+     * @param exportDirectory
+     *            The directory <code>File</code> to export to.
+     * @param containerId
+     *            The container id <code>Long</code>.
+     */
+    void export(final File exportDirectory, final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("exportDirectory", exportDirectory);
+        logger.logVariable("containerId", containerId);
+        try {
+            Assert.assertTrue(exportDirectory.isDirectory(),
+                    "Export directory {0} is not a directory.", exportDirectory);
+            final Container container = read(containerId);
+            final List<ContainerVersion> versions = readVersions(containerId);
+            export(exportDirectory, container, versions);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Export a container version.
      * 
      * @param exportDirectory
      *            A file output stream representing a zip file.
@@ -375,49 +417,33 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    void export(final File exportDirectory, final Long containerId,
+    void exportVersion(final File exportDirectory, final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("exportDirectory", exportDirectory);
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
         try {
-            final File exportRoot =
-                workspace.createTempDirectory(MessageFormat.format("export_{0}", containerId));
-            final FileSystem exportFileSystem = new FileSystem(exportRoot);
-            final List<ContainerVersion> versions = readVersions(containerId);
+            Assert.assertTrue(exportDirectory.isDirectory(),
+                    "Export directory {0} is not a directory.", exportDirectory);
+            final Container container = read(containerId);
+            final List<ContainerVersion> versions = new ArrayList<ContainerVersion>(1);
+            versions.add(readVersion(containerId, versionId));
+            export(exportDirectory, container, versions);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
-            final InternalDocumentModel documentModel = getInternalDocumentModel();
-            final DocumentNameGenerator nameGenerator = documentModel.getNameGenerator();
-            List<DocumentVersion> documentVersions;
-            InputStream documentStream;
-            for (final ContainerVersion version : versions) {
-                documentVersions = containerIO.readDocumentVersions(version.getArtifactId(), version.getVersionId());
-                for (final DocumentVersion documentVersion : documentVersions) {
-                    exportFileSystem.createDirectory(MessageFormat.format(
-                            "/Version - {0,date,MMM dd, yyyy h mm ss a}",
-                            version.getUpdatedOn().getTime()));
-
-                    documentStream = documentModel.openVersionStream(documentVersion.getArtifactId(), documentVersion.getVersionId());
-                    try {
-                        
-                    } finally {
-                        documentStream.close();
-                    }
-                }
-            }
-            
-            
-            
-            
-            final com.lowagie.text.Document document = new com.lowagie.text.Document();
-            try {
-                PdfWriter.getInstance(document, new FileOutputStream(new File(exportDirectory, "HelloWorld.pdf")));
-                document.open();
-                document.add(new Paragraph("Hello World"));
-            } finally {
-                document.close();
-            }
+    /**
+     * Obtain a container name generator.
+     * 
+     * @return A <code>ContainerNameGenerator</code>.
+     */
+    ContainerNameGenerator getNameGenerator() {
+        logger.logApiId();
+        try {
+            return new ContainerNameGenerator(l18n);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2178,7 +2204,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
 
-
     /**
      * Create the first draft for a cotnainer.
      * 
@@ -2206,6 +2231,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return postCreationDraft;
     }
 
+
     /**
      * Create the team for a container. The team will consist of the local user
      * only.
@@ -2218,18 +2244,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final List<TeamMember> team =
             getInternalArtifactModel().createTeam(containerId);
         return team.get(0);
-    }
-
-    /**
-     * Create a container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container version.
-     */
-    private ContainerVersion createVersion(final Long containerId) {
-        return createVersion(containerId, readNextVersionId(containerId),
-                localUserId(), currentDateTime());
     }
 
     /**
@@ -2257,8 +2271,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
         version.setName(container.getName());
-        version.setUpdatedBy(container.getCreatedBy());
-        version.setUpdatedOn(container.getCreatedOn());
+        version.setUpdatedBy(version.getCreatedBy());
+        version.setUpdatedOn(version.getCreatedOn());
         version.setVersionId(versionId);
         containerIO.createVersion(version);
 
@@ -2324,6 +2338,81 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             return draft.getOwner().getId().equals(localUserId());
         }
         else { return Boolean.FALSE; }
+    }
+
+    /**
+     * Export a container and a list of versions.
+     * 
+     * @param exportDirectory
+     *            An export directory <code>File</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @throws IOException
+     * @throws TransformerException
+     */
+    private void export(final File exportDirectory, final Container container,
+            final List<ContainerVersion> versions) throws IOException,
+            TransformerException {
+        final ContainerNameGenerator nameGenerator = getNameGenerator();
+        final FileSystem exportFileSystem = new FileSystem(
+                workspace.createTempDirectory(
+                        nameGenerator.exportDirectoryName(container)));
+
+        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
+        final Map<ContainerVersion, User> versionsPublishedBy =
+            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<DocumentVersion>> documents =
+            new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
+        final Map<DocumentVersion, Integer> documentsSize = new HashMap<DocumentVersion, Integer>();
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
+            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith =
+            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+        InputStream stream;
+        File directory, file;
+        for (final ContainerVersion version : versions) {
+            versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
+            publishedTo.put(version, readPublishedTo(
+                    version.getArtifactId(), version.getVersionId()));
+            sharedWith.put(version, readSharedWith(
+                    version.getArtifactId(), version.getVersionId()));
+
+            documents.put(version, readDocumentVersions(
+                    version.getArtifactId(), version.getVersionId()));
+            directory = exportFileSystem.createDirectory(
+                    nameGenerator.exportDirectoryName(version));
+            for (final DocumentVersion documentVersion : documents.get(version)) {
+                documentsSize.put(documentVersion, readDocumentVersionSize(
+                        documentVersion.getArtifactId(), documentVersion.getVersionId()));
+
+                file = new File(directory,
+                        documentNameGenerator.exportFileName(documentVersion));
+                Assert.assertTrue(file.createNewFile(),
+                        "Cannot create file {0}.", file);
+                stream = documentModel.openVersionStream(
+                        documentVersion.getArtifactId(),
+                        documentVersion.getVersionId());
+                try {
+                    FileUtil.write(stream, file);
+                } finally {
+                    stream.close();
+                }
+            }
+        }
+
+        final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
+        pdfWriter.write(nameGenerator.pdfFileName(container), container,
+                readUser(container.getCreatedBy()), versions,
+                versionsPublishedBy, documents, documentsSize, publishedTo,
+                sharedWith);
+
+        final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
+                "{0}.zip", container.getName()));
+        ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
+        FileUtil.copy(zipFile, new File(exportDirectory, zipFile.getName()));
     }
 
     /**
@@ -2654,6 +2743,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         .getVersionId()), publishTo, publishedBy, publishedOn);
     }
 
+    private Integer readDocumentVersionSize(final Long documentId,
+            final Long versionId) {
+        return getInternalDocumentModel().readVersionSize(documentId, versionId);
+    }
+
     /**
      * Read the document version streams for a container version.
      * 
@@ -2678,6 +2772,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             documentVersion.getVersionId()));
         }
         return documentVersionStreams;
+    }
+
+    /**
+     * Read a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
+     */
+    private User readUser(final JabberId userId) {
+        return getInternalUserModel().read(userId);
     }
 
     /**

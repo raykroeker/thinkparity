@@ -276,7 +276,7 @@ class LocalFile {
 	 */
 	private File getFile(final Workspace workspace, final Document document,
             final DocumentVersion version) {
-        final String child = nameGenerator.fileName(version);
+        final String child = nameGenerator.localFileName(version);
 		return new File(getFileParent(workspace, document), child);
 	}
 
@@ -294,7 +294,7 @@ class LocalFile {
 		if(!cache.exists()) {
 			Assert.assertTrue("getFileParent(Document)", cache.mkdir());
 		}
-		final File parent = new File(cache, nameGenerator.directoryName(document));
+		final File parent = new File(cache, nameGenerator.localDirectoryName(document));
 		if(!parent.exists()) {
 			Assert.assertTrue("getFileParent(Document)", parent.mkdir());
 		}

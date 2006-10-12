@@ -161,10 +161,26 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public void export(final File exportDirectory, final Long containerId,
+    public void export(final File exportDirectory, final Long containerId) {
+        synchronized (getImplLock()) {
+            getImpl().export(exportDirectory, containerId);
+        }
+    }
+
+    /**
+     * Export a container version to a directory. The 
+     * 
+     * @param exportDirectory
+     *            A file output stream representing a zip file.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     */
+    public void exportVersion(final File exportDirectory, final Long containerId,
             final Long versionId) {
         synchronized (getImplLock()) {
-            getImpl().export(exportDirectory, containerId, versionId);
+            getImpl().exportVersion(exportDirectory, containerId, versionId);
         }
     }
 

@@ -171,6 +171,21 @@ public class InternalDocumentModel extends DocumentModel implements
     }
 
     /**
+     * Read the version size.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version size <code>Integer</code>.
+     */
+    public Integer readVersionSize(final Long documentId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readVersionSize(documentId, versionId);
+        }
+    }
+
+    /**
      * Revert the document draft to its previous state.
      * 
      * @param documentId

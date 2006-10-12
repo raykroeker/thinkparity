@@ -1,0 +1,246 @@
+/*
+ * Created On: 11-Oct-06 9:07:55 AM
+ */
+package com.thinkparity.ophelia.model.container.export;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.transform.TransformerException;
+
+import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.User;
+
+import com.thoughtworks.xstream.XStream;
+
+/**
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
+final class PDFXMLWriter {
+
+    private Container container;
+
+    private User containerCreatedBy;
+
+    private final Map<ContainerVersion, List<DocumentVersion>> documents;
+
+    private final Map<DocumentVersion, Integer> documentsSize;
+
+    private final FileSystem exportFileSystem;
+
+    private final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo;
+
+    private final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith;
+    
+    private Statistics statistics;
+
+    private final List<ContainerVersion> versions;
+
+    private final Map<ContainerVersion, User> versionsPublishedBy;
+
+    /**
+     * Create XMLWriter.
+     *
+     */
+    public PDFXMLWriter(final FileSystem exportFileSystem) {
+       super();
+       this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
+       this.documentsSize = new HashMap<DocumentVersion, Integer>();
+       this.publishedTo = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
+       this.sharedWith = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
+       this.versions = new ArrayList<ContainerVersion>();
+       this.versionsPublishedBy = new HashMap<ContainerVersion, User>();
+       this.exportFileSystem = exportFileSystem;
+    }
+
+    /**
+     * Write a pdf.
+     * @param path
+     * @param container
+     * @param containerCreatedBy
+     * @param versions
+     * @param versionsPublishedBy
+     * @param documents
+     * @param documentsSize
+     * @param publishedTo
+     * @param sharedWith
+     * @throws IOException
+     * @throws TransformerException
+     */
+    void write(
+            final String path,
+            final Container container,
+            final User containerCreatedBy,
+            final List<ContainerVersion> versions,
+            final Map<ContainerVersion, User> versionsPublishedBy,
+            final Map<ContainerVersion, List<DocumentVersion>> documents,
+            final Map<DocumentVersion, Integer> documentsSize,
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith)
+            throws IOException, TransformerException {
+        this.container = container;
+        this.containerCreatedBy = containerCreatedBy;
+        this.documents.clear();
+        this.documents.putAll(documents);
+        this.documentsSize.clear();
+        this.documentsSize.putAll(documentsSize);
+        this.publishedTo.clear();
+        this.publishedTo.putAll(publishedTo);
+        this.sharedWith.clear();
+        this.sharedWith.putAll(publishedTo);
+        this.versions.clear();
+        this.versions.addAll(versions);
+        this.versionsPublishedBy.clear();
+        this.versionsPublishedBy.putAll(versionsPublishedBy);
+        generateStatistics();
+
+        final XStream xstream = new XStream();
+        xstream.alias("container", PDFXMLContainer.class);
+        xstream.alias("version", PDFXMLContainerVersion.class);
+        xstream.alias("document", PDFXMLDocument.class);
+        xstream.alias("user", PDFXMLUser.class);
+        xstream.addImplicitCollection(PDFXMLContainer.class, "versions");
+        xstream.addImplicitCollection(PDFXMLContainerVersion.class, "documents");
+        xstream.addImplicitCollection(PDFXMLContainerVersion.class, "users");
+
+        xstream.toXML(createPDFXML(), newFileWriter(path));
+    }
+
+    private PDFXMLContainer createPDFXML() {
+        final PDFXMLContainer pdfXML = new PDFXMLContainer();
+        pdfXML.createdBy = containerCreatedBy.getName();
+        pdfXML.createdOn = format(container.getCreatedOn());
+        pdfXML.documentSum = format(statistics.documentSum);
+        pdfXML.name = container.getName();
+        pdfXML.userSum = format(statistics.usersSum);
+        pdfXML.versions = createPDFXMLVersions();
+        pdfXML.versionSum = format(statistics.versionSum);
+        return pdfXML;
+    }
+
+    private PDFXMLDocument createPDFXMLDocument(final DocumentVersion version) {
+        final PDFXMLDocument pdfXML = new PDFXMLDocument();
+        pdfXML.name = version.getName();
+        pdfXML.size = FileUtil.formatSize(documentsSize.get(version));
+        return pdfXML;
+    }
+
+    private List<PDFXMLDocument> createPDFXMLDocuments(final ContainerVersion version) {
+        final List<PDFXMLDocument> pdfXML = new ArrayList<PDFXMLDocument>(documents.size());
+        for (final DocumentVersion documentVersion : documents.get(version)) {
+            pdfXML.add(createPDFXMLDocument(documentVersion));
+        }
+        return pdfXML;
+    }
+
+    private PDFXMLUser createPDFXMLUser(final User user, final ArtifactReceipt receipt) {
+        final PDFXMLUser pdfXML = new PDFXMLUser();
+        pdfXML.name = user.getName();
+        if (receipt.isSetReceivedOn())
+            pdfXML.receivedOn = format(receipt.getReceivedOn());
+        else
+            pdfXML.receivedOn = "";
+        return pdfXML;
+    }
+
+    private List<PDFXMLUser> createPDFXMLUsers(final ContainerVersion version) {
+        final Map<User, ArtifactReceipt> publishedTo = this.publishedTo.get(version);
+        final Map<User, ArtifactReceipt> sharedWith = this.sharedWith.get(version);
+        final List<PDFXMLUser> pdfXML = new ArrayList<PDFXMLUser>(publishedTo.size() + sharedWith.size());
+        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+            pdfXML.add(createPDFXMLUser(entry.getKey(), entry.getValue()));
+        }
+        for (final Entry<User, ArtifactReceipt> entry : sharedWith.entrySet()) {
+            pdfXML.add(createPDFXMLUser(entry.getKey(), entry.getValue()));
+        }
+        return pdfXML;
+    }
+
+    private PDFXMLContainerVersion createPDFXMLVersion(
+            final ContainerVersion version, final Integer versionId) {
+        final PDFXMLContainerVersion pdfXML = new PDFXMLContainerVersion();
+        pdfXML.documents = createPDFXMLDocuments(version);
+        pdfXML.documentSum = format(statistics.documentsPerVersion.get(version));
+        pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
+        pdfXML.publishedOn = format(version.getUpdatedOn());
+        pdfXML.users = createPDFXMLUsers(version);
+        pdfXML.userSum = format(statistics.usersPerVersion.get(version));
+        pdfXML.versionId = format(versionId);
+        return pdfXML;
+    }
+
+    private List<PDFXMLContainerVersion> createPDFXMLVersions() {
+        final List<PDFXMLContainerVersion> pdfXML = new ArrayList<PDFXMLContainerVersion>(versions.size());
+        for (int i = 0; i < versions.size(); i++) {
+            pdfXML.add(createPDFXMLVersion(versions.get(i), versions.size() - i));
+        }
+        return pdfXML;
+    }
+
+    private String format(final Calendar calendar) {
+        return MessageFormat.format("{0,date,MMMM d, yyyy h:mm a}", calendar.getTime());
+    }
+
+    private String format(final Integer integer) {
+        return MessageFormat.format("{0}", integer);
+    }
+
+    /**
+     * Generate container statistics.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void generateStatistics() {
+        this.statistics = new Statistics();
+        this.statistics.documentsPerVersion.clear();
+        this.statistics.documentSum = 0;
+        this.statistics.usersSum = 0;
+        this.statistics.versionSum = versions.size();
+
+        for (final Entry<ContainerVersion, List<DocumentVersion>> entry :
+                documents.entrySet()) {
+            this.statistics.documentSum += entry.getValue().size();
+            this.statistics.documentsPerVersion.put(
+                    entry.getKey(), entry.getValue().size());
+        }
+        for (final ContainerVersion version : publishedTo.keySet()) {
+            this.statistics.usersPerVersion.put(version, publishedTo.get(version).size());
+            this.statistics.usersSum += publishedTo.get(version).size();
+        }
+        for (final ContainerVersion version : sharedWith.keySet()) {
+            this.statistics.usersPerVersion.put(version,
+                    this.statistics.usersPerVersion.get(version) + sharedWith.get(version).size());
+            this.statistics.usersSum += sharedWith.get(version).size();
+        }
+    }
+
+    private FileWriter newFileWriter(final String path) throws IOException {
+        if (null == exportFileSystem.find(path)) {
+            return new FileWriter(exportFileSystem.createFile(path));
+        } else {
+            return new FileWriter(exportFileSystem.findFile(path));
+        }
+    }
+
+    private class Statistics {
+        private final Map<ContainerVersion, Integer> documentsPerVersion = new HashMap<ContainerVersion, Integer>();
+        private Integer documentSum;
+        private final Map<ContainerVersion, Integer> usersPerVersion = new HashMap<ContainerVersion, Integer>();
+        private Integer usersSum;
+        private Integer versionSum;
+    }
+}

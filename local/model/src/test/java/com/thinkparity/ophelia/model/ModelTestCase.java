@@ -30,9 +30,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.OpheliaTestCase;
-import com.thinkparity.ophelia.OpheliaTestModelFactory;
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -52,6 +49,10 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import com.thinkparity.ophelia.OpheliaTestCase;
+import com.thinkparity.ophelia.OpheliaTestModelFactory;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * ModelTestCase
@@ -587,6 +588,23 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return super.createFailMessage(t);
 	}
 
+    /**
+     * Create a container version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    protected ContainerVersion createVersion(final OpheliaTestUser testUser,
+            final Container container) {
+        try {
+            Thread.sleep(1000);
+        } catch (final InterruptedException ix) {
+            throw new RuntimeException(ix);
+        }
+        return getContainerModel(testUser).createVersion(container.getId());
+    }
+
     protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
         return modelFactory.getArchiveModel(testUser);
     }
@@ -778,18 +796,57 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Publish the container.
+     * Publish the container to contacts.
      * 
      * @param container
-     *            The container.
+     *            A <code>Container</code>.
      */
-    protected void publish(final OpheliaTestUser testUser,
+    protected void publishToContacts(final OpheliaTestUser testUser,
             final Container container) {
         final List<TeamMember> teamMembers = Collections.emptyList();
         final List<Contact> contacts = readContacts(testUser);
         logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
                 getName(), container.getName(), contacts, teamMembers);
         getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
+    }
+
+    /**
+     * Publish the container a to the team members.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    protected void publishToTeam(final OpheliaTestUser testUser,
+            final Container container) {
+        final List<TeamMember> teamMembers = getArtifactModel(testUser).readTeam2(container.getId());
+        remove(teamMembers, testUser);
+        final List<Contact> contacts = Collections.emptyList();
+        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
+                getName(), container.getName(), contacts, teamMembers);
+        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
+    }
+
+    /**
+     * Create a draft.
+     * 
+     * @param testUser
+     *            A <code>OpheliaTestUser</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    protected ContainerDraft createDraft(final OpheliaTestUser testUser,
+            final Container container) {
+        return getContainerModel(testUser).createDraft(container.getId());
+    }
+
+    private void remove(final List<? extends User> users, final User user) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(user.getId())) {
+                users.remove(i);
+                break;
+            }
+        }
     }
 
     /**
@@ -800,7 +857,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void publishContainer(final OpheliaTestUser testUser,
             final Container container) {
-        publish(testUser, container);
+        publishToContacts(testUser, container);
     }
 
     /**

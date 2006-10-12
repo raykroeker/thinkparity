@@ -37,8 +37,8 @@ public class ReadSharedWithTest extends ContainerTestCase {
                 sharedWith.containsKey(OpheliaTestUser.JUNIT_X));
         assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Y,
                 sharedWith.containsKey(OpheliaTestUser.JUNIT_Y));
-        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Z,
-                sharedWith.containsKey(OpheliaTestUser.JUNIT_Z));
+//        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Z,
+//                sharedWith.containsKey(OpheliaTestUser.JUNIT_Z));
     }
 
 
@@ -52,7 +52,7 @@ public class ReadSharedWithTest extends ContainerTestCase {
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
-        publish(OpheliaTestUser.JUNIT, container);
+        publishToContacts(OpheliaTestUser.JUNIT, container);
         share(OpheliaTestUser.JUNIT, container, containerModel.readLatestVersion(container.getId()));
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, version);

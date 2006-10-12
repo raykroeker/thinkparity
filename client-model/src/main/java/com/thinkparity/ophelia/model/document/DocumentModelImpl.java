@@ -723,6 +723,26 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
+     * Read the version size.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version size <code>Integer</code>.
+     */
+    Integer readVersionSize(final Long documentId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        logger.logVariable("versionId", versionId);
+        try {
+            return documentIO.readVersionSize(documentId, versionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Rename a document.
      *
      * @param documentId
@@ -769,7 +789,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         revertDraft(documentId, readLatestVersion(documentId).getVersionId());
     }
 
-    /**
+	/**
      * Update the working version of a document. Note that the content stream is
      * not closed.
      * 
@@ -790,7 +810,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-	/**
+    /**
      * Assert that the document's draft is modified.
      * 
      * @param assertion
@@ -864,7 +884,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
+	/**
      * Create a document version.
      * 
      * @param documentId
@@ -928,7 +948,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
 	}
 
-	/**
+    /**
      * Delete only the local document data.
      * 
      * @param document
@@ -1039,4 +1059,5 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             throw translateError(t);
         }
     }
+
 }

@@ -34,9 +34,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
     /** Sql to create a document version. */
 	private static final String SQL_CREATE_VERSION =
 		new StringBuffer("insert into DOCUMENT_VERSION ")
-		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_ENCODING,")
+		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_SIZE,CONTENT_ENCODING,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION) ")
-		.append("values (?,?,?,?,?,?) ")
+		.append("values (?,?,?,?,?,?,?) ")
 		.toString();
 
     private static final String SQL_DELETE =
@@ -49,7 +49,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
 		.toString();
 
-	private static final String SQL_GET =
+    private static final String SQL_GET =
 		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
 		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
 		.append("UC.JABBER_ID CREATED_BY,A.CREATED_ON,UU.JABBER_ID UPDATED_BY,A.UPDATED_ON,")
@@ -106,7 +106,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("order by A.ARTIFACT_ID asc")
 		.toString();
 
-    private static final String SQL_LIST_VERSIONS =
+	private static final String SQL_LIST_VERSIONS =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
@@ -120,7 +120,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
 
-	/** Sql to open a stream to the document version's content. */
+    /** Sql to open a stream to the document version's content. */
     private static final String SQL_OPEN_STREAM =
             new StringBuffer("select DV.CONTENT ")
             .append("from DOCUMENT_VERSION DV ")
@@ -141,6 +141,15 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             .append("inner join USER UU on AV.UPDATED_BY=UU.USER_ID ")
             .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
             .toString();
+
+	/** Sql to read the version's size. */
+    private static final String SQL_READ_VERSION_SIZE =
+        new StringBuffer("select DV.CONTENT_SIZE ")
+        .append("from DOCUMENT_VERSION DV ")
+        .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
+        .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
+        .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
+        .toString();
 
 	private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
@@ -216,9 +225,10 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
 			session.setBytes(3, versionContent.getContent());
-			session.setString(4, version.getEncoding());
-			session.setString(5, version.getChecksum());
-			session.setInt(6, version.getCompression());
+            session.setInt(4, versionContent.getContent().length);
+			session.setString(5, version.getEncoding());
+			session.setString(6, version.getChecksum());
+			session.setInt(7, version.getCompression());
 			if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create document version.");
 
@@ -459,6 +469,28 @@ public class DocumentIOHandler extends AbstractIOHandler implements
     }
 
 	/**
+     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#readVersionSize(java.lang.Long,
+     *      java.lang.Long)
+     */
+    public Integer readVersionSize(final Long documentId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_SIZE);
+            session.setLong(1, documentId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getInteger("CONTENT_SIZE");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    
+    /**
 	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#update(com.thinkparity.codebase.model.document.Document)
 	 */
 	public void update(final Document document) {
@@ -484,7 +516,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    
     /**
 	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#updateContent(com.thinkparity.codebase.model.document.DocumentContent)
 	 */
@@ -528,7 +559,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
+	/**
      * Extract the document.
      * 
      * @param session
@@ -595,7 +626,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
 	 * Extract the document version content from the session.
 	 * 
 	 * @param session

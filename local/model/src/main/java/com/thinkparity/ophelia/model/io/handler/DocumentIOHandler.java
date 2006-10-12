@@ -94,7 +94,18 @@ public interface DocumentIOHandler extends IOHandler {
      * @return A document version content.
      */
     public DocumentVersionContent readVersionContent(final Long documentId, final Long versionId);
-	
+
+    /**
+     * Read a document version's size.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return A document version's size <code>Integer</code>.
+     */
+    public Integer readVersionSize(final Long documentId, final Long versionId);
+
 	public void update(final Document document);
 
 	public void updateVersion(final DocumentVersion documentVersion);

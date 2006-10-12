@@ -36,7 +36,7 @@ public abstract class OpheliaTestCase extends TestCase {
         OpheliaTestUser.class.getName();
 	}
 
-    public static File getOutputDirectory() {
+    public File getOutputDirectory() {
         return testSession.getOutputDirectory();
     }
 

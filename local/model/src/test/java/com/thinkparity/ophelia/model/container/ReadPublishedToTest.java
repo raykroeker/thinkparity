@@ -37,8 +37,8 @@ public class ReadPublishedToTest extends ContainerTestCase {
                 publishedTo.containsKey(OpheliaTestUser.JUNIT_X));
         assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Y,
                 publishedTo.containsKey(OpheliaTestUser.JUNIT_Y));
-        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Z,
-                publishedTo.containsKey(OpheliaTestUser.JUNIT_Z));
+//        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Z,
+//                publishedTo.containsKey(OpheliaTestUser.JUNIT_Z));
     }
 
     /**
@@ -51,7 +51,7 @@ public class ReadPublishedToTest extends ContainerTestCase {
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
-        publish(OpheliaTestUser.JUNIT, container);
+        publishToContacts(OpheliaTestUser.JUNIT, container);
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, version);
     }

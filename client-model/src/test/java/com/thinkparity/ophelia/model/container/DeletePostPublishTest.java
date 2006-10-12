@@ -76,7 +76,7 @@ public class DeletePostPublishTest extends ContainerTestCase {
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         modifyDocuments(OpheliaTestUser.JUNIT, container);
-        publish(OpheliaTestUser.JUNIT, container);
+        publishToContacts(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
         datum.containerModel.addListener(datum);
     }

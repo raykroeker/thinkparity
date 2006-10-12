@@ -36,7 +36,7 @@ public class OpheliaTestUser extends User {
     public static final OpheliaTestUser JUNIT_Y;
 
     /** A test user. */
-    public static final OpheliaTestUser JUNIT_Z;
+//    public static final OpheliaTestUser JUNIT_Z;
 
     /** The test users' password. */
     private static final String PASSWORD = "parity";
@@ -45,7 +45,7 @@ public class OpheliaTestUser extends User {
         JUNIT = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit");
         JUNIT_X = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.x");
         JUNIT_Y = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.y");
-        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
+//        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
     }
 
 	/** The test user's credentials. */

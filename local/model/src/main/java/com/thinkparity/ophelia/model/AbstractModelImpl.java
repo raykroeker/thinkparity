@@ -912,6 +912,8 @@ public abstract class AbstractModelImpl<T extends EventListener>
         if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
             return (ParityUncheckedException) t;
         } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             return (Assertion) t;
         }
         else {

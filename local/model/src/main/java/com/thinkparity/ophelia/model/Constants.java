@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model;
 
+import java.awt.Color;
 import java.io.File;
 
 /**
@@ -13,6 +14,10 @@ import java.io.File;
  */
 public final class Constants {
 
+    public static final class Colors {
+        public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
+        public static final Color LIST_ODD_BG = Color.WHITE;
+    }
     public static final class Compression {
         public static final Integer NONE = 0;
     }

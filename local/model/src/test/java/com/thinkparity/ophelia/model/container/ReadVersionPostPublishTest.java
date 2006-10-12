@@ -38,7 +38,7 @@ public class ReadVersionPostPublishTest extends ContainerTestCase {
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
         login(OpheliaTestUser.JUNIT);
-        publish(OpheliaTestUser.JUNIT, container);
+        publishToContacts(OpheliaTestUser.JUNIT, container);
         logout(OpheliaTestUser.JUNIT);
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, version);

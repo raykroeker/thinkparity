@@ -35,20 +35,30 @@ public final class DocumentNameGenerator {
      *            A <code>Document</code>.
      * @return A directory name <code>String</code>.
      */
-    public String directoryName(final Document document) {
-        return MessageFormat.format("{0}",
-                document.getId());
+    public String localDirectoryName(final Document document) {
+        return MessageFormat.format("{0}", document.getId());
     }
 
     /**
-     * Generate a file name for a document version.
+     * Generate an export file name for a document version.
      * 
      * @param version
      *            A <code>DocumentVerison</code>.
      * @return A file name <code>String</code>..
      */
-    public String fileName(final DocumentVersion version) {
-        return MessageFormat.format("{0} {1,date,MMM dd, yyyy h mm ss a}.{2}",
+    public String exportFileName(final DocumentVersion version) {
+        return localFileName(version);
+    }
+
+    /**
+     * Generate an local file name for a document version.
+     * 
+     * @param version
+     *            A <code>DocumentVerison</code>.
+     * @return A file name <code>String</code>..
+     */
+    public String localFileName(final DocumentVersion version) {
+        return MessageFormat.format("{0}.{1,date,MMM dd, yyyy h mm ss a}{2}",
                 FileUtil.getName(version.getName()),
                 version.getUpdatedOn().getTime(),
                 FileUtil.getExtension(version.getName()));

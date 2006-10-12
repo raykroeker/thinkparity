@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -34,6 +35,13 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @version 1.1.2.1
  */
 public final class ContainerVersionsPanel extends DefaultTabPanel {
+    
+    /** Dimension of the cell. */
+    private static final Dimension DIMENSION;
+    
+    static {        
+        DIMENSION = new Dimension(50,100);
+    }
 
     /** The <code>Container</code>. */
     private Container container;
@@ -153,10 +161,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         new ContainerPopup(model, container).show(invoker, e);
     }
 
-    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
+    protected void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
     }//GEN-LAST:event_formMouseClicked
 
-    private void formMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseReleased
+    protected void formMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseReleased
     }//GEN-LAST:event_formMouseReleased
 
     /** This method is called from within the constructor to
@@ -492,5 +500,16 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
+    }
+    
+    /**
+     * Get the preferred size.
+     * 
+     * @param last
+     *          True if this is the last entity.
+     * @return The preferred size <code>Dimension</code>.
+     */   
+    public Dimension getPreferredSize(final Boolean last) {
+        return DIMENSION;
     }
 }

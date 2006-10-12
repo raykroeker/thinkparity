@@ -154,13 +154,6 @@ public abstract class DefaultTabCell implements TabCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getSecondNodeIcon()
-     */
-    public ImageIcon getSecondNodeIcon() {
-        return null;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell#getParent()
      */
     public TabCell getParent() {

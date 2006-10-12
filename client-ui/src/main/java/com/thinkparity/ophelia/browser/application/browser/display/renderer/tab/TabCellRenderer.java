@@ -101,7 +101,7 @@ public class TabCellRenderer extends AbstractJPanel implements
                 nestedJPanel.setBackground(Colors.Swing.LIST_ODD_BG);
             }
         }
-        icon2JLabel.setIcon(cell.getSecondNodeIcon());
+
         final Boolean lastCell = (index == list.getModel().getSize()-1);
         setBorder(cell.getBorder(index, cell.isFirstInGroup(), lastCell));
         
@@ -184,7 +184,6 @@ public class TabCellRenderer extends AbstractJPanel implements
         nestedJPanel = new javax.swing.JPanel();
         westPaddingJLabel = LabelFactory.create();
         iconJLabel = LabelFactory.create();
-        icon2JLabel = LabelFactory.create();
         westTextJLabel = LabelFactory.create();
         eastTextJLabel = LabelFactory.create();
 
@@ -206,16 +205,9 @@ public class TabCellRenderer extends AbstractJPanel implements
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         nestedJPanel.add(iconJLabel, gridBagConstraints);
 
-        icon2JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
-        nestedJPanel.add(icon2JLabel, gridBagConstraints);
-
         westTextJLabel.setText("!Document!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         nestedJPanel.add(westTextJLabel, gridBagConstraints);
@@ -241,7 +233,6 @@ public class TabCellRenderer extends AbstractJPanel implements
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel eastTextJLabel;
-    private javax.swing.JLabel icon2JLabel;
     private javax.swing.JLabel iconJLabel;
     private javax.swing.JPanel nestedJPanel;
     private javax.swing.JLabel westPaddingJLabel;

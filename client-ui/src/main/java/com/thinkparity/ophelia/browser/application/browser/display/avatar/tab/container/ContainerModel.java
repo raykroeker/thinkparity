@@ -75,6 +75,9 @@ public final class ContainerModel extends TabPanelModel {
 
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
+    
+    /** The selected container panel. */
+    private ContainerPanel selectedContainerPanel = null;
 
     /**
      * Create BrowserContainersModel.
@@ -208,6 +211,7 @@ public final class ContainerModel extends TabPanelModel {
                 listModel.removeElement(obsoletePanels[i]);
             }
         }
+        
         debug();
     }
 
@@ -305,7 +309,7 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
-     * Add a container panelThis will read the container's versions and add the
+     * Add a container panel. This will read the container's versions and add the
      * appropriate version panel as well.
      * 
      * @param index
@@ -580,5 +584,17 @@ public final class ContainerModel extends TabPanelModel {
         }
         panel.selectFirstVersion();
         return panel;
+    }
+    
+    /**
+     * Change selection.
+     */
+    public void selectContainerPanel(final ContainerPanel containerPanel) {
+        if (selectedContainerPanel != null) {
+            selectedContainerPanel.setSelected(Boolean.FALSE);
+        }
+        containerPanel.setSelected(Boolean.TRUE);
+        selectedContainerPanel = containerPanel;
+        synchronize();
     }
 }

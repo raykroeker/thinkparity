@@ -3,15 +3,19 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 
+import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 
 /**
@@ -107,6 +111,47 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     public void setMouseOver(final Boolean mouseOver) {
         this.mouseOver = mouseOver;
     }
+    
+    /**
+     * Adjust foreground color.  
+     */
+    public void adjustForegroundColor() {       
+    }
+    
+    /**
+     * Get the background color.
+     * 
+     * @param index
+     *          Index into the display list.
+     * @return Background color.
+     */
+    public Color getBackground(final int index) {       
+        return getBackground();
+    }  
+    
+    /**
+     * Get the preferred size.
+     * 
+     * @param last
+     *          True if this is the last entity.
+     * @return The preferred size <code>Dimension</code>.
+     */   
+    public Dimension getPreferredSize(final Boolean last) {
+        return getPreferredSize();
+    }
+    
+    /**
+     * Get the border.
+     * 
+     * @param firstInGroup
+     *          Indicates if this is the first entity in a logical group.
+     * @param last
+     *          True if this is the last entity.
+     * @return The border.
+     */
+    public Border getBorder(final Boolean firstInGroup, final Boolean last) {
+        return getBorder();
+    }
 
     /**
      * The mouse event handler for the panel's double click event.
@@ -144,7 +189,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void formMouseClicked(final MouseEvent e) {
+    protected void formMouseClicked(final MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
         if (!MenuFactory.isPopupMenu()) {
@@ -163,7 +208,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void formMousePressed(final MouseEvent e) {
+    protected void formMousePressed(final MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.isPopupTrigger()) {
@@ -178,7 +223,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void formMouseReleased(final MouseEvent e) {
+    protected void formMouseReleased(final MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.isPopupTrigger()) {

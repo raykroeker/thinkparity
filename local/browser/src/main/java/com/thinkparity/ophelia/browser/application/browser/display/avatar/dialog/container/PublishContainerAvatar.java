@@ -543,7 +543,7 @@ public class PublishContainerAvatar extends Avatar {
             // setBorder() in its constructor, which is executed after updateUI()
             setBorder(UIManager.getBorder("TableHeader.cellBorder"));
             
-            // Add listeners so know when the mouse is over a column header
+            // Add listeners so we know when the mouse is over a column header
             tableHeader.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent e) {
                     updateRolloverColumn(e);
@@ -560,7 +560,7 @@ public class PublishContainerAvatar extends Avatar {
             
         }
         
-        public void updateRolloverColumn(MouseEvent e) {
+        private void updateRolloverColumn(MouseEvent e) {
             int col = tableHeader.columnAtPoint(e.getPoint());
             if (col != rolloverColumn) {
                 rolloverColumn = col;
@@ -568,7 +568,7 @@ public class PublishContainerAvatar extends Avatar {
             }
         }
         
-        public void endRolloverColumn() {
+        private void endRolloverColumn() {
             rolloverColumn = -1;
             tableHeader.repaint();
         }

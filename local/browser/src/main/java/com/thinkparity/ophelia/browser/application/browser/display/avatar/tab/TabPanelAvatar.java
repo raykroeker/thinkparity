@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 
@@ -10,6 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
@@ -32,7 +34,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     public TabPanelAvatar(final AvatarId id, final T model) {
     	super(id, model);
         this.fillConstraints = new GridBagConstraints();
-        this.fillConstraints.fill = GridBagConstraints.BOTH;
+        this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
         this.fillConstraints.weightx = 1.0F;
         this.fillConstraints.weighty = 1.0F;
         this.fillConstraints.gridx = 0;
@@ -119,9 +121,14 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 for (int i = e.getIndex0(); i < e.getIndex1() + 1; i++) {
                     panelConstraints.gridy = i;
                     tabJPanel.remove(i);
-                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.adjustForegroundColor();
+                    panel.setBackground(panel.getBackground(i));
+                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
-
+                
                 tabJPanel.revalidate();
                 tabJPanel.repaint();
                 tabJScrollPane.revalidate();
@@ -131,23 +138,32 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
                 debug();
             }
+            
             public void intervalAdded(final ListDataEvent e) {
                 debug();
 
                 tabJPanel.remove(fillJLabel);
+                
+                // Adding an interval can cause the border on the interval before it to change,
+                // so adjust the start index to one before the interval added.
+                int startIndex = e.getIndex0();
+                if (startIndex > 0) {
+                    startIndex--;
+                }
 
-                // add index 0
-                panelConstraints.gridy = e.getIndex0();
-                tabJPanel.add((DefaultTabPanel) listModel.get(e.getIndex0()), panelConstraints.clone(), e.getIndex0());
-
-                // refresh the elements below index 0
-                for (int i = e.getIndex0() + 1; i < listModel.size(); i++) {
+                // refresh the element at index 0 and the elements after index 0
+                for (int i = startIndex; i < listModel.size(); i++) {
                     panelConstraints.gridy = i;
-                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.adjustForegroundColor();
+                    panel.setBackground(panel.getBackground(i));
+                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
-
+ 
                 tabJPanel.revalidate();
                 tabJPanel.repaint();
                 tabJScrollPane.revalidate();
@@ -157,18 +173,31 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
                 debug();
             }
+            
             public void intervalRemoved(final ListDataEvent e) {
                 debug();
 
                 tabJPanel.remove(fillJLabel);
+                
+                // Removing an interval can cause the border on the interval before it to change,
+                // so adjust the start index to one before the interval added.
+                int startIndex = e.getIndex0();
+                if (startIndex > 0) {
+                    startIndex--;
+                }
 
                 // remove index 0
                 tabJPanel.remove(e.getIndex0());
 
                 // refresh from index 0 forward
-                for (int i = e.getIndex0(); i < listModel.size(); i++) {
+                for (int i = startIndex; i < listModel.size(); i++) {
                     panelConstraints.gridy = i;
-                    tabJPanel.add((DefaultTabPanel) listModel.get(i), panelConstraints.clone(), i);
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.adjustForegroundColor();
+                    panel.setBackground(panel.getBackground(i));
+                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
@@ -181,7 +210,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 repaint();
 
                 debug();
-            }
+            } 
         });
     }
 
@@ -196,7 +225,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             logger.logVariable("component", component);
         }
     }
-
+ 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel fillJLabel;
     private javax.swing.JLabel headerJLabel;

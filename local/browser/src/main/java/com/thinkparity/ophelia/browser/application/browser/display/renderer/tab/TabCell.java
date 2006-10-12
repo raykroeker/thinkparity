@@ -66,13 +66,6 @@ public interface TabCell {
      * @return The node selected icon.
      */
     public ImageIcon getNodeIconSelected();
-    
-    /**
-     * Obtain the second node icon.
-     * 
-     * @return The second node icon.
-     */
-    public ImageIcon getSecondNodeIcon();
 
     /**
      * Obtain the parent cell; if applicable.

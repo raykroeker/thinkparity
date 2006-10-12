@@ -39,6 +39,7 @@ public class ZipUtil {
                 "Zip file ''{0}'' could not be created.", zipFile);
 		final ZipOutputStream zipStream =
 			new ZipOutputStream(new FileOutputStream(zipFile));
+        zipStream.setMethod(ZipOutputStream.DEFLATED);
         zipStream.setLevel(9);
 		final File[] files = new FileSystem(inputDirectory).listFiles("/", Boolean.TRUE);
 		try {
@@ -73,8 +74,13 @@ public class ZipUtil {
      * @return The zip entry name.
      */
     private static String resolveName(final File zipRoot, final File zipEntry) {
-        return StringUtil.searchAndReplace(zipEntry.getAbsolutePath(),
+        final String relativePath = StringUtil.searchAndReplace(zipEntry.getAbsolutePath(),
                 zipRoot.getAbsolutePath(), "").toString();
+        if (relativePath.startsWith(File.separator)) {
+            return relativePath.substring(1);
+        } else {
+            return relativePath;
+        }
     }
 
 	/**

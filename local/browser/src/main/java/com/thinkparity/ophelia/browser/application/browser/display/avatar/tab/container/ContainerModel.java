@@ -51,6 +51,9 @@ public final class ContainerModel extends TabPanelModel {
 
     /** A list of the panel expanded flags. */
     private final Map<TabPanel, Boolean> expanded;
+    
+    /** The selected container panel. */
+    private TabPanel selectedTabPanel = null;
 
     /** A list model. */
     private final DefaultListModel listModel;
@@ -76,8 +79,7 @@ public final class ContainerModel extends TabPanelModel {
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
     
-    /** The selected container panel. */
-    private ContainerPanel selectedContainerPanel = null;
+
 
     /**
      * Create BrowserContainersModel.
@@ -419,8 +421,34 @@ public final class ContainerModel extends TabPanelModel {
      *            A <code>TabPanel</code>.
      * @return True if the panel is expanded; false otherwise.
      */
-    private Boolean isExpanded(final TabPanel tabPanel) {
+    public Boolean isExpanded(final TabPanel tabPanel) {
         return expanded.containsKey(tabPanel) ? expanded.get(tabPanel) : Boolean.FALSE;
+    }
+    
+    /**
+     * Determine if the panel is selected.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is selected; false otherwise.
+     */
+    public Boolean isSelected(final TabPanel tabPanel) {
+        if (selectedTabPanel != null) {
+            return selectedTabPanel.equals(tabPanel);
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+    
+    /**
+     * Change selection.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    public void selectTabPanel(final TabPanel tabPanel) {
+        selectedTabPanel = tabPanel;
+        synchronize();
     }
 
     /**
@@ -584,17 +612,5 @@ public final class ContainerModel extends TabPanelModel {
         }
         panel.selectFirstVersion();
         return panel;
-    }
-    
-    /**
-     * Change selection.
-     */
-    public void selectContainerPanel(final ContainerPanel containerPanel) {
-        if (selectedContainerPanel != null) {
-            selectedContainerPanel.setSelected(Boolean.FALSE);
-        }
-        containerPanel.setSelected(Boolean.TRUE);
-        selectedContainerPanel = containerPanel;
-        synchronize();
     }
 }

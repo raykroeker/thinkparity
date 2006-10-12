@@ -66,9 +66,6 @@ public final class ContainerPanel extends DefaultTabPanel {
 
     /** The container panel's model. */
     private final ContainerModel model;
-    
-    /** Flag indicating if this panel is selected */
-    private Boolean selected = Boolean.FALSE;
 
     /**
      * Create ContainerPanel.
@@ -217,7 +214,7 @@ public final class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void formMouseClicked(MouseEvent e) {
         super.formMouseClicked(e);
-        model.selectContainerPanel(this);
+        model.selectTabPanel(this);
     }
 
     /**
@@ -227,27 +224,8 @@ public final class ContainerPanel extends DefaultTabPanel {
     protected void formMouseReleased(MouseEvent e) {
         super.formMouseReleased(e);
         if (e.isPopupTrigger()) {
-            model.selectContainerPanel(this);
+            model.selectTabPanel(this);
         }
-    }
-
-    /**
-     * True if selected.
-     * 
-     * @return Boolean
-     */
-    private Boolean isSelected() {
-        return selected;
-    }
-
-    /**
-     * Set the selected flag.
-     * 
-     * @param selected
-     *          Selected flag.
-     */
-    public void setSelected(Boolean selected) {
-        this.selected = selected;
     }
     
     /**
@@ -255,7 +233,9 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void adjustForegroundColor() {       
         final Color color;
-        if (isSelected()) {
+        if (isSelected() && isExpanded()) {
+            color = Colors.Swing.LIST_SELECTION_INACTIVE_FG; 
+        } else if (isSelected()) {
             color = Colors.Swing.LIST_SELECTION_FG;
         } else {
             color = Colors.Swing.LIST_FG;
@@ -273,7 +253,9 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public Color getBackground(final int index) {
         final Color color;
-        if (isSelected()) {
+        if (isSelected() && isExpanded()) {
+            color = Colors.Swing.LIST_SELECTION_INACTIVE_BG; 
+        } else if (isSelected()) {
             color = Colors.Swing.LIST_SELECTION_BG;
         } else if (0 == index % 2) {
             color = Colors.Swing.LIST_EVEN_BG;
@@ -323,6 +305,28 @@ public final class ContainerPanel extends DefaultTabPanel {
         }
         
         return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
+    }
+    
+    /**
+     * Determine if the panel is expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is expanded; false otherwise.
+     */
+    private Boolean isExpanded() {
+        return model.isExpanded(this);
+    }
+    
+    /**
+     * Determine if the panel is selected.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is selected; false otherwise.
+     */
+    private Boolean isSelected() {
+        return model.isSelected(this);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

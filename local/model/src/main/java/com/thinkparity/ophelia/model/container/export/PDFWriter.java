@@ -97,7 +97,7 @@ public final class PDFWriter  {
             driver.setOutputStream(outStream);
             final TransformerFactory factory = TransformerFactory.newInstance();
             final Transformer transformer = factory.newTransformer(
-                    new StreamSource(ResourceUtil.getFile("xml/xslt/pdfWriter.xslt")));
+                    new StreamSource(ResourceUtil.getFile("xml/xslt/pdfWriter.xsl")));
 
             final Result result = new SAXResult(driver.getContentHandler());
             transformer.transform(new StreamSource(

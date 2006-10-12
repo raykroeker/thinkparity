@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.util;
 
-import java.awt.image.BufferedImage;
 
 import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
@@ -70,7 +69,6 @@ public class Swing {
 
     public static final class Constants {
         public static final class Images {
-            public static final BufferedImage WINDOW_ICON_IMAGE = ImageIOUtil.read("ThinkParity32x32.png");
         }
     }
 }

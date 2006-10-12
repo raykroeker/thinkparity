@@ -136,6 +136,7 @@ public final class Constants {
     }
 
     public static final class Images {
+        public static final BufferedImage WINDOW_ICON_IMAGE = ImageIOUtil.read("ThinkParity32x32.png");
         public static final class BrowserTitle {
             public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
                 ImageIOUtil.read("BrowserBottomLeftInner.png");

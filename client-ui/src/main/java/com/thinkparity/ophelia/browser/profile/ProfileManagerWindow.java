@@ -11,9 +11,9 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
-import com.thinkparity.ophelia.browser.util.Swing.Constants.Images;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
@@ -30,7 +30,7 @@ class ProfileManagerWindow extends AbstractJFrame {
     ProfileManagerWindow() {
         super("ProfileManagerWindow");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setIconImage(Images.WINDOW_ICON_IMAGE);
+        setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
         setResizable(false);
         setUndecorated(true);
     }

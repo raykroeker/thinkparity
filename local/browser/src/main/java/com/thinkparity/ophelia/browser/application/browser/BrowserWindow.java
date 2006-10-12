@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -24,7 +25,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.Display;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.browser.util.Swing.Constants.Images;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
@@ -90,7 +90,7 @@ public class BrowserWindow extends AbstractJFrame {
                 browser.hibernate();
             }});
         initMenu();       
-		setIconImage(Images.WINDOW_ICON_IMAGE);
+		setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
 		setTitle(java.util.ResourceBundle.getBundle("localization/JFrame_Messages").getString("BrowserWindow.Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

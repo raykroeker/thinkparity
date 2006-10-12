@@ -14,7 +14,6 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
-import com.thinkparity.ophelia.browser.util.Swing.Constants.Images;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,7 +31,7 @@ class FirstRunWindow extends AbstractJFrame {
     public FirstRunWindow() {
         super("FirstRunWindow");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setIconImage(Images.WINDOW_ICON_IMAGE);
+        setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
         setResizable(false);
         setUndecorated(true);
     }

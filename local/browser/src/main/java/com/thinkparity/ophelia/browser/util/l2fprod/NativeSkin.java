@@ -5,6 +5,10 @@ package com.thinkparity.ophelia.browser.util.l2fprod;
 
 import java.awt.Window;
 
+import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.l2fprod.gui.region.Region;
 
 /**
@@ -25,12 +29,26 @@ public final class NativeSkin {
 	private static final Boolean NO_NATIVE_SKIN;
 
 	static {
-		NO_NATIVE_SKIN = Boolean.getBoolean("thinkparity.nonativeskin");
+        switch (OSUtil.getOS()) {
+        case LINUX:
+        case OSX:
+        case WINDOWS_2000:
+            new Log4JWrapper().logInfo(
+                    "Native skin library not available for your os {0}.",
+                    OSUtil.getOS());
+            NO_NATIVE_SKIN = Boolean.TRUE;
+            break;
+        case WINDOWS_XP:
+            NO_NATIVE_SKIN = Boolean.getBoolean("thinkparity.nonativeskin");
+            break;
+        default:
+            throw Assert.createUnreachable("UNKNOWN OS");
+        }
 
 		if (NO_NATIVE_SKIN) {
 			NATIVE_SKIN = null;
 		} else {
-			NATIVE_SKIN = com.l2fprod.gui.nativeskin.NativeSkin.getInstance();
+            NATIVE_SKIN = com.l2fprod.gui.nativeskin.NativeSkin.getInstance();
 		}
 	}
 

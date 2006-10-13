@@ -39,14 +39,14 @@ public class UserSql extends AbstractSql {
             new StringBuffer("delete from PARITYUSEREMAIL ")
             .append("where USERNAME=? and EMAIL=?")
             .toString();
-        
+
     /** Sql to read all users. */
     private static final String SQL_READ =
             new StringBuffer("select * ")
             .append("from jiveUser JU ")
             .append("order by JU.USERNAME")
             .toString();
-
+        
     /** Sql to read an archive user's credentials. */
     private static final String SQL_READ_ARCHIVE_CREDENTIALS =
             new StringBuffer("select USERNAME,PASSWORD ")
@@ -101,14 +101,14 @@ public class UserSql extends AbstractSql {
     /** Sql to read the user profile's security answer. */
     private static final String SQL_READ_PROFILE_SECURITY_ANSWER =
             new StringBuffer("select PUP.SECURITYANSWER ")
-            .append("from PARITYUSERPROFILE PUP ")
+            .append("from PARITY_USER_PROFILE PUP ")
             .append("where PUP.USERNAME=?")
             .toString();
 
     /** Sql to read the user profile's security question. */
     private static final String SQL_READ_PROFILE_SECURITY_QUESTION =
             new StringBuffer("select PUP.SECURITYQUESTION ")
-            .append("from PARITYUSERPROFILE PUP ")
+            .append("from PARITY_USER_PROFILE PUP ")
             .append("where PUP.USERNAME=?")
             .toString();
 
@@ -313,7 +313,7 @@ public class UserSql extends AbstractSql {
             ps.setString(1, userId.getUsername());
             rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("SECURITYANSWER");
+                return rs.getString("SECURITY_ANSWER");
             } else {
                 return null;
             }
@@ -341,7 +341,7 @@ public class UserSql extends AbstractSql {
             ps.setString(1, userId.getUsername());
             rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("SECURITYQUESTION");
+                return rs.getString("SECURITY_QUESTION");
             } else {
                 return null;
             }

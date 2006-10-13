@@ -11,7 +11,7 @@ insert into jiveProperty (NAME,PROPVALUE)
 insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.environment', 'DEVELOPMENT_ROBERT');
 insert into PARITY_FEATURE (FEATURE)
-	values ('ARCHIVE');
+    values('ARCHIVE');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);
@@ -19,10 +19,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('thinkparity', '<vCard xmlns="vcard-temp"><FN>thinkParity Solutions Inc.</FN><N><FAMILY>thinkParity Solutions Inc.</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('thinkparity', 'thinkParity@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('thinkparity', 'What is my username?', 'thinkparity');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('thinkparity','What is my username?','thinkparity',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('thinkparity', 1000);
+    values ('thinkparity', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('asahebjam','parity',0,0);
@@ -30,10 +30,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('asahebjam', '<vCard xmlns="vcard-temp"><FN>Amir Sahebjam</FN><N><FAMILY>Sahebjam</FAMILY><GIVEN>Amir</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('asahebjam', 'asahebjam@gmail.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('asahebjam', 'What is my username?', 'asahebjam');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('asahebjam','What is my username?','asahebjam',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('asahebjam', 1000);
+    values ('asahebjam', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('omid','parity',0,0);
@@ -41,10 +41,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('omid', '<vCard xmlns="vcard-temp"><FN>Omid Ejtemai</FN><N><FAMILY>Ejtemai</FAMILY><GIVEN>Omid</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('omid', 'omid@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('omid', 'What is my username?', 'omid');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('omid','What is my username?','omid',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('omid', 1000);
+    values ('omid', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('rkroeker','parity',0,0);
@@ -52,10 +52,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('rkroeker', '<vCard xmlns="vcard-temp"><FN>Raymond Kroeker</FN><N><FAMILY>Kroeker</FAMILY><GIVEN>Raymond</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('rkroeker', 'raymond@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('rkroeker', 'What is my username?', 'rkroeker');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('rkroeker','What is my username?','rkroeker',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('rkroeker', 1000);
+    values ('rkroeker', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('robert','parity',0,0);
@@ -63,14 +63,16 @@ insert into jiveVCard (USERNAME,VALUE)
     values('robert', '<vCard xmlns="vcard-temp"><FN>Robert MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Robert</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('robert', 'robert@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('robert', 'What is my username?', 'robert');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('robert','What is my username?','robert',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
 	values ('robert', 1000);
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity.archive.0','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
     values('thinkparity.archive.0', '<vCard xmlns="vcard-temp"><FN>Archive</FN><N><FAMILY>Archive</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('thinkparity.archive.0','What is my username?','thinkparity.archive.0',false);
 insert into PARITY_USER_ARCHIVE_REL (USERNAME,ARCHIVENAME)
     values('robert', 'thinkparity.archive.0');
 
@@ -80,10 +82,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('djohnson', '<vCard xmlns="vcard-temp"><FN>Don Johnson</FN><N><FAMILY>Johnson</FAMILY><GIVEN>Don</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('djohnson', 'djohnson@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('djohnson', 'What is my username?', 'djohnson');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('djohnson','What is my username?','djohnson',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('djohnson', 1000);
+    values ('djohnson', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('emorrison','parity',0,0);
@@ -91,10 +93,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('emorrison', '<vCard xmlns="vcard-temp"><FN>Emily Morrison</FN><N><FAMILY>Morrison</FAMILY><GIVEN>Emily</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('emorrison', 'emorrison@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('emorrison', 'What is my username?', 'emorrison');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('emorrison','What is my username?','emorrison',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('emorrison', 1000);
+    values ('emorrison', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kmfarland','parity',0,0);
@@ -102,10 +104,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('kmfarland', '<vCard xmlns="vcard-temp"><FN>Kevin MacFarland</FN><N><FAMILY>MacFarland</FAMILY><GIVEN>Kevin</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kmfarland', 'kmfarland@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('kmfarland', 'What is my username?', 'kmfarland');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('kmfarland','What is my username?','kmfarland',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('kmfarland', 1000);
+    values ('kmfarland', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('strimnell','parity',0,0);
@@ -113,10 +115,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('strimnell', '<vCard xmlns="vcard-temp"><FN>Sarah Trimnell</FN><N><FAMILY>Trimnell</FAMILY><GIVEN>Sarah</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('strimnell', 'strimnell@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('strimnell', 'What is my username?', 'strimnell');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('strimnell','What is my username?','strimnell',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('strimnell', 1000);
+    values ('strimnell', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kenjiro','parity',0,0);
@@ -124,10 +126,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('kenjiro', '<vCard xmlns="vcard-temp"><FN>Kenjiro MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Kenjiro</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('kenjiro', 'kenjiro@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('kenjiro', 'What is my username?', 'kenjiro');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('kenjiro','What is my username?','kenjiro',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('kenjiro', 1000);
+    values ('kenjiro', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('masako','parity',0,0);
@@ -135,10 +137,10 @@ insert into jiveVCard (USERNAME,VALUE)
     values('masako', '<vCard xmlns="vcard-temp"><FN>Masako</FN><N><FAMILY></FAMILY><GIVEN>Masako</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
 insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('masako', 'masako@thinkparity.com', true);
-insert into parityUserProfile (USERNAME,SECURITYQUESTION,SECURITYANSWER)
-    values('masako', 'What is my username?', 'masako');
+insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
+    values('masako','What is my username?','masako',false);
 insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('masako', 1000);
+    values ('masako', 1000);
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('asahebjam', 'omid@thinkparity.dyndns.org', 'asahebjam', NOW(), 'asahebjam', NOW());

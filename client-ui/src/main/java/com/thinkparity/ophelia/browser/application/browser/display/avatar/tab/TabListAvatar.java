@@ -349,7 +349,7 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
     }//GEN-LAST:event_tabJListKeyPressed
 
     private void tabJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_tabJListMouseClicked
-        // Interesting fact aobut getClickCount() is that the count continues to 3, 4 and beyond if
+        // Interesting fact about getClickCount() is that the count continues to 3, 4 and beyond if
         // the user keeps clicking with less than (say) 1/2 second delay between clicks.
         if (!MenuFactory.isPopupMenu()) {
             if (e.getButton()==MouseEvent.BUTTON1) {

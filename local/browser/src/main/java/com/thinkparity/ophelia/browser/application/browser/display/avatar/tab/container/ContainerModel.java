@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -54,6 +54,9 @@ public final class ContainerModel extends TabPanelModel {
     
     /** The selected container panel. */
     private TabPanel selectedTabPanel = null;
+    
+    /** The first container panel that is not a local draft. */
+    private TabPanel firstNonDraftTabPanel = null;
 
     /** A list model. */
     private final DefaultListModel listModel;
@@ -247,7 +250,30 @@ public final class ContainerModel extends TabPanelModel {
         for (final Container container : containers) {
             addContainerPanel(container);
         }
+        sortContainers();
         debug();
+    }
+    
+    /**
+     * Sort containers, and also set the "firstNonDraft" flag.
+     */
+    private void sortContainers() {
+        Collections.sort(containerPanels, new ContainerPanelComparator());
+        
+        ContainerPanel prevContainer = null;
+        firstNonDraftTabPanel = null;
+        for(final TabPanel tabPanel : containerPanels) {
+            if (tabPanel instanceof ContainerPanel) { // Should always be true
+                final ContainerPanel container = (ContainerPanel) tabPanel;
+                if (prevContainer!=null) {
+                    if (prevContainer.getContainer().isLocalDraft() != container.getContainer().isLocalDraft()) {
+                        firstNonDraftTabPanel = tabPanel;
+                        break;
+                    }
+                }
+                prevContainer = container;
+            }
+        }
     }
 
     /**
@@ -281,6 +307,9 @@ public final class ContainerModel extends TabPanelModel {
                 addContainerPanel(0, container);
             }
         }
+        
+        // Sort the container list
+        sortContainers();
 
         synchronize();
         debug();
@@ -450,7 +479,22 @@ public final class ContainerModel extends TabPanelModel {
         selectedTabPanel = tabPanel;
         synchronize();
     }
-
+    
+    /**
+     * Determine if the panel is the first non-draft panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is the first non-draft; false otherwise.
+     */
+    public Boolean isFirstNonDraft(final TabPanel tabPanel) {
+        if (firstNonDraftTabPanel != null) {
+            return firstNonDraftTabPanel.equals(tabPanel);
+        } else {
+            return Boolean.FALSE;
+        }
+    }  
+    
     /**
      * Read the container from the provider.
      * 

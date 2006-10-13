@@ -40,25 +40,26 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The border for the top of a group of cells. */
     private static final Border BORDER_GROUP_TOP;
     
-    /** The top border colours. */
+    /** The border colours. */
     private static final Color[] BORDER_COLOURS;
+    
+    /** The border colours for a the first cell of a group. */
+    private static final Color[] BORDER_COLOURS_GROUP_TOP;
     
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
     
-    /** Dimension of the last cell. */
-    private static final Dimension DIMENSION_LAST;
-    
     static {
         BORDER_COLOURS = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
+        BORDER_COLOURS_GROUP_TOP = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER,
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
         
         BORDER_TOP = new TopBorder(BORDER_COLOURS, 2, new Insets(2,0,0,0));
-        BORDER_GROUP_TOP = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 3, new Insets(4,0,0,0));
+        BORDER_GROUP_TOP = new TopBorder(BORDER_COLOURS_GROUP_TOP, 4, new Insets(4,0,0,0));
         BORDER_BOTTOM = new BottomBorder(Color.WHITE);
         BORDER_LAST_BOTTOM = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
         
         DIMENSION = new Dimension(50,23);
-        DIMENSION_LAST = new Dimension(50,24);
     }
 
     /** A <code>Container</code>. */
@@ -75,7 +76,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         super();
         this.model = model;
         initComponents();
-        installMouseOverTracker();
+        installMouseOverTracker(containerNameJLabel);
     }
 
     /**
@@ -110,14 +111,19 @@ public final class ContainerPanel extends DefaultTabPanel {
             final ContainerDraft draft) {
         this.container = container;
 
-        this.containerNameJLabel.setText(container.getName());
-        this.draftOwnerJLabel.setText("");
+        containerNameJLabel.setText(container.getName());
         if (container.isDraft()) {
-            if (container.isLocalDraft()) {
-            } else {
-                draftOwnerJLabel.setText(draft.getOwner().getName());
-            }
+            draftOwnerJLabel.setText(draft.getOwner().getName());
+        } else {
+            draftOwnerJLabel.setText("");
         }
+    }
+    
+    /**
+     * Get the container associated with this container panel.
+     */
+    public Container getContainer() {
+        return container;
     }
 
     /**
@@ -125,7 +131,19 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     protected void triggerSingleClick(final MouseEvent e) {
-        model.triggerExpand(this);
+        if (isSetMouseOver()) {
+            model.triggerExpand(this);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerDoubleClick(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void triggerDoubleClick(MouseEvent e) {
+        if (!isSetMouseOver()) {
+            model.triggerExpand(this);
+        }
     }
 
     /**
@@ -147,28 +165,37 @@ public final class ContainerPanel extends DefaultTabPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         westPaddingJLabel = new javax.swing.JLabel();
+        iconJLabel = new javax.swing.JLabel();
         containerNameJLabel = new javax.swing.JLabel();
         draftOwnerJLabel = new javax.swing.JLabel();
+        eastPaddingJLabel = new javax.swing.JLabel();
 
         setMaximumSize(new java.awt.Dimension(32767, 23));
         setMinimumSize(new java.awt.Dimension(120, 23));
         setPreferredSize(new java.awt.Dimension(120, 23));
         westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
+
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
 
         containerNameJLabel.setText("!Package!");
         containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
-        containerNameJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
-        containerNameJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+        containerNameJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
+        containerNameJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
 
         draftOwnerJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         draftOwnerJLabel.setText("!Draft Owner!");
         draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
         draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
         draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+
+        eastPaddingJLabel.setFocusable(false);
+        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
+        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
+        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -177,9 +204,13 @@ public final class ContainerPanel extends DefaultTabPanel {
             .add(layout.createSequentialGroup()
                 .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(containerNameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 83, Short.MAX_VALUE)
-                .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(iconJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(containerNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
+                .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -188,7 +219,10 @@ public final class ContainerPanel extends DefaultTabPanel {
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(containerNameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(iconJLabel)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -198,6 +232,7 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     public void setMouseOver(final Boolean mouseOver) {
+        super.setMouseOver(mouseOver);
         if (mouseOver) {
             containerNameJLabel.setText(new StringBuffer("<html><u>")
                 .append(container.getName()).append("</u></html>").toString());
@@ -209,12 +244,14 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMouseClicked(java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMousePressed(java.awt.event.MouseEvent)
      */
     @Override
-    protected void formMouseClicked(MouseEvent e) {
-        super.formMouseClicked(e);
-        model.selectTabPanel(this);
+    protected void formMousePressed(MouseEvent e) {
+        super.formMousePressed(e);
+        if (e.getButton()==MouseEvent.BUTTON1) {
+            model.selectTabPanel(this);
+        }
     }
 
     /**
@@ -274,26 +311,35 @@ public final class ContainerPanel extends DefaultTabPanel {
      * @return The preferred size <code>Dimension</code>.
      */   
     public Dimension getPreferredSize(final Boolean last) {
-        if (last) {
-            return DIMENSION_LAST;
+        final Dimension dimension;
+        
+        if (last || isFirstNonDraft()) {
+            // Adjust height to account for border thickness
+            dimension = new Dimension(DIMENSION);
+            if (last) {
+                dimension.height += 1;
+            }
+            if (isFirstNonDraft()) {
+                dimension.height += 2;
+            }
         } else {
-            return DIMENSION;
+            dimension = DIMENSION;
         }
+        
+        return dimension;
     }
     
     /**
      * Get the border for the package.
      * 
-     * @param firstInGroup
-     *          Indicates if this is the first entity in a logical group.
      * @param last
      *          True if this is the last entity.
      * @return A border.
      */
-    public Border getBorder(final Boolean firstInGroup, final Boolean last) {
+    public Border getBorder(final Boolean last) {
         final Border topBorder;
         final Border bottomBorder;
-        if (firstInGroup) {
+        if (isFirstNonDraft()) {
             topBorder = BORDER_GROUP_TOP;
         } else {
             topBorder = BORDER_TOP;
@@ -328,10 +374,23 @@ public final class ContainerPanel extends DefaultTabPanel {
     private Boolean isSelected() {
         return model.isSelected(this);
     }
+    
+    /**
+     * Determine if the panel is the first non-draft.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is the first non-draft; false otherwise.
+     */
+    private Boolean isFirstNonDraft() {
+        return model.isFirstNonDraft(this);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel containerNameJLabel;
     private javax.swing.JLabel draftOwnerJLabel;
+    private javax.swing.JLabel eastPaddingJLabel;
+    private javax.swing.JLabel iconJLabel;
     private javax.swing.JLabel westPaddingJLabel;
     // End of variables declaration//GEN-END:variables
 }

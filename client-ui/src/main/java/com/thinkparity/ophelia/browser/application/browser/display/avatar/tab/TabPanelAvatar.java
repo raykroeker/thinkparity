@@ -125,7 +125,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
                     panel.adjustForegroundColor();
                     panel.setBackground(panel.getBackground(i));
-                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
                 
@@ -158,7 +158,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
                     panel.adjustForegroundColor();
                     panel.setBackground(panel.getBackground(i));
-                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 
@@ -196,7 +196,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
                     panel.adjustForegroundColor();
                     panel.setBackground(panel.getBackground(i));
-                    panel.setBorder(panel.getBorder(Boolean.FALSE, i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 

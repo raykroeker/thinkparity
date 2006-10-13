@@ -15,8 +15,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JList;
 
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -26,8 +29,11 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -66,10 +72,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     /** The version's list model. */
     private final DefaultListModel versionsModel;
+    
+    /** An image cache. */
+    protected final MainCellImageCacheTest imageCacheTest;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList versionsContentJList;
-
     private javax.swing.JList versionsJList;
     // End of variables declaration//GEN-END:variables
 
@@ -88,6 +96,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versions = new ArrayList<ContainerVersion>();
         this.versionsModel = new DefaultListModel();
         this.versionsContentModel = new DefaultListModel();
+        this.imageCacheTest = new MainCellImageCacheTest();
         initComponents();
     }
 
@@ -174,27 +183,46 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JLabel eastPaddingJLabel;
+        javax.swing.JLabel northPaddingJLabel;
+        javax.swing.JLabel southPaddingJLabel;
         javax.swing.JScrollPane versionsContentJScrollPane;
         javax.swing.JScrollPane versionsJScrollPane;
         javax.swing.JSplitPane versionsJSplitPane;
+        javax.swing.JLabel westPaddingJLabel;
 
+        northPaddingJLabel = new javax.swing.JLabel();
+        westPaddingJLabel = new javax.swing.JLabel();
         versionsJSplitPane = new javax.swing.JSplitPane();
         versionsJScrollPane = new javax.swing.JScrollPane();
         versionsJList = new javax.swing.JList();
         versionsContentJScrollPane = new javax.swing.JScrollPane();
         versionsContentJList = new javax.swing.JList();
+        eastPaddingJLabel = new javax.swing.JLabel();
+        southPaddingJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                formMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                formMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
             }
         });
 
-        versionsJSplitPane.setBorder(null);
+        northPaddingJLabel.setFocusable(false);
+        northPaddingJLabel.setMaximumSize(new java.awt.Dimension(50, 3));
+        northPaddingJLabel.setMinimumSize(new java.awt.Dimension(50, 3));
+        northPaddingJLabel.setPreferredSize(new java.awt.Dimension(50, 3));
+
+        westPaddingJLabel.setFocusable(false);
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+
+        versionsJSplitPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(207, 207, 207)));
+        versionsJSplitPane.setResizeWeight(0.5);
         versionsJSplitPane.setMinimumSize(new java.awt.Dimension(52, 75));
         versionsJSplitPane.setOneTouchExpandable(true);
         versionsJScrollPane.setBorder(null);
@@ -202,19 +230,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsJList.setCellRenderer(new VersionCellRenderer());
         versionsJList.setVisibleRowCount(5);
         versionsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                versionsJListValueChanged(e);
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                versionsJListValueChanged(evt);
             }
         });
         versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                versionsJListMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                versionsJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsJListMouseReleased(evt);
             }
         });
 
@@ -227,14 +255,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                versionsContentJListMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                versionsContentJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                versionsContentJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                versionsContentJListMouseReleased(evt);
             }
         });
 
@@ -242,18 +270,49 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         versionsJSplitPane.setRightComponent(versionsContentJScrollPane);
 
+        eastPaddingJLabel.setFocusable(false);
+        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
+        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
+        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+
+        southPaddingJLabel.setFocusable(false);
+        southPaddingJLabel.setMaximumSize(new java.awt.Dimension(50, 3));
+        southPaddingJLabel.setMinimumSize(new java.awt.Dimension(50, 3));
+        southPaddingJLabel.setPreferredSize(new java.awt.Dimension(50, 3));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(layout.createSequentialGroup()
+                .add(99, 99, 99)
+                .add(southPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(layout.createSequentialGroup()
+                .add(106, 106, 106)
+                .add(northPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .add(67, 67, 67)
+                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(50, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(northPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(southPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(59, Short.MAX_VALUE)
+                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(58, 58, 58))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -326,6 +385,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The version's content list cell. */
     abstract class AbstractContentCell {
         private String text;
+        private Icon icon = null;
         protected AbstractContentCell() {
             super();
         }
@@ -335,6 +395,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void setText(final String text) {
             this.text = text;
         }
+        protected Icon getIcon() {
+            return icon;
+        }
+        protected void setIcon(final Icon icon) {
+            this.icon = icon;
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
     }
@@ -343,6 +409,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     abstract class AbstractVersionCell {
         private final List<AbstractContentCell> contentCells;
         private String text;
+        private Icon icon = null;
         protected AbstractVersionCell() {
             super();
             this.contentCells = new ArrayList<AbstractContentCell>();
@@ -359,6 +426,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void setText(final String text) {
             this.text = text;
         }
+        protected Icon getIcon() {
+            return icon;
+        }
+        protected void setIcon(final Icon icon) {
+            this.icon = icon;
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
     }
@@ -374,6 +447,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     "Draft - 1 Document" :
                     MessageFormat.format("Draft - {0} Documents",
                             documentCount));
+            setIcon(imageCacheTest.read(TabCellIconTest.DRAFT));
             for (final Document document : draft.getDocuments()) {
                 addContentCell(new DraftDocumentCell(draft, document));
             }
@@ -411,6 +485,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
             setText(MessageFormat.format(formatPattern,
                     document.getName(), draft.getState(document)));
+            setIcon(getDocumentIcon(document));
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
@@ -440,6 +515,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 setText(MessageFormat.format("{0}",
                         user.getName(), user.getOrganization(), user.getTitle()));
             }
+            setIcon(imageCacheTest.read(TabCellIconTest.CONTACT));
         }
         JabberId getId() {
             return user.getId();
@@ -463,6 +539,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     version.getCreatedOn().getTime(),
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
+            setIcon(imageCacheTest.read(TabCellIconTest.VERSION));
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
             }
@@ -489,6 +566,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             super();
             this.version = version;
             setText(MessageFormat.format("{0}", version.getName()));
+            setIcon(getDocumentIcon(version));
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
@@ -511,5 +589,46 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */   
     public Dimension getPreferredSize(final Boolean last) {
         return DIMENSION;
+    }
+    
+    /**
+     * Get the document icon.
+     * 
+     * @return The document icon.
+     */
+    public ImageIcon getDocumentIcon(final Document document) {
+        final String extension = getNameExtension(document);
+        if (extension.equalsIgnoreCase(".DOC")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+        } else if (extension.equalsIgnoreCase(".XLS")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+        } else {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+        }
+    }
+    
+    /**
+     * Get the file name extension.
+     * 
+     * @return The file name extension.
+     */
+    private String getNameExtension(final Document document) {
+        return ArtifactUtil.getNameExtension(document);
+    }
+    
+    // todo fix this
+    public ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
+        final String extension = getNameExtension(documentVersion);
+        if (extension.equalsIgnoreCase(".DOC")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+        } else if (extension.equalsIgnoreCase(".XLS")) {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+        } else {
+            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+        }
+    }
+    private String getNameExtension(final DocumentVersion documentVersion) {
+        final String name = documentVersion.getName();
+        return FileUtil.getExtension(name);
     }
 }

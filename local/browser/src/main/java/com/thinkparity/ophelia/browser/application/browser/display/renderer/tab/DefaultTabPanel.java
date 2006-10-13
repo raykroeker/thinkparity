@@ -50,7 +50,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * "mouseOver" property.
      * 
      */
-    protected final void installMouseOverTracker() {
+    protected final void installMouseOverTracker(final Component component) {
         final MouseInputListener mouseOverListener = new MouseInputAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
@@ -60,9 +60,21 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             public void mouseExited(final MouseEvent e) {
                 setMouseOver(Boolean.FALSE);
             }
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                formMouseClicked(e);
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                formMousePressed(e);
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                formMouseReleased(e);
+            }
         };
-        addMouseListener(mouseOverListener);
-        addMouseMotionListener(mouseOverListener);
+        component.addMouseListener(mouseOverListener);
+        component.addMouseMotionListener(mouseOverListener);
     }
 
     /**
@@ -143,13 +155,11 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     /**
      * Get the border.
      * 
-     * @param firstInGroup
-     *          Indicates if this is the first entity in a logical group.
      * @param last
      *          True if this is the last entity.
      * @return The border.
      */
-    public Border getBorder(final Boolean firstInGroup, final Boolean last) {
+    public Border getBorder(final Boolean last) {
         return getBorder();
     }
 
@@ -193,12 +203,18 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
         logger.logApiId();
         logger.logVariable("e", e);
         if (!MenuFactory.isPopupMenu()) {
-            if (1 == e.getClickCount()) {
-                triggerSingleClick(e);
-            } else if (2 == e.getClickCount()) {
-                triggerDoubleClick(e);
+            if (e.getButton()==MouseEvent.BUTTON1) {
+                if (1 == e.getClickCount()) {
+                    triggerSingleClick(e);
+                }
+                // Interesting fact about getClickCount() is that the count continues to 3, 4 and beyond if
+                // the user keeps clicking with less than (say) 1/2 second delay between clicks.
+                // So, a click count of 2, 4, 6, etc. triggers double click event.
+                if (2 == e.getClickCount() % 2) {
+                    triggerDoubleClick(e);
+                }
+                e.consume();
             }
-            e.consume();
         }
     }
 

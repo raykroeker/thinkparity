@@ -12,9 +12,9 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.ophelia.model.util.smack.provider.IQParityProvider;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import com.thinkparity.ophelia.model.util.smack.provider.IQParityProvider;
 
 /**
  * @author raykroeker@gmail.com

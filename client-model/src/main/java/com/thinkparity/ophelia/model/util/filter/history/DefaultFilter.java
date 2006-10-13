@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.util.filter.history;
 
 import org.apache.log4j.Logger;
 
-
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 

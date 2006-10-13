@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
-
 import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;

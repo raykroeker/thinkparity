@@ -10,9 +10,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 
-import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -198,17 +196,7 @@ abstract class AbstractXMPP<T extends EventListener> {
      * @return A <code>RuntimeException</code>
      */
     protected RuntimeException translateError(final Throwable t) {
-        if (XMPPUncheckedException.class.isAssignableFrom(t.getClass())) {
-            return (XMPPUncheckedException) t;
-        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
-            return (Assertion) t;
-        } else {
-            final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
-            return XMPPErrorTranslator.translateUnchecked(xmppCore, errorId, t);
-        }
+        return xmppCore.translateError(t);
     }
 
     protected interface XMPPEventHandler<T extends AbstractThinkParityIQ> {

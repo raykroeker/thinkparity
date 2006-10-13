@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.l10n.L18n;
 
-
 import com.thinkparity.ophelia.model.audit.HistoryItemBuilder;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.audit.event.AuditVersionEvent;

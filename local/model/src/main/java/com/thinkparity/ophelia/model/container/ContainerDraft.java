@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 
-
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**

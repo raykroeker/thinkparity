@@ -11,7 +11,6 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 
-
 import com.thinkparity.ophelia.model.io.IOHandler;
 
 /**

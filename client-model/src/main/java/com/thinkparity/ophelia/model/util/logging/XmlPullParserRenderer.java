@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.util.logging;
 
 import org.apache.log4j.or.ObjectRenderer;
+
 import org.xmlpull.v1.XmlPullParser;
 
 

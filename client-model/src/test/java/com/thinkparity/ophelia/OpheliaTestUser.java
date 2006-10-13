@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
-import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -130,18 +129,12 @@ public class OpheliaTestUser extends User {
             session = new XMPPSessionImpl();
             session.login(environment, credentials);
             session.processOfflineQueue(session.readCurrentUser().getId());
-        } catch (final SmackException sx) {
-            throw new RuntimeException(sx);
         } finally {
             Assert.assertNotNull(session,
                     "User {0}'s session is null.", credentials.getUsername());
             Assert.assertTrue(session.isLoggedIn(),
                     "User {0} not logged in.", credentials.getUsername());
-            try {
-                session.logout();
-            } catch (final SmackException sx) {
-                throw new RuntimeException(sx);
-            }
+            session.logout();
         }
     }
 

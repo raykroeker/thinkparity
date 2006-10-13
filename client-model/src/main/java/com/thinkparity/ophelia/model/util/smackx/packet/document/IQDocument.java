@@ -9,7 +9,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 
-
 import com.thinkparity.ophelia.model.util.Base64;
 import com.thinkparity.ophelia.model.util.smackx.packet.IQParity;
 

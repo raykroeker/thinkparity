@@ -106,7 +106,7 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void addTeamMember(final UUID artifactUniqueId,
-            final JabberId jabberId) throws SmackException;
+            final JabberId jabberId);
 
     /**
      * Archive an artifact.
@@ -168,7 +168,7 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void declineInvitation(final EMail invitedAs,
-            final JabberId invitedBy) throws SmackException;
+            final JabberId invitedBy);
 
     /**
      * Delete an artifact
@@ -239,14 +239,13 @@ public interface XMPPSession {
      * @throws SmackException
      */
 	public void login(final Environment environment,
-            final Credentials credentials) throws SmackException;
+            final Credentials credentials);
 
     /**
      * Logout.
      * 
-     * @throws SmackException
      */
-	public void logout() throws SmackException;
+	public void logout();
 
     /**
      * Open a document version's content.
@@ -301,7 +300,7 @@ public interface XMPPSession {
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) throws SmackException;
+            final Calendar publishedOn);
 
     /**
      * Read the archive's containers.
@@ -488,7 +487,7 @@ public interface XMPPSession {
      * @return The user info.
      * @throws SmackException
      */
-	public User readCurrentUser() throws SmackException;
+	public User readCurrentUser();
 
     /**
      * Read the artifact key holder.
@@ -504,7 +503,7 @@ public interface XMPPSession {
      * 
      * @return A profile.
      */
-    public Profile readProfile() throws SmackException;
+    public Profile readProfile();
 
     /**
      * Read the user's profile emails addresses.
@@ -595,7 +594,7 @@ public interface XMPPSession {
     public void send(final ContainerVersion container,
             final Map<DocumentVersion, InputStream> documents,
             final List<JabberId> sendTo, final JabberId sentBy,
-            final Calendar sentOn) throws SmackException;
+            final Calendar sentOn);
 
     public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;

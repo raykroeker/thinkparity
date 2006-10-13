@@ -8,25 +8,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.PacketExtension;
 
+import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -39,9 +36,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.ophelia.model.util.smack.SmackErrorTranslator;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifact;
-import com.thinkparity.ophelia.model.util.smackx.packet.IQArtifactFlag;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
@@ -65,14 +61,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * login api.
      */
     private static final int LOGIN_SLEEP_DURATION = 3 * 1000;
-
-    /**
-	 * The number of milliseconds to sleep subsequent to each maual packet sent
-	 * via the smack connection. If this number is reduced or removed, the smack
-	 * library will have a tendancy to swallow messages.
-	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
-	 */
-	private static final int SEND_PACKET_SLEEP_DURATION = 75;
 
     static {
 		// set the subscription mode such that all requests are manual
@@ -198,8 +186,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-	public void addTeamMember(final UUID uniqueId, final JabberId jabberId)
-            throws SmackException {
+	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
 	    xmppArtifact.addTeamMember(uniqueId, jabberId);
 	}
 
@@ -266,7 +253,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public void declineInvitation(final EMail invitedAs,
-            final JabberId invitedBy) throws SmackException {
+            final JabberId invitedBy) {
 		xmppContact.decline(invitedAs, invitedBy);
 	}
 
@@ -327,21 +314,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#flag(java.util.UUID,
-	 *      com.thinkparity.codebase.model.artifact.ArtifactFlag)
-	 */
-	public void flag(final UUID uniqueId, final ArtifactFlag flag)
-            throws SmackException {
-		logger.logApiId();
-		logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("flag", flag);
-		final IQArtifact iq = new IQArtifactFlag(uniqueId, flag);
-		iq.setType(IQ.Type.SET);
-		logger.logVariable("iq", iq);
-		sendPacket(iq);
-	}
-
-	/**
      * Obtain the connection's jabber id.
      * 
      * @return A jabber id.
@@ -364,7 +336,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#login(java.lang.String, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
 	public void login(final Environment environment,
-            final Credentials credentials) throws SmackException {
+            final Credentials credentials) {
         login(1, environment, credentials);
     }
 
@@ -410,12 +382,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      java.util.Calendar)
      * 
      */
-    public void publish(ContainerVersion container, Map<DocumentVersion, InputStream> documents, List<JabberId> publishTo, JabberId publishedBy, Calendar publishedOn) throws SmackException {
+    public void publish(ContainerVersion container,
+            Map<DocumentVersion, InputStream> documents,
+            List<JabberId> publishTo, JabberId publishedBy, Calendar publishedOn) {
         try {
             xmppContainer.publish(container, documents, publishTo, publishedBy,
                     publishedOn);
         } catch (final IOException iox) {
-            throw XMPPErrorTranslator.translate(iox);
+            throw translateError(iox);
         }
     }
 
@@ -567,7 +541,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
-	public User readCurrentUser() throws SmackException {
+	public User readCurrentUser() {
 		assertLoggedIn("[LMODEL] [XMPP] [READ CURRENT USER] [NO SESSION]");
 		final String qualifiedJabberId = xmppConnection.getUser();
         final JabberId jabberId =
@@ -587,7 +561,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#readProfile()
      * 
      */
-    public Profile readProfile() throws SmackException {
+    public Profile readProfile() {
         assertLoggedIn("[LMODEL] [XMPP] [READ PROFILE] [USER NOT ONLINE]");
         return xmppProfile.read(getJabberId());
     }
@@ -691,24 +665,44 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void send(final ContainerVersion container,
             final Map<DocumentVersion, InputStream> documents,
-            final List<JabberId> sendTo, final JabberId sentBy, final Calendar sentOn)
-            throws SmackException {
+            final List<JabberId> sendTo, final JabberId sentBy,
+            final Calendar sentOn) {
         try {
             xmppContainer.send(container, documents, sendTo, sentBy, sentOn);
         } catch (final IOException iox) {
-            throw XMPPErrorTranslator.translate(iox);
+            throw translateError(iox);
         }
     }
 
 	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#sendLogFileArchive(java.io.File)
 	 */
-	public void sendLogFileArchive(final File logFileArchive, final User user)
-			throws SmackException {
+	public void sendLogFileArchive(final File logFileArchive, final User user) {
 		logger.logApiId();
         logger.logVariable("logFileArchive", logFileArchive);
         logger.logVariable("user", user);
 	}
+
+	/**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param t
+     *            An error.
+     */
+    public RuntimeException translateError(final Throwable t) {
+        if (SmackException.class.isAssignableFrom(t.getClass())) {
+            return (SmackException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
+            return (Assertion) t;
+        }
+        else {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
+            return SmackErrorTranslator.translate(this, errorId, t);
+        }
+    }
 
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#updateProfile(com.thinkparity.codebase.model.profile.Profile)
@@ -728,8 +722,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final AccountManager accountManager = new AccountManager(xmppConnection);
             accountManager.changePassword(credentials.getPassword());
         } catch (final Throwable t) {
-            XMPPErrorTranslator.translateUnchecked(this,
-                    "UPDATE PROFILE CREDENTIALS", t);
+            throw translateError(t);
         }
     }
 
@@ -753,7 +746,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
                 "Environment {0} not reachable.", environment);
     }
 
-	/**
+    /**
      * Log an error.
      * 
      * @param message
@@ -808,7 +801,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return response;
     }
 
-    /**
+	/**
      * Execute the method using an anonymous connection.
      * 
      * @param method
@@ -822,7 +815,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return execute(method, xmppAnonymousConnection, assertResponse);
     }
 
-	/**
+    /**
 	 * Event handler for the connectionClosed event generated by the smack
 	 * connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionTerminated event.
@@ -879,7 +872,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @throws SmackException
      */
     private void login(final Integer attempt, final Environment environment,
-            final Credentials credentials) throws SmackException {
+            final Credentials credentials) {
         logVariable("attempt", attempt);
         logVariable("environment", environment);
         logVariable("credentials", credentials);
@@ -907,12 +900,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             // this smack library is so flaky; a delay has to be used between
             // creating the connection and logging in
             // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141
-            try { Thread.sleep(LOGIN_SLEEP_DURATION); }
-            catch(final InterruptedException ix) {
-                xmppConnection = null;
-                xmppAnonymousConnection = null;
-                throw XMPPErrorTranslator.translate(ix);
-            }
+            Thread.sleep(LOGIN_SLEEP_DURATION);
 
             xmppConnection.addConnectionListener(new ConnectionListener() {
 			    public void connectionClosed() {
@@ -952,11 +940,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             if ("Not connected to server.".equals(isx.getMessage())) {
                 login(attempt + 1, environment, credentials);
             }
-		} catch (final XMPPException xmppx) {
-			logError(xmppx,
-                    "Could not login to environment {0} with credentials {1}.",
-                    environment, credentials);
-			throw XMPPErrorTranslator.translate(xmppx);
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -982,44 +967,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     private String readVersion() {
         return xmppSystem.readVersion();
     }
-
-	/**
-	 * Send a packet extension to a single user.
-	 * 
-	 * @param user
-	 *            The user to send the packet extension to.
-	 * @param packetExtension
-	 *            The packet extension to send.
-	 */
-	private void send(final Collection<User> users,
-			final PacketExtension packetExtension) throws InterruptedException,
-			SmackException {
-		for(final User user : users) {
-			final Message message = xmppConnection.createChat(
-					user.getUsername()).createMessage();
-			message.addExtension(packetExtension);
-			logger.logVariable("messageSize", message.toXML().length());
-			sendPacket(message);
-		}
-	}
-
-    /**
-	 * Send a packet through the smack xmpp connection.
-	 * 
-	 * @param packet
-	 *            The packet to send.
-	 */
-	private void sendPacket(final Packet packet) throws SmackException {
-		logger.logVariable("packet", packet);
-        xmppConnection.sendPacket(packet);
-		// this sleep has been inserted because when packets are sent within
-		// x milliseconds of each other, they tend to get swallowed by the
-		// smack library
-		try { Thread.sleep(SEND_PACKET_SLEEP_DURATION); }
-		catch(final InterruptedException ix) {
-			throw XMPPErrorTranslator.translate(ix);
-		}
-	}
 
     /**
      * Query the server for a new resource; and set the value within the

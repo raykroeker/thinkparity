@@ -3,54 +3,24 @@
  */
 package com.thinkparity.ophelia.model.util.smack;
 
-import org.jivesoftware.smack.packet.XMPPError;
-
 /**
- * SmackException
- * This class is used as a wrapper class for any exceptions that are thrown by
- * the Smack library.
- * @author raykroeker@gmail.com
- * @version 1.3
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class SmackException extends Exception {
-
-	static final long serialVersionUID = 1;
+public final class SmackException extends RuntimeException {
 
 	/**
-	 * Create a SmackException
-	 */
-	SmackException() { super(); }
+     * Create SmackException.
+     * 
+     * @param message
+     *            The error message <code>String</code>.
+     * @param cause
+     *            The error cause <code>Throwable</code>.
+     */
+    SmackException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * Create a SmackException
-	 * @param string <code>String</code>
-	 */
-	public SmackException(String string) { super(string); }
-
-	/**
-	 * Create a SmackException
-	 * @param string <code>String</code>
-	 * @param throwable <code>Throwable</code>
-	 */
-	public SmackException(String string, Throwable throwable) {
-		super(string, throwable);
-	}
-
-	/**
-	 * Create a SmackException
-	 * @param throwable <code>Throwable</code>
-	 */
-	public SmackException(Throwable throwable) { super(throwable); }
-
-	/**
-	 * Create a SmackException.
-	 * 
-	 * @param xmppError
-	 *            The network xmpp error causing the exception.
-	 */
-	public SmackException(final XMPPError xmppError) {
-		this(new StringBuffer(xmppError.getCode())
-				.append(":  ")
-				.append(xmppError.getMessage()).toString());
-	}
+    /** Create SmackException */
+	private SmackException() { super(); }
 }

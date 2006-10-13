@@ -24,4 +24,12 @@ public interface XMPPCore {
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);
     public JabberId getJabberId();
+
+    /**
+     * Translate an error into an unchecked error.
+     * 
+     * @param t
+     *            An error <code>Throwable</code>.
+     */
+    public RuntimeException translateError(final Throwable t);
 }

@@ -251,8 +251,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      *            The user who extended the invitation.
      * @throws SmackException
      */
-	void decline(final EMail invitedAs, final JabberId invitedBy)
-            throws SmackException {
+	void decline(final EMail invitedAs, final JabberId invitedBy) {
 		final XMPPMethod decline = new XMPPMethod("contact:declineinvitation");
         decline.setParameter(Xml.Contact.INVITED_AS, invitedAs);
         decline.setParameter(Xml.Contact.INVITED_BY, invitedBy);

@@ -18,7 +18,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-
 import com.thinkparity.ophelia.model.AbstractModelImplHelper;
 import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;

@@ -10,7 +10,6 @@ import java.util.List;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
-
 import com.thinkparity.ophelia.model.io.xmpp.XMPPException;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPSession;
 

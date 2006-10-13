@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.message.ContactInvitationMessage;
 import com.thinkparity.ophelia.model.message.ContactInvitationResponseMessage;

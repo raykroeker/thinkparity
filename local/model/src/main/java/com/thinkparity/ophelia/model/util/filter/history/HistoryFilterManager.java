@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.util.filter.history;
 import java.util.Iterator;
 import java.util.List;
 
-
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.util.filter.Filter;
 

@@ -29,10 +29,10 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.session.Session;
+
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
-import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -425,8 +425,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            An archive file system.
      * @return An archive <code>Workspace</code>.
      */
-    private Workspace readWorkspace(final FileSystem archiveFileSystem) {
-        final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
+    private Workspace readWorkspace(final Environment environment,
+            final FileSystem archiveFileSystem) {
+        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
         return workspaceModel.getWorkspace(archiveFileSystem.getRoot());
     }
 
@@ -440,15 +441,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
      */
     private void start(final JabberId archiveId, final Credentials credentials) {
         final FileSystem archiveFileSystem = readFileSystem(archiveId);
-        final Workspace workspace = readWorkspace(archiveFileSystem);
         final Environment environment = readEnvironment();
+        final Workspace workspace = readWorkspace(environment, archiveFileSystem);
         createContext(archiveId, environment, workspace);
         getModelFactory(archiveId).getSessionModel(getClass()).login(credentials);
-        final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
-        if (workspaceModel.isFirstRun(workspace)) {
-            final Preferences preferences = workspace.getPreferences();
-            preferences.setUsername(archiveId.getUsername());
-            getModelFactory(archiveId).getProfileModel(getClass()).read();
+        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
+        if (workspaceModel.isInitialized(workspace)) {
+            workspaceModel.initialize(workspace, credentials);
         }
     }
 

@@ -67,6 +67,6 @@ public final class ClientModelFactory {
     }
 
     public InternalWorkspaceModel getWorkspace(final Class clasz) {
-        return WorkspaceModel.getInternalModel(context);
+        return WorkspaceModel.getInternalModel(context, environment);
     }
 }

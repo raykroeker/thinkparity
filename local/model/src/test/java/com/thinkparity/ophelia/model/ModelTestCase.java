@@ -580,6 +580,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Create a draft.
+     * 
+     * @param testUser
+     *            A <code>OpheliaTestUser</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    protected ContainerDraft createDraft(final OpheliaTestUser testUser,
+            final Container container) {
+        return getContainerModel(testUser).createDraft(container.getId());
+    }
+
+    /**
      * @see com.thinkparity.codebase.junitx.TestCase#createFailMessage(java.lang.Throwable)
      * 
      */
@@ -666,7 +680,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modFiles;
     }
 
-    protected InternalProfileModel getProfileModel(
+	protected InternalProfileModel getProfileModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getProfileModel(testUser);
     }
@@ -676,7 +690,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getReleaseModel(testUser);
     }
 
-	protected InternalSessionModel getSessionModel(
+    protected InternalSessionModel getSessionModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getSessionModel(testUser);
     }
@@ -690,8 +704,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 * 
 	 * @return A handle to the parity workspace model.
 	 */
-	protected WorkspaceModel getWorkspaceModel() {
-		return WorkspaceModel.getModel();
+	protected WorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
+		return modelFactory.getWorkspaceModel(testUser);
 	}
 
     /**
@@ -796,6 +810,17 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Publish a container.
+     * 
+     * @param container
+     *            A container.
+     */
+    protected void publishContainer(final OpheliaTestUser testUser,
+            final Container container) {
+        publishToContacts(testUser, container);
+    }
+
+    /**
      * Publish the container to contacts.
      * 
      * @param container
@@ -824,40 +849,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
                 getName(), container.getName(), contacts, teamMembers);
         getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
-    }
-
-    /**
-     * Create a draft.
-     * 
-     * @param testUser
-     *            A <code>OpheliaTestUser</code>.
-     * @param container
-     *            A <code>Container</code>.
-     * @return A <code>ContainerDraft</code>.
-     */
-    protected ContainerDraft createDraft(final OpheliaTestUser testUser,
-            final Container container) {
-        return getContainerModel(testUser).createDraft(container.getId());
-    }
-
-    private void remove(final List<? extends User> users, final User user) {
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equals(user.getId())) {
-                users.remove(i);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Publish a container.
-     * 
-     * @param container
-     *            A container.
-     */
-    protected void publishContainer(final OpheliaTestUser testUser,
-            final Container container) {
-        publishToContacts(testUser, container);
     }
 
     /**
@@ -916,4 +907,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         super.tearDown();
         this.modelFactory = null;
 	}
+
+    private void remove(final List<? extends User> users, final User user) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(user.getId())) {
+                users.remove(i);
+                break;
+            }
+        }
+    }
 }

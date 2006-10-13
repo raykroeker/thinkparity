@@ -128,13 +128,14 @@ class PreferencesImpl implements Preferences {
         }
     }
 
-	Boolean isFirstRun() {
-        final Boolean firstRun = Boolean.valueOf(
-                javaProperties.getProperty("firstRun", Boolean.TRUE.toString()));
-        if (firstRun) {
-            javaProperties.setProperty("firstRun", Boolean.FALSE.toString());
-        }
-        return firstRun;
+	void initialize() {
+        javaProperties.setProperty(
+                "workspace.initialized", Boolean.TRUE.toString());
+    }
+
+    Boolean isInitialized() {
+        return Boolean.valueOf(javaProperties.getProperty(
+                "workspace.initialized", Boolean.FALSE.toString()));
     }
 
 	/**

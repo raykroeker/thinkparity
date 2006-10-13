@@ -29,6 +29,8 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 
 /**
@@ -56,24 +58,20 @@ public class OpheliaTestModelFactory {
         this.testContext = TestModel.getTestContext();
     }
 
-    public InternalArtifactModel getArtifactModel(final OpheliaTestUser testUser) {
-        return ArtifactModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
-    }
-
     public InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
         return ArchiveModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
-    public InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
-        return ContainerModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    public InternalArtifactModel getArtifactModel(final OpheliaTestUser testUser) {
+        return ArtifactModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalContactModel getContactModel(final OpheliaTestUser testUser) {
         return ContactModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
-    public InternalSessionModel getSessionModel(final OpheliaTestUser testUser) {
-        return SessionModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    public InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
+        return ContainerModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
@@ -84,19 +82,27 @@ public class OpheliaTestModelFactory {
         return LibraryModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
-    public InternalSystemMessageModel getSystemMessageModel(final OpheliaTestUser testUser) {
-        return SystemMessageModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
-    }
-
     public InternalProfileModel getProfileModel(final OpheliaTestUser testUser) {
         return ProfileModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    }
+
+    public InternalReleaseModel getReleaseModel(final OpheliaTestUser testUser) {
+        return ReleaseModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    }
+
+    public InternalSessionModel getSessionModel(final OpheliaTestUser testUser) {
+        return SessionModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    }
+
+    public InternalSystemMessageModel getSystemMessageModel(final OpheliaTestUser testUser) {
+        return SystemMessageModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalUserModel getUserModel(final OpheliaTestUser testUser) {
         return UserModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
-    public InternalReleaseModel getReleaseModel(final OpheliaTestUser testUser) {
-        return ReleaseModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    public InternalWorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
+        return WorkspaceModel.getInternalModel(testContext, testUser.getEnvironment());
     }
 }

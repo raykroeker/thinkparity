@@ -11,16 +11,12 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
+
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -34,20 +30,8 @@ public class FirstRunHelper {
     /** An apache logger. */
     final Logger logger;
 
-    /** The thinkParity contact interface. */
-    private final ContactModel contactModel;
-
     /** The login avatar. */
     private LoginAvatar loginAvatar;
-
-    /** The thinkParity profile interface. */
-    private final ProfileModel profileModel;
-
-    /** The thinKParity session interface. */
-    private final SessionModel sessionModel;
-
-    /** The user profile avatar. */
-    private UserProfileAvatar userProfileAvatar;
 
     /** The first run window. */
     private FirstRunWindow window;
@@ -62,9 +46,6 @@ public class FirstRunHelper {
     public FirstRunHelper(final Platform platform) {
         super();
         this.logger = platform.getLogger(getClass());
-        this.profileModel = platform.getModelFactory().getProfileModel(getClass());
-        this.contactModel = platform.getModelFactory().getContactModel(getClass());
-        this.sessionModel = platform.getModelFactory().getSessionModel(getClass());
         this.workspace = platform.getModelFactory().getWorkspace(getClass());
         this.workspaceModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
@@ -74,7 +55,7 @@ public class FirstRunHelper {
      * 
      * @return True if first run completed.
      */
-    public Boolean firstRun() {
+    public void firstRun() {
         loginAvatar = new LoginAvatar(this);
         openWindow(loginAvatar.getTitle(), loginAvatar);
 
@@ -84,22 +65,9 @@ public class FirstRunHelper {
             final Credentials credentials = new Credentials();
             credentials.setPassword(password);
             credentials.setUsername(username);
-            sessionModel.login(credentials);
-            Assert.assertTrue("", sessionModel.isLoggedIn());
 
-            final Profile profile = profileModel.read();
-            userProfileAvatar = new UserProfileAvatar(this);
-            userProfileAvatar.setInput(profile);
-            openWindow(userProfileAvatar.getTitle(), userProfileAvatar);
-            
-            profile.setName(userProfileAvatar.getFullName());
-            profile.setOrganization(userProfileAvatar.getOrganization());
-            profile.setTitle(userProfileAvatar.getTitle());
-            profileModel.update(profile);
-            contactModel.download();
-            return Boolean.TRUE;
+            workspaceModel.initialize(workspace, credentials);
         }
-        else { return Boolean.FALSE; }
     }
 
     /**
@@ -107,7 +75,9 @@ public class FirstRunHelper {
      * 
      * @return True if this is the first time the platform has been run.
      */
-    public Boolean isFirstRun() { return workspaceModel.isFirstRun(workspace); }
+    public Boolean isFirstRun() {
+        return !workspaceModel.isInitialized(workspace);
+    }
 
     /**
      * Create a new manager window and open the avatar.

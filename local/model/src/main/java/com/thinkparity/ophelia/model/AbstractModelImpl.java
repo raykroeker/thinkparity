@@ -1077,8 +1077,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return secretKeySpec;
     }
 
+    /**
+     * Obtain an internal thinkParity workspace interface.
+     * 
+     * @return An <code>InternalWorkspaceModel</code>.
+     */
     private InternalWorkspaceModel getWorkspaceModel() {
-        return WorkspaceModel.getInternalModel(getContext());
+        return WorkspaceModel.getInternalModel(getContext(), environment);
     }
 
     /**

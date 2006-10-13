@@ -11,12 +11,22 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.ErrorHelper;
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.ParityErrorTranslator;
+import com.thinkparity.ophelia.model.ParityUncheckedException;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 
@@ -57,12 +67,16 @@ class WorkspaceModelImpl {
         });
 	}
 
+    /** A thinkParity <code>Environment</code>. */
+    private final Environment environment;
+
 	/**
 	 * Create a WorkspaceModelImpl.
 	 * 
 	 */
-	WorkspaceModelImpl() {
+	WorkspaceModelImpl(final Environment environment) {
         super();
+        this.environment = environment;
 	}
 
     /**
@@ -106,6 +120,25 @@ class WorkspaceModelImpl {
     }
 
     /**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param t
+     *            An error.
+     */
+    protected RuntimeException translateError(final Workspace workspace,
+            final Throwable t) {
+        if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
+            return (ParityUncheckedException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            return (Assertion) t;
+        }
+        else {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            return ParityErrorTranslator.translateUnchecked(workspace, errorId, t);
+        }
+    }
+
+    /**
 	 * Obtain the workspace for the parity model software.
 	 * 
 	 * @return The workspace.
@@ -123,12 +156,54 @@ class WorkspaceModelImpl {
 	}
 
     /**
+     * Initialize the workspace. If the workspace fails to initialize; it will
+     * be deleted.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
+     */
+    void initialize(final Workspace workspace, final Credentials credentials) {
+        try {
+            final SessionModel sessionModel =
+                SessionModel.getModel(environment, workspace);
+            sessionModel.login(credentials);
+            Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());            
+            ContactModel.getModel(environment, workspace).download();
+            findImpl(workspace).initialize();
+        } catch (final Throwable t) {
+            final WorkspaceImpl impl = findImpl(workspace);
+            final File workspaceDirectory = impl.getWorkspaceDirectory();
+            impl.addShutdownHook(new ShutdownHook() {
+                @Override
+                public String getDescription() {
+                    return ShutdownHookNames.WORKSPACE_DELETE;
+                }
+                @Override
+                public String getName() {
+                    return ShutdownHookNames.WORKSPACE_DELETE;
+                }
+                @Override
+                public Integer getPriority() {
+                    return ShutdownHookPriorities.WORKSPACE_DELETE;
+                }
+                @Override
+                public void run() {
+                    FileUtil.deleteTree(workspaceDirectory);
+                }
+            });
+            throw translateError(workspace, t);
+        }
+    }
+
+    /**
      * Determine if this is the first run of the workspace.
      * 
      * @return True if this is the first run of the workspace; false otherwise.
      */
-    Boolean isFirstRun(final Workspace workspace) {
-        return findImpl(workspace).isFirstRun();
+    Boolean isInitialized(final Workspace workspace) {
+        return findImpl(workspace).isInitialized();
     }
 
     private WorkspaceImpl findImpl(final Workspace workspace) {
@@ -154,15 +229,15 @@ class WorkspaceModelImpl {
         impl.addShutdownHook(new ShutdownHook() {
             @Override
             public String getDescription() {
-                return ShutdownHookNames.WORKSPACE;
+                return ShutdownHookNames.WORKSPACE_CLOSE;
             }
             @Override
             public String getName() {
-                return ShutdownHookNames.WORKSPACE;
+                return ShutdownHookNames.WORKSPACE_CLOSE;
             }
             @Override
             public Integer getPriority() {
-                return ShutdownHookPriorities.WORKSPACE;
+                return ShutdownHookPriorities.WORKSPACE_CLOSE;
             }
             @Override
             public void run() {

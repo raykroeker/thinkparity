@@ -35,6 +35,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.update.UpdateHelper;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
+
 import com.thinkparity.ophelia.model.workspace.Preferences;
 
 /**
@@ -354,14 +355,10 @@ public class BrowserPlatform implements Platform {
             update();
         } else {
             if (isFirstRun()) {
-                if (firstRun()) {
-                    startPlugins();
-                    startApplications();
-                }
-            } else {
-                startPlugins();
-                startApplications();
+                firstRun();
             }
+            startPlugins();
+            startApplications();
         }
         notifyLifeCycleStarted();
 	}
@@ -405,15 +402,22 @@ public class BrowserPlatform implements Platform {
         pluginHelper.end();
     }
 
-    /** Perform first run initialization. */
-    private Boolean firstRun() { return firstRunHelper.firstRun(); }
+    /**
+     * Perform first run initialization.
+     * 
+     */
+    private void firstRun() {
+        firstRunHelper.firstRun();
+    }
 
     /**
      * Determine if this is the first time the platform has been run.
      *
      * @return True if this is the first run of the platform.
      */
-    private Boolean isFirstRun() { return firstRunHelper.isFirstRun(); }
+    private Boolean isFirstRun() {
+        return firstRunHelper.isFirstRun();
+    }
 
     /**
      * Determine whether or not an update is available.

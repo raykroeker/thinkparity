@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.util.Vector;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.ModelTestCase;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the workspace model getWorkspace api.
@@ -51,7 +52,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new Vector<Fixture>(1);
-		data.add(new Fixture(OpheliaTestUser.JUNIT, getWorkspaceModel()));
+		data.add(new Fixture(OpheliaTestUser.JUNIT, getWorkspaceModel(OpheliaTestUser.JUNIT)));
 	}
 
 	/**

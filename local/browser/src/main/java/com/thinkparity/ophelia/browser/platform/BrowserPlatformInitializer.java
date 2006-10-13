@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
+
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -81,7 +82,7 @@ public class BrowserPlatformInitializer {
 
         // init model
         final Workspace workspace =
-            WorkspaceModel.getModel().getWorkspace(
+            WorkspaceModel.getModel(environment).getWorkspace(
                     new File(profile.getParityWorkspace()));
         ModelFactory.getInstance().initialize(environment, workspace);
 

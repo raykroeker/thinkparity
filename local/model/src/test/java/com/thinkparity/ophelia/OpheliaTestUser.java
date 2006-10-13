@@ -71,7 +71,7 @@ public class OpheliaTestUser extends User {
 		this.credentials.setUsername(username);
         this.environment = environment;
         this.workspace =
-            WorkspaceModel.getModel().getWorkspace(
+            WorkspaceModel.getModel(environment).getWorkspace(
                     new File(OpheliaTestCase.testSession.getOutputDirectory(),
                             "TEST." + username));
         this.workspace.getPreferences().setUsername(username);

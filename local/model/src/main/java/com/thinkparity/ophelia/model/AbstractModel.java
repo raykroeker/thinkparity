@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.model;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
-
 /**
  * AbstractModel
  * @author raykroeker@gmail.com
@@ -30,16 +28,6 @@ public abstract class AbstractModel<T extends AbstractModelImpl> extends
 
     /** An apache logger. */
     private final Log4JWrapper logger;
-
-    /**
-	 * Obtain the workspace model.
-	 * 
-	 * @return The parity workspace model.
-	 */
-	protected static WorkspaceModel getWorkspaceModel() {
-		final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
-		return workspaceModel;
-	}
 
     /**
      * Create a AbstractModel.

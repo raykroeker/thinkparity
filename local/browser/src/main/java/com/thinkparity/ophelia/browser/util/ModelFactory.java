@@ -215,6 +215,6 @@ public class ModelFactory {
         releaseModel = ReleaseModel.getModel(environment, workspace);
         sessionModel = SessionModel.getModel(environment, workspace);
         userModel = UserModel.getModel(environment, workspace);
-        workspaceModel = WorkspaceModel.getModel();
+        workspaceModel = WorkspaceModel.getModel(environment);
     }
 }

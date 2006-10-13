@@ -50,7 +50,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 		return new ProfileModel(environment, workspace);
 	}
 
-	/**
+    /**
 	 * Create ProfileModel.
 	 *
 	 * @param workspace
@@ -61,7 +61,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 		super(new ProfileModelImpl(environment, workspace));
 	}
 
-    /**
+	/**
      * Add an email to the profile.
      * 
      * @param email
@@ -74,6 +74,16 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     }
 
     /**
+     * Create the user's profile locally.
+     *
+     */
+    public Profile create() {
+        synchronized (getImplLock()) {
+            return getImpl().create();
+        }
+    }
+
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
@@ -81,6 +91,17 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public Profile read() {
         synchronized (getImplLock()) {
             return getImpl().read();
+        }
+    }
+
+    /**
+     * Read the user's credentials.
+     * 
+     * @return The user's credentials.
+     */
+    public Credentials readCredentials() {
+        synchronized (getImplLock()) {
+            return getImpl().readCredentials();
         }
     }
 
@@ -108,7 +129,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
         }
     }
 
-    /**
+	/**
      * Read the security question.
      * 
      * @return A security question.
@@ -119,7 +140,7 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
         }
     }
 
-	/**
+    /**
      * Remove an email.
      * 
      * @param emailId
@@ -140,17 +161,6 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
 	public void resetPassword(final String securityAnswer) {
         synchronized (getImplLock()) {
             getImpl().resetPassword(securityAnswer);
-        }
-    }
-
-    /**
-     * Read the user's credentials.
-     * 
-     * @return The user's credentials.
-     */
-    public Credentials readCredentials() {
-        synchronized (getImplLock()) {
-            return getImpl().readCredentials();
         }
     }
 

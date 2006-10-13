@@ -105,12 +105,14 @@ public final class Constants {
 
     public static final class ShutdownHookNames {
         public static final String HYPERSONIC = "thinkParity Hypersonic Database";
-        public static final String WORKSPACE = "thinkParity Workspace";
+        public static final String WORKSPACE_CLOSE = "thinkParity Workspace - Close";
+        public static final String WORKSPACE_DELETE = "thinkParity Workspace - Delete";
     }
 
     public static final class ShutdownHookPriorities {
         public static final Integer HYPERSONIC = 9;
-        public static final Integer WORKSPACE = 0;
+        public static final Integer WORKSPACE_CLOSE = 0;
+        public static final Integer WORKSPACE_DELETE = 1;
     }
 
     public static final class Sundry {

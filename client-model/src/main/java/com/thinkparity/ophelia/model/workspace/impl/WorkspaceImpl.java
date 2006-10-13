@@ -259,12 +259,20 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * Determine if this is the first time this workspace has been opened.
-     * 
-     * @return True if this is the first time the workspace has been opened.
+     * Initialize the workspace.
+     *
      */
-    public Boolean isFirstRun() {
-        return preferencesImpl.isFirstRun();
+    public void initialize() {
+        preferencesImpl.initialize();
+    }
+
+    /**
+     * Determine if the workspace has been initialized.
+     * 
+     * @return True if the workspace has been initialized.
+     */
+    public Boolean isInitialized() {
+        return preferencesImpl.isInitialized();
     }
 
     /**

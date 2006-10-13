@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import com.thinkparity.codebase.model.Context;
 
-import com.thinkparity.ophelia.model.util.smack.SmackException;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * 
@@ -25,17 +25,6 @@ public class ParityErrorTranslator {
 	static { singleton = new ParityErrorTranslator(); }
 
 	/**
-	 * Create a parity error based upon a thread interruption error.
-	 * 
-	 * @param ix
-	 *            The thead interruption error.
-	 * @return The parity error.
-	 */
-	public static ParityException translate(final InterruptedException ix) {
-		return singleton.doTranslate(ix);
-	}
-
-	/**
 	 * Create a parity error based upon an io error.
 	 * 
 	 * @param iox
@@ -44,28 +33,6 @@ public class ParityErrorTranslator {
 	 */
 	public static ParityException translate(final IOException iox) {
 		return singleton.doTranslate(iox);
-	}
-
-	/**
-	 * Create a parity error based upon a java runtime error.
-	 * 
-	 * @param rx
-	 *            The java runtime error.
-	 * @return The parity error.
-	 */
-	public static ParityException translate(final RuntimeException rx) {
-		return singleton.doTranslate(rx);
-	}
-
-	/**
-	 * Create a parity error based upon a smack error.
-	 * 
-	 * @param sx
-	 *            The smack error.
-	 * @return The parity error.
-	 */
-	public static ParityException translate(final SmackException sx) {
-		return singleton.doTranslate(sx);
 	}
 
     /**
@@ -79,6 +46,20 @@ public class ParityErrorTranslator {
      */
     public static ParityUncheckedException translateUnchecked(
             final Context context, final Object errorId, final Throwable t) {
+        return singleton.doTranslateUnchecked(errorId, t);
+    }
+
+    /**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param context
+     *            A thinkParity context.
+     * @param t
+     *            An error.
+     * @return A thinkParity unchecked error.
+     */
+    public static ParityUncheckedException translateUnchecked(
+            final Workspace workspace, final Object errorId, final Throwable t) {
         return singleton.doTranslateUnchecked(errorId, t);
     }
 

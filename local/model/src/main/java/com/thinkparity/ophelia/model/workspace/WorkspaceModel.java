@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.workspace;
 import java.io.File;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 
 /**
  * WorkspaceModel
@@ -34,8 +36,9 @@ public class WorkspaceModel {
      * 
      * @return The workspace model interface.
      */
-    public static InternalWorkspaceModel getInternalModel(final Context context) {
-        return new InternalWorkspaceModel(context);
+    public static InternalWorkspaceModel getInternalModel(
+            final Context context, final Environment environment) {
+        return new InternalWorkspaceModel(context, environment);
     }
 
     /**
@@ -43,9 +46,8 @@ public class WorkspaceModel {
      * 
      * @return The workspace model interface.
      */
-    public static WorkspaceModel getModel() {
-        final WorkspaceModel workspaceModel = new WorkspaceModel();
-        return workspaceModel;
+    public static WorkspaceModel getModel(final Environment environment) {
+        return new WorkspaceModel(environment);
     }
 
     /** The thinkParity workspace interface implementation. */
@@ -54,9 +56,9 @@ public class WorkspaceModel {
     /**
 	 * Create a WorkspaceModel
 	 */
-	protected WorkspaceModel() {
+	protected WorkspaceModel(final Environment environment) {
 		super();
-        this.impl = new WorkspaceModelImpl();
+        this.impl = new WorkspaceModelImpl(environment);
 	}
 
     /**
@@ -71,13 +73,30 @@ public class WorkspaceModel {
 	}
 
     /**
-     * Determine if this is the first run of the workspace.
+     * Initialize a workspace.
      * 
-     * @return True if this is the first run of the workspace; false otherwise.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @param credentials
+     *            A user's <code>Credentials</code>.
      */
-    public Boolean isFirstRun(final Workspace workspace) {
+    public void initialize(final Workspace workspace,
+            final Credentials credentials) {
         synchronized (getImplLock()) {
-            return getImpl().isFirstRun(workspace);
+            getImpl().initialize(workspace, credentials);
+        }
+    }
+
+    /**
+     * Determine if the workspace has been initialized.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @return True if the workspace has been initialized.
+     */
+    public Boolean isInitialized(final Workspace workspace) {
+        synchronized (getImplLock()) {
+            return getImpl().isInitialized(workspace);
         }
     }
 

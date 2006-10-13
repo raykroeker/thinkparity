@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.InternalModel;
@@ -18,8 +19,8 @@ import com.thinkparity.ophelia.model.InternalModel;
 public class InternalWorkspaceModel extends WorkspaceModel implements InternalModel {
 
     /** Create InternalWorkspaceModel. */
-    InternalWorkspaceModel(final Context context) {
-        super();
+    InternalWorkspaceModel(final Context context, final Environment environment) {
+        super(environment);
     }
 
     /**

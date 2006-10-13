@@ -21,6 +21,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
+
 import com.thoughtworks.xstream.XStream;
 
 /**

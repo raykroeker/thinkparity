@@ -20,6 +20,20 @@ final class XMPPSystem extends AbstractXMPP {
     }
 
     /**
+     * Process the queue of requests that have accumulated while the user was
+     * offline.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     */
+    void processOfflineQueue(final JabberId userId) {
+        logger.logApiId();
+        final XMPPMethod processOfflineQueue = new XMPPMethod("system:processofflinequeue");
+        processOfflineQueue.setParameter("userId", userId);
+        execute(processOfflineQueue);
+    }
+
+    /**
      * Read the thinkParity remote version.
      *
      * @return The version.
@@ -28,12 +42,5 @@ final class XMPPSystem extends AbstractXMPP {
         logger.logApiId();
         final XMPPMethod readVersion = new XMPPMethod("system:readversion");
         return execute(readVersion, Boolean.TRUE).readResultString("version");
-    }
-
-    void processOfflineQueue(final JabberId userId) {
-        logger.logApiId();
-        final XMPPMethod processOfflineQueue = new XMPPMethod("system:processofflinequeue");
-        processOfflineQueue.setParameter("userId", userId);
-        execute(processOfflineQueue);
     }
 }

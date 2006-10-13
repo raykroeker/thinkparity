@@ -18,10 +18,10 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
  * @version 1.1
  */
 public interface XMPPCore {
-	public XMPPMethodResponse execute(final XMPPMethod method);
+	public void addPacketListener(final PacketListener listener,
+            final PacketFilter filter);
+    public XMPPMethodResponse execute(final XMPPMethod method);
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);
     public JabberId getJabberId();
-    public void addPacketListener(final PacketListener listener,
-            final PacketFilter filter);
 }

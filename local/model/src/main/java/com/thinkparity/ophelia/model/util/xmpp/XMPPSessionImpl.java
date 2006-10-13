@@ -55,7 +55,6 @@ import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
  */
 public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
-
     /**
 	 * Interal logger implemenation.
 	 */
@@ -108,13 +107,10 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /** The thinkParity xmpp profile interface. */
     private final XMPPProfile xmppProfile;
 
-    /** The thinKParity xmpp system interface. */
+    /** The thinkParity xmpp system interface. */
     private final XMPPSystem xmppSystem;
 
-    /**
-	 * The xmpp user interface.
-	 * 
-	 */
+    /** The thinkParity xmpp user interface. */
 	private final XMPPUser xmppUser;
 
     /**
@@ -375,7 +371,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#logout()
 	 */
-	public void logout() throws SmackException {
+	public void logout() {
 		logger.logApiId();
         clearListeners();
         xmppConnection.close();
@@ -946,7 +942,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
             xmppConnection.login(credentials.getUsername(),
                     credentials.getPassword(), credentials.getResource());
-
             logger.logInfo("{0}", readVersion());
             handleConnectionEstablished();
         } catch (final IllegalStateException isx) {

@@ -130,16 +130,21 @@
         <echo message="${cvs.modules.ide}"/>
         <sleep seconds="3"/>
         <!-- source trees -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
-            dest="${basedir}"/>
+        <cvs cvsroot="${cvs.cvsroot}" dest="${basedir}"
+                command="checkout" compressionlevel="${cvs.compressionlevel}"
+                tag="${cvs.branch}" package="${cvs.modules}"/>
+    </target>
+
+    <!-- checkout ide files -->
+    <target name="checkout-ide">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.branch}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
         <!-- ide files -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
-            dest="${basedir}"/>
-        <move todir="${basedir}">
-            <fileset dir="${basedir}/ide"/>
-        </move>
+        <cvs cvsroot="${cvs.cvsroot}" dest="${basedir}"
+                command="checkout" compressionlevel="${cvs.compressionlevel}"
+                tag="${cvs.branch}" package="${cvs.modules.ide}"/>
     </target>
 
     <!-- analyze the source -->

@@ -140,22 +140,6 @@
                 <include name="version.properties"/>
             </fileset>
         </jar>
-        <!-- launch4j -->
-        <mkdir dir="${target.release.dir}/${release.version}/lib"/>
-        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
-        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
-                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
-        <launch4j>
-            <config dontWrapJar="true" headerType="0"
-                    jarPath="thinkParity.jar"
-                    outfile="${target.release.dir}/thinkParity.exe"
-                    errTitle="thinkParity - Error" customProcName="true"
-                    stayAlive="false"
-                    icon="${target.classes.dir}/images/ThinkParity32x32.ico">
-                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
-                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
-            </config>
-        </launch4j>
         <copy todir="${target.release.dir}">
             <fileset file="${basedir}/LICENSE.txt"/>
             <fileset file="${basedir}/README.txt"/>
@@ -180,6 +164,23 @@
             </fileset>
             <mapper type="flatten"/>
         </copy>
+        <!-- launch4j -->
+        <mkdir dir="${target.release.dir}/${release.version}/lib"/>
+        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0"
+                    jarPath="thinkParity.jar"
+                    outfile="${target.release.dir}/thinkParity.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/images/ThinkParity32x32.ico"
+                    chdir="${release.version}/lib/win32">
+                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
+                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+            </config>
+        </launch4j>
         <!-- nsis -->
         <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
         <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.release.dir}">

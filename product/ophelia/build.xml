@@ -19,7 +19,6 @@
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator common/model local/browser local/browser-plugins local/model local/thinkparity vendor/commons-codec/1.3 vendor/fop/0.20.5 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/nativeskin/6.7 vendor/i686/win32/nativeskin/6.7 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
-    <property name="cvs.modules.ide" value="ide/eclipse/product/ophelia"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
@@ -212,25 +211,6 @@
             tag="${cvs.branch}" package="${cvs.modules}" dest="${basedir}"/>
     </target>
 
-    <!-- checkout-ide -->
-    <target name="checkout-ide">
-        <echo message="${cvs.compressionlevel}"/>
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.branch}"/>
-        <echo message="${cvs.modules}"/>
-        <echo message="${cvs.modules.ide}"/>
-        <sleep seconds="3"/>
-        <!-- ide files -->
-        <mkdir dir="${basedir}/ide"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d"
-             compressionlevel="${cvs.compressionlevel}" tag="${cvs.branch}"
-             package="${cvs.modules.ide}" dest="${basedir}"/>
-        <move todir="${basedir}">
-            <fileset dir="${basedir}/ide"/>
-        </move>
-    </target>
-
     <!-- delete output -->
     <target name="clean">
         <delete dir="${target.dir}"/>
@@ -286,7 +266,6 @@ Options:
 Targets:
     analyze                     Analyze the source.   
     checkout                    Checkout all source.
-    checkout.ide                Checkout ide configuration files.
     clean                       Delete output.
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.

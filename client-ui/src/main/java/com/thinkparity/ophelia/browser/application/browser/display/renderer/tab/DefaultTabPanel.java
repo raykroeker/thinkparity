@@ -15,7 +15,6 @@ import javax.swing.event.MouseInputListener;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 
 /**

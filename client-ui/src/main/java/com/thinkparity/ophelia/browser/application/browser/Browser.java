@@ -1242,10 +1242,8 @@ public class Browser extends AbstractApplication {
      * @param file
      *            A file.
      */
-    public void runUpdateDocumentDraft(final Long containerId,
-            final Long documentId, final File file) {
-        final Data data = new Data(3);
-        data.set(UpdateDraft.DataKey.CONTAINER_ID, containerId);
+    public void runUpdateDocumentDraft(final Long documentId, final File file) {
+        final Data data = new Data(2);
         data.set(UpdateDraft.DataKey.DOCUMENT_ID, documentId);
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);

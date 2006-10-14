@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ophelia</name>
+	<comment>Ophelia (character)
+
+    Ophelia is a female character from Hamlet by William Shakespeare. She is a
+
+young noblewoman of Denmark, daughter to Polonius, sister to Laertes, and love
+
+interest of Hamlet. She is a loyal and duitiful daughter, who obeys her father&apos;s
+
+instruction to &quot;lock herself from [Hamlet&apos;s] resort.&quot;</comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build.xml - process-resources test-process-resources.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/ophelia - build-plugin-archive.xml - quick-release-install.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.jem.beaninfo.BeanInfoNature</nature>
+	</natures>
+</projectDescription>

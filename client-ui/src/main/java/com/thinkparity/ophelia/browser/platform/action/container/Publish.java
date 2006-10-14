@@ -77,7 +77,7 @@ public class Publish extends AbstractAction {
                 }
             }
             
-            getContainerModel().publish(containerId, contacts, teamMembers);
+            getContainerModel().publish(containerId, comment, contacts, teamMembers);
             getArtifactModel().applyFlagSeen(containerId);            
         }
 	}

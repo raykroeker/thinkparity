@@ -8,8 +8,8 @@ package com.thinkparity.ophelia.browser;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
-import com.thinkparity.ophelia.browser.profile.EnvironmentManager;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.profile.ProfileManager;
 import com.thinkparity.ophelia.browser.util.Swing;

@@ -135,15 +135,15 @@ public class ProfileManager {
             case LINUX:
                 final StringBuffer linuxPath = new StringBuffer()
                         .append(System.getenv("HOME"))
-                        .append(File.separatorChar).append("thinkParity");
+                        .append(File.separatorChar).append(".thinkParity");
                 fileSystemRoot = new File(linuxPath.toString());
                 break;
             default:
-                throw Assert.createUnreachable("[LBROWSER] [PROFILE MANAGER] [UNUSPPORTED OS]");
+                throw Assert.createUnreachable("UNSUPPORTED OS");
         }
         if(!fileSystemRoot.exists()) {
-            Assert.assertTrue("[LBROWSER] [PROFILE MANAGER] [CANNOT CREATE PROFILE FILESYSTEM ROOT]",
-                    fileSystemRoot.mkdirs());
+            Assert.assertTrue(fileSystemRoot.mkdirs(),
+                    "Cannot create data directory {0}.", fileSystemRoot);
         }
         return new FileSystem(fileSystemRoot);
     }

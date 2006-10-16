@@ -136,7 +136,6 @@ public abstract class Window extends AbstractJDialog {
         // Install the resizer here; if done earlier then the resizer
         // can't successfully get the window ancestor.
         avatar.installResizer();        
-        avatar.setRoundCorners(Boolean.TRUE);
     }
 
     /**

@@ -5,11 +5,10 @@ package com.thinkparity.ophelia.browser.util.l2fprod;
 
 import java.awt.Window;
 
+import com.l2fprod.gui.region.Region;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.l2fprod.gui.region.Region;
 
 /**
  * A wrapper class for all native skin calls.
@@ -61,13 +60,22 @@ public final class NativeSkin {
 	}
 
 	/**
+     * Determine if corners are rounded.
+     * 
+     * @return True if the corners are rounded.
+     */
+    public Boolean isRounded() {
+        return !NO_NATIVE_SKIN;
+    }
+
+    /**
 	 * Apply rounded corners to the window.
 	 * 
 	 * @param window
 	 *            A <code>Window</code>.
 	 */
 	public void roundCorners(final Window window) {
-		if (!NO_NATIVE_SKIN) {
+		if (isRounded()) {
 			final Region region = NATIVE_SKIN.createRoundRectangleRegion(0, 0,
 					window.getWidth() + 1, window.getHeight() + 1, 9, 9);
 			NATIVE_SKIN.setWindowRegion(window, region, true);

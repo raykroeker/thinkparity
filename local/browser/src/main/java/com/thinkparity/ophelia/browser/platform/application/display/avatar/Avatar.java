@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
-
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -24,6 +23,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
 
@@ -57,9 +57,6 @@ public abstract class Avatar extends AbstractJPanel {
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
     
-    /** Flag indicating if this avatar has rounded corners */
-    private Boolean roundCorners = Boolean.FALSE;
-
     /**
      * Create Avatar.
      * 
@@ -129,13 +126,16 @@ public abstract class Avatar extends AbstractJPanel {
 		this.scrollPolicy = scrollPolicy;
 	}
     
+	/** A <code>NativeSkin</code> library helper. */
+    private final NativeSkin nativeSkin = new NativeSkin();
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (isRoundCorners()) {
+        if (nativeSkin.isRounded()) {
             final Graphics g2 = g.create();
             try {           
                 // These images help to make the rounded corners look good.
@@ -299,23 +299,6 @@ public abstract class Avatar extends AbstractJPanel {
 		this.input = input;
 		reload();
 	}
-
-    /**
-     * @return True if round corners
-     */
-    public Boolean isRoundCorners() {
-        return roundCorners;
-    }
-
-    /**
-     * Set round corners on or off.
-     * 
-     * @param roundCorners
-     *          True if round corners.
-     */
-    public void setRoundCorners(Boolean roundCorners) {
-        this.roundCorners = roundCorners;
-    }
 
     /**
      * These get and set methods are used by classes that intend to do their

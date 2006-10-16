@@ -32,12 +32,22 @@ public final class ScenarioManagerWindow extends AbstractJFrame {
         return scenarioManagerPanel.getSelectedScenario();
     }
 
+    /**
+     * Open the scenarion manager window.
+     *
+     */
     void open() {
         new NativeSkin().roundCorners(this);
         setLocation(calculateLocation());
         setVisible(true);
     }
 
+    /**
+     * Set the list of scenarios to select from.
+     * 
+     * @param scenarios
+     *            A <code>List&lt;Scenario&gt;</code>.
+     */
     void setScenarios(final List<Scenario> scenarios) {
         scenarioManagerPanel.setScenarios(scenarios);
     }

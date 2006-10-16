@@ -13,7 +13,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.ophelia.browser.Constants.Colors.Swing;
+import com.thinkparity.ophelia.browser.Constants.Colors;
 
 /**
  * @author raymond@thinkparity.com
@@ -176,14 +176,14 @@ public class ScenarioManagerPanel extends AbstractJPanel {
             setText(((Scenario) value).getDisplayName());
 
             if (isSelected) {
-                setForeground(Swing.LIST_SELECTION_FG);
-                setBackground(Swing.LIST_SELECTION_BG);
+                setForeground(Colors.Browser.List.LIST_SELECTION_FG);
+                setBackground(Colors.Browser.List.LIST_SELECTION_BG);
             } else {
-                setForeground(Swing.LIST_FG);
+                setForeground(Colors.Browser.List.LIST_FG);
                 if (0 == index % 2) {
-                    setBackground(Swing.LIST_EVEN_BG);
+                    setBackground(Colors.Browser.List.LIST_EVEN_BG);
                 } else {
-                    setBackground(Swing.LIST_ODD_BG);
+                    setBackground(Colors.Browser.List.LIST_ODD_BG);
                 }
             }
 

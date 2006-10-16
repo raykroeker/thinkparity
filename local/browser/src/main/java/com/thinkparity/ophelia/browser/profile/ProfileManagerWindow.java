@@ -8,7 +8,6 @@ package com.thinkparity.ophelia.browser.profile;
 import javax.swing.JFrame;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
-
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
@@ -44,16 +43,8 @@ class ProfileManagerWindow extends AbstractJFrame {
         add(avatar);
         pack();
         avatar.reload();
-        avatar.setRoundCorners(Boolean.TRUE);
         setLocation(calculateLocation());
-        roundCorners();
+        new NativeSkin().roundCorners(this);
         setVisible(true);
-    }
-    
-    /**
-     * Make the corners round.
-     */
-    private void roundCorners() {
-    	new NativeSkin().roundCorners(this);
     }
 }

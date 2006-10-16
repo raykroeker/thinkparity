@@ -8,4 +8,4 @@ package com.thinkparity.codebase;
  *
  * @author raymond@thinkparity.com
  */
-public enum Mode { DEVELOPMENT, PRODUCTION, TESTING }
+public enum Mode { DEMO, DEVELOPMENT, PRODUCTION, TESTING }

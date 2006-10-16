@@ -31,6 +31,7 @@ public class LinkFactory {
 
     static {
         PREFIXES = new HashMap<Mode, String>(3, 1.0F);
+        PREFIXES.put(Mode.DEMO, "https://");
         PREFIXES.put(Mode.DEVELOPMENT, "http://");
         PREFIXES.put(Mode.TESTING, "https://");
         PREFIXES.put(Mode.PRODUCTION, "https://");
@@ -38,12 +39,14 @@ public class LinkFactory {
         SUFFIXES = new HashMap<Application, Map<Mode, String>>(1, 1.0F);
 
         final Map<Mode, String> ROSALINE = new HashMap<Mode, String>();
+        ROSALINE.put(Mode.DEMO, ":8083/katherina");
         ROSALINE.put(Mode.DEVELOPMENT, ":8082/katherina");
         ROSALINE.put(Mode.TESTING, ":8081/katherina");
         ROSALINE.put(Mode.PRODUCTION, ":8080/katherina");
         SUFFIXES.put(Application.ROSALINE, ROSALINE);
 
         final Map<Mode, String> OPHELIA = new HashMap<Mode, String>();
+        OPHELIA.put(Mode.DEMO, ":83");
         OPHELIA.put(Mode.DEVELOPMENT, "");
         OPHELIA.put(Mode.TESTING, ":81");
         OPHELIA.put(Mode.PRODUCTION, ":82");

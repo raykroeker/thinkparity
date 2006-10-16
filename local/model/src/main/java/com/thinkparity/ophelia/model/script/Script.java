@@ -10,5 +10,18 @@ import java.io.InputStream;
  * @version 1.1.2.1
  */
 public interface Script {
+
+    /**
+     * Obtain the script name.
+     * 
+     * @return The script name <code>String</code>.
+     */
+    public String getName();
+
+    /**
+     * Open the script input stream.
+     * 
+     * @return A script intput stream.
+     */
     public InputStream openStream();
 }

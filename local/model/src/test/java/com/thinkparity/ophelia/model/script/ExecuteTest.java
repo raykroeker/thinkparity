@@ -5,10 +5,8 @@ package com.thinkparity.ophelia.model.script;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.thinkparity.codebase.ResourceUtil;
-
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
@@ -26,8 +24,24 @@ public class ExecuteTest extends ScriptTestCase {
         super(NAME);
     }
 
-    public void testExecute() {
-        datum.scriptModel.execute(datum.scripts);
+    public void testAddDocument() {
+        datum.scriptModel.execute(new GroovyScriptList("AddDocumentTest.groovy"));
+    }
+
+    public void testCreate() {
+        datum.scriptModel.execute(new GroovyScriptList("CreateTest.groovy"));
+    }
+
+    public void testFindAddDocument() {
+        datum.scriptModel.execute(new GroovyScriptList("FindAddDocumentTest.groovy"));
+    }
+    
+    public void testFind() {
+        datum.scriptModel.execute(new GroovyScriptList("FindTest.groovy"));
+    }
+
+    public void testHelloWorld() {
+        datum.scriptModel.execute(new GroovyScriptList("HelloWorld.groovy"));
     }
 
     /**
@@ -37,9 +51,7 @@ public class ExecuteTest extends ScriptTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         final InternalScriptModel scriptModel = getScriptModel(OpheliaTestUser.JUNIT);
-        final List<Script> scripts = new ArrayList<Script>();
-        scripts.add(new GroovyScriptWrapper("HelloWorld.groovy"));
-        datum = new Fixture(scriptModel, scripts);
+        datum = new Fixture(scriptModel);
     }
 
     /**
@@ -53,14 +65,17 @@ public class ExecuteTest extends ScriptTestCase {
 
     private class Fixture extends ScriptTestCase.Fixture {
         private final ScriptModel scriptModel;
-        private final List<Script> scripts;
-        private Fixture(final ScriptModel scriptModel,
-                final List<Script> scripts) {
+        private Fixture(final ScriptModel scriptModel) {
             this.scriptModel = scriptModel;
-            this.scripts = scripts;
         }
     }
 
+    private class GroovyScriptList extends ArrayList<Script> {
+        private GroovyScriptList(final String name) {
+            super();
+            add(new GroovyScriptWrapper(name));
+        }
+    }
     /**
      * A groovy script wrapper.
      * 
@@ -69,6 +84,9 @@ public class ExecuteTest extends ScriptTestCase {
         private final String name;
         private GroovyScriptWrapper(final String name) {
             this.name = name;
+        }
+        public String getName() {
+            return name;
         }
         public InputStream openStream() {
             return ResourceUtil.getInputStream(

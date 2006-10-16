@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.ophelia.model.script.Script;
 
 /**
@@ -18,6 +19,9 @@ import com.thinkparity.ophelia.model.script.Script;
  * @version 1.1.2.1
  */
 public class GroovyEngine implements Engine {
+
+    /** A <code>GroovyShell</code>. */
+    private static GroovyShell groovyShell;
 
     /**
      * Create the groovy bindings.
@@ -45,7 +49,13 @@ public class GroovyEngine implements Engine {
      * @return An instance of <code>GroovyShell</code>.
      */
     private static GroovyShell newGroovyShell(final Environment environment) {
-        return new GroovyShell(newBinding(environment));
+        if (null == groovyShell) {
+            groovyShell= new GroovyShell(newBinding(environment));
+            groovyShell.evaluate(
+                    ResourceUtil.getInputStream("script/groovy/Bootstrap.groovy"),
+                    "Bootstrap");
+        }
+        return groovyShell;
     }
 
     /** The script engine <code>Environment</code>. */
@@ -61,11 +71,12 @@ public class GroovyEngine implements Engine {
      */
     public void execute(final List<Script> scripts) throws IOException {
         final GroovyShell shell = newGroovyShell(environment);
+
         InputStream stream;
         for (final Script script : scripts) {
             stream = script.openStream();
             try {
-                shell.evaluate(script.openStream());
+                shell.evaluate(script.openStream(), script.getName());
             } finally {
                 stream.close();
             }

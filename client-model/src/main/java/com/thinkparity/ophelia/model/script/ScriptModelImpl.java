@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.script;
 import java.util.List;
 
 import com.thinkparity.codebase.model.session.Environment;
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.script.engine.Engine;
 import com.thinkparity.ophelia.model.script.engine.EngineFactory;
@@ -44,7 +43,8 @@ final class ScriptModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("scripts", scripts);
         try {
-            final EngineFactory factory = EngineFactory.newInstance(Framework.GROOVY, createEnvironment());
+            final EngineFactory factory =
+                EngineFactory.newInstance(Framework.GROOVY, createEnvironment());
             final Engine engine = factory.newEngine();
             engine.execute(scripts);
         } catch (final Throwable t) {
@@ -59,6 +59,7 @@ final class ScriptModelImpl extends AbstractModelImpl {
      */
     private com.thinkparity.ophelia.model.script.engine.Environment createEnvironment() {
         final com.thinkparity.ophelia.model.script.engine.Environment environment = new com.thinkparity.ophelia.model.script.engine.Environment();
+        environment.setVariable("builder", new ContainerBuilder(this.environment, workspace));
         return environment;
     }
 }

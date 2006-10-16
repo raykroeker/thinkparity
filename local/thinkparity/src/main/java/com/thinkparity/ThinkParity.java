@@ -136,6 +136,6 @@ public class ThinkParity {
      */
     private void saveProperties() throws IOException {
         properties.setProperty(PropertyNames.ParityImageName, image.getName());
-        PropertiesUtil.store(properties, new File(Directories.ParityInstall, FileNames.ThinkParityProperties), Sundry.ThinKParityHeader);
+        PropertiesUtil.store(properties, new File(Directories.ParityInstall, FileNames.ThinkParityProperties), Sundry.ThinkParityHeader);
     }
 }

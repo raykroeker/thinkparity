@@ -44,7 +44,7 @@ public final class Constants {
     }
 
     public static final class Sundry {
-        public static final String ThinKParityHeader = "thinkParity:  Configuration";
+        public static final String ThinkParityHeader = "thinkParity:  Configuration";
         public static final String ThinkParityImageHeader = "thinkParity:  Image Configuration";
     }
 

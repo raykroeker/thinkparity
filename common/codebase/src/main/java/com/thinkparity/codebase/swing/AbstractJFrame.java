@@ -4,8 +4,11 @@
  */
 package com.thinkparity.codebase.swing;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
@@ -61,6 +64,36 @@ public abstract class AbstractJFrame extends JFrame {
 	}
 
 	/**
+     * Calculate the location for the window based upon its owner and its size.
+     * 
+     * @return The location <code>Point</code>.
+     */
+    protected Point calculateLocation() {
+    	final Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+    	final Dimension ws = getSize();
+
+        final Point l = getLocation();
+        l.x = (ss.width - ws.width) / 2;
+        l.y = (ss.height - ws.height) / 2;
+
+        if (l.x + ws.width > (ss.width)) {
+            l.x = ss.width - ws.width;
+        }
+        if (l.y + ws.height > (ss.height)) {
+            l.y = ss.height - ws.height;
+        }
+
+        if (l.x < 0) {
+            l.x = 0;
+        }
+        if (l.y < 0) {
+            l.y = 0;
+        }
+
+        return l;
+    }
+
+	/**
 	 * Debug the container.
 	 *
 	 */
@@ -68,7 +101,7 @@ public abstract class AbstractJFrame extends JFrame {
         containerTools.debug();
 	}
 
-	/**
+    /**
 	 * Apply a specific rendering hint to the graphics.
 	 * 
 	 * @param g2

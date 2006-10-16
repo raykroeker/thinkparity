@@ -15,6 +15,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
@@ -162,5 +163,13 @@ public class AbstractJPanel extends JPanel {
     
         actionMap.put(command, action);
         inputMap.put(keyStroke, command);
+    }
+
+    /**
+     * Dispose of the window.
+     * 
+     */
+    protected void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
     }
 }

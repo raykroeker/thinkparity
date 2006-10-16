@@ -72,7 +72,7 @@ public final class DocumentNameGenerator {
      * @return A file name <code>String</code>.
      */
     public String fileName(final Document document) {
-        return MessageFormat.format("{0}.{2}",
+        return MessageFormat.format("{0}{1}",
                 FileUtil.getName(document.getName()),
                 FileUtil.getExtension(document.getName()));
     }

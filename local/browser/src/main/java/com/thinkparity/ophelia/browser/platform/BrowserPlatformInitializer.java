@@ -38,6 +38,7 @@ public class BrowserPlatformInitializer {
         case DEVELOPMENT:
             log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
             break;
+        case DEMO:
         case PRODUCTION:
             log4j.setProperty("log4j.logger.com.thinkparity", "WARN,FILE");
             break;

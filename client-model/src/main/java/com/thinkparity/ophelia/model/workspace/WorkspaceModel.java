@@ -62,6 +62,18 @@ public class WorkspaceModel {
 	}
 
     /**
+     * Delete a workspace.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+    public void delete(final Workspace workspace) {
+        synchronized (getImplLock()) {
+            getImpl().delete(workspace);
+        }
+    }
+
+    /**
 	 * Obtain the handle to a workspace.
 	 * 
 	 * @return The handle to the workspace.

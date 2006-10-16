@@ -12,11 +12,9 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.model.session.Credentials;
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 

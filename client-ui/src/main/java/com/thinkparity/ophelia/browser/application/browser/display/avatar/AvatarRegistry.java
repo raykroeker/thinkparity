@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
 
@@ -90,13 +91,13 @@ public class AvatarRegistry {
 	 * @param avatar
 	 *            The avatar.
 	 */
-	Avatar put(final AvatarId avatarId, final Avatar avatar) {
-		synchronized(REGISTRY) { return (Avatar) REGISTRY.put(avatarId, avatar); }
+	AbstractJPanel put(final AvatarId avatarId, final AbstractJPanel avatar) {
+		synchronized(REGISTRY) { return (AbstractJPanel) REGISTRY.put(avatarId, avatar); }
 	}
 
-    Avatar put(final PluginExtension extension, final Avatar avatar) {
+    AbstractJPanel put(final PluginExtension extension, final AbstractJPanel avatar) {
         synchronized(EXTENSION_REGISTRY) {
-            return (Avatar) EXTENSION_REGISTRY.put(extension, avatar);
+            return (AbstractJPanel) EXTENSION_REGISTRY.put(extension, avatar);
         }
     }
 }

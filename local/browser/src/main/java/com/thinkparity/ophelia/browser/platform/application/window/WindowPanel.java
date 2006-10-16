@@ -103,7 +103,7 @@ class WindowPanel extends AbstractJPanel {
 	 * @param avatar
 	 *            The avatar to remove.
 	 */
-	void removeAvatar(final Avatar avatar) {
+	void removeAvatar(final AbstractJPanel avatar) {
 		jPanels.remove(avatar);
 		ac.gridy--;
 		remove(avatar);

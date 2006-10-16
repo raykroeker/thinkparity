@@ -98,7 +98,7 @@ public abstract class Display extends AbstractJPanel {
 	 * @see #setAvatar()
 	 * @see #displayAvatar()
 	 */
-	public Avatar getAvatar() { return avatar; }
+	public AbstractJPanel getAvatar() { return avatar; }
 
 	/**
 	 * Obtain the display id.

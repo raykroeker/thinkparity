@@ -17,15 +17,43 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
-
-
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.DirectoryNames;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 
 public class ProfileManager {
+
+    /**
+     * Initialize the profile file system.
+     * 
+     * @return A <code>FileSystem</code>.
+     */
+    public static FileSystem initProfileFileSystem() {
+        final File fileSystemRoot;
+        switch(OSUtil.getOS()) {
+            case WINDOWS_2000:
+            case WINDOWS_XP:
+                final StringBuffer win32Path = new StringBuffer()
+                        .append(System.getenv("APPDATA"))
+                        .append(File.separatorChar).append("thinkParity");
+                fileSystemRoot = new File(win32Path.toString());
+                break;
+            case LINUX:
+                final StringBuffer linuxPath = new StringBuffer()
+                        .append(System.getenv("HOME"))
+                        .append(File.separatorChar).append(".thinkParity");
+                fileSystemRoot = new File(linuxPath.toString());
+                break;
+            default:
+                throw Assert.createUnreachable("UNSUPPORTED OS");
+        }
+        if(!fileSystemRoot.exists()) {
+            Assert.assertTrue(fileSystemRoot.mkdirs(),
+                    "Cannot create data directory {0}.", fileSystemRoot);
+        }
+        return new FileSystem(fileSystemRoot);
+    }
 
     /** The profile manager dialog. */
     private ProfileManagerDialog dialog;
@@ -33,11 +61,17 @@ public class ProfileManager {
     /** The profile manager avatar. */
     private ProfileManagerAvatar managerAvatar;
 
+    /** A thinkParity <code>Mode</code>. */
+    private final Mode mode;
+
     /** The profile manager window. */
     private ProfileManagerWindow window;
 
     /** Create ProfileManager. */
-    public ProfileManager() { super(); }
+    public ProfileManager(final Mode mode) {
+        super();
+        this.mode = mode;
+    }
 
     /**
      * Prompt the user to select a profile.
@@ -46,14 +80,21 @@ public class ProfileManager {
      */
     public Profile select() {
         final Profile selectedProfile;
-        if(Mode.TESTING == Version.getMode() || Mode.DEVELOPMENT == Version.getMode()) {
+        switch (mode) {
+        case DEMO:
+        case DEVELOPMENT:
+        case TESTING:
             managerAvatar = new ProfileManagerAvatar(this);
             managerAvatar.setInput(readProfiles());
             openWindow(managerAvatar.getTitle(), managerAvatar);
-    
             selectedProfile = managerAvatar.getSelectedProfile();
+            break;
+        case PRODUCTION:
+            selectedProfile = readDefaultProfile();
+            break;
+        default:
+            throw Assert.createUnreachable("UNKNOWN MODE");
         }
-        else { selectedProfile = readDefaultProfile(); }
         if (null != selectedProfile) {
             selectedProfile.setLastModified();
         }
@@ -73,7 +114,7 @@ public class ProfileManager {
         // create the profile
         final String profileName = avatar.getProfileName();
         if(null != profileName) {
-            final File profileRoot = new File(initFileSystem().getRoot(), avatar.getProfileName());
+            final File profileRoot = new File(initProfileFileSystem().getRoot(), avatar.getProfileName());
             Assert.assertTrue(
                     "[LBROWSER] [PROFILE MANAGER] [CREATE] [CANNOT CREATE PROFILE ROOT]",
                     profileRoot.mkdir());
@@ -115,37 +156,6 @@ public class ProfileManager {
         if(null != name) { selectedProfile.rename(name); }
 
         reloadManager();
-    }
-
-    /**
-     * Initialize the profile file system.
-     * 
-     * @return A file system.
-     */
-    private FileSystem initFileSystem() {
-        final File fileSystemRoot;
-        switch(OSUtil.getOS()) {
-            case WINDOWS_2000:
-            case WINDOWS_XP:
-                final StringBuffer win32Path = new StringBuffer()
-                        .append(System.getenv("APPDATA"))
-                        .append(File.separatorChar).append("thinkParity");
-                fileSystemRoot = new File(win32Path.toString());
-                break;
-            case LINUX:
-                final StringBuffer linuxPath = new StringBuffer()
-                        .append(System.getenv("HOME"))
-                        .append(File.separatorChar).append(".thinkParity");
-                fileSystemRoot = new File(linuxPath.toString());
-                break;
-            default:
-                throw Assert.createUnreachable("UNSUPPORTED OS");
-        }
-        if(!fileSystemRoot.exists()) {
-            Assert.assertTrue(fileSystemRoot.mkdirs(),
-                    "Cannot create data directory {0}.", fileSystemRoot);
-        }
-        return new FileSystem(fileSystemRoot);
     }
 
     /**
@@ -191,7 +201,7 @@ public class ProfileManager {
      * @return The default profile.
      */
     private Profile readDefaultProfile() {
-        final File defaultRoot = new File(initFileSystem().getRoot(), DirectoryNames.DEFAULT_PROFILE);
+        final File defaultRoot = new File(initProfileFileSystem().getRoot(), DirectoryNames.DEFAULT_PROFILE);
         if(!defaultRoot.exists()) {
             Assert.assertTrue("[LBROWSER] [PROFILE MANAGER] [CANNOT CREATE DEFAULT PROFILE]",
                     defaultRoot.mkdir());
@@ -207,7 +217,7 @@ public class ProfileManager {
      * @return A list of profiles.
      */
     private List<Profile> readProfiles() {
-        final FileSystem fileSystem = initFileSystem();
+        final FileSystem fileSystem = initProfileFileSystem();
         final File[] profileDirectories = fileSystem.listDirectories("/");
         final List<Profile> profiles = new ArrayList<Profile>();
         Profile profile;

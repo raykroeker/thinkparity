@@ -12,11 +12,13 @@ import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -108,9 +110,10 @@ public class ContainerBuilder {
      * Create a draft.
      *
      */
-    public void createDraft() {
+    public ContainerBuilder createDraft() {
         logger.logApiId();
         getContainerModel().createDraft(id);
+        return this;
     }
 
     /**
@@ -131,6 +134,22 @@ public class ContainerBuilder {
     }
 
     /**
+     * Publish a container to the exsiting team.
+     * 
+     * @param comment
+     *            A publish comment <code>String</code>.
+     */
+    public ContainerBuilder publish(final String comment) {
+        logger.logApiId();
+        logger.logVariable("comment", comment);
+        final ContainerModel containerModel = getContainerModel();
+        final List<TeamMember> teamMembers = containerModel.readTeam(id);
+        final List<Contact> contacts = Collections.emptyList();
+        containerModel.publish(id, comment, contacts, teamMembers);
+        return this;
+    }
+
+    /**
      * Publish a container.
      * 
      * @param comment
@@ -138,7 +157,7 @@ public class ContainerBuilder {
      * @param names
      *            A list of user's names to publsh to.
      */
-    public void publish(final String comment, final String... names) {
+    public ContainerBuilder publish(final String comment, final String... names) {
         logger.logApiId();
         logger.logVariable("comment", comment);
         logger.logVariable("names", names);
@@ -149,25 +168,19 @@ public class ContainerBuilder {
         final List<TeamMember> filteredTeamMembers = filter(teamMembers, names);
         final List<Contact> filteredContacts = filter(contacts, names);
         containerModel.publish(id, comment, filteredContacts, filteredTeamMembers);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+            .append("id=").append(id)
+            .append(",name=").append(name)
+            .toString();
     }
 
     /**
-     * Publish a container to the exsiting team.
-     * 
-     * @param comment
-     *            A publish comment <code>String</code>.
-     */
-    public void publish(final String comment) {
-        logger.logApiId();
-        logger.logVariable("comment", comment);
-        final ContainerModel containerModel = getContainerModel();
-        final List<TeamMember> teamMembers = containerModel.readTeam(id);
-        final List<Contact> contacts = Collections.emptyList();
-        containerModel.publish(id, comment, contacts, teamMembers);
-    }
-
-    /**
-     * Filter a list of users by name.
+     * Filter a list of users by name; as well as for the profile user.
      * 
      * @param <U>
      *            A user type.
@@ -184,6 +197,14 @@ public class ContainerBuilder {
             for (final U user : users) {
                 if (user.getName().equals(name))
                     filteredUsers.add(user);
+            }
+        }
+        final Profile profile =
+            ProfileModel.getModel(environment, workspace).read();
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(profile.getId())) {
+                users.remove(i);
+                break;
             }
         }
         return filteredUsers;
@@ -236,13 +257,5 @@ public class ContainerBuilder {
      */
     private RuntimeException translateError(final Throwable t) {
         return new RuntimeException(t);
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuffer(getClass().getName()).append("//")
-            .append("id=").append(id)
-            .append(",name=").append(name)
-            .toString();
     }
 }

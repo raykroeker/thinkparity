@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
@@ -208,7 +209,7 @@ public class AvatarFactory {
      * @param tabExtension
      *            The <code>TabExtension</code> the avatar belongs to.
      */
-    private void register(final Avatar avatar, final PluginExtension extension) {
+    private void register(final AbstractJPanel avatar, final PluginExtension extension) {
         Assert.assertNotTrue(avatarRegistry.contains(extension),
                 "Avatar for tab extension {0} already registered.", extension);
         avatarRegistry.put(extension, avatar);

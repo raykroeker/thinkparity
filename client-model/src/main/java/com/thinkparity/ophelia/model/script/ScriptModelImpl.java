@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.script;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.model.session.Environment;
@@ -50,6 +51,20 @@ final class ScriptModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Execute a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    void execute(final Script script) {
+        logger.logApiId();
+        logger.logVariable("script", script);
+        final List<Script> scripts = new ArrayList<Script>(1);
+        scripts.add(script);
+        execute(scripts);
     }
 
     /**

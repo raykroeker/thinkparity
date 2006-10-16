@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
-
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -71,6 +70,18 @@ public class ScriptModel extends AbstractModel<ScriptModelImpl> {
     public void execute(final List<Script> scripts) {
         synchronized (getImplLock()) {
             getImpl().execute(scripts);
+        }
+    }
+
+    /**
+     * Execute a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    public void execute(final Script script) {
+        synchronized (getImplLock()) {
+            getImpl().execute(script);
         }
     }
 }

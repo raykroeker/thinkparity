@@ -15,9 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Environment;
-
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Java;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -35,8 +33,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.update.UpdateHelper;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-
 import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -57,10 +55,10 @@ public class BrowserPlatform implements Platform {
      * 
      * @return The platform.
      */
-    public static Platform create(final Environment environment,
-            final Profile profile) {
+    public static Platform create(final Mode mode,
+            final Environment environment, final Profile profile) {
         Assert.assertIsNull("The platform has already been created.", SINGLETON);
-        SINGLETON = new BrowserPlatform(environment, profile);
+        SINGLETON = new BrowserPlatform(mode, environment, profile);
         return BrowserPlatform.getInstance();
     }
 
@@ -107,10 +105,13 @@ public class BrowserPlatform implements Platform {
      */
     private final ListenerHelper listenerHelper;
 
-    /** The parity model factory. */
+    /** A thinkParity <code>Mode</code>. */
+    private final Mode mode;
+
+	/** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-	/** The platform online helper. */
+    /** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
     /** The platform settings. */
@@ -122,13 +123,10 @@ public class BrowserPlatform implements Platform {
     /** The parity preferences. */
 	private final Preferences preferences;
 
-    /** The platform update helper. */
+	/** The platform update helper. */
     private final UpdateHelper updateHelper;
 
-	/**
-	 * The window registry.
-	 * 
-	 */
+    /** The thinkParity <code>WindowRegistry</code>. */
 	private final WindowRegistry windowRegistry;
 
     /**
@@ -137,7 +135,8 @@ public class BrowserPlatform implements Platform {
      * @param profile
      *            A profile to open.
      */
-	private BrowserPlatform(final Environment environment, final Profile profile) {
+	private BrowserPlatform(final Mode mode, final Environment environment,
+            final Profile profile) {
         new BrowserPlatformInitializer(environment, profile).initialize();
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
@@ -148,6 +147,7 @@ public class BrowserPlatform implements Platform {
 		this.preferences = modelFactory.getPreferences(getClass());
 
 		this.logger = new Log4JWrapper();
+        this.mode = mode;
 		this.persistence = new BrowserPlatformPersistence(this);
 
         this.firstRunHelper = new FirstRunHelper(this);
@@ -240,7 +240,18 @@ public class BrowserPlatform implements Platform {
 	}
 
 	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
-	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
+	public Boolean isDevelopmentMode() {
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+        case TESTING:
+            return Boolean.FALSE;
+        case DEVELOPMENT:
+            return Boolean.TRUE;
+        default:
+            throw Assert.createUnreachable("UNKNOWN MODE");
+        }
+    }
 
 	/** @see com.thinkparity.ophelia.browser.platform.Platform#isOnline() */
     public Boolean isOnline() {
@@ -249,8 +260,16 @@ public class BrowserPlatform implements Platform {
 
     /** @see com.thinkparity.ophelia.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
-		if(isDevelopmentMode()) { return Boolean.TRUE; }
-		return Version.getMode() == Mode.TESTING;
+        switch (mode) {
+        case DEMO:
+        case DEVELOPMENT:
+        case PRODUCTION:
+            return Boolean.FALSE;
+        case TESTING:
+            return Boolean.TRUE;
+        default:
+            throw Assert.createUnreachable("UNKNOWN MODE");
+        }
 	}
 
 	/**
@@ -354,14 +373,37 @@ public class BrowserPlatform implements Platform {
         if (isUpdateAvailable()) {
             update();
         } else {
-            if (isFirstRun()) {
-                firstRun();
+            if (!isWorkspaceInitialized()) {
+                initializeWorkspace();
+            } 
+            if (!isWorkspaceInitialized()) {
+                deleteWorkspace();
+            } else {
+                startPlugins();
+                startApplications();
             }
-            startPlugins();
-            startApplications();
         }
         notifyLifeCycleStarted();
 	}
+
+    /**
+     * Determine if the workspace has been initialized.
+     * 
+     * @return True if the workspace has been initialized.
+     */
+    private Boolean isWorkspaceInitialized() {
+        final WorkspaceModel workspaceModel =
+            modelFactory.getWorkspaceModel(getClass());
+        return workspaceModel.isInitialized(modelFactory.getWorkspace(getClass()));
+    }
+
+    /**
+     * Delete the workspace.
+     *
+     */
+    private void deleteWorkspace() {
+        modelFactory.getWorkspaceModel(getClass()).delete(modelFactory.getWorkspace(getClass()));
+    }
 
     /** Update the browser. */
     public void update() {
@@ -406,17 +448,8 @@ public class BrowserPlatform implements Platform {
      * Perform first run initialization.
      * 
      */
-    private void firstRun() {
+    private void initializeWorkspace() {
         firstRunHelper.firstRun();
-    }
-
-    /**
-     * Determine if this is the first time the platform has been run.
-     *
-     * @return True if this is the first run of the platform.
-     */
-    private Boolean isFirstRun() {
-        return firstRunHelper.isFirstRun();
     }
 
     /**

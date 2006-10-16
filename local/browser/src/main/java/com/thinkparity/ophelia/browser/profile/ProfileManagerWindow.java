@@ -4,9 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.profile;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
@@ -34,27 +31,6 @@ class ProfileManagerWindow extends AbstractJFrame {
         setResizable(false);
         setUndecorated(true);
     }
-
-    /**
-	 * Calculate the location for the window based upon its owner and its size.
-	 * 
-	 * @return The location of the window centered on the owner.
-	 */
-	protected Point calculateLocation() {
-		final Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
-		final Dimension ws = getSize();
-
-        final Point l = getLocation();
-        l.x = (ss.width - ws.width) / 2;
-        l.y = (ss.height - ws.height) / 2;
-
-        if(l.x + ws.width > (ss.width)) { l.x = ss.width - ws.width; }
-        if(l.y + ws.height > (ss.height)) { l.y = ss.height - ws.height; }
-
-        if(l.x < 0) { l.x = 0; }
-        if(l.y < 0) { l.y = 0; }
-        return l;
-	}
 
     /**
      * Open the avatar in the profile window.

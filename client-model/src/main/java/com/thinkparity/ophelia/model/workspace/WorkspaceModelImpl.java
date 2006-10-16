@@ -18,7 +18,6 @@ import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityUncheckedException;
@@ -136,6 +135,35 @@ class WorkspaceModelImpl {
             final String errorId = new ErrorHelper().getErrorId(t);
             return ParityErrorTranslator.translateUnchecked(workspace, errorId, t);
         }
+    }
+
+    /**
+     * Delete a workspace.
+     * 
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     */
+    void delete(final Workspace workspace) {
+        final WorkspaceImpl impl = findImpl(workspace);
+        final File workspaceDirectory = impl.getWorkspaceDirectory();
+        impl.addShutdownHook(new ShutdownHook() {
+            @Override
+            public String getDescription() {
+                return ShutdownHookNames.WORKSPACE_DELETE;
+            }
+            @Override
+            public String getName() {
+                return ShutdownHookNames.WORKSPACE_DELETE;
+            }
+            @Override
+            public Integer getPriority() {
+                return ShutdownHookPriorities.WORKSPACE_DELETE;
+            }
+            @Override
+            public void run() {
+                FileUtil.deleteTree(workspaceDirectory);
+            }
+        });
     }
 
     /**

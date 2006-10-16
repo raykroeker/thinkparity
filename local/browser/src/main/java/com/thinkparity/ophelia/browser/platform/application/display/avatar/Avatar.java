@@ -362,14 +362,6 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract void setState(final State state);
 
 	/**
-     * Dispose of the window.
-     * 
-     */
-    protected void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
-
-	/**
      * Obtain the pluginRegistry
      *
      * @return The PluginRegistry.

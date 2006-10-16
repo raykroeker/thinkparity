@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
@@ -24,7 +25,7 @@ class ProfileManagerDialog extends AbstractJDialog {
     private static final long serialVersionUID = 1;
 
     /** Create ProfileManagerDialog. */
-    ProfileManagerDialog(final ProfileManagerWindow window) {
+    ProfileManagerDialog(final AbstractJFrame window) {
         super(window, Boolean.TRUE, "ProfileManagerDialog");
         setUndecorated(true);
     }

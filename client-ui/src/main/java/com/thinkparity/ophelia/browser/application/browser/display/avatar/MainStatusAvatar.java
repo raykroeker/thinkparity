@@ -3,9 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Window;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.GradientPainter;
@@ -181,11 +185,6 @@ public class MainStatusAvatar extends Avatar {
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
 
         connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND);
-        connectionJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                connectionJLabelMouseClicked(evt);
-            }
-        });
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -196,6 +195,9 @@ public class MainStatusAvatar extends Avatar {
         resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 resizeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                resizeJLabelMouseExited(evt);
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 resizeJLabelMousePressed(evt);
@@ -231,8 +233,6 @@ public class MainStatusAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void connectionJLabelMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connectionJLabelMouseClicked
-    }//GEN-LAST:event_connectionJLabelMouseClicked
 
     /**
      * Reload the connection status message.
@@ -282,9 +282,17 @@ public class MainStatusAvatar extends Avatar {
 
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
         if (!isResizeDragging()) {
-            getController().setCursor(new Cursor(Cursor.SE_RESIZE_CURSOR));
+            final Cursor cursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+            changeCursor(cursor, e.getComponent());
         }
     }//GEN-LAST:event_resizeJLabelMouseEntered
+    
+    private void resizeJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseExited
+        if (!isResizeDragging()) {
+            final Cursor cursor = null;
+            changeCursor(cursor, e.getComponent());
+        }
+    }//GEN-LAST:event_resizeJLabelMouseExited
 
     private void resizeJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMousePressed
         resizeOffsetX = e.getPoint().x;
@@ -295,6 +303,15 @@ public class MainStatusAvatar extends Avatar {
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
         setResizeDragging(Boolean.FALSE);
     }//GEN-LAST:event_resizeJLabelMouseReleased
+    
+    private void changeCursor(final Cursor cursor, final Component component) {
+        component.setCursor(cursor);
+        Window window = SwingUtilities.getWindowAncestor(component);
+        if (null!=window) {
+            window.setCursor(cursor);
+        }
+        getController().setCursor(cursor);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel connectionJLabel;

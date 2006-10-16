@@ -13,7 +13,7 @@ import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
-import com.thinkparity.ophelia.browser.Constants.Colors.Swing;
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractVersionCell;
 
 /**
@@ -54,14 +54,19 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         }
 
         if (isSelected) {
-            textJLabel.setForeground(Swing.LIST_SELECTION_FG);
-            setBackground(Swing.LIST_SELECTION_BG);
-        } else {
-            textJLabel.setForeground(Swing.LIST_FG);
-            if (0 == index % 2) {
-                setBackground(Swing.LIST_EVEN_BG);
+            if (cell.isSelectedContainer()) {
+                textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
+                setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
             } else {
-                setBackground(Swing.LIST_ODD_BG);
+                textJLabel.setForeground(Colors.Browser.List.INNER_LEFT_LIST_SELECTION_NOFOCUS_FG);
+                setBackground(Colors.Browser.List.INNER_LEFT_LIST_SELECTION_NOFOCUS_BG);
+            }
+        } else {
+            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+            if (0 == index % 2) {
+                setBackground(Colors.Browser.List.LIST_EVEN_BG);
+            } else {
+                setBackground(Colors.Browser.List.LIST_ODD_BG);
             }
         }
 
@@ -75,57 +80,46 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel eastPaddingJLabel;
+        java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JLabel westPaddingJLabel;
 
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         textJLabel = new javax.swing.JLabel();
-        eastPaddingJLabel = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(32767, 18));
         setMinimumSize(new java.awt.Dimension(20, 18));
         setPreferredSize(new java.awt.Dimension(20, 18));
-        westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(3, 16));
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 16));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 16));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 16));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        add(westPaddingJLabel, gridBagConstraints);
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Version Cell!");
+        textJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         textJLabel.setMaximumSize(new java.awt.Dimension(20, 16));
         textJLabel.setMinimumSize(new java.awt.Dimension(20, 16));
         textJLabel.setPreferredSize(new java.awt.Dimension(20, 16));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        add(textJLabel, gridBagConstraints);
 
-        eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(3, 16));
-
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(iconJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(textJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(textJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(iconJLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
     }// </editor-fold>//GEN-END:initComponents
     
     

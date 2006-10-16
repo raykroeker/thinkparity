@@ -62,15 +62,26 @@ public final class Constants {
                 public static final Color ROW_EVEN_BG = new Color(245, 248, 252, 255);
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
+            public static final class SemiTransparentLayer {
+                public static final Color LAYER_COLOR = new Color(231, 238, 248, 255);
+                public static final float LAYER_ALPHA = 0.3f;
+            }
+            public static final class List {
+                public static final Color LIST_FG = Color.BLACK;
+                public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
+                public static final Color LIST_ODD_BG = Color.WHITE;
+                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(236, 233, 216, 255);
+                public static final Color LIST_SELECTION_BG = new Color(87, 136, 206, 255);
+                public static final Color LIST_SELECTION_FG = Color.WHITE;
+                public static final Color INNER_LIST_SELECTION_BG = new Color(207, 221, 241, 255);
+                public static final Color INNER_LIST_SELECTION_FG = Color.BLACK;
+                public static final Color INNER_LEFT_LIST_SELECTION_NOFOCUS_BG = new Color(236, 233, 216, 255);
+                public static final Color INNER_LEFT_LIST_SELECTION_NOFOCUS_FG = Color.BLACK;
+            }
         }
         public static final class Swing {
-            public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
-            public static final Color LIST_FG = Color.BLACK;
-        	public static final Color LIST_ODD_BG = Color.WHITE;
-            public static final Color LIST_SELECTION_BG = new Color(87, 136, 206, 255);
-            public static final Color LIST_SELECTION_FG = Color.WHITE;
-            public static final Color LIST_SELECTION_INACTIVE_BG = new Color(207, 221, 241, 255);
-            public static final Color LIST_SELECTION_INACTIVE_FG = Color.BLACK;
+            public static final Color DEFAULT_LIST_SELECTION_BG = new Color(87, 136, 206, 255);
+            public static final Color DEFAULT_LIST_SELECTION_FG = Color.WHITE;
             public static final Color MENU_ITEM_SELECTION_BG = new Color(39, 102, 192, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.WHITE;
             public static final Color MENU_ITEM_BG = Color.WHITE;

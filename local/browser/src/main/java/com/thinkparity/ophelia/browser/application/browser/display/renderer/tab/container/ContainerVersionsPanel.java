@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
@@ -29,6 +30,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -77,6 +79,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     protected final MainCellImageCacheTest imageCacheTest;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    javax.swing.JPanel leftJPanel;
+    javax.swing.JPanel rightJPanel;
     private javax.swing.JList versionsContentJList;
     private javax.swing.JList versionsJList;
     // End of variables declaration//GEN-END:variables
@@ -160,7 +164,39 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             versionsModel.addElement(new DraftCell(draft));
         }
     }
+    
+    /**
+     * Get the background color.
+     * 
+     * @param index
+     *          Index into the display list.
+     * @return Background color.
+     */
+    public Color getBackground(final int index) {
+        final Color color;
+        Integer containerIndex = model.indexOfContainerPanel(container);
+        if (isSelectedContainer()) {
+            color = Colors.Browser.List.LIST_SELECTION_BG;
+        } else {           
+            color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;    
+        }
+        
 
+        leftJPanel.setBackground(color);
+        rightJPanel.setBackground(color);
+        
+        return color;
+    }  
+    
+    /**
+     * Determine if the container is selected.
+     * 
+     * @return True if the container is selected; false otherwise.
+     */
+    private Boolean isSelectedContainer() {
+        return model.isSelectedContainer(container);
+    }
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerPopup(java.awt.Component,
      *      java.awt.event.MouseEvent)
@@ -183,23 +219,20 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel eastPaddingJLabel;
-        javax.swing.JLabel northPaddingJLabel;
-        javax.swing.JLabel southPaddingJLabel;
+        java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane versionsContentJScrollPane;
         javax.swing.JScrollPane versionsJScrollPane;
         javax.swing.JSplitPane versionsJSplitPane;
-        javax.swing.JLabel westPaddingJLabel;
 
-        northPaddingJLabel = new javax.swing.JLabel();
-        westPaddingJLabel = new javax.swing.JLabel();
         versionsJSplitPane = new javax.swing.JSplitPane();
+        leftJPanel = new javax.swing.JPanel();
         versionsJScrollPane = new javax.swing.JScrollPane();
         versionsJList = new javax.swing.JList();
+        rightJPanel = new javax.swing.JPanel();
         versionsContentJScrollPane = new javax.swing.JScrollPane();
         versionsContentJList = new javax.swing.JList();
-        eastPaddingJLabel = new javax.swing.JLabel();
-        southPaddingJLabel = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -211,20 +244,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
         });
 
-        northPaddingJLabel.setFocusable(false);
-        northPaddingJLabel.setMaximumSize(new java.awt.Dimension(50, 3));
-        northPaddingJLabel.setMinimumSize(new java.awt.Dimension(50, 3));
-        northPaddingJLabel.setPreferredSize(new java.awt.Dimension(50, 3));
-
-        westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
-
-        versionsJSplitPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(207, 207, 207)));
+        versionsJSplitPane.setBorder(null);
+        versionsJSplitPane.setDividerSize(0);
         versionsJSplitPane.setResizeWeight(0.5);
         versionsJSplitPane.setMinimumSize(new java.awt.Dimension(52, 75));
-        versionsJSplitPane.setOneTouchExpandable(true);
+        leftJPanel.setLayout(new java.awt.GridBagLayout());
+
+        leftJPanel.setBackground(new java.awt.Color(255, 255, 255));
         versionsJScrollPane.setBorder(null);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
@@ -248,8 +274,18 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         versionsJScrollPane.setViewportView(versionsJList);
 
-        versionsJSplitPane.setLeftComponent(versionsJScrollPane);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 1);
+        leftJPanel.add(versionsJScrollPane, gridBagConstraints);
 
+        versionsJSplitPane.setLeftComponent(leftJPanel);
+
+        rightJPanel.setLayout(new java.awt.GridBagLayout());
+
+        rightJPanel.setBackground(new java.awt.Color(255, 255, 255));
         versionsContentJScrollPane.setBorder(null);
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
@@ -268,52 +304,21 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         versionsContentJScrollPane.setViewportView(versionsContentJList);
 
-        versionsJSplitPane.setRightComponent(versionsContentJScrollPane);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(3, 1, 3, 3);
+        rightJPanel.add(versionsContentJScrollPane, gridBagConstraints);
 
-        eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+        versionsJSplitPane.setRightComponent(rightJPanel);
 
-        southPaddingJLabel.setFocusable(false);
-        southPaddingJLabel.setMaximumSize(new java.awt.Dimension(50, 3));
-        southPaddingJLabel.setMinimumSize(new java.awt.Dimension(50, 3));
-        southPaddingJLabel.setPreferredSize(new java.awt.Dimension(50, 3));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(versionsJSplitPane, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(layout.createSequentialGroup()
-                .add(99, 99, 99)
-                .add(southPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(layout.createSequentialGroup()
-                .add(106, 106, 106)
-                .add(northPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(67, 67, 67)
-                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(northPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(versionsJSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(southPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(59, Short.MAX_VALUE)
-                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(58, 58, 58))
-        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void triggerJListPopup(final AbstractContentCell selectedContent,
@@ -401,6 +406,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void setIcon(final Icon icon) {
             this.icon = icon;
         }
+        protected Boolean isSelectedContainer() {
+            return ContainerVersionsPanel.this.isSelectedContainer();
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
     }
@@ -431,6 +439,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         protected void setIcon(final Icon icon) {
             this.icon = icon;
+        }
+        protected Boolean isSelectedContainer() {
+            return ContainerVersionsPanel.this.isSelectedContainer();
         }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);

@@ -31,14 +31,20 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The border for the bottom of the cell. */
     private static final Border BORDER_BOTTOM;
     
+    /** The border for the bottom of the cell if it is expanded and selected. */
+    private static final Border BORDER_BOTTOM_EXPANDED_SELECTED;
+    
+    /** The border for the bottom of the cell if it is expanded and not selected. */
+    private static final Border BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
+    
     /** The border for the bottom of the last cell. */
-    private static final Border BORDER_LAST_BOTTOM;
+    private static final Border BORDER_BOTTOM_LAST;
     
     /** The border for the top of the cell. */
     private static final Border BORDER_TOP;
     
     /** The border for the top of a group of cells. */
-    private static final Border BORDER_GROUP_TOP;
+    private static final Border BORDER_TOP_GROUP;
     
     /** The border colours. */
     private static final Color[] BORDER_COLOURS;
@@ -55,9 +61,11 @@ public final class ContainerPanel extends DefaultTabPanel {
                 Colours.MAIN_CELL_DEFAULT_BORDER, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
         
         BORDER_TOP = new TopBorder(BORDER_COLOURS, 2, new Insets(2,0,0,0));
-        BORDER_GROUP_TOP = new TopBorder(BORDER_COLOURS_GROUP_TOP, 4, new Insets(4,0,0,0));
+        BORDER_TOP_GROUP = new TopBorder(BORDER_COLOURS_GROUP_TOP, 4, new Insets(4,0,0,0));
         BORDER_BOTTOM = new BottomBorder(Color.WHITE);
-        BORDER_LAST_BOTTOM = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
+        BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_SELECTION_BG);
+        BORDER_BOTTOM_EXPANDED_NOT_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG);
+        BORDER_BOTTOM_LAST = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
         
         DIMENSION = new Dimension(50,23);
     }
@@ -164,11 +172,15 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         containerNameJLabel = new javax.swing.JLabel();
         draftOwnerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(32767, 23));
         setMinimumSize(new java.awt.Dimension(120, 23));
@@ -177,54 +189,45 @@ public final class ContainerPanel extends DefaultTabPanel {
         westPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
         westPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
         westPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        add(westPaddingJLabel, gridBagConstraints);
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        add(iconJLabel, gridBagConstraints);
 
         containerNameJLabel.setText("!Package!");
         containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
-        containerNameJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
-        containerNameJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        add(containerNameJLabel, gridBagConstraints);
 
         draftOwnerJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         draftOwnerJLabel.setText("!Draft Owner!");
         draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
         draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
         draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        add(draftOwnerJLabel, gridBagConstraints);
 
         eastPaddingJLabel.setFocusable(false);
         eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
         eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
         eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+        add(eastPaddingJLabel, new java.awt.GridBagConstraints());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(iconJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(containerNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
-                .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(westPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(containerNameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(draftOwnerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(eastPaddingJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(iconJLabel)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -250,7 +253,7 @@ public final class ContainerPanel extends DefaultTabPanel {
     protected void formMousePressed(MouseEvent e) {
         super.formMousePressed(e);
         if (e.getButton()==MouseEvent.BUTTON1) {
-            model.selectTabPanel(this);
+            model.selectContainer(container);
         }
     }
 
@@ -261,7 +264,7 @@ public final class ContainerPanel extends DefaultTabPanel {
     protected void formMouseReleased(MouseEvent e) {
         super.formMouseReleased(e);
         if (e.isPopupTrigger()) {
-            model.selectTabPanel(this);
+            model.selectContainer(container);
         }
     }
     
@@ -270,12 +273,10 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void adjustForegroundColor() {       
         final Color color;
-        if (isSelected() && isExpanded()) {
-            color = Colors.Swing.LIST_SELECTION_INACTIVE_FG; 
-        } else if (isSelected()) {
-            color = Colors.Swing.LIST_SELECTION_FG;
+        if (isSelectedContainer()) {
+            color = Colors.Browser.List.LIST_SELECTION_FG;
         } else {
-            color = Colors.Swing.LIST_FG;
+            color = Colors.Browser.List.LIST_FG;
         }
         containerNameJLabel.setForeground(color);
         draftOwnerJLabel.setForeground(color);
@@ -290,14 +291,15 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public Color getBackground(final int index) {
         final Color color;
-        if (isSelected() && isExpanded()) {
-            color = Colors.Swing.LIST_SELECTION_INACTIVE_BG; 
-        } else if (isSelected()) {
-            color = Colors.Swing.LIST_SELECTION_BG;
-        } else if (0 == index % 2) {
-            color = Colors.Swing.LIST_EVEN_BG;
+        Integer containerIndex = model.indexOfContainerPanel(container);
+        if (isSelectedContainer()) {
+            color = Colors.Browser.List.LIST_SELECTION_BG;
+        } else if (isExpanded()) {
+            color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
+        } else if (0 == containerIndex % 2) {
+            color = Colors.Browser.List.LIST_EVEN_BG;
         } else {
-            color = Colors.Swing.LIST_ODD_BG;
+            color = Colors.Browser.List.LIST_ODD_BG;
         }
         
         return color;
@@ -340,12 +342,18 @@ public final class ContainerPanel extends DefaultTabPanel {
         final Border topBorder;
         final Border bottomBorder;
         if (isFirstNonDraft()) {
-            topBorder = BORDER_GROUP_TOP;
+            topBorder = BORDER_TOP_GROUP;
         } else {
             topBorder = BORDER_TOP;
         }
-        if (last) {
-            bottomBorder = BORDER_LAST_BOTTOM;
+        if (isExpanded()) {
+            if (isSelectedContainer()) {
+                bottomBorder = BORDER_BOTTOM_EXPANDED_SELECTED;
+            } else {
+                bottomBorder = BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
+            }
+        } else if (last) {
+            bottomBorder = BORDER_BOTTOM_LAST;
         } else {
             bottomBorder = BORDER_BOTTOM;
         }
@@ -365,14 +373,12 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine if the panel is selected.
+     * Determine if the container is selected.
      * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is selected; false otherwise.
+     * @return True if the container is selected; false otherwise.
      */
-    private Boolean isSelected() {
-        return model.isSelected(this);
+    private Boolean isSelectedContainer() {
+        return model.isSelectedContainer(container);
     }
     
     /**

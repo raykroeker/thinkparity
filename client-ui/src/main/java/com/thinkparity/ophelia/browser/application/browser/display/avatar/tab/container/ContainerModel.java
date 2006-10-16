@@ -52,8 +52,8 @@ public final class ContainerModel extends TabPanelModel {
     /** A list of the panel expanded flags. */
     private final Map<TabPanel, Boolean> expanded;
     
-    /** The selected container panel. */
-    private TabPanel selectedTabPanel = null;
+    /** The selected container. */
+    private Container selectedContainer = null;
     
     /** The first container panel that is not a local draft. */
     private TabPanel firstNonDraftTabPanel = null;
@@ -433,7 +433,7 @@ public final class ContainerModel extends TabPanelModel {
      * @return A <code>Integer</code> index; or -1 if the container does not
      *         exist in the panel list.
      */
-    private Integer indexOfContainerPanel(final Container container) {
+    public Integer indexOfContainerPanel(final Container container) {
         for (int i = 0; i < containerPanels.size(); i++) {
             if (((ContainerPanel) containerPanels.get(i)).getContainerId()
                     .equals(container.getId())) {
@@ -455,15 +455,15 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
-     * Determine if the panel is selected.
+     * Determine if the container is selected.
      * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is selected; false otherwise.
+     * @param container
+     *            A container.
+     * @return True if the container is selected; false otherwise.
      */
-    public Boolean isSelected(final TabPanel tabPanel) {
-        if (selectedTabPanel != null) {
-            return selectedTabPanel.equals(tabPanel);
+    public Boolean isSelectedContainer(final Container container) {
+        if (selectedContainer != null) {
+            return selectedContainer.equals(container);
         } else {
             return Boolean.FALSE;
         }
@@ -472,11 +472,11 @@ public final class ContainerModel extends TabPanelModel {
     /**
      * Change selection.
      * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
+     * @param container
+     *            A <code>Container</code>.
      */
-    public void selectTabPanel(final TabPanel tabPanel) {
-        selectedTabPanel = tabPanel;
+    public void selectContainer(final Container container) {
+        selectedContainer = container;
         synchronize();
     }
     

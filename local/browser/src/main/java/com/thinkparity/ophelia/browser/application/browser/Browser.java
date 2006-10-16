@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
@@ -78,7 +79,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
@@ -1500,12 +1500,33 @@ public class Browser extends AbstractApplication {
 		} else {
             avatar.setInput(getAvatarInput(avatarId));
 		}
-
+        
+        setUpSemiTransparentLayer(window);
+        
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }
 		});
 	}
-
+    
+    /**
+     * Set up the semi-transparent layer on the browser window.
+     * It will turn on immediately and turn off when the window
+     * is closed.
+     * 
+     * @param window
+     *          A window.
+     */
+    private void setUpSemiTransparentLayer(final Window window) {
+        window.addWindowListener(new WindowAdapter() {
+            public void windowOpened(WindowEvent e) {
+                mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
+            }
+            public void windowClosed(WindowEvent e) {
+                mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
+            }
+        });
+    }
+    
     /**
      * Display an avatar on the status display.
      * 
@@ -1673,6 +1694,8 @@ public class Browser extends AbstractApplication {
 
         final Avatar avatar = getAvatar(avatarId);
         avatar.setInput(input);
+        
+        setUpSemiTransparentLayer(window);
 
         window.open(avatar);
     }

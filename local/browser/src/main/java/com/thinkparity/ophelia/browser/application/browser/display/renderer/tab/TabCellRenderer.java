@@ -88,17 +88,17 @@ public class TabCellRenderer extends AbstractJPanel implements
 
         if (isSelected) {
             iconJLabel.setIcon(cell.getNodeIconSelected());
-            nestedJPanel.setBackground(Colors.Swing.LIST_SELECTION_BG);
-            eastTextJLabel.setForeground(Colors.Swing.LIST_SELECTION_FG);
-            westTextJLabel.setForeground(Colors.Swing.LIST_SELECTION_FG);
+            nestedJPanel.setBackground(Colors.Browser.List.LIST_SELECTION_BG);
+            eastTextJLabel.setForeground(Colors.Browser.List.LIST_SELECTION_FG);
+            westTextJLabel.setForeground(Colors.Browser.List.LIST_SELECTION_FG);
         } else {
             iconJLabel.setIcon(cell.getNodeIcon());
-            eastTextJLabel.setForeground(Colors.Swing.LIST_FG);
-            westTextJLabel.setForeground(Colors.Swing.LIST_FG);
+            eastTextJLabel.setForeground(Colors.Browser.List.LIST_FG);
+            westTextJLabel.setForeground(Colors.Browser.List.LIST_FG);
             if (0 == index % 2) {
-                nestedJPanel.setBackground(Colors.Swing.LIST_EVEN_BG);
+                nestedJPanel.setBackground(Colors.Browser.List.LIST_EVEN_BG);
             } else {
-                nestedJPanel.setBackground(Colors.Swing.LIST_ODD_BG);
+                nestedJPanel.setBackground(Colors.Browser.List.LIST_ODD_BG);
             }
         }
 
@@ -198,7 +198,7 @@ public class TabCellRenderer extends AbstractJPanel implements
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
         nestedJPanel.add(westPaddingJLabel, gridBagConstraints);
 
-        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/MainCellExpand.png")));
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -212,8 +212,10 @@ public class TabCellRenderer extends AbstractJPanel implements
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         nestedJPanel.add(westTextJLabel, gridBagConstraints);
 
+        eastTextJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         eastTextJLabel.setText("!Publisher!");
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         nestedJPanel.add(eastTextJLabel, gridBagConstraints);

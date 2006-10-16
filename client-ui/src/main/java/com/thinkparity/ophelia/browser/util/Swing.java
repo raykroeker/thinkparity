@@ -35,8 +35,8 @@ public class Swing {
 
         final UIDefaults defaults = UIManager.getDefaults();
 
-        defaults.put("List.selectionBackground", Colors.Swing.LIST_SELECTION_BG);
-        defaults.put("List.selectionForeground", Colors.Swing.LIST_SELECTION_FG);
+        defaults.put("List.selectionBackground", Colors.Swing.DEFAULT_LIST_SELECTION_BG);
+        defaults.put("List.selectionForeground", Colors.Swing.DEFAULT_LIST_SELECTION_FG);
         defaults.put("Menu.font", BrowserConstants.Fonts.DefaultFont);
         defaults.put("Menu.selectionBackground", Colors.Swing.MENU_SELECTION_BG);
         defaults.put("Menu.selectionForeground", Colors.Swing.MENU_SELECTION_FG);

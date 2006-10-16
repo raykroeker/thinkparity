@@ -30,6 +30,9 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.OpheliaTestCase;
+import com.thinkparity.ophelia.OpheliaTestModelFactory;
+import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -45,14 +48,11 @@ import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
 import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
-
-import com.thinkparity.ophelia.OpheliaTestCase;
-import com.thinkparity.ophelia.OpheliaTestModelFactory;
-import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * ModelTestCase
@@ -688,6 +688,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	protected InternalReleaseModel getReleaseModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getReleaseModel(testUser);
+    }
+
+	protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+        return modelFactory.getScriptModel(testUser);
     }
 
     protected InternalSessionModel getSessionModel(

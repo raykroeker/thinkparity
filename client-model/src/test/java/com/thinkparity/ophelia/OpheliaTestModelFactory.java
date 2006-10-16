@@ -25,6 +25,8 @@ import com.thinkparity.ophelia.model.migrator.LibraryModel;
 import com.thinkparity.ophelia.model.migrator.ReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.script.InternalScriptModel;
+import com.thinkparity.ophelia.model.script.ScriptModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -88,6 +90,10 @@ public class OpheliaTestModelFactory {
 
     public InternalReleaseModel getReleaseModel(final OpheliaTestUser testUser) {
         return ReleaseModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+    }
+
+    public InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+        return ScriptModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalSessionModel getSessionModel(final OpheliaTestUser testUser) {

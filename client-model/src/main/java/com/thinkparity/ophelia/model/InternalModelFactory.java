@@ -23,10 +23,15 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
+ * <b>Title:</b>thinkParity Internal Model Factory<br>
+ * <b>Description:</b>An internal model factory is used by the model to
+ * generate references to interal models outside the scope of the model impl
+ * classes; usually to pass off to helper command pattern objects.
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class InternalModelFactory {
+public final class InternalModelFactory {
 
     /** A thinkParity <code>Context</code>. */
     private final Context context;

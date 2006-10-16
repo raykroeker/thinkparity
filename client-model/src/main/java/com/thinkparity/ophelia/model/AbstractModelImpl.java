@@ -36,7 +36,6 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
@@ -913,12 +912,12 @@ public abstract class AbstractModelImpl<T extends EventListener>
             return (ParityUncheckedException) t;
         } else if (Assertion.class.isAssignableFrom(t.getClass())) {
             final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
+            logger.logError(t, "{0}", errorId);
             return (Assertion) t;
         }
         else {
             final String errorId = new ErrorHelper().getErrorId(t);
-            logger.logError(t, errorId);
+            logger.logError(t, "{0}", errorId);
             return ParityErrorTranslator.translateUnchecked(getContext(), errorId, t);
         }
     }

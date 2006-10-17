@@ -80,6 +80,8 @@ public class TestCaseHelper {
 		} catch (final IOException iox) {
             throw new RuntimeException(iox);
 		}
+        System.out.println(JUnitX.MESSAGE_INIT);
+        System.err.println(JUnitX.MESSAGE_INIT);
 		Logger.getLogger(JUnitX.class).log(Level.INFO, JUnitX.MESSAGE_INIT);
 	}
 

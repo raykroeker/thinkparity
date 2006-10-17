@@ -343,14 +343,17 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, documentId);
 			session.setLong(2, versionId);
 			session.executeQuery();
-			if(session.nextResult()) { return extractVersion(session); }
-			else { return null; }
-		}
-		catch(final RuntimeException rx) {
+			if (session.nextResult()) {
+                return extractVersion(session);
+			} else {
+                return null;
+			}
+		} catch(final RuntimeException rx) {
 			session.rollback();
 			throw rx;
+		} finally {
+            session.close();
 		}
-		finally { session.close(); }
 	}
 
 	/**

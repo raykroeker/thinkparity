@@ -294,10 +294,10 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final InternalArtifactModel artifactModel  = getInternalArtifactModel();
             final Document document;
             final DocumentVersion version;
-            if(artifactModel.doesExist(uniqueId)) {
+            if (artifactModel.doesExist(uniqueId)) {
                 logger.logWarning("Document {0} already exists.", uniqueId);
                 document = read(uniqueId);
-                if(artifactModel.doesVersionExist(document.getId(), versionId)) {
+                if (artifactModel.doesVersionExist(document.getId(), versionId)) {
                     logger.logWarning(
                             "Document version {0}:{1} already exists.",
                             uniqueId, versionId);
@@ -716,8 +716,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("versionId", versionId);
-        try { return documentIO.getVersion(documentId, versionId); }
-        catch(final Throwable t) {
+        try {
+            return documentIO.getVersion(documentId, versionId);
+        } catch (final Throwable t) {
             throw translateError(t);
         }
     }

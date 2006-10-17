@@ -165,7 +165,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             new StringBuffer("select COUNT(*) \"COUNT\" ")
             .append("from ARTIFACT A ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+            .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
 	
 	private static final String SQL_READ_ID =
@@ -387,7 +387,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
      *      java.lang.Long)
      * 
      */
-    public Boolean doesVersionExist(Long artifactId, Long versionId) {
+    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_DOES_VERSION_EXIST);
@@ -396,10 +396,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             session.executeQuery();
 
             session.nextResult();
-            if(0 == session.getInteger("COUNT")) { return Boolean.FALSE; }
-            else { return Boolean.TRUE; }
+            if (0 == session.getInteger("COUNT")) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

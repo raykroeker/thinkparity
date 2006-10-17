@@ -865,6 +865,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Read a contacts.
+     * 
+     * @return A <code>Contacts</code>.
+     */
+    protected Contact readContact(final OpheliaTestUser testUser,
+            final OpheliaTestUser contact) {
+        return getContactModel(testUser).read(contact.getId());
+    }
+
+    /**
      * Read an artifact's team.
      * 
      * @param artifact

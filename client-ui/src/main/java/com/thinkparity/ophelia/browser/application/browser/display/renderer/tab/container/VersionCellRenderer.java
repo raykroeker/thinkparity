@@ -52,21 +52,17 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         if (null!=icon) {
             iconJLabel.setIcon(icon);
         }
-        
-        if (isSelected && cell.isSelectedContainer()) {
-            textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
-            setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
-        } else {
-            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-            if (0 == index % 2) {
-                setBackground(Colors.Browser.List.LIST_EVEN_BG);
-            } else {
-                setBackground(Colors.Browser.List.LIST_ODD_BG);
-            }
-        }
-
-/*        if (isSelected) {
+ 
+        if (isSelected) {
             if (cell.isSelectedContainer()) {
+                int x = 3;
+                x++;
+            }
+            if (list.hasFocus()) {
+                int y = 4;
+                y++;
+            }
+            if (cell.isSelectedContainer() && list.hasFocus()) {
                 textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
                 setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
             } else {
@@ -80,7 +76,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
             } else {
                 setBackground(Colors.Browser.List.LIST_ODD_BG);
             }
-        }*/
+        }
 
         return this;
     }

@@ -88,6 +88,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     javax.swing.JPanel rightJPanel;
     private javax.swing.JList versionsContentJList;
     private javax.swing.JList versionsJList;
+    javax.swing.JScrollPane versionsJScrollPane;
+    javax.swing.JSplitPane versionsJSplitPane;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -171,12 +173,38 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
 
     /**
-     * Adjust colors.  
+     * Prepare for repaint, for example, adjust colors.
      */
-    public void adjustColors() {        
+    public void prepareForRepaint() {          
+        // Set background colour
         final Color color = getBackgroundColor();
         leftJPanel.setBackground(color);
         rightJPanel.setBackground(color);
+        
+        // Make sure the split pane remains in a 50/50 split
+        if (versionsJSplitPane.getSize().getWidth() > 0 ){
+            versionsJSplitPane.setDividerLocation(0.5);
+        }
+    }
+    
+    /**
+     * Method that is called after repaint.
+     */
+    public void afterRepaint() {
+        // If the container is selected then make sure one
+        // of the lists has focus
+        if (isSelectedContainer()) {
+            //if (!versionsJList.hasFocus() && !versionsContentJList.hasFocus()) {
+                final Boolean value = versionsJScrollPane.requestFocusInWindow();
+                if (value==Boolean.TRUE) {
+                    int x = 3;
+                    x++;
+                } else {
+                    int y = 3;
+                    y++;
+                }
+            //}
+        }
     }
     
     /**
@@ -251,8 +279,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane versionsContentJScrollPane;
-        javax.swing.JScrollPane versionsJScrollPane;
-        javax.swing.JSplitPane versionsJSplitPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
         leftJPanel = new javax.swing.JPanel();

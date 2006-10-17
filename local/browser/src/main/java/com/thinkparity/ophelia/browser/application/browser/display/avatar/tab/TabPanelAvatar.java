@@ -148,15 +148,16 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 debug();
 
                 // update from index 0 to index 1
-                for (int i = e.getIndex0(); i < e.getIndex1() + 1; i++) {
+                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
                     panelConstraints.gridy = i;
                     tabJPanel.remove(i);
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustColors();
+                    panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
+                    panel.afterRepaint();
                 }
                 
                 tabJPanel.revalidate();
@@ -165,6 +166,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 tabJScrollPane.repaint();
                 revalidate();
                 repaint();
+                
+/*                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.afterRepaint();
+                }*/
 
                 debug();
             }
@@ -186,10 +192,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustColors();
+                    panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
+                    panel.afterRepaint();
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
@@ -200,6 +207,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 tabJScrollPane.repaint();
                 revalidate();
                 repaint();
+                
+/*                for (int i = startIndex; i < listModel.size(); i++) {
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.afterRepaint();
+                }*/
 
                 debug();
             }
@@ -224,10 +236,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustColors();
+                    panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
+                    panel.afterRepaint();
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
@@ -238,6 +251,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 tabJScrollPane.repaint();
                 revalidate();
                 repaint();
+                
+/*                for (int i = startIndex; i < listModel.size(); i++) {
+                    final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
+                    panel.afterRepaint();
+                }*/
 
                 debug();
             } 

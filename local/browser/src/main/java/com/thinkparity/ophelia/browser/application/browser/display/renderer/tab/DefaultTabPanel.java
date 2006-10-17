@@ -124,9 +124,15 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
     
     /**
-     * Adjust colors.  
+     * Prepare for repaint, for example, adjust colors.  
      */
-    public void adjustColors() {        
+    public void prepareForRepaint() {        
+    }
+    
+    /**
+     * Method that is called after repaint.
+     */
+    public void afterRepaint() {
     }
     
     /**

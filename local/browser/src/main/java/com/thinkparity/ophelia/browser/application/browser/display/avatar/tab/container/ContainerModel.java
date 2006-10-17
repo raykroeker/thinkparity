@@ -201,9 +201,14 @@ public final class ContainerModel extends TabPanelModel {
         
         // add visible cells not in the model
         for (int i = 0; i < visiblePanels.size(); i++) {
-            if (listModel.contains(visiblePanels.get(i))) {
-                listModel.removeElement(visiblePanels.get(i));
-                listModel.add(i, visiblePanels.get(i));
+            final TabPanel tabPanel = visiblePanels.get(i);
+            if (listModel.contains(tabPanel)) {
+                if (listModel.indexOf(tabPanel) == i) {
+                    listModel.set(i, tabPanel);
+                } else {               
+                    listModel.removeElement(visiblePanels.get(i));
+                    listModel.add(i, visiblePanels.get(i));
+                }
             } else {
                 listModel.add(i, visiblePanels.get(i));
             }

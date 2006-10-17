@@ -275,9 +275,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Adjust colors.  
+     * Prepare for repaint, for example, adjust colors.
      */
-    public void adjustColors() {       
+    public void prepareForRepaint() {       
         final Color color;
         if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_FG;

@@ -5,14 +5,9 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -266,33 +261,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             logger.logVariable("component", component);
         }
     }
-    
 
-    private class CursorMovementCustodian {
-
-        /** The action map key. */
-        private static final String ACTION_MAP_KEY_UP = "actionUp";
-
-        /**
-         * Create a WindowCustodian.
-         * 
-         */
-        CursorMovementCustodian() { super(); }
-
-        /**
-         * Add key-map action pairs to monitor the cursor keys.
-         */
-        void applyCursorKeyListener(final JComponent window) {
-            window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), ACTION_MAP_KEY_UP);
-            window.getRootPane().getActionMap().put(ACTION_MAP_KEY_UP, new AbstractAction() {
-                private static final long serialVersionUID = 1;
-                public void actionPerformed(final ActionEvent e) {
-                    logger.logDebug("XXX Pressed UP");
-                }});
-        }
-    }
- 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel fillJLabel;
     private javax.swing.JLabel headerJLabel;

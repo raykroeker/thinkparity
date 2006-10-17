@@ -113,8 +113,8 @@ public class XMPPMethod extends IQ {
         // and it helps debug non-implemented responses
         logVariable("preResponseCollected", DateUtil.getInstance());
         try {
-            return (XMPPMethodResponse) idCollector.nextResult(3 * 1000);
-//            return (XMPPMethodResponse) idCollector.nextResult();
+//            return (XMPPMethodResponse) idCollector.nextResult(3 * 1000);
+            return (XMPPMethodResponse) idCollector.nextResult();
         } catch (final ClassCastException ccx) {
             final String errorId = new ErrorHelper().getErrorId(ccx);
             logger.logError(errorId, ccx);

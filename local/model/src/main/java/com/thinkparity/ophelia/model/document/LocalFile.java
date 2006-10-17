@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
@@ -12,7 +19,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
@@ -53,18 +59,14 @@ class LocalFile {
 	/** The local <code>File</code>. */
 	private final File file;
 
-    /** A document name generator. */ 
-    private final DocumentNameGenerator nameGenerator;
-
-	/**
-	 * File content.
-	 */
+    /** The file's content <code>byte[]</code>. */
 	private byte[] fileBytes;
 
-	/**
-	 * File content checksum.
-	 */
+	/** The file content's checksum <code>String</code>. */
 	private String fileChecksum;
+
+	/** A document name generator. */ 
+    private final DocumentNameGenerator nameGenerator;
 
 	/**
 	 * Create a LocalFile.
@@ -136,13 +138,6 @@ class LocalFile {
 	}
 
 	/**
-	 * Obtain the file bytes.
-	 * 
-	 * @return The file bytes.
-	 */
-	byte[] getFileBytes() { return fileBytes; }
-
-	/**
 	 * Obtain the file checksum.
 	 * 
 	 * @return The file checksum.
@@ -197,8 +192,13 @@ class LocalFile {
 	 * @see LocalFile#getFileChecksum()
 	 */
 	void read() throws FileNotFoundException, IOException {
-		fileBytes = FileUtil.readBytes(file);
-		fileChecksum = MD5Util.md5Hex(fileBytes);
+        if (file.exists()) {
+            fileBytes = FileUtil.readBytes(file);
+            fileChecksum = MD5Util.md5Hex(fileBytes);
+        } else {
+            fileBytes = null;
+            fileChecksum = null;
+        }
 	}
 
     /**

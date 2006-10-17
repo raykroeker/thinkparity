@@ -194,8 +194,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         // If the container is selected then make sure one
         // of the lists has focus
         if (isSelectedContainer()) {
-            //if (!versionsJList.hasFocus() && !versionsContentJList.hasFocus()) {
-                final Boolean value = versionsJScrollPane.requestFocusInWindow();
+            if (!versionsJList.hasFocus() && !versionsContentJList.hasFocus()) {
+                final Boolean value = versionsJList.requestFocusInWindow();
                 if (value==Boolean.TRUE) {
                     int x = 3;
                     x++;
@@ -203,7 +203,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     int y = 3;
                     y++;
                 }
-            //}
+            }
         }
     }
     

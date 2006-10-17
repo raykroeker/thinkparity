@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.browser.profile.ProfileManager;
 import com.thinkparity.ophelia.model.script.Script;
 import com.thinkparity.ophelia.model.script.ScriptModel;
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -197,12 +198,12 @@ public final class Scenario {
     private void initializeWorkspace(final Credentials credentials, final File profileDirectory) {
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
         final Workspace workspace = workspaceModel.getWorkspace(profileDirectory);
-        workspaceModel.initialize(workspace, credentials);
+        workspaceModel.initialize(workspace, new DefaultLoginMonitor(), credentials);
         workspaces.put(credentials, workspace);
     }
 
     private void login(final Credentials credentials) {
-        SessionModel.getModel(environment, workspaces.get(credentials)).login();
+        SessionModel.getModel(environment, workspaces.get(credentials)).login(new DefaultLoginMonitor());
     }
 
     private void logout(final Credentials credentials) {

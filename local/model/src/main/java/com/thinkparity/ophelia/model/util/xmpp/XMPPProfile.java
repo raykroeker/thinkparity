@@ -8,7 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
-
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
@@ -29,6 +29,33 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     /** Create XMPPProfile. */
     XMPPProfile(final XMPPCore xmppCore) {
         super(xmppCore);
+    }
+
+    /**
+     * Read the profile's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    Token readToken(final JabberId userId) {
+        final XMPPMethod readToken = new XMPPMethod("profile:readtoken");
+        readToken.setParameter("userId", userId);
+        return execute(readToken, Boolean.TRUE).readResultToken("token");
+        
+    }
+
+    /**
+     * Create the profile's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    Token createToken(final JabberId userId) {
+        final XMPPMethod createToken = new XMPPMethod("profile:createtoken");
+        createToken.setParameter("userId", userId);
+        return execute(createToken, Boolean.TRUE).readResultToken("token");
     }
 
     /**

@@ -10,13 +10,13 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.util.State;
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 
 /**
  * The session application is responsible for creating and maintaining the
@@ -152,7 +152,7 @@ public class SessionApplication extends AbstractApplication {
      *
      */
     private void connect() {
-        getSessionModel().login();
+        getSessionModel().login(new DefaultLoginMonitor());
     }
 
     /**

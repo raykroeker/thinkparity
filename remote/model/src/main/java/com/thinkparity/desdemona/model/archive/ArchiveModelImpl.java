@@ -25,13 +25,12 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.session.Session;
-
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -444,10 +443,21 @@ class ArchiveModelImpl extends AbstractModelImpl {
         final Environment environment = readEnvironment();
         final Workspace workspace = readWorkspace(environment, archiveFileSystem);
         createContext(archiveId, environment, workspace);
-        getModelFactory(archiveId).getSessionModel(getClass()).login(credentials);
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
-        if (workspaceModel.isInitialized(workspace)) {
-            workspaceModel.initialize(workspace, credentials);
+        if (!workspaceModel.isInitialized(workspace)) {
+            workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
+                @Override
+                public Boolean confirmSynchronize() {
+                    return Boolean.TRUE;
+                }
+            }, credentials);
+        } else {
+            getModelFactory(archiveId).getSessionModel(getClass()).login(new DefaultLoginMonitor() {
+                @Override
+                public Boolean confirmSynchronize() {
+                    return Boolean.TRUE;
+                }
+            }, credentials);
         }
     }
 

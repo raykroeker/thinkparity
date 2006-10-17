@@ -26,7 +26,7 @@ public class LoginTest extends ModelTestCase {
 	 * Test the session model login api.
 	 */
 	public void testLogin() {
-		datum.sessionModel.login(datum.testUser.getCredentials());
+		datum.sessionModel.login(datum.monitor, datum.testUser.getCredentials());
 			
 		assertTrue(datum.sessionModel.isLoggedIn());
         datum.sessionModel.logout();
@@ -57,10 +57,12 @@ public class LoginTest extends ModelTestCase {
 	 * @see LoginTest#tearDown()
 	 */
 	private class Fixture {
+		private final LoginMonitor monitor;
 		private final SessionModel sessionModel;
-		private final OpheliaTestUser testUser;
+        private final OpheliaTestUser testUser;
 		private Fixture(final SessionModel sessionModel,
                 final OpheliaTestUser testUser) {
+            this.monitor = new DefaultLoginMonitor();
 			this.sessionModel = sessionModel;
 			this.testUser = testUser;
 		}

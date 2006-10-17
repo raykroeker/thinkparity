@@ -29,7 +29,6 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.OpheliaTestCase;
 import com.thinkparity.ophelia.OpheliaTestModelFactory;
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -49,6 +48,7 @@ import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -757,7 +757,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             logWarning("{0} - User {1} already logged in.", testUser);
             logout(testUser);
         }
-    	getSessionModel(testUser).login(testUser.getCredentials());
+    	getSessionModel(testUser).login(new DefaultLoginMonitor() {
+            @Override
+            public Boolean confirmSynchronize() {
+                return Boolean.TRUE;
+            }
+    	}, testUser.getCredentials());
     }
 
     /**

@@ -11,7 +11,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -98,19 +97,21 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
      * session.
      * 
      */
-    public void login() {
-        synchronized(getImplLock()) { getImpl().login(); }
+    public void login(final LoginMonitor monitor) {
+        synchronized(getImplLock()) { getImpl().login(monitor); }
     }
 
 	/**
-	 * Login to parity. This will create a new singleton instance of a parity
-	 * session.
-	 * 
-	 * @param credentials
-	 *            The user's credentials.
-	 */
-	public void login(final Credentials credentials) {
-		synchronized(getImplLock()) { getImpl().login(credentials); }
+     * Login to parity. This will create a new singleton instance of a parity
+     * session.
+     * 
+     * @param monitor
+     *            A <code>LoginMonitor</code>.
+     * @param credentials
+     *            The user's credentials.
+     */
+	public void login(final LoginMonitor monitor, final Credentials credentials) {
+		synchronized(getImplLock()) { getImpl().login(monitor, credentials); }
 	}
 
 	/**

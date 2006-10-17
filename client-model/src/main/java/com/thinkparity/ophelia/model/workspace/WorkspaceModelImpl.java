@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.Constants.ThreadNames;
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
@@ -192,11 +193,12 @@ class WorkspaceModelImpl {
      * @param credentials
      *            A user's <code>Credentials</code>.
      */
-    void initialize(final Workspace workspace, final Credentials credentials) {
+    void initialize(final Workspace workspace, final LoginMonitor loginMonitor,
+            final Credentials credentials) {
         try {
             final SessionModel sessionModel =
                 SessionModel.getModel(environment, workspace);
-            sessionModel.login(credentials);
+            sessionModel.login(loginMonitor, credentials);
             Assert.assertTrue("User was not logged in.", sessionModel.isLoggedIn());            
             ContactModel.getModel(environment, workspace).download();
             findImpl(workspace).initialize();

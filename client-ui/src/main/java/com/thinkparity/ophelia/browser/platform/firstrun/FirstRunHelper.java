@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
@@ -64,7 +65,15 @@ public class FirstRunHelper {
             credentials.setPassword(password);
             credentials.setUsername(username);
 
-            workspaceModel.initialize(workspace, credentials);
+            workspaceModel.initialize(workspace, new LoginMonitor() {
+                public void notifyInvalidCredentials(final Credentials credentials) {
+                }
+                public Boolean confirmSynchronize() {
+                    final ConfirmSynchronize confirmSynchronize = new ConfirmSynchronize();
+                    openWindow("", confirmSynchronize);
+                    return confirmSynchronize.didConfirm();
+                }
+            }, credentials);
         }
     }
 

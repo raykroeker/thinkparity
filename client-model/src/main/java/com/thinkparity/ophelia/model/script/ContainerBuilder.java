@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.script;
 
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,7 +84,9 @@ public class ContainerBuilder {
             try {
                 stream.close();
             } catch (final Throwable t) {
-                throw translateError(t);
+                throw translateError(t,
+                        "Cannot add document {0} located at {1}.",
+                        name, resource);
             }
         }
         getContainerModel().addDocument(id, document.getId());
@@ -255,7 +258,9 @@ public class ContainerBuilder {
      *            An error <code>Throwable</code>.
      * @return A <code>RuntimeException</code>.
      */
-    private RuntimeException translateError(final Throwable t) {
-        return new RuntimeException(t);
+    private RuntimeException translateError(final Throwable t,
+            final String errorPattern, final Object... errorArguments) {
+        return new RuntimeException(
+                MessageFormat.format(errorPattern, errorArguments), t);
     }
 }

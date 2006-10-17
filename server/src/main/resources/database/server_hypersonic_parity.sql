@@ -123,10 +123,11 @@ create table parityUserEmail (
 );
 
 create table PARITY_USER_PROFILE (
-    username varchar(32) not null,
+    USERNAME varchar(32) not null,
     SECURITY_QUESTION varchar not null,
     SECURITY_ANSWER varchar not null,
     DISABLED boolean not null,
+    TOKEN varchar null,
     primary key (username),
     foreign key (username) references jiveUser(username)
 );

@@ -3,9 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.model.container.Container;
-
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -26,17 +24,10 @@ public class DeleteFirstDraftTest extends ContainerTestCase {
 
     /** Test the delete draft api. */
     public void testDeleteDraft() {
-        try {
-            datum.containerModel.deleteDraft(datum.container.getId());
-        } catch (final NotTrueAssertion nta) {
-            // this assertion should be raised
-            if (!nta.getMessage().equals("CANNOT DELETE FIRST DRAFT")) {
-                fail(createFailMessage(nta));
-            }
-        }
-        assertTrue(NAME + " DRAFT DELETED EVENT WAS FIRED", !datum.didNotify);
+        datum.containerModel.deleteDraft(datum.container.getId());
+        assertTrue("Draft deleted event not fired.", datum.didNotify);
         final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
-        assertNotNull(NAME + " DRAFT CANNOT STILL BE READ", draft);
+        assertNull("Draft has not been deleted correctly.", draft);
     }
 
     /**

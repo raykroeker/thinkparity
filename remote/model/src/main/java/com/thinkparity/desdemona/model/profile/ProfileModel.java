@@ -9,7 +9,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.Feature;
-
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -52,6 +52,19 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public void addEmail(final JabberId userId, final EMail email) {
         synchronized (getImplLock()) {
             getImpl().addEmail(userId, email);
+        }
+    }
+
+    /**
+     * Create a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    public Token createToken(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().createToken(userId);
         }
     }
 
@@ -104,6 +117,19 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public String readSecurityQuestion(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().readSecurityQuestion(userId);
+        }
+    }
+
+    /**
+     * Read a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    public Token readToken(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readToken(userId);
         }
     }
 

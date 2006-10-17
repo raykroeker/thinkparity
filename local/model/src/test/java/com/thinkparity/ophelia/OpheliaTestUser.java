@@ -10,9 +10,9 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -35,7 +35,7 @@ public class OpheliaTestUser extends User {
     public static final OpheliaTestUser JUNIT_Y;
 
     /** A test user. */
-//    public static final OpheliaTestUser JUNIT_Z;
+    public static final OpheliaTestUser JUNIT_Z;
 
     /** The test users' password. */
     private static final String PASSWORD = "parity";
@@ -44,7 +44,7 @@ public class OpheliaTestUser extends User {
         JUNIT = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit");
         JUNIT_X = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.x");
         JUNIT_Y = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.y");
-//        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
+        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
     }
 
 	/** The test user's credentials. */
@@ -107,7 +107,12 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void initialize() {
-        SessionModel.getModel(environment, workspace).login(credentials);
+        SessionModel.getModel(environment, workspace).login(new DefaultLoginMonitor() {
+            @Override
+            public Boolean confirmSynchronize() {
+                return Boolean.TRUE;
+            }
+        }, credentials);
         try {
             ContactModel.getModel(environment, workspace).download();
             setId(ProfileModel.getModel(environment, workspace).read().getId());

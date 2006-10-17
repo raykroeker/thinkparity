@@ -8,6 +8,7 @@ import java.io.File;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 
 /**
  * WorkspaceModel
@@ -93,9 +94,9 @@ public class WorkspaceModel {
      *            A user's <code>Credentials</code>.
      */
     public void initialize(final Workspace workspace,
-            final Credentials credentials) {
+            final LoginMonitor loginMonitor, final Credentials credentials) {
         synchronized (getImplLock()) {
-            getImpl().initialize(workspace, credentials);
+            getImpl().initialize(workspace, loginMonitor, credentials);
         }
     }
 

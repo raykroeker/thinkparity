@@ -35,6 +35,7 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
@@ -131,10 +132,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-    /** The secret key spec. */
+    /** A quick-lookup for the local user id. */
+    private JabberId localUserId;
+
+	/** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-	/**
+    /**
      * Create an AbstractModelImpl
      * 
      * @param environment
@@ -154,7 +158,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
 
-    /**
+	/**
      * Add a thinkParity event listener.
      * 
      * @param listener
@@ -166,7 +170,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getWorkspaceModel().addListener(workspace, this, listener);
     }
 
-	/**
+    /**
      * Assert a draft doesn't exist for the container.
      * 
      * @param assertion
@@ -220,7 +224,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
-    /**
+	/**
      * Assert that the list of team members does not contain the user.
      * 
      * @param assertion
@@ -248,7 +252,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -277,7 +281,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-    /**
+	/**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -287,7 +291,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue("USER ID MATCHES LOCAL USER ID", isLocalUserId(userId));
     }
 
-	/**
+    /**
      * Assert that the environment is online.
      * 
      * @param assertion
@@ -322,7 +326,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue("USER IS ONLINE", isOnline());
     }
 
-    /**
+	/**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -351,7 +355,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
             Assert.assertNotTrue(assertion, contains(team, user));
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      */
@@ -369,11 +373,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isOnline());
     }
 
-    protected void assertOnline(final StringBuffer api) {
+	protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -479,12 +483,28 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The user's <code>Credentials</code>.
      */
     protected Credentials createCredentials(final Credentials credentials) {
-        final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
+        final String cipherKey = getCipherKey();
         try {
             getConfigurationHandler().create(ConfigurationKeys.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
             getConfigurationHandler().create(ConfigurationKeys.RESOURCE, encrypt(cipherKey, credentials.getResource()));
             getConfigurationHandler().create(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             return readCredentials();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create the user's token.
+     * 
+     * @param token
+     *            A user's <code>Token</code>.
+     * @return The user's <code>Token</code>.
+     */
+    protected Token createToken(final Token token) {
+        try {
+            getConfigurationHandler().create(ConfigurationKeys.TOKEN, encrypt(getCipherKey(), token.getValue()));
+            return readToken();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -559,7 +579,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -568,7 +588,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -577,14 +597,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
-    /**
+	/**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
-	}
+	};
 
 	/**
      * Obtain the internal parity download interface.
@@ -593,7 +613,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    };
+    }
 
 	/**
      * Obtain the internal parity library interface.
@@ -613,7 +633,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-	/**
+    /**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -819,13 +839,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	 * @return The jabber id of the local user.
 	 */
 	protected JabberId localUserId() {
-        final Credentials credentials = readCredentials();
-        if (null == credentials) {
-            return null;
-        } else {
-            return JabberIdBuilder.build(credentials.getUsername(),
-                    Constants.Jabber.DOMAIN, credentials.getResource());
+        if (null == localUserId) {
+            final Credentials credentials = readCredentials();
+            if (null != credentials) {
+                localUserId = JabberIdBuilder.build(
+                        credentials.getUsername(), Constants.Jabber.DOMAIN,
+                        credentials.getResource());
+            }
         }
+        return localUserId;
 	}
 
     /**
@@ -858,7 +880,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The user's credentials.
      */
     protected Credentials readCredentials() {
-        final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
+        final String cipherKey = getCipherKey();
         final String password = getConfigurationHandler().read(ConfigurationKeys.PASSWORD);
         final String resource = getConfigurationHandler().read(ConfigurationKeys.RESOURCE);
         final String username = getConfigurationHandler().read(ConfigurationKeys.USERNAME);
@@ -872,8 +894,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 credentials.setResource(decrypt(cipherKey, resource));
                 credentials.setUsername(decrypt(cipherKey, username));
                 return credentials;
+            } catch (final Throwable t) {
+                throw translateError(t);
             }
-            catch(final Throwable t) { throw translateError(t); }
         }
     }
 
@@ -887,6 +910,26 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected Long readNextVersionId(final Long artifactId) {
         final Long latestVersionId = getInternalArtifactModel().readLatestVersionId(artifactId);
         return null == latestVersionId ? Versioning.START : latestVersionId + Versioning.INCREMENT;
+    }
+
+    /**
+     * Read the user's token.
+     * 
+     * @return The user's <code>Token</code>.
+     */
+    protected Token readToken() {
+        final String tokenValue = getConfigurationHandler().read(ConfigurationKeys.TOKEN);
+        if (null == tokenValue) {
+            return null;
+        } else {
+            try {
+                final Token token = new Token();
+                token.setValue(decrypt(getCipherKey(), tokenValue));
+                return token;
+            } catch (final Throwable t) {
+                throw translateError(t);
+            }
+        }
     }
 
     /**
@@ -995,6 +1038,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
+
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1010,6 +1054,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 		return assertion.toString();
 	}
+    /**
+     * Obtain the cipher key used to encrypt configuration information.
+     * 
+     * @return A cipher key <code>String</code>.
+     */
+    private String getCipherKey() {
+        return "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
+    }
 
     /**
      * Obtain the configuration io interface.
@@ -1142,6 +1194,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     private static class ConfigurationKeys {
         private static final String PASSWORD = "PASSWORD";
         private static final String RESOURCE = "RESOURCE";
+        private static final String TOKEN = "TOKEN";
         private static final String USERNAME = "USERNAME";
     }
 }

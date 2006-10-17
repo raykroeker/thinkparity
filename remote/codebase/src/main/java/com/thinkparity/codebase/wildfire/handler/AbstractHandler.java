@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
@@ -235,6 +236,9 @@ public abstract class AbstractHandler extends
         iqWriter.writeContainer(name, value);
     }
 
+    protected final void writeToken(final String name, final Token value) {
+        iqWriter.writeToken(name, value);
+    }
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);

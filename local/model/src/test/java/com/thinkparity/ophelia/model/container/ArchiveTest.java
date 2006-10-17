@@ -153,12 +153,12 @@ public class ArchiveTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final InternalArchiveModel archiveModel = getArchiveModel(OpheliaTestUser.JUNIT);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
+        login(OpheliaTestUser.JUNIT_Z);
+        final InternalArchiveModel archiveModel = getArchiveModel(OpheliaTestUser.JUNIT_Z);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
+        final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
+        addDocuments(OpheliaTestUser.JUNIT_Z, container);
+        publishToContacts(OpheliaTestUser.JUNIT_Z, container);
         datum = new Fixture(archiveModel, container, containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
         datum.containerModel.addListener(datum);
     }
@@ -170,7 +170,7 @@ public class ArchiveTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
+        logout(OpheliaTestUser.JUNIT_Z);
         super.tearDown();
     }
 

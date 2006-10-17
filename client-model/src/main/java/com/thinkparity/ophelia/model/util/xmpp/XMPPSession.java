@@ -20,8 +20,8 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
@@ -519,6 +519,25 @@ public interface XMPPSession {
      * @return A security question <code>String</code>.
      */
     public String readProfileSecurityQuestion(final JabberId userId);
+
+    /**
+     * Read a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    public Token readToken(final JabberId userId);
+
+    /**
+     * Create a new token for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    public Token createToken(final JabberId userId);
+
     /**
      * Read a set of users.
      * 
@@ -527,6 +546,7 @@ public interface XMPPSession {
      * @return A <code>User</code>.
      */
     public User readUser(final JabberId userId);
+
     public void removeListener(final ArtifactListener listener);
 
     public void removeListener(final ContactListener listener);

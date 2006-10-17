@@ -23,8 +23,8 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.Session;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -399,24 +399,29 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
     /**
      * Establish a new xmpp session.
      * 
+     * @param monitor
+     *            A <code>LoginMonitor</code>.
      * @throws ParityException
      */
-    void login() {
+    void login(final LoginMonitor monitor) {
         logger.logApiId();
-        login(readCredentials());
+        login(monitor, readCredentials());
     }
 
     /**
      * Establish a new xmpp session.
      * 
+     * @param monitor
+     *            A <code>LoginMonitor</code>.
      * @param credentials
      *            The user's credentials.
      * @throws ParityException
      */
-    void login(final Credentials credentials) {
+    void login(final LoginMonitor monitor, final Credentials credentials) {
         logger.logApiId();
+        logger.logVariable("monitor", monitor);
         logger.logVariable("credentials", credentials);
-        login(1, credentials);
+        login(1, monitor, credentials);
     }
 
 	/**
@@ -1201,13 +1206,17 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * 
      * @param attempt
      *            The attempt number.
+     * @param monitor
+     *            A <code>LoginMonitor</code>.
      * @param environment
      *            The environment to login to.
      * @param credentials
      *            The credentials to login with.
      */
-    private void login(final Integer attempt, final Credentials credentials) {
+    private void login(final Integer attempt, final LoginMonitor monitor,
+            final Credentials credentials) {
         logger.logVariable("attempt", attempt);
+        logger.logVariable("monitor", monitor);
         logger.logVariable("environment", environment);
         logger.logVariable("credentials", credentials);
         try {
@@ -1216,14 +1225,14 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 // check that the user's credentials match
-                final Credentials storedCredentials = readCredentials();
-                if(null != storedCredentials) {
+                final Credentials localCredentials = readCredentials();
+                if(null != localCredentials) {
                     Assert.assertTrue(
-                            storedCredentials.getUsername().equals(credentials.getUsername()) &&
-                                storedCredentials.getPassword().equals(credentials.getPassword()),
-                            "Credentials {0} do not match stored credentials {1}.",
-                            credentials, storedCredentials);
-                    credentials.setResource(storedCredentials.getResource());
+                            localCredentials.getUsername().equals(credentials.getUsername()) &&
+                            localCredentials.getPassword().equals(credentials.getPassword()),
+                            "Credentials {0} do not match local credentials {1}.",
+                            credentials, localCredentials);
+                    credentials.setResource(localCredentials.getResource());
                 }
                 // register with xmpp event listeners
                 new SessionModelEventDispatcher(workspace, internalModelFactory, xmppSession);
@@ -1231,14 +1240,51 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                 // login
                 xmppSession.login(environment, credentials);
 
-                // this is essentially the first login with this resource
-                if(null == storedCredentials) {
+                // this was the first login
+                if (null == localCredentials) {
                     createCredentials(credentials);
-                    // create the user's profile
                     getProfileModel().create();
-                    // restore the container backup
-                    getContainerModel().restoreBackup();
                 }
+
+                // syncrhonize the local environment
+                final Token localToken = readToken();
+                if (null == localToken) {
+                    final Token remoteToken = xmppSession.readToken(localUserId());
+                    if (null == remoteToken) {
+                        // first login ever
+                        createToken(xmppSession.createToken(localUserId()));
+                    } else {
+                        // first login in this environment
+                        if (monitor.confirmSynchronize()) {
+                            getContainerModel().restoreBackup();
+                            createToken(remoteToken);
+                        } else {
+                            xmppSession.logout();
+                            return; // HACK shouldn't really have more than one
+                                    // return path; but i don't want to process
+                                    // the offline event queue for this case
+                        }
+                    }
+                } else {
+                    final Token remoteToken = xmppSession.readToken(localUserId());
+                    if (localToken.equals(remoteToken)) {
+                        // here; we know the local environment is the primary
+                        // expected environment
+                    } else {
+                        // here we know the local environment is different from
+                        // what was expected
+                        if (monitor.confirmSynchronize()) {
+                            getContainerModel().restoreBackup();      
+                        } else {
+                            xmppSession.logout();
+                            return; // HACK shouldn't really have more than one
+                                    // return path; but i don't want to process
+                                    // the offline event queue for this case
+                        }
+                    }
+                }
+
+                // process offline events
                 xmppSession.processOfflineQueue(localUserId());
             }
         } catch(final Throwable t) {

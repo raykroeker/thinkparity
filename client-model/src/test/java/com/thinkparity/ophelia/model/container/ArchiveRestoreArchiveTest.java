@@ -140,19 +140,19 @@ public class ArchiveRestoreArchiveTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
+        login(OpheliaTestUser.JUNIT_Z);
+        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT_Z);
+        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
+        final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
+        addDocuments(OpheliaTestUser.JUNIT_Z, container);
+        publishToContacts(OpheliaTestUser.JUNIT_Z, container);
         containerModel.archive(container.getId());
         containerModel.restore(container.getUniqueId());
 
         final Long containerId = artifactModel.readId(container.getUniqueId());
-        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT),
+        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT_Z),
                 artifactModel, containerModel.read(containerId),
-                containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
+                containerModel, getDocumentModel(OpheliaTestUser.JUNIT_Z));
         datum.containerModel.addListener(datum);
     }
 
@@ -163,7 +163,7 @@ public class ArchiveRestoreArchiveTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
+        logout(OpheliaTestUser.JUNIT_Z);
         super.tearDown();
     }
 

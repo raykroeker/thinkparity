@@ -16,7 +16,6 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
-
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicConnectionProvider;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
@@ -34,6 +33,12 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 
     static {
         logger = new Log4JWrapper();
+    }
+
+    protected static final HypersonicException translateError(
+            final HypersonicSession session, final Throwable t) {
+        session.rollback();
+        return translateError(t);
     }
 
     protected static final HypersonicException translateError(final Throwable t) {
@@ -94,15 +99,12 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 		return DbConnectionManager.getConnection();
 	}
 
-    protected final <V> V logVariable(final String name, final V value)  {
-        return logger.logVariable(name, value);    }
-
     /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an sql statement.
      * 
      * @param statement
@@ -123,6 +125,9 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
         logger.logDebug("sql:{0}={1}", index, value);
         return value;
     }
+
+	protected final <V> V logVariable(final String name, final V value)  {
+        return logger.logVariable(name, value);    }
 
 	protected Integer nextId(final AbstractSql abstractSql) {
 		final Long nextId = SequenceManager.nextID(abstractSql);
@@ -170,23 +175,6 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
         ps.setInt(index, state.getId());
     }
     /**
-     * Set a variable in a prepared statement to an artifact state value.
-     * 
-     * @param ps
-     *            The prepared statement.
-     * @param index
-     *            The index of the variable in the prepared statement.
-     * @param state
-     *            The artifact state.
-     * @throws SQLException
-     */
-    protected void set(final PreparedStatement ps, final Integer index,
-            final Long longInteger) throws SQLException {
-        logStatementParameter(index, longInteger);
-        ps.setLong(index, longInteger);
-    }
-
-	/**
 	 * Set a variable in a prepared statement to an integer value.
 	 * 
 	 * @param ps
@@ -219,6 +207,23 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
         logStatementParameter(index, jabberId.getUsername());
 		ps.setString(index, jabberId.getUsername());
 	}
+
+	/**
+     * Set a variable in a prepared statement to an artifact state value.
+     * 
+     * @param ps
+     *            The prepared statement.
+     * @param index
+     *            The index of the variable in the prepared statement.
+     * @param state
+     *            The artifact state.
+     * @throws SQLException
+     */
+    protected void set(final PreparedStatement ps, final Integer index,
+            final Long longInteger) throws SQLException {
+        logStatementParameter(index, longInteger);
+        ps.setLong(index, longInteger);
+    }
 
     /**
 	 * Set a variable in a prepared statement to a string value.

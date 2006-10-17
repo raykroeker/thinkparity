@@ -17,8 +17,9 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
-
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
 /**
@@ -46,7 +47,7 @@ public class UserSql extends AbstractSql {
             .append("from jiveUser JU ")
             .append("order by JU.USERNAME")
             .toString();
-        
+
     /** Sql to read an archive user's credentials. */
     private static final String SQL_READ_ARCHIVE_CREDENTIALS =
             new StringBuffer("select USERNAME,PASSWORD ")
@@ -55,7 +56,7 @@ public class UserSql extends AbstractSql {
             .append("on JU.USERNAME=PUAR.ARCHIVENAME ")
             .append("where JU.USERNAME=?")
             .toString();
-
+        
     /** Sql to read a user's archive ids. */
     private static final String SQL_READ_ARCHIVE_IDS =
             new StringBuffer("select PUAR.ARCHIVENAME ")
@@ -112,6 +113,14 @@ public class UserSql extends AbstractSql {
             .append("where PUP.USERNAME=?")
             .toString();
 
+    /** Sql to read the user's token. */
+    private static final String SQL_READ_PROFILE_TOKEN =
+        new StringBuffer("select PUP.TOKEN ")
+        .append("from PARITY_USER_PROFILE PUP ")
+        .append("inner join jiveUser JU on PUP.USERNAME=JU.USERNAME ")
+        .append("where JU.USERNAME=? and PUP.TOKEN is not null")
+        .toString();
+
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_USERNAME =
             new StringBuffer("select JU.USERNAME ")
@@ -119,6 +128,12 @@ public class UserSql extends AbstractSql {
             .append("inner join jiveUser JU on PUE.USERNAME=JU.USERNAME ")
             .append("where PUE.EMAIL=?")
             .toString();
+
+    /** Sql to create the user's token. */
+    private static final String SQL_UPDATE_PROFILE_TOKEN =
+        new StringBuffer("update PARITY_USER_PROFILE PUP ")
+        .append("set TOKEN=? where USERNAME=?")
+        .toString();
 
     private static final String SQL_VERIFY_EMAIL =
             new StringBuffer("update PARITYUSEREMAIL ")
@@ -350,6 +365,22 @@ public class UserSql extends AbstractSql {
         }
     }
 
+    public Token readProfileToken(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PROFILE_TOKEN);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractToken(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
     /**
      * Read a jabber id for an e-mail addreses.
      * 
@@ -375,6 +406,23 @@ public class UserSql extends AbstractSql {
             }
         } finally {
             close(cx, ps, rs);
+        }
+    }
+
+    public void updateProfileToken(final JabberId userId, final Token token) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_PROFILE_TOKEN);
+            session.setString(1, token.getValue());
+            session.setString(2, userId.getUsername());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update profile token.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
         }
     }
 
@@ -427,5 +475,18 @@ public class UserSql extends AbstractSql {
 
     Feature extractFeature(final HypersonicSession session) {
         return Feature.valueOf(session.getString("FEATURE"));
+    }
+
+    /**
+     * Extract a token from the session.
+     * 
+     * @param session
+     *            A database <code>HypersonicSession</code>.
+     * @return A <code>Token</code>.
+     */
+    private Token extractToken(final HypersonicSession session) {
+        final Token token = new Token();
+        token.setValue(session.getString("TOKEN"));
+        return token;
     }
 }

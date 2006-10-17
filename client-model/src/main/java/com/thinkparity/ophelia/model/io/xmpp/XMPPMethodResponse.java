@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.user.Token;
 
 /**
  * The parity bootstrap's xmpp method response.
@@ -166,6 +167,10 @@ public class XMPPMethodResponse extends IQ {
      */
     public List<String> readResultStrings(final String name) {
         return (List<String>) readResult(name);
+    }
+
+    public Token readResultToken(final String name) {
+        return (Token) readResult(name);
     }
 
     public byte[] readSmallBytes(final String name) {

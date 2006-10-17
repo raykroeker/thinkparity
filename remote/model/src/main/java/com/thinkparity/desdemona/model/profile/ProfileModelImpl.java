@@ -22,12 +22,13 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.user.Feature;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
-
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
@@ -160,6 +161,48 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             return userSql.readProfileSecurityQuestion(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    Token readToken(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return userSql.readProfileToken(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    Token createToken(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            // not to be confused with miller time
+            final byte[] millisTime =
+                String.valueOf(System.currentTimeMillis()).getBytes();
+            final Token newToken = new Token();
+            newToken.setValue(MD5Util.md5Hex(millisTime));
+            userSql.updateProfileToken(userId, newToken);
+            return userSql.readProfileToken(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -302,4 +345,5 @@ class ProfileModelImpl extends AbstractModelImpl {
         notification.writeCalendar("updatedOn", currentDateTime());
         send(contactIds, notification.getIQ());
     }
+
 }

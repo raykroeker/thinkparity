@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.util.Base64;
 
 /**
@@ -110,6 +111,18 @@ public class ElementBuilder {
         final String valueString = DateUtil.format(
                 valueGMT, DateUtil.DateImage.ISO);
         return addElement(parent, name, Calendar.class, valueString);
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final Token value) {
+        final Element element;
+        if (null == value) {
+            element = addNullElement(parent, name, Token.class);
+        } else {
+            element = addElement(parent, name, Token.class);
+            addElement(element, "value", value.getValue());
+        }
+        return element;
     }
 
     public static final Element addElement(final Element parent,
@@ -361,6 +374,13 @@ public class ElementBuilder {
      */
     protected static final Element addElement(final Element parent, final String name,
             final Class type) {
+        final Element element = parent.addElement(name);
+        element.addAttribute("javaType", type.getName());
+        return element;
+    }
+
+    protected static final Element addNullElement(final Element parent,
+            final String name, final Class type) {
         final Element element = parent.addElement(name);
         element.addAttribute("javaType", type.getName());
         return element;

@@ -7,18 +7,22 @@ package com.thinkparity.ophelia.model.io.xmpp;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.UUID;
 import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
-
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -42,7 +46,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-
+import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 
@@ -559,8 +563,18 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return sValue;
-            }
-            else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
+            } else if (javaType.equals(Token.class)) {
+                parser.next();
+                if (XmlPullParser.END_TAG == parser.getEventType()) {
+                    parser.next();
+                    return null;
+                } else {
+                    final Token token = new Token();
+                    token.setValue((String) parseJavaObject(parser, "value", String.class));
+                    parser.next();
+                    return token;
+                }
+            } else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
                 parser.next();
                 final JabberId jabberId = JabberIdBuilder.parse(parser.getText());
                 parser.next();

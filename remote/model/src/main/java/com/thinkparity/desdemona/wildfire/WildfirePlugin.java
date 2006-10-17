@@ -167,7 +167,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startArchive() {
-        ArchiveModel.getModel().start();
+//        ArchiveModel.getModel().start();
     }
 
     /**
@@ -175,6 +175,6 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopArchive() {
-        ArchiveModel.getModel().stop();
+//        ArchiveModel.getModel().stop();
     }
 }

@@ -61,14 +61,14 @@ public class ArchiveRestoreTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
+        login(OpheliaTestUser.JUNIT_Z);
+        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT_Z);
+        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
+        final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
+        addDocuments(OpheliaTestUser.JUNIT_Z, container);
+        publishToContacts(OpheliaTestUser.JUNIT_Z, container);
         containerModel.archive(container.getId());
-        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT),
+        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT_Z),
                 artifactModel, container, containerModel);
         datum.containerModel.addListener(datum);
     }
@@ -80,7 +80,7 @@ public class ArchiveRestoreTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
+        logout(OpheliaTestUser.JUNIT_Z);
         super.tearDown();
     }
 

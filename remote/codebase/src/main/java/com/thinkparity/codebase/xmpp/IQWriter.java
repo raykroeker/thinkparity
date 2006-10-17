@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.Token;
 
 
 /**
@@ -67,6 +68,9 @@ public abstract class IQWriter {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
+    public final void writeToken(final String name, final Token value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
     public final void writeContainer(final String name, final Container value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }

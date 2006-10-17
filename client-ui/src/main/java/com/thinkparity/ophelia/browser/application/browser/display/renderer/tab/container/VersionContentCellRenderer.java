@@ -13,9 +13,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
-
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.Constants.Colors.Swing;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractContentCell;
 
 /**

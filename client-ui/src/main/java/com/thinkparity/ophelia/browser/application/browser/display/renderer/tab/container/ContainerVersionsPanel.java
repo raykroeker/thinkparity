@@ -174,13 +174,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public Color getBackground(final int index) {
         final Color color;
-        Integer containerIndex = model.indexOfContainerPanel(container);
         if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_BG;
         } else {           
             color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;    
         }
-        
 
         leftJPanel.setBackground(color);
         rightJPanel.setBackground(color);

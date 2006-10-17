@@ -42,7 +42,7 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
             iconJLabel.setIcon(icon);
         }
 
-        if (isSelected && cell.isSelectedContainer()) {
+        if (isSelected && list.isFocusOwner()) {
             textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
             setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
         } else {

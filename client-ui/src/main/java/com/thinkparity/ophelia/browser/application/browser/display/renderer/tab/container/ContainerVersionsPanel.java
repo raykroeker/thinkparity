@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -29,6 +31,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
@@ -47,8 +50,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
     
+    /** The border for the bottom of the cell. */
+    private static final Border BORDER_BOTTOM;
+    
     static {        
         DIMENSION = new Dimension(50,100);
+        BORDER_BOTTOM = new BottomBorder(Color.WHITE);
     }
 
     /** The <code>Container</code>. */
@@ -164,15 +171,22 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             versionsModel.addElement(new DraftCell(draft));
         }
     }
+
+    /**
+     * Adjust colors.  
+     */
+    public void adjustColors() {        
+        final Color color = getBackgroundColor();
+        leftJPanel.setBackground(color);
+        rightJPanel.setBackground(color);
+    }
     
     /**
      * Get the background color.
      * 
-     * @param index
-     *          Index into the display list.
      * @return Background color.
      */
-    public Color getBackground(final int index) {
+    public Color getBackgroundColor() {
         final Color color;
         if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_BG;
@@ -180,11 +194,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;    
         }
 
-        leftJPanel.setBackground(color);
-        rightJPanel.setBackground(color);
-        
         return color;
     }  
+    
+    /**
+     * Get the border for the package.
+     * 
+     * @param last
+     *          True if this is the last entity.
+     * @return A border.
+     */
+    public Border getBorder(final Boolean last) {
+        return BORDER_BOTTOM;     
+    }
     
     /**
      * Determine if the container is selected.
@@ -203,12 +225,24 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     protected void triggerPopup(final Component invoker, final MouseEvent e) {
         new ContainerPopup(model, container).show(invoker, e);
     }
+  
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerDoubleClick(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void triggerDoubleClick(MouseEvent e) {
+        model.triggerExpand(container);
+    }
 
-    protected void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
-    }//GEN-LAST:event_formMouseClicked
-
-    protected void formMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseReleased
-    }//GEN-LAST:event_formMouseReleased
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMousePressed(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void formMousePressed(MouseEvent e) {
+        if (e.getButton()==MouseEvent.BUTTON1) {
+            model.selectContainer(container);
+        }
+    } 
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -233,15 +267,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                formMouseClicked(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                formMouseReleased(evt);
-            }
-        });
-
         versionsJSplitPane.setBorder(null);
         versionsJSplitPane.setDividerSize(0);
         versionsJSplitPane.setResizeWeight(0.5);
@@ -249,6 +274,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         leftJPanel.setLayout(new java.awt.GridBagLayout());
 
         leftJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        leftJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                leftJPanelMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                leftJPanelMousePressed(evt);
+            }
+        });
+
         versionsJScrollPane.setBorder(null);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
@@ -276,7 +310,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 1);
+        gridBagConstraints.insets = new java.awt.Insets(3, 4, 4, 1);
         leftJPanel.add(versionsJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setLeftComponent(leftJPanel);
@@ -284,6 +318,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         rightJPanel.setLayout(new java.awt.GridBagLayout());
 
         rightJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        rightJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                rightJPanelMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                rightJPanelMousePressed(evt);
+            }
+        });
+
         versionsContentJScrollPane.setBorder(null);
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
@@ -306,7 +349,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 1, 3, 3);
+        gridBagConstraints.insets = new java.awt.Insets(3, 1, 4, 4);
         rightJPanel.add(versionsContentJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setRightComponent(rightJPanel);
@@ -319,6 +362,22 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void rightJPanelMouseClicked(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_rightJPanelMouseClicked
+        formMouseClicked(e);
+    }// GEN-LAST:event_rightJPanelMouseClicked
+
+    private void leftJPanelMouseClicked(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_leftJPanelMouseClicked
+        formMouseClicked(e);
+    }// GEN-LAST:event_leftJPanelMouseClicked
+
+    private void rightJPanelMousePressed(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_rightJPanelMousePressed
+        formMousePressed(e);
+    }// GEN-LAST:event_rightJPanelMousePressed
+
+    private void leftJPanelMousePressed(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_leftJPanelMousePressed
+        formMousePressed(e);
+    }// GEN-LAST:event_leftJPanelMousePressed
+    
     private void triggerJListPopup(final AbstractContentCell selectedContent,
             final MouseEvent e) {
         selectedContent.showPopupMenu(versionsContentJList, e);
@@ -335,6 +394,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void versionsContentJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
+        formMousePressed(e);
+        versionsContentJList.requestFocusInWindow();
         final JList jList = (JList) e.getSource();
         if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
             triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
@@ -354,9 +415,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     private void versionsJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
     }//GEN-LAST:event_versionsJListMouseClicked
+    
     private void versionsJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
+        formMousePressed(e);
+        versionsJList.requestFocusInWindow();
         final JList jList = (JList) e.getSource();
         if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
             triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);

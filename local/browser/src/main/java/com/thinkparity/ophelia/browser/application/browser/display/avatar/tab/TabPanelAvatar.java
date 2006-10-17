@@ -5,8 +5,14 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -43,6 +49,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     	installDataListener();
         initComponents();
         installResizer();
+        //new CursorMovementCustodian().applyCursorKeyListener(this);
     }
 
     /**
@@ -78,6 +85,15 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         setLayout(new java.awt.GridBagLayout());
 
         headerJLabel.setText(" ");
+        headerJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                headerJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                headerJLabelMouseReleased(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 4;
@@ -89,6 +105,12 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         tabJPanel.setLayout(new java.awt.GridBagLayout());
 
         tabJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        tabJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tabJPanelMouseReleased(evt);
+            }
+        });
+
         tabJPanel.add(fillJLabel, new java.awt.GridBagConstraints());
 
         tabJScrollPane.setViewportView(tabJPanel);
@@ -103,6 +125,21 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
+        if (e.isPopupTrigger()) {
+            triggerPopup(tabJPanel, e);
+        }
+    }// GEN-LAST:event_tabJPanelMouseReleased
+
+    private void headerJLabelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMouseReleased
+        if (e.isPopupTrigger()) {
+            triggerPopup(tabJPanel, e);
+        }
+    }// GEN-LAST:event_headerJLabelMouseReleased
+
+    private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMousePressed
+    }// GEN-LAST:event_headerJLabelMousePressed
 
     /**
      * Install the a data listener on the list model. This will translate the
@@ -121,8 +158,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     tabJPanel.remove(i);
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustForegroundColor();
-                    panel.setBackground(panel.getBackground(i));
+                    panel.adjustColors();
+                    panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
@@ -154,8 +191,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustForegroundColor();
-                    panel.setBackground(panel.getBackground(i));
+                    panel.adjustColors();
+                    panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
@@ -192,8 +229,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
                     panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
-                    panel.adjustForegroundColor();
-                    panel.setBackground(panel.getBackground(i));
+                    panel.adjustColors();
+                    panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
@@ -211,6 +248,12 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             } 
         });
     }
+    
+    /**
+     * Trigger a popup for the tab avatar.
+     *
+     */
+    protected void triggerPopup(final Component invoker, final MouseEvent e) {}
 
     /**
      * @see com.thinkparity.codebase.swing.AbstractJPanel#debug()
@@ -221,6 +264,32 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         logger.logDebug("{0} components.", components.length);
         for (final Component component : components) {
             logger.logVariable("component", component);
+        }
+    }
+    
+
+    private class CursorMovementCustodian {
+
+        /** The action map key. */
+        private static final String ACTION_MAP_KEY_UP = "actionUp";
+
+        /**
+         * Create a WindowCustodian.
+         * 
+         */
+        CursorMovementCustodian() { super(); }
+
+        /**
+         * Add key-map action pairs to monitor the cursor keys.
+         */
+        void applyCursorKeyListener(final JComponent window) {
+            window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), ACTION_MAP_KEY_UP);
+            window.getRootPane().getActionMap().put(ACTION_MAP_KEY_UP, new AbstractAction() {
+                private static final long serialVersionUID = 1;
+                public void actionPerformed(final ActionEvent e) {
+                    logger.logDebug("XXX Pressed UP");
+                }});
         }
     }
  

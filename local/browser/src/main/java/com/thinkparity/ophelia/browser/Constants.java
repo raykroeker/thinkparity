@@ -70,7 +70,7 @@ public final class Constants {
                 public static final Color LIST_FG = Color.BLACK;
                 public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
                 public static final Color LIST_ODD_BG = Color.WHITE;
-                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(236, 233, 216, 255);
+                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(206, 210, 216, 255);
                 public static final Color LIST_SELECTION_BG = new Color(87, 136, 206, 255);
                 public static final Color LIST_SELECTION_FG = Color.WHITE;
                 public static final Color INNER_LIST_SELECTION_BG = new Color(207, 221, 241, 255);

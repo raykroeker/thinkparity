@@ -202,7 +202,8 @@ public final class ContainerModel extends TabPanelModel {
         // add visible cells not in the model
         for (int i = 0; i < visiblePanels.size(); i++) {
             if (listModel.contains(visiblePanels.get(i))) {
-                listModel.set(listModel.indexOf(visiblePanels.get(i)), visiblePanels.get(i));
+                listModel.removeElement(visiblePanels.get(i));
+                listModel.add(i, visiblePanels.get(i));
             } else {
                 listModel.add(i, visiblePanels.get(i));
             }
@@ -236,7 +237,18 @@ public final class ContainerModel extends TabPanelModel {
         }
         synchronize();
     }
-
+    
+    /**
+     * Toggle the expansion of a panel on and off.
+     * 
+     * @param container
+     *      The container.
+     */
+    public void triggerExpand(final Container container) {
+        final TabPanel containerPanel = getContainerPanel(container);
+        triggerExpand(containerPanel);
+    }
+    
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -455,6 +467,24 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
+     * Determine the panel before is expanded.
+     * 
+     * @param tabPanel
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel before is expanded; false otherwise.
+     */
+    public Boolean isPanelBeforeExpanded(final TabPanel tabPanel) {
+        int index = visiblePanels.indexOf(tabPanel);
+        if (index > 0) {
+            return (!(visiblePanels.get(index-1) instanceof ContainerPanel));
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+    
+    /**
      * Determine if the container is selected.
      * 
      * @param container
@@ -476,8 +506,10 @@ public final class ContainerModel extends TabPanelModel {
      *            A <code>Container</code>.
      */
     public void selectContainer(final Container container) {
-        selectedContainer = container;
-        synchronize();
+        if (!isSelectedContainer(container)) {
+            selectedContainer = container;
+            synchronize();
+        }
     }
     
     /**

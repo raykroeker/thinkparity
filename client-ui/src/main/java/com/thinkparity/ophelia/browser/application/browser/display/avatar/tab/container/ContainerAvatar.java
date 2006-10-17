@@ -3,8 +3,16 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JPopupMenu;
+
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
  * @author raymond@thinkparity.com
@@ -43,4 +51,15 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
     public void syncDocument(final Long documentId, final Boolean remote) {
         model.syncDocument(documentId, remote);
     }
+    
+    /**
+     * Trigger a popup when clicking in a blank area.
+     * 
+     */
+    @Override
+    protected void triggerPopup(final Component invoker, final MouseEvent e) {       
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        jPopupMenu.add(menuItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
+        jPopupMenu.show(invoker, e.getX(), e.getY());
+    }  
 }

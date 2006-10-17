@@ -124,19 +124,17 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
     
     /**
-     * Adjust foreground color.  
+     * Adjust colors.  
      */
-    public void adjustForegroundColor() {       
+    public void adjustColors() {        
     }
     
     /**
      * Get the background color.
      * 
-     * @param index
-     *          Index into the display list.
      * @return Background color.
      */
-    public Color getBackground(final int index) {       
+    public Color getBackgroundColor() { 
         return getBackground();
     }  
     
@@ -203,13 +201,13 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
         logger.logVariable("e", e);
         if (!MenuFactory.isPopupMenu()) {
             if (e.getButton()==MouseEvent.BUTTON1) {
-                if (1 == e.getClickCount()) {
-                    triggerSingleClick(e);
-                }
+                // Every click (regardless of getClickCount() triggers a single click.
+                triggerSingleClick(e);
+
                 // Interesting fact about getClickCount() is that the count continues to 3, 4 and beyond if
                 // the user keeps clicking with less than (say) 1/2 second delay between clicks.
                 // So, a click count of 2, 4, 6, etc. triggers double click event.
-                if (2 == e.getClickCount() % 2) {
+                if (0 == e.getClickCount() % 2) {
                     triggerDoubleClick(e);
                 }
                 e.consume();

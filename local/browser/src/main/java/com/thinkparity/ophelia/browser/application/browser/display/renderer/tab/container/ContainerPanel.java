@@ -43,13 +43,16 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The border for the top of the cell. */
     private static final Border BORDER_TOP;
     
+    /** The border for the top when the cell is expanded. */
+    private static final Border BORDER_TOP_EXPANDED;
+    
     /** The border for the top of a group of cells. */
     private static final Border BORDER_TOP_GROUP;
     
     /** The border colours. */
     private static final Color[] BORDER_COLOURS;
     
-    /** The border colours for a the first cell of a group. */
+    /** The border colours for the first cell of a group. */
     private static final Color[] BORDER_COLOURS_GROUP_TOP;
     
     /** Dimension of the cell. */
@@ -61,11 +64,14 @@ public final class ContainerPanel extends DefaultTabPanel {
                 Colours.MAIN_CELL_DEFAULT_BORDER, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
         
         BORDER_TOP = new TopBorder(BORDER_COLOURS, 2, new Insets(2,0,0,0));
+        BORDER_TOP_EXPANDED = new TopBorder(Color.WHITE, 2, new Insets(2,0,0,0));
         BORDER_TOP_GROUP = new TopBorder(BORDER_COLOURS_GROUP_TOP, 4, new Insets(4,0,0,0));
         BORDER_BOTTOM = new BottomBorder(Color.WHITE);
+        BORDER_BOTTOM_LAST = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
+        
+        // These are so there isn't a white line between the ContainerPanel and the ContainerVersionsPanel
         BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_SELECTION_BG);
         BORDER_BOTTOM_EXPANDED_NOT_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG);
-        BORDER_BOTTOM_LAST = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
         
         DIMENSION = new Dimension(50,23);
     }
@@ -269,9 +275,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Adjust foreground color.  
+     * Adjust colors.  
      */
-    public void adjustForegroundColor() {       
+    public void adjustColors() {       
         final Color color;
         if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_FG;
@@ -285,11 +291,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     /**
      * Get the background color.
      * 
-     * @param index
-     *          Index into the display list.
      * @return Background color.
      */
-    public Color getBackground(final int index) {
+    public Color getBackgroundColor() {
         final Color color;
         Integer containerIndex = model.indexOfContainerPanel(container);
         if (isSelectedContainer()) {
@@ -314,16 +318,18 @@ public final class ContainerPanel extends DefaultTabPanel {
      */   
     public Dimension getPreferredSize(final Boolean last) {
         final Dimension dimension;
+        int heightAdjust = 0;
         
-        if (last || isFirstNonDraft()) {
-            // Adjust height to account for border thickness
+        // Adjust height to account for border thickness
+        if (isFirstNonDraft()) {
+            heightAdjust += 2;
+        }
+        if (last && !isExpanded()) {
+            heightAdjust += 1;
+        }
+        if (heightAdjust>0) {
             dimension = new Dimension(DIMENSION);
-            if (last) {
-                dimension.height += 1;
-            }
-            if (isFirstNonDraft()) {
-                dimension.height += 2;
-            }
+            dimension.height += heightAdjust;
         } else {
             dimension = DIMENSION;
         }
@@ -341,11 +347,15 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Border getBorder(final Boolean last) {
         final Border topBorder;
         final Border bottomBorder;
+        
         if (isFirstNonDraft()) {
             topBorder = BORDER_TOP_GROUP;
+        } else if (isExpanded() || isPanelBeforeExpanded()) {
+            topBorder = BORDER_TOP_EXPANDED;
         } else {
             topBorder = BORDER_TOP;
         }
+        
         if (isExpanded()) {
             if (isSelectedContainer()) {
                 bottomBorder = BORDER_BOTTOM_EXPANDED_SELECTED;
@@ -370,6 +380,17 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     private Boolean isExpanded() {
         return model.isExpanded(this);
+    }
+    
+    /**
+     * Determine if the panel before this one is expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel before this one is expanded; false otherwise.
+     */
+    private Boolean isPanelBeforeExpanded() {
+        return model.isPanelBeforeExpanded(this);
     }
     
     /**

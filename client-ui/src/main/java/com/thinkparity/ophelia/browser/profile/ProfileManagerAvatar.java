@@ -177,56 +177,57 @@ class ProfileManagerAvatar extends Avatar {
         newJButton = ButtonFactory.create(getString("NewButton"));
         deleteJButton = ButtonFactory.create(getString("DeleteButton"));
 
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        eaJLabel.setText(bundle.getString("ProfileManagerAvatar.EmbeddedAssistance")); // NOI18N
 
         profileJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         profileJList.setCellRenderer(new ProfileListCellRenderer());
         profileJList.setModel(profileModel);
         profileJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                profileJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                profileJListMouseClicked(evt);
             }
         });
 
         profileJScrollPane.setViewportView(profileJList);
 
         startJButton.setMnemonic('S');
-        startJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.StartButton"));
+        startJButton.setText(bundle.getString("ProfileManagerAvatar.StartButton")); // NOI18N
         startJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                startJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startJButtonActionPerformed(evt);
             }
         });
 
         exitJButton.setMnemonic('x');
-        exitJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.ExitButton"));
+        exitJButton.setText(bundle.getString("ProfileManagerAvatar.ExitButton")); // NOI18N
         exitJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                exitJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitJButtonActionPerformed(evt);
             }
         });
 
         renameJButton.setMnemonic('R');
-        renameJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.RenameButton"));
+        renameJButton.setText(bundle.getString("ProfileManagerAvatar.RenameButton")); // NOI18N
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                renameJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                renameJButtonActionPerformed(evt);
             }
         });
 
         newJButton.setMnemonic('N');
-        newJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.NewButton"));
+        newJButton.setText(bundle.getString("ProfileManagerAvatar.NewButton")); // NOI18N
         newJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                newJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newJButtonActionPerformed(evt);
             }
         });
 
         deleteJButton.setMnemonic('D');
-        deleteJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("ProfileManagerAvatar.DeleteButton"));
+        deleteJButton.setText(bundle.getString("ProfileManagerAvatar.DeleteButton")); // NOI18N
         deleteJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                deleteJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteJButtonActionPerformed(evt);
             }
         });
 
@@ -244,7 +245,7 @@ class ProfileManagerAvatar extends Avatar {
                             .add(renameJButton))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 244, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(exitJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)

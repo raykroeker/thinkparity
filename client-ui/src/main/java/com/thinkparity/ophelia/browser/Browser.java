@@ -4,7 +4,13 @@
  */
 package com.thinkparity.ophelia.browser;
 
+import java.util.Properties;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PropertyConfigurator;
+
 import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.mode.ModeManager;
@@ -20,6 +26,16 @@ import com.thinkparity.ophelia.browser.util.Swing;
  * @version $Revision$
  */
 public class Browser {
+
+    static {
+        /*
+         * NOTE Temporary log4j configuration such that the managers can log to
+         * a console.
+         */
+        final Properties log4j = ConfigFactory.newInstance("log4j.properties");
+        LogManager.resetConfiguration();
+        PropertyConfigurator.configure(log4j);
+    }
 
 	/**
 	 * Run Browser

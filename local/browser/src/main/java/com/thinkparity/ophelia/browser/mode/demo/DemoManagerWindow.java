@@ -6,8 +6,6 @@
 
 package com.thinkparity.ophelia.browser.mode.demo;
 
-import java.util.List;
-
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
@@ -15,10 +13,14 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ScenarioManagerWindow extends AbstractJFrame {
+public final class DemoManagerWindow extends AbstractJFrame {
     
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.thinkparity.ophelia.browser.mode.demo.DemoManagerPanel demoManagerPanel;
+    // End of variables declaration//GEN-END:variables
+
     /** Create ScenarioManagerWindow. */
-    public ScenarioManagerWindow() {
+    public DemoManagerWindow() {
         super(null);
         initComponents();
     }
@@ -29,7 +31,7 @@ public final class ScenarioManagerWindow extends AbstractJFrame {
      * @return A <code>Scenario</code>.
      */
     Scenario getSelectedScenario() {
-        return scenarioManagerPanel.getSelectedScenario();
+        return demoManagerPanel.getSelectedScenario();
     }
 
     /**
@@ -43,13 +45,23 @@ public final class ScenarioManagerWindow extends AbstractJFrame {
     }
 
     /**
-     * Set the list of scenarios to select from.
+     * Set the scenario provider.
      * 
-     * @param scenarios
-     *            A <code>List&lt;Scenario&gt;</code>.
+     * @param scenarioProvider
+     *            A <code>ScenarioProvider</code>.
      */
-    void setScenarios(final List<Scenario> scenarios) {
-        scenarioManagerPanel.setScenarios(scenarios);
+    void setDemoManager(final DemoManager demoManager) {
+        demoManagerPanel.setDemoManager(demoManager);
+    }
+
+    /**
+     * Set the scenario provider.
+     * 
+     * @param scenarioProvider
+     *            A <code>ScenarioProvider</code>.
+     */
+    void setDemoProvider(final DemoProvider demoProvider) {
+        demoManagerPanel.setDemoProvider(demoProvider);
     }
 
     /** This method is called from within the constructor to
@@ -59,7 +71,7 @@ public final class ScenarioManagerWindow extends AbstractJFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        scenarioManagerPanel = new com.thinkparity.ophelia.browser.mode.demo.ScenarioManagerPanel();
+        demoManagerPanel = new com.thinkparity.ophelia.browser.mode.demo.DemoManagerPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -67,16 +79,12 @@ public final class ScenarioManagerWindow extends AbstractJFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(scenarioManagerPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+            .add(demoManagerPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(scenarioManagerPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(demoManagerPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.thinkparity.ophelia.browser.mode.demo.ScenarioManagerPanel scenarioManagerPanel;
-    // End of variables declaration//GEN-END:variables
 }

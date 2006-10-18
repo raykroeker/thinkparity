@@ -4,14 +4,12 @@
 package com.thinkparity.ophelia.browser.mode.demo;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
@@ -31,42 +29,57 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
  */
 public final class Scenario {
 
+    /** A list of script <code>Credential</code>s. */
     private final Map<Script, Credentials> credentials;
 
+    /** The scenario display name <code>String</code>. */
     private String displayName;
 
-    private Environment environment;
+    /** The demo <code>Environment</code>. */
+    private final Environment environment;
 
+    /** The scenario name <code>String<code>. */
     private String name;
 
-    private final Map<Credentials, File> profiles;
+    /** The profile <code>FileSystem</code>. */
+    private final FileSystem profileFileSystem;
 
-    private String resourcePath;
+    /** A list of script profile directory <code>File</code>s. */
+    private final Map<Script, File> profiles;
 
+    /** A list of <code>Script</code>s. */
     private final List<Script> scripts;
 
-    private final Map<Credentials, Workspace> workspaces;
+    /** A list of script <code>Workspace</code>s. */
+    private final Map<Script, Workspace> workspaces;
 
     /**
      * Create Scenario.
      *
      */
-    Scenario() {
+    Scenario(final Environment environment) {
         super();
         this.credentials = new HashMap<Script, Credentials>(7, 0.75F);
-        this.profiles = new HashMap<Credentials, File>();
+        this.environment = environment;
+        this.profileFileSystem = ProfileManager.initProfileFileSystem();
+        this.profiles = new HashMap<Script, File>();
         this.scripts = new ArrayList<Script>();
-        this.workspaces = new HashMap<Credentials, Workspace>();
+        this.workspaces = new HashMap<Script, Workspace>();
     }
 
+    /**
+     * Add a script to the scenario.
+     * 
+     * @param script
+     *            A demo scenario <code>Script</code>.
+     * @param credentials
+     *            The script's <code>Credentials</code>.
+     * @return Whether or not the list of scripts was modified.
+     */
     public boolean addScript(final Script script, final Credentials credentials) {
         final Boolean modified = scripts.add(script);
         this.credentials.put(script, credentials);
         return modified; 
-    }
-
-    public void clearScripts() {
-        scripts.clear();
     }
 
     /**
@@ -74,23 +87,52 @@ public final class Scenario {
      *
      */
     public void execute() {
-        // re-create the profiles
-        final FileSystem profileFileSystem = ProfileManager.initProfileFileSystem();
-        deleteProfiles(profileFileSystem);
-        initializeProfiles(profileFileSystem);
-
         // initialize the workspaces
-        for (final Entry<Credentials, File> entry : profiles.entrySet()) {
-            initializeWorkspace(entry.getKey(), entry.getValue());
-            logout(entry.getKey());
+        for (final Script script : scripts) {
+            initializeProfile(script);
+            initializeWorkspace(script);
+            logout(script);
         }
 
         // execute the scripts
         for (final Script script : scripts) {
-            login(credentials.get(script));
+            login(script);
             execute(script);
-            logout(credentials.get(script));
+            logout(script);
         }
+    }
+
+    /**
+     * Remove a script from the scenario.
+     * 
+     * @param script
+     *            A demo scenario <code>Script</code>.
+     * @return Whether or not the list of scripts was modified.
+     */
+    public boolean removeScript(final Script script) {
+        final Boolean modified = scripts.remove(script);
+        this.credentials.remove(script);
+        return modified; 
+    }
+
+    /**
+     * Set the scenario display name.
+     * 
+     * @param displayName
+     *            A display name <code>String</code>.
+     */
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * Set the scenario name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -100,66 +142,35 @@ public final class Scenario {
      *            A thinkParity <code>Script</code>.
      * @return A thinkParity <code>Credentials</code>.
      */
-    public Credentials getCredentials(final Script script) {
+    Credentials getCredentials(final Script script) {
         return credentials.get(script);
     }
 
     /**
-     * Obtian the display name.
+     * Obtian the demo scenario display name.
      * 
      * @return A display name <code>String</code>.
      */
-    public String getDisplayName() {
+    String getDisplayName() {
         return displayName;
     }
 
-    public String getName() {
+    /**
+     * Obtain the demo scenario name.
+     * 
+     * @return A name <code>String</code>.
+     */
+    String getName() {
         return name;
     }
 
-    public String getResourcePath() {
-        return resourcePath;
-    }
-
-    public List<Script> getScripts() {
-        return Collections.unmodifiableList(scripts);
-    }
-
-    public boolean removeScript(final Script script) {
-        return scripts.remove(script);
-    }
-
-    public void setDisplayName(final String displayName) {
-        this.displayName = displayName;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setResourcePath(final String resourcePath) {
-        this.resourcePath = resourcePath;
-    }
-
     /**
-     * Delete all profiles belonging to this scenario.
+     * Obtain the demo scenario scripts.
      * 
-     * @param profileFileSystem
-     *            The profile <code>FileSystem</code>.
+     * @return A <code>List&lt;Script&gt;</code>.
      */
-    private void deleteProfiles(final FileSystem profileFileSystem) {
-        final File[] profileDirectories = profileFileSystem.list("/", new FileFilter() {
-            public boolean accept(final File pathname) {
-                return pathname.getName().startsWith(displayName);
-            }
-        }, Boolean.FALSE);
-        for (final File profileDirectory : profileDirectories) {
-            FileUtil.deleteTree(profileDirectory);
-        }
+    List<Script> getScripts() {
+        return Collections.unmodifiableList(scripts);
     }
 
     /**
@@ -171,44 +182,77 @@ public final class Scenario {
     private void execute(final Script script) {
         final List<Script> scripts = new ArrayList<Script>(1);
         scripts.add(script);
-        ScriptModel.getModel(environment,
-                workspaces.get(credentials.get(script))).execute(scripts);
+        ScriptModel.getModel(environment, workspaces.get(script)).execute(scripts);
     }
 
-    private String getProfilePath(final Credentials credentials) {
+    /**
+     * Obtain the profile path for the script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     * @return A profile path <code>String</code>.
+     */
+    private String getProfilePath(final Script script) {
         return MessageFormat.format("/{0}_{1}",
-                displayName, credentials.getUsername());
+                displayName, credentials.get(script).getUsername());
     }
 
-    private void initializeProfile(final FileSystem profileFileSystem,
-            final Credentials credentials) {
+    /**
+     * Initialize the profile for a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    private void initializeProfile(final Script script) {
         final File profileDirectory =
-            profileFileSystem.findDirectory(getProfilePath(credentials));
-        // the profile can already exist
+            profileFileSystem.findDirectory(getProfilePath(script));
         if (null == profileDirectory) {
-            profiles.put(credentials,
-                    profileFileSystem.createDirectory(getProfilePath(credentials)));
+            profiles.put(script,
+                    profileFileSystem.createDirectory(getProfilePath(script)));
+        } else {
+            if (profileDirectory.exists()) {
+                FileUtil.deleteTree(profileDirectory);
+            }
+            profiles.put(script,
+                    profileFileSystem.createDirectory(getProfilePath(script))); 
         }
     }
 
-    private void initializeProfiles(final FileSystem profileFileSystem) {
-        for (final Entry<Script, Credentials> entry : credentials.entrySet()) {
-            initializeProfile(profileFileSystem, entry.getValue());
-        }
-    }
-
-    private void initializeWorkspace(final Credentials credentials, final File profileDirectory) {
+    /**
+     * Initialize a script's workspace.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    private void initializeWorkspace(final Script script) {
         final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
-        final Workspace workspace = workspaceModel.getWorkspace(profileDirectory);
-        workspaceModel.initialize(workspace, new DefaultLoginMonitor(), credentials);
-        workspaces.put(credentials, workspace);
+        final Workspace workspace = workspaceModel.getWorkspace(profiles.get(script));
+        workspaceModel.initialize(workspace, new DefaultLoginMonitor() {
+            @Override
+            public Boolean confirmSynchronize() {
+                return Boolean.TRUE;
+            }
+        }, credentials.get(script));
+        workspaces.put(script, workspace);
     }
 
-    private void login(final Credentials credentials) {
-        SessionModel.getModel(environment, workspaces.get(credentials)).login(new DefaultLoginMonitor());
+    /**
+     * Login a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    private void login(final Script script) {
+        SessionModel.getModel(environment, workspaces.get(script)).login(new DefaultLoginMonitor());
     }
 
-    private void logout(final Credentials credentials) {
-        SessionModel.getModel(environment, workspaces.get(credentials)).logout();
+    /**
+     * Logout a script.
+     * 
+     * @param script
+     *            A <code>Script</code>.
+     */
+    private void logout(final Script script) {
+        SessionModel.getModel(environment, workspaces.get(script)).logout();
     }
 }

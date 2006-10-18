@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.browser.mode;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.mode.demo.Scenario;
-import com.thinkparity.ophelia.browser.mode.demo.ScenarioManager;
+import com.thinkparity.ophelia.browser.mode.demo.DemoManager;
 
 /**
  * @author raymond@thinkparity.com
@@ -32,7 +32,7 @@ public final class ModeManager {
         final Mode mode = Mode.valueOf(modeProperty);
         switch (mode) {
         case DEMO:
-            final Scenario scenario = new ScenarioManager().select();
+            final Scenario scenario = new DemoManager().select();
             if (null != scenario) {
                 scenario.execute();
             }

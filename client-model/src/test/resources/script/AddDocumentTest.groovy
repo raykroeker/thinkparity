@@ -5,4 +5,4 @@
 def builder = binding.getVariable("builder")
 
 builder.create("Package")
-builder.addDocument("JUnitTestFramework.doc", "junitx-files/JUnitTestFramework.doc")
+builder.addDocument("JUnitTestFramework.doc")

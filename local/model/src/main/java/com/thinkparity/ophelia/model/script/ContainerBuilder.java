@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * Created On:  Tue Oct 17, 2006 16:17 
  */
 package com.thinkparity.ophelia.model.script;
 
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
@@ -17,6 +16,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -32,9 +32,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public class ContainerBuilder {
 
-    /** A list of document ids. */
-    private final List<Long> documentIds;
-
     /** A thinkParity <code>Environment</code>. */
     private final Environment environment;
 
@@ -47,6 +44,9 @@ public class ContainerBuilder {
     /** A container name. */
     private String name;
 
+    /** A thinkParity <code>ScriptUtil</code>. */
+    private final ScriptUtil scriptUtil;
+
     /** A thinkparity <code>Workspace</code>. */
     private final Workspace workspace;
 
@@ -57,26 +57,29 @@ public class ContainerBuilder {
      *            A thinkParity <code>Environment</code>.
      * @param workspace
      *            A thinkParity <code>Workspace</code>
+     * @param scenario
+     *            A thinkParity <code>Scenario</code>.
      */
-    ContainerBuilder(final Environment environment, final Workspace workspace) {
+    ContainerBuilder(final Environment environment, final Workspace workspace,
+            final ScriptUtil scriptUtil) {
         super();
-        this.documentIds = new ArrayList<Long>();
         this.environment = environment;
         this.logger = new Log4JWrapper();
+        this.scriptUtil = scriptUtil;
         this.workspace = workspace;
     }
 
     /**
      * Add a document to a container.
      * 
-     * @param names
-     *            A document resource name <code>String</code>.
+     * @param name
+     *            A document name <code>String</code>.
      * @return A reference to the <code>ContainerBuilder</code>.
      */
-    public ContainerBuilder addDocument(final String name, final String resource) {
+    public ContainerBuilder addDocument(final String name) {
         logger.logApiId();
         logger.logVariable("name", name);
-        final InputStream stream = openStream(resource);
+        final InputStream stream = scriptUtil.openResource(name);
         final Document document;
         try {
             document = getDocumentModel().create(name, stream);
@@ -85,12 +88,10 @@ public class ContainerBuilder {
                 stream.close();
             } catch (final Throwable t) {
                 throw translateError(t,
-                        "Cannot add document {0} located at {1}.",
-                        name, resource);
+                        "Cannot add document {0}.", name);
             }
         }
         getContainerModel().addDocument(id, document.getId());
-        documentIds.add(document.getId());
         return this;
     }
 
@@ -131,8 +132,36 @@ public class ContainerBuilder {
         logger.logVariable("name", name);
         final List<Long> containers = getContainerModel().search(name);
         this.id = 0 == containers.size() ? null : containers.get(0);
-        this.documentIds.clear();
         this.name = name;
+        return this;
+    }
+
+    /**
+     * Add a document to a container.
+     * 
+     * @param name
+     *            A document name <code>String</code>.
+     * @param modifiedName
+     *            A document modified name <code>String</code>.
+     * @return A reference to the <code>ContainerBuilder</code>.
+     */
+    public ContainerBuilder modifyDocument(final String name,
+            final String modifiedName) {
+        logger.logApiId();
+        logger.logVariable("name", name);
+        logger.logVariable("modifiedName", modifiedName);
+        final Document document = findDocument(name);
+        final InputStream stream = scriptUtil.openResource(modifiedName);
+        try {
+            getDocumentModel().updateDraft(document.getId(), stream);
+        } finally {
+            try {
+                stream.close();
+            } catch (final Throwable t) {
+                throw translateError(t,
+                        "Cannot modify document {0}.", name);
+            }
+        }
         return this;
     }
 
@@ -171,6 +200,21 @@ public class ContainerBuilder {
         final List<TeamMember> filteredTeamMembers = filter(teamMembers, names);
         final List<Contact> filteredContacts = filter(contacts, names);
         containerModel.publish(id, comment, filteredContacts, filteredTeamMembers);
+        return this;
+    }
+
+    /**
+     * Remove a document from a container.
+     * 
+     * @param names
+     *            A document resource name <code>String</code>.
+     * @return A reference to the <code>ContainerBuilder</code>.
+     */
+    public ContainerBuilder removeDocument(final String name) {
+        logger.logApiId();
+        logger.logVariable("name", name);
+        final Document document = findDocument(name);
+        getContainerModel().removeDocument(id, document.getId());
         return this;
     }
 
@@ -214,6 +258,23 @@ public class ContainerBuilder {
     }
 
     /**
+     * Find a document.
+     * 
+     * @param name
+     *            A document name.
+     * @return A document.
+     */
+    private Document findDocument(final String name) {
+        final ContainerDraft draft = getContainerModel().readDraft(id);
+        for (final Document document : draft.getDocuments()) {
+            if (document.getName().equals(name)) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Obtain the contact model interface.
      * 
      * @return A <code>ContactModel</code>.
@@ -238,17 +299,6 @@ public class ContainerBuilder {
      */
     private final DocumentModel getDocumentModel() {
         return DocumentModel.getModel(environment, workspace);
-    }
-
-    /**
-     * Open an input stream for the resource.
-     * 
-     * @param name
-     *            A resource name <code>String</code>.
-     * @return An <code>InputStream</code>.
-     */
-    private InputStream openStream(final String name) {
-        return ResourceUtil.getInputStream(name);
     }
 
     /**

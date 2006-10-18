@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.model.script;
 
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.List;
 
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.script.engine.Engine;
 import com.thinkparity.ophelia.model.script.engine.EngineFactory;
 import com.thinkparity.ophelia.model.script.engine.EngineFactory.Framework;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -44,37 +43,33 @@ final class ScriptModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("scripts", scripts);
         try {
-            final EngineFactory factory =
-                EngineFactory.newInstance(Framework.GROOVY, createEnvironment());
-            final Engine engine = factory.newEngine();
-            engine.execute(scripts);
+            EngineFactory factory;
+            for (final Script script : scripts) {
+                factory = EngineFactory.newInstance(
+                        Framework.GROOVY, createEnvironment(script));
+                factory.newEngine().execute(script);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Execute a script.
-     * 
-     * @param script
-     *            A <code>Script</code>.
-     */
-    void execute(final Script script) {
-        logger.logApiId();
-        logger.logVariable("script", script);
-        final List<Script> scripts = new ArrayList<Script>(1);
-        scripts.add(script);
-        execute(scripts);
-    }
-
-    /**
      * Create the script engine <code>Environment</code>.
      * 
+     * @param resourceLoader
+     *            A resource loader <code>ClassLoader</code>.
      * @return A script engine <code>Environment</code>.
      */
-    private com.thinkparity.ophelia.model.script.engine.Environment createEnvironment() {
+    private com.thinkparity.ophelia.model.script.engine.Environment createEnvironment(
+            final Script script) {
         final com.thinkparity.ophelia.model.script.engine.Environment environment = new com.thinkparity.ophelia.model.script.engine.Environment();
-        environment.setVariable("builder", new ContainerBuilder(this.environment, workspace));
+        environment.setVariable("builder",
+                new ContainerBuilder(this.environment, workspace, new ScriptUtil() {
+                    public InputStream openResource(final String name) {
+                        return script.openResource(name);
+                    }
+                }));
         return environment;
     }
 }

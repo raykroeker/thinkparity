@@ -7,6 +7,6 @@ def builder = binding.getVariable("builder")
 builder.create("Package 1")
 	.create("Package 2")
 	.find("Package 1")
-	.addDocument("JUnitTestFramework.doc", "junitx-files/JUnitTestFramework.doc")
+	.addDocument("JUnitTestFramework.doc")
 
 print builder

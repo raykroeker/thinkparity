@@ -25,23 +25,23 @@ public class ExecuteTest extends ScriptTestCase {
     }
 
     public void testAddDocument() {
-        datum.scriptModel.execute(new GroovyScriptList("AddDocumentTest.groovy"));
+        datum.scriptModel.execute(new GroovyScripts("AddDocumentTest.groovy"));
     }
 
     public void testCreate() {
-        datum.scriptModel.execute(new GroovyScriptList("CreateTest.groovy"));
+        datum.scriptModel.execute(new GroovyScripts("CreateTest.groovy"));
     }
 
-    public void testFindAddDocument() {
-        datum.scriptModel.execute(new GroovyScriptList("FindAddDocumentTest.groovy"));
+    public void testFind() {
+        datum.scriptModel.execute(new GroovyScripts("FindTest.groovy"));
     }
     
-    public void testFind() {
-        datum.scriptModel.execute(new GroovyScriptList("FindTest.groovy"));
+    public void testFindAddDocument() {
+        datum.scriptModel.execute(new GroovyScripts("FindAddDocumentTest.groovy"));
     }
 
     public void testHelloWorld() {
-        datum.scriptModel.execute(new GroovyScriptList("HelloWorld.groovy"));
+        datum.scriptModel.execute(new GroovyScripts("HelloWorld.groovy"));
     }
 
     /**
@@ -70,27 +70,20 @@ public class ExecuteTest extends ScriptTestCase {
         }
     }
 
-    private class GroovyScriptList extends ArrayList<Script> {
-        private GroovyScriptList(final String name) {
+    private class GroovyScripts extends ArrayList<Script> {
+        private GroovyScripts(final String scriptName) {
             super();
-            add(new GroovyScriptWrapper(name));
-        }
-    }
-    /**
-     * A groovy script wrapper.
-     * 
-     */
-    private class GroovyScriptWrapper implements Script {
-        private final String name;
-        private GroovyScriptWrapper(final String name) {
-            this.name = name;
-        }
-        public String getName() {
-            return name;
-        }
-        public InputStream openStream() {
-            return ResourceUtil.getInputStream(
-                    new StringBuffer("script/").append(name).toString());
+            add(new Script() {
+                public String getName() {
+                    return scriptName;
+                }
+                public InputStream open() {
+                    return ResourceUtil.getInputStream("script/" + scriptName);
+                }
+                public InputStream openResource(String name) {
+                    return ResourceUtil.getInputStream("junitx-files/" + name);
+                }
+            });
         }
     }
 }

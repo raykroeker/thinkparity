@@ -1260,9 +1260,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                             createToken(remoteToken);
                         } else {
                             xmppSession.logout();
-                            return; // HACK shouldn't really have more than one
-                                    // return path; but i don't want to process
-                                    // the offline event queue for this case
+                            return; /*
+                                     * HACK shouldn't really have more than one
+                                     * return path; but i don't want to process
+                                     * the offline event queue for this case
+                                     */
                         }
                     }
                 } else {
@@ -1277,9 +1279,11 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                             getContainerModel().restoreBackup();      
                         } else {
                             xmppSession.logout();
-                            return; // HACK shouldn't really have more than one
-                                    // return path; but i don't want to process
-                                    // the offline event queue for this case
+                            return; /*
+                                     * HACK shouldn't really have more than one
+                                     * return path; but i don't want to process
+                                     * the offline event queue for this case
+                                     */
                         }
                     }
                 }

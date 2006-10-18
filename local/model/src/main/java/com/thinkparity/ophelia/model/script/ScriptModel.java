@@ -62,26 +62,14 @@ public class ScriptModel extends AbstractModel<ScriptModelImpl> {
 	}
 
     /**
-     * Execute some scripts.
+     * Execute a scripting scenario.
      * 
      * @param scripts
-     *            A <code>List&lt;Script&gt;</code>.
+     *            A list of thinkParity <code>Script</code>s.
      */
     public void execute(final List<Script> scripts) {
         synchronized (getImplLock()) {
             getImpl().execute(scripts);
-        }
-    }
-
-    /**
-     * Execute a script.
-     * 
-     * @param script
-     *            A <code>Script</code>.
-     */
-    public void execute(final Script script) {
-        synchronized (getImplLock()) {
-            getImpl().execute(script);
         }
     }
 }

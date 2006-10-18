@@ -8,7 +8,6 @@ import groovy.lang.GroovyShell;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map.Entry;
 
 import com.thinkparity.ophelia.model.script.Script;
@@ -30,17 +29,14 @@ public class GroovyEngine implements Engine {
     /**
      * @see com.thinkparity.ophelia.model.script.engine.Engine#execute(java.util.List)
      */
-    public void execute(final List<Script> scripts) throws IOException {
+    public void execute(final Script script) throws IOException {
         final GroovyShell shell = newGroovyShell(environment);
 
-        InputStream stream;
-        for (final Script script : scripts) {
-            stream = script.openStream();
-            try {
-                shell.evaluate(script.openStream(), script.getName());
-            } finally {
-                stream.close();
-            }
+        final InputStream stream = script.open();
+        try {
+            shell.evaluate(stream, script.getName());
+        } finally {
+            stream.close();
         }
     }
 

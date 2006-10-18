@@ -19,9 +19,18 @@ public interface Script {
     public String getName();
 
     /**
-     * Open the script input stream.
+     * Open the script.
      * 
-     * @return A script intput stream.
+     * @return An <code>InputStream</code>.
      */
-    public InputStream openStream();
+    public InputStream open();
+
+    /**
+     * Open a resource.
+     * 
+     * @param name
+     *            The resource name.
+     * @return An <code>InputStream</code>.
+     */
+    public InputStream openResource(final String name);
 }

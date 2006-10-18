@@ -130,9 +130,9 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
     
     /**
-     * Method that is called after repaint.
+     * Prepare for repaint, after validate().
      */
-    public void afterRepaint() {
+    public void prepareForRepaintAfterValidate() {
     }
     
     /**

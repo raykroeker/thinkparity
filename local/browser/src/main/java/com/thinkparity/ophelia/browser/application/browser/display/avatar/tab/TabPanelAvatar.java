@@ -157,21 +157,20 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
-                    panel.afterRepaint();
                 }
                 
                 tabJPanel.revalidate();
                 tabJPanel.repaint();
                 tabJScrollPane.revalidate();
                 tabJScrollPane.repaint();
-                revalidate();
-                repaint();
+                validate();
                 
-/*                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.afterRepaint();
-                }*/
-
+                    panel.prepareForRepaintAfterValidate();
+                }
+                
+                repaint();
                 debug();
             }
             
@@ -196,7 +195,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
-                    panel.afterRepaint();
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
@@ -205,14 +203,19 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 tabJPanel.repaint();
                 tabJScrollPane.revalidate();
                 tabJScrollPane.repaint();
-                revalidate();
-                repaint();
                 
-/*                for (int i = startIndex; i < listModel.size(); i++) {
+                // Use validate() so everything is laid out immediately.
+                validate();
+                
+                // Loop over elements one more time. Some things can only be done
+                // after everything is laid out, for example, set the split pane
+                // divider location.
+                for (int i = startIndex; i < listModel.size(); i++) {
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.afterRepaint();
-                }*/
-
+                    panel.prepareForRepaintAfterValidate();
+                }
+                
+                repaint();
                 debug();
             }
             
@@ -240,7 +243,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panel.setBackground(panel.getBackgroundColor());
                     panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
-                    panel.afterRepaint();
                 }
 
                 tabJPanel.add(fillJLabel, fillConstraints, listModel.size());
@@ -249,14 +251,14 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 tabJPanel.repaint();
                 tabJScrollPane.revalidate();
                 tabJScrollPane.repaint();
-                revalidate();
-                repaint();
+                validate();
                 
-/*                for (int i = startIndex; i < listModel.size(); i++) {
+                for (int i = startIndex; i < listModel.size(); i++) {
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.afterRepaint();
-                }*/
-
+                    panel.prepareForRepaintAfterValidate();
+                }
+                
+                repaint();
                 debug();
             } 
         });

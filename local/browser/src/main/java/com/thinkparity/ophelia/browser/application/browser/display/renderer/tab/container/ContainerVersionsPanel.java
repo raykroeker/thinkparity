@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FileUtil;
@@ -31,6 +34,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.swing.border.BottomBorder;
+
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
@@ -80,16 +84,18 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The version's list model. */
     private final DefaultListModel versionsModel;
     
+    /** Flag indicating whether the left side or the right side has focus. */
+    private Boolean focusOnRight = Boolean.FALSE;
+    
     /** An image cache. */
     protected final MainCellImageCacheTest imageCacheTest;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    javax.swing.JPanel leftJPanel;
-    javax.swing.JPanel rightJPanel;
+    private javax.swing.JPanel leftJPanel;
+    private javax.swing.JPanel rightJPanel;
     private javax.swing.JList versionsContentJList;
     private javax.swing.JList versionsJList;
-    javax.swing.JScrollPane versionsJScrollPane;
-    javax.swing.JSplitPane versionsJSplitPane;
+    private javax.swing.JSplitPane versionsJSplitPane;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -109,6 +115,30 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versionsContentModel = new DefaultListModel();
         this.imageCacheTest = new MainCellImageCacheTest();
         initComponents();
+        initFocusListeners();
+    }
+    
+    /**
+     * Initialize focus listeners, so we always know if focus is on left or right.
+     */
+    private void initFocusListeners() {
+        versionsJList.addFocusListener(new FocusAdapter() {
+            public void focusGained(final FocusEvent e) {
+                focusOnRight = Boolean.FALSE;
+            }            
+        });
+        versionsContentJList.addFocusListener(new FocusAdapter() {
+            public void focusGained(final FocusEvent e) {
+                focusOnRight = Boolean.TRUE;
+            }
+            public void focusLost(final FocusEvent e) {
+                // We don't want to reset this flag when there
+                // is a popup in the versionsContentJList.
+                if (!isSelectedContainer()) {
+                    focusOnRight = Boolean.FALSE;
+                }
+            }
+        });
     }
 
     /**
@@ -179,30 +209,31 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         // Set background colour
         final Color color = getBackgroundColor();
         leftJPanel.setBackground(color);
-        rightJPanel.setBackground(color);
-        
-        // Make sure the split pane remains in a 50/50 split
-        if (versionsJSplitPane.getSize().getWidth() > 0 ){
-            versionsJSplitPane.setDividerLocation(0.5);
-        }
+        rightJPanel.setBackground(color);        
     }
     
     /**
-     * Method that is called after repaint.
+     * Prepare for repaint, after validate().
      */
-    public void afterRepaint() {
+    public void prepareForRepaintAfterValidate() {
+        // Make sure the split pane is in a 50/50 split.
+        // This can only be done after the first validation() completes.
+        versionsJSplitPane.setDividerLocation(0.5);
+        
         // If the container is selected then make sure one
-        // of the lists has focus
+        // of the lists has focus.
+        // TODO This should not have to rely on SwingUtilities.invokeLater to work.
         if (isSelectedContainer()) {
-            if (!versionsJList.hasFocus() && !versionsContentJList.hasFocus()) {
-                final Boolean value = versionsJList.requestFocusInWindow();
-                if (value==Boolean.TRUE) {
-                    int x = 3;
-                    x++;
-                } else {
-                    int y = 3;
-                    y++;
-                }
+            if (!versionsJList.isFocusOwner() && !versionsContentJList.isFocusOwner()) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        if (focusOnRight) {
+                            versionsContentJList.requestFocusInWindow();
+                        } else {
+                            versionsJList.requestFocusInWindow();
+                        }
+                    }
+                });
             }
         }
     }
@@ -279,6 +310,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane versionsContentJScrollPane;
+        javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
         leftJPanel = new javax.swing.JPanel();
@@ -495,6 +527,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected Boolean isSelectedContainer() {
             return ContainerVersionsPanel.this.isSelectedContainer();
         }
+        protected Boolean isFocusOnRight() {
+            return ContainerVersionsPanel.this.focusOnRight;
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
     }
@@ -528,6 +563,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         protected Boolean isSelectedContainer() {
             return ContainerVersionsPanel.this.isSelectedContainer();
+        }
+        protected Boolean isFocusOnRight() {
+            return ContainerVersionsPanel.this.focusOnRight;
         }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);

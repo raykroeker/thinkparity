@@ -109,7 +109,25 @@ public abstract class ArtifactVersion {
 	 * @return The artifact version meta data.
 	 */
 	public Properties getMetaData() { return metaData; }
-	
+
+    /**
+     * Obtain the comment applient to the version.
+     * @return A version comment.
+     */
+    public String getComment() {
+        return comment;
+    }
+
+    private String comment;
+
+    public Boolean isSetComment() {
+        return null != comment;
+    }
+
+    public void setComment(final String comment) {
+        this.comment = comment;
+    }
+
 	/**
 	 * Obtain a meta data item.
 	 * 

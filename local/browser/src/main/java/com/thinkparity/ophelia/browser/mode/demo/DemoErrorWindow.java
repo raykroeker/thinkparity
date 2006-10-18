@@ -8,6 +8,7 @@ package com.thinkparity.ophelia.browser.mode.demo;
 
 import java.io.IOException;
 
+import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.model.script.Script;
@@ -16,11 +17,11 @@ import com.thinkparity.ophelia.model.script.Script;
  *
  * @author  raymond
  */
-public class DemoErrorWindow extends AbstractJFrame {
+public class DemoErrorWindow extends AbstractJDialog {
     
     /** Creates new form DemoErrorWindow */
-    public DemoErrorWindow() {
-        super(null);
+    public DemoErrorWindow(final AbstractJFrame owner) {
+        super(owner, Boolean.TRUE, null);
         initComponents();
         new NativeSkin().roundCorners(this);
         setLocation(calculateLocation());
@@ -62,19 +63,7 @@ public class DemoErrorWindow extends AbstractJFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new DemoErrorWindow().setVisible(true);
-            }
-        });
-    }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.thinkparity.ophelia.browser.mode.demo.DemoErrorPanel demoErrorPanel;
     // End of variables declaration//GEN-END:variables
-    
 }

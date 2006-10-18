@@ -14,19 +14,23 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.JOptionPaneUtil;
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.model.script.Script;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DemoManagerPanel extends AbstractJPanel {
+public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor {
 
     /** A <code>DemoManager</code>. */
     private DemoManager demoManager;
@@ -40,16 +44,16 @@ public class DemoManagerPanel extends AbstractJPanel {
     /** The demo root <code>JFileChooser</code>. */
     private JFileChooser jFileChooser;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel demoRootJLabel;
+    private javax.swing.JList scenarioJList;
+    // End of variables declaration//GEN-END:variables
+
     /** The scenario <code>DefaultListModel</code>. */
     private final DefaultListModel scenarioModel;
 
     /** The <code>Scenario</code> selected by the user. */
     private Scenario selectedScenario;
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel demoRootJLabel;
-    private javax.swing.JList scenarioJList;
-    // End of variables declaration//GEN-END:variables
 
     /** Create DemoManagerPanel. */
     public DemoManagerPanel() {
@@ -71,6 +75,26 @@ public class DemoManagerPanel extends AbstractJPanel {
     @Override
     public Boolean isInputValid() {
         return !scenarioJList.isSelectionEmpty();
+    }
+
+    /**
+     * An error has occured whilst running a script. Display an error dialog.
+     * 
+     * @param script
+     *            The script that failed.
+     * @param error
+     *            The error.
+     */
+    public void notifyScriptError(final Script script, final Throwable error) {
+        try {
+            final DemoErrorWindow window = new DemoErrorWindow((AbstractJFrame) SwingUtilities.getWindowAncestor(this));
+            window.setError(error);
+            window.setScript(script);
+            window.reload();
+            window.setVisible(true);
+        } catch (final Throwable t) {
+            throw new BrowserException("", t);
+        }
     }
 
     /**
@@ -285,7 +309,7 @@ public class DemoManagerPanel extends AbstractJPanel {
     private void initializeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_initializeJButtonActionPerformed
         if(isInputValid()) {
             selectedScenario = extractSelectedScenario();
-            disposeWindow();
+            demoManager.execute(this, selectedScenario);
         }
     }//GEN-LAST:event_initializeJButtonActionPerformed
 

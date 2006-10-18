@@ -9,7 +9,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.mode.ModeManager;
 import com.thinkparity.ophelia.browser.mode.demo.DemoManager;
-import com.thinkparity.ophelia.browser.mode.demo.Scenario;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.profile.ProfileManager;
@@ -33,11 +32,7 @@ public class Browser {
         Swing.init();
         final Mode mode = new ModeManager().select();
         if (Mode.DEMO == mode) {
-            final DemoManager demoManager = new DemoManager();
-            final Scenario scenario = demoManager.select();
-            if (null != scenario) {
-                demoManager.execute(scenario);
-            }
+            new DemoManager().execute();
         } else {
             final Environment environment = new EnvironmentManager().select();
             final Profile profile = new ProfileManager(mode).select();

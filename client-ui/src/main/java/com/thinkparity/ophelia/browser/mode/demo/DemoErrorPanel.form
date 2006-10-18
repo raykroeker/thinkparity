@@ -13,11 +13,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="errorJTabbedPane" alignment="0" pref="432" max="32767" attributes="0"/>
-                  <Component id="scriptNameJLabel" alignment="0" pref="432" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="errorJTabbedPane" alignment="0" pref="658" max="32767" attributes="0"/>
+                  <Component id="scriptNameJLabel" alignment="0" pref="658" max="32767" attributes="0"/>
+                  <Component id="closeJButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -29,8 +30,10 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="scriptNameJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="errorJTabbedPane" pref="395" max="32767" attributes="0"/>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Component id="errorJTabbedPane" pref="485" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -64,12 +67,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="errorJScrollPane" alignment="0" pref="427" max="32767" attributes="0"/>
+                  <Component id="errorJScrollPane" alignment="0" pref="653" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="errorJScrollPane" alignment="0" pref="368" max="32767" attributes="0"/>
+                  <Component id="errorJScrollPane" alignment="0" pref="458" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -109,12 +112,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="scriptJScrollPane" alignment="0" pref="427" max="32767" attributes="0"/>
+                  <Component id="scriptJScrollPane" alignment="0" pref="653" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="scriptJScrollPane" alignment="0" pref="368" max="32767" attributes="0"/>
+                  <Component id="scriptJScrollPane" alignment="0" pref="458" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -140,5 +143,15 @@
         </Container>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="closeJButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/JPanel_Messages.properties" key="DemoErrorPanel.closeButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeJButtonActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

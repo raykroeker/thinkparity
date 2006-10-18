@@ -6,11 +6,14 @@
 
 package com.thinkparity.ophelia.browser.mode.demo;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.ophelia.model.script.Script;
@@ -29,6 +32,7 @@ public class DemoErrorPanel extends AbstractJPanel {
     private Script script;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton closeJButton;
     private javax.swing.JTabbedPane errorJTabbedPane;
     private javax.swing.JTextArea errorJTextArea;
     private javax.swing.JTextArea scriptJTextArea;
@@ -37,6 +41,11 @@ public class DemoErrorPanel extends AbstractJPanel {
 
     /** Creates new form DemoErrorPanel */
     public DemoErrorPanel() {
+        bindEscapeKey("Close", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                closeJButtonActionPerformed(e);
+            }
+        });
         initComponents();
     }
 
@@ -76,6 +85,7 @@ public class DemoErrorPanel extends AbstractJPanel {
         scriptJPanel = new javax.swing.JPanel();
         scriptJScrollPane = new javax.swing.JScrollPane();
         scriptJTextArea = new javax.swing.JTextArea();
+        closeJButton = new javax.swing.JButton();
 
         scriptNameJLabel.setText("!Script Name:!");
 
@@ -88,11 +98,11 @@ public class DemoErrorPanel extends AbstractJPanel {
         errorJPanel.setLayout(errorJPanelLayout);
         errorJPanelLayout.setHorizontalGroup(
             errorJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 653, Short.MAX_VALUE)
         );
         errorJPanelLayout.setVerticalGroup(
             errorJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+            .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
         );
         errorJTabbedPane.addTab("tab2", errorJPanel);
 
@@ -104,23 +114,32 @@ public class DemoErrorPanel extends AbstractJPanel {
         scriptJPanel.setLayout(scriptJPanelLayout);
         scriptJPanelLayout.setHorizontalGroup(
             scriptJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 653, Short.MAX_VALUE)
         );
         scriptJPanelLayout.setVerticalGroup(
             scriptJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+            .add(scriptJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
         );
         errorJTabbedPane.addTab("tab1", scriptJPanel);
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        closeJButton.setText(bundle.getString("DemoErrorPanel.closeButton")); // NOI18N
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorJTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                    .add(scriptNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorJTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, scriptNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
+                    .add(closeJButton))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -129,10 +148,17 @@ public class DemoErrorPanel extends AbstractJPanel {
                 .addContainerGap()
                 .add(scriptNameJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(errorJTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .add(errorJTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(closeJButton)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_closeJButtonActionPerformed
+
     private void reloadError() {
         errorJTextArea.setText("");
         if (null != error) {

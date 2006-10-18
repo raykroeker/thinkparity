@@ -1,7 +1,6 @@
 /*
  * Created On: Oct 16, 2006 14:36 PM
  */
-
 binding.getVariable("builder")
 	.create("Andrews Developments Inc - Revenue Canada Audit")
 	.addDocument("1995 Balance Sheet.txt")

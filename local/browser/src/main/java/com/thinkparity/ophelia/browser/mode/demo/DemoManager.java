@@ -38,7 +38,7 @@ import com.thinkparity.ophelia.model.script.Script;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DemoManager implements DemoProvider, ExecutionMonitor {
+public final class DemoManager implements DemoProvider {
 
     /** The demo configuration resource name. */
     private static final String CONFIGURATION_NAME;
@@ -60,33 +60,31 @@ public final class DemoManager implements DemoProvider, ExecutionMonitor {
     }
 
     /**
-     * Execute a scenario.
+     * Open the demo manager window.
      * 
-     * @param scenario
-     *            A <code>Scenario</code>.
      */
-    public void execute(final Scenario scenario) {
-        scenario.execute(this);
-    }
-
-    /**
-     * An error has occured whilst running a script. Display an error dialog.
-     * 
-     * @param script
-     *            The script that failed.
-     * @param error
-     *            The error.
-     */
-    public void notifyScriptError(final Script script, final Throwable error) {
+    public void execute() {
         try {
-            final DemoErrorWindow window = new DemoErrorWindow();
-            window.setError(error);
-            window.setScript(script);
-            window.reload();
+            final DemoManagerWindow window = new DemoManagerWindow();
+            window.setResizable(false);
+            window.setDemoManager(this);
+            window.setDemoProvider(this);
             openWindow(window);
         } catch (final Throwable t) {
             throw new BrowserException("", t);
         }
+    }
+
+    /**
+     * Execute a scenario.
+     * 
+     * @param monitor
+     *            An execution monitor.
+     * @param scenario
+     *            A demo script <code>Scenario</code>.
+     */
+    void execute(final ExecutionMonitor monitor, final Scenario scenario) {
+        scenario.execute(monitor);
     }
 
     /**
@@ -112,24 +110,6 @@ public final class DemoManager implements DemoProvider, ExecutionMonitor {
     public Demo readDemo(final FileSystem fileSystem) {
         try {
             return doReadDemo(fileSystem);
-        } catch (final Throwable t) {
-            throw new BrowserException("", t);
-        }
-    }
-
-    /**
-     * Display the secenarios from when the user can select.
-     * 
-     * @return A <code>Scenario</code>.
-     */
-    public Scenario select() {
-        try {
-            final DemoManagerWindow window = new DemoManagerWindow();
-            window.setResizable(false);
-            window.setDemoManager(this);
-            window.setDemoProvider(this);
-            openWindow(window);
-            return window.getSelectedScenario();
         } catch (final Throwable t) {
             throw new BrowserException("", t);
         }

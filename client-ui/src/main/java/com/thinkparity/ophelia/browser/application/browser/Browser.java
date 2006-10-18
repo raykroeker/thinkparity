@@ -821,11 +821,23 @@ public class Browser extends AbstractApplication {
 
     /**
 	 * Minimize the browser application.
-	 *
 	 */
 	public void minimize() {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
+    
+    /**
+     * Maximize (or un-maximize) the browser application.
+     */
+    public void maximize() {
+        if (isBrowserWindowMaximized()) {
+            mainWindow.setExtendedState(JFrame.NORMAL);
+            mainWindow.maximizeMainWindow(Boolean.FALSE);
+        } else {
+            mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            mainWindow.maximizeMainWindow(Boolean.TRUE);
+        }
+    }
 
 	/**
      * Move and resize the browser window.
@@ -1683,6 +1695,10 @@ public class Browser extends AbstractApplication {
     private Boolean isBrowserWindowMinimized() {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
+    
+    private Boolean isBrowserWindowMaximized() {
+        return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
+    }
 
 	private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();

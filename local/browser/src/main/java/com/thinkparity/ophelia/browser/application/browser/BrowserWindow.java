@@ -270,6 +270,22 @@ public class BrowserWindow extends AbstractJFrame {
     }
     
     /**
+     * Maximize (or un-maximize) the browser application.
+     */
+    public void maximizeMainWindow(final Boolean maximize) {
+        final Dimension size = getSize();
+        final Point location = getLocation();
+        setBounds(location.x, location.y, (int)size.getWidth(), (int)size.getHeight());
+        setMinimumSize(size);
+        mainWindowSize.setSize(size);
+        if (!maximize) {
+            roundCorners();
+        }
+        validate();
+        repaint();
+    }
+   
+    /**
      * Enable or disable the semi-transparent layer.
      * 
      * @param enable

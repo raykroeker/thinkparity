@@ -60,12 +60,22 @@ public class BrowserMenuBar extends JMenuBar {
     /** Min label rollover icon. */
     private static final Icon MIN_ROLLOVER_ICON;
     
+    /** Max label icon. */
+    private static final Icon MAX_ICON;
+    
+    /** Max label rollover icon. */
+    private static final Icon MAX_ROLLOVER_ICON;
+    
+    
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
         CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
 
         MIN_ICON = ImageIOUtil.readIcon("BrowserTitle_Minimize.png");
         MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MinimizeRollover.png");
+        
+        MAX_ICON = ImageIOUtil.readIcon("BrowserTitle_Maximize.png");
+        MAX_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MaximizeRollover.png");
     }
 
     /**
@@ -147,12 +157,13 @@ public class BrowserMenuBar extends JMenuBar {
         this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, Data.emptyData()));
         this.add(Box.createRigidArea(new Dimension(5,0)));
 
-        // Add minimize and close buttons
-
+        // Add minimize, maximize and close buttons
         this.add(getMinimizeButton());
-        this.add(Box.createRigidArea(new Dimension(3,0)));
+        this.add(Box.createRigidArea(new Dimension(2,0)));
+        this.add(getMaximizeButton());
+        this.add(Box.createRigidArea(new Dimension(2,0)));
         this.add(getCloseButton());
-        this.add(Box.createRigidArea(new Dimension(3,0)));
+        this.add(Box.createRigidArea(new Dimension(4,0)));
     }
     
     private JLabel getMinimizeButton() {
@@ -170,6 +181,23 @@ public class BrowserMenuBar extends JMenuBar {
         });
         
         return minimizeJLabel;        
+    }
+    
+    private JLabel getMaximizeButton() {
+        javax.swing.JLabel maximizeJLabel = new JLabel(ImageIOUtil.readIcon("BrowserTitle_Maximize.png"));
+        maximizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                maximizeJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                maximizeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                maximizeJLabelMouseExited(evt);
+            }
+        });
+        
+        return maximizeJLabel;        
     }
     
     private JLabel getCloseButton() {
@@ -213,5 +241,18 @@ public class BrowserMenuBar extends JMenuBar {
 
     private void minimizeJLabelMouseExited(java.awt.event.MouseEvent evt) {
         ((JLabel) evt.getSource()).setIcon(MIN_ICON);
+    }
+    
+    private void maximizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+        browser.maximize();
+        maximizeJLabelMouseExited(evt);
+    }
+
+    private void maximizeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(MAX_ROLLOVER_ICON);
+    }
+
+    private void maximizeJLabelMouseExited(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(MAX_ICON);
     }
 }

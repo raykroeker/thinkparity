@@ -56,7 +56,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         // Set background. Note that isFocusOwner() does not behave exactly as we want,
         // for example during a popup it will become false, so we use cell.isFocusOnRight().
         if (isSelected) {
-            if (cell.isSelectedContainer() && !cell.isFocusOnRight()) {
+            if (cell.isSelectedContainer() && cell.isFocusOnThisList()) {
                 textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
                 setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
             } else {

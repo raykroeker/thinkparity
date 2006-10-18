@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
@@ -33,13 +34,22 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.document.Open;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
@@ -85,7 +95,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private final DefaultListModel versionsModel;
     
     /** Flag indicating whether the left side or the right side has focus. */
-    private Boolean focusOnRight = Boolean.FALSE;
+    private ListType focusList = ListType.VERSION;
     
     /** An image cache. */
     protected final MainCellImageCacheTest imageCacheTest;
@@ -124,18 +134,18 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void initFocusListeners() {
         versionsJList.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent e) {
-                focusOnRight = Boolean.FALSE;
+                focusList = ListType.VERSION;
             }            
         });
         versionsContentJList.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent e) {
-                focusOnRight = Boolean.TRUE;
+                focusList = ListType.CONTENT;
             }
             public void focusLost(final FocusEvent e) {
                 // We don't want to reset this flag when there
                 // is a popup in the versionsContentJList.
                 if (!isSelectedContainer()) {
-                    focusOnRight = Boolean.FALSE;
+                    focusList = ListType.VERSION;
                 }
             }
         });
@@ -227,7 +237,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             if (!versionsJList.isFocusOwner() && !versionsContentJList.isFocusOwner()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        if (focusOnRight) {
+                        if (focusList == ListType.CONTENT) {
                             versionsContentJList.requestFocusInWindow();
                         } else {
                             versionsJList.requestFocusInWindow();
@@ -445,54 +455,35 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
     
     private void versionsContentJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
+        final JList jList = (JList) e.getSource();
+        handleJListMouseClicked(jList, ListType.CONTENT, e);
     }//GEN-LAST:event_versionsContentJListMouseClicked
 
     private void versionsContentJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
-        formMousePressed(e);
-        versionsContentJList.requestFocusInWindow();
         final JList jList = (JList) e.getSource();
-        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
-            triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
-            e.consume();
-        }
+        handleJListMousePressed(jList, ListType.CONTENT, e);
     }//GEN-LAST:event_versionsContentJListMousePressed
 
     private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
-        logger.logApiId();
-        logger.logVariable("e", e);
         final JList jList = (JList) e.getSource();
-        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
-            triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
-            e.consume();
-        }
+        handleJListMouseReleased(jList, ListType.CONTENT, e);   
     }//GEN-LAST:event_versionsContentJListMouseReleased
 
     private void versionsJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
+        final JList jList = (JList) e.getSource();
+        handleJListMouseClicked(jList, ListType.VERSION, e);
     }//GEN-LAST:event_versionsJListMouseClicked
     
     private void versionsJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
-        formMousePressed(e);
-        versionsJList.requestFocusInWindow();
         final JList jList = (JList) e.getSource();
-        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
-            triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
-            e.consume();
-        }
+        handleJListMousePressed(jList, ListType.VERSION, e);
     }//GEN-LAST:event_versionsJListMousePressed
 
     private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
-        logger.logApiId();
-        logger.logVariable("e", e);
         final JList jList = (JList) e.getSource();
-        if (e.isPopupTrigger() && 0 < jList.getSelectedIndices().length) {
-            triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
-            e.consume();
-        }
+        handleJListMouseReleased(jList, ListType.VERSION, e);        
     }//GEN-LAST:event_versionsJListMouseReleased
+    
     private void versionsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_versionsJListValueChanged
         if (!evt.getValueIsAdjusting()) {
             logger.logVariable("evt", evt);
@@ -504,6 +495,147 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
         }
     }//GEN-LAST:event_versionsJListValueChanged
+    
+    /**
+     * Process a JList mouse pressed event.
+     */
+    private void handleJListMousePressed(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        formMousePressed(e);
+        if (e.getButton()==MouseEvent.BUTTON1) {
+            jList.requestFocusInWindow();
+        }
+        if (e.isPopupTrigger()) {        
+            if (isMouseEventWithinCell(jList, e)) {
+                if (!isSelectedContainer()) {
+                    model.selectContainer(container);
+                }
+                if (!jList.isFocusOwner()) {
+                    jList.requestFocusInWindow();
+                }
+                setSelectedIndex(jList, jList.locationToIndex(e.getPoint()));
+                if (listType == ListType.VERSION) {
+                    triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
+                 } else if (listType == ListType.CONTENT) {
+                     triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
+                 }
+                e.consume();
+            }
+        }
+    }
+    
+    /**
+     * Process a JList mouse released event.
+     */
+    private void handleJListMouseReleased(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {        
+            if (isMouseEventWithinCell(jList, e)) {
+                if (!isSelectedContainer()) {
+                    model.selectContainer(container);
+                }
+                if (!jList.isFocusOwner()) {
+                    jList.requestFocusInWindow();
+                }
+                setSelectedIndex(jList, jList.locationToIndex(e.getPoint()));
+                if (listType == ListType.VERSION) {
+                    triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
+                } else if (listType == ListType.CONTENT) {
+                    triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
+                }
+                e.consume();
+            }
+        }
+    }
+    
+    /**
+     * Process a JList mouse clicked event.
+     */
+    private void handleJListMouseClicked(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (!MenuFactory.isPopupMenu()) {
+            if (e.getButton()==MouseEvent.BUTTON1) {
+                final Boolean isInCell = isMouseEventWithinCell(jList, e);
+                if (isInCell) { 
+                    triggerJListSingleClick(jList, listType, e);
+                } else {
+                    triggerJListSingleClick();
+                }
+                // A click count of 2, 4, 6, etc. triggers double click event
+                if (e.getClickCount() % 2 == 0) {
+                    if (isInCell) {  
+                        triggerJListDoubleClick(jList, listType, e);
+                    } else {
+                        triggerJListDoubleClick();
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Handle single click in a JList.
+     */
+    private void triggerJListSingleClick(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {        
+    }
+    
+    /**
+     * Handle single click below the last entry in a JList.
+     */
+    private void triggerJListSingleClick() {
+    }
+    
+    /**
+     * Handle double click in a JList.
+     */
+    private void triggerJListDoubleClick(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {        
+        if (listType == ListType.VERSION) {
+            ((AbstractVersionCell)jList.getSelectedValue()).doubleClick(jList, e);
+        } else if (listType == ListType.CONTENT) {
+            ((AbstractContentCell)jList.getSelectedValue()).doubleClick(jList, e);
+        }
+    }
+    
+    /**
+     * Handle double click below the last entry in a JList.
+     */
+    private void triggerJListDoubleClick() {
+    }
+    
+    /**
+     * Determine if the mouse event occurred on or below the cell of a JList in an x-y plane.
+     * @param jList
+     *              The JList.
+     * @param e
+     *              The MouseEvent.
+     * @return True if the mouse event occurred in the cell.
+     */
+    private Boolean isMouseEventWithinCell(final JList jList, final java.awt.event.MouseEvent e) {
+        final Integer tabCellIndex = jList.locationToIndex(e.getPoint());
+        if (tabCellIndex == -1) {  // Will be -1 if the model is empty
+            return Boolean.FALSE;
+        } else {
+            final Rectangle tabCellBounds = jList.getCellBounds(tabCellIndex, tabCellIndex);
+            return SwingUtil.regionContains(tabCellBounds, e.getPoint());
+        }
+    }
+    
+    /**
+     * Select an entry in the JList.
+     * 
+     * @param jList
+     *              The JList.
+     * @param index
+     *              The JList index to select.
+     */
+    private void setSelectedIndex(final JList jList, final Integer index) {
+        if (index != jList.getSelectedIndex()) {
+            jList.setSelectedIndex(index);
+        }
+    }
 
     /** The version's content list cell. */
     abstract class AbstractContentCell {
@@ -527,10 +659,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected Boolean isSelectedContainer() {
             return ContainerVersionsPanel.this.isSelectedContainer();
         }
-        protected Boolean isFocusOnRight() {
-            return ContainerVersionsPanel.this.focusOnRight;
+        protected Boolean isFocusOnThisList() {
+            return (ContainerVersionsPanel.this.focusList == ListType.CONTENT);
         }
         protected abstract void showPopupMenu(final Component invoker,
+                final MouseEvent e);
+        protected abstract void doubleClick(final Component invoker,
                 final MouseEvent e);
     }
 
@@ -564,10 +698,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected Boolean isSelectedContainer() {
             return ContainerVersionsPanel.this.isSelectedContainer();
         }
-        protected Boolean isFocusOnRight() {
-            return ContainerVersionsPanel.this.focusOnRight;
+        protected Boolean isFocusOnThisList() {
+            return (ContainerVersionsPanel.this.focusList == ListType.VERSION);
         }
         protected abstract void showPopupMenu(final Component invoker,
+                final MouseEvent e);
+        protected abstract void doubleClick(final Component invoker,
                 final MouseEvent e);
     }
 
@@ -590,6 +726,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
         }
         Long getContainerId() {
             return draft.getContainerId();
@@ -626,6 +765,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
         }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runOpenDocument(getId());
+        }
         Long getContainerId() {
             return draft.getContainerId();
         }
@@ -659,6 +802,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
         }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runReadContact(getId());
+        }
     }
 
     /** A version cell. */
@@ -686,6 +833,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
         }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+        }
         Long getArtifactId() {
             return version.getArtifactId();
         }
@@ -706,6 +856,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
             new ContainerVersionsPopup(model, this).show(invoker, e);
+        }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runOpenDocumentVersion(getDocumentId(), getVersionId());
         }
         Long getDocumentId() {
             return version.getArtifactId();
@@ -766,4 +920,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         final String name = documentVersion.getName();
         return FileUtil.getExtension(name);
     }
+    
+    private enum ListType { VERSION, CONTENT }
 }

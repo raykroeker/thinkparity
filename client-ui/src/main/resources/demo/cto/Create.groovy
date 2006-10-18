@@ -4,5 +4,5 @@
 
 binding.getVariable("builder")
 	.create("CTI Incorporation")
-	.addDocument("Business Plan.txt", "demo/cto/resources/Business Plan.txt")
+	.addDocument("Business Plan.txt")
 	.publish("Initial version.", "Randy Waterhouse")

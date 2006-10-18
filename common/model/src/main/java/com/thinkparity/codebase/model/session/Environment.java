@@ -14,6 +14,9 @@ public enum Environment {
     /** The demo environment. */
     DEMO("thinkparity.dyndns.org", 5230, Protocol.XMPP),
 
+    /** A localhost demo environment. */
+    DEMO_LOCALHOST("localhost", 5230, Protocol.XMPP),
+
     /** A localhost development environment. */
     DEVELOPMENT_LOCALHOST("localhost", 5226, Protocol.XMPP),
 

@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 /**
  * An abstraction of a swing JFrame.  Used by all thinkParity main windows.
  * 
+ * TODO Add an abstract jframe within the ophelia UI component that will apply
+ * the native skin.
  * @author raykroeker@gmail.com
  * @version $Revision$
  */

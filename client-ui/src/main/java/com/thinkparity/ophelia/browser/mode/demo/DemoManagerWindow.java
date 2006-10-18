@@ -23,6 +23,8 @@ public final class DemoManagerWindow extends AbstractJFrame {
     public DemoManagerWindow() {
         super(null);
         initComponents();
+        new NativeSkin().roundCorners(this);
+        setLocation(calculateLocation());
     }
 
     /**
@@ -32,16 +34,6 @@ public final class DemoManagerWindow extends AbstractJFrame {
      */
     Scenario getSelectedScenario() {
         return demoManagerPanel.getSelectedScenario();
-    }
-
-    /**
-     * Open the scenarion manager window.
-     *
-     */
-    void open() {
-        new NativeSkin().roundCorners(this);
-        setLocation(calculateLocation());
-        setVisible(true);
     }
 
     /**

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
@@ -25,6 +26,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.model.script.Script;
 
@@ -36,7 +38,7 @@ import com.thinkparity.ophelia.model.script.Script;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DemoManager implements DemoProvider {
+public final class DemoManager implements DemoProvider, ExecutionMonitor {
 
     /** The demo configuration resource name. */
     private static final String CONFIGURATION_NAME;
@@ -55,6 +57,36 @@ public final class DemoManager implements DemoProvider {
     public DemoManager() {
         super();
         this.logger = new Log4JWrapper();
+    }
+
+    /**
+     * Execute a scenario.
+     * 
+     * @param scenario
+     *            A <code>Scenario</code>.
+     */
+    public void execute(final Scenario scenario) {
+        scenario.execute(this);
+    }
+
+    /**
+     * An error has occured whilst running a script. Display an error dialog.
+     * 
+     * @param script
+     *            The script that failed.
+     * @param error
+     *            The error.
+     */
+    public void notifyScriptError(final Script script, final Throwable error) {
+        try {
+            final DemoErrorWindow window = new DemoErrorWindow();
+            window.setError(error);
+            window.setScript(script);
+            window.reload();
+            openWindow(window);
+        } catch (final Throwable t) {
+            throw new BrowserException("", t);
+        }
     }
 
     /**
@@ -96,19 +128,7 @@ public final class DemoManager implements DemoProvider {
             window.setResizable(false);
             window.setDemoManager(this);
             window.setDemoProvider(this);
-            window.addWindowListener(new WindowAdapter() {
-                public void windowClosed(final WindowEvent e) {
-                    synchronized(window) { window.notifyAll(); }
-                }
-            });
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    window.open();
-                }
-            });
-            synchronized (window) {
-                window.wait();
-            }
+            openWindow(window);
             return window.getSelectedScenario();
         } catch (final Throwable t) {
             throw new BrowserException("", t);
@@ -194,7 +214,7 @@ public final class DemoManager implements DemoProvider {
                 public InputStream openResource(final String name) {
                     return demoResourceLoader.getResourceAsStream(
                             MessageFormat.format("{0}/resources/{1}",
-                            scenario.getName().toLowerCase(), name));
+                                    scenario.getName().toLowerCase(), name));
                 }
             }, credentials);
         }
@@ -317,6 +337,23 @@ public final class DemoManager implements DemoProvider {
         writeFile("cto/resources/Business Plan.txt", resourceLoader, fileSystem);
         writeFile("cto/resources/Corporate Structure.txt", resourceLoader, fileSystem);
         writeFile("cto/resources/Feasibility Analysis.txt", resourceLoader, fileSystem);
+    }
+
+    private void openWindow(final AbstractJFrame window)
+            throws InterruptedException, InvocationTargetException {
+        window.addWindowListener(new WindowAdapter() {
+            public void windowClosed(final WindowEvent e) {
+                synchronized(window) { window.notifyAll(); }
+            }
+        });
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {
+                window.setVisible(true);
+            }
+        });
+        synchronized (window) {
+            window.wait();
+        }
     }
 
     /**

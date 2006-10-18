@@ -76,7 +76,7 @@ public final class Scenario {
      *            The script's <code>Credentials</code>.
      * @return Whether or not the list of scripts was modified.
      */
-    public boolean addScript(final Script script, final Credentials credentials) {
+    boolean addScript(final Script script, final Credentials credentials) {
         final Boolean modified = scripts.add(script);
         this.credentials.put(script, credentials);
         return modified; 
@@ -86,7 +86,7 @@ public final class Scenario {
      * Execute the scenario.
      *
      */
-    public void execute() {
+    void execute(final ExecutionMonitor monitor) {
         // initialize the workspaces
         for (final Script script : scripts) {
             initializeProfile(script);
@@ -97,42 +97,15 @@ public final class Scenario {
         // execute the scripts
         for (final Script script : scripts) {
             login(script);
-            execute(script);
+            try {
+                execute(script);
+            } catch (final Throwable t) {
+                logout(script);
+                monitor.notifyScriptError(script, t);
+                break;
+            }
             logout(script);
         }
-    }
-
-    /**
-     * Remove a script from the scenario.
-     * 
-     * @param script
-     *            A demo scenario <code>Script</code>.
-     * @return Whether or not the list of scripts was modified.
-     */
-    public boolean removeScript(final Script script) {
-        final Boolean modified = scripts.remove(script);
-        this.credentials.remove(script);
-        return modified; 
-    }
-
-    /**
-     * Set the scenario display name.
-     * 
-     * @param displayName
-     *            A display name <code>String</code>.
-     */
-    public void setDisplayName(final String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     * Set the scenario name.
-     * 
-     * @param name
-     *            A name <code>String</code>.
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -171,6 +144,39 @@ public final class Scenario {
      */
     List<Script> getScripts() {
         return Collections.unmodifiableList(scripts);
+    }
+
+    /**
+     * Remove a script from the scenario.
+     * 
+     * @param script
+     *            A demo scenario <code>Script</code>.
+     * @return Whether or not the list of scripts was modified.
+     */
+    boolean removeScript(final Script script) {
+        final Boolean modified = scripts.remove(script);
+        this.credentials.remove(script);
+        return modified; 
+    }
+
+    /**
+     * Set the scenario display name.
+     * 
+     * @param displayName
+     *            A display name <code>String</code>.
+     */
+    void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * Set the scenario name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    void setName(String name) {
+        this.name = name;
     }
 
     /**

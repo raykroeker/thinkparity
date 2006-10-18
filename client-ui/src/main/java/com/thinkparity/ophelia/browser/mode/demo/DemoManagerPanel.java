@@ -28,33 +28,30 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  */
 public class DemoManagerPanel extends AbstractJPanel {
 
+    /** A <code>DemoManager</code>. */
+    private DemoManager demoManager;
+
+    /** A <code>DemoProvider</code>. */
+    private DemoProvider demoProvider;
+
     /** The demo root <code>FileSystem</code>. */
     private FileSystem demoRoot;
 
     /** The demo root <code>JFileChooser</code>. */
     private JFileChooser jFileChooser;
 
-    /** A <code>DemoManager</code>. */
-    private DemoManager demoManager;
-
     /** The scenario <code>DefaultListModel</code>. */
     private final DefaultListModel scenarioModel;
-
-    /** A <code>DemoProvider</code>. */
-    private DemoProvider demoProvider;
 
     /** The <code>Scenario</code> selected by the user. */
     private Scenario selectedScenario;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton browseJButton;
     private javax.swing.JLabel demoRootJLabel;
-    private javax.swing.JButton extractDefaultJButton;
-    private javax.swing.JButton resetJButton;
     private javax.swing.JList scenarioJList;
     // End of variables declaration//GEN-END:variables
 
-    /** Create ScenarioManagerPanel. */
+    /** Create DemoManagerPanel. */
     public DemoManagerPanel() {
         super();
         this.scenarioModel = new DefaultListModel();
@@ -63,9 +60,9 @@ public class DemoManagerPanel extends AbstractJPanel {
                 initializeJButtonActionPerformed(e);
             }
         });
-        bindEscapeKey("Cancel", new AbstractAction() {
+        bindEscapeKey("Exit", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+                exitJButtonActionPerformed(e);
             }
         });
         initComponents();
@@ -88,7 +85,7 @@ public class DemoManagerPanel extends AbstractJPanel {
     /**
      * Set the scenario manager.
      * 
-     * @param scenarioManager
+     * @param demoManager
      *            A <code>DemoManager</code>.
      */
     void setDemoManager(final DemoManager demoManager) {
@@ -112,16 +109,16 @@ public class DemoManagerPanel extends AbstractJPanel {
             reload();
         }
     }//GEN-LAST:event_browseJButtonActionPerformed
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    private void exitJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitJButtonActionPerformed
         selectedScenario = null;
         disposeWindow();
-    }//GEN-LAST:event_cancelJButtonActionPerformed
+    }//GEN-LAST:event_exitJButtonActionPerformed
 
     private void extractDefaultJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extractDefaultJButtonActionPerformed
         if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(getParent())) {
             final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
             final String confirmation = MessageFormat.format(
-                    bundle.getString("ScenarioManagerPanel.extractConfirm"),
+                    bundle.getString("DemoManagerPanel.extractConfirm"),
                     jFileChooser.getSelectedFile());
             if (JOptionPaneUtil.showConfirmationDialog(confirmation, null)) {
                 demoManager.writeDemo(jFileChooser.getSelectedFile());
@@ -157,7 +154,7 @@ public class DemoManagerPanel extends AbstractJPanel {
                 @Override
                 public String getDescription() {
                     java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-                    return bundle.getString("ScenarioManagerPanel.filterDescription");
+                    return bundle.getString("DemoManagerPanel.filterDescription");
                 }
             });
         }
@@ -171,9 +168,12 @@ public class DemoManagerPanel extends AbstractJPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton cancelJButton;
+        javax.swing.JButton browseJButton;
         javax.swing.JLabel eaJLabel;
+        javax.swing.JButton exitJButton;
+        javax.swing.JButton extractDefaultJButton;
         javax.swing.JButton initializeJButton;
+        javax.swing.JButton resetJButton;
         javax.swing.JScrollPane scenaioJScrollPane;
 
         eaJLabel = new javax.swing.JLabel();
@@ -181,18 +181,18 @@ public class DemoManagerPanel extends AbstractJPanel {
         browseJButton = new javax.swing.JButton();
         scenaioJScrollPane = new javax.swing.JScrollPane();
         scenarioJList = new javax.swing.JList();
-        initializeJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
-        extractDefaultJButton = new javax.swing.JButton();
         resetJButton = new javax.swing.JButton();
+        extractDefaultJButton = new javax.swing.JButton();
+        exitJButton = new javax.swing.JButton();
+        initializeJButton = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        eaJLabel.setText(bundle.getString("ScenarioManagerPanel.eaJLabel")); // NOI18N
+        eaJLabel.setText(bundle.getString("DemoManagerPanel.eaJLabel")); // NOI18N
         eaJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         demoRootJLabel.setText("${DEMO_ROOT}");
 
-        browseJButton.setText(bundle.getString("ScenarioManagerPanel.browseJButton")); // NOI18N
+        browseJButton.setText(bundle.getString("DemoManagerPanel.browseJButton")); // NOI18N
         browseJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseJButtonActionPerformed(evt);
@@ -203,31 +203,31 @@ public class DemoManagerPanel extends AbstractJPanel {
         scenarioJList.setCellRenderer(new ScenarioListCellRenderer());
         scenaioJScrollPane.setViewportView(scenarioJList);
 
-        initializeJButton.setText(bundle.getString("ScenarioManagerPanel.initializeJButton")); // NOI18N
-        initializeJButton.addActionListener(new java.awt.event.ActionListener() {
+        resetJButton.setText(bundle.getString("DemoManagerPanel.resetJButton")); // NOI18N
+        resetJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                initializeJButtonActionPerformed(evt);
+                resetJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(bundle.getString("ScenarioManagerPanel.exitJButton")); // NOI18N
-        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
-            }
-        });
-
-        extractDefaultJButton.setText(bundle.getString("ScenarioManagerPanel.extractJButton")); // NOI18N
+        extractDefaultJButton.setText(bundle.getString("DemoManagerPanel.extractJButton")); // NOI18N
         extractDefaultJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 extractDefaultJButtonActionPerformed(evt);
             }
         });
 
-        resetJButton.setText(bundle.getString("ScenarioManagerPanel.resetJButton")); // NOI18N
-        resetJButton.addActionListener(new java.awt.event.ActionListener() {
+        exitJButton.setText(bundle.getString("DemoManagerPanel.exitJButton")); // NOI18N
+        exitJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetJButtonActionPerformed(evt);
+                exitJButtonActionPerformed(evt);
+            }
+        });
+
+        initializeJButton.setText(bundle.getString("DemoManagerPanel.initializeJButton")); // NOI18N
+        initializeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                initializeJButtonActionPerformed(evt);
             }
         });
 
@@ -240,7 +240,7 @@ public class DemoManagerPanel extends AbstractJPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(cancelJButton)
+                        .add(exitJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(initializeJButton))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
@@ -272,7 +272,7 @@ public class DemoManagerPanel extends AbstractJPanel {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(initializeJButton)
-                            .add(cancelJButton)))
+                            .add(exitJButton)))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(15, 15, 15)
                         .add(resetJButton)
@@ -304,7 +304,7 @@ public class DemoManagerPanel extends AbstractJPanel {
             demoRootJLabel.setText(demoRoot.getRoot().getName());
         } else {
             java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-            demoRootJLabel.setText(bundle.getString("ScenarioManagerPanel.internalDemoRoot"));
+            demoRootJLabel.setText(bundle.getString("DemoManagerPanel.internalDemoRoot"));
         }
     }
 

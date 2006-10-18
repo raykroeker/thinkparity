@@ -88,8 +88,9 @@ public final class ScenarioManager {
             final String scenarioName) {
         final String displayName = properties.getProperty(
                 MessageFormat.format("demo.scenario.{0}.DisplayName", scenarioName), null);
-        final String resourcePath = properties.getProperty(
-                MessageFormat.format("demo.scenario.{0}.ResourcePath", scenarioName), null);
+        final String resourcePath = MessageFormat.format("demo/{0}/resources", scenarioName.toLowerCase());
+//            properties.getProperty(
+//                MessageFormat.format("demo.scenario.{0}.ResourcePath", scenarioName), null);
         final String scripts = properties.getProperty(
                 MessageFormat.format("demo.scenario.{0}.Scripts", scenarioName), null);
         if (null == displayName || null == resourcePath || null == scripts) {
@@ -120,8 +121,9 @@ public final class ScenarioManager {
      */
     private void configureScenarioScript(final Scenario scenario,
             final Properties properties, final String scriptName) {
-        final String scriptPath = properties.getProperty(
-                MessageFormat.format("demo.scenario.{0}.{1}.ScriptPath", scenario.getName(), scriptName), null);
+        final String scriptPath = MessageFormat.format("demo/", "");
+//            properties.getProperty(
+//                MessageFormat.format("demo.scenario.{0}.{1}.ScriptPath", scenario.getName(), scriptName), null);
         final String username = properties.getProperty(
                 MessageFormat.format("demo.scenario.{0}.{1}.Credentials.Username", scenario.getName(), scriptName), null);
         final String password = properties.getProperty(
@@ -136,8 +138,13 @@ public final class ScenarioManager {
                 public String getName() {
                     return scriptName;
                 }
-                public InputStream openStream() {
+                public InputStream open() {
                     return ResourceUtil.getInputStream(scriptPath);
+                }
+                public InputStream openResource(String name) {
+                    return ResourceUtil.getInputStream(new StringBuffer(
+                            scenario.getResourcePath())
+                            .append("/").append(scriptPath).toString());
                 }
             }, credentials);
         }

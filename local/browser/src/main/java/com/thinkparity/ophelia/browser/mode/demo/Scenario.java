@@ -157,8 +157,8 @@ public final class Scenario {
                 return pathname.getName().startsWith(displayName);
             }
         }, Boolean.FALSE);
-        for (final File profileDirectorie : profileDirectories) {
-            FileUtil.deleteTree(profileDirectorie);
+        for (final File profileDirectory : profileDirectories) {
+            FileUtil.deleteTree(profileDirectory);
         }
     }
 
@@ -169,8 +169,10 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void execute(final Script script) {
+        final List<Script> scripts = new ArrayList<Script>(1);
+        scripts.add(script);
         ScriptModel.getModel(environment,
-                workspaces.get(credentials.get(script))).execute(script);
+                workspaces.get(credentials.get(script))).execute(scripts);
     }
 
     private String getProfilePath(final Credentials credentials) {

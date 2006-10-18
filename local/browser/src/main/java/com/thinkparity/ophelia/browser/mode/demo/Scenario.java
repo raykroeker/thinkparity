@@ -129,6 +129,15 @@ public final class Scenario {
     }
 
     /**
+     * Obtain the environment
+     *
+     * @return The Environment.
+     */
+    Environment getEnvironment() {
+        return environment;
+    }
+
+    /**
      * Obtain the demo scenario name.
      * 
      * @return A name <code>String</code>.

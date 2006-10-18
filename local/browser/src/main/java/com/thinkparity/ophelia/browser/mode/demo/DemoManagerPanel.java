@@ -22,6 +22,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.JOptionPaneUtil;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.model.script.Script;
@@ -355,7 +356,10 @@ public class DemoManagerPanel extends AbstractJPanel implements ExecutionMonitor
         public Component getListCellRendererComponent(final JList list,
                 final Object value, final int index, final boolean isSelected,
                 final boolean cellHasFocus) {
-            setText(((Scenario) value).getDisplayName());
+            final Scenario scenario = (Scenario) value;
+            setText(MessageFormat.format("{1} - {2} script(s)",
+                    scenario.getEnvironment().name(), scenario.getDisplayName(),
+                    scenario.getScripts().size()));
 
             if (isSelected) {
                 setForeground(Colors.Browser.List.LIST_SELECTION_FG);

@@ -31,5 +31,9 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/nativeskin/6.7"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry sourcepath="vendor/groovy/1.0-JSR06/groovy-sources.jar" path="vendor/groovy/1.0-JSR06/groovy.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/fop/0.20.5/fop-sources.jar" path="vendor/fop/0.20.5/fop.jar" kind="lib"/>
+	<classpathentry path="vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar" kind="lib"/>
+	<classpathentry path="vendor/fop/0.20.5/batik.jar" kind="lib"/>
 	<classpathentry path="target/classes" kind="output"/>
 </classpath>

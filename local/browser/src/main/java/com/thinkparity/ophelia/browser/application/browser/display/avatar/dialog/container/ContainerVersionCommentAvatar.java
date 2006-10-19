@@ -6,8 +6,13 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -37,6 +42,56 @@ public class ContainerVersionCommentAvatar extends Avatar {
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_VERSION_COMMENT;
     }
+    
+    public void reload() {
+        final Long containerId = getInputContainerId();
+        final Long versionId = getInputVersionId();
+
+        // If containerId is null then this call to reload() is too early,
+        // the input isn't set up yet.
+        if (null!=containerId) {
+            final ContainerVersion containerVersion = ((ContainerVersionProvider) contentProvider).readVersion(containerId, versionId);
+            final User publishedBy = ((ContainerVersionProvider) contentProvider).readUser(containerVersion.getUpdatedBy());
+            final String publisherName = publishedBy.getName();
+            final String containerName = containerVersion.getName();
+            final String publishDate = getString("ExplanationDate", new Object[] { containerVersion.getCreatedOn().getTime() });
+            explanationJLabel.setText(getString("Explanation", new Object[] { publisherName, containerName, publishDate }));
+            if (containerVersion.isSetComment()) {
+                commentJTextArea.setText(containerVersion.getComment());
+            } else {
+                // TODO Fix this.
+                commentJTextArea.setText("(REMOVE ME) This is the comment that was typed for this version of the package.");
+            }
+        }
+    }
+    
+    /**
+     * Obtain the input container id.
+     *
+     * @return A container id.
+     */
+    private Long getInputContainerId() {
+        if (input!=null) {
+            return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * Obtain the input container version id.
+     *
+     * @return A container id.
+     */
+    private Long getInputVersionId() {
+        if (input!=null) {
+            return (Long) ((Data) input).get(DataKey.VERSION_ID);
+        }
+        else {
+            return null;
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -59,7 +114,9 @@ public class ContainerVersionCommentAvatar extends Avatar {
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         commentJTextArea.setColumns(20);
         commentJTextArea.setEditable(false);
-        commentJTextArea.setRows(5);
+        commentJTextArea.setFont(new java.awt.Font("Arial", 0, 11));
+        commentJTextArea.setLineWrap(true);
+        commentJTextArea.setWrapStyleWord(true);
         commentJTextArea.setFocusable(false);
         commentJScrollPane.setViewportView(commentJTextArea);
 
@@ -78,8 +135,8 @@ public class ContainerVersionCommentAvatar extends Avatar {
             containerVersionCommentJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(containerVersionCommentJPanelLayout.createSequentialGroup()
                 .add(explanationJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

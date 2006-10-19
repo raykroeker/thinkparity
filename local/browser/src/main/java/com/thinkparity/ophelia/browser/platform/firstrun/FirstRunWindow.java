@@ -29,7 +29,7 @@ final class FirstRunWindow extends OpheliaJFrame {
      *            A thinkParity <code>Avatar</code>.
      */
     void add(final Avatar avatar) {
-        add(avatar);
+        super.add(avatar);
         avatar.reload();
     }
 }

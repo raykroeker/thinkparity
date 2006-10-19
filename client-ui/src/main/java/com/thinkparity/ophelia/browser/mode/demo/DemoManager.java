@@ -3,20 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.mode.demo;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
@@ -24,11 +19,13 @@ import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.swing.AbstractJFrame;
-import com.thinkparity.ophelia.browser.BrowserException;
+
 import com.thinkparity.ophelia.model.script.Script;
+
+import com.thinkparity.ophelia.browser.BrowserException;
 
 /**
  * <b>Title:</b>thinkParity Scenario Manager<br>
@@ -69,7 +66,7 @@ public final class DemoManager implements DemoProvider {
             window.setResizable(false);
             window.setDemoManager(this);
             window.setDemoProvider(this);
-            openWindow(window);
+            window.setVisibleAndWait();
         } catch (final Throwable t) {
             throw new BrowserException("", t);
         }
@@ -317,23 +314,6 @@ public final class DemoManager implements DemoProvider {
         writeFile("cto/resources/Business Plan.txt", resourceLoader, fileSystem);
         writeFile("cto/resources/Corporate Structure.txt", resourceLoader, fileSystem);
         writeFile("cto/resources/Feasibility Analysis.txt", resourceLoader, fileSystem);
-    }
-
-    private void openWindow(final AbstractJFrame window)
-            throws InterruptedException, InvocationTargetException {
-        window.addWindowListener(new WindowAdapter() {
-            public void windowClosed(final WindowEvent e) {
-                synchronized(window) { window.notifyAll(); }
-            }
-        });
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                window.setVisible(true);
-            }
-        });
-        synchronized (window) {
-            window.wait();
-        }
     }
 
     /**

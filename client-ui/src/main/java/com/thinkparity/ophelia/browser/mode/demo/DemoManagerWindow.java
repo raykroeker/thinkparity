@@ -6,14 +6,13 @@
 
 package com.thinkparity.ophelia.browser.mode.demo;
 
-import com.thinkparity.codebase.swing.AbstractJFrame;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+import com.thinkparity.ophelia.browser.util.swing.OpheliaJFrame;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DemoManagerWindow extends AbstractJFrame {
+public final class DemoManagerWindow extends OpheliaJFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.thinkparity.ophelia.browser.mode.demo.DemoManagerPanel demoManagerPanel;
@@ -23,8 +22,6 @@ public final class DemoManagerWindow extends AbstractJFrame {
     public DemoManagerWindow() {
         super(null);
         initComponents();
-        new NativeSkin().roundCorners(this);
-        setLocation(calculateLocation());
     }
 
     /**

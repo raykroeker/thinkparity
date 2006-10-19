@@ -3,28 +3,22 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.SwingUtilities;
-
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+
 import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
+import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.7
  */
-public class FirstRunHelper {
+public final class FirstRunHelper {
 
     /** An apache logger. */
     final Logger logger;
@@ -56,7 +50,7 @@ public class FirstRunHelper {
      */
     public void firstRun() {
         loginAvatar = new LoginAvatar(this);
-        openWindow(loginAvatar.getTitle(), loginAvatar);
+        openWindow(loginAvatar);
 
         final String username = loginAvatar.getUsername();
         final String password = loginAvatar.getPassword();
@@ -66,12 +60,12 @@ public class FirstRunHelper {
             credentials.setUsername(username);
 
             workspaceModel.initialize(workspace, new LoginMonitor() {
-                public void notifyInvalidCredentials(final Credentials credentials) {
-                }
                 public Boolean confirmSynchronize() {
                     final ConfirmSynchronize confirmSynchronize = new ConfirmSynchronize();
-                    openWindow("", confirmSynchronize);
+                    openWindow(confirmSynchronize);
                     return confirmSynchronize.didConfirm();
+                }
+                public void notifyInvalidCredentials(final Credentials credentials) {
                 }
             }, credentials);
         }
@@ -87,28 +81,14 @@ public class FirstRunHelper {
     }
 
     /**
-     * Create a new manager window and open the avatar.
+     * Open an avatar on the first run window.
      * 
      * @param avatar
-     *            An avatar to open.
+     *            An <code>Avatar</code> to open.
      */
-    private void openWindow(final String title, final Avatar avatar) {
+    private void openWindow(final Avatar avatar) {
         window = new FirstRunWindow();
-        window.addWindowListener(new WindowAdapter() {
-            public void windowClosed(final WindowEvent e) {
-                synchronized(window) { window.notifyAll(); }
-            }
-        });
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() { window.open(title, avatar); }
-            });
-        }
-        catch(final InterruptedException ix) { throw new BrowserException("", ix); }
-        catch(final InvocationTargetException itx) { throw new BrowserException("", itx); }
-        synchronized(window) {
-            try { window.wait(); }
-            catch(final InterruptedException ix) { throw new BrowserException("", ix); }
-        }
+        window.add(avatar);
+        window.setVisibleAndWait();
     }
 }

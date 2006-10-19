@@ -10,7 +10,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 
 import org.apache.log4j.Logger;
 
@@ -22,12 +21,6 @@ public final class FirstRunHelper {
 
     /** An apache logger. */
     final Logger logger;
-
-    /** The login avatar. */
-    private LoginAvatar loginAvatar;
-
-    /** The first run window. */
-    private FirstRunWindow window;
 
     /** The thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
@@ -49,11 +42,11 @@ public final class FirstRunHelper {
      * @return True if first run completed.
      */
     public void firstRun() {
-        loginAvatar = new LoginAvatar(this);
-        openWindow(loginAvatar);
+        final LoginWindow window = new LoginWindow();
+        window.setVisibleAndWait();
 
-        final String username = loginAvatar.getUsername();
-        final String password = loginAvatar.getPassword();
+        final String username = window.getUsername();
+        final String password = window.getPassword();
         if(null != username && null != password) {
             final Credentials credentials = new Credentials();
             credentials.setPassword(password);
@@ -61,9 +54,9 @@ public final class FirstRunHelper {
 
             workspaceModel.initialize(workspace, new LoginMonitor() {
                 public Boolean confirmSynchronize() {
-                    final ConfirmSynchronize confirmSynchronize = new ConfirmSynchronize();
-                    openWindow(confirmSynchronize);
-                    return confirmSynchronize.didConfirm();
+                    final ConfirmSynchronizeWindow confirmWindow = new ConfirmSynchronizeWindow();
+                    confirmWindow.setVisibleAndWait();
+                    return confirmWindow.didConfirm();
                 }
                 public void notifyInvalidCredentials(final Credentials credentials) {
                 }
@@ -78,17 +71,5 @@ public final class FirstRunHelper {
      */
     public Boolean isFirstRun() {
         return !workspaceModel.isInitialized(workspace);
-    }
-
-    /**
-     * Open an avatar on the first run window.
-     * 
-     * @param avatar
-     *            An <code>Avatar</code> to open.
-     */
-    private void openWindow(final Avatar avatar) {
-        window = new FirstRunWindow();
-        window.add(avatar);
-        window.setVisibleAndWait();
     }
 }

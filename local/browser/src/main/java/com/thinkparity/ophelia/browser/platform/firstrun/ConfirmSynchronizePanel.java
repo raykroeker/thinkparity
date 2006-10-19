@@ -11,7 +11,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ConfirmSynchronize extends Avatar {
+public class ConfirmSynchronizePanel extends Avatar {
 
     /** The <code>AvatarId</code>. */
     private static final AvatarId ID;
@@ -20,12 +20,11 @@ public class ConfirmSynchronize extends Avatar {
         ID = AvatarId.DIALOG_PLATFORM_CONFIRM_SYNCHRONIZE;
     }
 
-    
     /** Whether or not the user confirmed. */
     private Boolean didConfirm;
 
     /** Create ConfirmSynchronize. */
-    public ConfirmSynchronize() {
+    public ConfirmSynchronizePanel() {
         super(ID);
         initComponents();
     }

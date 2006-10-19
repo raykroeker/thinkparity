@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
@@ -46,8 +47,8 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     @Override
     public void setVisible(boolean b) {
         if (b) {
-            setLocation(calculateLocation());
             new NativeSkin().roundCorners(this);
+            setLocation(calculateLocation());
         }
         super.setVisible(b);
     }
@@ -60,8 +61,8 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
     public final void setVisibleAndWait() {
         addWindowListener(new WindowAdapter() {
             public void windowClosed(final WindowEvent e) {
-                synchronized(this) {
-                    notifyAll();
+                synchronized (OpheliaJFrame.this) {
+                    OpheliaJFrame.this.notifyAll();
                 }
             }
         });
@@ -75,9 +76,9 @@ public abstract class OpheliaJFrame extends AbstractJFrame {
             throw new BrowserException(
                     "Error opening the thinkParity Ophelia JFrame.", t);
         }
-        synchronized (this) {
+        synchronized (OpheliaJFrame.this) {
             try {
-                wait();
+                OpheliaJFrame.this.wait();
             } catch (final Throwable t) {
                 throw new BrowserException(
                         "Error opening the thinkParity Ophelia JFrame.", t);

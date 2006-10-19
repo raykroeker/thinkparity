@@ -13,7 +13,6 @@ import javax.swing.AbstractAction;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
@@ -38,8 +37,8 @@ public class LoginAvatar extends Avatar {
     /** The password. */
     private String password;
 
-    /** Creates new form LoginAvatar */
-    LoginAvatar(final FirstRunHelper firstRun) {
+    /** Create LoginAvatar. */
+    public LoginAvatar() {
         super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         bindEscapeKey("Cancel", new AbstractAction() {
@@ -118,27 +117,28 @@ public class LoginAvatar extends Avatar {
         nextJButton = ButtonFactory.create();
         cancelJButton = ButtonFactory.create();
 
-        loginInfoJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginInfoTitle")));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        loginInfoJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("LoginAvatar.LoginInfoTitle"))); // NOI18N
         loginInfoJPanel.setOpaque(false);
-        eaJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.EmbeddedAssistance"));
+        eaJLabel.setText(bundle.getString("LoginAvatar.EmbeddedAssistance")); // NOI18N
 
-        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.UsernameLabel"));
+        usernameJLabel.setText(bundle.getString("LoginAvatar.UsernameLabel")); // NOI18N
 
-        passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.PasswordLabel"));
+        passwordJLabel.setText(bundle.getString("LoginAvatar.PasswordLabel")); // NOI18N
 
         passwordJPasswordField.setFont(usernameJTextField.getFont());
 
-        nextJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.LoginButton"));
+        nextJButton.setText(bundle.getString("LoginAvatar.LoginButton")); // NOI18N
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                nextJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("LoginAvatar.CancelButton"));
+        cancelJButton.setText(bundle.getString("LoginAvatar.CancelButton")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -146,31 +146,31 @@ public class LoginAvatar extends Avatar {
         loginInfoJPanel.setLayout(loginInfoJPanelLayout);
         loginInfoJPanelLayout.setHorizontalGroup(
             loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loginInfoJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(usernameJLabel)
-                    .add(passwordJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
-                    .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE))
-                .addContainerGap())
-            .add(loginInfoJPanelLayout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
-                .addContainerGap(10, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, loginInfoJPanelLayout.createSequentialGroup()
-                .addContainerGap(151, Short.MAX_VALUE)
-                .add(cancelJButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(nextJButton)
+                .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, loginInfoJPanelLayout.createSequentialGroup()
+                        .add(10, 10, 10)
+                        .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, loginInfoJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(usernameJLabel)
+                            .add(passwordJLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                            .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)))
+                    .add(loginInfoJPanelLayout.createSequentialGroup()
+                        .addContainerGap(159, Short.MAX_VALUE)
+                        .add(cancelJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(nextJButton)))
                 .addContainerGap())
         );
         loginInfoJPanelLayout.setVerticalGroup(
             loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(loginInfoJPanelLayout.createSequentialGroup()
-                .add(eaJLabel)
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 39, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(loginInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(usernameJLabel)

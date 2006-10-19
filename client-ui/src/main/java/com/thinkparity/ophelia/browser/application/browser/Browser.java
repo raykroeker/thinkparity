@@ -34,6 +34,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
@@ -321,7 +322,11 @@ public class Browser extends AbstractApplication {
      * Display the container version comment dialog.
      * 
      */
-    public void displayContainerVersionCommentDialog() {
+    public void displayContainerVersionInfoDialog(final Long containerId, final Long versionId) {
+        final Data input = new Data(2);
+        input.set(ContainerVersionCommentAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(ContainerVersionCommentAvatar.DataKey.VERSION_ID, versionId);
+        setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
 

@@ -119,7 +119,7 @@ public class ProviderFactory {
             provider = new ManageTeamProvider(profile, containerModel, contactModel);
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
-            provider = new ManageTeamProvider(profile, containerModel, contactModel);
+            provider = new ContainerProvider(profile, containerModel, documentModel, userModel);
             break;
         case DIALOG_PROFILE_RESET_PASSWORD:
             provider = new ResetPasswordProvider(profile, profileModel);

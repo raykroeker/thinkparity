@@ -14,6 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.CommentCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DocumentVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftDocumentCell;
@@ -26,7 +27,6 @@ import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.Rename;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -177,6 +177,27 @@ final class ContainerVersionsPopup {
         final Data readData = new Data(1);
         readData.set(Read.DataKey.CONTACT_ID, user.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
+    }
+    
+    /**
+     * Create ContainerVersionsPopup. This will create a popup menu for a
+     * comment cell.
+     * 
+     * @param model
+     *            The <code>ContainerModel</code>.
+     * @param comment
+     *            A <code>CommentCell</code>.
+     */
+    ContainerVersionsPopup(final ContainerModel model,
+            final CommentCell comment) {
+        super();
+        this.jPopupMenu = MenuFactory.createPopup();
+        final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
+
+        final Data data = new Data(2);
+        data.set(DisplayVersionInfo.DataKey.CONTAINER_ID, comment.getArtifactId());
+        data.set(DisplayVersionInfo.DataKey.VERSION_ID, comment.getVersionId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DISPLAY_VERSION_INFO, data));
     }
 
     /**

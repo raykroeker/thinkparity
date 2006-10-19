@@ -128,5 +128,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
     private javax.swing.JLabel explanationJLabel;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
+    
+    public enum DataKey { CONTAINER_ID, VERSION_ID }
 
 }

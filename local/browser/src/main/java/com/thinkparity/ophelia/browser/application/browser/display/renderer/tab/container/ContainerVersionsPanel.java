@@ -822,12 +822,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
             setIcon(imageCacheTest.read(TabCellIconTest.VERSION));
-            if (version.isSetComment()) {
-                addContentCell(new CommentCell(version.getComment()));
-            } else {
-                // TODO Remove this code
-                addContentCell(new CommentCell("This is a version comment. I like this version very much."));
-            }
+            // TODO fix this
+            addContentCell(new CommentCell(version));
+            
+/*            if (version.isSetComment()) {
+                addContentCell(new CommentCell(version));
+            }*/
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
             }
@@ -877,19 +877,31 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     
     /** A version comment cell. */
     final class CommentCell extends AbstractContentCell {
-        private final String comment;
-        private CommentCell(final String comment) {
+        private final ContainerVersion version;
+        private CommentCell(final ContainerVersion version) {
             super();
-            this.comment = comment;
-            setText(comment);
+            this.version = version;
+            // TODO Get rid of this test code.
+            if (version.isSetComment()) {
+                setText(version.getComment());
+            } else {
+                setText("This is a version comment. I like this version very much.");
+            }
             setIcon(imageCacheTest.read(TabCellIconTest.COMMENT));
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+            new ContainerVersionsPopup(model, this).show(invoker, e);
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
-            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionCommentDialog();
+            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionInfoDialog(getArtifactId(), getVersionId());
+        }
+        Long getArtifactId() {
+            return version.getArtifactId();
+        }
+        Long getVersionId() {
+            return version.getVersionId();
         }
     }
     

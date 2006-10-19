@@ -140,7 +140,7 @@ public class AvatarFactory {
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
             avatar = new ContainerVersionCommentAvatar();
-            //avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
             
         case DIALOG_PLATFORM_DISPLAY_INFO:

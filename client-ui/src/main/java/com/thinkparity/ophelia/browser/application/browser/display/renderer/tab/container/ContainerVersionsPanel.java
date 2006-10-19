@@ -153,7 +153,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     /**
      * Add a container version. The container version includes a list of
-     * documents; a list of users and their respective receipts; and the user
+     * documents, a list of users and their respective receipts, and the user
      * who published the container.
      * 
      * @param version
@@ -822,6 +822,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
             setIcon(imageCacheTest.read(TabCellIconTest.VERSION));
+            if (version.isSetComment()) {
+                addContentCell(new CommentCell(version.getComment()));
+            } else {
+                // TODO Remove this code
+                addContentCell(new CommentCell("This is a version comment. I like this version very much."));
+            }
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
             }
@@ -866,6 +872,24 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         Long getVersionId() {
             return version.getVersionId();
+        }
+    }
+    
+    /** A version comment cell. */
+    final class CommentCell extends AbstractContentCell {
+        private final String comment;
+        private CommentCell(final String comment) {
+            super();
+            this.comment = comment;
+            setText(comment);
+            setIcon(imageCacheTest.read(TabCellIconTest.COMMENT));
+        }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+        }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionCommentDialog();
         }
     }
     

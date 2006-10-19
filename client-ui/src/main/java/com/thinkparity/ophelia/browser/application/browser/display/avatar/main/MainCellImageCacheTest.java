@@ -121,7 +121,8 @@ public class MainCellImageCacheTest {
         CONTACT("IconContact.png"),
         DOCUMENT_WORD("IconWord.png"),
         DOCUMENT_EXCEL("IconExcel.png"),
-        DOCUMENT_NOTEPAD("IconNotepad.png");
+        DOCUMENT_NOTEPAD("IconNotepad.png"),
+        COMMENT("IconComment.png");
         
         /** The icon file name. */
         private final String iconName;

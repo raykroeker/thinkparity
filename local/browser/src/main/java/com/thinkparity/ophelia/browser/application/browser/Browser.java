@@ -316,6 +316,14 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
+    
+    /**
+     * Display the container version comment dialog.
+     * 
+     */
+    public void displayContainerVersionCommentDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
+    }
 
     /**
      * Display the contact info dialogue.

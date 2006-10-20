@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.Context;
@@ -71,6 +72,16 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
 	}
 
     /**
+     * Apply a bookmark to a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void addBookmark(final Long containerId) {
+        Assert.assertNotYetImplemented("Apply star has not yet been implemented.");
+    }
+
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -130,7 +141,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         synchronized(getImplLock()) { return getImpl().createDraft(containerId); }
     }
 
-	/**
+    /**
      * Delete a container.
      * 
      * @param containerId
@@ -152,7 +163,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Export a container version to a directory. The 
      * 
      * @param exportDirectory
@@ -492,7 +503,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-	/**
+    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -505,7 +516,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Read a container version.
      * 
      * @param containerId
@@ -582,6 +593,16 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         synchronized(getImplLock()) {
             return getImpl().readVersions(containerId, filter);
         }
+    }
+
+    /**
+     * Remove a bookmark from a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void removeBookmark(final Long containerId) {
+        Assert.assertNotYetImplemented("Remove bookmark has not yet been implemented.");
     }
 
     /**

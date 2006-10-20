@@ -6,11 +6,11 @@ package com.thinkparity.codebase.log4j;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author raymond@thinkparity.com
@@ -44,15 +44,6 @@ public class Log4JWrapper {
     }
 
     /**
-     * Obtain the apache logger.
-     * 
-     * @return An apache logger.
-     */
-    public Logger getLogger() {
-        return logger;
-    }
-
-    /**
      * Create Log4JWrapper.
      * 
      * @param clasz
@@ -79,25 +70,37 @@ public class Log4JWrapper {
     }
 
     /**
-     * Log an api id. (A stack-trace format of the caller's caller).
-     *
+     * Obtain the apache logger.
+     * 
+     * @return An apache logger.
      */
-    public final void logApiId() {
-        if (logger.isInfoEnabled()) {
-            logApiId("{0}.{1}({2}:{3})", StackUtil.getFrame(LOG4J_STACK_FILTER));
-        }
+    public Logger getLogger() {
+        return logger;
     }
 
     /**
      * Log an api id. (A stack-trace format of the caller's caller).
      *
      */
+    public final void logApiId() {
+        if (logger.isInfoEnabled()) {
+            logStackId(Level.INFO, "{0}.{1}({2}:{3})", StackUtil.getFrame(LOG4J_STACK_FILTER));
+        }
+    }
+
+    /**
+     * Log a filtered api id. (A stack-trace format of the caller's caller).
+     * 
+     * @param filter
+     *            A stack util filter used to remove certain elements of the
+     *            stack.
+     */
     public final void logApiId(final StackUtil.Filter filter) {
         if (logger.isInfoEnabled()) {
             final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>();
             filters.add(LOG4J_STACK_FILTER);
             filters.add(filter);
-            logApiId("{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(filters));
+            logStackId(Level.INFO, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(filters));
         }
     }
 
@@ -211,6 +214,32 @@ public class Log4JWrapper {
     }
 
     /**
+     * Log a trace id. (A stack-trace format of the caller's caller).
+     * 
+     */
+    public final void logTraceId() {
+        if (logger.isTraceEnabled()) {
+            logStackId(Level.TRACE, "{0}.{1}({2}:{3})", StackUtil.getFrame(LOG4J_STACK_FILTER));
+        }
+    }
+
+    /**
+     * Log a filtered trace id. (A stack-trace format of the caller's caller).
+     * 
+     * @param filter
+     *            A stack util filter used to remove certain elements of the
+     *            stack.
+     */
+    public final void logTraceId(final StackUtil.Filter filter) {
+        if (logger.isTraceEnabled()) {
+            final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>();
+            filters.add(LOG4J_STACK_FILTER);
+            filters.add(filter);
+            logStackId(Level.TRACE, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
+        }
+    }
+
+    /**
      * Log a variable.
      * 
      * @param <V>
@@ -267,16 +296,28 @@ public class Log4JWrapper {
     }
 
     /**
-     * Log a stack trace element.
+     * Log a stack trace id at a given level.
      * 
+     * @param level
+     *            An apache logging <code>Level</code>.
+     * @param stackPattern
+     *            A pattern to use for the
+     *            <ol>
+     *            <li>Class name
+     *            <li>Method name
+     *            <li>File name
+     *            <li>Line number
+     *            </ol>
+     *            of the stack trace element.
      * @param stackTraceElement
      *            A <code>StackTraceElement</code>.
      */
-    private final void logApiId(final String stackPattern, final StackTraceElement stackElement) {
+    private final void logStackId(final Level level, final String stackPattern,
+            final StackTraceElement stackElement) {
         if (null == stackElement) {
-            logger.info("No stack available.");
+            logger.log(level, "No stack available.");
         } else {
-            logger.info(Log4JHelper.renderAndFormat(logger, stackPattern,
+            logger.log(level, Log4JHelper.renderAndFormat(logger, stackPattern,
                     stackElement.getClassName(), stackElement.getMethodName(),
                     stackElement.getFileName(), stackElement.getLineNumber()));
         }

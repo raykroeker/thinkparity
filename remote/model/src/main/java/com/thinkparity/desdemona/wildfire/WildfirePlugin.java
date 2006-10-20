@@ -9,7 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.LogManager;
-
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.XPP3Reader;
 import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.wildfire.IQRouter;
 import org.jivesoftware.wildfire.XMPPServer;
@@ -18,12 +20,7 @@ import org.jivesoftware.wildfire.container.Plugin;
 import org.jivesoftware.wildfire.container.PluginManager;
 import org.jivesoftware.wildfire.handler.IQHandler;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.XPP3Reader;
-
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 
@@ -167,7 +164,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startArchive() {
-//        ArchiveModel.getModel().start();
+        ArchiveModel.getModel().start();
     }
 
     /**
@@ -175,6 +172,6 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopArchive() {
-//        ArchiveModel.getModel().stop();
+        ArchiveModel.getModel().stop();
     }
 }

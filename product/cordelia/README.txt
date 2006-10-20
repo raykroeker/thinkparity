@@ -5,7 +5,8 @@ to flatter him as her sisters do; he soon finds out that she is the only one of
 the three who genuinely cares for him.  
 
     The cordelia product is a local (client side) internal product that
-manages the auto-upgrade content on the server.
+manages all administration.  This includes user admin (add\remove\disable);
+release admin; server admin and archive admin.
 
 Build Tools:
     1.  The Apache Ant Project:   1.6.5   http://ant.apache.org

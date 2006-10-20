@@ -48,7 +48,7 @@ public final class BrowserConstants {
 
         /** The font family name. */
         private static final String FONT_NAME = "Tahoma";
-        
+
         /** The default font. */
         public static final Font DefaultFont =
             new Font(FONT_NAME, Font.PLAIN, 11);

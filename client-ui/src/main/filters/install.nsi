@@ -58,12 +58,13 @@ Section "thinkParity" SecParityBrowser
 
   SetOutPath "$INSTDIR"
 
-  File /r ${pom.version}
-  File LICENSE.TXT
-  File README.TXT
-  File thinkParity.exe
-  File thinkParity.jar
-  File thinkParity.properties
+  File /r "${pom.version}"
+  File "LICENSE.TXT"
+  File "README.TXT"
+  File "thinkParity.exe"
+  File "thinkParity Demo.exe"
+  File "thinkParity.jar"
+  File "thinkParity.properties"
 
   ;Store installation folder
   WriteRegStr HKCU "Software\thinkParity" "" $INSTDIR
@@ -72,6 +73,7 @@ Section "thinkParity" SecParityBrowser
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity Demo.lnk" "$INSTDIR\thinkParity Demo.exe"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity.lnk" "$INSTDIR\Uninstall thinkParity.exe"
   CreateShortCut "$DESKTOP\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
 
@@ -100,6 +102,7 @@ Section "Uninstall"
   Delete "$INSTDIR\LICENSE.txt"
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\thinkParity.exe"
+  Delete "$INSTDIR\thinkParity Demo.exe"
   Delete "$INSTDIR\thinkParity.jar"
   Delete "$INSTDIR\thinkParity.properties"
 

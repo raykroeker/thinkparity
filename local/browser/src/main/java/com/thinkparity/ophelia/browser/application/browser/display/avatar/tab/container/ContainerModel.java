@@ -238,6 +238,9 @@ public final class ContainerModel extends TabPanelModel {
             expanded.put(tabPanel, Boolean.FALSE);
         }
         else {
+            for (final Entry<TabPanel, Boolean> entry : expanded.entrySet()) {
+                entry.setValue(Boolean.FALSE);
+            }
             expanded.put(tabPanel, Boolean.TRUE);
         }
         synchronize();

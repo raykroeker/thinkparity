@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.event.MouseEvent;
@@ -73,6 +75,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         java.awt.GridBagConstraints gridBagConstraints;
 
         headerJLabel = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         tabJScrollPane = new javax.swing.JScrollPane();
         tabJPanel = new javax.swing.JPanel();
         fillJLabel = new javax.swing.JLabel();
@@ -90,10 +97,61 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 4;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         add(headerJLabel, gridBagConstraints);
+
+        jPanel1.setBorder(new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER));
+        jPanel1.setOpaque(false);
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel1.setText("Star");
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel2.setText("Name");
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel3.setText("Updated On");
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Draft");
+
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel2)
+                .add(157, 157, 157)
+                .add(jLabel3)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 130, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(5, 5, 5)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(jLabel2)))
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(5, 5, 5)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        add(jPanel1, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
         tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
@@ -112,7 +170,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -285,6 +343,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel fillJLabel;
     private javax.swing.JLabel headerJLabel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel tabJPanel;
     private javax.swing.JScrollPane tabJScrollPane;
     // End of variables declaration//GEN-END:variables

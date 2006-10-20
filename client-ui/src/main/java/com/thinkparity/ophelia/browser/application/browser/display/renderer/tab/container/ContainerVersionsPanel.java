@@ -44,10 +44,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
@@ -67,7 +63,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     
     static {        
         DIMENSION = new Dimension(50,100);
-        BORDER_BOTTOM = new BottomBorder(Color.WHITE);
+        BORDER_BOTTOM = new BottomBorder(Color.white);
     }
 
     /** The <code>Container</code>. */

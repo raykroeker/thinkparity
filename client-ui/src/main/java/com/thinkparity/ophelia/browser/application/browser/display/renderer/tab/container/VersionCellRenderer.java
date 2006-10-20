@@ -52,7 +52,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         if (null!=icon) {
             iconJLabel.setIcon(icon);
         }
- 
+
         // Set background. Note that isFocusOwner() does not behave exactly as we want,
         // for example during a popup it will become false, so we use cell.isFocusOnRight().
         if (isSelected) {

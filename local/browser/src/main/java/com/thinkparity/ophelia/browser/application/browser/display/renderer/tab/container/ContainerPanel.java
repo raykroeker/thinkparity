@@ -18,6 +18,7 @@ import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -59,15 +60,15 @@ public final class ContainerPanel extends DefaultTabPanel {
     private static final Dimension DIMENSION;
     
     static {
-        BORDER_COLOURS = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
+        BORDER_COLOURS = new Color[] {/*Colours.MAIN_CELL_DEFAULT_BORDER*/Color.white, Color.WHITE};
         BORDER_COLOURS_GROUP_TOP = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER,
                 Colours.MAIN_CELL_DEFAULT_BORDER, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
         
         BORDER_TOP = new TopBorder(BORDER_COLOURS, 2, new Insets(2,0,0,0));
         BORDER_TOP_EXPANDED = new TopBorder(Color.WHITE, 2, new Insets(2,0,0,0));
-        BORDER_TOP_GROUP = new TopBorder(BORDER_COLOURS_GROUP_TOP, 4, new Insets(4,0,0,0));
+        BORDER_TOP_GROUP = new TopBorder(/*BORDER_COLOURS_GROUP_TOP*/Color.white, 4, new Insets(4,0,0,0));
         BORDER_BOTTOM = new BottomBorder(Color.WHITE);
-        BORDER_BOTTOM_LAST = new BottomBorder(BORDER_COLOURS, 2, new Insets(0,0,2,0));
+        BORDER_BOTTOM_LAST = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 1, new Insets(0,0,1,0));
         
         // These are so there isn't a white line between the ContainerPanel and the ContainerVersionsPanel
         BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_SELECTION_BG);
@@ -283,6 +284,11 @@ public final class ContainerPanel extends DefaultTabPanel {
             color = Colors.Browser.List.LIST_SELECTION_FG;
         } else {
             color = Colors.Browser.List.LIST_FG;
+        }
+        if (isExpanded()) {
+            containerNameJLabel.setFont(Fonts.DefaultFontBold);
+        } else {
+            containerNameJLabel.setFont(Fonts.DefaultFont);
         }
         containerNameJLabel.setForeground(color);
         draftOwnerJLabel.setForeground(color);

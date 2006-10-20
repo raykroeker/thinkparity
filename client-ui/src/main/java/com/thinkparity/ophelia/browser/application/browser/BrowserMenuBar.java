@@ -3,9 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -16,7 +20,7 @@ import javax.swing.JMenuBar;
 import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
-import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -153,9 +157,25 @@ public class BrowserMenuBar extends JMenuBar {
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
         
         // Create the Sign-Up button
-        this.add(Box.createHorizontalGlue());
-        this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, Data.emptyData()));
         this.add(Box.createRigidArea(new Dimension(5,0)));
+        final JLabel label = new JLabel("Sign-Up");
+        label.setForeground(new Color(249, 162, 94, 255));
+        final String orig = label.getText();
+        label.setFont(Fonts.DefaultFontBold);
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                final String text = label.getText();
+                label.setText(MessageFormat.format("<html><u>{0}</u></html>", text));
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                label.setText(MessageFormat.format("<html>{0}</html>", orig));
+            }
+        });
+        this.add(label);
+        //this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, Data.emptyData()));
+        this.add(Box.createHorizontalGlue());
 
         // Add minimize, maximize and close buttons
         this.add(getMinimizeButton());

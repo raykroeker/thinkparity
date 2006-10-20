@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -15,12 +16,12 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -130,20 +131,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         return containerModel.readPublishedTo(containerId, versionId);
-    }
-
-    /**
-     * Read the shared with user list.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId) {
-        return containerModel.readSharedWith(containerId, versionId);
     }
 
     /**

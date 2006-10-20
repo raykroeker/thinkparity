@@ -15,12 +15,15 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -29,7 +32,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -612,19 +614,8 @@ public final class ContainerModel extends TabPanelModel {
      */
     private Map<User, ArtifactReceipt> readUsers(final Long containerId,
             final Long versionId) {
-        final Map<User, ArtifactReceipt> publishedTo = ((ContainerProvider) contentProvider)
-                .readPublishedTo(containerId, versionId);
-        final Map<User, ArtifactReceipt> sharedWith = ((ContainerProvider) contentProvider)
-                .readSharedWith(containerId, versionId);
-        final Map<User, ArtifactReceipt> users = new HashMap<User, ArtifactReceipt>(
-                publishedTo.size() + sharedWith.size(), 1.0F);
-        users.putAll(publishedTo);
-        for (final Entry<User, ArtifactReceipt> entry : sharedWith.entrySet()) {
-            if (!users.containsKey(entry.getKey())) {
-                users.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return users;
+        return ((ContainerProvider) contentProvider).readPublishedTo(
+                containerId, versionId);
     }
 
     /**

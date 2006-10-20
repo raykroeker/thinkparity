@@ -12,16 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jivesoftware.smack.AccountManager;
-import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.SSLXMPPConnection;
-import org.jivesoftware.smack.SmackConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.Packet;
-
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
@@ -30,6 +20,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -40,6 +31,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackErrorTranslator;
@@ -48,6 +40,16 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
+
+import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.SSLXMPPConnection;
+import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.packet.Packet;
 
 /**
  * XMPPSessionImpl
@@ -217,11 +219,17 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#clearListeners()
      */
     public void clearListeners() {
+        logger.logApiId();
         listeners.clear();
+        logger.logTraceId();
         xmppArtifact.clearListeners();
+        logger.logTraceId();
         xmppContact.clearListeners();
+        logger.logTraceId();
         xmppContainer.clearListeners();
+        logger.logTraceId();
         xmppProfile.clearListeners();
+        logger.logTraceId();
         xmppUser.clearListeners();
     }
 
@@ -359,9 +367,10 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	public void logout() {
 		logger.logApiId();
         clearListeners();
+        xmppAnonymousConnection.close();
+        xmppAnonymousConnection = null;
         xmppConnection.close();
         xmppConnection = null;
-        xmppAnonymousConnection = null;
 	}
 
     /**

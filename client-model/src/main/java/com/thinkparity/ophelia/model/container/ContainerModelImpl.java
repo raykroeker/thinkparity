@@ -9,7 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.transform.TransformerException;
 
@@ -22,6 +29,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -995,7 +1003,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
-            final Calendar currentDateTime = currentDateTime();
             // if the artfiact doesn't exist on the server; create it there
             if (!isDistributed(container.getId())) {
                 createDistributed(container);
@@ -1028,32 +1035,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             draftDocumentLatestVersion.getArtifactType());
                 }
             }
-
-            // update local team
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            for (final Contact contact : contacts)
-                artifactModel.addTeamMember(container.getId(), contact.getId());
-
-            // remove local key
-            artifactModel.removeFlagKey(container.getId());
-
-            // build the publish to list then publish
-            final List<JabberId> publishTo = new ArrayList<JabberId>();
-            final List<User> publishToUsers = new ArrayList<User>();
-            for (final Contact contact : contacts) {
-                publishTo.add(contact.getId());
-                publishToUsers.add(contact);
-            }
-            for (final TeamMember teamMember : teamMembers) {
-                publishTo.add(teamMember.getId());
-                publishToUsers.add(teamMember);
-            }
-            publish(version, publishTo, localUserId(), currentDateTime);
-
-            // update remote team
-            final InternalSessionModel sessionModel = getSessionModel();
-            for (final Contact contact : contacts)
-                sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
+            doPublishVersion(containerId, version.getVersionId(), contacts,
+                    teamMembers);
 
             // delete draft
             for(final Artifact artifact : draft.getArtifacts()) {
@@ -1062,17 +1045,47 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             }
             containerIO.deleteDraft(container.getId());
 
-            // create published to list
-            containerIO.createPublishedTo(containerId,
-                    version.getVersionId(), publishToUsers);
-
             // fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
                     version.getArtifactId(), version.getVersionId());
             notifyContainerPublished(postPublish, draft, postPublishVersion,
                     localEventGenerator);
-        } catch(final Throwable t) {
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Publish the container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param contacts
+     *            A contact <code>List</code>.
+     */
+    void publishVersion(final Long containerId, final Long versionId,
+            final List<Contact> contacts) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("contacts", contacts);
+        try {
+            // remove local key
+            getInternalArtifactModel().removeFlagKey(containerId);
+
+            final List<TeamMember> teamMembers = Collections.emptyList();
+            doPublishVersion(containerId, versionId, contacts, teamMembers);
+
+            // fire event
+            final Container postPublish = read(containerId);
+            final ContainerVersion postPublishVersion =
+                readVersion(containerId, versionId);
+            notifyContainerPublished(postPublish, postPublishVersion,
+                    localEventGenerator);
+        } catch (final Throwable t) {
             throw translateError(t);
         }
     }
@@ -2231,7 +2244,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return postCreationDraft;
     }
 
-
     /**
      * Create the team for a container. The team will consist of the local user
      * only.
@@ -2245,6 +2257,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getInternalArtifactModel().createTeam(containerId);
         return team.get(0);
     }
+
 
     /**
      * Create a container version.
@@ -2338,6 +2351,48 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             return draft.getOwner().getId().equals(localUserId());
         }
         else { return Boolean.FALSE; }
+    }
+
+    /**
+     * Publish a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     */
+    private void doPublishVersion(final Long containerId, final Long versionId,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        final Container container = read(containerId);
+        final ContainerVersion version = readVersion(containerId, versionId);
+
+        // update local team
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        for (final Contact contact : contacts)
+            artifactModel.addTeamMember(container.getId(), contact.getId());
+
+        // build the publish to list then publish
+        final List<JabberId> publishTo = new ArrayList<JabberId>();
+        final List<User> publishToUsers = new ArrayList<User>();
+        for (final Contact contact : contacts) {
+            publishTo.add(contact.getId());
+            publishToUsers.add(contact);
+        }
+        for (final TeamMember teamMember : teamMembers) {
+            publishTo.add(teamMember.getId());
+            publishToUsers.add(teamMember);
+        }
+        final Calendar currentDateTime = currentDateTime();
+        publish(version, publishTo, localUserId(), currentDateTime);
+
+        // update remote team
+        final InternalSessionModel sessionModel = getSessionModel();
+        for (final Contact contact : contacts)
+            sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
+
+        // create published to list
+        containerIO.createPublishedTo(containerId,
+                version.getVersionId(), publishToUsers);
     }
 
     /**
@@ -2566,6 +2621,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * 
      * @param container
      *            A container.
+     * @param draft
+     *            A container draft.
      * @param version
      *            A container version.
      * @param eventGenerator
@@ -2578,6 +2635,26 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             public void notifyListener(final ContainerListener listener) {
                 listener.draftPublished(eventGenerator.generate(container,
                         draft, version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A container.
+     * @param version
+     *            A container version.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerPublished(final Container container,
+            final ContainerVersion version,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftPublished(eventGenerator.generate(container, version));
             }
         });
     }

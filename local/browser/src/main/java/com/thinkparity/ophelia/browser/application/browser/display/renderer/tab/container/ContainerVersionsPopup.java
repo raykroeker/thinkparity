@@ -11,6 +11,8 @@ import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -23,11 +25,17 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.Rename;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -216,9 +224,9 @@ final class ContainerVersionsPopup {
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
         if (model.isOnline()) {
             final Data shareData = new Data(2);
-            shareData.set(Share.DataKey.CONTAINER_ID, version.getArtifactId());
-            shareData.set(Share.DataKey.VERSION_ID, version.getVersionId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));    
+            shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            shareData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH_VERSION, shareData));    
             jPopupMenu.addSeparator();
         }
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_VERSION, Data.emptyData()));

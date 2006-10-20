@@ -42,7 +42,7 @@ public class ReadLatestVersionPostPublishTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        publishContainer(OpheliaTestUser.JUNIT, container);
+        publishToContacts(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel);
     }
 

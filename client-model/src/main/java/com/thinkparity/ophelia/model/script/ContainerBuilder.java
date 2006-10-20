@@ -5,22 +5,24 @@ package com.thinkparity.ophelia.model.script;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -197,9 +199,9 @@ public class ContainerBuilder {
         final ContainerModel containerModel = getContainerModel();
         final List<TeamMember> teamMembers = containerModel.readTeam(id);
         final List<Contact> contacts = contactModel.read();
-        final List<TeamMember> filteredTeamMembers = filter(teamMembers, names);
-        final List<Contact> filteredContacts = filter(contacts, names);
-        containerModel.publish(id, comment, filteredContacts, filteredTeamMembers);
+        filter(teamMembers, names);
+        filter(contacts, names);
+        containerModel.publish(id, comment, contacts, teamMembers);
         return this;
     }
 
@@ -237,15 +239,9 @@ public class ContainerBuilder {
      *            A list of user's names.
      * @return A filtered list of users.
      */
-    private <U extends User> List<U> filter(final List<U> users,
+    private <U extends User> void filter(final List<U> users,
             final String... names) {
-        final List<U> filteredUsers = new ArrayList<U>(users.size());
-        for (final String name : names) {
-            for (final U user : users) {
-                if (user.getName().equals(name))
-                    filteredUsers.add(user);
-            }
-        }
+        UserUtils.getInstance().filter(users, names);
         final Profile profile =
             ProfileModel.getModel(environment, workspace).read();
         for (int i = 0; i < users.size(); i++) {
@@ -254,7 +250,6 @@ public class ContainerBuilder {
                 break;
             }
         }
-        return filteredUsers;
     }
 
     /**

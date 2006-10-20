@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -250,6 +251,23 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     }
 
     /**
+     * Publish the container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param contacts
+     *            A contact <code>List</code>.
+     */
+    public void publishVersion(final Long containerId, final Long versionId,
+            final List<Contact> contacts) {
+        synchronized (getImplLock()) {
+            getImpl().publishVersion(containerId, versionId, contacts);
+        }
+    }
+
+    /**
      * Read the containers.
      * 
      * @return A list of containers.
@@ -474,80 +492,6 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readSharedWith(containerId, versionId);
-        }
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.\
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Comparator<User> comparator) {
-        synchronized (getImplLock()) {
-            return getImpl().readSharedWith(containerId, versionId, comparator);
-        }
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readSharedWith(containerId, versionId, comparator,
-                    filter);
-        }
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().readSharedWith(containerId, versionId, filter);
-        }
-    }
-
 	/**
      * Read the team for the container.
      * 
@@ -710,25 +654,6 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     public List<Long> search(final String expression) {
         synchronized (getImplLock()) {
             return getImpl().search(expression);
-        }
-    }
-
-    /**
-     * Share a version of the container with a list of users.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param versionId
-     *            A version id.
-     * @param contacts
-     *            A <code>List&lt;Contact&gt;</code>.
-     * @param teamMembers
-     *            A <code>List&lt;TeamMember&gt;</code>.
-     */
-    public void share(final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        synchronized (getImplLock()) {
-            getImpl().share(containerId, versionId, contacts, teamMembers);
         }
     }
 

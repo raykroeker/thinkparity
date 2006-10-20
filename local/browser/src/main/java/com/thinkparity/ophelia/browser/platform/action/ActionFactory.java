@@ -148,6 +148,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_PUBLISH:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Publish(browser);
             break;
+        case CONTAINER_PUBLISH_VERSION:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.PublishVersion(browser);
+            break;
         case CONTAINER_REMOVE_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument(browser);
             break;
@@ -156,9 +159,6 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(browser);
-            break;
-        case CONTAINER_SHARE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Share(browser);
             break;
         case CONTAINER_SUBSCRIBE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Subscribe(browser);

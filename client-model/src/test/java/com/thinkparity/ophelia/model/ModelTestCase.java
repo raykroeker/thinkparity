@@ -21,6 +21,7 @@ import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -29,9 +30,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.ophelia.OpheliaTestCase;
-import com.thinkparity.ophelia.OpheliaTestModelFactory;
-import com.thinkparity.ophelia.OpheliaTestUser;
+
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -52,7 +51,12 @@ import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import com.thinkparity.ophelia.OpheliaTestCase;
+import com.thinkparity.ophelia.OpheliaTestModelFactory;
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * ModelTestCase
@@ -453,6 +457,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /** A test model factory. */
     private OpheliaTestModelFactory modelFactory;
 
+    /** A collection of user utility functions. */
+    private final UserUtils userUtils;
+
     /**
 	 * Create a ModelTestCase
 	 * 
@@ -461,6 +468,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 */
 	protected ModelTestCase(final String name) {
         super(name);
+        this.userUtils = UserUtils.getInstance();
 	}
 
     /**
@@ -674,7 +682,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getSystemMessageModel(testUser);
     }
 
-    protected File[] getModFiles() throws IOException {
+	protected File[] getModFiles() throws IOException {
         final File[] modFiles = new File[5];
         System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
         return modFiles;
@@ -690,7 +698,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getReleaseModel(testUser);
     }
 
-	protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+    protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
         return modelFactory.getScriptModel(testUser);
     }
 
@@ -819,17 +827,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Publish a container.
-     * 
-     * @param container
-     *            A container.
-     */
-    protected void publishContainer(final OpheliaTestUser testUser,
-            final Container container) {
-        publishToContacts(testUser, container);
-    }
-
-    /**
      * Publish the container to contacts.
      * 
      * @param container
@@ -839,6 +836,23 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             final Container container) {
         final List<TeamMember> teamMembers = Collections.emptyList();
         final List<Contact> contacts = readContacts(testUser);
+        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
+                getName(), container.getName(), contacts, teamMembers);
+        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
+    }
+
+    /**
+     * Publish the container to contacts.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    protected void publishToContacts(final OpheliaTestUser testUser,
+            final Container container, final String... contactNames) {
+        final List<Contact> contacts = readContacts(testUser);
+        userUtils.filter(contacts, contactNames);
+
+        final List<TeamMember> teamMembers = Collections.emptyList();
         logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
                 getName(), container.getName(), contacts, teamMembers);
         getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
@@ -861,15 +875,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Read the contacts.
-     * 
-     * @return A list of contacts.
-     */
-    protected List<Contact> readContacts(final OpheliaTestUser testUser) {
-        return getContactModel(testUser).read();
-    }
-
-    /**
      * Read a contacts.
      * 
      * @return A <code>Contacts</code>.
@@ -877,6 +882,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected Contact readContact(final OpheliaTestUser testUser,
             final OpheliaTestUser contact) {
         return getContactModel(testUser).read(contact.getId());
+    }
+
+    /**
+     * Read the contacts.
+     * 
+     * @return A list of contacts.
+     */
+    protected List<Contact> readContacts(final OpheliaTestUser testUser) {
+        return getContactModel(testUser).read();
     }
 
     /**
@@ -904,20 +918,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         super.setUp();
         this.modelFactory = OpheliaTestModelFactory.getInstance(this);
 	}
-
-    /**
-     * Share a container.
-     * 
-     * @param container
-     *            The container.
-     */
-    protected void share(final OpheliaTestUser testUser,
-            final Container container, final ContainerVersion version) {
-        final List<TeamMember> teamMembers = Collections.emptyList();
-        final List<Contact> contacts = readContacts(testUser);
-        getContainerModel(testUser).share(container.getId(),
-                version.getVersionId(), contacts, teamMembers);
-    }
 
     /**
 	 * @see junit.framework.TestCase#tearDown()

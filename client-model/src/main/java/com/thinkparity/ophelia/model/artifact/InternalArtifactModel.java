@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.session.Environment;
@@ -61,6 +62,18 @@ public class InternalArtifactModel extends ArtifactModel {
     public void applyFlagArchived(final Long artifactId) {
         synchronized (getImplLock()) {
             getImpl().applyFlagArchived(artifactId);
+        }
+    }
+
+    /**
+     * Apply the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public void applyFlagBookmark(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().applyFlagBookmark(artifactId);
         }
     }
 
@@ -224,14 +237,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-    public void handleReceived(final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar recievedOn) {
-        synchronized (getImplLock()) {
-            getImpl().handleReceived(uniqueId, versionId, receivedBy, recievedOn);
-        }
-    }
-
-	/**
+    /**
      * Handle the remote event generated when a draft is deleted.
      * 
      * @param uniqueId
@@ -245,6 +251,13 @@ public class InternalArtifactModel extends ArtifactModel {
             final JabberId deletedBy, final Calendar deletedOn) {
         synchronized (getImplLock()) {
             getImpl().handleDraftDeleted(uniqueId, deletedBy, deletedOn);
+        }
+    }
+
+	public void handleReceived(final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar recievedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleReceived(uniqueId, versionId, receivedBy, recievedOn);
         }
     }
 
@@ -333,6 +346,18 @@ public class InternalArtifactModel extends ArtifactModel {
     public void removeFlagArchived(final Long artifactId) {
         synchronized (getImplLock()) {
             getImpl().removeFlagArchived(artifactId);
+        }
+    }
+
+    /**
+     * Remove the bookmark flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public void removeFlagBookmark(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().removeFlagBookmark(artifactId);
         }
     }
 

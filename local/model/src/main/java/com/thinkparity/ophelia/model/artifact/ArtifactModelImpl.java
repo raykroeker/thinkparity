@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.TrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -105,6 +106,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("artifactId", artifactId);
         try {
             applyFlag(artifactId, ArtifactFlag.ARCHIVED);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Apply the bookmark flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    void applyFlagBookmark(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            applyFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -504,6 +521,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("artifactId", artifactId);
         try {
             removeFlag(artifactId, ArtifactFlag.ARCHIVED);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Remove the bookmark flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    void removeFlagBookmark(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            removeFlag(artifactId, ArtifactFlag.BOOKMARK);
         } catch (final Throwable t) {
             throw translateError(t);
         }

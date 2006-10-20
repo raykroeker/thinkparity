@@ -3,10 +3,17 @@
  */
 package com.thinkparity.codebase.model.artifact;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.note.Note;
 
 
@@ -117,6 +124,15 @@ public abstract class Artifact {
 	public Boolean contains(final ArtifactFlag flag) {
 		return flags.contains(flag);
 	}
+
+    /**
+     * Determine whether or not the object has been bookmarked.
+     * 
+     * @return True if it has been bookmarked.
+     */
+    public Boolean isBookmarked() {
+        return flags.contains(ArtifactFlag.BOOKMARK);
+    }
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)

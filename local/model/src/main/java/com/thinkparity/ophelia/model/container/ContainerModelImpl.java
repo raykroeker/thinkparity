@@ -176,6 +176,22 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Apply a bookmark to a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void addBookmark(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            getInternalArtifactModel().applyFlagBookmark(containerId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -858,7 +874,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.updatePublishedTo(containerId, versionId, receivedBy, receivedOn);
         containerIO.updateSharedWith(containerId, versionId, receivedBy, receivedOn);
     }
-
     /**
      * Handle the container shared remote event.  All we're doing here is saving
      * the sent to list and firing an event.
@@ -905,6 +920,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         notifyContainerShared(read(containerId), readVersion(containerId,
                 versionId), remoteEventGenerator);
     }
+
     /**
      * Print a container draft.
      * 
@@ -1768,6 +1784,22 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Remove a bookmark from a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void removeBookmark(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            getInternalArtifactModel().removeFlagBookmark(containerId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Remove a document from a container.
      * 
      * @param containerId
@@ -2217,6 +2249,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
 
+
     /**
      * Create the first draft for a cotnainer.
      * 
@@ -2257,7 +2290,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getInternalArtifactModel().createTeam(containerId);
         return team.get(0);
     }
-
 
     /**
      * Create a container version.

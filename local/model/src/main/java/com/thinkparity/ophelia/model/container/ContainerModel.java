@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.Context;
@@ -78,7 +77,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id <code>Long</code>.
      */
     public void addBookmark(final Long containerId) {
-        Assert.assertNotYetImplemented("Apply star has not yet been implemented.");
+        synchronized (getImplLock()) {
+            getImpl().addBookmark(containerId);
+        }
     }
 
     /**
@@ -602,7 +603,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id <code>Long</code>.
      */
     public void removeBookmark(final Long containerId) {
-        Assert.assertNotYetImplemented("Remove bookmark has not yet been implemented.");
+        synchronized (getImplLock()) {
+            getImpl().removeBookmark(containerId);
+        }
     }
 
     /**

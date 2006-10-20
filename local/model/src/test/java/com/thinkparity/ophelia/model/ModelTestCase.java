@@ -19,6 +19,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -89,6 +90,31 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         ModelTestCase.assertTrue("expected:<" + document.getId() + " but was:<" + actualIds.toString(), didContain);
 
 	}
+
+    protected static <T extends Artifact> void assertContains(
+            final List<T> list, final T o) {
+        final StringBuffer actualIds = new StringBuffer();
+        for (final T element : list) {
+            if (element.getUniqueId().equals(o.getUniqueId())) {
+                return;
+            } else {
+                if (0 < actualIds.length()) {
+                    actualIds.append(",");
+                }
+                actualIds.append(element.getUniqueId());
+            }
+        }
+        Assert.assertTrue(Boolean.FALSE, "expected:<{0}> but was:<{1}>", o.getUniqueId(), actualIds);
+    }
+
+    protected static <T extends Artifact> void assertDoesNotContain(
+            final List<T> list, final T o) {
+        for (final T element : list) {
+            if (element.getUniqueId().equals(o.getUniqueId())) {
+                Assert.assertTrue(Boolean.FALSE, "Did not expect:<{0}>", o.getUniqueId());
+            }
+        }
+    }
 
     /**
      * Assert that the expected container matches the actual.

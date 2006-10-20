@@ -109,19 +109,15 @@ public class MainCellImageCacheTest {
     
     /** All tab cell icons. */
     public enum TabCellIconTest {
-        INFO("Invisible20x20.png"),
+        INVISIBLE("Invisible16x16.png"),
         CONTAINER("IconContainer.png"),
-        CONTAINER32x32("IconContainer32x32.png"),
         DRAFT("IconDraft.png"),
-        DRAFT32x32("IconDraft32x32.png"),
         VERSION("IconVersion.png"),
-        VERSION32x32("IconVersion32x32.png"),
-        FOLDER_OPEN("IconFolderOpen.png"),
-        FOLDER_CLOSED("IconFolderClosed.png"),
-        CONTACT("IconContact.png"),
-        DOCUMENT_WORD("IconWord.png"),
-        DOCUMENT_EXCEL("IconExcel.png"),
-        DOCUMENT_NOTEPAD("IconNotepad.png"),
+        USER("IconUser.png"),
+        FILE_DOC("IconFileDoc.png"),
+        FILE_XLS("IconFileXls.png"),
+        FILE_PDF("IconFilePdf.png"),
+        FILE_DEFAULT("IconFileDefault.png"),
         COMMENT("IconComment.png");
         
         /** The icon file name. */

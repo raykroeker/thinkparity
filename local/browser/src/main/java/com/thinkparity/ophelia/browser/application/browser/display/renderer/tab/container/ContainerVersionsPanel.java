@@ -789,7 +789,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 setText(MessageFormat.format("{0}",
                         user.getName(), user.getOrganization(), user.getTitle()));
             }
-            setIcon(imageCacheTest.read(TabCellIconTest.CONTACT));
+            setIcon(imageCacheTest.read(TabCellIconTest.USER));
         }
         JabberId getId() {
             return user.getId();
@@ -920,11 +920,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public ImageIcon getDocumentIcon(final Document document) {
         final String extension = getNameExtension(document);
         if (extension.equalsIgnoreCase(".DOC")) {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+            return imageCacheTest.read(TabCellIconTest.FILE_DOC); 
         } else if (extension.equalsIgnoreCase(".XLS")) {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+            return imageCacheTest.read(TabCellIconTest.FILE_XLS);  
+        } else if (extension.equalsIgnoreCase(".PDF")) {
+            return imageCacheTest.read(TabCellIconTest.FILE_PDF);
         } else {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+            return imageCacheTest.read(TabCellIconTest.FILE_DEFAULT); 
         }
     }
     
@@ -941,11 +943,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
         final String extension = getNameExtension(documentVersion);
         if (extension.equalsIgnoreCase(".DOC")) {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_WORD); 
+            return imageCacheTest.read(TabCellIconTest.FILE_DOC); 
         } else if (extension.equalsIgnoreCase(".XLS")) {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_EXCEL);  
+            return imageCacheTest.read(TabCellIconTest.FILE_XLS);  
+        } else if (extension.equalsIgnoreCase(".PDF")) {
+            return imageCacheTest.read(TabCellIconTest.FILE_PDF);
         } else {
-            return imageCacheTest.read(TabCellIconTest.DOCUMENT_NOTEPAD); 
+            return imageCacheTest.read(TabCellIconTest.FILE_DEFAULT); 
         }
     }
     private String getNameExtension(final DocumentVersion documentVersion) {

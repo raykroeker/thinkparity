@@ -6,8 +6,6 @@ package com.thinkparity.cordelia.ui.application.admin;
 import com.thinkparity.codebase.ui.application.ApplicationId;
 import com.thinkparity.codebase.ui.application.ApplicationStatus;
 
-import com.thinkparity.desdemona.model.user.UserModel;
-
 import com.thinkparity.cordelia.ui.CordeliaPlatform;
 import com.thinkparity.cordelia.ui.application.Application;
 import com.thinkparity.cordelia.ui.application.ApplicationRegistry.Id;
@@ -52,10 +50,6 @@ public final class AdminApplication extends Application {
      */
     public ApplicationId getId() {
         return Id.ADMIN;
-    }
-
-    public UserModel getUserModel() {
-        return UserModel.getModel();
     }
 
     /**

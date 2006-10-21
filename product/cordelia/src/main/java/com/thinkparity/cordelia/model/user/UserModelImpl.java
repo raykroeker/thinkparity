@@ -3,6 +3,7 @@
  */
 package com.thinkparity.cordelia.model.user;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.user.User;
@@ -25,7 +26,7 @@ final class UserModelImpl extends CordeliaModelImpl {
     List<User> read() {
         logger.logApiId();
         try {
-            
+            return Collections.emptyList();
         } catch (final Throwable t) {
             throw translateError(t);
         }

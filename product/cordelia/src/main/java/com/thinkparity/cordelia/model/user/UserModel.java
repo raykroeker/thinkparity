@@ -3,6 +3,10 @@
  */
 package com.thinkparity.cordelia.model.user;
 
+import java.util.List;
+
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.cordelia.model.CordeliaModel;
 
 /**
@@ -23,7 +27,7 @@ public class UserModel extends CordeliaModel<UserModelImpl> {
         super(new UserModelImpl());
     }
 
-    public UserModel read() {
+    public List<User> read() {
         synchronized (getImplLock()) {
             return getImpl().read();
         }

@@ -186,6 +186,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         try {
             getInternalArtifactModel().applyFlagBookmark(containerId);
+            notifyContainerUpdated(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1794,6 +1795,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         try {
             getInternalArtifactModel().removeFlagBookmark(containerId);
+            notifyContainerUpdated(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

@@ -239,6 +239,18 @@ public class Assert {
                 null == message ? NULL_MESSAGE : message.toString());
 	}
 
+    /**
+     * Create an unreachable code assertion.
+     * 
+     * @param message
+     *            An assertion message.
+     * @return <code>UnreachableCodeAssertion</code>
+     */
+    public static UnreachableCodeAssertion createUnreachable(
+            final String pattern, final Object... arguments) {
+        return new UnreachableCodeAssertion(createMessage(pattern, arguments));
+    }
+
 	/**
      * Create a formatted message. If the pattern is null; or if the message
      * cannot be formatted; a standard message is returned.

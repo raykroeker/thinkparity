@@ -111,6 +111,9 @@ public class MainCellImageCacheTest {
     public enum TabCellIconTest {
         INVISIBLE("Invisible16x16.png"),
         CONTAINER("IconContainer.png"),
+        CONTAINER_ROLLOVER("IconContainer_Rollover.png"),
+        CONTAINER_BOOKMARK("IconContainer_Bookmark.png"),
+        CONTAINER_BOOKMARK_ROLLOVER("IconContainer_Bookmark_Rollover.png"),
         DRAFT("IconDraft.png"),
         VERSION("IconVersion.png"),
         USER("IconUser.png"),

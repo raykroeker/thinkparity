@@ -278,9 +278,9 @@ public class BrowserWindow extends AbstractJFrame {
         setBounds(location.x, location.y, (int)size.getWidth(), (int)size.getHeight());
         setMinimumSize(size);
         mainWindowSize.setSize(size);
-        if (!maximize) {
+        //if (!maximize) {
             roundCorners();
-        }
+        //}
         validate();
         repaint();
     }

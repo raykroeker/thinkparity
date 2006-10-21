@@ -25,7 +25,6 @@ import javax.swing.JList;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -47,6 +46,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
+import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -913,12 +913,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
     
     /**
-     * Get the document icon.
+     * Get the icon associated with this file extension.
      * 
-     * @return The document icon.
+     * @return The file icon.
      */
-    public ImageIcon getDocumentIcon(final Document document) {
-        final String extension = getNameExtension(document);
+    private ImageIcon getFileIcon(final String extension) {
         if (extension.equalsIgnoreCase(".DOC")) {
             return imageCacheTest.read(TabCellIconTest.FILE_DOC); 
         } else if (extension.equalsIgnoreCase(".XLS")) {
@@ -931,30 +930,23 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
     
     /**
-     * Get the file name extension.
+     * Get the document icon.
      * 
-     * @return The file name extension.
+     * @return The document icon.
      */
-    private String getNameExtension(final Document document) {
-        return ArtifactUtil.getNameExtension(document);
+    private ImageIcon getDocumentIcon(final Document document) {
+        final String extension = ArtifactUtil.getNameExtension(document);
+        return getFileIcon(extension);
     }
     
-    // todo fix this
-    public ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
-        final String extension = getNameExtension(documentVersion);
-        if (extension.equalsIgnoreCase(".DOC")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_DOC); 
-        } else if (extension.equalsIgnoreCase(".XLS")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_XLS);  
-        } else if (extension.equalsIgnoreCase(".PDF")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_PDF);
-        } else {
-            return imageCacheTest.read(TabCellIconTest.FILE_DEFAULT); 
-        }
-    }
-    private String getNameExtension(final DocumentVersion documentVersion) {
-        final String name = documentVersion.getName();
-        return FileUtil.getExtension(name);
+    /**
+     * Get the document icon.
+     * 
+     * @return The document icon.
+     */
+    private ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
+        final String extension = ArtifactVersionUtil.getNameExtension(documentVersion);
+        return getFileIcon(extension);
     }
     
     private enum ListType { VERSION, CONTENT }

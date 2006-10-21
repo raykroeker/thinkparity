@@ -7,7 +7,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.text.MessageFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
@@ -17,10 +20,15 @@ import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -59,6 +67,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
     
+    /** An image cache. */
+    protected final MainCellImageCacheTest imageCacheTest;
+    
     static {
         BORDER_COLOURS = new Color[] {/*Colours.MAIN_CELL_DEFAULT_BORDER*/Color.white, Color.WHITE};
         BORDER_COLOURS_GROUP_TOP = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER,
@@ -90,7 +101,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     public ContainerPanel(final ContainerModel model) {
         super();
         this.model = model;
+        this.imageCacheTest = new MainCellImageCacheTest();
         initComponents();
+        initBookmarks();
         installMouseOverTracker(containerNameJLabel);
     }
 
@@ -236,6 +249,38 @@ public final class ContainerPanel extends DefaultTabPanel {
         add(eastPaddingJLabel, new java.awt.GridBagConstraints());
 
     }// </editor-fold>//GEN-END:initComponents
+    
+    /**
+     * Initialize bookmarks
+     */
+    private void initBookmarks() {
+        iconJLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                if (container.isBookmarked()) {
+                    iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER_BOOKMARK_ROLLOVER));
+                } else {
+                    iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER_ROLLOVER));
+                }
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                if (container.isBookmarked()) {
+                    iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER_BOOKMARK));
+                } else {
+                    iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER));
+                }
+            }
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (container.isBookmarked()) {
+                    ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runRemoveContainerBookmark(container.getId());
+                } else {
+                    ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runAddContainerBookmark(container.getId());
+                }
+            }           
+        });
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setMouseOver(java.lang.Boolean)
@@ -285,13 +330,20 @@ public final class ContainerPanel extends DefaultTabPanel {
         } else {
             color = Colors.Browser.List.LIST_FG;
         }
+        containerNameJLabel.setForeground(color);
+        draftOwnerJLabel.setForeground(color);
+                
         if (isExpanded()) {
             containerNameJLabel.setFont(Fonts.DefaultFontBold);
         } else {
             containerNameJLabel.setFont(Fonts.DefaultFont);
         }
-        containerNameJLabel.setForeground(color);
-        draftOwnerJLabel.setForeground(color);
+        
+        if (container.isBookmarked()) {
+            iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER_BOOKMARK));
+        } else {
+            iconJLabel.setIcon(imageCacheTest.read(TabCellIconTest.CONTAINER));
+        }
     }
     
     /**

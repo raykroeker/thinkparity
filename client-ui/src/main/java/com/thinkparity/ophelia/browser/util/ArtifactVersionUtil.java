@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.util;
 
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -36,6 +37,17 @@ public class ArtifactVersionUtil {
 	public static Boolean containsActionData(final ArtifactVersion version) {
 		return singleton.containsActionDataImpl(version);
 	}
+    
+    /**
+     * Obtain the document version's filename extension.
+     * 
+     * @param document version
+     *            A thinkParity document version.
+     * @return The document's filename extension.
+     */
+    public static String getNameExtension(final DocumentVersion documentVersion) {
+        return singleton.doGetNameExtension(documentVersion);
+    }
 
 	/**
 	 * Create a ArtifactVersionUtil.
@@ -57,4 +69,16 @@ public class ArtifactVersionUtil {
 		}
 		throw Assert.createUnreachable("containsActionDataImpl(ParityObjectVersion)");
 	}
+    
+    /**
+     * Obtain the document version's filename extension.
+     * 
+     * @param document version
+     *            A thinkParity document version.
+     * @return The document version's filename extension.
+     */
+    private String doGetNameExtension(final DocumentVersion documentVersion) {
+        final String name = documentVersion.getName();
+        return FileUtil.getExtension(name);
+    }
 }

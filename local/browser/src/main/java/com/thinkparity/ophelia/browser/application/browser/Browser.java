@@ -5,7 +5,9 @@ package com.thinkparity.ophelia.browser.application.browser;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -56,10 +58,12 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
 import com.thinkparity.ophelia.browser.platform.action.container.Create;
 import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.Rename;
@@ -847,7 +851,14 @@ public class Browser extends AbstractApplication {
             mainWindow.setExtendedState(JFrame.NORMAL);
             mainWindow.maximizeMainWindow(Boolean.FALSE);
         } else {
-            mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+            /* This works...
+            mainWindow.setLocation(0,0);
+            mainWindow.setSize(java.awt.Toolkit.getDefaultToolkit().getScreenSize()); */
+            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            Rectangle bounds = env.getMaximumWindowBounds();
+            mainWindow.setLocation(0,0);
+            mainWindow.setSize(bounds.getSize());
             mainWindow.maximizeMainWindow(Boolean.TRUE);
         }
     }
@@ -936,7 +947,31 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitationId);
 		invoke(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, data);
-	}    
+	}
+    
+    /**
+     * Run the add bookmark action.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void runAddContainerBookmark(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
+    }
+    
+    /**
+     * Run the remove bookmark action.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void runRemoveContainerBookmark(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
+    }
   
 	/**
      * Run the create document action, browse to select the document.

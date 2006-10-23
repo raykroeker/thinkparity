@@ -40,12 +40,21 @@ public class BrowserWindow extends AbstractJFrame {
 	 * @see #getMainWindowSize()
 	 */
 	private static Dimension mainWindowSize;
+    
+    /**
+     * The location of the main window.
+     * The variable is here so it persists.
+     * 
+     * @see #getMainWindowLocation()
+     */
+    private static Point mainWindowLocation;
 
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
 	/**
 	 * Obtain the size of the main window.
+     * (This is the size before maximizing.)
 	 * 
 	 * @return The size of the main window.
 	 */
@@ -56,6 +65,18 @@ public class BrowserWindow extends AbstractJFrame {
 		}
 		return mainWindowSize;
 	}
+    
+    /**
+     * Obtain the location of the main window.
+     * (This is the location before maximizing.)
+     */
+    private static Point getMainWindowLocation() {
+        if(null == mainWindowLocation) {
+            // POINT BrowserWindow 100,100
+            mainWindowLocation = new Point(Dimensions.BrowserWindow.DEFAULT_LOCATION);
+        }
+        return mainWindowLocation;
+    }
     
     /** The browser application. */
 	private final Browser browser;
@@ -85,28 +106,38 @@ public class BrowserWindow extends AbstractJFrame {
 		super("BrowserWindow");
 		this.browser = browser;
 		this.logger = Logger.getLogger(getClass());
-        this.persistence = PersistenceFactory.getPersistence(getClass());       
+        this.persistence = PersistenceFactory.getPersistence(getClass()); 
+        final Boolean maximized = persistence.get("maximized", Boolean.FALSE);
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent e) {
                 persist();
                 browser.hibernate();
             }});
-        initMenu();       
+        initMenu(maximized);       
 		setIconImage(com.thinkparity.ophelia.browser.Constants.Images.WINDOW_ICON_IMAGE);
 		setTitle(java.util.ResourceBundle.getBundle("localization/JFrame_Messages").getString("BrowserWindow.Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        final Point location = persistence.get("location", new Point(100, 100));      
+        final Point location = persistence.get("location", getMainWindowLocation());      
         location.x = (location.x < 0 ? 0 : location.x );
         location.y = (location.y < 0 ? 0 : location.y );
         setLocation(location.x, location.y);
+        mainWindowLocation.setLocation(location); 
         final Dimension size = persistence.get("size", getMainWindowSize());
-        mainWindowSize.setSize(size);        
+        mainWindowSize.setSize(size);
+        if (maximized) {
+            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            setMaximizedBounds(env.getMaximumWindowBounds());
+            setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        }        
         setResizable(true);
         setMinimumSize(getMainWindowSize());
         setSize(getMainWindowSize());
 		initComponents();
+        if (!maximized) {
+            roundCorners();
+        }
         
         // Set up the semi-transparent JPanel
         semiTransparentJPanel = new SemiTransparentJPanel(Boolean.FALSE);
@@ -141,7 +172,6 @@ public class BrowserWindow extends AbstractJFrame {
 	private void initComponents() {
 		mainPanel = new MainPanel();
 		add(mainPanel);
-        roundCorners();
 	}
     
     /**
@@ -154,8 +184,8 @@ public class BrowserWindow extends AbstractJFrame {
 	/**
      * Add the menu to the window.
      */
-    private void initMenu() {
-        final JMenuBar menuBar = new BrowserMenuBar(browser);
+    private void initMenu(final Boolean maximized) {
+        final JMenuBar menuBar = new BrowserMenuBar(browser, maximized);
         setJMenuBar(menuBar);
     }
     
@@ -176,8 +206,17 @@ public class BrowserWindow extends AbstractJFrame {
     
     /** Persist any window state. */
     private void persist() {
-        persistence.set("location", getLocation());
-        persistence.set("size", getMainWindowSize());
+        // The value of getMainWindowLocation() is guaranteed up-to-date only
+        // if the application is currently maximized.
+        if (browser.isBrowserWindowMaximized()) {
+            persistence.set("location", getMainWindowLocation());
+            persistence.set("size", getMainWindowSize());
+            persistence.set("maximized", Boolean.TRUE);
+        } else {
+            persistence.set("location", getLocation());
+            persistence.set("size", getSize());
+            persistence.set("maximized", Boolean.FALSE);
+        }
     }
     
     /**
@@ -260,12 +299,14 @@ public class BrowserWindow extends AbstractJFrame {
             }
             setMinimumSize(dFinal);
             mainWindowSize.setSize(dFinal);
+            mainWindowLocation.setLocation(pFinal);
             roundCorners();
             validate();
         }
         else if (move) {
             // Move only
             setLocation(pFinal);
+            mainWindowLocation.setLocation(pFinal);
         }
     }
     
@@ -273,16 +314,19 @@ public class BrowserWindow extends AbstractJFrame {
      * Maximize (or un-maximize) the browser application.
      */
     public void maximizeMainWindow(final Boolean maximize) {
-        final Dimension size = getSize();
-        final Point location = getLocation();
-        setBounds(location.x, location.y, (int)size.getWidth(), (int)size.getHeight());
-        setMinimumSize(size);
-        mainWindowSize.setSize(size);
-        //if (!maximize) {
-            roundCorners();
-        //}
-        validate();
-        repaint();
+        if (maximize) {
+            // Take care to save the un-maximized size and location in mainWindowSize
+            // and mainWindowLocation, since these are the values we want to persist.
+            mainWindowSize.setSize(getSize());
+            mainWindowLocation.setLocation(getLocation());
+            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            setMaximizedBounds(env.getMaximumWindowBounds());
+            setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        } else {
+            setExtendedState(JFrame.NORMAL);
+        }
+        
+        roundCorners();
     }
    
     /**
@@ -313,7 +357,7 @@ public class BrowserWindow extends AbstractJFrame {
             super();
             setBorder(null);
             setOpaque(false);
-            setSize(mainWindowSize);
+            setSize(BrowserWindow.this.getSize());
             setLocation(0,0);
             this.enabled = enabled;
         }
@@ -331,12 +375,12 @@ public class BrowserWindow extends AbstractJFrame {
         {
             super.paintComponent(g);
             if (enabled) {
-                setSize(mainWindowSize);
+                setSize(BrowserWindow.this.getSize());
                 final Graphics2D g2 = (Graphics2D) g.create();
                 try {
                     g2.setComposite(makeComposite(Colors.Browser.SemiTransparentLayer.LAYER_ALPHA));
                     g2.setPaint(Colors.Browser.SemiTransparentLayer.LAYER_COLOR);
-                    g2.fill(new Rectangle(mainWindowSize));
+                    g2.fill(new Rectangle(BrowserWindow.this.getSize()));
                 }
                 finally { g2.dispose(); }
             }

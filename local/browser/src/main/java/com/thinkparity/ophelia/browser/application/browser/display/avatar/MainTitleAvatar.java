@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -34,6 +35,17 @@ public class MainTitleAvatar extends Avatar {
         super("BrowserTitle");
         initComponents();
         installResizer();
+        
+        // Double click to maximize the browser window
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(final java.awt.event.MouseEvent e) {
+                if (e.getButton()==MouseEvent.BUTTON1) {
+                    if (e.getClickCount() % 2 == 0) {
+                        getController().maximize();
+                    }
+                }
+            }
+        });
     }
 
     /**

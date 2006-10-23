@@ -98,7 +98,7 @@ public class LabelFactory extends ComponentFactory {
 	}
 
 	/**
-	 * Create a ButtonFactory.
+	 * Create a Label Factory.
 	 */
 	private LabelFactory() {
 		super();

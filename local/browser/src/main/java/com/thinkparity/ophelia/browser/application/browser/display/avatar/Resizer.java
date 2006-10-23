@@ -51,6 +51,9 @@ public class Resizer {
     
     /** Flag to indicate if initialized. */
     private Boolean initialized = Boolean.FALSE;
+    
+    /** Flag to indicate if the resizer is enabled or not. */
+    private Boolean enabled = Boolean.TRUE;
 
     /** Resize mode. */
     private ResizeDirection resizeDirection = ResizeDirection.NONE;
@@ -94,6 +97,23 @@ public class Resizer {
         initComponents();
     }
     
+    /**
+     * @return Boolean.TRUE if the Resizer is enabled.
+     */
+    public Boolean isEnabled() {
+        return enabled;
+    }
+    
+    /**
+     * Enable or disable the resizer (affects both moving and resizing)
+     * 
+     * @param enabled
+     *          Flag to enable or disable the resizer.
+     */
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
     /**
      * Remove all listeners for this resizer.
      */
@@ -505,13 +525,13 @@ public class Resizer {
     }
     
     private void formMouseEntered(final java.awt.event.MouseEvent evt, final Component component) {
-        if ((!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
+        if (enabled &&(!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
             initResize(evt, component);
         }
     }
     
     private void formMouseMoved(final java.awt.event.MouseEvent evt, final Component component) {
-        if ((!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
+        if (enabled && (!resizeDragging) && (!moveDragging) && (resizeEdges!=ResizeEdges.NO_EDGE)) {
             initResize(evt, component);
         }
     }
@@ -524,12 +544,14 @@ public class Resizer {
     }    
     
     private void formMousePressed(final java.awt.event.MouseEvent evt, final Component component) {
-        resizeOffsetX = evt.getPoint().x;
-        resizeOffsetY = evt.getPoint().y;
-        if ((resizeDirection == ResizeDirection.NONE) && (supportMouseMove)) {
-            moveDragging = Boolean.TRUE;
-        } else if (resizeDirection != ResizeDirection.NONE) {
-            resizeDragging = Boolean.TRUE;
+        if (enabled) {
+            resizeOffsetX = evt.getPoint().x;
+            resizeOffsetY = evt.getPoint().y;
+            if ((resizeDirection == ResizeDirection.NONE) && (supportMouseMove)) {
+                moveDragging = Boolean.TRUE;
+            } else if (resizeDirection != ResizeDirection.NONE) {
+                resizeDragging = Boolean.TRUE;
+            }
         }
     }   
        

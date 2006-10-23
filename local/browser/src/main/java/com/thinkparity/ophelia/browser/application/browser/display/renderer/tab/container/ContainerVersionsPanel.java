@@ -355,13 +355,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
         });
         versionsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(final java.awt.event.MouseEvent evt) {
                 versionsJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(final java.awt.event.MouseEvent evt) {
                 versionsJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(final java.awt.event.MouseEvent evt) {
                 versionsJListMouseReleased(evt);
             }
         });
@@ -394,13 +394,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(final java.awt.event.MouseEvent evt) {
                 versionsContentJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(final java.awt.event.MouseEvent evt) {
                 versionsContentJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(final java.awt.event.MouseEvent evt) {
                 versionsContentJListMouseReleased(evt);
             }
         });

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
+import java.awt.event.MouseEvent;
+
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -31,6 +33,17 @@ abstract class MainTitleAvatarAbstractPanel extends AbstractJPanel {
      */
     protected MainTitleAvatarAbstractPanel() {
         super();
+        
+        // Double click to maximize the browser window
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(final java.awt.event.MouseEvent e) {
+                if (e.getButton()==MouseEvent.BUTTON1) {
+                    if (e.getClickCount() % 2 == 0) {
+                        getBrowser().maximize();
+                    }
+                }
+            }
+        });
     }
 
     /**

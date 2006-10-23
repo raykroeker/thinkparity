@@ -847,20 +847,7 @@ public class Browser extends AbstractApplication {
      * Maximize (or un-maximize) the browser application.
      */
     public void maximize() {
-        if (isBrowserWindowMaximized()) {
-            mainWindow.setExtendedState(JFrame.NORMAL);
-            mainWindow.maximizeMainWindow(Boolean.FALSE);
-        } else {
-            mainWindow.setExtendedState(mainWindow.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-            /* This works...
-            mainWindow.setLocation(0,0);
-            mainWindow.setSize(java.awt.Toolkit.getDefaultToolkit().getScreenSize()); */
-            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            Rectangle bounds = env.getMaximumWindowBounds();
-            mainWindow.setLocation(0,0);
-            mainWindow.setSize(bounds.getSize());
-            mainWindow.maximizeMainWindow(Boolean.TRUE);
-        }
+        mainWindow.maximizeMainWindow(!isBrowserWindowMaximized());
     }
 
 	/**
@@ -1177,6 +1164,14 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
+    
+    /**
+     * Run the profile sign-up action.
+     *
+     */
+    public void runProfileSignUp() {
+        invoke(ActionId.PROFILE_SIGN_UP, Data.emptyData());
+    }
   
     /**
      *  Publish the container.
@@ -1744,7 +1739,7 @@ public class Browser extends AbstractApplication {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
     
-    private Boolean isBrowserWindowMaximized() {
+    public Boolean isBrowserWindowMaximized() {
         return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
     }
 

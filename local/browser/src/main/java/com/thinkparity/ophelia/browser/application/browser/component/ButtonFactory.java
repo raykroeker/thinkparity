@@ -132,13 +132,13 @@ public class ButtonFactory extends ComponentFactory {
 	}
     
     /**
-     * Create a popup menu item from an action id.
+     * Create a button associated with an action id.
      * 
      * @param actionId
      *            An action id.
      * @param data
      *            The action data.
-     * @return A popup menu item.
+     * @return A JButton.
      */
     private JButton doCreate(final ActionId actionId, final Data data) {
         final AbstractAction action;
@@ -155,16 +155,7 @@ public class ButtonFactory extends ComponentFactory {
             actionWrapper = wrapperRegistry.get(actionId);
         }
         actionWrapper.setData(data);
-        
-        BrowserColourButton button = new BrowserColourButton(actionWrapper);
-
-        // This call allows us to take over drawing of the button.
-        button.setContentAreaFilled(false);
-        button.setOpaque(true);
-        
-        // Background is transparent so it won't draw.
-        // Then, BrowserColourButton overrides paintComponent.       
-        button.setBackground(new Color(255,255,255,0));        
+        JButton button = new JButton(actionWrapper);     
        
         return button;
     }

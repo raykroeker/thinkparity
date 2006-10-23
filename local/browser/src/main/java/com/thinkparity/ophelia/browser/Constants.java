@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.MessageFormat;
@@ -102,6 +103,7 @@ public final class Constants {
     public static final class Dimensions {
         public static final class BrowserWindow {
             public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
+            public static final Point DEFAULT_LOCATION = new Point(100, 100);
             public static final Dimension MIN_SIZE = new Dimension(400, 200);
             public static final class Display {
                 public static final Integer STATUS_HEIGHT = 34;

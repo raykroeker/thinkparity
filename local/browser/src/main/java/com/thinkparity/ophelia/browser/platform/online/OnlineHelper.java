@@ -37,7 +37,7 @@ public class OnlineHelper {
         Socket socket;
         try {
             socket = new Socket(
-                    environment.getServerHost(), environment.getServerPort());
+                    environment.getXMPPHost(), environment.getXMPPPort());
             socket.close();
             return Boolean.TRUE;
         } catch (final UnknownHostException uhx) {

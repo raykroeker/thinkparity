@@ -21,6 +21,9 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public abstract class ArtifactVersion {
 
+    /** A comment applied to a version. */
+	private String comment;
+
 	/** The created by user id <code>JabberId</code>. */
 	private JabberId createdBy;
 
@@ -88,6 +91,15 @@ public abstract class ArtifactVersion {
 	}
 
 	/**
+     * Obtain the comment applient to the version.
+     * 
+     * @return A version comment <code>String</code>.
+     */
+    public String getComment() {
+        return comment;
+    }
+
+	/**
 	 * Obtain the aritfact creator.
 	 * 
 	 * @return The aritfact creator.
@@ -96,14 +108,14 @@ public abstract class ArtifactVersion {
         return createdBy;
     }
 
-	/**
+    /**
 	 * Obtain the artifact creation date.
 	 * 
 	 * @return The aritfact creation date.
 	 */
 	public Calendar getCreatedOn() { return createdOn; }
 
-	/**
+    /**
 	 * Obtain the artifact version meta data.
 	 * 
 	 * @return The artifact version meta data.
@@ -111,24 +123,6 @@ public abstract class ArtifactVersion {
 	public Properties getMetaData() { return metaData; }
 
     /**
-     * Obtain the comment applient to the version.
-     * @return A version comment.
-     */
-    public String getComment() {
-        return comment;
-    }
-
-    private String comment;
-
-    public Boolean isSetComment() {
-        return null != comment;
-    }
-
-    public void setComment(final String comment) {
-        this.comment = comment;
-    }
-
-	/**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -139,7 +133,7 @@ public abstract class ArtifactVersion {
 		return metaData.getProperty(key);
 	}
 
-	/**
+    /**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -184,6 +178,15 @@ public abstract class ArtifactVersion {
 	}
 
     /**
+     * Determine whether or not the comment is set for the version.
+     * 
+     * @return True if the comment is set.
+     */
+	public Boolean isSetComment() {
+        return null != comment;
+    }
+
+	/**
 	 * Set the artifact id.
 	 * 
 	 * @param artifactId
@@ -193,7 +196,7 @@ public abstract class ArtifactVersion {
 		this.id = id;
 	}
 
-	/**
+    /**
 	 * Set the artifact type.
 	 * @param artifactType The artifact type.
 	 */
@@ -210,6 +213,16 @@ public abstract class ArtifactVersion {
 	public void setArtifactUniqueId(final UUID uniqueId) {
 		this.uniqueId = uniqueId;
 	}
+
+    /**
+     * Set the comment for the artifact version.
+     * 
+     * @param comment
+     *            A comment <code>String</code>.
+     */
+	public void setComment(final String comment) {
+        this.comment = comment;
+    }
 
 	/**
 	 * Obtain the aritfact creator.

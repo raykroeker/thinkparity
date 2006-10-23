@@ -12,78 +12,134 @@ import com.thinkparity.codebase.NetworkUtil;
 public enum Environment {
 
     /** The demo environment. */
-    DEMO("thinkparity.dyndns.org", 5230, Protocol.XMPP),
+    DEMO("thinkparity.dyndns.org", 5230, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6004, StreamProtocol.TCP),
 
     /** A localhost demo environment. */
-    DEMO_LOCALHOST("localhost", 5230, Protocol.XMPP),
+    DEMO_LOCALHOST("localhost", 5230, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6004, StreamProtocol.TCP),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 5226, Protocol.XMPP),
+    DEVELOPMENT_LOCALHOST("localhost", 5226, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6002, StreamProtocol.TCP),
 
     /** Raymond's development environment. */
-    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Protocol.XMPP),
+    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6002, StreamProtocol.TCP),
 
     /** Robert's development environment. */
-    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Protocol.XMPP),
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6003, StreamProtocol.TCP),
 
     /** Production environment. */
-    PRODUCTION("thinkparity.dyndns.org", 5222, Protocol.XMPP),
+    PRODUCTION("thinkparity.dyndns.org", 5222, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6000, StreamProtocol.TCP),
 
     /** Testing environment. */
-    TESTING("thinkparity.dyndns.org", 5224, Protocol.XMPP),
+    TESTING("thinkparity.dyndns.org", 5224, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6001, StreamProtocol.TCP),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 5224, Protocol.XMPP);
+    TESTING_LOCALHOST("localhost", 5224, XMPPProtocol.XMPP,
+            "thinkparity.dyndns.org", 6001, StreamProtocol.TCP);
+
+    /** The stream server host. */
+    private transient String streamHost;
+
+    /** The stream server port. */
+    private transient Integer streamPort;
+
+    /** The stream server protocol. */
+    private transient StreamProtocol streamProtocol;
 
     /** The server host. */
-    private transient String serverHost;
+    private transient String xmppHost;
 
     /** The server port. */
-    private transient Integer serverPort;
+    private transient Integer xmppPort;
 
     /** The server protocol. */
-    private transient Protocol serverProtocol;
+    private transient XMPPProtocol xmppProtocol;
 
     /**
      * Create Environment.
      * 
-     * @param serverHost
-     *            The server host.
-     * @param serverPort
-     *            The server port.
+     * @param xmppHost
+     *            The xmpp server host.
+     * @param xmppPort
+     *            The xmpp server port.
+     * @param xmppProtocol
+     *            The xmpp server protocol.
+     * @param streamHost
+     *            The stream server host.
+     * @param streamPort
+     *            The stream server port
+     * @param streamProtocol
+     *            The stream server protocol.
      */
-    private Environment(final String serverHost, final Integer serverPort,
-            final Protocol serverProtocol) {
-        setServerHost(serverHost);
-        setServerPort(serverPort);
-        setServerProtocol(serverProtocol);
+    private Environment(final String xmppHost, final Integer xmppPort,
+            final XMPPProtocol xmppProtocol, final String streamHost,
+            final Integer streamPort, final StreamProtocol streamProtocol) {
+        setXMPPHost(xmppHost);
+        setXMPPPort(xmppPort);
+        setXMPPProtocol(xmppProtocol);
+        setStreamHost(streamHost);
+        setStreamPort(streamPort);
+        setStreamProtocol(streamProtocol);
     }
 
     /**
-     * Obtain the serverHost
+     * Obtain the streamHost
+     * 
+     * @return The stream host <code>String</code>.
+     */
+    public String getStreamHost() {
+        return streamHost;
+    }
+
+    /**
+     * Obtain the streamPort
+     *
+     * @return The Integer.
+     */
+    public Integer getStreamPort() {
+        return streamPort;
+    }
+
+    /**
+     * Obtain the streamProtocol
+     *
+     * @return The StreamProtocol.
+     */
+    public StreamProtocol getStreamProtocol() {
+        return streamProtocol;
+    }
+
+    /**
+     * Obtain the xmppHost
      *
      * @return The String.
      */
-    public String getServerHost() {
-        return serverHost;
+    public String getXMPPHost() {
+        return xmppHost;
     }
 
     /**
-     * Obtain the serverPort
+     * Obtain the xmppPort
      *
      * @return The port.
      */
-    public Integer getServerPort() {
-        return serverPort;
+    public Integer getXMPPPort() {
+        return xmppPort;
     }
 
     /**
-     * Obtain the serverProtocol
+     * Obtain the xmppProtocol
      *
-     * @return The Protocol.
+     * @return The XMPPProtocol.
      */
-    public Protocol getServerProtocol() {
-        return serverProtocol;
+    public XMPPProtocol getXMPPProtocol() {
+        return xmppProtocol;
     }
 
     /**
@@ -92,34 +148,63 @@ public enum Environment {
      * @return True if the environment is reachable; false otherwise.
      */
     public Boolean isReachable() {
-        return NetworkUtil.isTargetReachable(serverHost, serverPort);
+        return NetworkUtil.isTargetReachable(xmppHost, xmppPort);
     }
 
     /**
-     * Set serverHost.
-     *
-     * @param serverHost The String.
+     * Set streamHost.
+     * 
+     * @param streamHost
+     *            The stream host <code>String</code>.
      */
-    public void setServerHost(final String serverHost) {
-        this.serverHost = serverHost;
+    public void setStreamHost(final String streamHost) {
+        this.streamHost = streamHost;
     }
 
     /**
-     * Set serverPort.
-     *
-     * @param serverPort The port.
+     * Set streamPort.
+     * 
+     * @param streamPort
+     *            The stream port <code>Integer</code>.
      */
-    public void setServerPort(final Integer serverPort) {
-        this.serverPort = serverPort;
+    public void setStreamPort(final Integer streamPort) {
+        this.streamPort = streamPort;
     }
 
     /**
-     * Set serverProtocol.
+     * Set streamProtocol.
      *
-     * @param serverProtocol The Protocol.
+     * @param streamProtocol The StreamProtocol.
      */
-    public void setServerProtocol(Protocol serverProtocol) {
-        this.serverProtocol = serverProtocol;
+    public void setStreamProtocol(final StreamProtocol streamProtocol) {
+        this.streamProtocol = streamProtocol;
+    }
+
+    /**
+     * Set xmppHost.
+     *
+     * @param xmppHost The String.
+     */
+    public void setXMPPHost(final String serverHost) {
+        this.xmppHost = serverHost;
+    }
+
+    /**
+     * Set xmppPort.
+     *
+     * @param xmppPort The port.
+     */
+    public void setXMPPPort(final Integer serverPort) {
+        this.xmppPort = serverPort;
+    }
+
+    /**
+     * Set xmppProtocol.
+     *
+     * @param xmppProtocol The XMPPProtocol.
+     */
+    public void setXMPPProtocol(final XMPPProtocol serverProtocol) {
+        this.xmppProtocol = serverProtocol;
     }
 
     /**
@@ -128,11 +213,16 @@ public enum Environment {
     @Override
     public String toString() {
         return new StringBuffer(getClass().getName()).append("//")
-                .append(serverHost)
-                .append("/").append(serverPort)
+                .append(xmppHost)
+                .append("/").append(xmppPort)
+                .append("/").append(streamHost)
+                .append("/").append(streamPort)
                 .toString();
     }
 
-    /** The protocol used by the environment. */
-    public enum Protocol { XMPP, XMPPS }
+    /** The protocol used by the stream server. */
+    public enum StreamProtocol { TCP }
+
+    /** The protocol used by the xmpp server. */
+    public enum XMPPProtocol { XMPP, XMPPS }
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.mail.Message;
@@ -15,6 +16,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.ClientSession;
 import org.jivesoftware.wildfire.SessionManager;
 import org.jivesoftware.wildfire.SessionResultFilter;
@@ -33,14 +35,17 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.archive.InternalArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
@@ -65,11 +70,15 @@ public abstract class AbstractModelImpl
 	 */
 	protected final Session session;
 
+    /** A thinkParity configuration sql interface. */
+    private final ConfigurationSql configurationSql;
+
     /**
 	 * Create an AbstractModelImpl.
 	 */
 	protected AbstractModelImpl(final Session session) {
 		super();
+        this.configurationSql = new ConfigurationSql();
         this.logger = new Log4JWrapper();
 		this.session = session;
 	}
@@ -90,7 +99,7 @@ public abstract class AbstractModelImpl
                 new InternetAddress(email.toString(), Boolean.TRUE));
     }
 
-	/**
+    /**
      * Assert that the actual and expected jabber id's are equal.
      * 
      * @param assertion
@@ -120,7 +129,7 @@ public abstract class AbstractModelImpl
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-    /**
+	/**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -201,26 +210,17 @@ public abstract class AbstractModelImpl
         return new IQWriter(iq);
     }
 
-	protected Calendar currentDateTime() {
+    protected Calendar currentDateTime() {
         return DateUtil.getInstance();
     }
 
-    /**
+	/**
      * Obtain a thinkParity archive interface.
      * 
      * @return A thinkParity archive interface.
      */
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), session);
-    }
-
-    /**
-     * Obtain a thinkParity backup interface.
-     * 
-     * @return A thinkParity backup interface.
-     */
-    protected InternalBackupModel getBackupModel() {
-        return BackupModel.getInternalModel(getContext(), session);
     }
 
     /**
@@ -233,7 +233,16 @@ public abstract class AbstractModelImpl
 		return artifactModel;
 	}
 
-	/**
+    /**
+     * Obtain a thinkParity backup interface.
+     * 
+     * @return A thinkParity backup interface.
+     */
+    protected InternalBackupModel getBackupModel() {
+        return BackupModel.getInternalModel(getContext(), session);
+    }
+
+    /**
      * Obtain the client session for a user.
      * 
      * @param userId
@@ -248,19 +257,6 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-    /**
-     * Create a client session filter for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>SessionResultFilter</code>.
-     */
-    private SessionResultFilter createClientSessionFilter(final JabberId userId) {
-        final SessionResultFilter filter = new SessionResultFilter();
-        filter.setUsername(userId.getUsername());
-        return filter;
-    }
-
 	/**
      * Obtain the parity contact interface.
      * 
@@ -270,7 +266,7 @@ public abstract class AbstractModelImpl
 		return ContactModel.getModel(session);
 	}
 
-	/**
+    /**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -312,7 +308,7 @@ public abstract class AbstractModelImpl
         return logVariable("type", type);
     }
 
-    /**
+	/**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -357,7 +353,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -367,7 +363,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an info message.
      * 
      * @param infoPattern
@@ -380,12 +376,12 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-	/** Log a trace id. */
+    /** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -399,7 +395,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-    /**
+	/**
      * Log a warning.
      * 
      * @param warning
@@ -428,6 +424,20 @@ public abstract class AbstractModelImpl
             throws UnauthorizedException {
         final List<JabberId> team = getArtifactModel().readTeamIds(uniqueId);
         send(team, notification);
+    }
+
+    /**
+     * Read thinkParity configuration.
+     * 
+     * @return A configuration <code>Properties</code>.
+     */
+    protected Properties readConfiguration() {
+        final Properties properties = new Properties();
+        final List<String> keys = configurationSql.readKeys();
+        for (final String key : keys) {
+            properties.setProperty(key, configurationSql.read(key));
+        }
+        return properties;
     }
 
     /**
@@ -487,7 +497,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
      * Set the to field in the query.
      * 
      * @param query
@@ -516,7 +526,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
+	/**
      * Archive a query for a user.
      * 
      * @param userId
@@ -537,6 +547,19 @@ public abstract class AbstractModelImpl
                 enqueue(archiveId, query);
             }
         }
+    }
+
+    /**
+     * Create a client session filter for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>SessionResultFilter</code>.
+     */
+    private SessionResultFilter createClientSessionFilter(final JabberId userId) {
+        final SessionResultFilter filter = new SessionResultFilter();
+        filter.setUsername(userId.getUsername());
+        return filter;
     }
 
     /**
@@ -590,5 +613,16 @@ public abstract class AbstractModelImpl
     private Boolean isSystemKeyHolder(final UUID uniqueId)
             throws ParityServerModelException {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
+    }
+
+    /**
+     * Read the jive property for the environment.
+     * 
+     * @return An environment.
+     */
+    protected Environment readEnvironment() {
+        final String thinkParityEnvironment =
+            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
+        return Environment.valueOf(thinkParityEnvironment);
     }
 }

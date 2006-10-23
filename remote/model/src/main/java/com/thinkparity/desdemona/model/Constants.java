@@ -33,6 +33,7 @@ public interface Constants {
 	/** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String THINKPARITY_ARCHIVE_ROOT = "thinkparity.archive.root";
+        public static final String THINKPARITY_STREAM_ROOT = "thinkparity.stream.root";
         public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }

@@ -381,17 +381,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read the jive property for the environment.
-     * 
-     * @return An environment.
-     */
-    private Environment readEnvironment() {
-        final String thinkParityEnvironment =
-            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
-        return Environment.valueOf(thinkParityEnvironment);
-    }
-
-    /**
      * Read the file system from the jive properties.
      * 
      * @return A <code>FileSystem</code>.

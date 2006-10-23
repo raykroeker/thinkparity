@@ -67,14 +67,32 @@ public abstract class ModelTestCase extends TestCase {
     /** @see com.raykroeker.junitx.TestCase#setUp() */
     protected void setUp() throws Exception {
         super.setUp();
-        startHypersonic();
-        startWildfire();
+        // startHypersonic();
+        // startWildfire();
+    }
+
+    protected File getOutputDirectory(final String child) {
+        final File outputDirectory =
+            new File(getOutputDirectory(), child);
+        if (!outputDirectory.exists()) {
+            Assert.assertTrue(outputDirectory.mkdir(), "Could not create directory {0}.", outputDirectory);
+        }
+        return outputDirectory;
+    }
+
+    protected File getOutputDirectory() {
+        final File outputDirectory =
+            new File(getTestSession().getOutputDirectory(), getName());
+        if (!outputDirectory.exists()) {
+            Assert.assertTrue(outputDirectory.mkdir(), "Could not create directory {0}.", outputDirectory);
+        }
+        return outputDirectory;
     }
 
     /** @see com.raykroeker.junitx.TestCase#tearDown() */
     protected void tearDown() throws Exception {
-        stopWildfire();
-        stopHypersonic();
+        // stopWildfire();
+        // stopHypersonic();
         super.tearDown();
     }
 

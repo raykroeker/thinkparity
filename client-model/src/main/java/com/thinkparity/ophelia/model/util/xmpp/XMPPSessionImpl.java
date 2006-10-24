@@ -910,18 +910,18 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         try {
 			if (Boolean.TRUE == isLoggedIn())
 				logout();
-            switch (environment.getServerProtocol()) {
+            switch (environment.getXMPPProtocol()) {
             case XMPP:
                 xmppConnection = new XMPPConnection(
-                        environment.getServerHost(), environment.getServerPort());
+                        environment.getXMPPHost(), environment.getXMPPPort());
                 xmppAnonymousConnection = new XMPPConnection(
-                        environment.getServerHost(), environment.getServerPort());
+                        environment.getXMPPHost(), environment.getXMPPPort());
                 break;
             case XMPPS:
                 xmppConnection =
-                    new SSLXMPPConnection(environment.getServerHost(), environment.getServerPort());
+                    new SSLXMPPConnection(environment.getXMPPHost(), environment.getXMPPPort());
                 xmppAnonymousConnection =
-                    new SSLXMPPConnection(environment.getServerHost(), environment.getServerPort());
+                    new SSLXMPPConnection(environment.getXMPPHost(), environment.getXMPPPort());
                 break;
             default:
                 Assert.assertUnreachable("UNKNOWN ENVIRONMENT PROTOCOL");

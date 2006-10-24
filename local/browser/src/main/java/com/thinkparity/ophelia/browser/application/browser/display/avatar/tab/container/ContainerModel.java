@@ -15,7 +15,6 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -23,15 +22,16 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortDirection;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortElement;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -84,7 +84,8 @@ public final class ContainerModel extends TabPanelModel {
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
     
-
+    /** A comparator for sorting containers. */
+    private ContainerPanelComparator containerPanelComparator;
 
     /**
      * Create BrowserContainersModel.
@@ -100,6 +101,7 @@ public final class ContainerModel extends TabPanelModel {
         this.logger = new Log4JWrapper();
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
+        this.containerPanelComparator = new ContainerPanelComparator();
     }
 
     /**
@@ -240,10 +242,16 @@ public final class ContainerModel extends TabPanelModel {
             expanded.put(tabPanel, Boolean.FALSE);
         }
         else {
+            // Only one container can be expanded at a time.
             for (final Entry<TabPanel, Boolean> entry : expanded.entrySet()) {
                 entry.setValue(Boolean.FALSE);
             }
             expanded.put(tabPanel, Boolean.TRUE);
+            
+            // flag the container as having been seen
+            if (tabPanel instanceof ContainerPanel) {
+                browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
+            }
         }
         synchronize();
     }
@@ -280,7 +288,7 @@ public final class ContainerModel extends TabPanelModel {
      * Sort containers, and also set the "firstNonDraft" flag.
      */
     private void sortContainers() {
-        Collections.sort(containerPanels, new ContainerPanelComparator());
+        Collections.sort(containerPanels, containerPanelComparator);
         
         ContainerPanel prevContainer = null;
         firstNonDraftTabPanel = null;
@@ -296,6 +304,20 @@ public final class ContainerModel extends TabPanelModel {
                 prevContainer = container;
             }
         }
+    }
+    
+    /**
+     * Trigger a sort.
+     * 
+     * @param sortElement
+     *          What the containers will be sorted by.
+     * @param sortDirection
+     *          The direction of the sort.
+     */
+    public void sortContainers(SortElement sortElement, SortDirection sortDirection) {
+        containerPanelComparator = new ContainerPanelComparator(sortElement, sortDirection);
+        sortContainers();
+        synchronize();
     }
 
     /**

@@ -10,6 +10,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
@@ -49,28 +50,60 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         final AbstractVersionCell cell = (AbstractVersionCell) value;
         textJLabel.setText(cell.getText());
         final Icon icon = cell.getIcon();
-        if (null!=icon) {
-            iconJLabel.setIcon(icon);
+        // Set icon, even if it is null
+        iconJLabel.setIcon(icon);
+        
+        // Set border.
+        if (isSelected && !cell.isFillerCell()) {
+            // Note that during a popup, cell.isFocusOnThisList() returns true whereas
+            // isFocusOwner() returns false.
+            if (cell.isSelectedContainer() && cell.isFocusOnThisList()) {
+                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
+            } else {
+                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BORDER));
+            }
+        } else {
+            final int adjustedIndex = index + cell.getContainerIndex() + 1;
+            if (0 == adjustedIndex % 2) {
+                setBorder(new LineBorder(Colors.Browser.List.LIST_EVEN_BG));
+            } else {
+                setBorder(new LineBorder(Colors.Browser.List.LIST_ODD_BG));
+            }
         }
 
-        // Set background. Note that isFocusOwner() does not behave exactly as we want,
-        // for example during a popup it will become false, so we use cell.isFocusOnRight().
-        if (isSelected) {
+        // Set foreground and background colours.
+        final int adjustedIndex = index + cell.getContainerIndex() + 1;
+        textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        if (0 == adjustedIndex % 2) {
+            setBackground(Colors.Browser.List.LIST_EVEN_BG);
+        } else {
+            setBackground(Colors.Browser.List.LIST_ODD_BG);
+        }
+        
+        // This code is here temporarily, for further experimentation with Omid...
+/*        if (isSelected && !cell.isFillerCell()) {
+            // Note that during a popup, cell.isFocusOnThisList() returns true whereas
+            // isFocusOwner() returns false.
             if (cell.isSelectedContainer() && cell.isFocusOnThisList()) {
                 textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
                 setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
+                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
             } else {
-                textJLabel.setForeground(Colors.Browser.List.INNER_LEFT_LIST_SELECTION_NOFOCUS_FG);
+                textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_FG);
                 setBackground(Colors.Browser.List.INNER_LEFT_LIST_SELECTION_NOFOCUS_BG);
+                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BORDER));
             }
         } else {
+            final int adjustedIndex = index + cell.getContainerIndex() + 1;
             textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-            if (0 == index % 2) {
+            if (0 == adjustedIndex % 2) {
                 setBackground(Colors.Browser.List.LIST_EVEN_BG);
+                setBorder(new LineBorder(Colors.Browser.List.LIST_EVEN_BG));
             } else {
                 setBackground(Colors.Browser.List.LIST_ODD_BG);
+                setBorder(new LineBorder(Colors.Browser.List.LIST_ODD_BG));
             }
-        }
+        }*/
 
         return this;
     }
@@ -94,9 +127,9 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         setMaximumSize(new java.awt.Dimension(32767, 18));
         setMinimumSize(new java.awt.Dimension(20, 18));
         setPreferredSize(new java.awt.Dimension(20, 18));
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 16));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 16));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 16));
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(3, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;

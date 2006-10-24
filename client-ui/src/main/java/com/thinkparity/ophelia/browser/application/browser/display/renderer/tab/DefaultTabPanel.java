@@ -47,8 +47,22 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * Install a mouse over tracker which tracks the mouse and records the index
      * above which it is positioned. It also updates the underlying cell's
      * "mouseOver" property.
-     * 
      */
+    protected final void installMouseOverTracker() {
+        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                setMouseOver(Boolean.TRUE);
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                setMouseOver(Boolean.FALSE);
+            }
+        };
+        addMouseListener(mouseOverListener);
+        addMouseMotionListener(mouseOverListener);       
+    }
+    
     protected final void installMouseOverTracker(final Component component) {
         final MouseInputListener mouseOverListener = new MouseInputAdapter() {
             @Override

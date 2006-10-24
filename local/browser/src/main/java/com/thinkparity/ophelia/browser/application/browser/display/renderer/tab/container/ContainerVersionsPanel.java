@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -38,6 +39,7 @@ import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
@@ -61,9 +63,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The border for the bottom of the cell. */
     private static final Border BORDER_BOTTOM;
     
+    /** The border for the bottom of the last cell. */
+    private static final Border BORDER_BOTTOM_LAST;
+    
     static {        
         DIMENSION = new Dimension(50,100);
-        BORDER_BOTTOM = new BottomBorder(Color.white);
+        BORDER_BOTTOM = new BottomBorder(Color.WHITE);
+        BORDER_BOTTOM_LAST = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 1, new Insets(0,0,1,0));
     }
 
     /** The <code>Container</code>. */
@@ -215,7 +221,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         // Set background colour
         final Color color = getBackgroundColor();
         leftJPanel.setBackground(color);
-        rightJPanel.setBackground(color);        
+        rightJPanel.setBackground(color);  
+        
+        // If necessary, add filler rows to the versions list
+        // so the backgrounds will paint in alternating colours
+        if (versionsJList.getModel().getSize() < versionsJList.getVisibleRowCount()) {
+            for (int i = versionsJList.getModel().getSize(); i < versionsJList.getVisibleRowCount(); i++) {
+                versionsModel.addElement(new VersionFillerCell());
+            }
+        }
     }
     
     /**
@@ -268,7 +282,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @return A border.
      */
     public Border getBorder(final Boolean last) {
-        return BORDER_BOTTOM;     
+        final Border bottomBorder;
+        if (last) {
+            bottomBorder = BORDER_BOTTOM_LAST;
+        } else {
+            bottomBorder = null;
+        }
+
+        return bottomBorder;    
     }
     
     /**
@@ -658,6 +679,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected Boolean isFocusOnThisList() {
             return (ContainerVersionsPanel.this.focusList == ListType.CONTENT);
         }
+        protected Boolean isFillerCell() {
+            return Boolean.FALSE;
+        }
+        protected Integer getContainerIndex() {
+            return model.indexOfContainerPanel(container);
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
         protected abstract void doubleClick(final Component invoker,
@@ -697,6 +724,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected Boolean isFocusOnThisList() {
             return (ContainerVersionsPanel.this.focusList == ListType.VERSION);
         }
+        protected Boolean isFillerCell() {
+            return Boolean.FALSE;
+        }
+        protected Integer getContainerIndex() {
+            return model.indexOfContainerPanel(container);
+        }
         protected abstract void showPopupMenu(final Component invoker,
                 final MouseEvent e);
         protected abstract void doubleClick(final Component invoker,
@@ -715,8 +748,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     MessageFormat.format("Draft - {0} Documents",
                             documentCount));
             setIcon(imageCacheTest.read(TabCellIconTest.DRAFT));
+            int countCells = 0;
             for (final Document document : draft.getDocuments()) {
                 addContentCell(new DraftDocumentCell(draft, document));
+                countCells++;
+            }
+            for (int i = countCells; i < versionsContentJList.getVisibleRowCount(); i++) {
+                addContentCell(new ContentFillerCell());
             }
         }
         @Override
@@ -818,17 +856,24 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
             setIcon(imageCacheTest.read(TabCellIconTest.VERSION));
+            int countCells = 0;
             // TODO fix this
             addContentCell(new CommentCell(version));
+            countCells++;
             
 /*            if (version.isSetComment()) {
                 addContentCell(new CommentCell(version));
             }*/
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
+                countCells++;
             }
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
                 addContentCell(new UserCell(entry.getKey(), entry.getValue()));
+                countCells++;
+            }
+            for (int i = countCells; i < versionsContentJList.getVisibleRowCount(); i++) {
+                addContentCell(new ContentFillerCell());
             }
         }
         @Override
@@ -899,6 +944,40 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
+    }
+    
+    /** A filler cell for the version list, so the background can be drawn */
+    final class VersionFillerCell extends AbstractVersionCell {
+        private VersionFillerCell() {
+            super();
+        }
+        @Override
+        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
+        }
+        @Override
+        protected void doubleClick(final Component invoker, final MouseEvent e) {
+        }
+        @Override
+        protected Boolean isFillerCell() {
+            return Boolean.TRUE;
+        }       
+    }
+
+    /** A filler cell for the content list, so the background can be drawn */
+    final class ContentFillerCell extends AbstractContentCell {
+        private ContentFillerCell() {
+            super();
+        }
+        @Override
+        protected void doubleClick(Component invoker, MouseEvent e) { 
+        }
+        @Override
+        protected void showPopupMenu(Component invoker, MouseEvent e) { 
+        }      
+        @Override
+        protected Boolean isFillerCell() {
+            return Boolean.TRUE;
+        } 
     }
     
     /**

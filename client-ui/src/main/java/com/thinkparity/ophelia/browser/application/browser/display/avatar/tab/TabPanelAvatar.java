@@ -3,20 +3,27 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
  *
@@ -30,10 +37,20 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     /** The panel constraints. */
     private final GridBagConstraints panelConstraints;
+    
+    /** The panel localization. */
+    private final MainCellL18n localization;
+    
+    /** The sort element. */
+    private SortElement sortElement = SortElement.NONE;
+    
+    /** The sort direction. */
+    private SortDirection sortDirection = SortDirection.NONE;
 
     /** Creates new form TabPanelAvatar */
     public TabPanelAvatar(final AvatarId id, final T model) {
     	super(id, model);
+        this.localization = new MainCellL18n("TabPanelAvatar");
         this.fillConstraints = new GridBagConstraints();
         this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
         this.fillConstraints.weightx = 1.0F;
@@ -46,6 +63,9 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     	installDataListener();
         initComponents();
         installResizer();
+        initHeader();
+        initHeaderListeners();
+
         //new CursorMovementCustodian().applyCursorKeyListener(this);
     }
 
@@ -64,6 +84,104 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     protected ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.MIDDLE;
     }
+    
+    private void initHeader() {
+        // Borders
+        final Color[] borderColours = new Color[] {Color.WHITE, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
+        final Border bottomBorder = new BottomBorder(borderColours, 3, new Insets(3,0,0,0));
+        columnHeaderJLabel.setBorder(bottomBorder); 
+        
+        // Text
+        iconJLabel.setText(localization.getString("IconHeading"));
+        containerNameJLabel.setText(localization.getString("ContainerNameHeading"));
+        containerDateJLabel.setText(localization.getString("ContainerDateHeading"));
+        draftOwnerJLabel.setText(localization.getString("DraftOwnerHeading"));
+        
+        // Colours
+        final Color headingColor = new Color(0,100,100,255);
+        iconJLabel.setForeground(headingColor);
+        containerNameJLabel.setForeground(headingColor);
+        containerDateJLabel.setForeground(headingColor);
+        draftOwnerJLabel.setForeground(headingColor);
+    }
+    
+    private void initHeaderListeners() {
+        final MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                headingMouseClicked(e);
+            }
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                JLabel jLabel = (JLabel) e.getSource();
+                jLabel.setForeground(Color.RED);
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                JLabel jLabel = (JLabel) e.getSource();
+                jLabel.setForeground(new Color(0,100,100,255));
+            }  
+        };
+        iconJLabel.addMouseListener(mouseAdapter);
+        containerNameJLabel.addMouseListener(mouseAdapter);
+        containerDateJLabel.addMouseListener(mouseAdapter);
+        draftOwnerJLabel.addMouseListener(mouseAdapter);       
+    }
+    
+    private void headingMouseClicked(final MouseEvent e) {
+        JLabel jLabel = (JLabel) e.getSource();
+        Boolean sortElementChanged = Boolean.FALSE;
+        if (jLabel.equals(iconJLabel)) {
+            if (sortElement != SortElement.BOOKMARK) {
+                sortElementChanged = Boolean.TRUE;
+            }
+            sortElement = SortElement.BOOKMARK;
+        } else if (jLabel.equals(containerNameJLabel)) {
+            if (sortElement != SortElement.CONTAINER_NAME) {
+                sortElementChanged = Boolean.TRUE;
+            }
+            sortElement = SortElement.CONTAINER_NAME;
+        } else if (jLabel.equals(containerDateJLabel)) {
+            if (sortElement != SortElement.CONTAINER_DATE) {
+                sortElementChanged = Boolean.TRUE;
+            }
+            sortElement = SortElement.CONTAINER_DATE;
+        } else if (jLabel.equals(draftOwnerJLabel)) {
+            if (sortElement != SortElement.DRAFT_OWNER) {
+                sortElementChanged = Boolean.TRUE;
+            }
+            sortElement = SortElement.DRAFT_OWNER;
+        }
+        
+        if (sortElementChanged) {
+            sortDirection = SortDirection.DOWN;
+        } else {
+            sortDirection = nextSortDirection(sortDirection);
+        }
+        
+        triggerSort(sortElement, sortDirection);
+    }
+    
+    private SortDirection nextSortDirection(final SortDirection sortDirection) {
+        if (sortDirection == SortDirection.NONE) {
+            return SortDirection.DOWN;
+        } else if (sortDirection == SortDirection.DOWN) {
+            return SortDirection.UP;
+        } else {
+            return SortDirection.NONE;
+        }
+    }
+    
+    /**
+     * Trigger a sort.
+     * 
+     * @param sortElement
+     *          What the containers will be sorted by.
+     * @param sortDirection
+     *          The direction of the sort.
+     */
+    protected void triggerSort(final SortElement sortElement, final SortDirection sortDirection) {       
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -75,11 +193,14 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         java.awt.GridBagConstraints gridBagConstraints;
 
         headerJLabel = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        columnHeaderJLabel = new javax.swing.JPanel();
+        westPaddingJLabel = new javax.swing.JLabel();
+        iconJLabel = new javax.swing.JLabel();
+        containerJPanel = new javax.swing.JPanel();
+        containerNameJLabel = new javax.swing.JLabel();
+        containerDateJLabel = new javax.swing.JLabel();
+        draftOwnerJLabel = new javax.swing.JLabel();
+        eastPaddingJLabel = new javax.swing.JLabel();
         tabJScrollPane = new javax.swing.JScrollPane();
         tabJPanel = new javax.swing.JPanel();
         fillJLabel = new javax.swing.JLabel();
@@ -99,59 +220,79 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 4;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         add(headerJLabel, gridBagConstraints);
 
-        jPanel1.setBorder(new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER));
-        jPanel1.setOpaque(false);
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel1.setText("Star");
+        columnHeaderJLabel.setLayout(new java.awt.GridBagLayout());
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel2.setText("Name");
+        columnHeaderJLabel.setMaximumSize(new java.awt.Dimension(5000, 20));
+        columnHeaderJLabel.setOpaque(false);
+        columnHeaderJLabel.setPreferredSize(new java.awt.Dimension(128, 20));
+        westPaddingJLabel.setFocusable(false);
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        columnHeaderJLabel.add(westPaddingJLabel, gridBagConstraints);
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel3.setText("Updated On");
+        iconJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        iconJLabel.setText("Flag");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        columnHeaderJLabel.add(iconJLabel, gridBagConstraints);
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel4.setText("Draft");
+        containerJPanel.setLayout(new java.awt.GridLayout(1, 0));
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel2)
-                .add(157, 157, 157)
-                .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 130, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(5, 5, 5)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(jLabel2)))
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(5, 5, 5)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-        );
+        containerJPanel.setOpaque(false);
+        containerNameJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        containerNameJLabel.setText("!Package!");
+        containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
+        containerNameJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
+        containerNameJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
+        containerJPanel.add(containerNameJLabel);
+
+        containerDateJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        containerDateJLabel.setText("!Date!");
+        containerDateJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        containerDateJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
+        containerDateJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
+        containerDateJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
+        containerJPanel.add(containerDateJLabel);
+
+        draftOwnerJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        draftOwnerJLabel.setText("!Draft Owner!");
+        draftOwnerJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
+        draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
+        draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
+        containerJPanel.add(draftOwnerJLabel);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        columnHeaderJLabel.add(containerJPanel, gridBagConstraints);
+
+        eastPaddingJLabel.setFocusable(false);
+        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
+        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
+        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
+        columnHeaderJLabel.add(eastPaddingJLabel, new java.awt.GridBagConstraints());
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(jPanel1, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        add(columnHeaderJLabel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
         tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
@@ -170,7 +311,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -341,14 +481,20 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel columnHeaderJLabel;
+    private javax.swing.JLabel containerDateJLabel;
+    private javax.swing.JPanel containerJPanel;
+    private javax.swing.JLabel containerNameJLabel;
+    private javax.swing.JLabel draftOwnerJLabel;
+    private javax.swing.JLabel eastPaddingJLabel;
     private javax.swing.JLabel fillJLabel;
     private javax.swing.JLabel headerJLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel iconJLabel;
     private javax.swing.JPanel tabJPanel;
     private javax.swing.JScrollPane tabJScrollPane;
+    private javax.swing.JLabel westPaddingJLabel;
     // End of variables declaration//GEN-END:variables
+    
+    public enum SortElement { BOOKMARK, CONTAINER_NAME, CONTAINER_DATE, DRAFT_OWNER, NONE }
+    public enum SortDirection { DOWN, UP, NONE }
 }

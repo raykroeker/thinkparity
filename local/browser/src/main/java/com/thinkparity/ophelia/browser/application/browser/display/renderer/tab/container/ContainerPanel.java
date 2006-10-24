@@ -9,12 +9,14 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
 
-import javax.swing.BorderFactory;
 import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
@@ -29,6 +31,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.co
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -36,7 +39,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @version 1.1.2.1
  */
 public final class ContainerPanel extends DefaultTabPanel {
-    
+        
     /** The border for the bottom of the cell. */
     private static final Border BORDER_BOTTOM;
     
@@ -58,6 +61,12 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The border for the top of a group of cells. */
     private static final Border BORDER_TOP_GROUP;
     
+    /** The border for a selected cell. */
+    private static final Border BORDER_SELECTED;
+    
+    /** The border for an unselected cell. */
+    private static final Border BORDER_UNSELECTED;
+    
     /** The border colours. */
     private static final Color[] BORDER_COLOURS;
     
@@ -69,6 +78,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     
     /** An image cache. */
     protected final MainCellImageCacheTest imageCacheTest;
+    
+    /** The panel localization. */
+    private final MainCellL18n localization;
     
     static {
         BORDER_COLOURS = new Color[] {/*Colours.MAIN_CELL_DEFAULT_BORDER*/Color.white, Color.WHITE};
@@ -82,14 +94,20 @@ public final class ContainerPanel extends DefaultTabPanel {
         BORDER_BOTTOM_LAST = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 1, new Insets(0,0,1,0));
         
         // These are so there isn't a white line between the ContainerPanel and the ContainerVersionsPanel
-        BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_SELECTION_BG);
+        BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_SELECTED_BG);
         BORDER_BOTTOM_EXPANDED_NOT_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG);
+        
+        BORDER_SELECTED = new LineBorder(Colors.Browser.List.LIST_SELECTION_BORDER);
+        BORDER_UNSELECTED = new LineBorder(Color.WHITE);
         
         DIMENSION = new Dimension(50,23);
     }
 
     /** A <code>Container</code>. */
-    private Container container;
+    private Container container = null;
+    
+    /** A <code>ContainerDraft</code>. */
+    private ContainerDraft draft = null;
 
     /** The container panel's model. */
     private final ContainerModel model;
@@ -102,9 +120,10 @@ public final class ContainerPanel extends DefaultTabPanel {
         super();
         this.model = model;
         this.imageCacheTest = new MainCellImageCacheTest();
+        this.localization = new MainCellL18n("ContainerPanel");
         initComponents();
         initBookmarks();
-        installMouseOverTracker(containerNameJLabel);
+        installMouseOverTracker();
     }
 
     /**
@@ -138,8 +157,14 @@ public final class ContainerPanel extends DefaultTabPanel {
     public void setContainer(final Container container,
             final ContainerDraft draft) {
         this.container = container;
+        this.draft = draft;
 
         containerNameJLabel.setText(container.getName());
+        if (isToday(container.getUpdatedOn().getTime())) {
+            containerDateJLabel.setText(localization.getString("TextToday", container.getUpdatedOn().getTime()));
+        } else {
+            containerDateJLabel.setText(localization.getString("Text", container.getUpdatedOn().getTime())); 
+        }  
         if (container.isDraft()) {
             draftOwnerJLabel.setText(draft.getOwner().getName());
         } else {
@@ -152,6 +177,13 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public Container getContainer() {
         return container;
+    }
+    
+    /**
+     * Get the draft associated with this container panel.
+     */
+    public ContainerDraft getDraft() {
+        return draft;
     }
 
     /**
@@ -196,7 +228,9 @@ public final class ContainerPanel extends DefaultTabPanel {
 
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
+        containerJLabel = new javax.swing.JPanel();
         containerNameJLabel = new javax.swing.JLabel();
+        containerDateJLabel = new javax.swing.JLabel();
         draftOwnerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
 
@@ -221,31 +255,41 @@ public final class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         add(iconJLabel, gridBagConstraints);
 
+        containerJLabel.setLayout(new java.awt.GridLayout(1, 3));
+
+        containerJLabel.setOpaque(false);
         containerNameJLabel.setText("!Package!");
         containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        add(containerNameJLabel, gridBagConstraints);
+        containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
+        containerNameJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
+        containerNameJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+        containerJLabel.add(containerNameJLabel);
 
-        draftOwnerJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        containerDateJLabel.setText("!Date!");
+        containerDateJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        containerDateJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
+        containerDateJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
+        containerDateJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+        containerJLabel.add(containerDateJLabel);
+
         draftOwnerJLabel.setText("!Draft Owner!");
+        draftOwnerJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
         draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
         draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
+        containerJLabel.add(draftOwnerJLabel);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
-        add(draftOwnerJLabel, gridBagConstraints);
+        add(containerJLabel, gridBagConstraints);
 
         eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(20, 20));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(20, 20));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(20, 20));
+        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
+        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
+        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
         add(eastPaddingJLabel, new java.awt.GridBagConstraints());
 
     }// </editor-fold>//GEN-END:initComponents
@@ -325,15 +369,18 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void prepareForRepaint() {       
         final Color color;
-        if (isSelectedContainer()) {
+        if (!isUpToDate()) {
+            color = Colors.Browser.List.LIST_NOT_UP_TO_DATE;
+        } else if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_FG;
         } else {
             color = Colors.Browser.List.LIST_FG;
         }
         containerNameJLabel.setForeground(color);
+        containerDateJLabel.setForeground(color);
         draftOwnerJLabel.setForeground(color);
-                
-        if (isExpanded()) {
+        
+        if (isExpanded() || (!isSeen())) {
             containerNameJLabel.setFont(Fonts.DefaultFontBold);
         } else {
             containerNameJLabel.setFont(Fonts.DefaultFont);
@@ -353,8 +400,20 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public Color getBackgroundColor() {
         final Color color;
-        Integer containerIndex = model.indexOfContainerPanel(container);
-        if (isSelectedContainer()) {
+        final Integer containerIndex = model.indexOfContainerPanel(container);
+        if (isExpanded()) {
+            if (isSelectedContainer()) {
+                color = Colors.Browser.List.LIST_EXPANDED_SELECTED_BG;
+            } else {
+                color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
+            }
+        } else if (0 == containerIndex % 2) {
+            color = Colors.Browser.List.LIST_EVEN_BG;
+        } else {
+            color = Colors.Browser.List.LIST_ODD_BG;            
+        }
+        
+/*        if (isSelectedContainer()) {
             color = Colors.Browser.List.LIST_SELECTION_BG;
         } else if (isExpanded()) {
             color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
@@ -362,7 +421,7 @@ public final class ContainerPanel extends DefaultTabPanel {
             color = Colors.Browser.List.LIST_EVEN_BG;
         } else {
             color = Colors.Browser.List.LIST_ODD_BG;
-        }
+        }*/
         
         return color;
     }  
@@ -403,9 +462,26 @@ public final class ContainerPanel extends DefaultTabPanel {
      * @return A border.
      */
     public Border getBorder(final Boolean last) {
-        final Border topBorder;
+        //final Border topBorder;
         final Border bottomBorder;
         
+        if (isExpanded()) {
+            if (isSelectedContainer()) {
+                bottomBorder = BORDER_BOTTOM_EXPANDED_SELECTED;
+            } else {
+                bottomBorder = BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
+            }
+        } else if (isSelectedContainer()) {
+            bottomBorder = BORDER_SELECTED;
+        } else if (last) {
+            bottomBorder = BORDER_BOTTOM_LAST;
+        } else {
+            bottomBorder = BORDER_UNSELECTED;
+        }
+        
+        return bottomBorder;
+        
+/*      Code intentionally left here until look and feel is finalized
         if (isFirstNonDraft()) {
             topBorder = BORDER_TOP_GROUP;
         } else if (isExpanded() || isPanelBeforeExpanded()) {
@@ -424,9 +500,9 @@ public final class ContainerPanel extends DefaultTabPanel {
             bottomBorder = BORDER_BOTTOM_LAST;
         } else {
             bottomBorder = BORDER_BOTTOM;
-        }
+        }*/
         
-        return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
+        //return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
     }
     
     /**
@@ -452,6 +528,30 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
+     * Determine whether or not the container has been seen.
+     * 
+     * @return True if the container has been seen; false otherwise.
+     */
+    public Boolean isSeen() {
+        return container.contains(ArtifactFlag.SEEN);
+    }
+    
+    /**
+     * Determine whether or not this container is up-to-date.
+     * 
+     * @return True if the container is up-to-date.
+     */
+    public Boolean isUpToDate() {
+        // TODO Do this right
+        final String gray = "Gray";
+        if (container.getName().equals(gray)) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }       
+    }
+    
+    /**
      * Determine if the container is selected.
      * 
      * @return True if the container is selected; false otherwise.
@@ -470,8 +570,21 @@ public final class ContainerPanel extends DefaultTabPanel {
     private Boolean isFirstNonDraft() {
         return model.isFirstNonDraft(this);
     }
+    
+    /**
+     * Determine if the specified date is today's date.
+     */
+    private Boolean isToday(Date date) {
+        final StringBuffer dateStr = new StringBuffer();
+        final StringBuffer todayStr = new StringBuffer();
+        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
+        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
+        return dateStr.toString().equals(todayStr.toString());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel containerDateJLabel;
+    private javax.swing.JPanel containerJLabel;
     private javax.swing.JLabel containerNameJLabel;
     private javax.swing.JLabel draftOwnerJLabel;
     private javax.swing.JLabel eastPaddingJLabel;

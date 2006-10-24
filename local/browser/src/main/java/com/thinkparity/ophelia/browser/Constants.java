@@ -64,20 +64,25 @@ public final class Constants {
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
             public static final class SemiTransparentLayer {
-                public static final Color LAYER_COLOR = Color.white;//new Color(231, 238, 248, 255);
+                public static final Color LAYER_COLOR = Color.WHITE;//new Color(231, 238, 248, 255);
                 public static final float LAYER_ALPHA = 0.55F;
             }
             public static final class List {
                 public static final Color LIST_FG = Color.BLACK;
                 public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
                 public static final Color LIST_ODD_BG = Color.WHITE;
-                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(200, 200, 190, 255);
-                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);;//new Color(87, 136, 206, 255);
+                public static final Color LIST_EXPANDED_SELECTED_BG = new Color(207, 221, 241, 255);
+                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(207, 221, 241, 255);//new Color(200, 200, 190, 255);
+                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);//new Color(87, 136, 206, 255);
                 public static final Color LIST_SELECTION_FG = Color.BLACK;//WHITE;
+                public static final Color LIST_NOT_UP_TO_DATE = Color.GRAY;
+                public static final Color LIST_SELECTION_BORDER = new Color(44, 68, 103, 255);
                 public static final Color INNER_LIST_SELECTION_BG = new Color(236, 233, 216, 255);//new Color(207, 221, 241, 255);
                 public static final Color INNER_LIST_SELECTION_FG = Color.BLACK;
-                public static final Color INNER_LEFT_LIST_SELECTION_NOFOCUS_BG = new Color(236, 233, 216, 255);
-                public static final Color INNER_LEFT_LIST_SELECTION_NOFOCUS_FG = Color.BLACK;
+                public static final Color INNER_LIST_SELECTION_BORDER = new Color(44, 68, 103, 255);
+                public static final Color INNER_LIST_SELECTION_NOFOCUS_BG = new Color(236, 233, 216, 255);
+                public static final Color INNER_LIST_SELECTION_NOFOCUS_FG = Color.BLACK;
+                public static final Color INNER_LIST_SELECTION_NOFOCUS_BORDER = new Color(170, 170, 170, 255);
             }
         }
         public static final class Swing {

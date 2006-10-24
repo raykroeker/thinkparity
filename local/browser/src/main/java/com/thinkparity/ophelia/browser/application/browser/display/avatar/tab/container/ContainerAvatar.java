@@ -61,5 +61,18 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         jPopupMenu.add(menuItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
         jPopupMenu.show(invoker, e.getX(), e.getY());
-    }  
+    }
+
+    /**
+     * Trigger a sort.
+     * 
+     * @param sortElement
+     *          What the containers will be sorted by.
+     * @param sortDirection
+     *          The direction of the sort.
+     */
+    @Override
+    protected void triggerSort(final SortElement sortElement, final SortDirection sortDirection) {
+        model.sortContainers(sortElement, sortDirection);
+    }      
 }

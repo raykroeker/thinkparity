@@ -39,10 +39,11 @@ public class MainPanelImageCache {
         synchronized(ICON_CACHE) {
             ICON_CACHE.clear();
             
-            for (final TabPanelIcon tci : TabPanelIcon.values()) {
-                if (!ICON_CACHE.containsKey(tci.iconName)) {
-                    slogger.logVariable("tci", tci);
-                    ICON_CACHE.put(tci.iconName, ImageIOUtil.readIcon(tci.iconName));
+            for (final TabPanelIcon panelIcon : TabPanelIcon.values()) {
+                slogger.logVariable("panelIcon", panelIcon);
+                if (!ICON_CACHE.containsKey(panelIcon.iconName)) {
+                    slogger.logVariable("panelIcon", panelIcon);
+                    ICON_CACHE.put(panelIcon.iconName, ImageIOUtil.readIcon(panelIcon.iconName));
                 }
             }
         }

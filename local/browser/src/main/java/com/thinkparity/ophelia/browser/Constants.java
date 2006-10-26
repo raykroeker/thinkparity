@@ -69,10 +69,10 @@ public final class Constants {
             }
             public static final class List {
                 public static final Color LIST_FG = Color.BLACK;
-                public static final Color LIST_EVEN_BG = new Color(245, 248, 252, 255);
+                public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255); //new Color(245, 248, 252, 255);
                 public static final Color LIST_ODD_BG = Color.WHITE;
-                public static final Color LIST_EXPANDED_SELECTED_BG = new Color(207, 221, 241, 255);
-                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(207, 221, 241, 255);//new Color(200, 200, 190, 255);
+                public static final Color LIST_EXPANDED_SELECTED_BG = new Color(245, 246, 247, 255); //new Color(240, 242, 243, 255); //new Color(207, 221, 241, 255);
+                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(245, 246, 247, 255); //new Color(240, 242, 243, 255); // new Color(207, 221, 241, 255);//new Color(200, 200, 190, 255);
                 public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);//new Color(87, 136, 206, 255);
                 public static final Color LIST_SELECTION_FG = Color.BLACK;//WHITE;
                 public static final Color LIST_NOT_UP_TO_DATE = Color.GRAY;

@@ -72,7 +72,7 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
      *          The direction of the sort.
      */
     @Override
-    protected void triggerSort(final SortElement sortElement, final SortDirection sortDirection) {
-        model.sortContainers(sortElement, sortDirection);
+    protected void triggerSort(final SortColumn sortColumn, final SortDirection sortDirection) {
+        model.sortContainers(sortColumn, sortDirection);
     }      
 }

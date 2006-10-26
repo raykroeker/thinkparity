@@ -1,5 +1,5 @@
 /**
- * Created On: 21-Sep-06 5:22:25 PM
+ * Created On: 25-Oct-06 3:09:08 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.main;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -17,46 +17,44 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class MainCellImageCacheTest {
-
+public class MainPanelImageCache {
+    
     /** An apache logger. */
-    protected static final Logger slogger;
+    protected static final Log4JWrapper slogger;
     
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
 
     static {
-        slogger = Logger.getLogger(MainCellImageCacheTest.class);
+        slogger = new Log4JWrapper();
 
         ICON_CACHE = new Hashtable<String, Object>(20, 0.75F);
 
         cacheIcons();
     }
-
-    /** Cache all main cell icons. */
+    
+    /** Cache all main panel icons. */
     private static void cacheIcons() {
+        slogger.logApiId();
         synchronized(ICON_CACHE) {
             ICON_CACHE.clear();
             
-            for (final TabCellIconTest tci : TabCellIconTest.values()) {
-                if(!ICON_CACHE.containsKey(tci.iconName)) {
-                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
-                            "[CACHING " + tci.iconName + "]");
-                    ICON_CACHE.put(
-                            tci.iconName,
-                            ImageIOUtil.readIcon(tci.iconName));
+            for (final TabPanelIcon tci : TabPanelIcon.values()) {
+                if (!ICON_CACHE.containsKey(tci.iconName)) {
+                    slogger.logVariable("tci", tci);
+                    ICON_CACHE.put(tci.iconName, ImageIOUtil.readIcon(tci.iconName));
                 }
             }
         }
     }
 
     /** An apache logger. */
-    protected final Logger logger;
+    protected final Log4JWrapper logger;
 
-    /** Creates a new instance of MainCellImageCacheTest */
-    public MainCellImageCacheTest() {
+    /** Creates a new instance of MainPanelImageCache */
+    public MainPanelImageCache() {
         super();
-        this.logger = Logger.getLogger(getClass());
+        this.logger = new Log4JWrapper();
     }
 
     /** Debug the cache. */
@@ -65,14 +63,14 @@ public class MainCellImageCacheTest {
     }
     
     /**
-     * Read a tab cell icon from the cache.
+     * Read a tab panel icon from the cache.
      * 
      * @param icon
      *            The icon.
      * @return The icon.
      * @see ImageIOUtil#readIcon(java.lang.String)
      */
-    public ImageIcon read(final TabCellIconTest icon) {
+    public ImageIcon read(final TabPanelIcon icon) {
         return (ImageIcon) read(ICON_CACHE, icon.iconName);
     }
 
@@ -85,14 +83,15 @@ public class MainCellImageCacheTest {
      *            The cache.
      */
     private void debug(final String cacheName, final Map<String, Object> cache) {
-        synchronized(cache) {
+        logger.logApiId();
+        logger.logVariable("cacheName", cacheName);
+        synchronized (cache) {
             for(final String key : cache.keySet()) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE IO] [" +
-                        cacheName + "] [" + key + "]");
+                logger.logVariable("key", key);
             }
         }
     }
-
+    
     /**
      * Read from the cache.
      * 
@@ -107,8 +106,8 @@ public class MainCellImageCacheTest {
         synchronized(cache) { return cache.get(cacheKey); }
     }
     
-    /** All tab cell icons. */
-    public enum TabCellIconTest {
+    /** All tab panel icons. */
+    public enum TabPanelIcon {
         INVISIBLE("Invisible16x16.png"),
         CONTAINER("IconContainer.png"),
         CONTAINER_ROLLOVER("IconContainer_Rollover.png"),
@@ -121,18 +120,26 @@ public class MainCellImageCacheTest {
         FILE_XLS("IconFileXls.png"),
         FILE_PDF("IconFilePdf.png"),
         FILE_DEFAULT("IconFileDefault.png"),
-        COMMENT("IconComment.png");
+        COMMENT("IconComment.png"),
+        
+        // Column sort icons
+        SORT_NONE("SortNone.png"),
+        SORT_NONE_ROLLOVER("SortNoneRollover.png"),
+        SORT_DOWN("SortDown.png"),
+        SORT_DOWN_ROLLOVER("SortDownRollover.png"),
+        SORT_UP("SortUp.png"),
+        SORT_UP_ROLLOVER("SortUpRollover.png");
         
         /** The icon file name. */
         private final String iconName;
 
         /**
-         * Create a TabCellIcon.
+         * Create a TabPanelIcon.
          * 
          * @param iconName
          *            The icon file name.
          */
-        private TabCellIconTest(final String iconName) {
+        private TabPanelIcon(final String iconName) {
             this.iconName = iconName;
         }            
     }

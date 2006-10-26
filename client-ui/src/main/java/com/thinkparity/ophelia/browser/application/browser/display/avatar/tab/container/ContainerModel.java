@@ -24,8 +24,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortColumn;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortDirection;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortElement;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -314,8 +314,8 @@ public final class ContainerModel extends TabPanelModel {
      * @param sortDirection
      *          The direction of the sort.
      */
-    public void sortContainers(SortElement sortElement, SortDirection sortDirection) {
-        containerPanelComparator = new ContainerPanelComparator(sortElement, sortDirection);
+    public void sortContainers(SortColumn sortColumn, SortDirection sortDirection) {
+        containerPanelComparator = new ContainerPanelComparator(sortColumn, sortDirection);
         sortContainers();
         synchronize();
     }

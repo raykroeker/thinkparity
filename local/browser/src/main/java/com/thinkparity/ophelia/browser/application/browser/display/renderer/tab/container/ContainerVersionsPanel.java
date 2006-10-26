@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
@@ -34,6 +35,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
@@ -41,8 +43,8 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest.TabCellIconTest;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -100,7 +102,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private ListType focusList = ListType.VERSION;
     
     /** An image cache. */
-    protected final MainCellImageCacheTest imageCacheTest;
+    protected final MainPanelImageCache imageCache;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel leftJPanel;
@@ -125,9 +127,24 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versions = new ArrayList<ContainerVersion>();
         this.versionsModel = new DefaultListModel();
         this.versionsContentModel = new DefaultListModel();
-        this.imageCacheTest = new MainCellImageCacheTest();
+        this.imageCache = new MainPanelImageCache();
         initComponents();
         initFocusListeners();
+    }
+    
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    private class MyJPanel extends javax.swing.JPanel {
+        protected void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+            final Graphics g2 = g.create();
+            try {
+                GradientPainter.paintVertical(g2, getSize(),
+                        new Color(245, 246, 247, 255), new Color(204, 208, 214, 255));
+            }
+            finally { g2.dispose(); }
+        }
     }
     
     /**
@@ -266,7 +283,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public Color getBackgroundColor() {
         final Color color;
         if (isSelectedContainer()) {
-            color = Colors.Browser.List.LIST_SELECTION_BG;
+            color = Colors.Browser.List.LIST_EXPANDED_SELECTED_BG;
         } else {           
             color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;    
         }
@@ -340,10 +357,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
-        leftJPanel = new javax.swing.JPanel();
+        //leftJPanel = new javax.swing.JPanel();
+        leftJPanel = new MyJPanel();
         versionsJScrollPane = new javax.swing.JScrollPane();
         versionsJList = new javax.swing.JList();
-        rightJPanel = new javax.swing.JPanel();
+        //rightJPanel = new javax.swing.JPanel();
+        rightJPanel = new MyJPanel();
         versionsContentJScrollPane = new javax.swing.JScrollPane();
         versionsContentJList = new javax.swing.JList();
 
@@ -747,7 +766,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     "Draft - 1 Document" :
                     MessageFormat.format("Draft - {0} Documents",
                             documentCount));
-            setIcon(imageCacheTest.read(TabCellIconTest.DRAFT));
+            setIcon(imageCache.read(TabPanelIcon.DRAFT));
             int countCells = 0;
             for (final Document document : draft.getDocuments()) {
                 addContentCell(new DraftDocumentCell(draft, document));
@@ -827,7 +846,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 setText(MessageFormat.format("{0}",
                         user.getName(), user.getOrganization(), user.getTitle()));
             }
-            setIcon(imageCacheTest.read(TabCellIconTest.USER));
+            setIcon(imageCache.read(TabPanelIcon.USER));
         }
         JabberId getId() {
             return user.getId();
@@ -855,7 +874,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     version.getCreatedOn().getTime(),
                     publishedBy.getName(), publishedBy.getTitle(),
                     publishedBy.getOrganization()));
-            setIcon(imageCacheTest.read(TabCellIconTest.VERSION));
+            setIcon(imageCache.read(TabPanelIcon.VERSION));
             int countCells = 0;
             // TODO fix this
             addContentCell(new CommentCell(version));
@@ -928,7 +947,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             } else {
                 setText("This is a version comment. I like this version very much.");
             }
-            setIcon(imageCacheTest.read(TabCellIconTest.COMMENT));
+            setIcon(imageCache.read(TabPanelIcon.COMMENT));
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
@@ -998,13 +1017,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     private ImageIcon getFileIcon(final String extension) {
         if (extension.equalsIgnoreCase(".DOC")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_DOC); 
+            return imageCache.read(TabPanelIcon.FILE_DOC); 
         } else if (extension.equalsIgnoreCase(".XLS")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_XLS);  
+            return imageCache.read(TabPanelIcon.FILE_XLS);  
         } else if (extension.equalsIgnoreCase(".PDF")) {
-            return imageCacheTest.read(TabCellIconTest.FILE_PDF);
+            return imageCache.read(TabPanelIcon.FILE_PDF);
         } else {
-            return imageCacheTest.read(TabCellIconTest.FILE_DEFAULT); 
+            return imageCache.read(TabPanelIcon.FILE_DEFAULT); 
         }
     }
     

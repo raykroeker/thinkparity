@@ -13,16 +13,15 @@ import java.text.MessageFormat;
 
 import javax.swing.Box;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -154,8 +153,11 @@ public class BrowserMenuBar extends JMenuBar {
         // Create JMenus
         final JMenu newMenu = MenuFactory.create(localization.getString("New"),
                 new Integer(localization.getString("NewMnemonic").charAt(0)));
-        this.add(Box.createRigidArea(new Dimension(6,0)));   
+        this.add(Box.createRigidArea(new Dimension(6,0))); 
+  newMenu.setBorder(new LineBorder(Color.WHITE));
+  
         this.add(newMenu);
+        
         final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"),
                 new Integer(localization.getString("ProfileMnemonic").charAt(0)));
         this.add(Box.createRigidArea(new Dimension(2,0)));  
@@ -193,7 +195,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
     
     private JLabel getSignUpButton() {
-        final javax.swing.JLabel signUpJLabel = new JLabel("Sign-Up");
+        final javax.swing.JLabel signUpJLabel = new JLabel(" Sign-Up ");
         final String originalText = signUpJLabel.getText();
         signUpJLabel.setForeground(new Color(249, 162, 94, 255));
         signUpJLabel.setFont(Fonts.DefaultFontBold);
@@ -203,11 +205,13 @@ public class BrowserMenuBar extends JMenuBar {
             @Override
             public void mouseEntered(MouseEvent e) {
                 final String text = signUpJLabel.getText();
-                signUpJLabel.setText(MessageFormat.format("<html><u>{0}</u></html>", text));
+                //signUpJLabel.setText(MessageFormat.format("<html><u>{0}</u></html>", text));
+                signUpJLabel.setBorder(new LineBorder(new Color(249, 162, 94, 255)));
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                signUpJLabel.setText(MessageFormat.format("<html>{0}</html>", originalText));
+                //signUpJLabel.setText(MessageFormat.format("<html>{0}</html>", originalText));
+                signUpJLabel.setBorder(null);   
             }
             @Override
             public void mouseClicked(final MouseEvent e) {

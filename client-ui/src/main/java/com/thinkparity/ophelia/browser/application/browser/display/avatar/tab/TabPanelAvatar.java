@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -22,6 +21,8 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
@@ -38,18 +39,44 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     /** The panel constraints. */
     private final GridBagConstraints panelConstraints;
     
-    /** The panel localization. */
-    private final MainCellL18n localization;
-    
-    /** The sort element. */
-    private SortElement sortElement = SortElement.NONE;
+    /** The sort column. */
+    private SortColumn sortColumn = SortColumn.NONE;
     
     /** The sort direction. */
     private SortDirection sortDirection = SortDirection.NONE;
+    
+    /** An image cache. */
+    private final MainPanelImageCache imageCache;
+    
+    /** The panel localization. */
+    private final MainCellL18n localization;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel columnHeaderJPanel;
+    private javax.swing.JLabel containerDateFillerJLabel;
+    private javax.swing.JLabel containerDateJLabel;
+    private javax.swing.JPanel containerDateJPanel;
+    private javax.swing.JPanel containerJPanel;
+    private javax.swing.JLabel containerNameFillerJLabel;
+    private javax.swing.JLabel containerNameJLabel;
+    private javax.swing.JPanel containerNameJPanel;
+    private javax.swing.JLabel draftOwnerFillerJLabel;
+    private javax.swing.JLabel draftOwnerJLabel;
+    private javax.swing.JPanel draftOwnerJPanel;
+    private javax.swing.JLabel eastPaddingJLabel;
+    private javax.swing.JLabel fillJLabel;
+    private javax.swing.JLabel fillerJLabel;
+    private javax.swing.JLabel headerJLabel;
+    private javax.swing.JLabel iconJLabel;
+    private javax.swing.JPanel tabJPanel;
+    private javax.swing.JScrollPane tabJScrollPane;
+    private javax.swing.JLabel westPaddingJLabel;
+    // End of variables declaration//GEN-END:variables
+    
     /** Creates new form TabPanelAvatar */
     public TabPanelAvatar(final AvatarId id, final T model) {
     	super(id, model);
+        this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("TabPanelAvatar");
         this.fillConstraints = new GridBagConstraints();
         this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -63,20 +90,22 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     	installDataListener();
         initComponents();
         installResizer();
-        initHeader();
-        initHeaderListeners();
-
-        //new CursorMovementCustodian().applyCursorKeyListener(this);
+        initHeaderBorder();
+        initHeaderTooltips();
     }
 
     /**
-	 * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
-	 */
+     * @see com.thinkparity.codebase.swing.AbstractJPanel#debug()
+     */
     @Override
-	public void reload() {
-    	super.reload();
+    public void debug() {
+        final Component[] components = tabJPanel.getComponents();
+        logger.logDebug("{0} components.", components.length);
+        for (final Component component : components) {
+            logger.logVariable("component", component);
+        }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
      */
@@ -85,104 +114,15 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         return Resizer.ResizeEdges.MIDDLE;
     }
     
-    private void initHeader() {
-        // Borders
-        final Color[] borderColours = new Color[] {Color.WHITE, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
-        final Border bottomBorder = new BottomBorder(borderColours, 3, new Insets(3,0,0,0));
-        columnHeaderJLabel.setBorder(bottomBorder); 
-        
-        // Text
-        iconJLabel.setText(localization.getString("IconHeading"));
-        containerNameJLabel.setText(localization.getString("ContainerNameHeading"));
-        containerDateJLabel.setText(localization.getString("ContainerDateHeading"));
-        draftOwnerJLabel.setText(localization.getString("DraftOwnerHeading"));
-        
-        // Colours
-        final Color headingColor = new Color(0,100,100,255);
-        iconJLabel.setForeground(headingColor);
-        containerNameJLabel.setForeground(headingColor);
-        containerDateJLabel.setForeground(headingColor);
-        draftOwnerJLabel.setForeground(headingColor);
-    }
+    private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMousePressed
+    }// GEN-LAST:event_headerJLabelMousePressed
     
-    private void initHeaderListeners() {
-        final MouseAdapter mouseAdapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                headingMouseClicked(e);
-            }
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                JLabel jLabel = (JLabel) e.getSource();
-                jLabel.setForeground(Color.RED);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                JLabel jLabel = (JLabel) e.getSource();
-                jLabel.setForeground(new Color(0,100,100,255));
-            }  
-        };
-        iconJLabel.addMouseListener(mouseAdapter);
-        containerNameJLabel.addMouseListener(mouseAdapter);
-        containerDateJLabel.addMouseListener(mouseAdapter);
-        draftOwnerJLabel.addMouseListener(mouseAdapter);       
-    }
-    
-    private void headingMouseClicked(final MouseEvent e) {
-        JLabel jLabel = (JLabel) e.getSource();
-        Boolean sortElementChanged = Boolean.FALSE;
-        if (jLabel.equals(iconJLabel)) {
-            if (sortElement != SortElement.BOOKMARK) {
-                sortElementChanged = Boolean.TRUE;
-            }
-            sortElement = SortElement.BOOKMARK;
-        } else if (jLabel.equals(containerNameJLabel)) {
-            if (sortElement != SortElement.CONTAINER_NAME) {
-                sortElementChanged = Boolean.TRUE;
-            }
-            sortElement = SortElement.CONTAINER_NAME;
-        } else if (jLabel.equals(containerDateJLabel)) {
-            if (sortElement != SortElement.CONTAINER_DATE) {
-                sortElementChanged = Boolean.TRUE;
-            }
-            sortElement = SortElement.CONTAINER_DATE;
-        } else if (jLabel.equals(draftOwnerJLabel)) {
-            if (sortElement != SortElement.DRAFT_OWNER) {
-                sortElementChanged = Boolean.TRUE;
-            }
-            sortElement = SortElement.DRAFT_OWNER;
+    private void headerJLabelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMouseReleased
+        if (e.isPopupTrigger()) {
+            triggerPopup(tabJPanel, e);
         }
-        
-        if (sortElementChanged) {
-            sortDirection = SortDirection.DOWN;
-        } else {
-            sortDirection = nextSortDirection(sortDirection);
-        }
-        
-        triggerSort(sortElement, sortDirection);
-    }
+    }// GEN-LAST:event_headerJLabelMouseReleased
     
-    private SortDirection nextSortDirection(final SortDirection sortDirection) {
-        if (sortDirection == SortDirection.NONE) {
-            return SortDirection.DOWN;
-        } else if (sortDirection == SortDirection.DOWN) {
-            return SortDirection.UP;
-        } else {
-            return SortDirection.NONE;
-        }
-    }
-    
-    /**
-     * Trigger a sort.
-     * 
-     * @param sortElement
-     *          What the containers will be sorted by.
-     * @param sortDirection
-     *          The direction of the sort.
-     */
-    protected void triggerSort(final SortElement sortElement, final SortDirection sortDirection) {       
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -193,13 +133,20 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         java.awt.GridBagConstraints gridBagConstraints;
 
         headerJLabel = new javax.swing.JLabel();
-        columnHeaderJLabel = new javax.swing.JPanel();
+        columnHeaderJPanel = new javax.swing.JPanel();
         westPaddingJLabel = new javax.swing.JLabel();
-        iconJLabel = new javax.swing.JLabel();
+        iconJLabel = new HeaderJLabel(SortColumn.BOOKMARK);
         containerJPanel = new javax.swing.JPanel();
-        containerNameJLabel = new javax.swing.JLabel();
-        containerDateJLabel = new javax.swing.JLabel();
-        draftOwnerJLabel = new javax.swing.JLabel();
+        containerNameJPanel = new javax.swing.JPanel();
+        containerNameJLabel = new HeaderJLabel(SortColumn.CONTAINER_NAME);
+        containerNameFillerJLabel = new javax.swing.JLabel();
+        fillerJLabel = new javax.swing.JLabel();
+        containerDateJPanel = new javax.swing.JPanel();
+        containerDateJLabel = new HeaderJLabel(SortColumn.CONTAINER_DATE);
+        containerDateFillerJLabel = new javax.swing.JLabel();
+        draftOwnerJPanel = new javax.swing.JPanel();
+        draftOwnerJLabel = new HeaderJLabel(SortColumn.DRAFT_OWNER);
+        draftOwnerFillerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
         tabJScrollPane = new javax.swing.JScrollPane();
         tabJPanel = new javax.swing.JPanel();
@@ -207,7 +154,9 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         setLayout(new java.awt.GridBagLayout());
 
-        headerJLabel.setText(" ");
+        headerJLabel.setMaximumSize(new java.awt.Dimension(3, 1));
+        headerJLabel.setMinimumSize(new java.awt.Dimension(3, 1));
+        headerJLabel.setPreferredSize(new java.awt.Dimension(3, 1));
         headerJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 headerJLabelMousePressed(evt);
@@ -225,74 +174,131 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         add(headerJLabel, gridBagConstraints);
 
-        columnHeaderJLabel.setLayout(new java.awt.GridBagLayout());
+        columnHeaderJPanel.setLayout(new java.awt.GridBagLayout());
 
-        columnHeaderJLabel.setMaximumSize(new java.awt.Dimension(5000, 20));
-        columnHeaderJLabel.setOpaque(false);
-        columnHeaderJLabel.setPreferredSize(new java.awt.Dimension(128, 20));
+        columnHeaderJPanel.setMaximumSize(new java.awt.Dimension(5000, 20));
+        columnHeaderJPanel.setMinimumSize(new java.awt.Dimension(128, 20));
+        columnHeaderJPanel.setOpaque(false);
+        columnHeaderJPanel.setPreferredSize(new java.awt.Dimension(128, 20));
         westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
+        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
+        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
+        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        columnHeaderJLabel.add(westPaddingJLabel, gridBagConstraints);
+        columnHeaderJPanel.add(westPaddingJLabel, gridBagConstraints);
 
-        iconJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
-        iconJLabel.setText("Flag");
+        iconJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
+        iconJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        iconJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        iconJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
-        columnHeaderJLabel.add(iconJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 10);
+        columnHeaderJPanel.add(iconJLabel, gridBagConstraints);
 
         containerJPanel.setLayout(new java.awt.GridLayout(1, 0));
 
+        containerJPanel.setMaximumSize(new java.awt.Dimension(32767, 20));
+        containerJPanel.setMinimumSize(new java.awt.Dimension(200, 20));
         containerJPanel.setOpaque(false);
-        containerNameJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
-        containerNameJLabel.setText("!Package!");
-        containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
-        containerNameJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
-        containerNameJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
-        containerJPanel.add(containerNameJLabel);
+        containerJPanel.setPreferredSize(new java.awt.Dimension(200, 20));
+        containerNameJPanel.setLayout(new java.awt.GridBagLayout());
 
-        containerDateJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
-        containerDateJLabel.setText("!Date!");
-        containerDateJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        containerDateJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
-        containerDateJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
-        containerDateJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
-        containerJPanel.add(containerDateJLabel);
+        containerNameJPanel.setOpaque(false);
+        containerNameJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
+        containerNameJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        containerNameJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        containerNameJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        containerNameJPanel.add(containerNameJLabel, gridBagConstraints);
 
-        draftOwnerJLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
-        draftOwnerJLabel.setText("!Draft Owner!");
-        draftOwnerJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 14));
-        draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 14));
-        draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 14));
-        containerJPanel.add(draftOwnerJLabel);
+        containerNameFillerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        containerNameFillerJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        containerNameFillerJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        containerNameJPanel.add(containerNameFillerJLabel, gridBagConstraints);
+
+        containerJPanel.add(containerNameJPanel);
+
+        containerJPanel.add(fillerJLabel);
+
+        containerDateJPanel.setLayout(new java.awt.GridBagLayout());
+
+        containerDateJPanel.setOpaque(false);
+        containerDateJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
+        containerDateJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        containerDateJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        containerDateJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        containerDateJPanel.add(containerDateJLabel, gridBagConstraints);
+
+        containerDateFillerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        containerDateFillerJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        containerDateFillerJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        containerDateJPanel.add(containerDateFillerJLabel, gridBagConstraints);
+
+        containerJPanel.add(containerDateJPanel);
+
+        draftOwnerJPanel.setLayout(new java.awt.GridBagLayout());
+
+        draftOwnerJPanel.setOpaque(false);
+        draftOwnerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
+        draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        draftOwnerJPanel.add(draftOwnerJLabel, gridBagConstraints);
+
+        draftOwnerFillerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
+        draftOwnerFillerJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
+        draftOwnerFillerJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        draftOwnerJPanel.add(draftOwnerFillerJLabel, gridBagConstraints);
+
+        containerJPanel.add(draftOwnerJPanel);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        columnHeaderJLabel.add(containerJPanel, gridBagConstraints);
+        columnHeaderJPanel.add(containerJPanel, gridBagConstraints);
 
         eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
-        columnHeaderJLabel.add(eastPaddingJLabel, new java.awt.GridBagConstraints());
+        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
+        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
+        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
+        columnHeaderJPanel.add(eastPaddingJLabel, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-        add(columnHeaderJLabel, gridBagConstraints);
+        add(columnHeaderJPanel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
         tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
@@ -318,22 +324,26 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
-        if (e.isPopupTrigger()) {
-            triggerPopup(tabJPanel, e);
-        }
-    }// GEN-LAST:event_tabJPanelMouseReleased
-
-    private void headerJLabelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMouseReleased
-        if (e.isPopupTrigger()) {
-            triggerPopup(tabJPanel, e);
-        }
-    }// GEN-LAST:event_headerJLabelMouseReleased
-
-    private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMousePressed
-    }// GEN-LAST:event_headerJLabelMousePressed
-
+    
+    /**
+     * Initialize header border.
+     */
+    private void initHeaderBorder() {
+        final Color[] borderColours = new Color[] {Color.WHITE, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
+        final Border bottomBorder = new BottomBorder(borderColours, 3, new Insets(0,0,3,0));
+        columnHeaderJPanel.setBorder(bottomBorder);
+    }
+    
+    /**
+     * Initialize header tooltips.
+     */
+    private void initHeaderTooltips() {
+        iconJLabel.setToolTipText(localization.getString("BookmarkToolTipText"));
+        containerNameJLabel.setToolTipText(localization.getString("ContainerNameToolTipText"));
+        containerDateJLabel.setToolTipText(localization.getString("ContainerDateToolTipText"));
+        draftOwnerJLabel.setToolTipText(localization.getString("DraftOwnerToolTipText"));
+    }
+    
     /**
      * Install the a data listener on the list model. This will translate the
      * model's data events into UI component events.
@@ -463,38 +473,111 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
     
     /**
+	 * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+	 */
+    @Override
+	public void reload() {
+    	super.reload();
+    }
+    
+    private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
+        if (e.isPopupTrigger()) {
+            triggerPopup(tabJPanel, e);
+        }
+    }// GEN-LAST:event_tabJPanelMouseReleased
+    
+    /**
      * Trigger a popup for the tab avatar.
      *
      */
     protected void triggerPopup(final Component invoker, final MouseEvent e) {}
-
+    
     /**
-     * @see com.thinkparity.codebase.swing.AbstractJPanel#debug()
+     * Trigger a sort.
+     * 
+     * @param sortColumn
+     *          What the containers will be sorted by.
+     * @param sortDirection
+     *          The direction of the sort.
      */
-    @Override
-    public void debug() {
-        final Component[] components = tabJPanel.getComponents();
-        logger.logDebug("{0} components.", components.length);
-        for (final Component component : components) {
-            logger.logVariable("component", component);
+    protected void triggerSort(final SortColumn sortColumn, final SortDirection sortDirection) {       
+    }
+    
+    private void updateHeaderIcon(final javax.swing.JLabel jLabel, final SortColumn column, final Boolean rollover) {
+        if (rollover) {
+            if ((sortColumn != column) || (sortDirection == SortDirection.NONE)) {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_NONE_ROLLOVER));
+            } else if (sortDirection == SortDirection.DOWN) {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_DOWN_ROLLOVER));
+            } else {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_UP_ROLLOVER));
+            } 
+        } else {
+            if ((sortColumn != column) || (sortDirection == SortDirection.NONE)) {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_NONE));
+            } else if (sortDirection == SortDirection.DOWN) {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_DOWN));
+            } else {
+                jLabel.setIcon(imageCache.read(TabPanelIcon.SORT_UP));
+            } 
         }
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel columnHeaderJLabel;
-    private javax.swing.JLabel containerDateJLabel;
-    private javax.swing.JPanel containerJPanel;
-    private javax.swing.JLabel containerNameJLabel;
-    private javax.swing.JLabel draftOwnerJLabel;
-    private javax.swing.JLabel eastPaddingJLabel;
-    private javax.swing.JLabel fillJLabel;
-    private javax.swing.JLabel headerJLabel;
-    private javax.swing.JLabel iconJLabel;
-    private javax.swing.JPanel tabJPanel;
-    private javax.swing.JScrollPane tabJScrollPane;
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
     
-    public enum SortElement { BOOKMARK, CONTAINER_NAME, CONTAINER_DATE, DRAFT_OWNER, NONE }
+    private void updateHeaderIcons(final SortColumn rolloverColumn) {
+        updateHeaderIcon(iconJLabel, SortColumn.BOOKMARK, (rolloverColumn==SortColumn.BOOKMARK));
+        updateHeaderIcon(containerNameJLabel, SortColumn.CONTAINER_NAME, (rolloverColumn==SortColumn.CONTAINER_NAME));
+        updateHeaderIcon(containerDateJLabel, SortColumn.CONTAINER_DATE, (rolloverColumn==SortColumn.CONTAINER_DATE));
+        updateHeaderIcon(draftOwnerJLabel, SortColumn.DRAFT_OWNER, (rolloverColumn==SortColumn.DRAFT_OWNER));
+    }
+    
+    private class HeaderJLabel extends javax.swing.JLabel {
+        
+        public HeaderJLabel(final SortColumn column) {
+            super();
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(final MouseEvent e) {
+                    if (sortColumn != column) {
+                        sortDirection = SortDirection.NONE; 
+                    }
+                    sortDirection = nextSortDirection(sortDirection, column);
+                    sortColumn = column;
+                    updateHeaderIcons(column);
+                    triggerSort(sortColumn, sortDirection);
+                }
+                @Override
+                public void mouseEntered(final MouseEvent e) {
+                    updateHeaderIcon(HeaderJLabel.this, column, Boolean.TRUE);
+                }
+                @Override
+                public void mouseExited(final MouseEvent e) {
+                    updateHeaderIcon(HeaderJLabel.this, column, Boolean.FALSE);
+                }
+            });
+        }
+        
+        private SortDirection nextSortDirection(final SortDirection sortDirection, final SortColumn column) {
+            // Text based columns will start with sorting up, others will start with sorting down.
+            if ((column == SortColumn.CONTAINER_NAME) || (column == SortColumn.DRAFT_OWNER)) {
+                if (sortDirection == SortDirection.NONE) {
+                    return SortDirection.UP;
+                } else if (sortDirection == SortDirection.UP)  {
+                    return SortDirection.DOWN;
+                } else {
+                    return SortDirection.NONE;
+                }
+            } else {
+                if (sortDirection == SortDirection.NONE) {
+                    return SortDirection.DOWN;
+                } else if (sortDirection == SortDirection.DOWN)  {
+                    return SortDirection.UP;
+                } else {
+                    return SortDirection.NONE;
+                }
+            }
+        } 
+    }
+    
+    public enum SortColumn { BOOKMARK, CONTAINER_NAME, CONTAINER_DATE, DRAFT_OWNER, NONE }
     public enum SortDirection { DOWN, UP, NONE }
 }

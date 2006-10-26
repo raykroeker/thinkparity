@@ -25,7 +25,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCacheTest;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainCellImageCache.TabCellImage;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -74,7 +73,6 @@ public abstract class DefaultTabCell implements TabCell {
     
     /** An image cache. */
     protected final MainCellImageCache imageCache;
-    protected final MainCellImageCacheTest imageCacheTest;
     
     /** A flag indicating the mouse over status. */
     protected Boolean mouseOver = Boolean.FALSE;
@@ -89,7 +87,6 @@ public abstract class DefaultTabCell implements TabCell {
     protected DefaultTabCell() {
         super();
         this.imageCache = new MainCellImageCache();
-        this.imageCacheTest = new MainCellImageCacheTest();
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
 

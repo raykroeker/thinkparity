@@ -6,10 +6,6 @@ package com.thinkparity.ophelia.model.util.xmpp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.Packet;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -19,6 +15,10 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
+
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.Packet;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -154,7 +154,7 @@ abstract class AbstractXMPP<T extends EventListener> {
      * @return True if the user id matches the currently authenticated user.
      */
     protected Boolean isAuthenticatedUser(final JabberId userId) {
-        return xmppCore.getJabberId().equals(userId);
+        return xmppCore.getUserId().equals(userId);
     }
 
     /**

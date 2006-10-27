@@ -69,6 +69,26 @@ final class StreamSocketServer implements Runnable {
     }
 
     /**
+     * Destroy a session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    void destroy(final StreamSession session) {
+    }
+
+    /**
+     * Destroy a stream.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void destroy(final StreamSession streamSession, final String streamId) {
+    }
+
+    /**
      * Initialize a stream session.
      * 
      * @param streamSession
@@ -78,12 +98,14 @@ final class StreamSocketServer implements Runnable {
     }
 
     /**
-     * Invalidate a stream session.
+     * Initialize a stream.
      * 
      * @param streamSession
      *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      */
-    void invalidate(final StreamSession streamSession) {
+    void initialize(final StreamSession streamSession, final String streamId) {
     }
 
     void start() {

@@ -9,13 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -30,16 +29,17 @@ final class StreamServer {
     private static final Charset CHARSET;
 
     /** A <code>Session</code> list. */
-    private static final Map<String, StreamSession> SESSIONS;
+    private static final Map<String, ServerSession> SESSIONS;
 
     static {
         CHARSET = StreamModelImpl.CHARSET;
-        SESSIONS = new HashMap<String, StreamSession>(50);
+        SESSIONS = new HashMap<String, ServerSession>(50);
     }
 
     /** The <code>StreamFileServer</code>. */
     private final StreamFileServer fileServer;
 
+    /** An apache logger wrapper. */
     private final Log4JWrapper logger;
 
     /** The <code>StreamSocketServer</code>.*/
@@ -68,26 +68,76 @@ final class StreamServer {
      * @param sessionId
      *            A session id.
      * @param sessionAddress
-     *            A session <code>InetSocketAddress</code>.
+     *            A session <code>InetAddress</code>.
      * @return A <code>StreamSession</code>.
      */
-    StreamSession authenticate(final String sessionId) {
+    StreamSession authenticate(final String sessionId,
+            final InetAddress sessionAddress) {
         synchronized (SESSIONS) {
-            return SESSIONS.get(sessionId);
+            final ServerSession session = SESSIONS.get(sessionId);
+            if (session.getInetAddress().equals(sessionAddress)) {
+                return session;
+            } else {
+                logger.logWarning("Session address {0} does not match original.",
+                        sessionAddress);
+                return null;
+            }
         }
     }
 
+    /**
+     * Destroy a session.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     */
+    void destroy(final StreamSession session) {
+        authenticate(session);
+        synchronized (SESSIONS) {
+            SESSIONS.remove(session.getId());
+
+            fileServer.destroy(session);
+            socketServer.destroy(session);
+            session.setId(null);
+        }
+    }
+
+    /**
+     * Destroy a stream.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void destroy(final StreamSession session, final String streamId) {
+        authenticate(session);
+        fileServer.destroy(session, streamId);
+        socketServer.destroy(session, streamId);
+    }
+
+    /**
+     * Obtain the stream server character set.
+     * 
+     * @return A <code>Charset</code>.
+     */
     Charset getCharset() {
         return CHARSET;
     }
 
     /**
-     * Create a stream session.
+     * Initialize the stream server for a given stream session.
      * 
-     * @param A
-     *            <code>StreamSession</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
      */
-    void initializeSession(final StreamSession session) {
+    void initialize(final ServerSession session) {
+        Assert.assertNotNull("Session is null.", session);
+        Assert.assertNotNull("Session buffer size is null.", session.getBufferSize());
+        Assert.assertNotNull("Session charset is null.", session.getCharset());
+        Assert.assertNotNull("Session environment is null.", session.getEnvironment());
+        Assert.assertNotNull("Session id is null.", session.getId());
+        Assert.assertNotNull("Session inet address is null.", session.getInetAddress());
         synchronized (SESSIONS) {
             SESSIONS.put(session.getId(), session);
             fileServer.initialize(session);
@@ -95,59 +145,50 @@ final class StreamServer {
         }
     }
 
-    void invalidate(final StreamSession streamSession) {
-        synchronized (SESSIONS) {
-            if (null == streamSession) {
-                logger.logWarning("Stream session is null.");
-            } else {
-                fileServer.invalidate(streamSession);
-                socketServer.invalidate(streamSession);
-                if (SESSIONS.containsKey(streamSession.getId())) {
-                    SESSIONS.remove(streamSession.getId());
-                }
-                streamSession.setId(null);
-            }
-        }
-    }
-
-    InputStream openInputStream(final StreamSession streamSession,
-            final String streamId) throws IOException {
-        return new FileInputStream(
-                fileServer.readWorkspace(
-                        authenticate(streamSession)).findFile(streamId));
+    /**
+     * Initialize the stream server for a given stream.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void initialize(final StreamSession session, final String streamId) {
+        authenticate(session);
+        fileServer.initialize(session, streamId);
+        socketServer.initialize(session, streamId);
     }
 
     /**
-     * Open the input streams for a session.
+     * Open a stream from persistence to be read.
      * 
-     * @param sessionId
-     *            A session id <code>String</code>.
-     * @return An <code>InputStream</code> <code>List</code>.
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return An <code>InputStream</code>.
      * @throws IOException
      */
-    List<InputStream> openInputStreams(final String sessionId) throws IOException {
-        final StreamSession session = SESSIONS.get(sessionId);
-        final FileSystem fileSystem = fileServer.readWorkspace(session);
-        final List<InputStream> streams = new ArrayList<InputStream>();
-        for (final File file : fileSystem.listFiles("/", Boolean.FALSE)) {
-            streams.add(new FileInputStream(file));
-        }
-        return streams;
+    InputStream openInputStream(final StreamSession session,
+            final String streamId) throws IOException {
+        return new FileInputStream(
+                fileServer.find(authenticate(session), streamId));
     }
 
     /**
-     * Open an output stream.
+     * Open a stream for persistence to be written to.
      * 
      * @param sessionId
      *            A session id <code>String</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      * @return An output stream.
      * @throws IOException
      */
-    OutputStream openOutputStream(final StreamSession streamSession,
+    OutputStream openOutputStream(final StreamSession session,
             final String streamId) throws IOException {
         return new FileOutputStream(
-                fileServer.readWorkspace(
-                        authenticate(streamSession)).createFile(streamId));
+                fileServer.find(authenticate(session), streamId));
     }
 
     /**
@@ -174,15 +215,13 @@ final class StreamServer {
     /**
      * Authenticate a session.
      * 
-     * @param sessionId
-     *            A session id.
-     * @param sessionAddress
-     *            A session <code>InetSocketAddress</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
      * @return A <code>StreamSession</code>.
      */
-    private StreamSession authenticate(final StreamSession streamSession) {
+    private StreamSession authenticate(final StreamSession session) {
         synchronized (SESSIONS) {
-            return SESSIONS.get(streamSession.getId());
+            return SESSIONS.get(session.getId());
         }
     }
 }

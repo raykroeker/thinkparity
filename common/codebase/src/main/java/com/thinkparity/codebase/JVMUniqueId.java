@@ -33,6 +33,7 @@ public class JVMUniqueId {
 
 	static {
 		idLock = new Object();
+		// TIME - This a local timestamp.
 		idSeed = System.currentTimeMillis();
 		idCurrent = idSeed;
 	}

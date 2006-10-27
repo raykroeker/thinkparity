@@ -3,7 +3,16 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -101,14 +110,14 @@ public abstract class FileUtil {
 				directory.delete());
 	}
 	
-	/**
+    /**
      * Format a file size.
      * 
      * @param bytes
      *            A number of bytes.
      * @return A formatted size <code>String</code>.
      */
-    public static String formatSize(final Integer bytes) {
+    public static String formatSize(final Long bytes) {
         if (bytes >= 1073741824) {
             return new StringBuffer(SIZE_FORMAT.format(bytes / 1024F / 1024F / 1024F))
                 .append(" GB").toString();
@@ -125,7 +134,7 @@ public abstract class FileUtil {
             return "0 B";
         }
     }
-	
+    
 	/**
 	 * Obtain the extension portion of a file name. If none exists; the full
 	 * name is returned.
@@ -279,7 +288,8 @@ public abstract class FileUtil {
         if(!(file.exists() &&  file.canRead() && file.canWrite())) {
             throw new IllegalArgumentException();
         }
-        file.setLastModified(DateUtil.getInstance().getTimeInMillis());
+        // TIME - This a local timestamp.
+        file.setLastModified(System.currentTimeMillis());
     }
 
     /**

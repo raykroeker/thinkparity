@@ -74,6 +74,7 @@ public class FuzzyDateFormat {
      * @see SimpleDateFormat#format(java.util.Date)
      */
     public String format(final Calendar target) {
+        // TIME - This a local date.
         final Calendar now = DateUtil.getInstance();
         final String pattern;
         if (DateUtil.isSameDay(now, target)) {

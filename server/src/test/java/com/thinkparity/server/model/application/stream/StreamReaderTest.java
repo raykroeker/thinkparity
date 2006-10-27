@@ -9,6 +9,7 @@ import java.io.OutputStream;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
@@ -20,9 +21,7 @@ public final class StreamReaderTest extends StreamTestCase {
         super(NAME);
     }
     public void testReader() {
-        final com.thinkparity.codebase.model.stream.StreamReader reader =
-            new com.thinkparity.codebase.model.stream.StreamReader(
-                    datum.streamSession);
+        final StreamReader reader = new StreamReader(datum.streamSession);
         try {
             reader.open();
             reader.read(datum.streamId, datum.stream);
@@ -35,13 +34,13 @@ public final class StreamReaderTest extends StreamTestCase {
         super.setUp();
         final File workingDirectory = new File(getOutputDirectory(), "working");
         Assert.assertTrue(workingDirectory.mkdir(), "Could not create directory {0}.", workingDirectory);
-        final StreamServer streamServer = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
-        final StreamSession streamSession = createStreamSession(DesdemonaTestUser.JUNIT, streamServer);
         final File streamFile = getInputFiles()[0];
+        final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
+        final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
+        final String streamId = createStream(server, session, streamFile.getName());
         final OutputStream stream = new FileOutputStream(new File(getOutputDirectory(), streamFile.getName()));
-        final String streamId = System.currentTimeMillis() + streamFile.getName();
-        seedServer(streamServer, streamSession, streamId, streamFile);
-        datum = new Fixture(stream, streamId, streamSession);
+        seedServer(server, session, streamId, streamFile);
+        datum = new Fixture(stream, streamId, session);
     }
     @Override
     protected void tearDown() throws Exception {

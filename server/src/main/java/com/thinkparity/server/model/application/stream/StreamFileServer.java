@@ -4,9 +4,12 @@
 package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
 
@@ -19,6 +22,9 @@ final class StreamFileServer {
     /** The file server's <code>FileSystem</code>. */
     private final FileSystem fileSystem;
 
+    /** An apache logger wrapper. */
+    private final Log4JWrapper logger;
+
     /**
      * Create StreamFileServer.
      * 
@@ -29,39 +35,79 @@ final class StreamFileServer {
      */
     StreamFileServer(final StreamServer streamServer, final File root) {
         super();
+        this.logger = new Log4JWrapper();
         this.fileSystem = new FileSystem(root);
     }
 
     /**
-     * Invalidate a stream session.
+     * Invalidate a session.
      * 
-     * @param streamSession
+     * @param session
      *            A <code>StreamSession</code>.
      */
-    void invalidate(final StreamSession streamSession) {
+    void destroy(final StreamSession session) {
     }
 
     /**
-     * Initialize a stream session.
+     * Destroy a stream.
      * 
-     * @param streamSession
+     * @param session
      *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      */
-    void initialize(final StreamSession streamSession) {
-        final String path = resolvePath(streamSession);
-        if (null == fileSystem.findDirectory(path))
-            fileSystem.createDirectory(resolvePath(streamSession));
+    void destroy(final StreamSession session, final String streamId) {
+        final File file = find(session, streamId);
+        Assert.assertTrue(file.delete(), "Could not destroy stream {0}.", streamId);
     }
 
     /**
-     * Read the workspace for a stream session.
+     * Find a file for a stream.
      * 
      * @param session
      *            A stream server <code>Session</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      * @return A workspace <code>FileSystem</code>.
      */
-    FileSystem readWorkspace(final StreamSession session) {
-        return fileSystem.cloneChild(resolvePath(session));
+    File find(final StreamSession session, final String streamId) {
+        final File streamFile = fileSystem.find(resolvePath(session, streamId));
+        if (null == streamFile) {
+            logger.logWarning("Could not locate stream {0}.", streamId);
+        }
+        return streamFile;
+    }
+
+    /**
+     * Initialize the file server for a session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    void initialize(final StreamSession session) {
+    }
+
+    /**
+     * Initialize the file server for a stream.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     *            @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void initialize(final StreamSession session, final String streamId) {
+        final File streamFile = find(session, streamId);
+        if (null == streamFile) {
+            try {
+                logger.logTrace("Initializing stream {0}.", streamId);
+                fileSystem.createFile(resolvePath(session, streamId));
+                logger.logTrace("Stream {0} initialized.  Resume not supported.", streamId);
+            } catch (final IOException iox) {
+                throw new StreamException(iox);
+            }
+        } else {
+            logger.logTrace("Stream {0} initialized.  Resume supported.", streamId);
+        }
     }
 
     /**
@@ -77,13 +123,14 @@ final class StreamFileServer {
     void stop() {}
 
     /**
-     * Resolve a file system path for a stream session.
+     * Resolve a file system path for a stream.
      * 
      * @param session
      *            A <code>StreamSession</code>.
      * @return A <code>FileSystem</code> path <code>String</code>.
      */
-    private String resolvePath(final StreamSession session) {
-        return MessageFormat.format("/{0}", session.getId());
+    private String resolvePath(final StreamSession session,
+            final String streamId) {
+        return MessageFormat.format("/{0}", streamId);
     }
 }

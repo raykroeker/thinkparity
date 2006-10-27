@@ -13,6 +13,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -23,8 +24,10 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.Session;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -218,7 +221,37 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+    String createStream(final StreamSession session) {
+        logger.logApiId();
+        logger.logVariable("session", session);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.createStream(localUserId(), session);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
+     * Create a stream session.
+     * 
+     * @return A <code>StreamSession</code>.
+     */
+    StreamSession createStreamSession() {
+        logger.logApiId();
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.createStreamSession(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
 	 * Decline a user's invitation to their contact list.
 	 * 
 	 * @param jabberId
@@ -239,7 +272,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-	/**
+    /**
      * Delete an artifact.
      * 
      * @param uniqueId
@@ -281,7 +314,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -322,6 +355,25 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
+    /**
+     * Delete a stream session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    void deleteStreamSession(final StreamSession session) {
+        logger.logApiId();
+        logger.logVariable("session", session);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.deleteStreamSession(localUserId(), session);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
 	/**
 	 * Extend an invitation to a contact.
 	 * 
@@ -342,7 +394,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-	/**
+    /**
      * Handle the session established remote event.
      *
      */
@@ -368,7 +420,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         });
     }
 
-	/**
+    /**
      * Handle the remote session terminated event.
      * 
      * @param cause
@@ -479,7 +531,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param container
      *            A container.
      * @param documents
-     *            A list of documents and their content.
+     *            A list of documents and stream ids.
      * @param publishTo
      *            A list of ids to publish to.
      * @param publishedBy
@@ -488,7 +540,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            When the container was published.
      */
     void publish(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
+            final Map<DocumentVersion, String> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) {
         logger.logApiId();
@@ -1073,36 +1125,6 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.restoreArtifact(userId, uniqueId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Send a container version.
-     * 
-     * @param version
-     *            A container version.
-     * @param documentVersions
-     *            A list of document versions.
-     * @param user
-     *            A user.
-     */
-    void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<JabberId> sendTo, final JabberId sentBy,
-            final Calendar sentOn) {
-        logger.logApiId();
-        logger.logVariable("container", container);
-        logger.logVariable("documents", documents);
-        logger.logVariable("sendTo", sendTo);
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentOn", sentOn);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.send(container, documents, sendTo, sentBy, sentOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);

@@ -4,7 +4,13 @@
 package com.thinkparity.ophelia.model.io.db.hsqldb;
 
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -16,6 +22,7 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -545,6 +552,17 @@ public class Session {
 		try { preparedStatement.setString(index, value.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+    public void setStream(final Integer index, final InputStream stream,
+            final Integer streamLength) {
+        assertOpen("");
+        assertPreparedStatement("");
+        try {
+            preparedStatement.setBinaryStream(index, stream, streamLength);
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
 	public void setInt(final Integer index, final Integer value) {
 		assertOpen("setInt(Integer,Integer)");

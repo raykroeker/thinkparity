@@ -184,6 +184,7 @@ public class ElementBuilder {
         addElement(element, "createdOn", value.getCreatedOn());
         addElement(element, "encoding", value.getEncoding());
         addElement(element, "name", value.getName());
+        addElement(element, "size", value.getSize());
         addElement(element, "updatedBy", value.getUpdatedBy());
         addElement(element, "updatedOn", value.getUpdatedOn());
         addElement(element, "versionId", value.getVersionId());

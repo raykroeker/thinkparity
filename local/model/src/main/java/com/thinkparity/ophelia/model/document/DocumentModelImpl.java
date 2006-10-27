@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,13 +23,13 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -207,28 +214,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
-	 * Obtain the content for a specific version.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @param versionId
-	 *            The version id.
-	 * @return The content.
-	 * @throws ParityException
-	 */
-	DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId) {
-        logger.logApiId();
-		logger.logVariable("documentId", documentId);
-        logger.logVariable("versionId", versionId);
-		try {
-            return documentIO.readVersionContent(documentId, versionId);
-		} catch (final Throwable t) {
-			throw translateError(t);
-		}
-	}
-
 	/**
      * Handle the publish of a document from the thinkParity network. The
      * implementation is identical to sending a document.
@@ -248,7 +233,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      */
     DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final InputStream content) {
+            final String name, final String checksum, final String streamId) {
         logger.logApiId();
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
@@ -256,9 +241,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("name", name);
         logger.logVariable("checksum", checksum);
-        logger.logVariable("content", content);
+        logger.logVariable("streamId", streamId);
         return handleDocumentSent(publishedBy, publishedOn, uniqueId,
-                versionId, name, checksum, content);
+                versionId, name, checksum, streamId);
     }
 
     /**
@@ -279,9 +264,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @param content
      *            The document content.
      */
-    DocumentVersion handleDocumentSent(final JabberId sentBy,
+    private DocumentVersion handleDocumentSent(final JabberId sentBy,
             final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final InputStream content) {
+            final String name, final String checksum, final String streamId) {
         logger.logApiId();
         logger.logVariable("sentBy", sentBy);
         logger.logVariable("sentOn", sentOn);
@@ -289,8 +274,9 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("name", name);
         logger.logVariable("checksum", checksum);
-        logger.logVariable("content", content);
+        logger.logVariable("streamId", streamId);
         try {
+            final InputStream content = downloadStream(streamId);
             final InternalArtifactModel artifactModel  = getInternalArtifactModel();
             final Document document;
             final DocumentVersion version;
@@ -732,7 +718,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      *            A version id <code>Long</code>.
      * @return The version size <code>Integer</code>.
      */
-    Integer readVersionSize(final Long documentId, final Long versionId) {
+    Long readVersionSize(final Long documentId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("versionId", versionId);
@@ -925,12 +911,15 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     		version.setName(document.getName());
     		version.setUpdatedBy(version.getCreatedBy());
     		version.setUpdatedOn(version.getCreatedOn());
+            version.setSize(tempContentFile.length());
             version.setVersionId(versionId);
             // create version content
-    		final DocumentVersionContent versionContent = new DocumentVersionContent();
-    		versionContent.setContent(FileUtil.readBytes(tempContentFile));
-    		versionContent.setVersion(version);
-            documentIO.createVersion(version, versionContent);
+            final InputStream stream = new FileInputStream(tempContentFile);
+            try {
+                documentIO.createVersion(version, stream);
+            } finally {
+                stream.close();
+            }
     		// write local version file
     		final LocalFile localFile = getLocalFile(document, version);
             final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));

@@ -48,13 +48,13 @@ public final class DownstreamHandlerTest extends StreamTestCase {
         super.setUp();
         final File workingDirectory = new File(getOutputDirectory(), "working");
         Assert.assertTrue(workingDirectory.mkdir(), "Could not create directory {0}.", workingDirectory);
-        final StreamServer streamServer = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
         final File streamFile = getInputFiles()[0];
-        final StreamSession streamSession = createStreamSession(DesdemonaTestUser.JUNIT, streamServer);
-        final String streamId = System.currentTimeMillis() + streamFile.getName();
-        seedServer(streamServer, streamSession, streamId, streamFile);
+        final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
+        final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
+        final String streamId = createStream(server, session, streamFile.getName());
+        seedServer(server, session, streamId, streamFile);
         final OutputStream output = new FileOutputStream(new File(getOutputDirectory(), streamId));
-        datum = new Fixture(new DownstreamHandler(streamServer, streamSession, streamId, output));
+        datum = new Fixture(new DownstreamHandler(server, session, streamId, output));
     }
 
     /**

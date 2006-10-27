@@ -34,11 +34,12 @@ public final class StreamWriterTest extends StreamTestCase {
         super.setUp();
         final File workingDirectory = new File(getOutputDirectory(), "working");
         Assert.assertTrue(workingDirectory.mkdir(), "Could not create directory {0}.", workingDirectory);
-        final StreamServer streamServer = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
-        final InputStream stream = new FileInputStream(getInputFiles()[3]);
-        final String streamId = System.currentTimeMillis() + getInputFiles()[3].getName();
-        datum = new Fixture(stream, streamId, createStreamSession(
-                DesdemonaTestUser.JUNIT, streamServer));
+        final File streamFile = getInputFiles()[3];
+        final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
+        final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
+        final String streamId = createStream(server, session, streamFile.getName());
+        final InputStream stream = new FileInputStream(streamFile);
+        datum = new Fixture(stream, streamId,  session);
     }
     @Override
     protected void tearDown() throws Exception {

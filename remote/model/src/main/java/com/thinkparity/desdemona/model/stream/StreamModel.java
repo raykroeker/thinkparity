@@ -8,6 +8,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.AbstractModel;
+import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity Stream Model<br>
@@ -32,7 +33,7 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
 	 * 
 	 * @return A thinkParity Stream interface.
 	 */
-	public static StreamModel getModel(final com.thinkparity.desdemona.model.session.Session session) {
+	public static StreamModel getModel(final Session session) {
 		return new StreamModel(session);
 	}
 
@@ -42,7 +43,7 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
      * @param workspace
      *      The thinkParity workspace.
      */
-    protected StreamModel(final com.thinkparity.desdemona.model.session.Session session) {
+    protected StreamModel(final Session session) {
         super(new StreamModelImpl(session));
     }
 
@@ -57,16 +58,77 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
     }
 
     /**
-     * Initialize a session. If a previous session for the user exists; it will
-     * be re-used to allow resume functionality.
+     * Create a stream.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
-     * @return A <code>Session</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     * @return A stream id <code>String</code>.
      */
-    public StreamSession initializeSession(final JabberId userId) {
+    public String create(final JabberId userId, final String sessionId) {
         synchronized (getImplLock()) {
-            return getImpl().initializeSession(userId);
+            return getImpl().create(userId, sessionId);
+        }
+    }
+
+    /**
+     * Create a session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    public StreamSession createSession(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().createSession(userId);
+        }
+    }
+
+    /**
+     * Delete a stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A stream session id <code>String</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void delete(final JabberId userId, final String sessionId,
+            final String streamId) {
+        synchronized (getImplLock()) {
+            getImpl().delete(userId, sessionId, streamId);
+        }
+    }
+
+    /**
+     * Delete a session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     */
+    public void deleteSession(final JabberId userId, final String sessionId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteSession(userId, sessionId);
+        }
+    }
+
+    /**
+     * Read a session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    public StreamSession readSession(final JabberId userId,
+            final String sessionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readSession(userId, sessionId);
         }
     }
 

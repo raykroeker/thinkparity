@@ -3,7 +3,11 @@
  */
 package com.thinkparity.ophelia.model;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
@@ -27,16 +31,22 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamReader;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
@@ -326,7 +336,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue("USER IS ONLINE", isOnline());
     }
 
-	/**
+    /**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -355,7 +365,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
             Assert.assertNotTrue(assertion, contains(team, user));
     }
 
-    /**
+	/**
      * Assert the user is online.
      *
      */
@@ -373,11 +383,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isOnline());
     }
 
-	protected void assertOnline(final StringBuffer api) {
+    protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -537,6 +547,31 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
+     * Download a stream from the stream server.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return An input stream queued to the beginning of the downloaded stream.
+     */
+    protected final InputStream downloadStream(final String streamId) throws IOException {
+        final File streamFile = workspace.createTempFile(streamId);
+        final FileOutputStream stream = new FileOutputStream(streamFile);
+        final StreamSession session = getSessionModel().createStreamSession();
+        final StreamReader reader = new StreamReader(session);
+        reader.open();
+        try {
+            reader.read(streamId, stream);
+        } finally {
+            try {
+                stream.close();
+            } finally {
+                reader.close();
+            }
+        }
+        return new FileInputStream(streamFile);
+    }
+
+    /**
      * Find the user in a team.
      * 
      * @param team
@@ -579,7 +614,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -588,7 +623,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -597,14 +632,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
-	/**
+    /**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
-	};
+	}
 
 	/**
      * Obtain the internal parity download interface.
@@ -613,7 +648,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    }
+    };
 
 	/**
      * Obtain the internal parity library interface.
@@ -633,7 +668,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-    /**
+	/**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -945,6 +980,20 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
+     * Create a stream id for an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return A stream id <code>String</code>.
+     */
+    protected String streamId(final ArtifactVersion version) {
+        return new StringBuffer()
+            .append(version.getArtifactId())
+            .append("-").append(version.getVersionId())
+            .toString();
+    }
+
+    /**
      * Translate an error into a parity unchecked error.
      * 
      * @param t
@@ -979,6 +1028,29 @@ public abstract class AbstractModelImpl<T extends EventListener>
             getConfigurationHandler().update(ConfigurationKeys.USERNAME, encrypt(cipherKey, credentials.getUsername()));
         }
         catch(final Throwable t) { throw translateError(t); }
+    }
+
+    /**
+     * Upload a stream to the stream server using an existing session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param iStream
+     *            A <code>Iterable</code> series of <code>InputStream</code>.
+     * @throws IOException
+     */
+    protected String uploadStream(final StreamSession session,
+            final InputStream stream) throws IOException {
+        final InternalSessionModel sessionModel = getSessionModel();
+        final StreamWriter writer = new StreamWriter(session);
+        writer.open();
+        try {
+            final String streamId = sessionModel.createStream(session);
+            writer.write(streamId, stream);
+            return streamId;
+        } finally {
+            writer.close();
+        }
     }
 
     /**
@@ -1038,7 +1110,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
-
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1054,6 +1125,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 		return assertion.toString();
 	}
+
     /**
      * Obtain the cipher key used to encrypt configuration information.
      * 

@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * The browser's event dispatcher.
@@ -123,11 +130,6 @@ class EventDispatcher {
             }
             @Override
             public void containerRestored(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void containerShared(final ContainerEvent e) {
                 browser.fireContainerUpdated(e.getContainer().getId(), e
                         .isRemote());
             }

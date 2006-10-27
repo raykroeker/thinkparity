@@ -16,16 +16,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.jivesoftware.util.JiveProperties;
-import org.jivesoftware.wildfire.ClientSession;
-import org.jivesoftware.wildfire.SessionManager;
-import org.jivesoftware.wildfire.SessionResultFilter;
-import org.jivesoftware.wildfire.XMPPServer;
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
@@ -35,6 +25,7 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
@@ -51,6 +42,15 @@ import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
+
+import org.jivesoftware.util.JiveProperties;
+import org.jivesoftware.wildfire.ClientSession;
+import org.jivesoftware.wildfire.SessionManager;
+import org.jivesoftware.wildfire.SessionResultFilter;
+import org.jivesoftware.wildfire.XMPPServer;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 
 /**
  * @author raykroeker@gmail.com
@@ -210,8 +210,24 @@ public abstract class AbstractModelImpl
         return new IQWriter(iq);
     }
 
+    /**
+     * Obtain the date and time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
     protected Calendar currentDateTime() {
+        // TIME This is a global date
         return DateUtil.getInstance();
+    }
+
+    /**
+     * Obtain the current time in milliseconds.
+     * 
+     * @return The current time <code>Long</code>.
+     */
+    protected Long currentTimeMillis() {
+        // TIME This is a global timestamp
+        return System.currentTimeMillis();
     }
 
 	/**

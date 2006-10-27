@@ -198,7 +198,7 @@ class ProfileModelImpl extends AbstractModelImpl {
             assertIsAuthenticatedUser(userId);
             // not to be confused with miller time
             final byte[] millisTime =
-                String.valueOf(System.currentTimeMillis()).getBytes();
+                String.valueOf(currentTimeMillis()).getBytes();
             final Token newToken = new Token();
             newToken.setValue(MD5Util.md5Hex(millisTime));
             userSql.updateProfileToken(userId, newToken);

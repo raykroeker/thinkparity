@@ -34,10 +34,9 @@ public class PublishArtifact extends AbstractHandler {
                 readInteger("artifactIndex"), readUUID("artifactUniqueId"),
                 readLong("artifactVersionId"), readString("artifactName"),
                 readArtifactType("artifactType"),
-                readString("artifactChecksum"),
+                readString("artifactChecksum"), readString("artifactStreamId"),
                 readJabberIds("publishTo", "publishTo"),
-                readJabberId("publishedBy"), readCalendar("publishedOn"),
-                readString("streamId"));
+                readJabberId("publishedBy"), readCalendar("publishedOn"));
     }
 
     /**
@@ -63,26 +62,26 @@ public class PublishArtifact extends AbstractHandler {
      *            The artifact type.
      * @param artifactChecksum
      *            The artifact checksum.
+     * @param artifactStreamId
+     *            A stream id.
      * @param publishTo
      *            To whom the artifact should be published.
      * @param publishedBy
      *            By whom the artifact was published.
      * @param publishedOn
      *            When the artifact was published.
-     * @param streamId
-     *            A stream id.
      */
     private void publishArtifact(final UUID uniqueId, final Long versionId,
             final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn, final String streamId) {
+            final String artifactStreamId, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         getContainerModel().publishArtifact(uniqueId, versionId, name,
                 artifactCount, artifactIndex, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
-                artifactChecksum, publishTo, publishedBy,
-                publishedOn, streamId);
+                artifactChecksum, artifactStreamId, publishTo, publishedBy,
+                publishedOn);
     }
 }

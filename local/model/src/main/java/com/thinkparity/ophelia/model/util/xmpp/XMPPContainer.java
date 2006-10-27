@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -12,15 +11,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.ProviderManager;
-
-import org.xmlpull.v1.XmlPullParser;
-
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -28,12 +21,15 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Publish;
 import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.PublishArtifact;
-import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Send;
-import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.SendArtifact;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
+
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * <b>Title:</b>thinkParity XMPP Container <br>
@@ -101,8 +97,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                         query.artifactType = readArtifactType2();
                     } else if (isStartTag("artifactChecksum")) {
                         query.artifactChecksum = readString2();
-                    } else if (isStartTag("artifactBytes")) {
-                        query.artifactBytes = readBytes2();
+                    } else if (isStartTag("artifactStreamId")) {
+                        query.artifactStreamId = readString2();
                     } else if (isStartTag("publishedBy")) {
                         query.publishedBy = readJabberId2();
                     } else if (isStartTag("publishedOn")) {
@@ -114,80 +110,12 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                 return query;
             }
         });
-        ProviderManager.addIQProvider(Service.NAME, Send.EVENT_NAME, new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleSentIQ query = new HandleSentIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
-                    if (isStartTag("uniqueId")) {
-                        query.uniqueId = readUniqueId2();
-                    } else if (isStartTag("versionId")) {
-                        query.versionId = readLong2();
-                    } else if (isStartTag("name")) {
-                        query.name = readString2();
-                    } else if (isStartTag("artifactCount")) {
-                        query.artifactCount = readInteger2();
-                    } else if (isStartTag("sentBy")) {
-                        query.sentBy = readJabberId2();
-                    } else if (isStartTag("sentOn")) {
-                        query.sentOn = readCalendar2();
-                    } else if (isStartTag("sentTo")) {
-                        query.sentTo = readJabberIds2();
-                    } else {
-                        isComplete = Boolean.TRUE;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, SendArtifact.EVENT_NAME, new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleArtifactSentIQ query = new HandleArtifactSentIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while(Boolean.FALSE == isComplete) {
-                    if (isStartTag("uniqueId")) {
-                        query.containerUniqueId = readUniqueId2();
-                    } else if(isStartTag("versionId")) {
-                        query.containerVersionId = readLong2();
-                    } else if (isStartTag("name")) {
-                        query.containerName = readString2();
-                    } else if (isStartTag("artifactCount")) {
-                        query.containerArtifactCount = readInteger2();
-                    } else if (isStartTag("artifactIndex")) {
-                        query.containerArtifactIndex = readInteger2();
-                    } else if (isStartTag("artifactUniqueId")) {
-                        query.artifactUniqueId = readUniqueId2();
-                    } else if (isStartTag("artifactVersionId")) {
-                        query.artifactVersionId = readLong2();
-                    } else if (isStartTag("artifactName")) {
-                        query.artifactName = readString2();
-                    } else if (isStartTag("artifactType")) {
-                        query.artifactType = readArtifactType2();
-                    } else if (isStartTag("artifactChecksum")) {
-                        query.artifactChecksum = readString2();
-                    } else if (isStartTag("artifactBytes")) {
-                        query.artifactBytes = readBytes2();
-                    } else if (isStartTag("sentBy")) {
-                        query.sentBy = readJabberId2();
-                    } else if (isStartTag("sentOn")) {
-                        query.sentOn = readCalendar2();
-                    } else {
-                        isComplete = Boolean.TRUE;
-                    }
-                }
-                return query;
-            }
-        });
     }
-
 
     /** Create XMPPContainer. */
     XMPPContainer(final XMPPCore xmppCore) {
         super(xmppCore);
     }
-
 
     /**
      * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
@@ -204,16 +132,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                 handlePublished(query);
             }
         }, HandlePublishedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleArtifactSentIQ>() {
-            public void handleEvent(final HandleArtifactSentIQ query) {
-                handleArtifactSent(query);
-            }
-        }, HandleArtifactSentIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleSentIQ>() {
-            public void handleEvent(final HandleSentIQ query) {
-                handleSent(query);
-            }
-        }, HandleSentIQ.class);
     }
 
     /**
@@ -248,7 +166,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      * @throws IOException
      */
     void publish(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
+            final Map<DocumentVersion, String> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) throws IOException {
         logger.logApiId();
@@ -258,8 +176,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
         int i = 0;
-        final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
-        for (final Entry<DocumentVersion, InputStream> entry : entries) {
+        final Set<Entry<DocumentVersion, String>> entries = documents.entrySet();
+        for (final Entry<DocumentVersion, String> entry : entries) {
             // publish artifact
             final XMPPMethod publishArtifact = new XMPPMethod(Service.Container.PUBLISH_ARTIFACT);
             publishArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
@@ -272,7 +190,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             publishArtifact.setParameter("artifactName", entry.getKey().getName());
             publishArtifact.setParameter("artifactType", entry.getKey().getArtifactType());
             publishArtifact.setParameter("artifactChecksum", entry.getKey().getChecksum());
-            publishArtifact.setParameter("artifactBytes", StreamUtil.read(entry.getValue()));
+            publishArtifact.setParameter("artifactStreamId", entry.getValue());
             publishArtifact.setParameter("publishTo", "publishTo", publishTo);
             publishArtifact.setParameter("publishedBy", publishedBy);
             publishArtifact.setParameter("publishedOn", publishedOn);
@@ -291,63 +209,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     }
 
     /**
-     * Send a container.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and their content.
-     * @param publishTo
-     *            Whom the container is to be published to.
-     * @param publishedBy
-     *            Who the container is published by.
-     * @param publishedOn
-     *            When the container is published.
-     * @throws IOException
-     */
-    void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<JabberId> sendTo, final JabberId sentBy,
-            final Calendar sentOn) throws IOException {
-        logger.logApiId();
-        logger.logVariable("container", container);
-        logger.logVariable("documents", documents);
-        logger.logVariable("sendTo", sendTo);
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentOn", sentOn);
-        int i = 0;
-        final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
-        for (final Entry<DocumentVersion, InputStream> entry : entries) {
-            // send artifact
-            final XMPPMethod sendArtifact = new XMPPMethod(Service.Container.SEND_ARTIFACT);
-            sendArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
-            sendArtifact.setParameter("versionId", container.getVersionId());
-            sendArtifact.setParameter("name", container.getName());
-            sendArtifact.setParameter("artifactCount", entries.size());
-            sendArtifact.setParameter("artifactIndex", i++);
-            sendArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
-            sendArtifact.setParameter("artifactVersionId", entry.getKey().getVersionId());
-            sendArtifact.setParameter("artifactName", entry.getKey().getName());
-            sendArtifact.setParameter("artifactType", entry.getKey().getArtifactType());
-            sendArtifact.setParameter("artifactChecksum", entry.getKey().getChecksum());
-            sendArtifact.setParameter("artifactBytes", StreamUtil.read(entry.getValue()));
-            sendArtifact.setParameter("sendTo", "sendTo", sendTo);
-            sendArtifact.setParameter("sentBy", sentBy);
-            sendArtifact.setParameter("sentOn", sentOn);
-            execute(sendArtifact);
-        }
-        final XMPPMethod send = new XMPPMethod(Service.Container.SEND);
-        send.setParameter("uniqueId", container.getArtifactUniqueId());
-        send.setParameter("versionId", container.getVersionId());
-        send.setParameter("name", container.getName());
-        send.setParameter("artifactCount", entries.size());
-        send.setParameter("sentBy", sentBy);
-        send.setParameter("sentTo", "sentTo", sendTo);
-        send.setParameter("sentOn", sentOn);
-        execute(send);
-    }
-
-    /**
      * Handle the artifact published event generated by the remote model.
      *
      */
@@ -360,25 +221,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                         query.containerArtifactIndex, query.artifactUniqueId,
                         query.artifactVersionId, query.artifactName,
                         query.artifactType, query.artifactChecksum,
-                        query.artifactBytes);
-            }
-        });
-    }
-
-    /**
-     * Handle the artifact sent event generated by the remote model.
-     *
-     */
-    private void handleArtifactSent(final HandleArtifactSentIQ query) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.handleArtifactSent(query.sentBy, query.sentOn,
-                        query.containerUniqueId, query.containerVersionId,
-                        query.containerName, query.containerArtifactCount,
-                        query.containerArtifactIndex, query.artifactUniqueId,
-                        query.artifactVersionId, query.artifactName,
-                        query.artifactType, query.artifactChecksum,
-                        query.artifactBytes);
+                        query.artifactStreamId);
             }
         });
     }
@@ -397,16 +240,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         });
     }
 
-    private void handleSent(final HandleSentIQ query) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.handleSent(query.uniqueId, query.versionId, query.name,
-                        query.artifactCount, query.sentBy, query.sentOn,
-                        query.sentTo);
-            }
-        });
-    }
-
     /**
      * <b>Title:</b>thinkParity XMPP Container Handler Reactivate Query <br>
      * <b>Description:</b>Provides a wrapper for data coming from the remote
@@ -415,36 +248,16 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      * @see XMPPContainer#handleArtifactPublished(com.thinkparity.ophelia.model.util.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
      * @see XMPPContainer#addEventListeners(XMPPConnection)
      */
-    private static class HandleArtifactPublishedIQ extends HandleArtifactSentIQ {
-
-        /** By whom the artifact was published. */
-        private JabberId publishedBy;
-
-        /** When the artifact was published. */
-        private Calendar publishedOn;
-
-        /** Create HandleArtifactPublishedIQ. */
-        private HandleArtifactPublishedIQ() { super(); }
-    }
-
-    /**
-     * <b>Title:</b>thinkParity XMPP Container Handle Artifact Sent Query <br>
-     * <b>Description:</b>Provides a wrapper for data coming from the remote
-     * event.
-     * 
-     * @see XMPPContainer#handleArtifactSent(com.thinkparity.ophelia.model.util.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
-     * @see XMPPContainer#addEventListeners(XMPPConnection)
-     */
-    private static class HandleArtifactSentIQ extends AbstractThinkParityIQ {
-
-        /** The bytes. */
-        protected byte[] artifactBytes;
+    private static class HandleArtifactPublishedIQ extends AbstractThinkParityIQ {
 
         /** The checksum. */
         protected String artifactChecksum;
 
         /** The artifact name. */
         protected String artifactName;
+
+        /** The artifact steam id <code>String</code>. */
+        protected String artifactStreamId;
 
         /** The type. */
         protected ArtifactType artifactType;
@@ -470,14 +283,14 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         /** The container version id. */
         protected Long containerVersionId;
 
-        /** Who sent the artifact. */
-        private JabberId sentBy;
+        /** By whom the artifact was published. */
+        private JabberId publishedBy;
 
-        /** When the artifact was sent. */
-        private Calendar sentOn;
+        /** When the artifact was published. */
+        private Calendar publishedOn;
 
-        /** Create HandleArtifactSentIQ. */
-        private HandleArtifactSentIQ() { super(); }
+        /** Create HandleArtifactPublishedIQ. */
+        private HandleArtifactPublishedIQ() { super(); }
     }
 
     /**
@@ -510,37 +323,5 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
         /** Create HandlePublishedIQ. */
         private HandlePublishedIQ() { super(); }
-    }
-
-    /**
-     *  <b>Title:</b>thinkParity XMPP Container Handle Sent Query <br>
-     * <b>Description:</b>Provides a wrapper for data coming from the remote
-     * event.
-     */
-    private static class HandleSentIQ extends AbstractThinkParityIQ {
-
-        /** The artifact count in the container. */
-        private Integer artifactCount;
-
-        /** The container name. */
-        private String name;
-
-        /** Who sent the container. */
-        private JabberId sentBy;
-
-        /** When the container was sent. */
-        private Calendar sentOn;
-
-        /** Who the container was sent to. */
-        private List<JabberId> sentTo;
-
-        /** The container unique id. */
-        private UUID uniqueId;
-
-        /** The container version. */
-        private Long versionId;
-
-        /** Create HandleSentIQ. */
-        private HandleSentIQ() { super(); }
     }
 }

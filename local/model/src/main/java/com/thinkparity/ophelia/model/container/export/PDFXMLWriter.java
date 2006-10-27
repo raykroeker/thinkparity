@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -37,7 +38,7 @@ final class PDFXMLWriter {
 
     private final Map<ContainerVersion, List<DocumentVersion>> documents;
 
-    private final Map<DocumentVersion, Integer> documentsSize;
+    private final Map<DocumentVersion, Long> documentsSize;
 
     private final FileSystem exportFileSystem;
 
@@ -58,7 +59,7 @@ final class PDFXMLWriter {
     public PDFXMLWriter(final FileSystem exportFileSystem) {
        super();
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
-       this.documentsSize = new HashMap<DocumentVersion, Integer>();
+       this.documentsSize = new HashMap<DocumentVersion, Long>();
        this.publishedTo = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
        this.sharedWith = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
        this.versions = new ArrayList<ContainerVersion>();
@@ -87,7 +88,7 @@ final class PDFXMLWriter {
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
-            final Map<DocumentVersion, Integer> documentsSize,
+            final Map<DocumentVersion, Long> documentsSize,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith)
             throws IOException, TransformerException {

@@ -43,11 +43,6 @@ public class ContainerAdapter implements ContainerListener {
     public void containerRestored(final ContainerEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerShared(com.thinkparity.ophelia.model.events.ContainerEvent)
-     */
-    public void containerShared(final ContainerEvent e) {}
-
-    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
     public void containerUpdated(final ContainerEvent e) {}

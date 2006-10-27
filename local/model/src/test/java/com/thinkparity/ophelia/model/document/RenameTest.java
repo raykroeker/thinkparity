@@ -42,6 +42,7 @@ public class RenameTest extends DocumentTestCase {
 		final File inputFile = getInputFiles()[0];
         final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
+        // TIME - This a local timestamp.
         datum = new Fixture(document, documentModel, System.currentTimeMillis()
                 + "." + document.getName());
 	}

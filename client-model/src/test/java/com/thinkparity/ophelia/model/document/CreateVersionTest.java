@@ -6,12 +6,13 @@ package com.thinkparity.ophelia.model.document;
 import java.io.File;
 
 import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.document.DocumentVersionContent;
+
+import com.thinkparity.ophelia.model.util.MD5Util;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.util.MD5Util;
 
 /**
  * Test the document model create version api.
@@ -45,13 +46,6 @@ public class CreateVersionTest extends DocumentTestCase {
 		assertEquals(datum.document.getCreatedBy(), version.getCreatedBy());
 		assertEquals(datum.document.getName(), version.getName());
 		assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
-        
-        final DocumentVersionContent versionContent =
-            datum.documentModel.getVersionContent(
-                    version.getArtifactId(), version.getVersionId());
-        assertNotNull(NAME, versionContent);
-        assertEquals(NAME, datum.documentBytes, versionContent.getContent());
-
         assertEquals(NAME + " [DOCUMENT BYTES CHECKSUM DOES NOT MATCH EXPECTATION]",
                 datum.documentChecksum, version.getChecksum());
     }
@@ -65,8 +59,7 @@ public class CreateVersionTest extends DocumentTestCase {
         final byte[] inputFileBytes = FileUtil.readBytes(inputFile);
 		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-		datum = new Fixture(document, inputFileBytes, MD5Util
-                .md5Hex(inputFileBytes), documentModel);
+		datum = new Fixture(document, MD5Util.md5Hex(inputFileBytes), documentModel);
     }
 
 	/**
@@ -82,14 +75,11 @@ public class CreateVersionTest extends DocumentTestCase {
 	 */
 	private class Fixture extends DocumentTestCase.Fixture {
 		private final Document document;
-		private final byte[] documentBytes;
         private final String documentChecksum;
 		private final DocumentModel documentModel;
-		private Fixture(final Document document, final byte[] documentBytes,
-                final String documentChecksum, final DocumentModel documentModel) {
+		private Fixture(final Document document, final String documentChecksum, final DocumentModel documentModel) {
 			this.document = document;
             this.documentChecksum = documentChecksum;
-            this.documentBytes = documentBytes;
 			this.documentModel = documentModel;
 		}
 	}

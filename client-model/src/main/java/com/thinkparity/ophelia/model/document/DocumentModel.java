@@ -162,22 +162,6 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		synchronized(getImplLock()) { return getImpl().readVersion(documentId, versionId); }
 	}
 
-	/**
-	 * Obtain the content for a specific version.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param versionId
-	 *            The version id.
-	 * @return The content.
-	 */
-	public DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId) {
-		synchronized(getImplLock()) {
-			return getImpl().getVersionContent(documentId, versionId);
-		}
-	}
-
     /**
      * Determine whether or not the draft of the document has been modified by
      * the user.

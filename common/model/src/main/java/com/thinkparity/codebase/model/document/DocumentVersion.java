@@ -27,6 +27,9 @@ public class DocumentVersion extends ArtifactVersion {
     /** The content encoding. */
     private String encoding;
 
+    /** The content size. */
+    private Long size;
+
 	/** Create DocumentVersion. */
 	public DocumentVersion() { super(); }
 
@@ -52,6 +55,15 @@ public class DocumentVersion extends ArtifactVersion {
     public String getEncoding() { return encoding; }
 
     /**
+     * Obtain size.
+     *
+     * @return A Integer.
+     */
+    public Long getSize() {
+        return size;
+    }
+
+    /**
      * Set checksum.
      *
      * @param checksum The String.
@@ -73,4 +85,14 @@ public class DocumentVersion extends ArtifactVersion {
      * @param encoding The String.
      */
     public void setEncoding(final String encoding) { this.encoding = encoding; }
+
+    /**
+     * Set size.
+     *
+     * @param size
+     *		A Integer.
+     */
+    public void setSize(final Long size) {
+        this.size = size;
+    }
 }

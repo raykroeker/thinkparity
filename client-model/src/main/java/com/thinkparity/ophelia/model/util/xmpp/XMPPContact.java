@@ -255,7 +255,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
 		final XMPPMethod decline = new XMPPMethod("contact:declineinvitation");
         decline.setParameter(Xml.Contact.INVITED_AS, invitedAs);
         decline.setParameter(Xml.Contact.INVITED_BY, invitedBy);
-        decline.setParameter(Xml.Contact.DECLINED_BY, xmppCore.getJabberId());
+        decline.setParameter(Xml.Contact.DECLINED_BY, xmppCore.getUserId());
         execute(decline);
 	}
 

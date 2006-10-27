@@ -10,15 +10,14 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- *
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class Initialize extends AbstractHandler {
+public final class ReadSession extends AbstractHandler {
 
-    /** Create Initialize. */
-    public Initialize() {
-        super("stream:initialize");
+    /** Create CreateSession. */
+    public ReadSession() {
+        super("stream:readsession");
     }
 
     /**
@@ -27,16 +26,17 @@ public final class Initialize extends AbstractHandler {
      */
     @Override
     public void service() {
-        final StreamSession streamSession = initialize(readJabberId("userId"));
+        final StreamSession streamSession = read(
+                readJabberId("userId"), readString("sessionId"));
         writeStreamSession("session", streamSession);
     }
 
     /**
-     * Create a new stream session.
+     * Read an existing stream session.
      *
-     * @return A <code>Session</code>.
+     * @return A <code>StreamSession</code>.
      */
-    private StreamSession initialize(final JabberId userId) {
-        return getStreamModel().initializeSession(userId);
+    private StreamSession read(final JabberId userId, final String sessionId) {
+        return getStreamModel().readSession(userId, sessionId);
     }
 }

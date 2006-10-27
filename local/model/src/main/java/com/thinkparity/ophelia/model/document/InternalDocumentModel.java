@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -93,41 +94,16 @@ public class InternalDocumentModel extends DocumentModel implements
      *            The creator.
      * @param createdOn
      *            The creation date.
-     * @param content
-     *            The content's input stream.
+     * @param streamId
+     *            The stream id <code>String</code>.
      * @return The document version.
      */
     public DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final InputStream content) {
+            final String name, final String checksum, final String streamId) {
         synchronized(getImplLock()) {
-            return getImpl().handleDocumentPublished(publishedBy, publishedOn, uniqueId,
-                    versionId, name, checksum, content);
-        }
-    }
-    /**
-     * Handle the receipt of a document from the thinkParity network.
-     * 
-     * @param uniqueId
-     *            A unique id.
-     * @param versionId
-     *            A version id.
-     * @param name
-     *            A name.
-     * @param createdBy
-     *            The creator.
-     * @param createdOn
-     *            The creation date.
-     * @param content
-     *            The content's input stream.
-     * @return The document version.
-     */
-    public DocumentVersion handleDocumentSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final InputStream content) {
-        synchronized(getImplLock()) {
-            return getImpl().handleDocumentSent(sentBy, sentOn, uniqueId,
-                    versionId, name, checksum, content);
+            return getImpl().handleDocumentPublished(publishedBy, publishedOn,
+                    uniqueId, versionId, name, checksum, streamId);
         }
     }
 
@@ -179,7 +155,7 @@ public class InternalDocumentModel extends DocumentModel implements
      *            A version id <code>Long</code>.
      * @return The version size <code>Integer</code>.
      */
-    public Integer readVersionSize(final Long documentId, final Long versionId) {
+    public Long readVersionSize(final Long documentId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readVersionSize(documentId, versionId);
         }

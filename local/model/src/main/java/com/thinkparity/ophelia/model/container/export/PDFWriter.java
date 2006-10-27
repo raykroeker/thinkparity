@@ -78,7 +78,7 @@ public final class PDFWriter  {
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
-            final Map<DocumentVersion, Integer> documentsSize,
+            final Map<DocumentVersion, Long> documentsSize,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith)
             throws TransformerException, IOException {

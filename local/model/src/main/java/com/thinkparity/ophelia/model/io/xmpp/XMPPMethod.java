@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.model.io.xmpp;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,16 +17,6 @@ import java.util.SimpleTimeZone;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
-import org.apache.commons.codec.binary.Base64;
-import org.jivesoftware.smack.PacketCollector;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketIDFilter;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.IQProvider;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
@@ -36,6 +27,7 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -46,9 +38,22 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
+
+import org.apache.commons.codec.binary.Base64;
+import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.PacketIDFilter;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.IQProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * <b>Title:</b>thinkParity XMPP Method<br>
@@ -462,6 +467,18 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return state;
+            } else if (javaType.equals(Environment.class)) {
+                parser.next();
+                final Environment environment = Environment.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return environment;
+            } else if (javaType.equals(Charset.class)) {
+                parser.next();
+                final Charset charset = Charset.forName(parser.getText());
+                parser.next();
+                parser.next();
+                return charset;
             } else if (javaType.equals(ArtifactType.class)) {
                 parser.next();
                 final ArtifactType type = ArtifactType.valueOf(parser.getText());
@@ -540,6 +557,7 @@ public class XMPPMethod extends IQ {
                 version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
                 version.setEncoding((String) parseJavaObject(parser, "encoding", String.class));
                 version.setName((String) parseJavaObject(parser, "name", String.class));
+                version.setSize((Long) parseJavaObject(parser, "size", Long.class));
                 version.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
                 version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
                 version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
@@ -557,6 +575,15 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return value;
+            } else if (javaType.equals(StreamSession.class)) {
+                parser.next();
+                final StreamSession session = new StreamSession();
+                session.setBufferSize((Integer) parseJavaObject(parser, "bufferSize", Integer.class));
+                session.setCharset((Charset) parseJavaObject(parser, "charset", Charset.class));
+                session.setEnvironment((Environment) parseJavaObject(parser, "environment", Environment.class));
+                session.setId((String) parseJavaObject(parser, "id", String.class));
+                parser.next();
+                return session;
             } else if(javaType.equals(String.class)) {
                 parser.next();
                 final String sValue = parser.getText();

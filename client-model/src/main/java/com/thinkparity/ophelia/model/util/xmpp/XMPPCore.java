@@ -23,7 +23,7 @@ public interface XMPPCore {
     public XMPPMethodResponse execute(final XMPPMethod method);
     public XMPPMethodResponse execute(final XMPPMethod method,
             final Boolean assertResult);
-    public JabberId getJabberId();
+    public JabberId getUserId();
 
     /**
      * Translate an error into an unchecked error.

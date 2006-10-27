@@ -48,8 +48,10 @@ final class ProfileModelImpl extends AbstractModelImpl {
         logger.logApiId();
         try {
             final Profile remoteProfile = getSessionModel().readProfile();
-            // NOTE Only verified emails are downloaded and created in the local
-            // profile.
+            /*
+             * NOTE Only verified emails are downloaded and created in the local
+             * profile.
+             */
             final List<EMail> remoteEmails =
                     getSessionModel().readProfileEmails();
             profileIO.create(remoteProfile);

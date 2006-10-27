@@ -21,7 +21,7 @@ public final class StreamServerTest extends StreamTestCase {
         final ServerSession session = new ServerSession();
         session.setId(createSessionId(datum.testUser.getId()));
         session.setEnvironment(datum.testUser.getEnvironment());
-        datum.streamServer.initializeSession(session);
+        datum.streamServer.initialize(session);
 
         datum.streamServer.stop(Boolean.TRUE);
     }

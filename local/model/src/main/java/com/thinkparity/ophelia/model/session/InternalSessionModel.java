@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -21,6 +22,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -142,6 +144,23 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
     }
 
+    public String createStream(final StreamSession session) {
+        synchronized (getImplLock()) {
+            return getImpl().createStream(session);
+        }
+    }
+
+	/**
+     * Initialize a stream.
+     * 
+     * @return A <code>StreamSession</code>.
+     */
+    public StreamSession createStreamSession() {
+        synchronized (getImplLock()) {
+            return getImpl().createStreamSession();
+        }
+    }
+
     /**
      * Delete an artifact.
      * 
@@ -154,7 +173,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Delete a contact.
      * 
      * @param userId
@@ -168,7 +187,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -197,7 +216,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
+     * Delete a stream session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    public void deleteStreamSession(final StreamSession session) {
+        synchronized (getImplLock()) {
+            getImpl().deleteStreamSession(session);
+        }
+    }
+
+    /**
      * Extend an invitation to a contact.
      * 
      * @param extendTo
@@ -272,18 +303,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param teamMembers
      *            A list of team members.
      * @param documents
-     *            A list of documents and their input streams.
+     *            A list of documents and their stream ids.
      * @param publishedBy
      *            The publisher.
      * @param publishedOn
      *            The publish date.
      */
     public void publish(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
+            final Map<DocumentVersion, String> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(container, documents, publishTo, publishedBy, publishedOn);
+            getImpl().publish(container, documents, publishTo, publishedBy,
+                    publishedOn);
         }
     }
 
@@ -615,29 +647,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void restoreArtifact(final JabberId userId, final UUID uniqueId) {
         synchronized (getImplLock()) {
             getImpl().restoreArtifact(userId, uniqueId);
-        }
-    }
-
-    /**
-     * Send a container.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and their input.
-     * @param sendTo
-     *            A send to list.
-     * @param sentBy
-     *            A sent by id.
-     * @param sentOn
-     *            A sent on calendar.
-     */
-    public void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<JabberId> sendTo, final JabberId sentBy,
-            final Calendar sentOn) {
-        synchronized(getImplLock()) {
-            getImpl().send(container, documents, sendTo, sentBy, sentOn);
         }
     }
 

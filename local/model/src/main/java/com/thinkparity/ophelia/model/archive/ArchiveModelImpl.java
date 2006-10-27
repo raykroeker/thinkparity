@@ -90,8 +90,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("uniqueId", uniqueId);
         try {
             assertArchiveOnline();
-            // HACK A quck'n'dirty check to see if the container has exists
-            // locally
+            // HACK A quck'n'dirty check to see if the container exists locally
             if (null != getInternalArtifactModel().readId(uniqueId)) {
                 return null;
             } else {

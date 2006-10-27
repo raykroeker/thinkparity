@@ -4,15 +4,16 @@
 package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
-import java.io.InputStream;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+
+import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
@@ -62,24 +63,45 @@ final class StreamModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Initialize a session. If a previous session for the user exists; it will
-     * be re-used to allow resume functionality.
+     * Create a stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     * @return A stream id <code>String</code>.
+     */
+    String create(final JabberId userId, final String sessionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("sessionId", sessionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final StreamSession session = streamServer.authenticate(
+                    sessionId, this.session.getInetAddress());
+            final String streamId = buildStreamId();
+            streamServer.initialize(session, streamId);
+            return streamId;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create a session.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @return A <code>Session</code>.
      */
-    StreamSession initializeSession(final JabberId userId) {
+    StreamSession createSession(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
-            logger.logTraceId();
             assertIsAuthenticatedUser(userId);
-            logger.logTraceId();
-            final ServerSession session = createServerSession(userId);
-            logger.logTraceId();
-            streamServer.initializeSession(session);
-            logger.logTraceId();
+            final ServerSession session = buildSession(userId,
+                    this.session.getInetAddress());
+            streamServer.initialize(session);
             return session;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -87,15 +109,70 @@ final class StreamModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete a stream.
      * 
-     * @param session
-     * @return
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A stream session id <code>String</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
      */
-    List<InputStream> openStreams(final StreamSession session) {
-        logApiId();
-        logVariable("session", session);
+    void delete(final JabberId userId, final String sessionId,
+            final String streamId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("sessionId", sessionId);
+        logger.logVariable("streamId", streamId);
         try {
-            return streamServer.openInputStreams(session.getId());
+            assertIsAuthenticatedUser(userId);
+            final StreamSession session = streamServer.authenticate(
+                    sessionId, this.session.getInetAddress());
+            streamServer.destroy(session, streamId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Delete a session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     */
+    void deleteSession(final JabberId userId, final String sessionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final StreamSession session =
+                streamServer.authenticate(sessionId,
+                        this.session.getInetAddress());
+            streamServer.destroy(session);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A session id <code>String</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    StreamSession readSession(final JabberId userId, final String sessionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("sessionId", sessionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return streamServer.authenticate(
+                    sessionId, this.session.getInetAddress());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -135,19 +212,23 @@ final class StreamModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create a new server stream session.
+     * Build a server session.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @param inetAddress
+     *            An <code>InetAddress</code>.
      * @return A new server stream session.
      */
-    private ServerSession createServerSession(final JabberId userId) {
-        final ServerSession serverSession = new ServerSession();
-        serverSession.setCharset(CHARSET);
-        serverSession.setBufferSize(BUFFER_SIZE);
-        serverSession.setEnvironment(readEnvironment());
-        serverSession.setId(createSessionId(userId));
-        return serverSession;
+    private ServerSession buildSession(final JabberId userId,
+            final InetAddress inetAddress) {
+        final ServerSession session = new ServerSession();
+        session.setCharset(CHARSET);
+        session.setBufferSize(BUFFER_SIZE);
+        session.setEnvironment(readEnvironment());
+        session.setId(buildSessionId(userId));
+        session.setInetAddress(inetAddress);
+        return session;
     }
 
     /**
@@ -157,13 +238,28 @@ final class StreamModelImpl extends AbstractModelImpl {
      *            A user id <code>JabberId</code>.
      * @return A stream session id <code>String</code>.
      */
-    private String createSessionId(final JabberId userId) {
-        // TODO Generate a unique id per user id and store it in the user's
-        // meta-data
+    private String buildSessionId(final JabberId userId) {
+        /*
+         * NOTE A stream session id is unique per user per timestamp
+         */
         final String hashString = new StringBuffer(userId.toString())
-                .append("LSAHD-QOIUQOE-ZXBVMNZNX-MZXXNCBVMX")
-                .insert(0, "LKSJD-ZXVBNZM-QPWOEIURY-NXBCVMXNBC")
+                .append(currentTimeMillis())
                 .toString();
+        return MD5Util.md5Hex(hashString.getBytes());
+    }
+
+    /**
+     * Build a stream id.
+     * 
+     * @return A stream id <code>String</code>.
+     */
+    private String buildStreamId() {
+        /*
+         * NOTE A stream id is a UUID
+         */
+        final String hashString = new StringBuffer()
+            .append(UUIDGenerator.nextUUID())
+            .toString();
         return MD5Util.md5Hex(hashString.getBytes());
     }
 }

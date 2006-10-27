@@ -184,6 +184,7 @@ class PreferencesImpl implements Preferences {
 
     /** Set a last run timestamp in the properties. */
     private void setLastRun() {
+        // TIME - This a local timestamp.
         javaProperties.setProperty("lastRun",
                 String.valueOf(System.currentTimeMillis()));
     }

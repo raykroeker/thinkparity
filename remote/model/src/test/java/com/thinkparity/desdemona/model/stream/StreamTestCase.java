@@ -7,8 +7,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
+import com.thinkparity.codebase.JVMUniqueId;
+import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -32,10 +36,10 @@ abstract class StreamTestCase extends ModelTestCase {
                 .toString();
         return MD5Util.md5Hex(hashString.getBytes());
     }
-    protected void seedServer(final StreamServer streamServer,
-            final StreamSession streamSession, final String streamId,
-            final File file) throws IOException {
-        final OutputStream output = streamServer.openOutputStream(streamSession, streamId);
+    protected void seedServer(final StreamServer server,
+            final StreamSession session, final String streamId, final File file)
+            throws IOException {
+        final OutputStream output = server.openOutputStream(session, streamId);
         try {
             StreamUtil.copy(new FileInputStream(file), output);
         } finally {
@@ -46,15 +50,22 @@ abstract class StreamTestCase extends ModelTestCase {
         final Environment environment = testUser.getEnvironment();
         return new StreamServer(workingDirectory, environment.getStreamHost(), environment.getStreamPort());
     }
-    protected StreamSession createStreamSession(
-            final DesdemonaTestUser testUser, final StreamServer streamServer) {
-        final ServerSession streamSession = new ServerSession();
-        streamSession.setBufferSize(1024);
-        streamSession.setCharset(Charset.forName("ISO-8859-1"));
-        streamSession.setEnvironment(testUser.getEnvironment());
-        streamSession.setId(createSessionId(testUser.getId()));
-        streamServer.initializeSession(streamSession);
-        return streamSession;
+    protected String createStream(final StreamServer server,
+            final StreamSession session, final String streamIdSeed) {
+        final String streamId = JVMUniqueId.nextId().getId() + "-" + streamIdSeed;
+        server.initialize(session, streamId);
+        return streamId;
+    }
+    protected StreamSession createSession(final DesdemonaTestUser testUser,
+            final StreamServer server) throws UnknownHostException {
+        final ServerSession session = new ServerSession();
+        session.setBufferSize(1024);
+        session.setCharset(Charset.forName("ISO-8859-1"));
+        session.setEnvironment(testUser.getEnvironment());
+        session.setId(createSessionId(testUser.getId()));
+        session.setInetAddress(InetAddress.getByName(NetworkUtil.getMachine()));
+        server.initialize(session);
+        return session;
     }
     @Override
     protected void setUp() throws Exception {

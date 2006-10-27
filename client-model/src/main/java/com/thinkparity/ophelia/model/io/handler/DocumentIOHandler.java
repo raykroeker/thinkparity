@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.document.DocumentVersionContent;
 
 import com.thinkparity.ophelia.model.io.IOHandler;
 
@@ -32,11 +31,11 @@ public interface DocumentIOHandler extends IOHandler {
      * 
      * @param version
      *            The version.
-     * @param versionContent
-     *            The version content.
+     * @param content
+     *            The content <code>InputStream</code>.
      */
     public void createVersion(final DocumentVersion version,
-            final DocumentVersionContent versionContent);
+            final InputStream content);
 
 	public void delete(final Long documentId);
 
@@ -73,27 +72,6 @@ public interface DocumentIOHandler extends IOHandler {
      */
 	public DocumentVersion readLatestVersion(final Long documentId);
 
-	
-	/**
-     * Read the latest version content for a document.
-     * 
-     * @param documentId
-     *            A document id.
-     * @return A document version content.
-     */
-	public DocumentVersionContent readLatestVersionContent(final Long documentId);
-	
-	/**
-     * Read a document's version content.
-     * 
-     * @param documentId
-     *            A document id.
-     * @param versionId
-     *            A version id.
-     * @return A document version content.
-     */
-    public DocumentVersionContent readVersionContent(final Long documentId, final Long versionId);
-
     /**
      * Read a document version's size.
      * 
@@ -103,9 +81,13 @@ public interface DocumentIOHandler extends IOHandler {
      *            A document version id <code>Long</code>.
      * @return A document version's size <code>Integer</code>.
      */
-    public Integer readVersionSize(final Long documentId, final Long versionId);
+    public Long readVersionSize(final Long documentId, final Long versionId);
 
+    /**
+     * Update a document.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     */
 	public void update(final Document document);
-
-	public void updateVersion(final DocumentVersion documentVersion);
 }

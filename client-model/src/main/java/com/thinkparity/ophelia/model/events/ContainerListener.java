@@ -54,14 +54,6 @@ public interface ContainerListener extends EventListener {
     public void containerRestored(final ContainerEvent e);
 
     /**
-     * A container was shared.
-     * 
-     * @param e
-     *            A container event.
-     */
-    public void containerShared(final ContainerEvent e);
-
-    /**
      * A container was updated.
      * 
      * @param e

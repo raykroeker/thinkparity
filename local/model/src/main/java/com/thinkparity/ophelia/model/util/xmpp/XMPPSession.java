@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -20,8 +20,10 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
@@ -158,6 +160,20 @@ public interface XMPPSession {
      */
     public void createDraft(final UUID uniqueId);
 
+    public String createStream(final JabberId userId,
+            final StreamSession session);
+
+    public StreamSession createStreamSession(final JabberId userId);
+
+    /**
+     * Create a new token for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    public Token createToken(final JabberId userId);
+
     /**
      * Decline an invitation.
      * 
@@ -208,6 +224,12 @@ public interface XMPPSession {
      *            An artifact unique id.
      */
     public void deleteDraft(final UUID uniqueId);
+
+    public void deleteStream(final JabberId userId,
+            final StreamSession session, final String streamId);
+
+    public void deleteStreamSession(final JabberId userId,
+            final StreamSession session);
 
     /**
      * Extend an invitation for a user.
@@ -298,7 +320,7 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void publish(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
+            final Map<DocumentVersion, String> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn);
 
@@ -322,7 +344,7 @@ public interface XMPPSession {
      */
     public List<Container> readArchiveContainers(final JabberId userId);
 
-    /**
+	/**
      * Read the archived containers.
      * 
      * @param userId
@@ -348,7 +370,7 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
-	/**
+    /**
      * Read the archived document versions.
      * 
      * @param userId
@@ -449,7 +471,7 @@ public interface XMPPSession {
             final JabberId userId, final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId);
 
-    /**
+	/**
      * Read the backup's team for a user.
      * 
      * @param userId
@@ -472,7 +494,7 @@ public interface XMPPSession {
      */
     public Contact readContact(final JabberId userId, final JabberId contactId);
 
-	/**
+    /**
      * Read a user's contacts.
      * 
      * @param userId
@@ -497,7 +519,6 @@ public interface XMPPSession {
      * @return A jabber id.
      */
 	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
-
     /**
      * Read the user's profile.
      * 
@@ -511,6 +532,7 @@ public interface XMPPSession {
      * @return A list of profile emails addresses.
      */
     public List<EMail> readProfileEMails();
+
     /**
      * Read the user profile's security question.
      * 
@@ -520,6 +542,9 @@ public interface XMPPSession {
      */
     public String readProfileSecurityQuestion(final JabberId userId);
 
+    public StreamSession readStreamSession(final JabberId userId,
+            final String sessionId);
+
     /**
      * Read a user's token.
      * 
@@ -528,15 +553,6 @@ public interface XMPPSession {
      * @return A user's <code>Token</code>.
      */
     public Token readToken(final JabberId userId);
-
-    /**
-     * Create a new token for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>Token</code>.
-     */
-    public Token createToken(final JabberId userId);
 
     /**
      * Read a set of users.
@@ -597,29 +613,6 @@ public interface XMPPSession {
     public void restoreArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
-     * Send a container.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents and their content.
-     * @param sendTo
-     *            To whom to send the container to.
-     * @param sentBy
-     *            Who sent the container.
-     * @param sentOn
-     *            When the container was sent.
-     * @throws SmackException
-     */
-    public void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<JabberId> sendTo, final JabberId sentBy,
-            final Calendar sentOn);
-
-    public void sendLogFileArchive(final File logFileArchive, final User user)
-			throws SmackException;
-
-    /**
      * Update the user's profile.
      * 
      * @param userId
@@ -652,5 +645,4 @@ public interface XMPPSession {
      */
     public void verifyProfileEmail(final JabberId userId, final EMail email,
             final String key);
-
 }

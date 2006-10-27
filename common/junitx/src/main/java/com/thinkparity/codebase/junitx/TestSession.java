@@ -44,6 +44,7 @@ public class TestSession {
      */
 	TestSession(final File parent) throws IOException {
 		super();
+		// TIME - This a local timestamp.
 		this.sessionId = String.valueOf(System.currentTimeMillis());
 		this.sessionData = new Hashtable<Object,Object>(20, 0.75F);
 		this.sessionDataLock = new Object();

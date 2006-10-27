@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -40,12 +38,11 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.document.DocumentVersionContent;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -520,7 +517,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final String name, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final JabberId publishedBy,
+            final String artifactStreamId, final JabberId publishedBy,
             final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -531,7 +528,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("artifactName", artifactName);
         logger.logVariable("artifactType", artifactType);
         logger.logVariable("artifactChecksum", artifactChecksum);
-        logger.logVariable("artifactBytes", artifactBytes);
+        logger.logVariable("artifactStreamId", artifactStreamId);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
         assertIsNotLocalUserId(publishedBy);
@@ -589,7 +586,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             case DOCUMENT:
                 artifactVersion = handleDocumentPublished(artifactUniqueId,
                         artifactVersionId, artifactName, artifactChecksum,
-                        artifactBytes, publishedBy, publishedOn);
+                        artifactStreamId, publishedBy, publishedOn);
                 break;
             case CONTAINER:
             default:
@@ -605,130 +602,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 readVersion(version.getArtifactId(), version.getVersionId());
             notifyContainerPublished(postPublish, null, postPublishVersion,
                     remoteEventGenerator);
-        }
-        catch(final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Handle the artifact sent remote event. If the container does not yet
-     * exist it will be created; same goes for the version. The artifact will
-     * then be passed off to the appropriate model then attached to the version.
-     * 
-     * @param uniqueId
-     *            The container <code>UUID</code>
-     * @param versionId
-     *            The container version id <code>Long</code>.
-     * @param name
-     *            The container name <code>String</code>.
-     * @param artifactUniqueId
-     *            The artifact <code>UUID</code>.
-     * @param artifactVersionId
-     *            The artifact version id <code>Long</code>.
-     * @param artifactName
-     *            The artifact name <code>String</code>.
-     * @param artifactType
-     *            The artifact's <code>ArtifactType</code>.
-     * @param artifactChecksum
-     *            The artifact checksum <code>String</code>.
-     * @param artifactBytes
-     *            The artifact's bytes <code>byte[]</code>.
-     * @param sentBy
-     *            The sender <code>JabberId</code>.
-     * @param sentOn
-     *            The sent date <code>Calendar</code>.
-     * 
-     * @see #createVersion(Long, Long, JabberId, Calendar)
-     * @see #read(Long)
-     * @see #readVersion(Long, Long)
-     * @see ContainerIndexor#create(Long, String)
-     * @see InternalArtifactModel#createRemoteInfo(Long, JabberId, Calendar)
-     * @see InternalArtifactModel#doesExist(UUID)
-     * @see InternalArtifactModel#doesVersionExist(Long, Long)
-     * @see InternalArtifactModel#readId(UUID)
-     * @see InternalDocumentModel#handleDocumentSent(JabberId, Calendar, UUID,
-     *      Long, String, String, InputStream)
-     */
-    void handleArtifactSent(final UUID uniqueId, final Long versionId,
-            final String name, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final JabberId sentBy,
-            final Calendar sentOn) {
-        logger.logApiId();
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentOn", sentOn);
-        logger.logVariable("containerUniqueId", uniqueId);
-        logger.logVariable("containerVersionId", versionId);
-        logger.logVariable("containerName", name);
-        logger.logVariable("artifactUniqueId", artifactUniqueId);
-        logger.logVariable("artifactVersionId", artifactVersionId);
-        logger.logVariable("artifactName", artifactName);
-        logger.logVariable("artifactType", artifactType);
-        logger.logVariable("artifactChecksum", artifactChecksum);
-        logger.logVariable("artifactBytes", artifactBytes);
-        try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Container container;
-            final ContainerVersion version;
-            final Boolean doesExist = artifactModel.doesExist(uniqueId);
-            final Boolean doesVersionExist;
-            if (doesExist) {
-                container = read(artifactModel.readId(uniqueId));
-                doesVersionExist =
-                    artifactModel.doesVersionExist(container.getId(), versionId);
-                if (doesVersionExist) {
-                    version = readVersion(container.getId(), versionId);
-                } else {
-                    version = createVersion(container.getId(),
-                            versionId, sentBy, sentOn);
-                }
-            } else {
-                doesVersionExist = Boolean.FALSE;
-
-                container = new Container();
-                container.setCreatedBy(sentBy);
-                container.setCreatedOn(sentOn);
-                container.setName(name);
-                container.setState(ArtifactState.ACTIVE);
-                container.setType(ArtifactType.CONTAINER);
-                container.setUniqueId(uniqueId);
-                container.setUpdatedBy(container.getCreatedBy());
-                container.setUpdatedOn(container.getCreatedOn());
-                // create
-                containerIO.create(container);
-
-                // create version
-                version = createVersion(container.getId(), versionId,
-                        sentBy, sentOn);
-    
-                // create remote info
-                artifactModel.createRemoteInfo(container.getId(), sentBy, container.getCreatedOn());
-    
-                // index
-                getIndexModel().indexContainer(container.getId());
-            }
-    
-            // handle the artifact by specific type
-            final ArtifactVersion artifactVersion;
-            switch (artifactType) {
-            case DOCUMENT:
-                artifactVersion = handleDocumentSent(sentBy, sentOn, artifactUniqueId,
-                        artifactVersionId, artifactName, artifactChecksum, artifactBytes);
-                break;
-            case CONTAINER:
-            default:
-                throw Assert.createUnreachable("UNSUPPORTED ARTIFACT TYPE");
-            }
-
-            // add to the version
-            if (!doesVersionExist) {
-                containerIO.addVersion(version.getArtifactId(), version
-                        .getVersionId(), artifactVersion.getArtifactId(),
-                        artifactVersion.getVersionId(), artifactVersion
-                                .getArtifactType());
-            }
         }
         catch(final Throwable t) {
             throw translateError(t);
@@ -874,52 +747,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("receivedOn", receivedOn);
         containerIO.updatePublishedTo(containerId, versionId, receivedBy, receivedOn);
         containerIO.updateSharedWith(containerId, versionId, receivedBy, receivedOn);
-    }
-    /**
-     * Handle the container shared remote event.  All we're doing here is saving
-     * the sent to list and firing an event.
-     * 
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @param name
-     *            A container name <code>String</code>.
-     * @param artifactCount
-     *            An artifact count <code>Integer</code>.
-     * @param sentBy
-     *            The sent by user's <code>JabberId</code>.
-     * @param sentOn
-     *            The sent date <code>Calendar</code>.
-     * @param sentTo
-     *            The sent to <code>List&lt;JabberId&gt;</code>.
-     */
-    void handleSent(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId sentBy, final Calendar sentOn,
-            final List<JabberId> sentTo) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("artifactCount", artifactCount);
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentTo", sentTo);
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
-        final InternalUserModel userModel = getInternalUserModel();
-        final Long containerId = artifactModel.readId(uniqueId);
-        final List<User> sharedWithUsers = new ArrayList<User>(sentTo.size());
-        for (final JabberId sentToId : sentTo) {
-            sharedWithUsers.add(userModel.readLazyCreate(sentToId));
-        }
-        containerIO.createSharedWith(containerId, versionId, sharedWithUsers);
-        // send confirmation
-        getSessionModel().confirmArtifactReceipt(localUserId(),
-                uniqueId, versionId, localUserId(), currentDateTime());
-        // fire event
-        notifyContainerShared(read(containerId), readVersion(containerId,
-                versionId), remoteEventGenerator);
     }
 
     /**
@@ -1990,52 +1817,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Share a version of the container with a list of users.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param versionId
-     *            A version id.
-     * @param contacts
-     *            A <code>List&lt;Contact&gt;</code>.
-     * @param teamMembers
-     *            A <code>List&lt;TeamMember&gt;</code>.
-     */
-    void share(final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("contacts", contacts);
-        logger.logVariable("teamMembers", teamMembers);
-        assertDoesExistVersion("VERSION DOES NOT EXIST", containerId, versionId);
-        assertOnline("USER NOT ONLINE");
-        final List<JabberId> shareWith = new ArrayList<JabberId>(contacts.size() + teamMembers.size());
-        final List<User> shareWithUsers =
-            containerIO.readSharedWith(containerId, versionId);
-        for (final Contact contact : contacts) {
-            if (!contains(teamMembers, contact)) {
-                shareWith.add(contact.getId());
-            }
-            if (!contains(shareWithUsers, contact)) {
-                shareWithUsers.add(contact);
-            }
-        }
-        for (final TeamMember teamMember : teamMembers) {
-            shareWith.add(teamMember.getId());
-            if (!contains(shareWithUsers, teamMember)) {
-                shareWithUsers.add(teamMember);
-            }
-        }
-        getSessionModel().send(
-                readVersion(containerId, versionId),
-                readDocumentVersionStreams(containerId, versionId),
-                shareWith, localUserId(), currentDateTime());
-        containerIO.deleteSharedWith(containerId, versionId);
-        containerIO.createSharedWith(containerId, versionId, shareWithUsers);
-    }
-
-    /**
      * Subscribe to the container's team.
      * 
      * @param containerId
@@ -2396,7 +2177,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version id <code>Long</code>.
      */
     private void doPublishVersion(final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+            final List<Contact> contacts, final List<TeamMember> teamMembers)
+            throws IOException {
         final Container container = read(containerId);
         final ContainerVersion version = readVersion(containerId, versionId);
 
@@ -2455,7 +2237,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
         final Map<ContainerVersion, List<DocumentVersion>> documents =
             new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
-        final Map<DocumentVersion, Integer> documentsSize = new HashMap<DocumentVersion, Integer>();
+        final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
             new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith =
@@ -2515,8 +2297,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The document name <code>String</code>
      * @param checksum
      *            The document checksum <code>String</code>.
-     * @param bytes
-     *            The document bytes <code>byte[]</code>.
+     * @param streamId
+     *            The document stream id <code>String</code>.
      * @param publishedBy
      *            The publish user <code>JabberId</code>.
      * @param publishedOn
@@ -2528,51 +2310,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see InternalDocumentModel#handleDocumentPublished(JabberId, Calendar, UUID, Long, String, String, InputStream)
      */
     private DocumentVersion handleDocumentPublished(final UUID uniqueId,
-            final Long versionId, final String name,
-            final String checksum, final byte[] bytes, final JabberId publishedBy,
+            final Long versionId, final String name, final String checksum,
+            final String streamId, final JabberId publishedBy,
             final Calendar publishedOn) throws IOException {
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
-        final InputStream inputStream =
-            new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
-        try {
-            final DocumentVersion version =
-                    documentModel.handleDocumentPublished(publishedBy,
-                            publishedOn, uniqueId, versionId, name, checksum,
-                            inputStream);
-            return version;
-        }
-        finally { inputStream.close(); }
-    }
-
-    /**
-     * Handle the receipt of a document.
-     * 
-     * @param sentBy
-     *            By whom the document was sent.
-     * @param sentOn
-     *            When the document was sent.
-     * @param uniqueId
-     *            A unique id.
-     * @param name
-     *            A name.
-     * @param bytes
-     *            A byte array.
-     * @return A document version.
-     * @throws IOException
-     */
-    private DocumentVersion handleDocumentSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final byte[] bytes)
-            throws IOException {
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
-        final InputStream inputStream =
-            new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
-        try {
-            final DocumentVersion version = documentModel.handleDocumentSent(
-                    sentBy, sentOn, uniqueId, versionId, checksum, name, inputStream);
-            return version;
-        }
-        finally { inputStream.close(); }
+        return getInternalDocumentModel().handleDocumentPublished(publishedBy,
+                publishedOn, uniqueId, versionId, name, checksum, streamId);
     }
 
     /**
@@ -2711,27 +2453,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Fire a container shared event.
-     * 
-     * @param container
-     *            A container.
-     * @param version
-     *            A container version.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerShared(final Container container,
-            final ContainerVersion version,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.containerShared(eventGenerator.generate(container,
-                        version));
-            }
-        });
-    }
-
-    /**
      * Notify that a container has been updated.
      * 
      * @param container
@@ -2845,16 +2566,27 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param publishedOn
      *            The publish date.
      */
-    private void publish(final ContainerVersion container,
+    private void publish(final ContainerVersion version,
             final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
-        getSessionModel().publish(
-                container,
-                readDocumentVersionStreams(container.getArtifactId(), container
-                        .getVersionId()), publishTo, publishedBy, publishedOn);
+            final Calendar publishedOn) throws IOException {
+        final Map<DocumentVersion, InputStream> documentVersionStreams =
+            readDocumentVersionStreams(version.getArtifactId(),
+                    version.getVersionId());
+        final Map<DocumentVersion, String> documentVersionStreamIds =
+            new HashMap<DocumentVersion, String>(documentVersionStreams.size(), 1.0F);
+        final StreamSession session = getSessionModel().createStreamSession();
+        for (final Entry<DocumentVersion, InputStream> entry :
+                documentVersionStreams.entrySet()) {
+            documentVersionStreamIds.put(entry.getKey(),
+                    uploadStream(session, entry.getValue()));
+        }
+        getSessionModel().deleteStreamSession(session);
+
+        getSessionModel().publish(version, documentVersionStreamIds,
+                publishTo, publishedBy, publishedOn);
     }
 
-    private Integer readDocumentVersionSize(final Long documentId,
+    private Long readDocumentVersionSize(final Long documentId,
             final Long versionId) {
         return getInternalDocumentModel().readVersionSize(documentId, versionId);
     }
@@ -2927,7 +2659,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         List<Document> documents;
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
-        DocumentVersionContent versionContent;
         for (final ContainerVersion version : versions) {
             userModel.readLazyCreate(version.getCreatedBy());
             userModel.readLazyCreate(version.getUpdatedBy());
@@ -2952,14 +2683,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     documentVersionStream =
                         restoreModel.openDocumentVersion(
                                 document.getUniqueId(), documentVersion.getVersionId());
-                    versionContent = new DocumentVersionContent();
                     try {
-                        versionContent.setContent(StreamUtil.read(documentVersionStream));
+                        documentIO.createVersion(documentVersion, documentVersionStream);
                     } finally {
                         documentVersionStream.close();
                     }
-                    versionContent.setVersion(documentVersion);
-                    documentIO.createVersion(documentVersion, versionContent);
                     getIndexModel().indexDocument(container.getId(), document.getId());
 
                     containerIO.addVersion(container.getId(),

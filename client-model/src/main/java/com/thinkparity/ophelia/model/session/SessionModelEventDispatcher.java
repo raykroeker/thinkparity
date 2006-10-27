@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -43,13 +44,6 @@ class SessionModelEventDispatcher {
         logger.logApiId();
         xmppSession.clearListeners();
         xmppSession.addListener(new ArtifactListener() {
-            public void handleReceived(final UUID uniqueId,
-                    final Long versionId, final JabberId receivedBy,
-                    final Calendar receivedOn) {
-                logger.logApiId();
-                getArtifactModel().handleReceived(uniqueId, versionId,
-                        receivedBy, receivedOn);
-            }
             public void handleDraftCreated(final UUID uniqueId,
                     final JabberId createdBy, final Calendar createdOn) {
                 getArtifactModel().handleDraftCreated(uniqueId, createdBy,
@@ -59,6 +53,13 @@ class SessionModelEventDispatcher {
                     final JabberId deletedBy, final Calendar deletedOn) {
                 getArtifactModel().handleDraftDeleted(uniqueId, deletedBy,
                         deletedOn);
+            }
+            public void handleReceived(final UUID uniqueId,
+                    final Long versionId, final JabberId receivedBy,
+                    final Calendar receivedOn) {
+                logger.logApiId();
+                getArtifactModel().handleReceived(uniqueId, versionId,
+                        receivedBy, receivedOn);
             }
             public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
                 getArtifactModel().handleTeamMemberAdded(uniqueId, jabberId);
@@ -77,25 +78,12 @@ class SessionModelEventDispatcher {
                     final Integer containerArtifactIndex,
                     final UUID artifactUniqueId, final Long artifactVersionId,
                     final String artifactName, final ArtifactType artifactType,
-                    final String artifactChecksum, final byte[] artifactBytes) {
-                logger.logApiId();
-                getContainerModel().handleArtifactPublished(containerUniqueId, containerVersionId,
-                        containerName, artifactUniqueId, artifactVersionId,
-                        artifactName, artifactType, artifactChecksum,
-                        artifactBytes, publishedBy, publishedOn);
-            }
-            public void handleArtifactSent(final JabberId sentBy,
-                    final Calendar sentOn, final UUID containerUniqueId,
-                    final Long containerVersionId, final String containerName,
-                    final Integer containerArtifactCount,
-                    final Integer containerArtifactIndex,
-                    final UUID artifactUniqueId, final Long artifactVersionId,
-                    final String artifactName, final ArtifactType artifactType,
-                    final String artifactChecksum, final byte[] artifactBytes) {
-                getContainerModel().handleArtifactSent(containerUniqueId, containerVersionId, containerName,
-                        artifactUniqueId, artifactVersionId, artifactName,
-                        artifactType, artifactChecksum, artifactBytes,
-                        sentBy, sentOn);
+                    final String artifactChecksum, final String artifactStreamId) {
+                getContainerModel().handleArtifactPublished(containerUniqueId,
+                        containerVersionId, containerName, artifactUniqueId,
+                        artifactVersionId, artifactName, artifactType,
+                        artifactChecksum, artifactStreamId, publishedBy,
+                        publishedOn);
             }
             public void handlePublished(final UUID uniqueId,
                     final Long versionId, final String name,
@@ -103,13 +91,6 @@ class SessionModelEventDispatcher {
                     final List<JabberId> publishedTo, final Calendar publishedOn) {
                 getContainerModel().handlePublished(uniqueId, versionId, name,
                         artifactCount, publishedBy, publishedTo, publishedOn);
-            }
-            public void handleSent(final UUID uniqueId, final Long versionId,
-                    final String name, final Integer artifactCount,
-                    final JabberId sentBy, final Calendar sentOn,
-                    final List<JabberId> sentTo) {
-                getContainerModel().handleSent(uniqueId, versionId, name, artifactCount,
-                        sentBy, sentOn, sentTo);
             }
         });
         xmppSession.addListener(new ContactListener() {

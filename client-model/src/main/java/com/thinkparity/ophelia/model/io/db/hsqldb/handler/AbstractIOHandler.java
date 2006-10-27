@@ -29,16 +29,16 @@ public abstract class AbstractIOHandler {
      */
     private ConfigurationIOHandler configurationIO;
 
-    /** A hypersonic <code>SessionManager</code>. */
-    private final SessionManager sessionManager;
-
-	/**
+    /**
      * The meta data io. Since the IO handler is an abstract io handler; it is
      * obtained using a lazy create pattern.
      * 
      * @see #getMetaDataIO()
      */
     private MetaDataIOHandler metaDataIO;
+
+	/** A hypersonic <code>SessionManager</code>. */
+    private final SessionManager sessionManager;
 
     /**
      * Create AbstractIOHandler.
@@ -51,6 +51,15 @@ public abstract class AbstractIOHandler {
 		this.logger = new Log4JWrapper();
         this.sessionManager = sessionManager;
 	}
+
+    protected void checkpoint() {
+        final Session session = openSession();
+        try {
+            session.execute("CHECKPOINT");
+        } finally {
+            session.close();
+        }
+    }
 
     /**
 	 * Extract the meta data from the session.
@@ -102,6 +111,17 @@ public abstract class AbstractIOHandler {
 	}
 
     /**
+     * 
+     * @param errorId
+     * @return
+     */
+    protected HypersonicException translateError(final String errorPattern,
+            final Object... errorArguments) {
+        final String errorId = logger.getErrorId(errorPattern, errorArguments);
+        return HypersonicException.translate(errorId);
+    }
+
+    /**
      * Translate an error into a hypersonic error.
      * 
      * @param t
@@ -115,16 +135,5 @@ public abstract class AbstractIOHandler {
             final String errorId = new ErrorHelper().getErrorId(t);
             return HypersonicException.translate(errorId, t);
         }
-    }
-
-    /**
-     * 
-     * @param errorId
-     * @return
-     */
-    protected HypersonicException translateError(final String errorPattern,
-            final Object... errorArguments) {
-        final String errorId = logger.getErrorId(errorPattern, errorArguments);
-        return HypersonicException.translate(errorId);
     }
 }

@@ -191,38 +191,6 @@ public final class Constants {
                         public static final String PUBLISHED_ON = "publishedOn";
                     }
                 }
-                public static final class Send {
-                    public static final String EVENT_NAME = "jabber:iq:parity:container:sent";
-                    public static final String NAME = "jabber:iq:parity:container:send";
-                    public static final class Parameter {
-                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
-                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
-                        public static final String SENT_BY = "sentBy";
-                        public static final String SENT_ON = "sentOn";
-                    }
-                }
-                public static final class SendArtifact {
-                    public static final String EVENT_NAME = "jabber:iq:parity:containerartifactsent";
-                    public static final String NAME = "jabber:iq:parity:container:sendartifact";
-                    public static final class Parameter {
-                        public static final String ARTIFACT_BYTES = "artifactBytes";
-                        public static final String ARTIFACT_CHECKSUM = "artifactChecksum";
-                        public static final String ARTIFACT_NAME = "artifactName";
-                        public static final String ARTIFACT_TEAM_MEMBER = "artifactTeamMember";
-                        public static final String ARTIFACT_TEAM_MEMBERS = "artifactTeamMembers";
-                        public static final String ARTIFACT_TYPE = "artifactType";
-                        public static final String ARTIFACT_UNIQUE_ID = "artifactUniqueId";
-                        public static final String ARTIFACT_VERSION_ID = "artifactVersionId";
-                        public static final String CONTAINER_ARTIFACT_COUNT = "containerArtifactCount";
-                        public static final String CONTAINER_ARTIFACT_INDEX = "containerArtifactIndex";
-                        public static final String CONTAINER_NAME = "containerName";
-                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
-                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
-                        public static final String SENT_BY = "sentBy";
-                        public static final String SENT_ON = "sentOn";
-                        public static final String SENT_TO = "sentTo";
-                    }
-                }
             }
         }
         public static final class EventHandler {

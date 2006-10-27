@@ -19,6 +19,9 @@ import com.thinkparity.codebase.model.session.Environment;
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * 
+ * HACK The stream client masks all io errors with a stream error. This is not
+ * desirable and should be adjusted.
  */
 public abstract class StreamClient {
 

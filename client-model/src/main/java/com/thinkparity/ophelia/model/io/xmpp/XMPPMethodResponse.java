@@ -9,10 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jivesoftware.smack.packet.IQ;
-
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -20,7 +19,10 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+
+import org.jivesoftware.smack.packet.IQ;
 
 /**
  * The parity bootstrap's xmpp method response.
@@ -145,6 +147,10 @@ public class XMPPMethodResponse extends IQ {
             releases.add((Release) genericRelease);
         }
         return releases;
+    }
+
+    public StreamSession readResultStreamSession(final String name) {
+        return (StreamSession) readResult(name);
     }
 
     /**

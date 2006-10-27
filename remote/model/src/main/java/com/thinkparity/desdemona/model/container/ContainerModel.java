@@ -98,27 +98,27 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            An artifact type.
      * @param artifactChecksum
      *            An artifact checksum.
+     * @param artifactStreamId
+     *            A stream id <code>String</code>.
      * @param publishTo
      *            To whom the container was published.
      * @param publishedBy
      *            By whom the artifact was published.
      * @param publishedOn
      *            When the artifact was published.
-     * @param streamId,
-     *            An stream id <code>String</code>.
      */
     public void publishArtifact(final UUID uniqueId, final Long versionId,
             final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn, final String streamId) {
+            final String artifactStreamId, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized (getImplLock()) {
             getImpl().publishArtifact(uniqueId, versionId, name, artifactCount,
                     artifactIndex, artifactUniqueId, artifactVersionId,
                     artifactName, artifactType, artifactChecksum,
-                    publishTo, publishedBy, publishedOn, streamId);
+                    artifactStreamId, publishTo, publishedBy, publishedOn);
         }
     }
 

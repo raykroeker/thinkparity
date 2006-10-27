@@ -7,9 +7,8 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.model.stream.Direction;
 
-import com.thinkparity.desdemona.model.stream.StreamServer.Session;
+import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
  * @author raymond@thinkparity.com
@@ -23,22 +22,35 @@ final class StreamFileServer {
     /**
      * Create StreamFileServer.
      * 
+     * @param streamServer
+     *            A handle to the <code>StreamServer</code>.
      * @param root
      *            The file server's root directory.
      */
-    StreamFileServer(final File root) {
+    StreamFileServer(final StreamServer streamServer, final File root) {
         super();
         this.fileSystem = new FileSystem(root);
     }
 
     /**
-     * Create a workspace for a stream session.
+     * Invalidate a stream session.
      * 
-     * @param session
-     *            A stream server <code>Session</code>.
+     * @param streamSession
+     *            A <code>StreamSession</code>.
      */
-    void createWorkspace(final Session session) {
-        createDirectory(session.direction, session.id);
+    void invalidate(final StreamSession streamSession) {
+    }
+
+    /**
+     * Initialize a stream session.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     */
+    void initialize(final StreamSession streamSession) {
+        final String path = resolvePath(streamSession);
+        if (null == fileSystem.findDirectory(path))
+            fileSystem.createDirectory(resolvePath(streamSession));
     }
 
     /**
@@ -48,19 +60,15 @@ final class StreamFileServer {
      *            A stream server <code>Session</code>.
      * @return A workspace <code>FileSystem</code>.
      */
-    FileSystem readWorkspace(final Session session) {
-        return fileSystem.cloneChild(resolvePath(session.direction, session.id));
+    FileSystem readWorkspace(final StreamSession session) {
+        return fileSystem.cloneChild(resolvePath(session));
     }
 
     /**
      * Start the stream file server.
      *
      */
-    void start() {
-        for (final Direction direction : Direction.values()) {
-            createDirectory(direction);
-        }
-    }
+    void start() {}
 
     /**
      * Stop the stream file server.
@@ -69,34 +77,13 @@ final class StreamFileServer {
     void stop() {}
 
     /**
-     * Create a directory for a stream direction.
+     * Resolve a file system path for a stream session.
      * 
-     * @param direction
-     *            A stream <code>Direction</code>.
-     * @return A directory <code>File</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A <code>FileSystem</code> path <code>String</code>.
      */
-    private File createDirectory(final Direction direction) {
-        return fileSystem.createDirectory(resolvePath(direction));
-    }
-
-    /**
-     * Create a directory for a direction child.
-     * 
-     * @param direction
-     *            A stream <code>Direction</code>.
-     * @param child
-     *            A child path.
-     * @return A directory <code>File</code>.
-     */
-    private File createDirectory(final Direction direction, final String childPath) {
-        return fileSystem.createDirectory(resolvePath(direction, childPath));
-    }
-
-    private String resolvePath(final Direction direction) {
-        return MessageFormat.format("/{0}", direction.toString().toLowerCase());
-    }
-    private String resolvePath(final Direction direction, final String childPath) {
-        return MessageFormat.format("/{0}/{1}",
-                direction.toString().toLowerCase(), childPath);
+    private String resolvePath(final StreamSession session) {
+        return MessageFormat.format("/{0}", session.getId());
     }
 }

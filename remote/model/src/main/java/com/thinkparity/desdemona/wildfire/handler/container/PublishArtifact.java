@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 import com.thinkparity.desdemona.model.Constants.Xml.Service;
@@ -33,9 +34,10 @@ public class PublishArtifact extends AbstractHandler {
                 readInteger("artifactIndex"), readUUID("artifactUniqueId"),
                 readLong("artifactVersionId"), readString("artifactName"),
                 readArtifactType("artifactType"),
-                readString("artifactChecksum"), readByteArray("artifactBytes"),
+                readString("artifactChecksum"),
                 readJabberIds("publishTo", "publishTo"),
-                readJabberId("publishedBy"), readCalendar("publishedOn"));
+                readJabberId("publishedBy"), readCalendar("publishedOn"),
+                readString("streamId"));
     }
 
     /**
@@ -61,26 +63,26 @@ public class PublishArtifact extends AbstractHandler {
      *            The artifact type.
      * @param artifactChecksum
      *            The artifact checksum.
-     * @param artifactBytes
-     *            The artifact bytes.
      * @param publishTo
      *            To whom the artifact should be published.
      * @param publishedBy
      *            By whom the artifact was published.
      * @param publishedOn
      *            When the artifact was published.
+     * @param streamId
+     *            A stream id.
      */
-    private void publishArtifact(final UUID uniqueId,
-            final Long versionId, final String name, final Integer artifactCount,
+    private void publishArtifact(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn, final String streamId) {
         getContainerModel().publishArtifact(uniqueId, versionId, name,
                 artifactCount, artifactIndex, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
-                artifactChecksum, artifactBytes, publishTo, publishedBy,
-                publishedOn);
+                artifactChecksum, publishTo, publishedBy,
+                publishedOn, streamId);
     }
 }

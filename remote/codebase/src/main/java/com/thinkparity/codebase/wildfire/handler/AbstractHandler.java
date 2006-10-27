@@ -6,25 +6,25 @@ package com.thinkparity.codebase.wildfire.handler;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import org.jivesoftware.wildfire.IQHandlerInfo;
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.PacketError;
-
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.xmpp.IQReader;
+import com.thinkparity.codebase.xmpp.IQWriter;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
-import com.thinkparity.codebase.xmpp.IQReader;
-import com.thinkparity.codebase.xmpp.IQWriter;
+
+import org.apache.log4j.Logger;
+import org.jivesoftware.wildfire.IQHandlerInfo;
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
+import org.xmpp.packet.PacketError;
 
 /**
  * An abstraction of the use-case controller from the MVC paradigm. The IQ
@@ -234,6 +234,10 @@ public abstract class AbstractHandler extends
 
     protected final void writeContainer(final String name, final Container value) {
         iqWriter.writeContainer(name, value);
+    }
+
+    protected final void writeStreamSession(final String name, final StreamSession value) {
+        iqWriter.writeStreamSession(name, value);
     }
 
     protected final void writeToken(final String name, final Token value) {

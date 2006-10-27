@@ -213,13 +213,32 @@ public class Log4JWrapper {
         }
     }
 
+    public final void logTrace(final String tracePattern,
+            final Object... traceArguments) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(Log4JHelper.renderAndFormat(logger, tracePattern,
+                    traceArguments));
+        }
+    }
+
     /**
      * Log a trace id. (A stack-trace format of the caller's caller).
      * 
      */
     public final void logTraceId() {
+        logTraceId(1);
+    }
+
+    /**
+     * Log a trace id. (A stack-trace format of the caller's caller).
+     * 
+     */
+    public final void logTraceId(final Integer frameCount) {
         if (logger.isTraceEnabled()) {
-            logStackId(Level.TRACE, "{0}.{1}({2}:{3})", StackUtil.getFrame(LOG4J_STACK_FILTER));
+            final StackTraceElement[] frames = StackUtil.getFrames(LOG4J_STACK_FILTER);
+            for (int i = 0; i < frameCount && i < frames.length; i++) {
+                logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
+            }
         }
     }
 

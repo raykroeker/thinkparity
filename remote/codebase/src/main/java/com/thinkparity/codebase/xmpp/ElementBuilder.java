@@ -4,17 +4,18 @@
 package com.thinkparity.codebase.xmpp;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
 
-import org.dom4j.Element;
-
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.util.Base64;
+
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -22,8 +23,10 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
-import com.thinkparity.codebase.util.Base64;
+
+import org.dom4j.Element;
 
 /**
  * <b>Title:</b>thinkParity Remote Element Builder <br>
@@ -114,15 +117,14 @@ public class ElementBuilder {
     }
 
     public static final Element addElement(final Element parent,
-            final String name, final Token value) {
-        final Element element;
+            final String name, final Charset value) {
         if (null == value) {
-            element = addNullElement(parent, name, Token.class);
+            return addNullElement(parent, name, Charset.class);
         } else {
-            element = addElement(parent, name, Token.class);
-            addElement(element, "value", value.getValue());
+            final Element element = addElement(parent, name, value.getClass());
+            element.setText(value.name());
+            return element;
         }
-        return element;
     }
 
     public static final Element addElement(final Element parent,
@@ -254,6 +256,32 @@ public class ElementBuilder {
     }
 
     /**
+     * Add a stream session element.
+     * 
+     * @param parent
+     *            The parent dom4j <code>Element</code>.
+     * @param name
+     *            The element name <code>String</code>.
+     * @param value
+     *            The element value <code>StreamSession</code>.
+     * @return A dom4j <code>Element</code>.
+     */
+    public static final Element addElement(final Element parent,
+            final String name, final StreamSession value) {
+        final Element element;
+        if (null == value) {
+            element = addNullElement(parent, name, StreamSession.class);
+        } else {
+            element = addElement(parent, name, StreamSession.class);
+            addElement(element, "bufferSize", value.getBufferSize());
+            addElement(element, "charset", value.getCharset());
+            addElement(element, "environment", value.getEnvironment());
+            addElement(element, "id", value.getId());
+        }
+        return element;
+    }
+
+    /**
      * Add a string value.
      * 
      * @param parent
@@ -267,6 +295,18 @@ public class ElementBuilder {
 	public static final Element addElement(final Element parent, final String name,
             final String value) {
         return addElement(parent, name, String.class, value);
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final Token value) {
+        final Element element;
+        if (null == value) {
+            element = addNullElement(parent, name, Token.class);
+        } else {
+            element = addElement(parent, name, Token.class);
+            addElement(element, "value", value.getValue());
+        }
+        return element;
     }
 
     /**
@@ -379,13 +419,6 @@ public class ElementBuilder {
         return element;
     }
 
-    protected static final Element addNullElement(final Element parent,
-            final String name, final Class type) {
-        final Element element = parent.addElement(name);
-        element.addAttribute("javaType", type.getName());
-        return element;
-    }
-
     /**
      * Add a typed element to the parent.
      * 
@@ -403,6 +436,13 @@ public class ElementBuilder {
             final Class type, final String value) {
         final Element element = addElement(parent, name, type);
         element.setText(value);
+        return element;
+    }
+
+    protected static final Element addNullElement(final Element parent,
+            final String name, final Class type) {
+        final Element element = parent.addElement(name);
+        element.addAttribute("javaType", type.getName());
         return element;
     }
 
@@ -449,6 +489,28 @@ public class ElementBuilder {
     private static final Element addElement(final Element parent,
             final String name, final Boolean value) {
         return addElement(parent, name, value.getClass(), value.toString());
+    }
+
+    /**
+     * Add an enumerated type element.
+     * 
+     * @param parent
+     *            The parent dom4j <code>Element</code>.
+     * @param name
+     *            The element name <code>String</code>.
+     * @param value
+     *            The element value <code>Enum&lt;?&gt;</code>.
+     * @return A dom4j <code>Element</code>.
+     */
+    private static final Element addElement(final Element parent,
+            final String name, final Enum<?> value) {
+        if (null == value) {
+            return addNullElement(parent, name, value.getClass());
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            element.setText(value.name());
+            return element;
+        }
     }
 
 	/** Create ElementBuilder */

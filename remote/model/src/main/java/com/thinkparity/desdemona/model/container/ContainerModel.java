@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -97,27 +98,27 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            An artifact type.
      * @param artifactChecksum
      *            An artifact checksum.
-     * @param artifactBytes
-     *            An artifact byte array.
      * @param publishTo
      *            To whom the container was published.
      * @param publishedBy
      *            By whom the artifact was published.
      * @param publishedOn
      *            When the artifact was published.
+     * @param streamId,
+     *            An stream id <code>String</code>.
      */
     public void publishArtifact(final UUID uniqueId, final Long versionId,
             final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn, final String streamId) {
         synchronized (getImplLock()) {
             getImpl().publishArtifact(uniqueId, versionId, name, artifactCount,
                     artifactIndex, artifactUniqueId, artifactVersionId,
                     artifactName, artifactType, artifactChecksum,
-                    artifactBytes, publishTo, publishedBy, publishedOn);
+                    publishTo, publishedBy, publishedOn, streamId);
         }
     }
 

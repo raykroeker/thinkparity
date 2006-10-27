@@ -223,7 +223,7 @@ public class StackUtil {
         }
 	}
 
-	/**
+    /**
      * Obtain the frame's class name.
      * 
      * @param depth
@@ -247,7 +247,7 @@ public class StackUtil {
         return null == frame ? null : frame.getFileName();
     }
 
-    /**
+	/**
      * Obtain the frame's line number
      * 
      * @param depth
@@ -260,7 +260,7 @@ public class StackUtil {
                 ? null : frame.getLineNumber();
     }
 
-	/**
+    /**
      * Obtain the frame's method name.
      * 
      * @param depth
@@ -271,6 +271,35 @@ public class StackUtil {
         final StackTraceElement frame = getFrame(depth);
         return null == frame
                 ? null : frame.getMethodName();
+    }
+
+    /**
+     * Obtain a filtered stack frame.
+     * 
+     * @param filters
+     *            A list of stack filters.
+     * @return A stack trace element.
+     */
+    public static StackTraceElement[] getFrames(
+            final List<StackUtil.Filter> filters) {
+        final ArrayList<Filter> internalFilters =
+            new ArrayList<Filter>(filters.size() + 1);
+        internalFilters.add(STACK_UTIL_FILTER);
+        internalFilters.addAll(filters);
+        return createFilteredStack(internalFilters.toArray(new Filter[] {}));
+    }
+
+	/**
+     * Obtain a filtered stack frame.
+     * 
+     * @param filter
+     *            A <code>StackUtil.Filter</code>.
+     * @return A stack trace element.
+     */
+    public static StackTraceElement[] getFrames(final StackUtil.Filter filter) {
+        final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>(1);
+        filters.add(filter);
+        return getFrames(filters);
     }
 
     /**

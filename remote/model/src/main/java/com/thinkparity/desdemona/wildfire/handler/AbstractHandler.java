@@ -7,20 +7,12 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.jivesoftware.util.JiveProperties;
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
-
 import com.thinkparity.codebase.StackUtil;
-import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
@@ -29,9 +21,14 @@ import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQReader;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
+import com.thinkparity.desdemona.wildfire.util.SessionUtil;
+
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
 
 
 /**
@@ -56,6 +53,9 @@ public abstract class AbstractHandler extends
 
     /** A thinkParity archive interface. */
     private ArchiveModel archiveModel;
+
+    /** A thinkParity stream interface. */
+    private StreamModel streamModel;
 
     /** A thinkParity artifact interface. */
     private ArtifactModel artifactModel;
@@ -117,22 +117,7 @@ public abstract class AbstractHandler extends
      */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         synchronized (SERIALIZER) {
-            this.session = new Session() {
-                private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
-                private final JiveProperties jiveProperties = JiveProperties.getInstance();
-    
-                public JabberId getJabberId() {
-                    return jabberId;
-                }
-    
-                public JID getJID() {
-                    return iq.getFrom();
-                }
-    
-                public String getXmppDomain() {
-                    return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
-                }
-            };
+            this.session = SessionUtil.getInstance().createSession(iq);
             this.archiveModel = ArchiveModel.getModel(session);
             this.artifactModel = ArtifactModel.getModel(session);
             this.backupModel = BackupModel.getModel(session);
@@ -140,6 +125,7 @@ public abstract class AbstractHandler extends
             this.containerModel = ContainerModel.getModel(session);
             this.profileModel = ProfileModel.getModel(session);
             this.queueModel = QueueModel.getModel(session);
+            this.streamModel = StreamModel.getModel(session);
             this.userModel = UserModel.getModel(session);
             logVariable("iq", iq);
             final IQ response = super.handleIQ(iq);
@@ -155,6 +141,15 @@ public abstract class AbstractHandler extends
      */
     protected ArchiveModel getArchiveModel() {
         return archiveModel;
+    }
+
+    /**
+     * Obtain a thinkParity stream interface.
+     * 
+     * @return A thinkParity stream interface.
+     */
+    protected StreamModel getStreamModel() {
+        return streamModel;
     }
 
     /**

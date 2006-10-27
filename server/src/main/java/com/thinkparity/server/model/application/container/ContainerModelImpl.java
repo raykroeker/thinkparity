@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
@@ -115,22 +116,22 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            An artifact type.
      * @param artifactChecksum
      *            An artifact checksum.
-     * @param artifactBytes
-     *            An artifact byte array.
      * @param publishTo
      *            To whom the container was published.
      * @param publishedBy
      *            By whom the artifact was published.
      * @param publishedOn
      *            When the artifact was published.
+     * @param streamId
+     *            A stream id.
      */
     void publishArtifact(final UUID uniqueId, final Long versionId,
             final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn, final String streamId) {
         logApiId();
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
@@ -142,10 +143,10 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("artifactName", artifactName);
         logVariable("artifactType", artifactType);
         logVariable("artifactChecksum", artifactChecksum);
-        logVariable("artifactBytes", artifactBytes);
         logVariable("publishTo", publishTo);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedOn", publishedOn);
+        logVariable("streamId", streamId);
         try {
             final IQWriter publishArtifact = createIQWriter("container:artifactpublished");
             publishArtifact.writeUniqueId("uniqueId", uniqueId);
@@ -158,7 +159,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeString("artifactName", artifactName);
             publishArtifact.writeArtifactType("artifactType", artifactType);
             publishArtifact.writeString("artifactChecksum", artifactChecksum);
-            publishArtifact.writeBytes("artifactBytes", artifactBytes);
+            publishArtifact.writeBytes("artifactBytes", null);
             publishArtifact.writeJabberId("publishedBy", publishedBy);
             publishArtifact.writeCalendar("publishedOn", publishedOn);
             send(publishTo, publishArtifact.getIQ());

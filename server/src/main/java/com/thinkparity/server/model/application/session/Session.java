@@ -3,7 +3,7 @@
  */
 package com.thinkparity.desdemona.model.session;
 
-import org.xmpp.packet.JID;
+import java.net.InetAddress;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -14,18 +14,18 @@ import com.thinkparity.codebase.jabber.JabberId;
 public interface Session {
 
 	/**
-	 * Obtain the jabber id for the user that this session represents.
-	 * 
-	 * @return The jabber id for the user.
-	 */
-	public JID getJID();
-
-	/**
-	 * Obtain the jabber id for the user that this session represents.
-	 * 
-	 * @return The jabber id.
-	 */
+     * Obtain the session's user id.
+     * 
+     * @return A <code>JabberId</code>.
+     */
 	public JabberId getJabberId();
+
+    /**
+     * Obtain the session's internet address.
+     * 
+     * @return An <code>InetAddress</code>.
+     */
+    public InetAddress getInetAddress();
 
     /**
      * Obtain the server xmpp domain.

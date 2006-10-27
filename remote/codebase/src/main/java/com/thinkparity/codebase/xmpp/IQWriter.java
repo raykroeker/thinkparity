@@ -8,15 +8,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+
+import org.xmpp.packet.IQ;
 
 
 /**
@@ -68,18 +70,13 @@ public abstract class IQWriter {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
-    public final void writeToken(final String name, final Token value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
-    }
     public final void writeContainer(final String name, final Container value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
-
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);
     }
-
     public final void writeContainerVersions(final String parentName,
             final String name, final List<ContainerVersion> values) {
         ElementBuilder.addContainerVersionElements(iq.getChildElement(), parentName, name, values);
@@ -178,6 +175,10 @@ public abstract class IQWriter {
         ElementBuilder.addLongElements(iq.getChildElement(), parentName, name, values);
     }
 
+    public final void writeStreamSession(final String name, final StreamSession value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
     /**
      * Write a string value.
      *
@@ -203,6 +204,10 @@ public abstract class IQWriter {
     public final void writeStrings(final String parentName, final String name,
             final List<String> values) {
         ElementBuilder.addStringElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeToken(final String name, final Token value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**

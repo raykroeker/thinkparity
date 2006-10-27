@@ -17,11 +17,11 @@ public enum Environment {
 
     /** A localhost demo environment. */
     DEMO_LOCALHOST("localhost", 5230, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6004, StreamProtocol.TCP),
+            "localhost", 6004, StreamProtocol.TCP),
 
     /** A localhost development environment. */
     DEVELOPMENT_LOCALHOST("localhost", 5226, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6002, StreamProtocol.TCP),
+            "localhost", 6002, StreamProtocol.TCP),
 
     /** Raymond's development environment. */
     DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, XMPPProtocol.XMPP,
@@ -41,7 +41,7 @@ public enum Environment {
 
     /** A localhost testing environment. */
     TESTING_LOCALHOST("localhost", 5224, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6001, StreamProtocol.TCP);
+            "localhost", 6001, StreamProtocol.TCP);
 
     /** The stream server host. */
     private transient String streamHost;

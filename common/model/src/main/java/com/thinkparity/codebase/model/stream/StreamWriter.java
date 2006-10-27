@@ -3,19 +3,14 @@
  */
 package com.thinkparity.codebase.model.stream;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class StreamWriter {
-
-    private OutputStream output;
-
-    /** A stream <code>Session</code>. */
-    private final Session session;
+public final class StreamWriter extends StreamClient {
 
     /**
      * Create StreamWriter.
@@ -23,33 +18,37 @@ public final class StreamWriter {
      * @param session
      *            A stream <code>Session</code>.
      */
-    public StreamWriter(final Session session) {
-        super();
-        this.session = session;
+    public StreamWriter(final StreamSession session) {
+        super(session);
     }
 
+    /**
+     * Close the stream writer.
+     * 
+     * @throws IOException
+     */
     public void close() {
+        disconnect();
     }
 
+    /**
+     * Open the stream writer.
+     * 
+     */
     public void open() {
+        connect(Type.UPSTREAM);
     }
 
-    public void write(final String streamId, final InputStream input) {
-        final Float completion = session.getCompletion(streamId);
-        if (1.0F == completion) {
-            return;
-        } else {
-            seek(input, calculatePosition(input, completion));
-            write(input);
-        }
+    /**
+     * Write input.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param input
+     *            An <code>InputStream</code>.
+     */
+    public void write(final String streamId, final InputStream stream) {
+        write(new StreamHeader(StreamHeader.Type.STREAM_BEGIN, streamId));
+        write(stream);
     }
-
-    private Long calculatePosition(final InputStream input, final Float completion) {
-        return 0L;
-    }
-
-    private void seek(final InputStream input, final Long position) {
-    }
-
-    private void write(final InputStream input) {}
 }

@@ -4,6 +4,8 @@
 package com.thinkparity.desdemona;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
@@ -56,6 +58,7 @@ public class DesdemonaTestUser extends User {
 		this.credentials.setPassword(PASSWORD);
 		this.credentials.setUsername(username);
         this.environment = environment;
+        setId(JabberIdBuilder.parseUsername(credentials.getUsername()));
 	}
 
     /**

@@ -1,37 +1,54 @@
 /*
- * Created On: Oct 22, 2006 3:45:30 PM
+ * Created On:  26-Oct-06 6:22:07 PM
  */
 package com.thinkparity.codebase.model.stream;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class StreamReader {
-
-    /** The backing <code>InputStream</code>. */
-    private InputStream input;
-
-    /** The stream <code>Session</code>. */
-    private final Session session;
+public final class StreamReader extends StreamClient {
 
     /**
      * Create StreamReader.
      * 
      * @param session
-     *            A stream <code>Session</code>.
+     *            A <code>StreamSession</code>.
      */
-    public StreamReader(final Session session) {
-        super();
-        this.session = session;
+    public StreamReader(StreamSession session) {
+        super(session);
     }
 
-    public void open() {}
+    /**
+     * Open the reader.
+     *
+     */
+    public void open() {
+        connect(Type.DOWNSTREAM);
+    }
 
-    public void read(final String streamId, final OutputStream output) {}
+    /**
+     * Close the reader.
+     *
+     */
+    public void close() {
+        disconnect();
+    }
 
-    public void close() {}
+    /**
+     * Read a stream into the stream.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param stream
+     *            A target <code>OutputStream</code>.
+     */
+    public void read(final String streamId, final OutputStream stream) {
+        write(new StreamHeader(StreamHeader.Type.STREAM_BEGIN, streamId));
+        read(stream);
+    }
 }

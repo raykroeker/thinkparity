@@ -3,13 +3,12 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
-import com.thinkparity.codebase.junitx.TestCase;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class CreateDraftTest extends /*ArtifactHandlerTestCase*/ TestCase {
+public class CreateDraftTest extends ArtifactHandlerTestCase {
 
     private static final String NAME = "[HANDLER] [CREATE DRAFT TEST]";
 

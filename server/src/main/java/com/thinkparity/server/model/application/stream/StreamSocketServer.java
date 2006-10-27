@@ -5,74 +5,123 @@ package com.thinkparity.desdemona.model.stream;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import coconut.aio.AcceptPolicy;
-import coconut.aio.AsyncServerSocket;
-import coconut.aio.AsyncSocket;
-import coconut.core.Callback;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
+import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class StreamSocketServer {
+final class StreamSocketServer implements Runnable {
 
-    /** The stream socket <code>SocketAddress</code>. */
-    private final SocketAddress socketAddress;
+    private final ExecutorService executorService;
 
-    /** The stream socket <code>Callback&lt;AsyncSocket&gt;</code>. */
-    private final Callback<AsyncSocket> socketCallback;
+    private final Log4JWrapper logger;
 
-    /** The stream socket <code>Executor</code>. */
-    private final Executor socketExecutor;
+    private boolean run;
 
-    /** The stream socket <code>AcceptPolicy</code>. */
-    private final AcceptPolicy socketPolicy;
+    private ServerSocket serverSocket;
 
-    /**
-     * Create StreamSocketServer.
-     * 
-     * @param host
-     *            The socket address host to bind to.
-     * @param port
-     *            The socket port to listen on.
-     */
-    StreamSocketServer(final String host, final Integer port) {
+    private final SocketAddress serverSocketAddress;
+
+    private boolean started;
+
+    private final StreamServer streamServer;
+
+    StreamSocketServer(final StreamServer streamServer, final String host,
+            final Integer port) {
         super();
-        this.socketAddress = new InetSocketAddress(host, port);
-        this.socketCallback = new Callback<AsyncSocket>() {
-            public void completed(final AsyncSocket asyncSocket) {
-            }
-            public void failed(final Throwable t) {
-            }
-        };
-        this.socketExecutor = Executors.newCachedThreadPool();
-        this.socketPolicy = new AcceptPolicy() {
-            public int acceptNext(final AsyncServerSocket asyncServerSocket) {
-                return 1;
-            }
-        };
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.logger = new Log4JWrapper();
+        this.serverSocketAddress = new InetSocketAddress(host, port);
+        this.streamServer = streamServer;
     }
 
     /**
-     * Start the stream socket server.
+     * Run the stream socket server.
      * 
-     * @throws IOException
      */
-    void start() throws IOException {
-        final Executor executor = Executors.newCachedThreadPool();
-        final AsyncServerSocket asyncServerSocket = AsyncServerSocket.open(executor);
-        asyncServerSocket.bind(socketAddress);
-        asyncServerSocket.startAccepting(socketExecutor, socketCallback, socketPolicy);
+    public void run() {
+        logger.logApiId();
+        logger.logVariable("run", run);
+        try {
+            while (run) {
+                started = true;
+                synchronized (this) {
+                    notifyAll();
+                }
+
+                final Socket clientSocket = serverSocket.accept();
+                logger.logTrace("Socket connected.");
+                new StreamSocketDelegate(streamServer, clientSocket).run();
+                logger.logTrace("Socket handler executed.");
+            }
+        } catch (final Throwable t) {
+            logger.logFatal(t, "Fatal stream socket server error.");
+        }
     }
 
     /**
-     * Stop the stream socket server.
-     *
+     * Initialize a stream session.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
      */
-    void stop() {
+    void initialize(final StreamSession streamSession) {
+    }
+
+    /**
+     * Invalidate a stream session.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     */
+    void invalidate(final StreamSession streamSession) {
+    }
+
+    void start() {
+        logger.logApiId();
+        try {
+            doStart();
+        } catch (final Exception x) {
+            throw new StreamException(x);
+        }
+    }
+
+    void stop(final Boolean wait) {
+        try {
+            doStop(wait);
+        } catch (final IOException iox) {
+            throw new StreamException(iox);
+        }
+    }
+
+    private void doStart() throws IOException, InterruptedException {
+        run = true;
+        started = false;
+        serverSocket = new ServerSocket();
+        serverSocket.bind(serverSocketAddress);
+        logger.logTrace("Server socket bound.");
+        
+        executorService.execute(this);
+        while (!started) {
+            synchronized (this) {
+                wait();
+            }
+        }
+        logger.logTrace("Socket server started.");
+    }
+
+    private void doStop(final Boolean wait) throws IOException {
+        run = false;
+        serverSocket.close();
+        serverSocket = null;
     }
 }

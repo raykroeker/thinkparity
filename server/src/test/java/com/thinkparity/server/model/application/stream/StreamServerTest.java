@@ -6,7 +6,6 @@ package com.thinkparity.desdemona.model.stream;
 import java.io.File;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.stream.Direction;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
 
@@ -16,10 +15,15 @@ public final class StreamServerTest extends StreamTestCase {
     public StreamServerTest() {
         super(NAME);
     }
-    public void testCreateUploadSession() {
-        final String sessionId = datum.streamServer.createSession(Direction.UPSTREAM);
-        assertNotNull("Stream session id is null.", sessionId);
+    public void testStreamServer() {
+        datum.streamServer.start();
         
+        final ServerSession session = new ServerSession();
+        session.setId(createSessionId(datum.testUser.getId()));
+        session.setEnvironment(datum.testUser.getEnvironment());
+        datum.streamServer.initializeSession(session);
+
+        datum.streamServer.stop(Boolean.TRUE);
     }
     @Override
     protected void setUp() throws Exception {
@@ -27,7 +31,7 @@ public final class StreamServerTest extends StreamTestCase {
         final File workingDirectory = new File(getOutputDirectory(), "working");
         Assert.assertTrue(workingDirectory.mkdir(), "Could not create directory {0}.", workingDirectory);
         final StreamServer streamServer = createStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
-        datum = new Fixture(streamServer);
+        datum = new Fixture(streamServer, DesdemonaTestUser.JUNIT);
     }
     @Override
     protected void tearDown() throws Exception {
@@ -36,9 +40,11 @@ public final class StreamServerTest extends StreamTestCase {
     }
     private final class Fixture extends StreamTestCase.Fixture {
         private final StreamServer streamServer;
-        private Fixture(final StreamServer streamServer) {
+        private final DesdemonaTestUser testUser;
+        private Fixture(final StreamServer streamServer, final DesdemonaTestUser testUser) {
             super();
             this.streamServer = streamServer;
+            this.testUser = testUser;
         }
     }
 }

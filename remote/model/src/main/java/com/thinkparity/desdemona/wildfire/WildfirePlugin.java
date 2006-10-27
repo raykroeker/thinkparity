@@ -8,6 +8,12 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
+import com.thinkparity.desdemona.model.Version;
+import com.thinkparity.desdemona.model.archive.ArchiveModel;
+import com.thinkparity.desdemona.model.stream.StreamModel;
+
 import org.apache.log4j.LogManager;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -19,11 +25,6 @@ import org.jivesoftware.wildfire.XMPPServerListener;
 import org.jivesoftware.wildfire.container.Plugin;
 import org.jivesoftware.wildfire.container.PluginManager;
 import org.jivesoftware.wildfire.handler.IQHandler;
-
-import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.desdemona.model.Version;
-import com.thinkparity.desdemona.model.archive.ArchiveModel;
-import com.thinkparity.desdemona.model.stream.StreamModel;
 
 
 /**
@@ -57,8 +58,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      * 
      */
 	public void destroyPlugin() {
-        stopStream();
         stopArchive();
+        stopStream();
 	    destroyHandlers();
 		destroyLogging();
 	}
@@ -71,8 +72,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             final File pluginDirectory) {
 		initializeLogging();
 		initializeHandlers(pluginDirectory);
+		startStream();
         startArchive();
-        startStream();
         final String message = MessageFormat.format("{0} - {1} - {2}",
                 Version.getName(), Version.getMode(), Version.getBuildId());
 		logger.logInfo(message);

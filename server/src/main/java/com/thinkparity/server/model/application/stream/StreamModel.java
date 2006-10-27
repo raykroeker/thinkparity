@@ -3,8 +3,9 @@
  */
 package com.thinkparity.desdemona.model.stream;
 
-import com.thinkparity.codebase.model.stream.Direction;
-import com.thinkparity.codebase.model.stream.Session;
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 
@@ -56,13 +57,16 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
     }
 
     /**
-     * Create a new session.
-     *
+     * Initialize a session. If a previous session for the user exists; it will
+     * be re-used to allow resume functionality.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      * @return A <code>Session</code>.
      */
-    public Session createSession(final Direction direction) {
+    public StreamSession initializeSession(final JabberId userId) {
         synchronized (getImplLock()) {
-            return getImpl().createSession(direction);
+            return getImpl().initializeSession(userId);
         }
     }
 

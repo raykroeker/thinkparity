@@ -110,7 +110,8 @@ public class TestCaseHelper {
 			inputFiles.add(copyInputFile("JUnitTestFramework.unknown"));
 			inputFiles.add(copyInputFile("JUnitTestFramework1MB.txt"));
 			inputFiles.add(copyInputFile("JUnitTestFramework2MB.txt"));
-			inputFiles.add(copyInputFile("JUnitTestFramework4MB.txt"));
+            inputFiles.add(copyInputFile("JUnitTestFramework4MB.txt"));
+            inputFiles.add(copyInputFile("JUnitTestFramework8MB.txt"));
 		}
 		return inputFiles.toArray(new File[] {});
 	}

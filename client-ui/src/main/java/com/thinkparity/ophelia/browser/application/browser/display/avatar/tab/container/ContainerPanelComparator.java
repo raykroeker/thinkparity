@@ -75,13 +75,13 @@ public class ContainerPanelComparator implements Comparator<TabPanel>{
                 }
             } else if (sortColumn==SortColumn.DRAFT_OWNER) {
                 if (sortDirection==SortDirection.DOWN) {
-                    compareResult = containerPanel2.getContainer().isDraft().compareTo(containerPanel1.getContainer().isDraft());
+                    compareResult = containerPanel1.getContainer().isDraft().compareTo(containerPanel2.getContainer().isDraft());
                     if ((0==compareResult) && (containerPanel2.getContainer().isDraft())) {
                         compareResult = containerPanel2.getDraft().getOwner().getName().compareToIgnoreCase(
                                         containerPanel1.getDraft().getOwner().getName());                       
                     }
                 } else {
-                    compareResult = containerPanel1.getContainer().isDraft().compareTo(containerPanel2.getContainer().isDraft());
+                    compareResult = containerPanel2.getContainer().isDraft().compareTo(containerPanel1.getContainer().isDraft());
                     if ((0==compareResult) && (containerPanel1.getContainer().isDraft())) {
                         compareResult = containerPanel1.getDraft().getOwner().getName().compareToIgnoreCase(
                                         containerPanel2.getDraft().getOwner().getName());                       

@@ -72,17 +72,15 @@ class WindowPanel extends AbstractJPanel {
 	 * @param avatar
 	 *            The avatar to add.
 	 */
-	void addPanel(final AbstractJPanel jPanel) {
+	void addPanel(final Avatar avatar) {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
-        // TMP.0 Remove the title bar of the dialogue windows
-		//add(new WindowTitle(), c.clone());
+		add(new WindowTitle(avatar.getAvatarTitle()), c.clone());
 
-		jPanels.add(jPanel);
-        // TMP.0 Remove the title bar of the dialogue windows
-		//ac.gridy++;
-		add((Component) jPanel, ac.clone());
+		jPanels.add(avatar);
+		ac.gridy++;
+		add((Component) avatar, ac.clone());
 	}
 
 	/**

@@ -295,7 +295,9 @@ public class Resizer {
         if (null!=window) {
             window.setCursor(cursor);
         }
-        browser.setCursor(cursor);
+        if (null!=browser) {
+            browser.setCursor(cursor);
+        }
     }
     
     private void formMouseDraggedMove(final java.awt.event.MouseEvent evt, final Component component) {
@@ -394,7 +396,9 @@ public class Resizer {
     private void resize(final Window window, final Dimension resizeOffset) {
         if ((resizeOffset.width != 0) || (resizeOffset.height != 0)) {
             if (window instanceof BrowserWindow) {
-                browser.resizeBrowserWindow(resizeOffset);
+                if (null!=browser) {
+                    browser.resizeBrowserWindow(resizeOffset);
+                }
             } else {
                 Dimension size = window.getSize();
                 size.width += resizeOffset.width;
@@ -424,7 +428,9 @@ public class Resizer {
         if ((resizeOffset.width!=0) || (resizeOffset.height!=0) ||
             (moveOffset.x != 0 ) || (moveOffset.y != 0 )) {        
             if (window instanceof BrowserWindow) {
-                browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
+                if (null!=browser) {
+                    browser.moveAndResizeBrowserWindow(moveOffset, resizeOffset);
+                }
             } else {
                 Rectangle sizeAndLocation = window.getBounds();
                 sizeAndLocation.width += resizeOffset.width;

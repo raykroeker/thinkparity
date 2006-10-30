@@ -15,6 +15,8 @@ import javax.swing.border.LineBorder;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractVersionCell;
 
 /**
@@ -23,8 +25,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  */
 final class VersionCellRenderer extends AbstractJPanel implements ListCellRenderer {
     
+    /** An image cache. */
+    private final MainPanelImageCache imageCache;
+    
     /** Creates new form VersionCellRenderer */
     VersionCellRenderer() {
+        this.imageCache = new MainPanelImageCache();
         initComponents();
     }
 
@@ -54,26 +60,38 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         iconJLabel.setIcon(icon);
         
         // Set border.
-        if (isSelected && !cell.isFillerCell()) {
+        if (cell.isMouseOver() && (cell.getPopupCellIndex() == -1) && !cell.isFillerCell()) {
+            // Mouse-over won't take effect if there is a popup on one of the cells.
+            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_MOUSE_OVER_BORDER));
+        } else if (cell.getPopupCellIndex()==index) {
+            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
+/*        } else if (isSelected && !cell.isFillerCell()) {
             // Note that during a popup, cell.isFocusOnThisList() returns true whereas
             // isFocusOwner() returns false.
-            if (cell.isSelectedContainer() && cell.isFocusOnThisList()) {
+            if (cell.isFocusOnThisList()) {
                 setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
             } else {
                 setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BORDER));
-            }
+            }*/
         } else {
-            final int adjustedIndex = index + cell.getContainerIndex() + 1;
+            final int adjustedIndex = index + 1;
             if (0 == adjustedIndex % 2) {
                 setBorder(new LineBorder(Colors.Browser.List.LIST_EVEN_BG));
             } else {
                 setBorder(new LineBorder(Colors.Browser.List.LIST_ODD_BG));
             }
         }
+        
+        // Set selected icon.
+        if (isSelected && !cell.isFillerCell()) {
+            selectedIconJLabel.setIcon(imageCache.read(TabPanelIcon.SELECTED));
+        } else {
+            selectedIconJLabel.setIcon(imageCache.read(TabPanelIcon.INVISIBLE));
+        }
 
         // Set foreground and background colours.
-        final int adjustedIndex = index + cell.getContainerIndex() + 1;
         textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        final int adjustedIndex = index + 1;
         if (0 == adjustedIndex % 2) {
             setBackground(Colors.Browser.List.LIST_EVEN_BG);
         } else {
@@ -121,6 +139,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         textJLabel = new javax.swing.JLabel();
+        selectedIconJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -149,17 +168,23 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         textJLabel.setMinimumSize(new java.awt.Dimension(20, 16));
         textJLabel.setPreferredSize(new java.awt.Dimension(20, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         add(textJLabel, gridBagConstraints);
 
+        selectedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Invisible16x16.png")));
+        add(selectedIconJLabel, new java.awt.GridBagConstraints());
+
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JLabel iconJLabel;
+    javax.swing.JLabel selectedIconJLabel;
     javax.swing.JLabel textJLabel;
     // End of variables declaration//GEN-END:variables
     

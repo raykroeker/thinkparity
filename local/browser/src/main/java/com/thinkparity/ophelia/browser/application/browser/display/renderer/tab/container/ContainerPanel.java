@@ -21,12 +21,14 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -41,42 +43,36 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  * @version 1.1.2.1
  */
 public final class ContainerPanel extends DefaultTabPanel {
-        
-    /** The border for the bottom of the cell. */
-    private static final Border BORDER_BOTTOM;
     
-    /** The border for the bottom of the cell if it is expanded and selected. */
-    private static final Border BORDER_BOTTOM_EXPANDED_SELECTED;
+    /** The border for even cells. */
+    private static final Border BORDER_EVEN;
     
-    /** The border for the bottom of the cell if it is expanded and not selected. */
-    private static final Border BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
+    /** The border for odd cells. */
+    private static final Border BORDER_ODD;
     
-    /** The border for the bottom of the last cell. */
-    private static final Border BORDER_BOTTOM_LAST;
+    /** The border for a mouse-over cell. */
+    private static final Border BORDER_MOUSE_OVER;
     
-    /** The border for the top of the cell. */
-    private static final Border BORDER_TOP;
+    /** The border for the first cell. */
+    private static final Border BORDER_FIRST;
     
-    /** The border for the top when the cell is expanded. */
-    private static final Border BORDER_TOP_EXPANDED;
+    /** The border for the cell if it first and last. */
+    private static final Border BORDER_FIRST_AND_LAST;
     
-    /** The border for the top of a group of cells. */
-    private static final Border BORDER_TOP_GROUP;
+    /** The border for the last cell. */
+    private static final Border BORDER_LAST_EVEN;
+    private static final Border BORDER_LAST_ODD;
     
     /** The border for a selected cell. */
     private static final Border BORDER_SELECTED;
     
-    /** The border for an unselected cell. */
-    private static final Border BORDER_UNSELECTED;
-    
-    /** The border colours. */
-    private static final Color[] BORDER_COLOURS;
-    
-    /** The border colours for the first cell of a group. */
-    private static final Color[] BORDER_COLOURS_GROUP_TOP;
-    
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
+    
+    /** Flags to indicate if this is the first and/or last panel. */
+    /** These are saved for the benefit of mouse-over. */
+    private Boolean firstPanel = Boolean.FALSE;
+    private Boolean lastPanel = Boolean.FALSE;
     
     /** An image cache. */
     protected final MainPanelImageCache imageCache;
@@ -85,22 +81,22 @@ public final class ContainerPanel extends DefaultTabPanel {
     private final MainCellL18n localization;
     
     static {
-        BORDER_COLOURS = new Color[] {/*Colours.MAIN_CELL_DEFAULT_BORDER*/Color.white, Color.WHITE};
-        BORDER_COLOURS_GROUP_TOP = new Color[] {Colours.MAIN_CELL_DEFAULT_BORDER,
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
-        
-        BORDER_TOP = new TopBorder(BORDER_COLOURS, 2, new Insets(2,0,0,0));
-        BORDER_TOP_EXPANDED = new TopBorder(Color.WHITE, 2, new Insets(2,0,0,0));
-        BORDER_TOP_GROUP = new TopBorder(/*BORDER_COLOURS_GROUP_TOP*/Color.white, 4, new Insets(4,0,0,0));
-        BORDER_BOTTOM = new BottomBorder(Color.WHITE);
-        BORDER_BOTTOM_LAST = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 1, new Insets(0,0,1,0));
-        
-        // These are so there isn't a white line between the ContainerPanel and the ContainerVersionsPanel
-        BORDER_BOTTOM_EXPANDED_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_SELECTED_BG);
-        BORDER_BOTTOM_EXPANDED_NOT_SELECTED = new BottomBorder(Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG);
-        
+        BORDER_EVEN = new LineBorder(Colors.Browser.List.LIST_EVEN_BG);
+        BORDER_ODD = new LineBorder(Colors.Browser.List.LIST_ODD_BG);
+        BORDER_MOUSE_OVER = new LineBorder(Colors.Browser.List.LIST_MOUSE_OVER_BORDER);
         BORDER_SELECTED = new LineBorder(Colors.Browser.List.LIST_SELECTION_BORDER);
-        BORDER_UNSELECTED = new LineBorder(Color.WHITE);
+        BORDER_FIRST = new MultiColourLineBorder(
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG,
+                Colors.Browser.List.LIST_EVEN_BG, Colors.Browser.List.LIST_EVEN_BG);
+        BORDER_FIRST_AND_LAST = new MultiColourLineBorder(
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG,
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG);
+        BORDER_LAST_EVEN = new MultiColourLineBorder(
+                Colors.Browser.List.LIST_EVEN_BG, Colors.Browser.List.LIST_EVEN_BG,
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG);
+        BORDER_LAST_ODD = new MultiColourLineBorder(
+                Colors.Browser.List.LIST_ODD_BG, Colors.Browser.List.LIST_ODD_BG,
+                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_ODD_BG);
         
         DIMENSION = new Dimension(50,23);
     }
@@ -134,14 +130,15 @@ public final class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        final Graphics g2 = g.create();
-        try {
-            if (isExpanded()) {
+        if (isExpanded()) {
+            final Graphics g2 = g.create();
+            try {
                 GradientPainter.paintVertical(g2, getSize(),
-                        new Color(204, 208, 214, 255), new Color(245, 246, 247, 255));
+                        Colors.Browser.List.LIST_GRADIENT_DARK,
+                        Colors.Browser.List.LIST_GRADIENT_LIGHT);
             }
-        }
-        finally { g2.dispose(); }
+            finally { g2.dispose(); }
+        }        
     }
 
     /**
@@ -249,7 +246,9 @@ public final class ContainerPanel extends DefaultTabPanel {
         containerJPanel = new javax.swing.JPanel();
         containerNameJLabel = new javax.swing.JLabel();
         rightSideJPanel = new javax.swing.JPanel();
+        containerDateJPanel = new javax.swing.JPanel();
         containerDateJLabel = new javax.swing.JLabel();
+        draftOwnerJPanel = new javax.swing.JPanel();
         draftOwnerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
 
@@ -284,22 +283,40 @@ public final class ContainerPanel extends DefaultTabPanel {
         containerNameJLabel.setPreferredSize(new java.awt.Dimension(100, 20));
         containerJPanel.add(containerNameJLabel);
 
-        rightSideJPanel.setLayout(new java.awt.GridLayout());
+        rightSideJPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         rightSideJPanel.setOpaque(false);
+        containerDateJPanel.setLayout(new java.awt.GridBagLayout());
+
+        containerDateJPanel.setOpaque(false);
         containerDateJLabel.setText("!Date!");
         containerDateJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         containerDateJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
         containerDateJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
         containerDateJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
-        rightSideJPanel.add(containerDateJLabel);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        containerDateJPanel.add(containerDateJLabel, gridBagConstraints);
 
+        rightSideJPanel.add(containerDateJPanel);
+
+        draftOwnerJPanel.setLayout(new java.awt.GridBagLayout());
+
+        draftOwnerJPanel.setOpaque(false);
         draftOwnerJLabel.setText("!Draft Owner!");
         draftOwnerJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 20));
         draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 20));
         draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 20));
-        rightSideJPanel.add(draftOwnerJLabel);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        draftOwnerJPanel.add(draftOwnerJLabel, gridBagConstraints);
+
+        rightSideJPanel.add(draftOwnerJPanel);
 
         containerJPanel.add(rightSideJPanel);
 
@@ -325,6 +342,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         iconJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
+                setMouseOver(Boolean.TRUE);  // The mouse is still over the panel.
                 if (container.isBookmarked()) {
                     iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK_ROLLOVER));
                 } else {
@@ -333,6 +351,7 @@ public final class ContainerPanel extends DefaultTabPanel {
             }
             @Override
             public void mouseExited(final MouseEvent e) {
+                setMouseOver(Boolean.FALSE);
                 if (container.isBookmarked()) {
                     iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK));
                 } else {
@@ -356,15 +375,15 @@ public final class ContainerPanel extends DefaultTabPanel {
     @Override
     public void setMouseOver(final Boolean mouseOver) {
         super.setMouseOver(mouseOver);
-/*        if (mouseOver) {
-            containerNameJLabel.setText(new StringBuffer("<html><u>")
-                .append(container.getName()).append("</u></html>").toString());
-        } else {*/
-            containerNameJLabel.setText(new StringBuffer("<html>")
-                .append(container.getName()).append("</html>").toString());
-//        }
-        //repaint();
-        model.synchronize();
+        
+        // If there is no popup then deselect the container.
+        if (!MenuFactory.isPopupMenu()) {
+            model.deselectContainer();
+        }
+        
+        // Draw the appropriate border.
+        setBorder(getBorder(firstPanel, lastPanel));
+        repaint();
     }
     
     /**
@@ -374,7 +393,7 @@ public final class ContainerPanel extends DefaultTabPanel {
     protected void formMousePressed(MouseEvent e) {
         super.formMousePressed(e);
         if (e.getButton()==MouseEvent.BUTTON1) {
-            model.selectContainer(container);
+            model.deselectContainer();
         }
     }
 
@@ -386,7 +405,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         super.formMouseReleased(e);
         if (e.isPopupTrigger()) {
             model.selectContainer(container);
-        }
+        }        
     }
     
     /**
@@ -394,10 +413,8 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void prepareForRepaint() {       
         final Color color;
-        if (!isUpToDate()) {
-            color = Colors.Browser.List.LIST_NOT_UP_TO_DATE;
-        } else if (isSelectedContainer()) {
-            color = Colors.Browser.List.LIST_SELECTION_FG;
+        if (!isLackMostRecentVersion()) {
+            color = Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG;
         } else {
             color = Colors.Browser.List.LIST_FG;
         }
@@ -426,13 +443,13 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Color getBackgroundColor() {
         final Color color;
         final Integer containerIndex = model.indexOfContainerPanel(container);
-        if (isExpanded()) {
+/*        if (isExpanded()) {
             if (isSelectedContainer()) {
                 color = Colors.Browser.List.LIST_EXPANDED_SELECTED_BG;
             } else {
                 color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
-            }
-        } else if (0 == containerIndex % 2) {
+            }*/
+        if (0 == containerIndex % 2) {
             color = Colors.Browser.List.LIST_EVEN_BG;
         } else {
             color = Colors.Browser.List.LIST_ODD_BG;            
@@ -454,59 +471,89 @@ public final class ContainerPanel extends DefaultTabPanel {
     /**
      * Get the preferred size.
      * 
+     * @param first
+     *          True if this is the first entity in the list.
      * @param last
-     *          True if this is the last entity.
+     *          True if this is the last entity in the list.
      * @return The preferred size <code>Dimension</code>.
      */   
-    public Dimension getPreferredSize(final Boolean last) {
-        final Dimension dimension;
-        int heightAdjust = 0;
-        
-        // Adjust height to account for border thickness
-        if (isFirstNonDraft()) {
-            heightAdjust += 2;
-        }
-        if (last && !isExpanded()) {
-            heightAdjust += 1;
-        }
-        if (heightAdjust>0) {
-            dimension = new Dimension(DIMENSION);
-            dimension.height += heightAdjust;
-        } else {
-            dimension = DIMENSION;
-        }
-        
-        return dimension;
+    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
+        return DIMENSION;
     }
     
     /**
      * Get the border for the package.
      * 
+     * @param first
+     *          True if this is the first entity in the list.
      * @param last
-     *          True if this is the last entity.
+     *          True if this is the last entity in the list.
      * @return A border.
      */
-    public Border getBorder(final Boolean last) {
-        //final Border topBorder;
-        final Border bottomBorder;
-        
-        if (isExpanded()) {
-            if (isSelectedContainer()) {
-                bottomBorder = BORDER_BOTTOM_EXPANDED_SELECTED;
+    public Border getBorder(final Boolean first, final Boolean last) {
+        Border border;
+        this.firstPanel = first;
+        this.lastPanel = last;
+        final Integer containerIndex = model.indexOfContainerPanel(container);
+ 
+        if (!isExpanded()) {
+            if (isSetMouseOver() && !isAnyContainerSelected()) {
+                // Mouse over takes effect when there aren't any containers selected.
+                // (A panel is selected when there is a popup on that panel.)
+                border = BORDER_MOUSE_OVER;
+            } else if (isSelectedContainer()) {
+                // This is to highlight a panel when there is a popup on that panel.
+                border = BORDER_SELECTED;
+            } else if (first && last) {
+                border = BORDER_FIRST_AND_LAST;
+            } else if (first) {
+                border = BORDER_FIRST;
+            } else if (last) {
+                if (0 == containerIndex % 2) {
+                    border = BORDER_LAST_EVEN;
+                } else {
+                    border = BORDER_LAST_ODD;
+                }
+            } else if (0 == containerIndex % 2) {
+                border = BORDER_EVEN;
             } else {
-                bottomBorder = BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
+                border = BORDER_ODD; 
             }
-/*        } else if (isSelectedContainer()) {
-            bottomBorder = BORDER_SELECTED;*/
-        } else if (isSetMouseOver()) {
-            bottomBorder = BORDER_SELECTED;
-        } else if (last) {
-            bottomBorder = BORDER_BOTTOM_LAST;
         } else {
-            bottomBorder = BORDER_UNSELECTED;
+            border = null;
+        }
+                
+        return border;
+
+/*        
+        if (first) {
+            topBorder = BORDER_TOP_FIRST;
+        } else {
+            topBorder = null;
         }
         
-        return bottomBorder;
+        if (!isExpanded()) {
+            if (isSetMouseOver()) {
+                bottomBorder = BORDER_MOUSE_OVER;
+            } else if (last) {
+                bottomBorder = BORDER_BOTTOM_LAST;
+            } else {
+                bottomBorder = BORDER_UNSELECTED;
+            }
+        } else {
+            bottomBorder = null;
+        }
+        
+        saveTopBorder = topBorder;
+        saveBottomBorder = bottomBorder;
+        
+        if (topBorder==null) {
+            return bottomBorder;
+        } else if (bottomBorder==null) {
+            return topBorder;
+        } else {
+            return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
+        }*/
         
 /*      Code intentionally left here until look and feel is finalized
         if (isFirstNonDraft()) {
@@ -544,17 +591,6 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine if the panel before this one is expanded.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel before this one is expanded; false otherwise.
-     */
-    private Boolean isPanelBeforeExpanded() {
-        return model.isPanelBeforeExpanded(this);
-    }
-    
-    /**
      * Determine whether or not the container has been seen.
      * 
      * @return True if the container has been seen; false otherwise.
@@ -564,11 +600,12 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine whether or not this container is up-to-date.
+     * Determine whether or not the user has the most up-to-date version
+     * for this container.
      * 
-     * @return True if the container is up-to-date.
+     * @return True if the user has the most up-to-date container version.
      */
-    public Boolean isUpToDate() {
+    public Boolean isLackMostRecentVersion() {
         // TODO Do this right
         final String gray = "Gray";
         if (container.getName().equals(gray)) {
@@ -588,14 +625,12 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine if the panel is the first non-draft.
+     * Determine if any container is selected.
      * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is the first non-draft; false otherwise.
+     * @return True if any container is selected.
      */
-    private Boolean isFirstNonDraft() {
-        return model.isFirstNonDraft(this);
+    private Boolean isAnyContainerSelected() {
+        return model.isAnyContainerSelected();
     }
     
     /**
@@ -611,9 +646,11 @@ public final class ContainerPanel extends DefaultTabPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel containerDateJLabel;
+    private javax.swing.JPanel containerDateJPanel;
     private javax.swing.JPanel containerJPanel;
     private javax.swing.JLabel containerNameJLabel;
     private javax.swing.JLabel draftOwnerJLabel;
+    private javax.swing.JPanel draftOwnerJPanel;
     private javax.swing.JLabel eastPaddingJLabel;
     private javax.swing.JLabel iconJLabel;
     private javax.swing.JPanel rightSideJPanel;

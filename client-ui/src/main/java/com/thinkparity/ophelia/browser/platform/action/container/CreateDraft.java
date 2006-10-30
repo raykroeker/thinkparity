@@ -33,7 +33,6 @@ public class CreateDraft extends AbstractAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         getContainerModel().createDraft(containerId);
-        getContainerModel().addBookmark(containerId);
     }
 
     public enum DataKey { CONTAINER_ID }

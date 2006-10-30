@@ -1,7 +1,7 @@
 /*
  * WindowTitle.java
  *
- * Created on March 31, 2006, 5:43 PM
+ * Created on October 29, 2006, 4:11 PM
  */
 
 package com.thinkparity.ophelia.browser.platform.application.window;
@@ -11,67 +11,74 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Point;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JPanel;
+import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.MouseInputAdapter;
+
+import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
+import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
- * The title bar of all thinkparity platform windows. Contains a simple gradient
- * paint and an invisible button to control its height.
- * 
- * @author raykroeker@gmail.com
- * @version 1.1
+ *
+ * @author  Administrator
  */
-class WindowTitle extends JPanel {
+public class WindowTitle extends javax.swing.JPanel {
+    
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
+    /** The start colour of the gradient. */
+    private static final Color GRADIENT_PAINT_COLOUR_1 = Colors.Browser.Window.BG_GRAD_START;
 
-    /** The source colour of the gradient. */
-    private static final Color GRADIENT_PAINT_COLOUR_1 = new Color(224, 228, 233, 255);
-
-    /** The target colour of the gradient. */
-    private static final Color GRADIENT_PAINT_COLOUR_2 = new Color(185, 192, 199, 255);
+    /** The finish colour of the gradient. */
+    private static final Color GRADIENT_PAINT_COLOUR_2 = Colors.Browser.Window.BG_GRAD_FINISH;
 
     /** The colour of the single line below the title deocration. */
-    private static final Color TITLE_BOTTOM_BORDER_COLOUR = new Color(153, 153, 153, 255);
+    private static final Color TITLE_BOTTOM_BORDER_COLOUR = Colors.Browser.Window.TITLE_BOTTOM_BORDER;
+    
+    /** Close label icon. */
+    private static final Icon CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
+    
+    /** Close label rollover icon. */
+    private static final Icon CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
+    
+    /** The Resizer */
+    private final Resizer resizer;
 
-    /** Create a WindowTitle. */
-    WindowTitle() {
-    	super();
-        /* Create an input adapter capable of moving the window around. */
-    	final MouseInputAdapter mouseInputAdapter = new MouseInputAdapter() {
-    		int offsetX;
-    		int offsetY;
-                public void mouseDragged(final MouseEvent e) {
-                    final java.awt.Window window = SwingUtilities.getWindowAncestor(WindowTitle.this);
-                    final Point newL = window.getLocation();
-                    newL.x += e.getPoint().x - offsetX;
-                    newL.y += e.getPoint().y - offsetY;
-                    window.setLocation(newL);
-                }
-                public void mousePressed(final MouseEvent e) {
-                    offsetX = e.getPoint().x;
-                    offsetY = e.getPoint().y;
-                }
-    	};
-    	addMouseListener(mouseInputAdapter);
-    	addMouseMotionListener(mouseInputAdapter);
+    /** Creates new form WindowTitle */
+    public WindowTitle(final String title) {
         initComponents();
+        this.resizer = new Resizer(null, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
+        titleJLabel.setText(title);
+        closeJLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                SwingUtilities.getWindowAncestor(WindowTitle.this).dispose();
+            }
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                ((JLabel) e.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                ((JLabel) e.getSource()).setIcon(CLOSE_ICON);
+            }            
+        });
     }
-
+    
     /** @see javax.swing.JComponent#paintComponent(java.awt.Graphics) */
     protected void paintComponent(final Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         try {
-            // a single vertical gradient
+            // vertical gradients
             final Paint gPaint =
                 new GradientPaint(0, 0, GRADIENT_PAINT_COLOUR_1, 0, getHeight(), GRADIENT_PAINT_COLOUR_2);
             g2.setPaint(gPaint);
-            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.fillRect(0, 0, getWidth(), getHeight());            
         }
         finally { g2.dispose(); }
 
@@ -80,33 +87,45 @@ class WindowTitle extends JPanel {
           g2.setColor(TITLE_BOTTOM_BORDER_COLOUR);
           g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
         }
-        finally { g2.dispose(); }
-        
+        finally { g2.dispose(); }        
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        fillJLabel = new javax.swing.JLabel();
+        titleJLabel = new javax.swing.JLabel();
+        closeJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        fillJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Invisible13x13.png")));
+        titleJLabel.setFont(new java.awt.Font("Times New Roman", 1, 14));
+        titleJLabel.setText("!Title!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        add(fillJLabel, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 6, 4, 0);
+        add(titleJLabel, gridBagConstraints);
+
+        closeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 1);
+        add(closeJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel fillJLabel;
+    private javax.swing.JLabel closeJLabel;
+    private javax.swing.JLabel titleJLabel;
     // End of variables declaration//GEN-END:variables
+
 }

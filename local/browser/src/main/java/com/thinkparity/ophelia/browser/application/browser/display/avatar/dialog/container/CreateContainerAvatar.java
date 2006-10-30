@@ -32,7 +32,6 @@ public class CreateContainerAvatar extends Avatar {
         super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initNameJTextField();
-        newContainerJPanel.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
     }
     
     public AvatarId getId() {
@@ -84,23 +83,13 @@ public class CreateContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        newContainerJPanel = new javax.swing.JPanel();
-        nameJLabel = new javax.swing.JLabel();
-        nameJTextField = new javax.swing.JTextField();
         explanationJLabel = new javax.swing.JLabel();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
+        nameJLabel = new javax.swing.JLabel();
+        nameJTextField = new javax.swing.JTextField();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("NewContainerDialog.BorderTitle"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
-        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
-
-        nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameJTextFieldActionPerformed(evt);
-            }
-        });
-
         explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
@@ -118,79 +107,70 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
-        org.jdesktop.layout.GroupLayout newContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(newContainerJPanel);
-        newContainerJPanel.setLayout(newContainerJPanelLayout);
-        newContainerJPanelLayout.setHorizontalGroup(
-            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(newContainerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-                    .add(newContainerJPanelLayout.createSequentialGroup()
-                        .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, newContainerJPanelLayout.createSequentialGroup()
-                        .add(okJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelJButton)))
-                .addContainerGap())
-        );
+        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
-        newContainerJPanelLayout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
-        newContainerJPanelLayout.setVerticalGroup(
-            newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(newContainerJPanelLayout.createSequentialGroup()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJLabel)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 15, Short.MAX_VALUE)
-                .add(newContainerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(okJButton))
-                .addContainerGap())
-        );
-        newContainerJPanel.getAccessibleContext().setAccessibleName(bundle.getString("NewContainerDialog.BorderTitle")); // NOI18N
+        nameJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameJTextFieldActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton))
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(14, 14, 14)
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(nameJLabel)
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelJButton)
+                    .add(okJButton))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nameJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameJTextFieldActionPerformed
-        if(isInputValid()) {
+    private void nameJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nameJTextFieldActionPerformed
+        if (isInputValid()) {
             createContainer();
             disposeWindow();
         }
-    }//GEN-LAST:event_nameJTextFieldActionPerformed
-    
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        if(isInputValid()) {
-            createContainer();
-            disposeWindow();
-        }
-    }//GEN-LAST:event_okJButtonActionPerformed
+    }// GEN-LAST:event_nameJTextFieldActionPerformed
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
+        if (isInputValid()) {
+            createContainer();
+            disposeWindow();
+        }
+    }// GEN-LAST:event_okJButtonActionPerformed
+
+    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
-    
+        
     private void initNameJTextField() {
         Document document = nameJTextField.getDocument();
         document.addDocumentListener( new DocumentHandler() );        
@@ -292,7 +272,6 @@ public class CreateContainerAvatar extends Avatar {
     private javax.swing.JLabel explanationJLabel;
     private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
-    private javax.swing.JPanel newContainerJPanel;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
 

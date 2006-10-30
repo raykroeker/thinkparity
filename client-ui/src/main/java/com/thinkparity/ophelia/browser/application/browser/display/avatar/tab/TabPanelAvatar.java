@@ -90,7 +90,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     	installDataListener();
         initComponents();
         installResizer();
-        initHeaderBorder();
         initHeaderTooltips();
     }
 
@@ -191,9 +190,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         iconJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
-        iconJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
-        iconJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
-        iconJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -210,9 +206,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         containerNameJPanel.setOpaque(false);
         containerNameJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
-        containerNameJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
-        containerNameJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
-        containerNameJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -236,13 +229,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         containerDateJPanel.setOpaque(false);
         containerDateJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
-        containerDateJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
-        containerDateJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
-        containerDateJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
         containerDateJPanel.add(containerDateJLabel, gridBagConstraints);
 
         containerDateFillerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
@@ -260,13 +250,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
         draftOwnerJPanel.setOpaque(false);
         draftOwnerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortNone.png")));
-        draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
-        draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(12, 12));
-        draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(12, 12));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 0);
         draftOwnerJPanel.add(draftOwnerJLabel, gridBagConstraints);
 
         draftOwnerFillerJLabel.setMaximumSize(new java.awt.Dimension(12, 12));
@@ -326,15 +313,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }// </editor-fold>//GEN-END:initComponents
     
     /**
-     * Initialize header border.
-     */
-    private void initHeaderBorder() {
-        final Color[] borderColours = new Color[] {Color.WHITE, Colours.MAIN_CELL_DEFAULT_BORDER, Color.WHITE};
-        final Border bottomBorder = new BottomBorder(borderColours, 3, new Insets(0,0,3,0));
-        columnHeaderJPanel.setBorder(bottomBorder);
-    }
-    
-    /**
      * Initialize header tooltips.
      */
     private void initHeaderTooltips() {
@@ -360,10 +338,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                     panelConstraints.gridy = i;
                     tabJPanel.remove(i);
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.setPreferredSize(panel.getPreferredSize(i==0, i==(listModel.size()-1)));
                     panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
-                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==0, i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
                 
@@ -398,10 +376,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 for (int i = startIndex; i < listModel.size(); i++) {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.setPreferredSize(panel.getPreferredSize(i==0, i==(listModel.size()-1)));
                     panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
-                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==0, i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 
@@ -446,10 +424,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 for (int i = startIndex; i < listModel.size(); i++) {
                     panelConstraints.gridy = i;
                     final DefaultTabPanel panel = (DefaultTabPanel) listModel.get(i);
-                    panel.setPreferredSize(panel.getPreferredSize(i==(listModel.size()-1)));
+                    panel.setPreferredSize(panel.getPreferredSize(i==0, i==(listModel.size()-1)));
                     panel.prepareForRepaint();
                     panel.setBackground(panel.getBackgroundColor());
-                    panel.setBorder(panel.getBorder(i==(listModel.size()-1)));
+                    panel.setBorder(panel.getBorder(i==0, i==(listModel.size()-1)));
                     tabJPanel.add(panel, panelConstraints.clone(), i);
                 }
 

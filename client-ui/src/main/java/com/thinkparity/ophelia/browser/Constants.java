@@ -28,6 +28,9 @@ public final class Constants {
     /** Colour constants. */
     public static final class Colors {
         public static final class Browser {
+            public static final class Border {
+                public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
+            }
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
                 public static final Color BG_GRAD_START = Color.WHITE;
@@ -45,6 +48,16 @@ public final class Constants {
             public static final class MainTitleTop {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
+            }
+            public static final class Window {
+                public static final Color BORDER_COLOR_OUTER = new Color(110, 110, 130, 255);
+                public static final Color BORDER_COLOR_MID_AT_TOP = new Color(176, 181, 189, 255);      // Continues gradient exactly
+                public static final Color BORDER_COLOR_MID_AT_BOTTOM = new Color(134, 138, 144, 255);   // MainTitle.BG_GRAD_FINISH * 0.7
+                public static final Color BORDER_COLOR_INNER_AT_TOP = new Color(154, 158, 164, 255);    // MainTitle.BG_GRAD_FINISH * 0.8
+                public static final Color BORDER_COLOR_INNER_AT_BOTTOM = new Color(134, 138, 144, 255); // MainTitle.BG_GRAD_FINISH * 0.7
+                public static final Color BG_GRAD_FINISH = new Color(173, 177, 185, 255);      // MainTitle.BG_GRAD_FINISH * 0.9
+                public static final Color BG_GRAD_START = new Color(221, 227, 236, 255);       // MainTitle.BG_GRAD_FINISH * 1.15
+                public static final Color TITLE_BOTTOM_BORDER = new Color(154, 158, 164, 255);
             }
             public static final class TabCell {
                 public static final Color TEXT = Color.BLACK;
@@ -64,35 +77,33 @@ public final class Constants {
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
             public static final class SemiTransparentLayer {
-                public static final Color LAYER_COLOR = Color.WHITE;//new Color(231, 238, 248, 255);
+                public static final Color LAYER_COLOR = Color.WHITE;
                 public static final float LAYER_ALPHA = 0.55F;
             }
             public static final class List {
+                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);    // blue
+                public static final Color LIST_SELECTION_FG = Color.BLACK;
                 public static final Color LIST_FG = Color.BLACK;
-                public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255); //new Color(245, 248, 252, 255);
+                public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
                 public static final Color LIST_ODD_BG = Color.WHITE;
-                public static final Color LIST_EXPANDED_SELECTED_BG = new Color(245, 246, 247, 255); //new Color(240, 242, 243, 255); //new Color(207, 221, 241, 255);
-                public static final Color LIST_EXPANDED_NOT_SELECTED_BG = new Color(245, 246, 247, 255); //new Color(240, 242, 243, 255); // new Color(207, 221, 241, 255);//new Color(200, 200, 190, 255);
-                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);//new Color(87, 136, 206, 255);
-                public static final Color LIST_SELECTION_FG = Color.BLACK;//WHITE;
-                public static final Color LIST_NOT_UP_TO_DATE = Color.GRAY;
-                public static final Color LIST_SELECTION_BORDER = new Color(44, 68, 103, 255);
-                public static final Color INNER_LIST_SELECTION_BG = new Color(236, 233, 216, 255);//new Color(207, 221, 241, 255);
-                public static final Color INNER_LIST_SELECTION_FG = Color.BLACK;
-                public static final Color INNER_LIST_SELECTION_BORDER = new Color(44, 68, 103, 255);
-                public static final Color INNER_LIST_SELECTION_NOFOCUS_BG = new Color(236, 233, 216, 255);
-                public static final Color INNER_LIST_SELECTION_NOFOCUS_FG = Color.BLACK;
-                public static final Color INNER_LIST_SELECTION_NOFOCUS_BORDER = new Color(170, 170, 170, 255);
+                public static final Color LIST_EXPANDED_BG = Color.WHITE;
+                public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
+                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area
+                public static final Color LIST_MOUSE_OVER_BORDER = new Color(100, 100, 100, 255);  // dark gray
+                public static final Color LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
+                public static final Color INNER_LIST_MOUSE_OVER_BORDER = new Color(100, 100, 100, 255);  // dark gray
+                public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
+                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
             }
         }
         public static final class Swing {
-            public static final Color DEFAULT_LIST_SELECTION_BG = new Color(87, 136, 206, 255);
-            public static final Color DEFAULT_LIST_SELECTION_FG = Color.WHITE;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(39, 102, 192, 255);
+            public static final Color DEFAULT_LIST_SELECTION_BG = new Color(207, 221, 241, 255);
+            public static final Color DEFAULT_LIST_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(87, 136, 206, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.WHITE;
             public static final Color MENU_ITEM_BG = Color.WHITE;
             public static final Color MENU_ITEM_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(39, 102, 192, 255);
+            public static final Color MENU_SELECTION_BG = new Color(87, 136, 206, 255);
             public static final Color MENU_SELECTION_FG = Color.WHITE;
             public static final Color MENU_BG = Color.WHITE;
             public static final Color MENU_FG = Color.BLACK;

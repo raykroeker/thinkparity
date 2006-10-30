@@ -50,15 +50,12 @@ public final class ContainerModel extends TabPanelModel {
 
     /** A list of all container panels. */
     private final List<TabPanel> containerPanels;
-
-    /** A list of the panel expanded flags. */
-    private final Map<TabPanel, Boolean> expanded;
+    
+    /** The expanded container. */
+    private Container expandedContainer = null;
     
     /** The selected container. */
     private Container selectedContainer = null;
-    
-    /** The first container panel that is not a local draft. */
-    private TabPanel firstNonDraftTabPanel = null;
 
     /** A list model. */
     private final DefaultListModel listModel;
@@ -96,7 +93,6 @@ public final class ContainerModel extends TabPanelModel {
         this.browser = getBrowser();
         this.containerIdLookup = new HashMap<Long, Long>();
         this.containerPanels = new ArrayList<TabPanel>();
-        this.expanded = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
         this.logger = new Log4JWrapper();
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
@@ -239,20 +235,15 @@ public final class ContainerModel extends TabPanelModel {
     @Override
     public void triggerExpand(final TabPanel tabPanel) {
         if (isExpanded(tabPanel)) {
-            expanded.put(tabPanel, Boolean.FALSE);
-        }
-        else {
-            // Only one container can be expanded at a time.
-            for (final Entry<TabPanel, Boolean> entry : expanded.entrySet()) {
-                entry.setValue(Boolean.FALSE);
-            }
-            expanded.put(tabPanel, Boolean.TRUE);
+            expandedContainer = null;
+        } else if (tabPanel instanceof ContainerPanel) {
+            // flag the container as expanded                
+            expandedContainer = ((ContainerPanel)tabPanel).getContainer();
             
             // flag the container as having been seen
-            if (tabPanel instanceof ContainerPanel) {
-                browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
-            }
+            browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
         }
+        
         synchronize();
     }
     
@@ -285,25 +276,10 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
-     * Sort containers, and also set the "firstNonDraft" flag.
+     * Sort containers.
      */
-    private void sortContainers() {
-        Collections.sort(containerPanels, containerPanelComparator);
-        
-        ContainerPanel prevContainer = null;
-        firstNonDraftTabPanel = null;
-        for(final TabPanel tabPanel : containerPanels) {
-            if (tabPanel instanceof ContainerPanel) { // Should always be true
-                final ContainerPanel container = (ContainerPanel) tabPanel;
-                if (prevContainer!=null) {
-                    if (prevContainer.getContainer().isLocalDraft() != container.getContainer().isLocalDraft()) {
-                        firstNonDraftTabPanel = tabPanel;
-                        break;
-                    }
-                }
-                prevContainer = container;
-            }
-        }
+    private void sortContainers() {        
+        Collections.sort(containerPanels, containerPanelComparator);       
     }
     
     /**
@@ -340,7 +316,7 @@ public final class ContainerModel extends TabPanelModel {
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
                 final Integer indexOfContainerPanel = indexOfContainerPanel(container);
-                final Boolean expanded = isExpanded(getContainerPanel(container));
+                final Boolean expanded = isExpandedContainer(container);
                 removeContainerPanel(container);
                 if (remote) {
                     addContainerPanel(0, expanded, container);
@@ -398,7 +374,9 @@ public final class ContainerModel extends TabPanelModel {
             final Container container) {
         final TabPanel containerPanel = toDisplay(container);
         containerPanels.add(index, containerPanel);
-        this.expanded.put(containerPanel, expanded);
+        if (expanded) {
+            expandedContainer = container;
+        }
         final ContainerDraft draft = readDraft(container.getId());
         if (null != draft) {
             for (final Document document : draft.getDocuments()) {
@@ -495,22 +473,23 @@ public final class ContainerModel extends TabPanelModel {
      * @return True if the panel is expanded; false otherwise.
      */
     public Boolean isExpanded(final TabPanel tabPanel) {
-        return expanded.containsKey(tabPanel) ? expanded.get(tabPanel) : Boolean.FALSE;
+        if (tabPanel instanceof ContainerPanel) {
+            return isExpandedContainer(((ContainerPanel)tabPanel).getContainer());
+        } else {
+            return Boolean.TRUE;
+        }
     }
     
     /**
-     * Determine the panel before is expanded.
+     * Determine if the container is expanded.
      * 
-     * @param tabPanel
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel before is expanded; false otherwise.
+     * @param container
+     *            A container.
+     * @return True if the container is expanded; false otherwise.
      */
-    public Boolean isPanelBeforeExpanded(final TabPanel tabPanel) {
-        int index = visiblePanels.indexOf(tabPanel);
-        if (index > 0) {
-            return (!(visiblePanels.get(index-1) instanceof ContainerPanel));
+    public Boolean isExpandedContainer(final Container container) {
+        if (expandedContainer != null) {
+            return expandedContainer.equals(container);
         } else {
             return Boolean.FALSE;
         }
@@ -532,6 +511,15 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
+     * Determine if any container is selected.
+     * 
+     * @return True if any container is selected.
+     */
+    public Boolean isAnyContainerSelected() {
+        return (selectedContainer != null);
+    }
+    
+    /**
      * Change selection.
      * 
      * @param container
@@ -545,19 +533,15 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
-     * Determine if the panel is the first non-draft panel.
+     * Deselect the selected container, leaving no container selected.
      * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is the first non-draft; false otherwise.
      */
-    public Boolean isFirstNonDraft(final TabPanel tabPanel) {
-        if (firstNonDraftTabPanel != null) {
-            return firstNonDraftTabPanel.equals(tabPanel);
-        } else {
-            return Boolean.FALSE;
+    public void deselectContainer() {
+        if (selectedContainer != null) {
+            selectedContainer = null;
+            synchronize();
         }
-    }  
+    }
     
     /**
      * Read the container from the provider.
@@ -669,8 +653,12 @@ public final class ContainerModel extends TabPanelModel {
         }
         containerPanels.remove(containerPanel);
         versionsPanels.remove(containerPanel);
-        expanded.remove(containerPanel);
-        
+        if (isSelectedContainer(container)) {
+            selectedContainer = null;
+        }
+        if (isExpandedContainer(container)) {
+            expandedContainer = null;
+        }        
     }
 
     /**

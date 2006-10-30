@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.ophelia.browser.Constants.Images;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -135,7 +135,8 @@ public abstract class Avatar extends AbstractJPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (nativeSkin.isRounded()) {
+// This code is waiting to see what dialog design Omid prefers.
+/*        if (nativeSkin.isRounded()) {
             final Graphics g2 = g.create();
             try {           
                 // These images help to make the rounded corners look good.
@@ -161,7 +162,7 @@ public abstract class Avatar extends AbstractJPanel {
                         Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
             }
             finally { g2.dispose(); }
-        }
+        }*/
     }
 
     /**
@@ -180,6 +181,15 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
 	/**
+     * Get the avatar title, used for dialogs.
+     * 
+     * @return the avatar title
+     */
+    public String getAvatarTitle() {
+        return getString("Title");
+    }
+
+    /**
 	 * Set an error for display.
 	 * 
 	 * @param error
@@ -313,10 +323,11 @@ public abstract class Avatar extends AbstractJPanel {
     /**
      * Get the resize edges. Override this method if you don't want
      * resize support for the avatar, or if only some of the avatar
-     * edges support resize.
+     * edges support resize. Default is BOTTOM which is suited to
+     * avatars on dialogs, because the top is the window title.
      */
     protected Resizer.ResizeEdges getResizeEdges() {
-        return Resizer.ResizeEdges.ALL_EDGES;
+        return Resizer.ResizeEdges.BOTTOM;
     }
     
     /**

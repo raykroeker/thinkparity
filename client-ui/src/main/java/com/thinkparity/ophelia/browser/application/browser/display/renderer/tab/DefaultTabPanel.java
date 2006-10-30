@@ -44,9 +44,8 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
 	}
 
     /**
-     * Install a mouse over tracker which tracks the mouse and records the index
-     * above which it is positioned. It also updates the underlying cell's
-     * "mouseOver" property.
+     * Install a mouse over tracker which tracks the mouse and updates the
+     * underlying panel's "mouseOver" property.
      */
     protected final void installMouseOverTracker() {
         final MouseInputListener mouseOverListener = new MouseInputAdapter() {
@@ -59,8 +58,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
                 setMouseOver(Boolean.FALSE);
             }
         };
-        addMouseListener(mouseOverListener);
-        addMouseMotionListener(mouseOverListener);       
+        addMouseListener(mouseOverListener);     
     }
     
     protected final void installMouseOverTracker(final Component component) {
@@ -87,7 +85,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             }
         };
         component.addMouseListener(mouseOverListener);
-        component.addMouseMotionListener(mouseOverListener);
     }
 
     /**
@@ -161,22 +158,26 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     /**
      * Get the preferred size.
      * 
+     * @param first
+     *          True if this is the first entity in the list.
      * @param last
-     *          True if this is the last entity.
+     *          True if this is the last entity in the list.
      * @return The preferred size <code>Dimension</code>.
      */   
-    public Dimension getPreferredSize(final Boolean last) {
+    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
         return getPreferredSize();
     }
     
     /**
      * Get the border.
      * 
+     * @param first
+     *          True if this is the first entity in the list.
      * @param last
-     *          True if this is the last entity.
+     *          True if this is the last entity in the list.
      * @return The border.
      */
-    public Border getBorder(final Boolean last) {
+    public Border getBorder(final Boolean first, final Boolean last) {
         return getBorder();
     }
 

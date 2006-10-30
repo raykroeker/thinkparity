@@ -44,16 +44,20 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         iconJLabel.setIcon(icon);
         
         // Set border.
-        if (isSelected && cell.isSelectedContainer() && !cell.isFillerCell()) {
+        if (cell.isMouseOver() && (cell.getPopupCellIndex() == -1) && !cell.isFillerCell()) {
+            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_MOUSE_OVER_BORDER));
+        } else if (cell.getPopupCellIndex()==index) {
+            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
+/*        } else if (isSelected && !cell.isFillerCell()) {
             // Note that during a popup, cell.isFocusOnThisList() returns true whereas
             // isFocusOwner() returns false.
             if (cell.isFocusOnThisList()) {
                 setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
             } else {
                 setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BORDER));
-            }
+            }*/
         } else {
-            final int adjustedIndex = index + cell.getContainerIndex() + 1;
+            final int adjustedIndex = index + 1;
             if (0 == adjustedIndex % 2) {
                 setBorder(new LineBorder(Colors.Browser.List.LIST_EVEN_BG));
             } else {
@@ -62,8 +66,8 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         }
         
         // Set foreground and background colours.
-        final int adjustedIndex = index + cell.getContainerIndex() + 1;
         textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        final int adjustedIndex = index + 1;
         if (0 == adjustedIndex % 2) {
             setBackground(Colors.Browser.List.LIST_EVEN_BG);
         } else {

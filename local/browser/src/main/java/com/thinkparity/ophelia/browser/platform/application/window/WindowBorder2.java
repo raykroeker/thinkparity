@@ -13,6 +13,7 @@ import java.util.Stack;
 
 import javax.swing.border.AbstractBorder;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 
 /**
@@ -27,26 +28,26 @@ public class WindowBorder2 extends AbstractBorder {
     private static final Insets BORDER_INSETS;
 
     /** A colour stack used when modifying the graphics object. */
-    private static final Stack<Color> COLOUR_STACK;
+    private static final Stack<Color> COLOR_STACK;
     
     /** The border colour. */
-    private static final Color BORDER_COLOUR;
+    private static final Color BORDER_COLOR;
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
     static {
         BORDER_INSETS = new Insets(1, 1, 1, 1);
-        BORDER_COLOUR = new Color(130, 130, 130, 255);
-        COLOUR_STACK = new Stack<Color>();
+        BORDER_COLOR = Colors.Browser.Border.BORDER_COLOR;
+        COLOR_STACK = new Stack<Color>();
     }
 
     private static void popColour(final Graphics g) {
-        g.setColor(COLOUR_STACK.pop());
+        g.setColor(COLOR_STACK.pop());
     }
 
     private static void pushColour(final Graphics g) {
-        COLOUR_STACK.push(g.getColor());
+        COLOR_STACK.push(g.getColor());
     }
 
     /** Create WindowBorder. */
@@ -97,7 +98,7 @@ public class WindowBorder2 extends AbstractBorder {
             final int y, final int width, final int height) {
         pushColour(g);
 
-        g.setColor(BORDER_COLOUR);
+        g.setColor(BORDER_COLOR);
         
         g.drawLine(0, 0, width - 1, 0);                     // top line
         g.drawLine(0, 0, 0, height - 1);                    // left line

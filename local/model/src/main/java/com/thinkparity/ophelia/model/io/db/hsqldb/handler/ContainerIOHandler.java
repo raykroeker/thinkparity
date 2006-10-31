@@ -5,10 +5,13 @@ package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
@@ -210,7 +213,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
             new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE ")
+            .append("U.ORGANIZATION,U.TITLE,CVPT.RECEIVED_ON ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
@@ -739,7 +742,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long)
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, Calendar> readPublishedTo(final Long containerId,
             final Long versionId) {
         final Session session = openSession();
         try {
@@ -747,9 +750,10 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             session.executeQuery();
-            final List<User> publishedTo = new ArrayList<User>();
+            final Map<User, Calendar> publishedTo = new HashMap<User, Calendar>();
             while (session.nextResult()) {
-                publishedTo.add(userIO.extractUser(session));
+                publishedTo.put(userIO.extractUser(session),
+                        session.getCalendar("RECEIVED_ON"));
             }
             return publishedTo;
         } finally {

@@ -6,8 +6,10 @@ package com.thinkparity.ophelia.model.io.handler;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -222,7 +224,7 @@ public interface ContainerIOHandler {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public List<User> readPublishedTo(final Long containerId,
+    public Map<User, Calendar> readPublishedTo(final Long containerId,
             final Long versionId);
 
     /**

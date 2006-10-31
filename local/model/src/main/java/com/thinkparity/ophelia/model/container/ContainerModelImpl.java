@@ -1383,19 +1383,23 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
-        final List<User> users =
+        final Map<User, Calendar> publishedTo =
             containerIO.readPublishedTo(containerId, versionId);
+        final List<User> users = new ArrayList<User>(publishedTo.size());
+        for (final Entry<User, Calendar> entry : publishedTo.entrySet()) {
+            users.add(entry.getKey());
+        }
         FilterManager.filter(users, filter);
         ModelSorter.sortUsers(users, comparator);
-        final Map<User, ArtifactReceipt> publishedTo = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
+        final Map<User, ArtifactReceipt> filteredPublishedTo = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
         for (final User user : users) {
             final ArtifactReceipt receipt = new ArtifactReceipt();
             receipt.setArtifactId(containerId);
-            receipt.setReceivedOn(currentDateTime());
+            receipt.setReceivedOn(publishedTo.get(user));
             receipt.setUserId(user.getId());
-            publishedTo.put(user, receipt);
+            filteredPublishedTo.put(user, receipt);
         }
-        return publishedTo;
+        return filteredPublishedTo;
     }
 
     /**

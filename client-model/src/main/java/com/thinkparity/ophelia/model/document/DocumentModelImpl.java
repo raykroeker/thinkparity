@@ -276,7 +276,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logVariable("checksum", checksum);
         logger.logVariable("streamId", streamId);
         try {
-            final InputStream content = downloadStream(streamId);
+            final File streamFile = downloadStream(streamId);
             final InternalArtifactModel artifactModel  = getInternalArtifactModel();
             final Document document;
             final DocumentVersion version;
@@ -290,14 +290,29 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                     version = readVersion(document.getId(), versionId);
                 }
                 else {
-                    version = createVersion(document.getId(), versionId, content,
-                            sentBy, sentOn);
+                    final InputStream stream = new FileInputStream(streamFile);
+                    try {
+                        version = createVersion(document.getId(), versionId,
+                                stream, sentBy, sentOn);
+                    } finally {
+                        stream.close();
+                    }
                 }
             }
             else {
-                document = create(uniqueId, name, content, sentBy, sentOn);
-                version = createVersion(document.getId(), versionId, content,
-                        sentBy, sentOn);
+                InputStream stream = new FileInputStream(streamFile);
+                try {
+                    document = create(uniqueId, name, stream, sentBy, sentOn);
+                } finally {
+                    stream.close();
+                }
+                stream = new FileInputStream(streamFile);
+                try {
+                    version = createVersion(document.getId(), versionId,
+                            stream, sentBy, sentOn);
+                } finally {
+                    stream.close();
+                }
             }
             return version;
         } catch (final Throwable t) {

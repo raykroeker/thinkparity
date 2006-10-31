@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -551,9 +550,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * 
      * @param streamId
      *            A stream id <code>String</code>.
-     * @return An input stream queued to the beginning of the downloaded stream.
+     * @return A stream <code>File</code>.
      */
-    protected final InputStream downloadStream(final String streamId) throws IOException {
+    protected final File downloadStream(final String streamId) throws IOException {
         final File streamFile = workspace.createTempFile(streamId);
         final FileOutputStream stream = new FileOutputStream(streamFile);
         final StreamSession session = getSessionModel().createStreamSession();
@@ -568,7 +567,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
                 reader.close();
             }
         }
-        return new FileInputStream(streamFile);
+        return streamFile;
     }
 
     /**

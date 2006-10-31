@@ -54,6 +54,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.ArtifactUtil;
 import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
+import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
@@ -108,6 +109,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     
     /** An image cache. */
     protected final MainPanelImageCache imageCache;
+    
+    /** The panel localization. */
+    private final MainCellL18n localization;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JPanel leftJPanel;
@@ -133,6 +137,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versionsModel = new DefaultListModel();
         this.versionsContentModel = new DefaultListModel();
         this.imageCache = new MainPanelImageCache();
+        this.localization = new MainCellL18n("ContainerVersionsPanel");
         initComponents();
         initFocusListeners();
         initResizeListener();
@@ -355,17 +360,17 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     }
 
     /**
-     * Set the container draft.
+     * Set the container and its draft.
      * 
      * @param container
      *            The <code>Container</code>.
      * @param draft
      *            The <code>ContainerDraft</code>.
      */
-    public void setDraft(final Container container, final ContainerDraft draft) {
+    public void setContainerAndDraft(final Container container, final ContainerDraft draft) {
         this.container = container;
 
-        if (null != draft) {
+        if ((null != draft) && container.isLocalDraft()) {
             versionsModel.addElement(new DraftCell(draft));
         }
     }
@@ -893,11 +898,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private DraftCell(final ContainerDraft draft) {
             super();
             this.draft = draft;
-            final Integer documentCount = draft.getDocumentCount();
-            setText(1 == documentCount ?
-                    "Draft - 1 Document" :
-                    MessageFormat.format("Draft - {0} Documents",
-                            documentCount));
+            initText(draft);
             setIcon(imageCache.read(TabPanelIcon.DRAFT));
             int countCells = 0;
             for (final Document document : draft.getDocuments()) {
@@ -918,6 +919,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getContainerId() {
             return draft.getContainerId();
         }
+        private void initText(final ContainerDraft draft) {
+            final Integer documentCount = draft.getDocumentCount();
+            if (1 == documentCount) {
+                setText(localization.getString("DraftOneDocument"));
+            } else {
+                setText(localization.getString("DraftManyDocuments", documentCount));
+            }
+        }
     }
 
     /** A draft document cell. */
@@ -929,21 +938,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             super();
             this.document = document;
             this.draft = draft;
-            final String formatPattern;
-            switch (draft.getState(document)) {
-            case ADDED:
-            case MODIFIED:
-            case REMOVED:
-                formatPattern = "{0} - {1}";
-                break;
-            case NONE:
-                formatPattern = "{0}";
-                break;
-            default:
-                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
-            }
-            setText(MessageFormat.format(formatPattern,
-                    document.getName(), draft.getState(document)));
+            initText(draft, document);            
             setIcon(getDocumentIcon(document));
         }
         @Override
@@ -963,21 +958,31 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         ContainerDraft.ArtifactState getState() {
             return draft.getState(document);
         }
+        private void initText(final ContainerDraft draft, final Document document) {
+            final String formatPattern;
+            switch (draft.getState(document)) {
+            case ADDED:
+            case MODIFIED:
+            case REMOVED:
+                formatPattern = "{0} - {1}";
+                break;
+            case NONE:
+                formatPattern = "{0}";
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
+            }
+            setText(MessageFormat.format(formatPattern,
+                    document.getName(), draft.getState(document).toString()));
+        }
     }
 
     /** A user cell. */
     final class UserCell extends AbstractContentCell {
         private final User user;
-        private UserCell(final User user, final ArtifactReceipt receipt) {
+        private UserCell(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
             this.user = user;
-            if (receipt.isSetReceivedOn()) {
-                setText(MessageFormat.format("{0} - {3,date,MMM dd, yyyy h:mm a}",
-                        user.getName(), user.getOrganization(), user.getTitle(),
-                        receipt.getReceivedOn().getTime()));
-            } else {
-                setText(MessageFormat.format("{0}",
-                        user.getName(), user.getOrganization(), user.getTitle()));
-            }
+            initText(user, isPublisher, receipt);
             setIcon(imageCache.read(TabPanelIcon.USER));
         }
         JabberId getId() {
@@ -991,6 +996,35 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void doubleClick(final Component invoker, final MouseEvent e) {
             ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runReadContact(getId());
         }
+        
+        private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
+            final StringBuffer text;
+            text = new StringBuffer();
+            if (user.isSetOrganization() && user.isSetTitle()) {
+                text.append(MessageFormat.format("{0} ({1}, {2})",
+                            user.getName(), user.getOrganization(), user.getTitle()));
+            } else if (user.isSetOrganization()) {
+                text.append(MessageFormat.format("{0} ({1})",
+                            user.getName(), user.getOrganization()));
+            } else if (user.isSetTitle()) {
+                text.append(MessageFormat.format("{0} ({1})",
+                            user.getName(), user.getTitle()));
+            } else {
+                text.append(user.getName());
+            }
+            text.append(" ");
+            if (isPublisher) {
+                text.append(localization.getString("UserPublished"));
+            } else if ((null == receipt) || (!receipt.isSetReceivedOn())) {
+                text.append(localization.getString("UserDidNotReceive"));
+            } else if (isToday(receipt.getReceivedOn().getTime())) {
+                text.append(localization.getString("UserReceivedToday",receipt.getReceivedOn().getTime()));
+            } else {
+                text.append(localization.getString("UserReceived",receipt.getReceivedOn().getTime()));
+            }
+            
+            setText(text.toString());
+        }
     }
 
     /** A version cell. */
@@ -1001,26 +1035,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             super();
             this.version = version;
-            setText(MessageFormat.format(
-                    "Version - {0,date,MMM d, yyyy h:mm a} - {1}",
-                    version.getCreatedOn().getTime(),
-                    publishedBy.getName(), publishedBy.getTitle(),
-                    publishedBy.getOrganization()));
+            initText(version, publishedBy);
             setIcon(imageCache.read(TabPanelIcon.VERSION));
             int countCells = 0;
-            // TODO fix this
             addContentCell(new CommentCell(version));
             countCells++;
-            
-/*            if (version.isSetComment()) {
-                addContentCell(new CommentCell(version));
-            }*/
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
                 countCells++;
             }
+            addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
+            countCells++;
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
-                addContentCell(new UserCell(entry.getKey(), entry.getValue()));
+                addContentCell(new UserCell(entry.getKey(), Boolean.FALSE, entry.getValue()));
                 countCells++;
             }
             for (int i = countCells; i < versionsContentJList.getVisibleRowCount(); i++) {
@@ -1040,6 +1067,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
+        private void initText(final ContainerVersion version, final User publishedBy) {
+            if (isToday(version.getCreatedOn().getTime())) {
+                setText(localization.getString("VersionToday", version.getCreatedOn().getTime(), publishedBy.getName()));
+            } else {
+                setText(localization.getString("Version", version.getCreatedOn().getTime(), publishedBy.getName())); 
+            }
+        } 
     }
 
     /** A version document cell. */
@@ -1073,11 +1107,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private CommentCell(final ContainerVersion version) {
             super();
             this.version = version;
-            // TODO Get rid of this test code.
             if (version.isSetComment()) {
                 setText(version.getComment());
             } else {
-                setText("This is a version comment. I like this version very much.");
+                setText(localization.getString("NoComment"));
             }
             setIcon(imageCache.read(TabPanelIcon.COMMENT));
         }

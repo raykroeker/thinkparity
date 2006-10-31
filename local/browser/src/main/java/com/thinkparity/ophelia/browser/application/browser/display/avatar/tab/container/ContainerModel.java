@@ -237,11 +237,14 @@ public final class ContainerModel extends TabPanelModel {
         if (isExpanded(tabPanel)) {
             expandedContainer = null;
         } else if (tabPanel instanceof ContainerPanel) {
-            // flag the container as expanded                
+            // Flag the container as expanded.               
             expandedContainer = ((ContainerPanel)tabPanel).getContainer();
             
-            // flag the container as having been seen
-            browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
+            // Flag the container as having been seen.
+            // To prevent delay expanding, don't bother if offline.
+            if (isOnline()) {
+                browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
+            }
         }
         
         synchronize();
@@ -378,7 +381,7 @@ public final class ContainerModel extends TabPanelModel {
             expandedContainer = container;
         }
         final ContainerDraft draft = readDraft(container.getId());
-        if (null != draft) {
+        if ((null != draft) && container.isLocalDraft()) {
             for (final Document document : draft.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
@@ -670,7 +673,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ContainerPanel(this);
-        panel.setContainer(container, readDraft(container.getId()));
+        panel.setContainerAndDraft(container, readDraft(container.getId()));
         return panel;
     }
 
@@ -691,7 +694,7 @@ public final class ContainerModel extends TabPanelModel {
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerVersionsPanel panel = new ContainerVersionsPanel(this);
-        panel.setDraft(container, draft);
+        panel.setContainerAndDraft(container, draft);
         for (final ContainerVersion version : versions) {
             panel.add(version, documentVersions.get(version), users.get(version), publishedBy.get(version));
         }

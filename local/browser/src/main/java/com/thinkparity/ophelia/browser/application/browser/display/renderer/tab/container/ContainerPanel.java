@@ -169,7 +169,7 @@ public final class ContainerPanel extends DefaultTabPanel {
      * @param draft
      *            A <code>ContainerDraft</code>.
      */
-    public void setContainer(final Container container,
+    public void setContainerAndDraft(final Container container,
             final ContainerDraft draft) {
         this.container = container;
         this.draft = draft;
@@ -631,17 +631,6 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     private Boolean isAnyContainerSelected() {
         return model.isAnyContainerSelected();
-    }
-    
-    /**
-     * Determine if the specified date is today's date.
-     */
-    private Boolean isToday(Date date) {
-        final StringBuffer dateStr = new StringBuffer();
-        final StringBuffer todayStr = new StringBuffer();
-        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
-        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
-        return dateStr.toString().equals(todayStr.toString());
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

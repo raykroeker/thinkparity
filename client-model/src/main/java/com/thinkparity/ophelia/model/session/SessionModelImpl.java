@@ -1243,7 +1243,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         logger.logVariable("credentials", credentials);
         try {
             assertNotIsOnline();
-            assertIsReachable(environment);
+            assertXMPPIsReachable(environment);
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 // check that the user's credentials match

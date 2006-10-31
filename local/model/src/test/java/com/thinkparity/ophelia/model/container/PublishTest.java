@@ -9,13 +9,16 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.ophelia.OpheliaTestUser;
+
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.user.TeamMember;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -82,6 +85,7 @@ public class PublishTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
+        login(OpheliaTestUser.JUNIT_X);
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
@@ -98,6 +102,7 @@ public class PublishTest extends ContainerTestCase {
         datum.containerModel.removeListener(datum);
         datum = null;
         logout(OpheliaTestUser.JUNIT);
+        logout(OpheliaTestUser.JUNIT_X);
         super.tearDown();
     }
 

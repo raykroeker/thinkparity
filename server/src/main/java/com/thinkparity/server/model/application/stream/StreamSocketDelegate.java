@@ -52,20 +52,22 @@ final class StreamSocketDelegate {
     void run() throws IOException {
         final HeaderReader headerReader = new HeaderReader();
         final StreamHeader sessionId = headerReader.readNext();
-        final StreamSession streamSession =
-            streamServer.authenticate(sessionId.getValue(),
-                    ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
-        final StreamHeader sessionType = headerReader.readNext();
-        final StreamHeader streamId = headerReader.readNext();
-        if(null != streamSession) {
-            if ("UPSTREAM".equals(sessionType.getValue())) {
-                new UpstreamHandler(streamServer, streamSession,
-                        streamId.getValue(), socket.getInputStream()).run();
-            } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
-                new DownstreamHandler(streamServer, streamSession,
-                        streamId.getValue(), socket.getOutputStream()).run();
-            } else {
-                Assert.assertUnreachable("Unkown stream transfer.");
+        if (null != sessionId) {
+            final StreamSession streamSession =
+                streamServer.authenticate(sessionId.getValue(),
+                        ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
+            final StreamHeader sessionType = headerReader.readNext();
+            final StreamHeader streamId = headerReader.readNext();
+            if(null != streamSession) {
+                if ("UPSTREAM".equals(sessionType.getValue())) {
+                    new UpstreamHandler(streamServer, streamSession,
+                            streamId.getValue(), socket.getInputStream()).run();
+                } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
+                    new DownstreamHandler(streamServer, streamSession,
+                            streamId.getValue(), socket.getOutputStream()).run();
+                } else {
+                    Assert.assertUnreachable("Unkown stream transfer.");
+                }
             }
         }
         socket.close();

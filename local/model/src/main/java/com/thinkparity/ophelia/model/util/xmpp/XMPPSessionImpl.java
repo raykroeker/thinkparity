@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.net.SocketFactory;
+
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
@@ -42,10 +44,10 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
 import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
 
 import org.jivesoftware.smack.AccountManager;
+import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.SSLXMPPConnection;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketFilter;
@@ -766,16 +768,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
     /**
-     * Assert that the environment is online.
+     * Assert that the xmpp service is online.
      * 
-     * @param assertion
-     *            An assertion.
      * @param environment
-     *            An environment.
+     *            A thinkParity <code>Environment</code>.
      */
-    protected void assertIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isReachable(),
-                "Environment {0} not reachable.", environment);
+    protected void assertXMPPIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isXMPPReachable(),
+                "XMPP environment {0} is not reachable.",
+                environment.getXMPPService());
     }
 
     /**
@@ -908,27 +909,39 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         logVariable("attempt", attempt);
         logVariable("environment", environment);
         logVariable("credentials", credentials);
-	    assertIsReachable(environment);
+	    assertXMPPIsReachable(environment);
         Assert.assertTrue(attempt < 4, "Cannot login after 3 attempts.");
         try {
 			if (Boolean.TRUE == isLoggedIn())
 				logout();
-            switch (environment.getXMPPProtocol()) {
-            case XMPP:
-                xmppConnection = new XMPPConnection(
-                        environment.getXMPPHost(), environment.getXMPPPort());
-                xmppAnonymousConnection = new XMPPConnection(
-                        environment.getXMPPHost(), environment.getXMPPPort());
-                break;
-            case XMPPS:
-                xmppConnection =
-                    new SSLXMPPConnection(environment.getXMPPHost(), environment.getXMPPPort());
-                xmppAnonymousConnection =
-                    new SSLXMPPConnection(environment.getXMPPHost(), environment.getXMPPPort());
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN ENVIRONMENT PROTOCOL");
-			}
+
+            final SocketFactory socketFactory;
+            final ConnectionConfiguration configuration = new ConnectionConfiguration(
+                    environment.getXMPPHost(), environment.getXMPPPort(),
+                    environment.getXMPPService());
+            configuration.setCompressionEnabled(false);
+            configuration.setDebuggerEnabled(false);
+            configuration.setTLSEnabled(environment.isXMPPTLSEnabled());
+            if (configuration.isTLSEnabled()) {
+                configuration.setExpiredCertificatesCheckEnabled(configuration.isTLSEnabled());
+                configuration.setNotMatchingDomainCheckEnabled(configuration.isTLSEnabled());
+                configuration.setSASLAuthenticationEnabled(configuration.isTLSEnabled());
+                configuration.setSelfSignedCertificateEnabled(configuration.isTLSEnabled());
+                configuration.setTruststorePassword("password");
+                configuration.setTruststorePath("security/client_keystore");
+                configuration.setTruststoreType("JKS");
+                configuration.setVerifyChainEnabled(configuration.isTLSEnabled());
+                configuration.setVerifyRootCAEnabled(configuration.isTLSEnabled());
+                socketFactory = com.thinkparity.codebase.net.SocketFactory.getSecureInstance(
+                        "security/client_keystore", "password".toCharArray(),
+                        "security/client_keystore", "password".toCharArray()); 
+            } else {
+                socketFactory = com.thinkparity.codebase.net.SocketFactory.getInstance();
+            }
+
+            xmppConnection = new XMPPConnection(configuration, socketFactory);
+            xmppAnonymousConnection = new XMPPConnection(configuration, socketFactory);
+
             // this smack library is so flaky; a delay has to be used between
             // creating the connection and logging in
             // JIRA http://www.jivesoftware.org/issues/browse/SMACK-141

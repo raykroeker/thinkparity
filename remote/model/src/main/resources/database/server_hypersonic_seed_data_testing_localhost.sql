@@ -1,17 +1,22 @@
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.auth.anonymous', 'true');
+    values('xmpp.auth.anonymous','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain', 'thinkparity.dyndns.org');
+    values('xmpp.domain','thinkparity.dyndns.org');
 insert into jiveProperty (NAME,PROPVALUE)
-    values ('xmpp.server.socket.port', '5270');
+    values('xmpp.server.socket.port','5270');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.socket.plain.port', '5224');
+    values('xmpp.socket.plain.port','5224');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.socket.ssl.port', '5225');
+    values('xmpp.socket.ssl.active','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('thinkparity.environment', 'TESTING_LOCALHOST');
+    values('xmpp.socket.ssl.keypass','password');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.socket.ssl.port','5225');
+
+insert into jiveProperty (NAME,PROPVALUE)
+    values('thinkparity.environment','TESTING_LOCALHOST');
 insert into PARITY_FEATURE (FEATURE)
-    values ('ARCHIVE');
+    values('ARCHIVE');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('thinkparity','parity',0,0);

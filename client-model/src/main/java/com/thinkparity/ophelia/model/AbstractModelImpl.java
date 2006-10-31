@@ -301,16 +301,15 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Assert that the environment is online.
+     * Assert that the xmpp service is online.
      * 
-     * @param assertion
-     *            An assertion.
      * @param environment
-     *            An environment.
+     *            A thinkParity <code>Environment</code>.
      */
-    protected void assertIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isReachable(),
-                "Environment {0} is not reachable.", environment);
+    protected void assertXMPPIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isXMPPReachable(),
+                "XMPP environment {0} is not reachable.",
+                environment.getXMPPService());
     }
 
     /**

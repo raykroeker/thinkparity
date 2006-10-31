@@ -107,9 +107,10 @@ public class XMPPMethod extends IQ {
 
         // create a collector for the response
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
-        // send the internet query
+        // TIME This is a local timestamp.
         logVariable("preSendPacket", DateUtil.getInstance());
         xmppConnection.sendPacket(this);
+        // TIME This is a local timestamp.
         logVariable("postSendPacket", DateUtil.getInstance());
 
         // this sleep has been inserted because when packets are sent within

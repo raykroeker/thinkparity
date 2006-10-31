@@ -7,9 +7,11 @@ import java.io.File;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
@@ -41,10 +43,10 @@ public class OpheliaTestUser extends User {
     private static final String PASSWORD = "parity";
 
 	static {
-        JUNIT = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit");
-        JUNIT_X = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.x");
-        JUNIT_Y = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.y");
-        JUNIT_Z = new OpheliaTestUser(Environment.TESTING_LOCALHOST, "junit.z");
+        JUNIT = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit");
+        JUNIT_X = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.x");
+        JUNIT_Y = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.y");
+        JUNIT_Z = new OpheliaTestUser(OpheliaTestCase.ENVIRONMENT, "junit.z");
     }
 
 	/** The test user's credentials. */
@@ -72,7 +74,7 @@ public class OpheliaTestUser extends User {
         this.environment = environment;
         this.workspace =
             WorkspaceModel.getModel(environment).getWorkspace(
-                    new File(OpheliaTestCase.testSession.getOutputDirectory(),
+                    new File(OpheliaTestCase.SESSION.getOutputDirectory(),
                             "TEST." + username));
         this.workspace.getPreferences().setUsername(username);
         processOfflineQueue();

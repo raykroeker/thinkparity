@@ -4,8 +4,14 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StreamUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -48,6 +54,27 @@ public class CreateVersionTest extends DocumentTestCase {
 		assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
         assertEquals(NAME + " [DOCUMENT BYTES CHECKSUM DOES NOT MATCH EXPECTATION]",
                 datum.documentChecksum, version.getChecksum());
+
+        final InputStream stream = datum.documentModel.openVersionStream(version.getArtifactId(), version.getVersionId());
+        final File outputFile = new File(getOutputDirectory(), datum.file.getName());
+        OutputStream output = null;
+        try {
+            Assert.assertTrue(outputFile.createNewFile(), "Could not create file {0}", outputFile);
+            output = new FileOutputStream(outputFile);
+            StreamUtil.copy(stream, output);
+            
+            final String checksum = MD5Util.md5Hex(FileUtil.readBytes(outputFile));
+            assertEquals("File checksums do not match", datum.documentChecksum, checksum);
+        } catch (final IOException iox) {
+            fail(createFailMessage(iox));
+        } finally {
+            try {
+                output.flush();
+                output.close();
+            } catch (final IOException iox) {
+                fail(createFailMessage(iox));
+            }
+        }
     }
 
 	/**
@@ -57,9 +84,9 @@ public class CreateVersionTest extends DocumentTestCase {
 		super.setUp();
 		final File inputFile = getInputFiles()[0];
         final byte[] inputFileBytes = FileUtil.readBytes(inputFile);
-		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
+		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-		datum = new Fixture(document, MD5Util.md5Hex(inputFileBytes), documentModel);
+		datum = new Fixture(document, MD5Util.md5Hex(inputFileBytes), documentModel, inputFile);
     }
 
 	/**
@@ -76,11 +103,14 @@ public class CreateVersionTest extends DocumentTestCase {
 	private class Fixture extends DocumentTestCase.Fixture {
 		private final Document document;
         private final String documentChecksum;
-		private final DocumentModel documentModel;
-		private Fixture(final Document document, final String documentChecksum, final DocumentModel documentModel) {
+		private final InternalDocumentModel documentModel;
+        private final File file;
+		private Fixture(final Document document, final String documentChecksum,
+                final InternalDocumentModel documentModel, final File file) {
 			this.document = document;
             this.documentChecksum = documentChecksum;
 			this.documentModel = documentModel;
+            this.file = file;
 		}
 	}
 }

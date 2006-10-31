@@ -16,7 +16,6 @@ import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
@@ -26,35 +25,6 @@ import com.thinkparity.desdemona.util.MD5Util;
 abstract class StreamTestCase extends ModelTestCase {
     protected StreamTestCase(final String name) {
         super(name);
-    }
-    protected String createSessionId(final JabberId userId) {
-        // TODO Generate a unique id per user id and store it in the user's
-        // meta-data
-        final String hashString = new StringBuffer(userId.toString())
-                .append("LSAHD-QOIUQOE-ZXBVMNZNX-MZXXNCBVMX")
-                .insert(0, "LKSJD-ZXVBNZM-QPWOEIURY-NXBCVMXNBC")
-                .toString();
-        return MD5Util.md5Hex(hashString.getBytes());
-    }
-    protected void seedServer(final StreamServer server,
-            final StreamSession session, final String streamId, final File file)
-            throws IOException {
-        final OutputStream output = server.openOutputStream(session, streamId);
-        try {
-            StreamUtil.copy(new FileInputStream(file), output);
-        } finally {
-            output.close();
-        }
-    }
-    protected StreamServer createStreamServer(final DesdemonaTestUser testUser, final File workingDirectory) {
-        final Environment environment = testUser.getEnvironment();
-        return new StreamServer(workingDirectory, environment.getStreamHost(), environment.getStreamPort());
-    }
-    protected String createStream(final StreamServer server,
-            final StreamSession session, final String streamIdSeed) {
-        final String streamId = JVMUniqueId.nextId().getId() + "-" + streamIdSeed;
-        server.initialize(session, streamId);
-        return streamId;
     }
     protected StreamSession createSession(final DesdemonaTestUser testUser,
             final StreamServer server) throws UnknownHostException {
@@ -66,6 +36,39 @@ abstract class StreamTestCase extends ModelTestCase {
         session.setInetAddress(InetAddress.getByName(NetworkUtil.getMachine()));
         server.initialize(session);
         return session;
+    }
+    protected String createSessionId(final JabberId userId) {
+        // TODO Generate a unique id per user id and store it in the user's
+        // meta-data
+        final String hashString = new StringBuffer(userId.toString())
+                .append("LSAHD-QOIUQOE-ZXBVMNZNX-MZXXNCBVMX")
+                .insert(0, "LKSJD-ZXVBNZM-QPWOEIURY-NXBCVMXNBC")
+                .toString();
+        return MD5Util.md5Hex(hashString.getBytes());
+    }
+    protected String createStream(final StreamServer server,
+            final StreamSession session, final String streamIdSeed) {
+        final String streamId = JVMUniqueId.nextId().getId() + "-" + streamIdSeed;
+        server.initialize(session, streamId);
+        return streamId;
+    }
+    protected StreamServer createStreamServer(final DesdemonaTestUser testUser,
+            final File workingDirectory) {
+        return new StreamServer(workingDirectory, testUser.getEnvironment());
+    }
+    protected StreamServer createSecureStreamServer(
+            final DesdemonaTestUser testUser, final File workingDirectory) {
+        return new StreamServer(workingDirectory, testUser.getEnvironment());
+    }
+    protected void seedServer(final StreamServer server,
+            final StreamSession session, final String streamId, final File file)
+            throws IOException {
+        final OutputStream output = server.openOutputStream(session, streamId);
+        try {
+            StreamUtil.copy(new FileInputStream(file), output);
+        } finally {
+            output.close();
+        }
     }
     @Override
     protected void setUp() throws Exception {

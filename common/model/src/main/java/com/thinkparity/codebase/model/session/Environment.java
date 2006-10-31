@@ -12,64 +12,61 @@ import com.thinkparity.codebase.NetworkUtil;
 public enum Environment {
 
     /** The demo environment. */
-    DEMO("thinkparity.dyndns.org", 5230, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6004, StreamProtocol.TCP),
+    DEMO("thinkparity.dyndns.org", 5231, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20004, Boolean.TRUE),
 
     /** A localhost demo environment. */
-    DEMO_LOCALHOST("localhost", 5230, XMPPProtocol.XMPP,
-            "localhost", 6004, StreamProtocol.TCP),
+    DEMO_LOCALHOST("localhost", 5231, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20004, Boolean.TRUE),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 5226, XMPPProtocol.XMPP,
-            "localhost", 6002, StreamProtocol.TCP),
+    DEVELOPMENT_LOCALHOST("localhost", 5226, Boolean.FALSE, "thinkparity.dyndns.org", "localhost", 20002, Boolean.FALSE),
 
     /** Raymond's development environment. */
-    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6002, StreamProtocol.TCP),
+    DEVELOPMENT_RAYMOND("thinkparity.dyndns.org", 5226, Boolean.FALSE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20002, Boolean.TRUE),
 
     /** Robert's development environment. */
-    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6003, StreamProtocol.TCP),
+    DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20003, Boolean.TRUE),
 
     /** Production environment. */
-    PRODUCTION("thinkparity.dyndns.org", 5222, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6000, StreamProtocol.TCP),
+    PRODUCTION("thinkparity.dyndns.org", 5223, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20000, Boolean.TRUE),
 
     /** Testing environment. */
-    TESTING("thinkparity.dyndns.org", 5224, XMPPProtocol.XMPP,
-            "thinkparity.dyndns.org", 6001, StreamProtocol.TCP),
+    TESTING("thinkparity.dyndns.org", 5224, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20001, Boolean.TRUE),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 5224, XMPPProtocol.XMPP,
-            "localhost", 6001, StreamProtocol.TCP);
+    TESTING_LOCALHOST("localhost", 5224, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20002, Boolean.TRUE);
 
     /** The stream server host. */
-    private transient String streamHost;
+    private final transient String streamHost;
 
     /** The stream server port. */
-    private transient Integer streamPort;
+    private final transient Integer streamPort;
 
-    /** The stream server protocol. */
-    private transient StreamProtocol streamProtocol;
+    /** The stream service tls enabled <code>Boolean</code> flag. */
+    private final transient Boolean streamTLSEnabled;
 
-    /** The server host. */
-    private transient String xmppHost;
+    /** The xmpp host. */
+    private final transient String xmppHost;
 
-    /** The server port. */
-    private transient Integer xmppPort;
+    /** The xmpp port. */
+    private final transient Integer xmppPort;
 
-    /** The server protocol. */
-    private transient XMPPProtocol xmppProtocol;
+    /** The xmpp service <code>String</code>. */
+    private final transient String xmppService;
+
+    /** The xmpp protocol. */
+    private final transient Boolean xmppTLSEnabled;
 
     /**
      * Create Environment.
      * 
      * @param xmppHost
-     *            The xmpp server host.
+     *            The xmpp server host <code>String</code>.
      * @param xmppPort
-     *            The xmpp server port.
+     *            The xmpp server port <code>Integer</code>.
      * @param xmppProtocol
-     *            The xmpp server protocol.
+     *            The <code>XMPPProtocol</code>.
+     * @param xmppService
+     *            The xmpp service <code>String</code>.
      * @param streamHost
      *            The stream server host.
      * @param streamPort
@@ -78,14 +75,16 @@ public enum Environment {
      *            The stream server protocol.
      */
     private Environment(final String xmppHost, final Integer xmppPort,
-            final XMPPProtocol xmppProtocol, final String streamHost,
-            final Integer streamPort, final StreamProtocol streamProtocol) {
-        setXMPPHost(xmppHost);
-        setXMPPPort(xmppPort);
-        setXMPPProtocol(xmppProtocol);
-        setStreamHost(streamHost);
-        setStreamPort(streamPort);
-        setStreamProtocol(streamProtocol);
+            final Boolean xmppTLSEnabled, final String xmppService,
+            final String streamHost, final Integer streamPort,
+            final Boolean streamTLSEnabled) {
+        this.xmppHost = xmppHost;
+        this.xmppPort = xmppPort;
+        this.xmppTLSEnabled = xmppTLSEnabled;
+        this.xmppService = xmppService;
+        this.streamHost = streamHost;
+        this.streamPort = streamPort;
+        this.streamTLSEnabled = streamTLSEnabled;
     }
 
     /**
@@ -107,15 +106,6 @@ public enum Environment {
     }
 
     /**
-     * Obtain the streamProtocol
-     *
-     * @return The StreamProtocol.
-     */
-    public StreamProtocol getStreamProtocol() {
-        return streamProtocol;
-    }
-
-    /**
      * Obtain the xmppHost
      *
      * @return The String.
@@ -134,77 +124,60 @@ public enum Environment {
     }
 
     /**
-     * Obtain the xmppProtocol
-     *
-     * @return The XMPPProtocol.
+     * Obtain the xmpp service.
+     * 
+     * @return An xmpp service <code>String</code>.
      */
-    public XMPPProtocol getXMPPProtocol() {
-        return xmppProtocol;
+    public String getXMPPService() {
+        return xmppService;
     }
 
     /**
-     * Determine whether or not the environment is reachable.
+     * Determine whether or not all services within the environment are
+     * reachable.
      * 
      * @return True if the environment is reachable; false otherwise.
      */
     public Boolean isReachable() {
+        return isXMPPReachable() && isStreamReachable();
+    }
+
+    /**
+     * Determine whether or not the stream service within the environment is
+     * reachable.
+     * 
+     * @return True if it is reachable.
+     */
+    public Boolean isStreamReachable() {
+        return NetworkUtil.isTargetReachable(streamHost, streamPort);
+    }
+
+    /**
+     * Obtain the streamProtocol
+     *
+     * @return The StreamProtocol.
+     */
+    public Boolean isStreamTLSEnabled() {
+        return streamTLSEnabled;
+    }
+
+    /**
+     * Determine whether or not the xmpp service within the environment is
+     * reachable.
+     * 
+     * @return True if it is reachable.
+     */
+    public Boolean isXMPPReachable() {
         return NetworkUtil.isTargetReachable(xmppHost, xmppPort);
     }
 
     /**
-     * Set streamHost.
-     * 
-     * @param streamHost
-     *            The stream host <code>String</code>.
-     */
-    public void setStreamHost(final String streamHost) {
-        this.streamHost = streamHost;
-    }
-
-    /**
-     * Set streamPort.
-     * 
-     * @param streamPort
-     *            The stream port <code>Integer</code>.
-     */
-    public void setStreamPort(final Integer streamPort) {
-        this.streamPort = streamPort;
-    }
-
-    /**
-     * Set streamProtocol.
+     * Obtain the xmppProtocol
      *
-     * @param streamProtocol The StreamProtocol.
+     * @return The XMPPProtocol.
      */
-    public void setStreamProtocol(final StreamProtocol streamProtocol) {
-        this.streamProtocol = streamProtocol;
-    }
-
-    /**
-     * Set xmppHost.
-     *
-     * @param xmppHost The String.
-     */
-    public void setXMPPHost(final String serverHost) {
-        this.xmppHost = serverHost;
-    }
-
-    /**
-     * Set xmppPort.
-     *
-     * @param xmppPort The port.
-     */
-    public void setXMPPPort(final Integer serverPort) {
-        this.xmppPort = serverPort;
-    }
-
-    /**
-     * Set xmppProtocol.
-     *
-     * @param xmppProtocol The XMPPProtocol.
-     */
-    public void setXMPPProtocol(final XMPPProtocol serverProtocol) {
-        this.xmppProtocol = serverProtocol;
+    public Boolean isXMPPTLSEnabled() {
+        return xmppTLSEnabled;
     }
 
     /**
@@ -215,14 +188,11 @@ public enum Environment {
         return new StringBuffer(getClass().getName()).append("//")
                 .append(xmppHost)
                 .append("/").append(xmppPort)
+                .append("/").append(xmppTLSEnabled)
+                .append("/").append(xmppService)
                 .append("/").append(streamHost)
                 .append("/").append(streamPort)
+                .append("/").append(streamTLSEnabled)
                 .toString();
     }
-
-    /** The protocol used by the stream server. */
-    public enum StreamProtocol { TCP }
-
-    /** The protocol used by the xmpp server. */
-    public enum XMPPProtocol { XMPP, XMPPS }
 }

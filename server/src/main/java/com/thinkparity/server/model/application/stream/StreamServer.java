@@ -10,13 +10,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
@@ -55,11 +58,24 @@ final class StreamServer {
      * @param port
      *            A port on which the stream server will listen.
      */
-    StreamServer(final File workingDirectory, final String host, final Integer port) {
+    StreamServer(final File workingDirectory, final Environment environment) {
         super();
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
-        this.socketServer = new StreamSocketServer(this, host, port);
+        final String host;
+        try {
+            host = NetworkUtil.getMachine();
+        } catch (final UnknownHostException uhx) {
+            throw new StreamException(uhx);
+        }
+        final int port = environment.getStreamPort();
+        if (environment.isStreamTLSEnabled()) {
+            logger.logInfo("Stream Server - {0}:{1} - Secure", host, port);
+            this.socketServer = new SecureStreamSocketServer(this, host, port);
+        } else {
+            logger.logInfo("Stream Server - {0}:{1}", host, port);
+            this.socketServer = new StreamSocketServer(this, host, port);
+        }
     }
 
     /**

@@ -8,7 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
+
+import javax.net.SocketFactory;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -35,7 +36,9 @@ public abstract class StreamClient {
 
     private Socket socket;
 
-    private final SocketAddress socketAddress;
+    private final InetSocketAddress socketAddress;
+
+    private final SocketFactory socketFactory;
 
     protected StreamClient(final StreamSession session) {
         super();
@@ -44,6 +47,23 @@ public abstract class StreamClient {
         final Environment environment = session.getEnvironment();
         this.socketAddress = new InetSocketAddress(
                 environment.getStreamHost(), environment.getStreamPort());
+        if (environment.isStreamTLSEnabled()) {
+            logger.logInfo("Stream Client - {0}:{1} - Secure",
+                    environment.getStreamHost(), environment.getStreamPort());
+            final String keyStorePath = "security/client_keystore";
+            final char[] keyStorePassword = "password".toCharArray();
+            try {
+                socketFactory =
+                    com.thinkparity.codebase.net.SocketFactory.getSecureInstance(keyStorePath, keyStorePassword, keyStorePath, keyStorePassword);
+            } catch (final Exception x) {
+                throw new StreamException(x);
+            }
+        } else {
+            logger.logInfo("Stream Client - {0}:{1}",
+                    environment.getStreamHost(), environment.getStreamPort());
+            socketFactory =
+                com.thinkparity.codebase.net.SocketFactory.getInstance();
+        }
     }
 
     protected final void connect(final Type type) {
@@ -102,8 +122,8 @@ public abstract class StreamClient {
 
     private void doConnect() throws IOException {
         logger.logTraceId();
-        socket = new Socket();
-        socket.connect(socketAddress);
+        socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
         input = socket.getInputStream();
         output = socket.getOutputStream();
     }

@@ -1,15 +1,20 @@
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.auth.anonymous', 'true');
+    values('xmpp.auth.anonymous','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain', 'thinkparity.dyndns.org');
+    values('xmpp.domain','thinkparity.dyndns.org');
 insert into jiveProperty (NAME,PROPVALUE)
-    values ('xmpp.server.socket.port', '5269');
+    values('xmpp.server.socket.port','5269');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.socket.plain.port', '5222');
+    values('xmpp.socket.plain.port','5222');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.socket.ssl.port', '5223');
+    values('xmpp.socket.ssl.active','true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('thinkparity.environment', 'PRODUCTION');
+    values('xmpp.socket.ssl.keypass','password');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.socket.ssl.port','5223');
+
+insert into jiveProperty (NAME,PROPVALUE)
+    values('thinkparity.environment','PRODUCTION');
 insert into PARITY_FEATURE (FEATURE)
     values('ARCHIVE');
 
@@ -21,8 +26,6 @@ insert into parityUserEmail (USERNAME,EMAIL,VERIFIED)
     values('thinkparity', 'thinkParity@thinkparity.com', true);
 insert into PARITY_USER_PROFILE (USERNAME,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED)
     values('thinkparity', 'What is my username?', 'thinkparity',false);
-insert into PARITY_USER_FEATURE_REL (USERNAME, FEATURE_ID)
-	values ('thinkparity', 1000);
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('asahebjam','parity',0,0);

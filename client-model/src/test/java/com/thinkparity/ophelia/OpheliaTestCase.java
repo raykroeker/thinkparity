@@ -12,6 +12,9 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.junitx.TestCase;
 import com.thinkparity.codebase.junitx.TestSession;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
+import com.thinkparity.codebase.model.session.Environment;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,26 +22,27 @@ import com.thinkparity.codebase.junitx.TestSession;
  */
 public abstract class OpheliaTestCase extends TestCase {
 
-    /** The JUnit eXtension test session. */
-	static final TestSession testSession;
+    /** The thinkParity <code>Environment</code>. */
+    static final Environment ENVIRONMENT;
 
-    static final String TEST_SERVERHOST = "thinkparity.dyndns.org";
-
-    static final Integer TEST_SERVERPORT = 5224;
+    /** The thinkParity <code>TestSession</code>. */
+	static final TestSession SESSION;
 
 	static {
-        testSession = TestCase.getTestSession();
+        ENVIRONMENT =
+            Environment.valueOf(
+                    System.getProperty(
+                            "thinkparity.environment", "TESTING_LOCALHOST"));
+        new Log4JWrapper().logInfo("Environment:  {0}", ENVIRONMENT);
+        SESSION = TestCase.getTestSession();
+        new Log4JWrapper().logInfo("Session:  {0}", SESSION);
         // init archive
-		initParityArchive(testSession.getOutputDirectory());
+		initParityArchive();
 		// init install
-		initParityInstall(testSession.getOutputDirectory());
+		initParityInstall();
         // reference the class to run the static initializer
         OpheliaTestUser.class.getName();
 	}
-
-    public File getOutputDirectory() {
-        return testSession.getOutputDirectory();
-    }
 
     /**
      * Assert that two byte arrays are equal.
@@ -71,7 +75,8 @@ public abstract class OpheliaTestCase extends TestCase {
      * @param parent
      *            The parent within which to create the archive dir.
      */
-    private static void initParityArchive(final File parent) {
+    private static void initParityArchive() {
+        final File parent = SESSION.getOutputDirectory();
         final File archive = new File(parent, "parity.archive");
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT ARCHIVE]", archive.mkdir());
 
@@ -84,7 +89,8 @@ public abstract class OpheliaTestCase extends TestCase {
      * @param parent
      *            The parent within which to create the install dir.
      */
-    private static void initParityInstall(final File parent) {
+    private static void initParityInstall() {
+        final File parent = SESSION.getOutputDirectory();
         final File install = new File(parent, "parity.install");
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL]", install.mkdir());
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL CORE]", new File(install, "core").mkdir());
@@ -104,6 +110,10 @@ public abstract class OpheliaTestCase extends TestCase {
 	protected OpheliaTestCase(final String name) {
 		super(name);
 	}
+
+    public File getOutputDirectory() {
+        return SESSION.getOutputDirectory();
+    }
 
 	/**
 	 * @see com.thinkparity.codebase.junitx.TestCase#getInputFiles()

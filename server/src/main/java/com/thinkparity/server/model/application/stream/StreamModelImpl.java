@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -186,10 +185,9 @@ final class StreamModelImpl extends AbstractModelImpl {
         logApiId();
         try {
             Assert.assertIsNull("Stream server has been started.", streamServer);
-            final Environment environment = readEnvironment();
             streamServer = new StreamServer(
                     new File((String) jiveProperties.get(JivePropertyNames.THINKPARITY_STREAM_ROOT)),
-                    environment.getStreamHost(), environment.getStreamPort());
+                    readEnvironment());
             streamServer.start();
         } catch (final Throwable t) {
             throw translateError(t);

@@ -45,14 +45,11 @@ public class WindowTitle extends javax.swing.JPanel {
     
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
-    
-    /** The Resizer */
-    private final Resizer resizer;
 
     /** Creates new form WindowTitle */
     public WindowTitle(final String title) {
         initComponents();
-        this.resizer = new Resizer(null, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
+        new Resizer(null, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
         titleJLabel.setText(title);
         closeJLabel.addMouseListener(new MouseAdapter() {
             @Override

@@ -3,29 +3,21 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.dnd;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+
+import org.apache.log4j.Logger;
 
 /**
  * An import transfer handler for drag'n'drop. The tx handler has the ability to
@@ -39,18 +31,6 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
  */
 public class ImportTxHandler extends TransferHandler {
 
-    /** An apache logger error statement. */
-    private static final String IMPORT_IOX = "[BROWSER2] [APP] [B2]  [DND] [IMPORT DATA] [IO ERROR]";
-
-    /** An apache logger error statement. */
-    private static final String IMPORT_MX = "[BROWSER2] [APP] [B2]  [DND] [IMPORT DATA] [MOUSE INFO ERROR]";
-
-    /** An apache logger error statement. */
-    private static final String IMPORT_UFX = "[BROWSER2] [APP] [B2]  [DND] [IMPORT DATA] [UNSUPPORTED DATA FORMAT]";
-    
-    /** An apache logger error statement. */
-    private static final String IMPORT_X = "[BROWSER2] [APP] [B2]  [DND] [IMPORT DATA] [ERROR]";
-
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
@@ -60,12 +40,6 @@ public class ImportTxHandler extends TransferHandler {
     /** The browser application. */
     private final Browser browser;
     
-    /** The model */
-    private ContainerModel containerModel;
-    
-    /** The list we are droping on. */
-    private final JList jList;
-
     /**
      * Create CreateDocumentTxHandler.
      * 
@@ -80,8 +54,6 @@ public class ImportTxHandler extends TransferHandler {
             final ContainerModel containerModel) {
         super();
         this.browser = browser;
-        this.containerModel = containerModel;
-        this.jList = jList;
         this.logger = Logger.getLogger(getClass());
     }
 
@@ -108,81 +80,5 @@ public class ImportTxHandler extends TransferHandler {
      */
     public boolean importData(final JComponent comp, final Transferable t) {
     	throw Assert.createNotYetImplemented("importData()");
-    }
-
-    private boolean createPackage(final Transferable t) {
-        File[] files = null;
-        try {
-            files = TxUtils.extractFiles(t);
-        } catch (final IOException iox) {
-            logger.error(IMPORT_IOX, iox);
-        } catch (final UnsupportedFlavorException ufx) {
-            logger.error(IMPORT_UFX, ufx);
-            return false;
-        }
-        
-        // Determine the list of files to add to a new package. Check if the user
-        // is trying to drag folders.
-        final List<File> fileList = new LinkedList<File>();
-        Boolean foundFolders = Boolean.FALSE;
-        Boolean foundFiles = Boolean.FALSE;
-        for (final File file : files) {
-            if (file.isDirectory()) {
-                foundFolders = Boolean.TRUE;
-            } else {
-                foundFiles = Boolean.TRUE;
-                fileList.add(file);
-            }
-        }
-        
-        // Report an error if the user tries to drag folders. If the user drags
-        // a mix of files and folders then we will still create a package.
-        if (foundFolders) {
-            browser.displayErrorDialog("ErrorCreatePackageIsFolder");
-        }
-        
-        // Create a package and add documents.
-        if (foundFiles) {
-            browser.runCreateContainer(fileList);
-        }
-        
-        return true;
-    }
-    
-    private Boolean pointBelowLastJListEntry(final JList jList) {
-        Boolean below = Boolean.FALSE;
-        try {
-            // These points are in screen coordinate space.
-            Point pointJListTopLeft = jList.getLocationOnScreen();            
-            Point pointScreen = MouseInfo.getPointerInfo().getLocation();
-            Point pointJListRelative = new Point(
-                    (int) (pointScreen.getX() - pointJListTopLeft.getX()),
-                    (int) (pointScreen.getY() - pointJListTopLeft.getY()));
-            
-            final Integer listIndex = jList.locationToIndex(pointJListRelative);
-            final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-            if (!SwingUtil.regionContains(cellBounds,pointJListRelative)) {
-                below = Boolean.TRUE;
-            }
-        }
-        catch(Exception mx) {
-            logger.error(IMPORT_MX, mx);
-        }
-        
-        return below;    
-    }
-
-    /**
-     * Run the update document draft action via the browser.
-     * 
-     * @param containerId
-     *          A container id.
-     * @param documentId
-     *          A document id.
-     * @param file
-     *		A file.
-     */
-    private void runUpdateDocumentDraft(final Long containerId, final Long documentId, final File file) {
-    	Assert.assertNotYetImplemented("runUpdateDocumentDraft");
     }
 }

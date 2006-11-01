@@ -15,9 +15,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class AddBookmark extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
-
     /**
      * Add bookmark.
      * 
@@ -26,7 +23,6 @@ public class AddBookmark extends AbstractAction {
      */
     public AddBookmark(final Browser browser) {
         super(ActionId.CONTAINER_ADD_BOOKMARK);
-        this.browser = browser;
     }
     
     /**

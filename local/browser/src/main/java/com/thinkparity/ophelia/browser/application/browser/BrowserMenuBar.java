@@ -9,7 +9,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.MessageFormat;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -196,7 +195,6 @@ public class BrowserMenuBar extends JMenuBar {
     
     private JLabel getSignUpButton() {
         final javax.swing.JLabel signUpJLabel = new JLabel(" Sign-Up ");
-        final String originalText = signUpJLabel.getText();
         signUpJLabel.setForeground(new Color(249, 162, 94, 255));
         signUpJLabel.setFont(Fonts.DefaultFontBold);
         // The next line prevents the label getting wider than it needs to be.
@@ -204,13 +202,10 @@ public class BrowserMenuBar extends JMenuBar {
         signUpJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                final String text = signUpJLabel.getText();
-                //signUpJLabel.setText(MessageFormat.format("<html><u>{0}</u></html>", text));
                 signUpJLabel.setBorder(new LineBorder(new Color(249, 162, 94, 255)));
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                //signUpJLabel.setText(MessageFormat.format("<html>{0}</html>", originalText));
                 signUpJLabel.setBorder(null);   
             }
             @Override

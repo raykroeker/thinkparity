@@ -15,9 +15,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class RemoveBookmark extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
-
     /**
      * Remove bookmark.
      * 
@@ -26,7 +23,6 @@ public class RemoveBookmark extends AbstractAction {
      */
     public RemoveBookmark(final Browser browser) {
         super(ActionId.CONTAINER_REMOVE_BOOKMARK);
-        this.browser = browser;
     }
         
     /**

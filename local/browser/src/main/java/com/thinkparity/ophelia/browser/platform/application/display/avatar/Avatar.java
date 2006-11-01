@@ -23,7 +23,6 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
 
@@ -126,43 +125,12 @@ public abstract class Avatar extends AbstractJPanel {
 		this.scrollPolicy = scrollPolicy;
 	}
     
-	/** A <code>NativeSkin</code> library helper. */
-    private final NativeSkin nativeSkin = new NativeSkin();
-
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-// This code is waiting to see what dialog design Omid prefers.
-/*        if (nativeSkin.isRounded()) {
-            final Graphics g2 = g.create();
-            try {           
-                // These images help to make the rounded corners look good.
-                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT_INNER,
-                        0,
-                        0,
-                        Images.BrowserTitle.DIALOG_TOP_LEFT_INNER.getWidth(),
-                        Images.BrowserTitle.DIALOG_TOP_LEFT_INNER.getHeight(), this);
-                g2.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER,
-                        0,
-                        getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getHeight(),
-                        Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getWidth(),
-                        Images.BrowserTitle.DIALOG_BOTTOM_LEFT_INNER.getHeight(), this);
-                g2.drawImage(Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER,
-                        getSize().width - Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getWidth(),
-                        0,
-                        Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getWidth(),
-                        Images.BrowserTitle.DIALOG_TOP_RIGHT_INNER.getHeight(), this);
-                g2.drawImage(Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER,
-                        getSize().width - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
-                        getSize().height - Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getHeight(),
-                        Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
-                        Images.BrowserTitle.DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
-            }
-            finally { g2.dispose(); }
-        }*/
     }
 
     /**

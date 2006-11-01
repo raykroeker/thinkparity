@@ -160,9 +160,25 @@ public interface XMPPSession {
      */
     public void createDraft(final UUID uniqueId);
 
+    /**
+     * Create a stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A stream id <code>String</code>.
+     */
     public String createStream(final JabberId userId,
             final StreamSession session);
 
+    /**
+     * Create a stream session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>StreamSession</code>.
+     */
     public StreamSession createStreamSession(final JabberId userId);
 
     /**
@@ -185,14 +201,6 @@ public interface XMPPSession {
      */
     public void declineInvitation(final EMail invitedAs,
             final JabberId invitedBy);
-
-    /**
-     * Delete an artifact
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     */
-    public void deleteArtifact(final UUID uniqueId);
 
     /**
      * Delete a contact.
@@ -225,9 +233,27 @@ public interface XMPPSession {
      */
     public void deleteDraft(final UUID uniqueId);
 
+    /**
+     * Delete a stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
     public void deleteStream(final JabberId userId,
             final StreamSession session, final String streamId);
 
+    /**
+     * Delete a stream session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
     public void deleteStreamSession(final JabberId userId,
             final StreamSession session);
 
@@ -300,7 +326,6 @@ public interface XMPPSession {
     /**
      * Process events queued on the server since last login.
      * 
-     * @throws SmackException
      */
     public void processOfflineQueue(final JabberId userId);
 
@@ -317,7 +342,6 @@ public interface XMPPSession {
      *            By whom the container was published.
      * @param publishedOn
      *            When the container was published.
-     * @throws SmackException
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
@@ -504,14 +528,6 @@ public interface XMPPSession {
     public List<Contact> readContacts(final JabberId userId);
 
     /**
-     * Read the logged in user.
-     * 
-     * @return The user info.
-     * @throws SmackException
-     */
-	public User readCurrentUser();
-
-    /**
      * Read the artifact key holder.
      * 
      * @param uniqueId
@@ -519,6 +535,7 @@ public interface XMPPSession {
      * @return A jabber id.
      */
 	public JabberId readKeyHolder(final JabberId userId, final UUID uniqueId);
+
     /**
      * Read the user's profile.
      * 
@@ -542,6 +559,15 @@ public interface XMPPSession {
      */
     public String readProfileSecurityQuestion(final JabberId userId);
 
+    /**
+     * Read a stream session.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param sessionId
+     *            A stream session id <code>String</code>.
+     * @return A <code>StreamSession</code>.
+     */
     public StreamSession readStreamSession(final JabberId userId,
             final String sessionId);
 
@@ -555,20 +581,45 @@ public interface XMPPSession {
     public Token readToken(final JabberId userId);
 
     /**
-     * Read a set of users.
+     * Read a user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * 
      * @return A <code>User</code>.
      */
     public User readUser(final JabberId userId);
 
+    /**
+     * Remove an artifact listener.
+     * 
+     * @param listener
+     *            An <code>ArtifactListener</code>.
+     */
     public void removeListener(final ArtifactListener listener);
 
+    /**
+     * Remove a contact listener.
+     * 
+     * @param listener
+     *            A <code>ContactListener</code>.
+     */
     public void removeListener(final ContactListener listener);
 
+    /**
+     * Remove a container listener.
+     * 
+     * @param listener
+     *            An <code>ContainerListener</code>.
+     */
     public void removeListener(final ContainerListener listener);
 
+    /**
+     * Remove a session listener.
+     * 
+     * @param listener
+     *            A <code>SessionListener</code>.
+     */
     public void removeListener(final SessionListener listener);
 
     /**

@@ -5,12 +5,13 @@ package com.thinkparity.ophelia.model.session;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -121,16 +122,6 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
 	public void logout() {
 		synchronized(getImplLock()) { getImpl().logout(); }
 	}
-
-	/**
-     * Read the logged in user's session.
-     * 
-     * @return The logged in user's session.
-     * @throws ParityException
-     */
-    public Session readSession() {
-        synchronized(getImplLock()) { return getImpl().readSession(); }
-    }
 
 	/**
 	 * Remove a session listener from the session.

@@ -3,13 +3,13 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.filter.PacketFilter;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
+
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.filter.PacketFilter;
 
 /**
  * Provides core xmpp functionality.

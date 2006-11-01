@@ -200,7 +200,6 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         }, HandleArtifactReceivedIQ.class);
 	}
 
-
 	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
      */

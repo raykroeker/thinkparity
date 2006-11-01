@@ -8,8 +8,15 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
+import com.thinkparity.ophelia.model.util.xmpp.events.StreamListener;
 
-final class XMPPStream extends AbstractXMPP {
+/**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
+final class XMPPStream extends AbstractXMPP<StreamListener> {
 
     /**
      * Create XMPPSystem.

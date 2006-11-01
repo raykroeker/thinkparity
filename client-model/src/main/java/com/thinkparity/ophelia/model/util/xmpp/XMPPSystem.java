@@ -6,8 +6,9 @@ package com.thinkparity.ophelia.model.util.xmpp;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
+import com.thinkparity.ophelia.model.util.xmpp.events.SystemListener;
 
-final class XMPPSystem extends AbstractXMPP {
+final class XMPPSystem extends AbstractXMPP<SystemListener> {
 
     /**
      * Create XMPPSystem.

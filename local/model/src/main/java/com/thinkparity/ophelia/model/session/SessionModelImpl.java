@@ -23,7 +23,6 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.session.Session;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
@@ -271,26 +270,6 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
 		}
 	}
-
-    /**
-     * Delete an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    void deleteArtifact(final UUID uniqueId) {
-        logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                xmppSession.deleteArtifact(uniqueId);
-            }
-        }
-        catch(final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
 	/**
      * Delete a contact.
@@ -983,43 +962,6 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readProfileSecurityQuestion(userId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Read the logged in user's session.
-     * 
-     * @return The logged in user's session.
-     */
-    Session readSession() {
-        logger.logApiId();
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                final Session session = new Session();
-                session.setJabberId(xmppSession.readCurrentUser().getId());
-                return session;
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Read the session user's user info.
-     * 
-     * @return thinkParity user info.
-     * @throws ParityException
-     */
-	User readUser() {
-        logger.logApiId();
-        try {
-            final XMPPSession xmppSession = workspace.getXMPPSession();
-            synchronized (xmppSession) {
-                return xmppSession.readCurrentUser();
             }
         } catch (final Throwable t) {
             throw translateError(t);

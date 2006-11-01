@@ -7,6 +7,7 @@ package com.thinkparity.ophelia;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.junitx.TestCase;
 import com.thinkparity.codebase.junitx.TestSession;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
@@ -59,6 +61,24 @@ public abstract class OpheliaTestCase extends TestCase {
         assertEquals(new StringBuffer(assertion).append(" [BYTE ARRAY LENGTH DOES NOT MATCH EXPECTATION]").toString(), expected.length, actual.length);
         for(int i = 0; i < expected.length; i++) {
             assertEquals(new StringBuffer(assertion).append(" [BYTE AT POSITION ").append(i).append(" DOES NOT MATCH EXPECTATION]").toString(), expected[i], actual[i]);
+        }
+    }
+
+    /**
+     * Assert a list of flags is equal.
+     * 
+     * @param expected
+     *            An exepected <code>ArtifactFlag</code> <code>List</code>.
+     * @param actual
+     *            An actual <code>ArtifactFlag</code> <code>List</code>.
+     */
+    protected static void assertEquals(final String assertion,
+            final List<ArtifactFlag> expected, final List<ArtifactFlag> actual) {
+        for (final ArtifactFlag expectedFlag : expected) {
+            assertTrue(assertion + "  Expected flag not present.", actual.contains(expectedFlag));
+        }
+        for (final ArtifactFlag actualFlag : actual) {
+            assertTrue(assertion + " Actual flag not present.", expected.contains(actualFlag));
         }
     }
 

@@ -162,18 +162,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
-     * Delete an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    public void deleteArtifact(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteArtifact(uniqueId);
-        }
-    }
-
-    /**
      * Delete a contact.
      * 
      * @param userId
@@ -235,18 +223,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            An <code>EMail</code> to invite.
      */
     public void extendInvitation(final EMail extendTo) {
-        synchronized(getImplLock()) { getImpl().extendInvitation(extendTo); }
+        synchronized (getImplLock()) {
+            getImpl().extendInvitation(extendTo);
+        }
     }
-
-    /**
-	 * Obtain the currently logged in user.
-	 * 
-	 * @return The logged in user.
-	 * @throws ParityException
-	 */
-	public User getLoggedInUser() throws ParityException {
-		synchronized(getImplLock()) { return getImpl().readUser(); }
-	}
 
     /**
      * Handle the remote session established event.

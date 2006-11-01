@@ -168,7 +168,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
             final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) throws IOException {
+            final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);

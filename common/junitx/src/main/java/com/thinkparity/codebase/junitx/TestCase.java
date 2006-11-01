@@ -8,13 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.text.MessageFormat;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.log4j.Log4JHelper;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 
 /**
@@ -27,10 +23,6 @@ import com.thinkparity.codebase.log4j.Log4JHelper;
  */
 public abstract class TestCase extends junit.framework.TestCase {
 
-    protected static void assertEquals(final Iterable expected, final Iterable actual) {}
-
-	protected static void assertEquals(final String message, final Iterable expected, final Iterable actual) {}
-
 	/**
 	 * Obtain the test session.
 	 * 
@@ -40,28 +32,22 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger testLogger;
+	/** An apache logger wrapper. */
+	protected final Log4JWrapper logger;
 
-	/**
-	 * The test case helper class.
-	 * 
-	 */
+	/** A <code>TestCaseHelper</code>. */
 	private final TestCaseHelper testCaseHelper;
 
 	/**
-	 * Create a TestCase.
-	 * 
-	 * @param name
-	 *            The test name.
-	 */
+     * Create TestCase.
+     * 
+     * @param name
+     *            The test case name.
+     */
 	protected TestCase(final String name) {
 		super(name);
 		this.testCaseHelper = new TestCaseHelper(this);
-		this.testLogger = Logger.getLogger(getClass());
+		this.logger = new Log4JWrapper(getClass());
 	}
 
 	/**
@@ -196,11 +182,8 @@ public abstract class TestCase extends junit.framework.TestCase {
      * @param arguments
      *            The pattern arguments.
      */
-    protected void logDebug(final String pattern, final Object... arguments) {
-        if (testLogger.isDebugEnabled()) {
-            testLogger.debug(MessageFormat.format(pattern,
-                    Log4JHelper.render(testLogger, arguments)));
-        }
+    protected void logDebug(final String debugPattern, final Object... debugArguments) {
+        logger.logDebug(debugPattern, debugArguments);
     }
 
     /**
@@ -211,11 +194,8 @@ public abstract class TestCase extends junit.framework.TestCase {
      * @param arguments
      *            The pattern arguments.
      */
-    protected void logTrace(final String pattern, final Object... arguments) {
-        if (testLogger.isTraceEnabled()) {
-            testLogger.trace(MessageFormat.format(pattern,
-                    Log4JHelper.render(testLogger, arguments)));
-        }
+    protected void logTrace(final String tracePattern, final Object... traceArguments) {
+        logger.logTrace(tracePattern, traceArguments);
     }
 
     /**
@@ -226,11 +206,9 @@ public abstract class TestCase extends junit.framework.TestCase {
      * @param arguments
      *            The pattern arguments.
      */
-	protected void logWarning(final String pattern, final Object... arguments) {
-        if (testLogger.isEnabledFor(Level.WARN)) {
-            testLogger.warn(MessageFormat.format(pattern,
-                    Log4JHelper.render(testLogger, arguments)));
-        }
+	protected void logWarning(final String warningPattern,
+            final Object... warningArguments) {
+	    logger.logWarning(warningPattern, warningArguments);
     }
 
 	/**
@@ -248,7 +226,8 @@ public abstract class TestCase extends junit.framework.TestCase {
      */
     @Override
     protected void setUp() throws Exception {
-        logTrace("{0} - Set up.", getName());
+        super.setUp();
+        logger.logTraceId();
     }
 
     /**
@@ -256,7 +235,8 @@ public abstract class TestCase extends junit.framework.TestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        logTrace("{0} - Tear down.", getName());
+        logger.logTraceId();
+        super.tearDown();
     }
 
     /**

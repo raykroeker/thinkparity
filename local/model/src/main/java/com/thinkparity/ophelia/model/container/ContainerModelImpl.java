@@ -770,7 +770,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             containerIO.updatePublishedTo(containerId, versionId, receivedBy,
                     receivedOn);
-            logger.logTraceId();
+            notifyContainerUpdated(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

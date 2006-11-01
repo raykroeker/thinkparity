@@ -33,7 +33,7 @@ public enum Environment {
     TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20001, Boolean.TRUE),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20002, Boolean.TRUE);
+    TESTING_LOCALHOST("localhost", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "localhost", 20001, Boolean.TRUE);
 
     /** The stream server host. */
     private final transient String streamHost;

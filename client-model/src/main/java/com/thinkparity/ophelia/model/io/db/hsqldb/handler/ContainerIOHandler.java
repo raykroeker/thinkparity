@@ -100,12 +100,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
             .toString();
 
-    /** Sql to delete the shared with user list. */
-    private static final String SQL_DELETE_SHARED_WITH =
-            new StringBuffer("delete from CONTAINER_VERSION_SHARED_WITH ")
-            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
-            .toString();
-
     /** Sql to delete a container version. */
     private static final String SQL_DELETE_VERSION =
             new StringBuffer("delete from CONTAINER_VERSION ")
@@ -238,13 +232,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("and CV.CONTAINER_VERSION_ID=CVSW.CONTAINER_VERSION_ID ")
             .append("inner join USER U on CVSW.USER_ID=U.USER_ID ")
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
-            .toString();
-
-    /** Sql to read the shared with count. */
-    private static final String SQL_READ_SHARED_WITH_COUNT =
-            new StringBuffer("select COUNT(*) SHARED_WITH_COUNT ")
-            .append("from CONTAINER_VERSION_SHARED_WITH CVSW ")
-            .append("where CVSW.CONTAINER_ID=? and CVSW.CONTAINER_VERSION_ID=? ")
             .toString();
 
     /** Sql to read a container version. */
@@ -542,23 +529,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteSharedWith(java.lang.Long, java.lang.Long)
-     */
-    public void deleteSharedWith(final Long containerId, final Long versionId) {
-        final Session session = openSession();
-        try {
-            deleteSharedWith(session, containerId, versionId);
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -575,8 +545,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 throw translateError(
                         "Could only delete {0} of {1} published to rows.",
                         publishedToDeleted, publishedToCount);
-
-            deleteSharedWith(session, containerId, versionId);
 
             session.prepareStatement(SQL_DELETE_VERSION);
             session.setLong(1, containerId);
@@ -887,18 +855,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setCalendar(1, receivedOn);
             session.setLong(2, containerId);
             session.setLong(3, versionId);
-            logger.logTraceId();
             session.setLong(4, readLocalId(userId));
-            logger.logTraceId();
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update container version published to list.");
+
             session.commit();
-            logger.logTraceId();
         } catch (final HypersonicException hx) {
             session.rollback();
             throw hx;
         } finally {
-            logger.logTraceId();
             session.close();
-            logger.logTraceId();
         }
     }
 
@@ -988,26 +954,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
-     * Delete the shared with list for the container version.
-     * 
-     * @param session
-     *            A database <code>Session</code>.
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Logn</code>.
-     */
-    private void deleteSharedWith(final Session session,
-            final Long containerId, final Long versionId) {
-        final Integer sharedWithCount = readSharedWithCount(containerId, versionId);
-        session.prepareStatement(SQL_DELETE_SHARED_WITH);
-        session.setLong(1, containerId);
-        session.setLong(1, versionId);
-        if (sharedWithCount != session.executeUpdate())
-            throw new HypersonicException("Could not delete shared with entry.");
-    }
-
     private DocumentVersion extractDocumentVersion(final Session session) {
         final DocumentVersion dv = new DocumentVersion();
         dv.setArtifactId(session.getLong("DOCUMENT_ID"));
@@ -1072,30 +1018,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             session.nextResult();
             return session.getInteger("PUBLISHED_TO_COUNT");
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Read the number of shared with rows.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A row count <code>Integer</code>.
-     */
-    private Integer readSharedWithCount(final Long containerId,
-            final Long versionId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_SHARED_WITH_COUNT);
-            session.setLong(1, containerId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            session.nextResult();
-            return session.getInteger("SHARED_WITH_COUNT");
         } finally {
             session.close();
         }

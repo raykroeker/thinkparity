@@ -121,16 +121,6 @@ public interface ContainerIOHandler {
             final Long artifactId);
 
     /**
-     * Delete the shared with list for a container version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     */
-    public void deleteSharedWith(final Long containerId, final Long versionId);
-
-    /**
      * Delete a container version.
      * 
      * @param containerId

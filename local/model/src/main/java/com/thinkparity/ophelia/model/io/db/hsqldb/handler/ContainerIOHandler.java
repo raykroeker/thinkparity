@@ -566,11 +566,11 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public void deleteVersion(Long containerId, Long versionId) {
         final Session session = openSession();
         try {
-            final Integer publishedToCount = readPublishedToCount(containerId, versionId);
+            final int publishedToCount = readPublishedToCount(containerId, versionId);
             session.prepareStatement(SQL_DELETE_PUBLISHED_TO);
             session.setLong(1, containerId);
             session.setLong(2, versionId);
-            final Integer publishedToDeleted = session.executeUpdate();
+            final int publishedToDeleted = session.executeUpdate();
             if (publishedToCount != publishedToDeleted)
                 throw translateError(
                         "Could only delete {0} of {1} published to rows.",

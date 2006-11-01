@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.util.localization;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 /**
  * Localization helper used by abstract JFrames. To use this utility; you will
  * need to inherit from AbstractJFrame and use the wrapped getXXX apis; or
@@ -18,10 +20,7 @@ import java.util.ResourceBundle;
  */
 public class JFrameLocalization {
 
-	/**
-	 * Resource bundle.
-	 * 
-	 */
+	/** A <code>ResourceBundle</code>. */
 	private static final ResourceBundle RESOURCE_BUNDLE;
 
 	static {
@@ -29,21 +28,41 @@ public class JFrameLocalization {
 			ResourceBundleManager.getBundle(ResourceBundleType.JFRAME);
 	}
 
-	/**
-	 * Resource bundle helper.
-	 * 
-	 */
+	/** A <code>ResourceBundleHelper</code>. */
 	protected final ResourceBundleHelper bundleHelper;
 
-	/**
-	 * Create a JFrameLocalization.
-	 * 
-	 */
+	/** An apache logger wrapper. */
+    protected final Log4JWrapper logger;
+
+    /**
+     * Create JFrameLocalization.
+     * 
+     * @param l18nContext
+     *            A localization context <code>String</code>.
+     */
 	public JFrameLocalization(final String l18nContext) {
 		super();
+        this.logger = new Log4JWrapper();
 		this.bundleHelper =
 			new ResourceBundleHelper(RESOURCE_BUNDLE, l18nContext);
 	}
+
+	/**
+     * Obtain a localized integer.
+     * 
+     * @param localKey
+     *            A local key <code>String</code>.
+     * @return An <code>Integer</code>.
+     */
+    public Integer getInteger(final String localKey) {
+        try {
+            return Integer.valueOf(getString(localKey));
+        } catch (final NumberFormatException nfx) {
+            logger.logWarning("Cannot format {0} for key {1}.",
+                    getString(localKey), localKey);
+            return 0;
+        }
+    }
 
 	/**
 	 * Obtain a localized string.
@@ -57,7 +76,7 @@ public class JFrameLocalization {
 		return bundleHelper.getString(localKey);
 	}
 
-	/**
+    /**
 	 * Obtain a localized string.
 	 * 
 	 * @param localKey

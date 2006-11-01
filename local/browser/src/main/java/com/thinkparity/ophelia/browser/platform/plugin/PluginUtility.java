@@ -51,7 +51,7 @@ abstract class PluginUtility {
         } else {
             final String errorId = new ErrorHelper().getErrorId(t);
             logger.logError(t, errorId);
-            return PluginException.translate(errorId.toString(), t);
+            return PluginException.translate(errorId, t);
         }
     }
 }

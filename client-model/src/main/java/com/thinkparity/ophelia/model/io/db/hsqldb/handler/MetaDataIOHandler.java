@@ -165,7 +165,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 			throws HypersonicException {
 		session.prepareStatement(SQL_CREATE);
 		session.setTypeAsInteger(1, metaDataType);
-		session.setString(2, metaDataKey.toString());
+		session.setString(2, metaDataKey);
 		setValue(session, 3, metaDataType, metaDataValue);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create meta data:  " + metaDataKey);

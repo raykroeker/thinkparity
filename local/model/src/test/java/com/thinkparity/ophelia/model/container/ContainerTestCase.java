@@ -109,7 +109,9 @@ abstract class ContainerTestCase extends ModelTestCase {
      * @see junit.framework.TestCase#tearDown()
      * 
      */
-    protected void tearDown() throws Exception {}
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
     /**
      * <b>Title:</b>thinkParity Container Test Fixture<br>

@@ -22,13 +22,13 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
  */
 public class MenuFactory {
 
+	/** The count of popup menus. */
+    private static Integer popupMenuCount = 0;
+
 	/** A singleton instance. */
 	private static final MenuFactory SINGLETON;
-
-	static { SINGLETON = new MenuFactory(); }
     
-    /** The count of popup menus. */
-    private static Integer popupMenuCount = 0;
+    static { SINGLETON = new MenuFactory(); }
 
     /**
      * Create a JMenu.
@@ -42,15 +42,15 @@ public class MenuFactory {
     }
 
     /**
-     * Create a JMenu.
+     * Create a menu.
      * 
      * @param text
-     *          The menu text.
+     *            The menu text <code>String</code>.
      * @param mnemonic
-     *          The mnemonic.
-     * @return The JMenu.
+     *            The menu mnemonic <code>String</code>.
+     * @return A <code>JMenu</code>.
      */
-    public static JMenu create(final String text, final Integer mnemonic) {
+    public static JMenu create(final String text, final String mnemonic) {
         return SINGLETON.doCreate(text, mnemonic);
     }
 
@@ -79,7 +79,30 @@ public class MenuFactory {
 	 */
 	private MenuFactory() { super(); }
 
-	/**
+	private JMenu doCreate(final String text) {
+        final BrowserMenu browserMenu = new BrowserMenu(text);
+        // Note that background is transparent so it won't draw.
+        // Then, browserMenu overrides paintComponent to paint a gradient.
+        browserMenu.setBackground(new Color(255, 255, 255, 0));
+        return browserMenu;
+    }
+
+    /**
+     * Create a menu.
+     * 
+     * @param text
+     *            The menu text.
+     * @param mnemonic
+     *            The menu mnemonic.
+     * @return A <code>JMenu</code>.
+     */
+    private JMenu doCreate(final String text, final String mnemonic) {
+        final JMenu jMenu = doCreate(text);
+        jMenu.setMnemonic(Integer.valueOf(mnemonic.charAt(0)));
+        return jMenu;
+    }
+
+    /**
 	 * Create a JPopupMenu.
 	 * 
 	 * @return The JPopupMenu.
@@ -105,18 +128,4 @@ public class MenuFactory {
         
 		return jPopupMenu;
 	}
-
-    private JMenu doCreate(final String text) {
-        final BrowserMenu browserMenu = new BrowserMenu(text);
-        // Note that background is transparent so it won't draw.
-        // Then, browserMenu overrides paintComponent to paint a gradient.
-        browserMenu.setBackground(new Color(255,255,255,0));
-        return browserMenu;
-        }
-    
-    private JMenu doCreate(final String text, final Integer mnemonic) {
-        final JMenu jMenu = doCreate(text);
-        jMenu.setMnemonic(mnemonic);
-        return jMenu;
-    }
 }

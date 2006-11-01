@@ -292,7 +292,7 @@ public class PopupItemFactory extends AbstractFactory {
          */
         private void setMnemonicAndAccelerator() {
             if (action.isSetMnemonic()) {
-                putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
+                putValue(MNEMONIC_KEY, Integer.valueOf(action.getMnemonic().charAt(0)));
             }
             if (action.isSetAccelerator()) {
                 putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(action.getAccelerator())); 

@@ -42,7 +42,7 @@ class TrayMenuBuilder {
             public void actionPerformed(final ActionEvent e) {
                 application.runRestoreBrowser();
             }};
-        this.browser.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.BrowserMnemonic").charAt(0)));
+        this.browser.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.BrowserMnemonic").charAt(0)));
 
         if(application.isDevelopmentMode()) {
             this.restart = new AbstractAction(getString("Menu.Restart")) {
@@ -51,7 +51,7 @@ class TrayMenuBuilder {
                     application.runRestartPlatform();
                 }
             };
-            this.restart.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.RestartMnemonic").charAt(0)));
+            this.restart.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.RestartMnemonic").charAt(0)));
         }
         else { this.restart = null; }
 
@@ -60,7 +60,7 @@ class TrayMenuBuilder {
             public void actionPerformed(final ActionEvent e) {
                 application.runExitPlatform();
             }};
-        this.exit.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.ExitMnemonic").charAt(0)));
+        this.exit.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.ExitMnemonic").charAt(0)));
     }
 
     /**

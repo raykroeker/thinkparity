@@ -60,7 +60,7 @@ public class GetTest extends DocumentTestCase {
 			data.add(new Fixture(document, documentModel, documentId));
 		}
 		// add an element where no document is found
-		data.add(new Fixture(null, documentModel, new Long(-1L)));
+		data.add(new Fixture(null, documentModel, -1L));
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class GetTest extends DocumentTestCase {
 	 * @see GetTest#setUp()
 	 * @see GetTest#tearDown()
 	 */
-	private class Fixture {
+	private static class Fixture {
 		private final Document document;
 		private final Long documentId;
 		private final DocumentModel documentModel;

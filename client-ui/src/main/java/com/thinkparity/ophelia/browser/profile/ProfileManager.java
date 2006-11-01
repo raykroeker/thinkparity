@@ -189,9 +189,12 @@ public class ProfileManager {
         }
         catch(final InterruptedException ix) { throw new BrowserException("", ix); }
         catch(final InvocationTargetException itx) { throw new BrowserException("", itx); }
-        synchronized(window) {
-            try { window.wait(); }
-            catch(final InterruptedException ix) { throw new BrowserException("", ix); }
+        synchronized (window) {
+            try {
+                window.wait();
+            } catch (final InterruptedException ix) {
+                throw new BrowserException("", ix);
+            }
         }
     }
 

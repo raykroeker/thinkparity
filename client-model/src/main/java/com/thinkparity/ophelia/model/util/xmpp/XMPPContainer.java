@@ -48,8 +48,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandlePublishedIQ query = new HandlePublishedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("uniqueId")) {
                         query.uniqueId = readUniqueId2();
                     } else if (isStartTag("versionId")) {
@@ -65,7 +65,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                     } else if (isStartTag("publishedOn")) {
                         query.publishedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -75,8 +75,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleArtifactPublishedIQ query = new HandleArtifactPublishedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while(Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while(false == isComplete) {
                     if (isStartTag("uniqueId")) {
                         query.containerUniqueId = readUniqueId2();
                     } else if(isStartTag("versionId")) {
@@ -104,7 +104,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                     } else if (isStartTag("publishedOn")) {
                         query.publishedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;

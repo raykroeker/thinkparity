@@ -61,6 +61,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+        super.tearDown();
 	}
 
 	/**
@@ -69,7 +70,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 	 * @see GetWorkspaceTest#setUp()
 	 * @see GetWorkspaceTest#tearDown()
 	 */
-	private class Fixture {
+	private static class Fixture {
         private final OpheliaTestUser testUser;
 		private final WorkspaceModel workspaceModel;
 		private Fixture(final OpheliaTestUser testUser,

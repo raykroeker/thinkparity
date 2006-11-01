@@ -399,8 +399,8 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
     }                                          
 
     private void tabJListValueChanged(javax.swing.event.ListSelectionEvent e) {                                      
-        final Integer newSelectedIndex = tabJList.getSelectedIndex();
-        final Integer lastIndex = tabJList.getModel().getSize() - 1;
+        final int newSelectedIndex = tabJList.getSelectedIndex();
+        final int lastIndex = tabJList.getModel().getSize() - 1;
         
         // The first time here, or if the current selection is the last item
         // in the list, or if the new selection is not the last item in

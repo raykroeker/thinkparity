@@ -150,19 +150,16 @@ public class BrowserMenuBar extends JMenuBar {
         });
 
         // Create JMenus
-        final JMenu newMenu = MenuFactory.create(localization.getString("New"),
-                new Integer(localization.getString("NewMnemonic").charAt(0)));
+        final JMenu newMenu = MenuFactory.create(localization.getString("New"), localization.getString("NewMnemonic"));
         this.add(Box.createRigidArea(new Dimension(6,0))); 
-  newMenu.setBorder(new LineBorder(Color.WHITE));
+        newMenu.setBorder(new LineBorder(Color.WHITE));
   
         this.add(newMenu);
         
-        final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"),
-                new Integer(localization.getString("ProfileMnemonic").charAt(0)));
+        final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"), localization.getString("ProfileMnemonic"));
         this.add(Box.createRigidArea(new Dimension(2,0)));  
         this.add(profileMenu);
-        final JMenu helpMenu = MenuFactory.create(localization.getString("Help"),
-                new Integer(localization.getString("HelpMnemonic").charAt(0)));
+        final JMenu helpMenu = MenuFactory.create(localization.getString("Help"), localization.getString("HelpMnemonic"));
         this.add(Box.createRigidArea(new Dimension(2,0)));  
         this.add(helpMenu);
 

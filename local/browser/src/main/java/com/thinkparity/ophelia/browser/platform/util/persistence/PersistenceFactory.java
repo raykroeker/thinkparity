@@ -9,15 +9,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
@@ -197,8 +199,16 @@ public class PersistenceFactory {
 		catch(final IOException iox) { throw new RuntimeException(iox); }
 
         final Properties properties = new Properties();
-		try { properties.load(new FileInputStream(file)); }
-		catch(final IOException iox) { throw new RuntimeException(iox); }
+        try {
+            final InputStream stream = new FileInputStream(file);
+            try {
+                properties.load(new FileInputStream(file));
+            } finally {
+                stream.close();
+            }
+		} catch (final IOException iox) {
+            throw new RuntimeException(iox);
+		}
 
         return properties;
 	}
@@ -212,7 +222,16 @@ public class PersistenceFactory {
      *            The file.
      */
 	private void store(final Properties properties, final File file) {
-		try { properties.store(new FileOutputStream(file), ""); }
-		catch(final IOException iox) { throw new RuntimeException(iox); }
+		try {
+            final OutputStream stream = new FileOutputStream(file);
+            try {
+                properties.store(new FileOutputStream(file), "");
+            } finally {
+                stream.flush();
+                stream.close();
+            }
+		} catch (final IOException iox) {
+            throw new RuntimeException(iox);
+		}
 	}
 }

@@ -37,8 +37,8 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleDraftCreatedIQ query = new HandleDraftCreatedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("uniqueId")) {
                         query.uniqueId = readUniqueId2();
                     } else if (isStartTag("createdBy")) {
@@ -46,7 +46,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
                     } else if (isStartTag("createdOn")) {
                         query.createdOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;

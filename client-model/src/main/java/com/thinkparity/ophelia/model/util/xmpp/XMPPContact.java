@@ -38,14 +38,14 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleContactDeletedIQ query = new HandleContactDeletedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("deletedBy")) {
                         query.deletedBy = readJabberId2();
                     } else if (isStartTag("deletedOn")) {
                         query.deletedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -55,14 +55,14 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleContactUpdatedIQ query = new HandleContactUpdatedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("contactId")) {
                         query.contactId = readJabberId2();
                     } else if (isStartTag("updatedOn")) {
                         query.updatedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -72,8 +72,8 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("extendedTo")) {
                         query.invitedAs = readEMail2();
                     } else if (isStartTag("extendedBy")) {
@@ -81,7 +81,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
                     } else if (isStartTag("extendedOn")) {
                         query.invitedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -91,14 +91,14 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleInvitationAcceptedIQ query = new HandleInvitationAcceptedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("acceptedBy")) {
                         query.acceptedBy = readJabberId2();
                     } else if (isStartTag("acceptedOn")) {
                         query.acceptedOn = readCalendar2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -108,8 +108,8 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser2(parser);
                 final HandleInvitationDeletedIQ query = new HandleInvitationDeletedIQ();
-                Boolean isComplete = Boolean.FALSE;
-                while (!isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     if (isStartTag("deletedBy")) {
                         query.deletedBy = readJabberId2();
                     } else if (isStartTag("deletedOn")) {
@@ -117,7 +117,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
                     } else if (isStartTag("invitedAs")) {
                         query.invitedAs = readEMail2();
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;
@@ -127,9 +127,8 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser(parser);
                 final HandleInvitationDeclinedIQ query = new HandleInvitationDeclinedIQ();
-
-                Boolean isComplete = Boolean.FALSE;
-                while (Boolean.FALSE == isComplete) {
+                boolean isComplete = false;
+                while (false == isComplete) {
                     next(1);
                     if (isStartTag(Xml.Contact.INVITED_AS)) {
                         next(1);
@@ -150,7 +149,7 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
                     } else if (isEndTag(Xml.Contact.DECLINED_ON)) {
                         next(1);
                     } else {
-                        isComplete = Boolean.TRUE;
+                        isComplete = true;
                     }
                 }
                 return query;

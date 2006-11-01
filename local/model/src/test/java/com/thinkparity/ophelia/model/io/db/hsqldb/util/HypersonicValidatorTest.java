@@ -56,6 +56,7 @@ public class HypersonicValidatorTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+        super.tearDown();
 	}
 
     /** Test data definition. */

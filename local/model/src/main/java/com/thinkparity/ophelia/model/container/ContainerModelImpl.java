@@ -548,14 +548,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             final Boolean doesExist = artifactModel.doesExist(uniqueId);
-            final Boolean doesVersionExist;
             final Long containerId;
             final Container container;
             final ContainerVersion version;
             if (doesExist) {
                 containerId = artifactModel.readId(uniqueId);
                 container = read(containerId);
-                doesVersionExist = artifactModel.doesVersionExist(containerId, versionId);
+                final Boolean doesVersionExist =
+                    artifactModel.doesVersionExist(containerId, versionId);
 
                 if (doesVersionExist) {
                     version = readVersion(container.getId(), versionId);
@@ -564,8 +564,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             versionId, publishedBy, publishedOn);
                 }
             } else { 
-                doesVersionExist = Boolean.FALSE;
-
                 // ensure the published by user exists locally
                 getInternalUserModel().readLazyCreate(publishedBy);
 

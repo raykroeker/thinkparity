@@ -483,10 +483,15 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	void logout() {
         logger.logApiId();
 		try {
+            logger.logTraceId();
             final XMPPSession xmppSession = workspace.getXMPPSession();
-		    synchronized (xmppSession) {
-		        xmppSession.logout();
+            logger.logTraceId();
+            synchronized (xmppSession) {
+                logger.logTraceId();
+                xmppSession.logout();
+                logger.logTraceId();
             }
+            logger.logTraceId();
 		} catch (final Throwable t) {
 			throw translateError(t);
 		}

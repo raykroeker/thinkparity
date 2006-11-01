@@ -50,7 +50,7 @@ public abstract class StreamClient {
         if (environment.isStreamTLSEnabled()) {
             logger.logInfo("Stream Client - {0}:{1} - Secure",
                     environment.getStreamHost(), environment.getStreamPort());
-            final String keyStorePath = "security/client_keystore";
+            final String keyStorePath = "security/stream_client_keystore";
             final char[] keyStorePassword = "password".toCharArray();
             try {
                 socketFactory =
@@ -113,6 +113,7 @@ public abstract class StreamClient {
 
     protected final void write(final StreamHeader streamHeader) {
         logger.logApiId();
+        logger.logVariable("streamHeader", streamHeader);
         try {
             write(streamHeader.toHeader());
         } catch (final IOException iox) {

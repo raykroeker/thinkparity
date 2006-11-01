@@ -57,12 +57,13 @@ class SessionModelEventDispatcher {
             public void handleReceived(final UUID uniqueId,
                     final Long versionId, final JabberId receivedBy,
                     final Calendar receivedOn) {
-                logger.logApiId();
                 getArtifactModel().handleReceived(uniqueId, versionId,
                         receivedBy, receivedOn);
             }
             public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
+                logger.logTraceId();
                 getArtifactModel().handleTeamMemberAdded(uniqueId, jabberId);
+                logger.logTraceId();
             }
             public void teamMemberRemoved(final UUID artifactUniqueId,
                     final JabberId jabberId) {

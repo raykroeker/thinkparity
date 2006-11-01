@@ -315,7 +315,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final Long artifactId = artifactIO.readId(uniqueId);
         switch (artifactIO.readType(artifactId)) {
         case CONTAINER:
+            logger.logTraceId();
             getContainerModel().handleReceived(artifactId, versionId, receivedBy, receivedOn);
+            logger.logTraceId();
             break;
         default:
             Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");

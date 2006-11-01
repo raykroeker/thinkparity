@@ -7,12 +7,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.IQProvider;
-import org.jivesoftware.smack.provider.ProviderManager;
-
-import org.xmlpull.v1.XmlPullParser;
-
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
@@ -26,6 +20,11 @@ import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
+
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.IQProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * @author raykroeker@gmail.com
@@ -366,6 +365,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
                         query.receivedBy, query.receivedOn);
             }
         });
+        logger.logTraceId();
     }
 
     private void handleDraftCreated(final HandleDraftCreatedIQ query) {
@@ -395,6 +395,8 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 	private void handleTeamMemberAdded(final HandleTeamMemberAddedIQ query) {
         notifyListeners(new EventNotifier<ArtifactListener>() {
             public void notifyListener(final ArtifactListener listener) {
+                logger.logVariable("query.uniqueId", query.uniqueId);
+                logger.logVariable("query.jabberId", query.jabberId);
 				listener.teamMemberAdded(query.uniqueId, query.jabberId);
 			}
 		});

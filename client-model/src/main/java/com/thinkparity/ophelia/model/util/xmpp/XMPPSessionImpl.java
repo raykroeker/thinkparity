@@ -928,13 +928,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
                 configuration.setSASLAuthenticationEnabled(configuration.isTLSEnabled());
                 configuration.setSelfSignedCertificateEnabled(configuration.isTLSEnabled());
                 configuration.setTruststorePassword("password");
-                configuration.setTruststorePath("security/client_keystore");
+                configuration.setTruststorePath("security/xmpp_client_keystore");
                 configuration.setTruststoreType("JKS");
                 configuration.setVerifyChainEnabled(configuration.isTLSEnabled());
                 configuration.setVerifyRootCAEnabled(configuration.isTLSEnabled());
                 socketFactory = com.thinkparity.codebase.net.SocketFactory.getSecureInstance(
-                        "security/client_keystore", "password".toCharArray(),
-                        "security/client_keystore", "password".toCharArray()); 
+                        "security/xmpp_client_keystore", "password".toCharArray(),
+                        "security/xmpp_client_keystore", "password".toCharArray()); 
             } else {
                 socketFactory = com.thinkparity.codebase.net.SocketFactory.getInstance();
             }

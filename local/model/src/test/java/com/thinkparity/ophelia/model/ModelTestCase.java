@@ -631,8 +631,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @see com.thinkparity.codebase.junitx.TestCase#createFailMessage(java.lang.Throwable)
      * 
      */
-	protected String createFailMessage(Throwable t) {
-		testLogger.error("Failure", t);
+	protected String createFailMessage(final Throwable t) {
+		logger.logFatal(t, "Test {0} failed.", getName());
 		return super.createFailMessage(t);
 	}
 
@@ -770,7 +770,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 			if(NotYetImplementedAssertion.class.isAssignableFrom(cause.getClass())) {
 				switch(OSUtil.getOS()) {
 				case LINUX:
-					testLogger.warn("[PARITY] Running test on un-supported platform.");
+					logger.logWarning("Running test on un-supported platform.");
 					return true;
 				}
 			}
@@ -804,7 +804,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *
      */
     protected void logout(final OpheliaTestUser testUser) {
+        logger.logTraceId();
         getSessionModel(testUser).logout();
+        logger.logTraceId();
     }
 
     /**

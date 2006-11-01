@@ -201,14 +201,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("documentId", documentId);
-        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
-        containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
-        getIndexModel().indexDocument(containerId, documentId);
-        final Container postAdditionContainer = read(containerId);        
-        final ContainerDraft postAdditionDraft = readDraft(containerId);
-        final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
-        notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
-                postAdditionDocument, localEventGenerator);
+        try {
+            assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+            containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.ADDED);
+            getIndexModel().indexDocument(containerId, documentId);
+            final Container postAdditionContainer = read(containerId);        
+            final ContainerDraft postAdditionDraft = readDraft(containerId);
+            final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
+            notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
+                    postAdditionDocument, localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -304,37 +308,41 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     ContainerDraft createDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        assertContainerDraftDoesNotExist("Draft already exist.", containerId);
-        if (isFirstDraft(containerId)) {
-            createFirstDraft(containerId, localTeamMember(containerId));
-        } else {
-            assertOnline("The user is not online.");
-            final Container container = read(containerId);
-            if (!isDistributed(container.getId())) {
-                createDistributed(container);
+        try {
+            assertContainerDraftDoesNotExist("Draft already exist.", containerId);
+            if (isFirstDraft(containerId)) {
+                createFirstDraft(containerId, localTeamMember(containerId));
+            } else {
+                assertOnline("The user is not online.");
+                final Container container = read(containerId);
+                if (!isDistributed(container.getId())) {
+                    createDistributed(container);
+                }
+                final ContainerVersion latestVersion =
+                        readLatestVersion(container.getId());
+                final List<Document> documents = readDocuments(
+                        latestVersion.getArtifactId(), latestVersion.getVersionId());
+                // create
+                final ContainerDraft draft = new ContainerDraft();
+                draft.setOwner(localTeamMember(containerId));
+                draft.setContainerId(containerId);
+                for (final Document document : documents) {
+                    draft.addDocument(document);
+                    draft.putState(document, ContainerDraft.ArtifactState.NONE);
+                }
+                containerIO.createDraft(draft);
+                getInternalArtifactModel().applyFlagKey(container.getId());
+                // remote create
+                getSessionModel().createDraft(container.getUniqueId());
             }
-            final ContainerVersion latestVersion =
-                    readLatestVersion(container.getId());
-            final List<Document> documents = readDocuments(
-                    latestVersion.getArtifactId(), latestVersion.getVersionId());
-            // create
-            final ContainerDraft draft = new ContainerDraft();
-            draft.setOwner(localTeamMember(containerId));
-            draft.setContainerId(containerId);
-            for (final Document document : documents) {
-                draft.addDocument(document);
-                draft.putState(document, ContainerDraft.ArtifactState.NONE);
-            }
-            containerIO.createDraft(draft);
-            getInternalArtifactModel().applyFlagKey(container.getId());
-            // remote create
-            getSessionModel().createDraft(container.getUniqueId());
+            // fire event
+            final Container postCreation= read(containerId);
+            final ContainerDraft postCreationDraft = readDraft(containerId);
+            notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
+            return postCreationDraft;
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        // fire event
-        final Container postCreation= read(containerId);
-        final ContainerDraft postCreationDraft = readDraft(containerId);
-        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
-        return postCreationDraft;
     }
 
     /**
@@ -390,20 +398,24 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     void deleteDraft(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        assertDoesExistLocalDraft("Draft does not exist.", containerId);
-        final Container container = read(containerId);
-        if (!isFirstDraft(container.getId())) {
-            assertOnline("User is not online.");
-            assertIsDistributed("Draft has not been distributed.", containerId);
-            getSessionModel().deleteDraft(container.getUniqueId());
+        try {
+            assertDoesExistLocalDraft("Draft does not exist.", containerId);
+            final Container container = read(containerId);
+            if (!isFirstDraft(container.getId())) {
+                assertOnline("User is not online.");
+                assertIsDistributed("Draft has not been distributed.", containerId);
+                getSessionModel().deleteDraft(container.getUniqueId());
+            }
+            // delete local data
+            final ContainerDraft draft = readDraft(containerId);
+            for (final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            }
+            containerIO.deleteDraft(containerId);
+            notifyDraftDeleted(container, draft, localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        // delete local data
-        final ContainerDraft draft = readDraft(containerId);
-        for (final Artifact artifact : draft.getArtifacts()) {
-            containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
-        }
-        containerIO.deleteDraft(containerId);
-        notifyDraftDeleted(container, draft, localEventGenerator);
     }
 
     /**
@@ -531,8 +543,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("artifactStreamId", artifactStreamId);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
-        assertIsNotLocalUserId(publishedBy);
         try {
+            assertIsNotLocalUserId(publishedBy);
             // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             final Boolean doesExist = artifactModel.doesExist(uniqueId);
@@ -630,15 +642,19 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         logger.logVariable("createdBy", createdBy);
         logger.logVariable("createdOn", createdOn);
-        final ContainerDraft draft = new ContainerDraft();
-        draft.setContainerId(containerId);
-        final List<TeamMember> team = readTeam(containerId);
-        logger.logVariable("team", team);
-        draft.setOwner(team.get(indexOf(team, createdBy)));
-        containerIO.createDraft(draft);
-        // fire event
-        notifyDraftCreated(read(containerId), readDraft(containerId),
-                remoteEventGenerator);
+        try {
+            final ContainerDraft draft = new ContainerDraft();
+            draft.setContainerId(containerId);
+            final List<TeamMember> team = readTeam(containerId);
+            logger.logVariable("team", team);
+            draft.setOwner(team.get(indexOf(team, createdBy)));
+            containerIO.createDraft(draft);
+            // fire event
+            notifyDraftCreated(read(containerId), readDraft(containerId),
+                    remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -657,13 +673,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         logger.logVariable("createdBy", deletedBy);
         logger.logVariable("createdOn", deletedOn);
-        final ContainerDraft draft = readDraft(containerId);
-        for (final Artifact artifact : draft.getArtifacts()) {
-            containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+        try {
+            final ContainerDraft draft = readDraft(containerId);
+            for (final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            }
+            containerIO.deleteDraft(containerId);
+            // fire event
+            notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        containerIO.deleteDraft(containerId);
-        // fire event
-        notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
     }
 
     /**
@@ -697,45 +717,49 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("publishedOn", publishedOn);
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
-        final Long containerId = artifactModel.readId(uniqueId);
-        // add to local team
-        final InternalUserModel userModel = getInternalUserModel();
-        final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
-        final List<User> publishedToUsers = new ArrayList<User>();
-        for (final JabberId publishedToId : publishedTo) {
-            if (!contains(localTeam, publishedToId)) {
-                artifactModel.addTeamMember(containerId, publishedToId);
+        try {
+            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final Long containerId = artifactModel.readId(uniqueId);
+            // add to local team
+            final InternalUserModel userModel = getInternalUserModel();
+            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
+            final List<User> publishedToUsers = new ArrayList<User>();
+            for (final JabberId publishedToId : publishedTo) {
+                if (!contains(localTeam, publishedToId)) {
+                    artifactModel.addTeamMember(containerId, publishedToId);
+                }
+                publishedToUsers.add(userModel.read(publishedToId));
             }
-            publishedToUsers.add(userModel.read(publishedToId));
-        }
-        // add the sender as well
-        if (!contains(localTeam, publishedBy)) {
-            artifactModel.addTeamMember(containerId, publishedBy);
-        }
-        // delete draft
-        final ContainerDraft draft = readDraft(containerId);
-        if (null == draft) {
-            logger.logWarning("Draft did not previously exist for {0}.", name);
-        } else {
-            for (final Artifact artifact : draft.getArtifacts()) {
-                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            // add the sender as well
+            if (!contains(localTeam, publishedBy)) {
+                artifactModel.addTeamMember(containerId, publishedBy);
             }
-            containerIO.deleteDraft(containerId);
+            // delete draft
+            final ContainerDraft draft = readDraft(containerId);
+            if (null == draft) {
+                logger.logWarning("Draft did not previously exist for {0}.", name);
+            } else {
+                for (final Artifact artifact : draft.getArtifacts()) {
+                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                }
+                containerIO.deleteDraft(containerId);
+            }
+            // create published to list
+            containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
+            // send confirmation
+            getSessionModel().confirmArtifactReceipt(localUserId(),
+                    uniqueId, versionId, localUserId(), currentDateTime());
+            // audit\fire event
+            final Container postPublish = read(containerId);
+            final ContainerDraft postPublishDraft = readDraft(containerId);
+            final ContainerVersion postPublishVersion = readVersion(containerId, versionId);
+            auditContainerPublished(postPublish, postPublishDraft,
+                    postPublishVersion, publishedBy, publishedTo, publishedOn);
+            notifyContainerPublished(postPublish, postPublishDraft,
+                    postPublishVersion, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        // create published to list
-        containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
-        // send confirmation
-        getSessionModel().confirmArtifactReceipt(localUserId(),
-                uniqueId, versionId, localUserId(), currentDateTime());
-        // audit\fire event
-        final Container postPublish = read(containerId);
-        final ContainerDraft postPublishDraft = readDraft(containerId);
-        final ContainerVersion postPublishVersion = readVersion(containerId, versionId);
-        auditContainerPublished(postPublish, postPublishDraft,
-                postPublishVersion, publishedBy, publishedTo, publishedOn);
-        notifyContainerPublished(postPublish, postPublishDraft,
-                postPublishVersion, remoteEventGenerator);
     }
 
     void handleReceived(final Long containerId, final Long versionId,
@@ -745,8 +769,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
-        containerIO.updatePublishedTo(containerId, versionId, receivedBy, receivedOn);
-        containerIO.updateSharedWith(containerId, versionId, receivedBy, receivedOn);
+        try {
+            containerIO.updatePublishedTo(containerId, versionId, receivedBy,
+                    receivedOn);
+            logger.logTraceId();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -888,6 +917,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         container.getId(), artifact.getId());
             }
             containerIO.deleteDraft(container.getId());
+
+            // remove key
+            getInternalArtifactModel().removeFlagKey(container.getId());
 
             // fire event
             final Container postPublish = read(container.getId());

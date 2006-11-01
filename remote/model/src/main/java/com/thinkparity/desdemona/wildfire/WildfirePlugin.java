@@ -11,12 +11,15 @@ import java.util.List;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
+import com.thinkparity.desdemona.model.archive.ArchiveModel;
+import com.thinkparity.desdemona.model.stream.StreamModel;
 
 import org.apache.log4j.LogManager;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.XPP3Reader;
 import org.jivesoftware.util.JiveGlobals;
+import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.IQRouter;
 import org.jivesoftware.wildfire.XMPPServer;
 import org.jivesoftware.wildfire.XMPPServerListener;
@@ -69,6 +72,14 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	public void initializePlugin(final PluginManager manager,
             final File pluginDirectory) {
 		initializeLogging();
+		final JiveProperties jiveProperties = JiveProperties.getInstance();
+		logger.logInfo("{0}:{1}", "xmpp.auth.anonymous", jiveProperties.get("xmpp.auth.anonymous"));
+		logger.logInfo("{0}:{1}", "xmpp.domain", jiveProperties.get("xmpp.domain"));
+		logger.logInfo("{0}:{1}", "xmpp.server.socket.port", jiveProperties.get("xmpp.server.socket.port"));
+		logger.logInfo("{0}:{1}", "xmpp.socket.plain.port", jiveProperties.get("xmpp.socket.plain.port"));
+		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.active", jiveProperties.get("xmpp.socket.ssl.active"));
+		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.keypass", jiveProperties.get("xmpp.socket.ssl.keypass"));
+		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
 		initializeHandlers(pluginDirectory);
 		startStream();
         startArchive();
@@ -166,7 +177,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startArchive() {
-//        ArchiveModel.getModel().start();
+        ArchiveModel.getModel().start();
     }
 
     /**
@@ -174,7 +185,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startStream() {
-//        StreamModel.getModel().start();
+        StreamModel.getModel().start();
     }
 
     /**
@@ -182,7 +193,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopArchive() {
-//        ArchiveModel.getModel().stop();
+        ArchiveModel.getModel().stop();
     }
 
     /**
@@ -190,6 +201,6 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopStream() {
-//        StreamModel.getModel().stop();
+        StreamModel.getModel().stop();
     }
 }

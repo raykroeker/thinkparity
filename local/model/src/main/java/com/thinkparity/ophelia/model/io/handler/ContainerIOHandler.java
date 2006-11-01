@@ -86,19 +86,6 @@ public interface ContainerIOHandler {
             final List<User> publishedTo);
 
     /**
-     * Create a shared with list for a container version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param sharedWith
-     *            A <code>List&lt;User&gt;</code>.
-     */
-    public void createSharedWith(final Long containerId, final Long versionId,
-            final List<User> sharedWith);
-
-    /**
      * Create a container version.
      * 
      * @param version
@@ -304,9 +291,18 @@ public interface ContainerIOHandler {
      */
     public void updateName(final Long containerId, final String name);
 
+    /**
+     * Update a container's published to list.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param receivedOn
+     *            A received on <code>Calendar</code>.
+     */
     public void updatePublishedTo(final Long containerId, final Long versionId,
-            final JabberId userId, final Calendar receivedOn);
-
-    public void updateSharedWith(final Long containerId, final Long versionId,
             final JabberId userId, final Calendar receivedOn);
 }

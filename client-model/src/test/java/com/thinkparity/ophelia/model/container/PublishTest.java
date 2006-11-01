@@ -37,8 +37,10 @@ public class PublishTest extends ContainerTestCase {
 
     /** Test the publish api. */
     public void testPublish() {
+        logger.logTraceId();
         datum.containerModel.publish(
                 datum.container.getId(), datum.contacts, datum.teamMembers);
+        logger.logTraceId();
         assertTrue("The draft published event was not fired.", datum.didNotify);
 
         // ensure the system is the key holder again
@@ -85,7 +87,6 @@ public class PublishTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        login(OpheliaTestUser.JUNIT_X);
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
@@ -99,11 +100,14 @@ public class PublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
+        logger.logTraceId();
         datum.containerModel.removeListener(datum);
         datum = null;
+        logger.logTraceId();
         logout(OpheliaTestUser.JUNIT);
-        logout(OpheliaTestUser.JUNIT_X);
+        logger.logTraceId();
         super.tearDown();
+        logger.logTraceId();
     }
 
     /** Test datumn fixture. */

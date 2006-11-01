@@ -84,7 +84,6 @@ public class HypersonicMigrator {
                 CONFIG.getProperty("CreateContainerVersion"),
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
                 CONFIG.getProperty("CreateContainerVersionPublishedTo"),
-                CONFIG.getProperty("CreateContainerVersionSharedWith"),
                 CONFIG.getProperty("CreateContainerDraft"),
                 CONFIG.getProperty("CreateContainerDraftArtifactRel"),
                 CONFIG.getProperty("CreateDocument"),

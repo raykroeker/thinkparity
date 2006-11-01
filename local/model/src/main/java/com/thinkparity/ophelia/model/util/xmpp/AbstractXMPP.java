@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.util.xmpp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -44,7 +45,7 @@ abstract class AbstractXMPP<T extends EventListener> {
     protected AbstractXMPP(final XMPPCore xmppCore) {
         super();
         this.listeners = new ArrayList<T>();
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(StackUtil.getCallerClassName());
         this.xmppCore = xmppCore;
         this.xstream = new XStream();
     }
@@ -90,10 +91,12 @@ abstract class AbstractXMPP<T extends EventListener> {
      *            An <code>XMPPEventListener</code>.
      */
     protected boolean addListener(final T listener) {
+        logger.logTraceId();
         synchronized (listeners) {
             if (listeners.contains(listener)) {
                 return false;
             } else {
+                logger.logTraceId();
                 return listeners.add(listener);
             }
         }
@@ -116,6 +119,7 @@ abstract class AbstractXMPP<T extends EventListener> {
      *
      */
     protected void clearListeners() {
+        logger.logApiId();
         synchronized (listeners) {
             listeners.clear();
         }
@@ -164,11 +168,20 @@ abstract class AbstractXMPP<T extends EventListener> {
      *            A thinkParity <code>EventNotifier</code>.
      */
     protected void notifyListeners(final EventNotifier<T> notifier) {
+        logger.logVariable("xmppCore.getUserId()", xmppCore.getUserId());
+        logger.logTraceId(25);
         synchronized (listeners) {
             for (final T listener : listeners) {
-                notifier.notifyListener(listener);
+                try {
+                    notifier.notifyListener(listener);
+                } catch (final Throwable t) {
+                    logger.logError(t,
+                            "Could not handle remote event {0} for listener {1}.",
+                            notifier, listener);
+                }
             }
         }
+        logger.logTraceId();
     }
 
     /**
@@ -178,10 +191,13 @@ abstract class AbstractXMPP<T extends EventListener> {
      *            An <code>XMPPEventListener</code>.
      */
     protected boolean removeListener(final T listener) {
+        logger.logTraceId();
         synchronized (listeners) {
             if (listeners.contains(listener)) {
+                logger.logTraceId();
                 return listeners.remove(listener);
             } else {
+                logger.logTraceId();
                 return false;
             }
         }

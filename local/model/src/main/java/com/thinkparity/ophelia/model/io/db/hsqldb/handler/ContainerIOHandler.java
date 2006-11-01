@@ -68,13 +68,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("values (?,?,?)")
             .toString();
 
-    /** Sql to read the container shared with list. */
-    private static final String SQL_CREATE_SHARED_WITH =
-            new StringBuffer("insert into CONTAINER_VERSION_SHARED_WITH ")
-            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
-            .append("values (?,?,?)")
-            .toString();
-    
     /** Sql to create a container version. */
     private static final String SQL_CREATE_VERSION =
             new StringBuffer("insert into CONTAINER_VERSION ")
@@ -315,12 +308,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=?")
         .toString();
 
-    private static final String SQL_UPDATE_SHARED_WITH =
-        new StringBuffer("update CONTAINER_VERSION_SHARED_WITH ")
-        .append("set RECEIVED_ON=? ")
-        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=?")
-        .toString();
-
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
 
@@ -460,31 +447,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 session.setLong(3, publishedToUser.getLocalId());
                 if (1 != session.executeUpdate())
                     throw new HypersonicException("Could not create published to entry.");
-            }
-
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createSharedWith(java.lang.Long, java.lang.Long, java.util.List)
-     */
-    public void createSharedWith(final Long containerId, final Long versionId,
-            final List<User> sharedWith) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_CREATE_SHARED_WITH);
-            session.setLong(1, containerId);
-            session.setLong(2, versionId);
-            for (final User sharedWithUser : sharedWith) {
-                session.setLong(3, sharedWithUser.getLocalId());
-                if (1 != session.executeUpdate())
-                    throw new HypersonicException("Could not create shared with entry.");
             }
 
             session.commit();
@@ -925,34 +887,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setCalendar(1, receivedOn);
             session.setLong(2, containerId);
             session.setLong(3, versionId);
+            logger.logTraceId();
             session.setLong(4, readLocalId(userId));
+            logger.logTraceId();
             session.commit();
+            logger.logTraceId();
         } catch (final HypersonicException hx) {
             session.rollback();
             throw hx;
         } finally {
+            logger.logTraceId();
             session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateSharedWith()
-     */
-    public void updateSharedWith(final Long containerId, final Long versionId,
-            final JabberId userId, final Calendar receivedOn) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_UPDATE_SHARED_WITH);
-            session.setCalendar(1, receivedOn);
-            session.setLong(2, containerId);
-            session.setLong(3, versionId);
-            session.setLong(4, readLocalId(userId));
-            session.commit();
-        } catch (final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        } finally {
-            session.close();
+            logger.logTraceId();
         }
     }
 

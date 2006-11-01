@@ -23,7 +23,7 @@ final class SecureStreamSocketServer extends StreamSocketServer {
 
     static {
         keyStorePassword = "password".toCharArray();
-        keyStorePath = "security/server_keystore";
+        keyStorePath = "security/stream_server_keystore";
         try {
             secureSocketFactory = com.thinkparity.codebase.net.ServerSocketFactory.getSecureInstance(
                     keyStorePath, keyStorePassword, keyStorePath, keyStorePassword);

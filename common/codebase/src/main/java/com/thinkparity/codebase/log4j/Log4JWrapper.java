@@ -38,6 +38,8 @@ public class Log4JWrapper {
      * Create Log4JWrapper.  This will create a logger for the instantiator
      * of this class.
      * 
+     * @see StackUtil#getCallerClassName()
+     * @see Logger#getLogger(String)
      */
     public Log4JWrapper() {
         this(Logger.getLogger(StackUtil.getCallerClassName()));
@@ -48,6 +50,7 @@ public class Log4JWrapper {
      * 
      * @param clasz
      *            The class to use when creating the logger.
+     * @see Logger#getLogger(Class)
      */
     public Log4JWrapper(final Class clasz) {
         this(Logger.getLogger(clasz));
@@ -62,6 +65,18 @@ public class Log4JWrapper {
     public Log4JWrapper(final Logger logger) {
         super();
         this.logger = logger;
+    }
+
+    /**
+     * Create Log4JWrapper.
+     * 
+     * @param name
+     *            A logger name.
+     * 
+     * @see Logger#getLogger(String)
+     */
+    public Log4JWrapper(final String name) {
+        this(Logger.getLogger(name));
     }
 
     public final String getErrorId(final String errorPattern,
@@ -237,7 +252,10 @@ public class Log4JWrapper {
         if (logger.isTraceEnabled()) {
             final StackTraceElement[] frames = StackUtil.getFrames(LOG4J_STACK_FILTER);
             for (int i = 0; i < frameCount && i < frames.length; i++) {
-                logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
+                if (0 == i)
+                    logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
+                else
+                    logStackId(Level.TRACE, "{0} - {1}.{2}({3}:{4})", i, frames[i]);
             }
         }
     }
@@ -314,6 +332,34 @@ public class Log4JWrapper {
         return w;
     }
 
+    /**
+     * Log a stack trace id at a given level.
+     * 
+     * @param level
+     *            An apache logging <code>Level</code>.
+     * @param stackPattern
+     *            A pattern to use for the
+     *            <ol>
+     *            <li>Class name
+     *            <li>Method name
+     *            <li>File name
+     *            <li>Line number
+     *            </ol>
+     *            of the stack trace element.
+     * @param stackTraceElement
+     *            A <code>StackTraceElement</code>.
+     */
+    private final void logStackId(final Level level, final String stackPattern,
+            final Integer stackIndex, final StackTraceElement stackElement) {
+        if (null == stackElement) {
+            logger.log(level, "No stack available.");
+        } else {
+            logger.log(level, Log4JHelper.renderAndFormat(logger, stackPattern,
+                    stackIndex, stackElement.getClassName(),
+                    stackElement.getMethodName(), stackElement.getFileName(),
+                    stackElement.getLineNumber()));
+        }
+    }
     /**
      * Log a stack trace id at a given level.
      * 

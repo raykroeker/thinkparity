@@ -126,6 +126,7 @@
                 <include name="com/thinkparity/ophelia/model/"/>
                 <include name="database/"/>
                 <include name="localization/Model_Messages*"/>
+                <include name="security/*_client_*"/>
             </fileset>
         </jar>
         <!-- /core/browser.jar -->

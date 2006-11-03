@@ -371,8 +371,7 @@ public class BrowserWindow extends AbstractJFrame {
             return(AlphaComposite.getInstance(type, alpha));
         }
         
-        public void paintComponent(final Graphics g)
-        {
+        public void paintComponent(final Graphics g) {
             super.paintComponent(g);
             if (enabled) {
                 setSize(BrowserWindow.this.getSize());

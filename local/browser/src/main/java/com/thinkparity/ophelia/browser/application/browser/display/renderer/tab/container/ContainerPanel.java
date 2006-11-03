@@ -13,13 +13,10 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
-
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -33,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -132,6 +130,14 @@ public final class ContainerPanel extends DefaultTabPanel {
                 GradientPainter.paintVertical(g2, getSize(),
                         Colors.Browser.List.LIST_GRADIENT_DARK,
                         Colors.Browser.List.LIST_GRADIENT_LIGHT);
+                
+                if (isSetMouseOver()) {
+                    g2.setColor(Colors.Browser.List.LIST_MOUSE_OVER_BORDER);
+                    g2.drawLine(0, 0, getWidth()-1, 0);
+                    g2.drawLine(0, 0, 0, getHeight()-1);
+                    g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
+                }
+
             }
             finally { g2.dispose(); }
         }        
@@ -380,6 +386,11 @@ public final class ContainerPanel extends DefaultTabPanel {
         // Draw the appropriate border.
         setBorder(getBorder(firstPanel, lastPanel));
         repaint();
+        
+        // If expanded, make the next panel repaint also.
+        if (isExpanded()) {
+            //qqq
+        }
     }
     
     /**

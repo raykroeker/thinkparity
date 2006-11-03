@@ -1572,10 +1572,8 @@ public class Browser extends AbstractApplication {
      *          A window.
      */
     private void setUpSemiTransparentLayer(final Window window) {
+        mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
         window.addWindowListener(new WindowAdapter() {
-            public void windowOpened(WindowEvent e) {
-                mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
-            }
             public void windowClosed(WindowEvent e) {
                 mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
             }

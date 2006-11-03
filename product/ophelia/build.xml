@@ -179,7 +179,19 @@
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${release.version}/lib/win32">
                     <jre minVersion="1.5.0" maxVersion="1.5.0_08"
-                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+            </config>
+        </launch4j>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0"
+                    jarPath="thinkParity.jar"
+                    outfile="${target.release.dir}/thinkParity Demo.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/images/ThinkParity32x32.ico"
+                    chdir="${release.version}/lib/win32">
+                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
+                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode-DEMO -Dthinkparity.environment=DEMO"/>
             </config>
         </launch4j>
         <!-- nsis -->
@@ -320,8 +332,8 @@ Examples:
             </or>
         </condition>
         <echo>Build Configuration:
-    thinkparity.environment:  ${thinkparity.innerEnvironment}  [DEVELOPMENT_LOCALHOST,DEVELOPMENT_RAYMOND,DEVELOPMENT_ROBERT,PRODUCTION,TESTING,TESTING_LOCALHOST]
-    thinkparity.mode:         ${thinkparity.innerMode}  [DEVELOPMENT,PRODUCTION,TESTING]
+    thinkparity.environment:  ${thinkparity.innerEnvironment}  [DEMO,DEMO_LOCALHOST,DEVELOPMENT_LOCALHOST,DEVELOPMENT_RAYMOND,DEVELOPMENT_ROBERT,PRODUCTION,TESTING,TESTING_LOCALHOST]
+    thinkparity.mode:         ${thinkparity.innerMode}  [DEMO,DEVELOPMENT,PRODUCTION,TESTING]
     compile.debug:            ${compile.innerDebug}  [true,false]</echo>
         <sleep seconds="3"/>
     </target>

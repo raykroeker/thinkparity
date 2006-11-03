@@ -60,7 +60,15 @@ public abstract class AbstractModelImpl
     extends com.thinkparity.codebase.model.AbstractModelImpl {
 
     /** No session log statement. */
-    private static final JabberId NO_SESSION = User.THINK_PARITY.getId();
+    private static final JabberId NO_SESSION;
+
+    /** An apache xmpp iq logger wrapper. */
+    private static final Log4JWrapper XMPP_IQ_LOGGER;
+
+    static {
+        NO_SESSION = User.THINK_PARITY.getId();
+        XMPP_IQ_LOGGER = new Log4JWrapper("XMPP_IQ");
+    }
 
     /** An apache logger. */
 	protected final Log4JWrapper logger;
@@ -79,7 +87,7 @@ public abstract class AbstractModelImpl
 	protected AbstractModelImpl(final Session session) {
 		super();
         this.configurationSql = new ConfigurationSql();
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(getClass());
 		this.session = session;
 	}
 
@@ -171,17 +179,6 @@ public abstract class AbstractModelImpl
     protected void assertSystemIsKeyHolder(final Object assertion,
             final UUID uniqueId) throws ParityServerModelException {
         Assert.assertTrue(assertion, isSystemKeyHolder(uniqueId));
-    }
-
-    /**
-     * Backup a query for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param query
-     *            A query <code>IQ</code>.
-     */
-    protected void backup(final JabberId userId) {
     }
 
     /**
@@ -325,16 +322,6 @@ public abstract class AbstractModelImpl
     }
 
 	/**
-     * Determine if the user account is still active.
-     * 
-     * @param jabberId
-     *            The user's jabber id.
-     * @return True if the account is active; false otherwise.
-     * TODO Finish isActive implementation.
-     */
-    protected Boolean isActive(final JabberId jabberId) { return Boolean.TRUE; }
-
-	/**
      * Determine if the user id is the authenticated user.
      * 
      * @param userId
@@ -443,6 +430,24 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Process an xmpp internet query for a jive client session. The to portion
+     * of the query will be set according to the session.
+     * 
+     * @param session
+     *            A jive <code>ClientSession</code>.
+     * @param query
+     *            An xmpp <code>IQ</code>.
+     * @see IQ#setTo(JID)
+     * @see ClientSession#getAddress()
+     * @see ClientSession#process(org.xmpp.packet.Packet)
+     */
+    protected void process(final ClientSession session, final IQ query) {
+        query.setTo(session.getAddress());
+        XMPP_IQ_LOGGER.logVariable("query", query);
+        session.process(query);
+    }
+
+    /**
      * Read thinkParity configuration.
      * 
      * @return A configuration <code>Properties</code>.
@@ -454,6 +459,17 @@ public abstract class AbstractModelImpl
             properties.setProperty(key, configurationSql.read(key));
         }
         return properties;
+    }
+
+    /**
+     * Read the jive property for the environment.
+     * 
+     * @return An environment.
+     */
+    protected Environment readEnvironment() {
+        final String thinkParityEnvironment =
+            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
+        return Environment.valueOf(thinkParityEnvironment);
     }
 
     /**
@@ -498,12 +514,9 @@ public abstract class AbstractModelImpl
         logVariable("query", query);
         for (final JabberId toUserId : toUserIds) {
             query.setTo(getJID(toUserId));
+            enqueue(toUserId, query);
             if (isOnline(toUserId)) {
-                for (final ClientSession session : getClientSessions(toUserId)) {
-                    session.process(query);
-                }
-            } else {
-                enqueue(toUserId, query);
+                sendQueueUpdated(toUserId);
             }
             backup(toUserId, query);
         }
@@ -513,7 +526,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
+	/**
      * Set the to field in the query.
      * 
      * @param query
@@ -542,7 +555,7 @@ public abstract class AbstractModelImpl
         }
     }
 
-	/**
+    /**
      * Archive a query for a user.
      * 
      * @param userId
@@ -554,13 +567,11 @@ public abstract class AbstractModelImpl
         final JabberId archiveId = getUserModel().readArchiveId(userId);
         if (null != archiveId) {
             query.setTo(getJID(archiveId));
+            enqueue(archiveId, query);
             if (isOnline(archiveId)) {
-                for (final ClientSession session : getClientSessions(archiveId)) {
-                    session.process(query);
-                }
+                sendQueueUpdated(archiveId);
             } else {
                 logWarning(MessageFormat.format("Archive {0} not online.", archiveId));
-                enqueue(archiveId, query);
             }
         }
     }
@@ -610,13 +621,13 @@ public abstract class AbstractModelImpl
 		return getXMPPServer().getSessionManager();
 	}
 
+
     /**
 	 * Obtain a handle to the underlying xmpp server.
 	 * 
 	 * @return The xmpp server.
 	 */
 	private XMPPServer getXMPPServer() { return XMPPServer.getInstance(); }
-
 
     /**
      * Determine whether or not the system account is the key holder.
@@ -632,13 +643,17 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Read the jive property for the environment.
+     * Send a queue updated event to a user.
      * 
-     * @return An environment.
+     * @param userId
+     *            A user id <code>JabberId</code>.
      */
-    protected Environment readEnvironment() {
-        final String thinkParityEnvironment =
-            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
-        return Environment.valueOf(thinkParityEnvironment);
+    private void sendQueueUpdated(final JabberId userId) {
+        final IQWriter queryWriter = createIQWriter("system:queueupdated");
+        queryWriter.writeCalendar("updatedOn", currentDateTime());
+        final IQ query = queryWriter.getIQ();
+        for (final ClientSession session : getClientSessions(userId)) {
+            process(session, query);
+        }        
     }
 }

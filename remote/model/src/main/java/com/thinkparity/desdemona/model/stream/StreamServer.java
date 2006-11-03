@@ -142,6 +142,19 @@ final class StreamServer {
     }
 
     /**
+     * Obtain the size of a stream.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return The size of the stream in bytes.
+     */
+    Long getSize(final StreamSession session, final String streamId) {
+        return fileServer.find(authenticate(session), streamId).length();
+    }
+
+    /**
      * Initialize the stream server for a given stream session.
      * 
      * @param session

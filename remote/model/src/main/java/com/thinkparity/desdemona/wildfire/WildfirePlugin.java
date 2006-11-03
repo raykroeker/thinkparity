@@ -167,8 +167,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	 */
 	private void initializeLogging() {
         final File logDirectory = new File(JiveGlobals.getHomeDirectory(), "logs");
-        System.setProperty("thinkparity.log4j.file",
-                new File(logDirectory, "desdemona.log").getAbsolutePath());
+        System.setProperty("thinkparity.log4j.directory", logDirectory.getAbsolutePath());
         logger = new Log4JWrapper();
 	}
 

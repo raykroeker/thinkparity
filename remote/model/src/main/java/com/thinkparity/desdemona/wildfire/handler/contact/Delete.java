@@ -34,8 +34,8 @@ public class Delete extends AbstractHandler {
      *            A contact id <code>JabberId</code>.
      */
     private void delete(final JabberId userId, final JabberId contactId) {
-        logVariable("userId", userId);
-        logVariable("contactId", contactId);
+        logger.logVariable("userId", userId);
+        logger.logVariable("contactId", contactId);
         getContactModel().delete(userId, contactId);
     }
 }

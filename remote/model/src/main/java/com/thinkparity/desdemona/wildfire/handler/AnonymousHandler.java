@@ -3,11 +3,10 @@
  */
 package com.thinkparity.desdemona.wildfire.handler;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.desdemona.model.user.UserModel;
+
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
 
 /**
  * @author raymond@thinkparity.com
@@ -30,8 +29,10 @@ public abstract class AnonymousHandler extends AbstractHandler {
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         synchronized (AbstractHandler.SERIALIZER) {
             this.userModel = UserModel.getModel();
-            return logVariable("response",
-                    super.handleIQ(logVariable("iq", iq)));
+            final IQ response = super.handleIQ(iq); 
+            IQ_LOGGER.logVariable("anonymous iq", iq);
+            IQ_LOGGER.logVariable("anonymous iq response", response);
+            return response;
         }
     }
 

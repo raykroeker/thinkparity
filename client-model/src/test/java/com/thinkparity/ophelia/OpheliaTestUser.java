@@ -140,7 +140,7 @@ public class OpheliaTestUser extends User {
             final JabberId userId = JabberIdBuilder.build(
                     credentials.getUsername(), Constants.Jabber.DOMAIN,
                     credentials.getResource());
-            session.processOfflineQueue(userId);
+            session.processQueue(userId);
         } finally {
             Assert.assertNotNull(session,
                     "User {0}'s session is null.", credentials.getUsername());

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -78,8 +77,22 @@ public final class DownstreamHandler implements Runnable {
      * @throws IOException
      */
     private void doRun() throws IOException {
+        final Long total = streamServer.getSize(streamSession, streamId);
         final InputStream stream =
             streamServer.openInputStream(streamSession, streamId);
-        StreamUtil.copy(stream, output, streamSession.getBufferSize());
+
+        int len;
+        final byte[] b = new byte[streamSession.getBufferSize()];
+        try {
+            while((len = stream.read(b)) > 0) {
+                logger.logDebug("{0}/{1}", len, total);
+                output.write(b, 0, len);
+                output.flush();
+            }
+        } finally {
+            stream.close();
+            output.flush();
+            output.close();
+        }
     }
 }

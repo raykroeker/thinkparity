@@ -67,7 +67,6 @@ abstract class AbstractXMPP<T extends EventListener> {
                 new PacketListener() {
                     @SuppressWarnings("unchecked")
                     public void processPacket(final Packet packet) {
-                        logger.logInfo("Remote event {0}.", packet.getClass().getName());
                         try {
                             eventHandler.handleEvent((U) packet);
                         } catch (final Throwable t) {

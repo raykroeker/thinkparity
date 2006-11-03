@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StackUtil;
@@ -31,6 +29,8 @@ import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -181,7 +181,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }            
+    }
 
     /**
      * Obtain the model's event listeners.
@@ -193,6 +193,14 @@ public class WorkspaceImpl implements Workspace {
     public <T extends EventListener> List<T> getListeners(final Workspace workspace,
             final AbstractModelImpl<T> impl) {
         return listenersImpl.get(impl);
+    }            
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getLog4JDirectory()
+     *
+     */
+    public File getLogDirectory() {
+        return initChild(DirectoryNames.Workspace.LOG);
     }
 
     /**

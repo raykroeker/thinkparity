@@ -552,13 +552,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A stream id <code>String</code>.
      * @return A stream <code>File</code>.
      */
-    protected final File downloadStream(final String streamId) throws IOException {
+    protected final File downloadStream(final String streamId)
+            throws IOException {
         final File streamFile = workspace.createTempFile(streamId);
         final FileOutputStream stream = new FileOutputStream(streamFile);
         final StreamSession session = getSessionModel().createStreamSession();
         final StreamReader reader = new StreamReader(session);
-        reader.open();
         try {
+            reader.open();
             reader.read(streamId, stream);
         } finally {
             try {
@@ -1039,13 +1040,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @throws IOException
      */
     protected String uploadStream(final StreamSession session,
-            final InputStream stream) throws IOException {
+            final InputStream stream, final Long streamSize) throws IOException {
         final InternalSessionModel sessionModel = getSessionModel();
         final StreamWriter writer = new StreamWriter(session);
         writer.open();
         try {
             final String streamId = sessionModel.createStream(session);
-            writer.write(streamId, stream);
+            writer.write(streamId, stream, streamSize);
             return streamId;
         } finally {
             writer.close();

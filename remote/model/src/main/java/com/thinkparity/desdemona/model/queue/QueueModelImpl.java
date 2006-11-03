@@ -7,20 +7,19 @@ import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.jivesoftware.wildfire.ClientSession;
-
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.session.Session;
+
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.jivesoftware.wildfire.ClientSession;
+import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 
 
 /**
@@ -82,12 +81,12 @@ class QueueModelImpl extends AbstractModelImpl {
 
     
     /**
-     * Process all pending queue items for a user.
+     * Process all queued events for a user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-	void processOfflineQueue(final JabberId userId) {
+	void processQueue(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
 		try {
@@ -101,13 +100,12 @@ class QueueModelImpl extends AbstractModelImpl {
                 if (isOnline(userId)) {
                     final IQ query = new IQ(rootElement);
                     for (final ClientSession session : getClientSessions(userId)) {
-                        query.setTo(session.getAddress());
-                        session.process(query);
+                        process(session, query);
                     }
                     dequeue(queueItem);
                 }
 			}
-		} catch(final Throwable t) {
+		} catch (final Throwable t) {
 			throw translateError(t);
 		}
 	}

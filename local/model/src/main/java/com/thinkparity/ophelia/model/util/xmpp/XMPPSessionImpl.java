@@ -49,7 +49,6 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.Packet;
 
 /**
  * XMPPSessionImpl
@@ -450,8 +449,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#processOfflineQueue()
      * 
      */
-	public void processOfflineQueue(final JabberId userId) {
-        xmppSystem.processOfflineQueue(userId);
+	public void processQueue(final JabberId userId) {
+        xmppSystem.processQueue(userId);
 	}
 
 	/**
@@ -967,18 +966,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			        handleConnectionClosed(x);
 			    }
 			});
-            xmppConnection.addPacketListener(new PacketListener() {
-                    public void processPacket(final Packet packet) {
-                        logger.logVariable("packet", packet);
-                    }
-                }, new PacketFilter() {
-                    public boolean accept(final Packet packet) {
-                        return true;
-                    }
-                });
+            xmppArchive.addEventHandlers();
 			xmppArtifact.addEventHandlers();
+            xmppBackup.addEventHandlers();
 			xmppContact.addEventHandlers();
             xmppContainer.addEventHandlers();
+            xmppProfile.addEventHandlers();
+            xmppStream.addEventHandlers();
+            xmppSystem.addEventHandlers();
 			xmppUser.addEventHandlers();
 
             xmppAnonymousConnection.loginAnonymously();

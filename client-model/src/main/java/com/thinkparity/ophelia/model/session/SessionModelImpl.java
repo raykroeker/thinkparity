@@ -1257,8 +1257,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     }
                 }
 
-                // process offline events
-                xmppSession.processOfflineQueue(localUserId());
+                // process queued events
+                xmppSession.processQueue(localUserId());
             }
         } catch(final Throwable t) {
             throw translateError(t);

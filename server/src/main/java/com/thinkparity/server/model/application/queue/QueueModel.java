@@ -63,9 +63,9 @@ public class QueueModel extends AbstractModel<QueueModelImpl> {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-	public void processOfflineQueue(final JabberId userId) {
+	public void processQueue(final JabberId userId) {
 		synchronized (getImplLock()) {
-            getImpl().processOfflineQueue(userId);
+            getImpl().processQueue(userId);
 		}
 	}
 }

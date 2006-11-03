@@ -24,7 +24,10 @@ import com.thinkparity.codebase.model.stream.StreamSession;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class StreamSocketDelegate {
+final class StreamSocketDelegate implements Runnable {
+
+    /** An apache logger wrapper. */
+    private final Log4JWrapper logger;
 
     /** The client <code>Socket</code>. */
     private final Socket socket;
@@ -39,6 +42,7 @@ final class StreamSocketDelegate {
     StreamSocketDelegate(final StreamServer streamServer,
             final Socket socket) throws IOException {
         super();
+        this.logger = new Log4JWrapper();
         this.socket = socket;
         this.streamServer = streamServer;
     }
@@ -47,30 +51,41 @@ final class StreamSocketDelegate {
      * Run the stream socket delegate. The stream headers are extracted; and the
      * appropriate handler (upstream or downstream) is invoked.
      * 
-     * @throws IOException
      */
-    void run() throws IOException {
-        final HeaderReader headerReader = new HeaderReader();
-        final StreamHeader sessionId = headerReader.readNext();
-        if (null != sessionId) {
-            final StreamSession streamSession =
-                streamServer.authenticate(sessionId.getValue(),
-                        ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
-            final StreamHeader sessionType = headerReader.readNext();
-            final StreamHeader streamId = headerReader.readNext();
-            if(null != streamSession) {
-                if ("UPSTREAM".equals(sessionType.getValue())) {
-                    new UpstreamHandler(streamServer, streamSession,
-                            streamId.getValue(), socket.getInputStream()).run();
-                } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
-                    new DownstreamHandler(streamServer, streamSession,
-                            streamId.getValue(), socket.getOutputStream()).run();
-                } else {
-                    Assert.assertUnreachable("Unkown stream transfer.");
+    public void run() {
+        try {
+            final HeaderReader headerReader = new HeaderReader();
+            final StreamHeader sessionId = headerReader.readNext();
+            if (null != sessionId) {
+                final StreamSession streamSession =
+                    streamServer.authenticate(sessionId.getValue(),
+                            ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
+                final StreamHeader sessionType = headerReader.readNext();
+                final StreamHeader streamId = headerReader.readNext();
+                if(null != streamSession) {
+                    if ("UPSTREAM".equals(sessionType.getValue())) {
+                        final StreamHeader streamSize = headerReader.readNext();
+                        new UpstreamHandler(streamServer, streamSession,
+                                streamId.getValue(),
+                                Long.valueOf(streamSize.getValue()),
+                                socket.getInputStream()).run();
+                    } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
+                        new DownstreamHandler(streamServer, streamSession,
+                                streamId.getValue(), socket.getOutputStream()).run();
+                    } else {
+                        Assert.assertUnreachable("Unkown stream transfer.");
+                    }
                 }
             }
+        } catch (final IOException iox) {
+            throw new StreamException(iox);
+        } finally {
+            try {
+                socket.close();
+            } catch (final IOException iox2) {
+                logger.logError(iox2, "Could not close client socket.");
+            }
         }
-        socket.close();
     }
 
     /**

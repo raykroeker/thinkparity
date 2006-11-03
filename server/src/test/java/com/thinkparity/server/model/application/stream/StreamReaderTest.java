@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -25,8 +26,15 @@ public final class StreamReaderTest extends StreamTestCase {
         try {
             reader.open();
             reader.read(datum.streamId, datum.stream);
+        } catch (final IOException iox) {
+            fail(createFailMessage(iox));
         } finally {
-            reader.close();
+            try {
+                datum.stream.close();
+                reader.close();
+            } catch (final IOException iox2) {
+                fail(createFailMessage(iox2));
+            }
         }
     }
     @Override

@@ -107,6 +107,7 @@ public class XMPPMethod extends IQ {
 
         // create a collector for the response
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
+
         // TIME This is a local timestamp.
         logVariable("preSendPacket", DateUtil.getInstance());
         xmppConnection.sendPacket(this);
@@ -123,11 +124,12 @@ public class XMPPMethod extends IQ {
         // and it helps debug non-implemented responses
         logVariable("preResponseCollected", DateUtil.getInstance());
         try {
-//            return (XMPPMethodResponse) idCollector.nextResult(3 * 1000);
-            return (XMPPMethodResponse) idCollector.nextResult();
-        } catch (final ClassCastException ccx) {
-            final String errorId = new ErrorHelper().getErrorId(ccx);
-            logger.logError(errorId, ccx);
+            final XMPPMethodResponse response =
+                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
+            return response;
+        } catch (final Throwable t) {
+            final String errorId = new ErrorHelper().getErrorId(t);
+            logger.logError(t, errorId);
             logger.logError("name:{0}", name);
             logger.logError("xmppConnection:{0}", xmppConnection);
             throw new XMPPException(errorId);
@@ -136,18 +138,6 @@ public class XMPPMethod extends IQ {
             logVariable("postResponseCollected", DateUtil.getInstance());
             parameters.clear();
         }
-    }
-
-    /**
-     * Log a variable.  Note that only the variable value will be rendered.
-     * 
-     * @param name
-     *            The variable name.
-     * @param value
-     *            The variable value.
-     */
-    protected final <V> V logVariable(final String name, final V value) {
-        return logger.logVariable(name, value);
     }
 
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */
@@ -296,6 +286,20 @@ public class XMPPMethod extends IQ {
     }
 
     /**
+     * Create a packet collector that will filter on packets with the same
+     * query id.
+     *
+     * @param iq
+     *      The internet query.
+     * @return A packet collector.
+     */
+    protected PacketCollector createPacketCollector(
+            final XMPPConnection xmppConnection) {
+        return xmppConnection.createPacketCollector(
+                new PacketIDFilter(getPacketID()));
+    }
+    
+    /**
      * Flush the internal parameter map.
      *
      * @return A buffer of xml containing the parameters.
@@ -309,23 +313,21 @@ public class XMPPMethod extends IQ {
         return xml.toString();
     }
 
+    /**
+     * Log a variable.  Note that only the variable value will be rendered.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     */
+    protected final <V> V logVariable(final String name, final V value) {
+        return logger.logVariable(name, value);
+    }
+
     private byte[] compress(final byte[] bytes) {
         try { return CompressionUtil.compress(bytes, Level.Nine); }
         catch(final IOException iox) { throw new XMPPException(iox); }
-    }
-    
-    /**
-     * Create a packet collector that will filter on packets with the same
-     * query id.
-     *
-     * @param iq
-     *      The internet query.
-     * @return A packet collector.
-     */
-    protected PacketCollector createPacketCollector(
-            final XMPPConnection xmppConnection) {
-        return xmppConnection.createPacketCollector(
-                new PacketIDFilter(getPacketID()));
     }
 
     private String encode(final byte[] bytes) {

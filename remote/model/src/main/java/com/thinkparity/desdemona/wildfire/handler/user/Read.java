@@ -24,7 +24,7 @@ public class Read extends AbstractHandler {
     public void service() {
         logApiId();
         final User user = read(readJabberId("userId"));
-        logVariable("user", user);
+        logger.logVariable("user", user);
         if (null != user) {
             writeJabberId("id", user.getId());
             writeString("name", user.getName());

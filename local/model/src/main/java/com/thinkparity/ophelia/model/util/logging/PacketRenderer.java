@@ -4,22 +4,13 @@
 package com.thinkparity.ophelia.model.util.logging;
 
 import org.apache.log4j.or.ObjectRenderer;
-
 import org.jivesoftware.smack.packet.Packet;
 
-
 /**
- * 
  * @author raykroeker@gmail.com
  * @version 1.0
  */
-public class PacketRenderer implements ObjectRenderer {
-
-	private static final String FROM = ",from:";
-	private static final String PREFIX =
-		Packet.class.getName() + IRendererConstants.PREFIX_SUFFIX;
-	private static final String TO = ",to:";
-	private static final String XML = ",xml:";
+public final class PacketRenderer implements ObjectRenderer {
 
 	/**
 	 * Create a PacketRenderer.
@@ -31,19 +22,10 @@ public class PacketRenderer implements ObjectRenderer {
 	 */
 	public String doRender(Object o) {
 		if(null == o) { 
-			return new StringBuffer(PREFIX)
-				.append(IRendererConstants.NULL)
-				.append(IRendererConstants.SUFFIX).toString();
+			return "null";
 		}
 		else {
-			final Packet p = (Packet) o;
-			return new StringBuffer(PREFIX)
-				.append(IRendererConstants.ID).append(p.getPacketID())
-				.append(TO).append(p.getTo())
-				.append(FROM).append(p.getFrom())
-				.append(XML).append(p.toXML())
-				.append(IRendererConstants.SUFFIX)
-				.toString();
+			return ((Packet) o).toXML();
 		}
 	}
 }

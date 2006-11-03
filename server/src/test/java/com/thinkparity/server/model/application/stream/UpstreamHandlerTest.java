@@ -32,7 +32,8 @@ public final class UpstreamHandlerTest extends StreamTestCase {
         final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
         final String streamId = createStream(server, session, streamFile.getName());
 
-        datum = new Fixture(new UpstreamHandler(server, session, streamId, new FileInputStream(streamFile)));
+        datum = new Fixture(new UpstreamHandler(server, session, streamId,
+                streamFile.length(), new FileInputStream(streamFile)));
     }
     @Override
     protected void tearDown() throws Exception {

@@ -31,7 +31,7 @@ public class ReadTeamIds extends AbstractHandler {
     public void service() {
         logApiId();
         final List<JabberId> teamIds =
-            logVariable("teamIds", readTeamIds(readUUID("uniqueId")));
+            logger.logVariable("teamIds", readTeamIds(readUUID("uniqueId")));
         writeJabberIds("teamIds", "teamIds", teamIds);
     }
 

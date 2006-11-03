@@ -38,11 +38,11 @@ abstract class StreamTestCase extends ModelTestCase {
         return session;
     }
     protected String createSessionId(final JabberId userId) {
-        // TODO Generate a unique id per user id and store it in the user's
-        // meta-data
+        /*
+         * NOTE A stream session id is unique per user per timestamp
+         */
         final String hashString = new StringBuffer(userId.toString())
-                .append("LSAHD-QOIUQOE-ZXBVMNZNX-MZXXNCBVMX")
-                .insert(0, "LKSJD-ZXVBNZM-QPWOEIURY-NXBCVMXNBC")
+                .append(System.currentTimeMillis())
                 .toString();
         return MD5Util.md5Hex(hashString.getBytes());
     }

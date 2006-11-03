@@ -2612,7 +2612,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         for (final Entry<DocumentVersion, InputStream> entry :
                 documentVersionStreams.entrySet()) {
             documentVersionStreamIds.put(entry.getKey(),
-                    uploadStream(session, entry.getValue()));
+                    uploadStream(session, entry.getValue(), entry.getKey().getSize()));
         }
         getSessionModel().deleteStreamSession(session);
 

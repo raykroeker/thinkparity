@@ -113,12 +113,11 @@ class StreamSocketServer implements Runnable {
                 final Socket clientSocket = serverSocket.accept();
                 logger.logTrace("Socket connected.");
                 try {
-                    new StreamSocketDelegate(streamServer, clientSocket).run();
+                    new Thread(new StreamSocketDelegate(streamServer, clientSocket),
+                            clientSocket.getRemoteSocketAddress().toString()).start();
                 } catch (final Throwable t) {
                     logger.logError(t, "Failed to negotiate stream {0}.",
                             clientSocket.getRemoteSocketAddress());
-                } finally {
-                    clientSocket.close();
                 }
                 logger.logTrace("Socket handler executed.");
             }

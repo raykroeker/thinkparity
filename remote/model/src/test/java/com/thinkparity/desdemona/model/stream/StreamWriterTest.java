@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -24,9 +25,16 @@ public final class StreamWriterTest extends StreamTestCase {
         final StreamWriter writer = new StreamWriter(datum.streamSession);
         try {
             writer.open();
-            writer.write(datum.streamId, datum.stream);
+            writer.write(datum.streamId, datum.stream, datum.streamSize);
+        } catch (final IOException iox) {
+            fail(createFailMessage(iox));
         } finally {
-            writer.close();
+            try {
+                datum.stream.close();
+                writer.close();
+            } catch (final IOException iox2) {
+                fail(createFailMessage(iox2));
+            }
         }
     }
     @Override
@@ -39,7 +47,7 @@ public final class StreamWriterTest extends StreamTestCase {
         final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
         final String streamId = createStream(server, session, streamFile.getName());
         final InputStream stream = new FileInputStream(streamFile);
-        datum = new Fixture(stream, streamId,  session);
+        datum = new Fixture(stream, streamId,  session, streamFile.length());
     }
     @Override
     protected void tearDown() throws Exception {
@@ -50,12 +58,14 @@ public final class StreamWriterTest extends StreamTestCase {
         private final InputStream stream;
         private final String streamId;
         private final StreamSession streamSession;
+        private final Long streamSize;
         private Fixture(final InputStream stream, final String streamId,
-                final StreamSession streamSession) {
+                final StreamSession streamSession, final Long streamSize) {
             super();
             this.stream = stream;
             this.streamId = streamId;
             this.streamSession = streamSession;
+            this.streamSize = streamSize;
         }
     }
 }

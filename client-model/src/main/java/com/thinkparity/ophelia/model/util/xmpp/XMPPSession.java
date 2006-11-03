@@ -324,10 +324,10 @@ public interface XMPPSession {
             final UUID uniqueId, final Long versionId);
 
     /**
-     * Process events queued on the server since last login.
+     * Process events queued on the server.
      * 
      */
-    public void processOfflineQueue(final JabberId userId);
+    public void processQueue(final JabberId userId);
 
     /**
      * Publish a container.

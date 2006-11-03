@@ -24,8 +24,8 @@ public abstract class ModelTestCase extends TestCase {
 
     static {
         final TestSession testSession = getTestSession();
-        final File log4jFile = new File(testSession.getOutputDirectory(), "desdemona.log4j");
-        System.setProperty("thinkparity.log4j.file", log4jFile.getAbsolutePath());
+        System.setProperty("thinkparity.log4j.directory",
+                testSession.getOutputDirectory().getAbsolutePath());
     }
 
     /**

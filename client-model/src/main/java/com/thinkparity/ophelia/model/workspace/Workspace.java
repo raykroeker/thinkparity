@@ -76,6 +76,13 @@ public interface Workspace {
 	public File getIndexDirectory();
 
     /**
+     * Obtain the log directory.
+     * 
+     * @return A directory <code>File</code>.
+     */
+    public File getLogDirectory();
+
+    /**
      * Obtain the log file for the workspace.
      * 
      * @return A log <code>File</code>.

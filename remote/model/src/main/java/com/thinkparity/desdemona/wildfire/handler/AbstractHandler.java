@@ -41,6 +41,9 @@ import org.xmpp.packet.IQ;
 public abstract class AbstractHandler extends
         com.thinkparity.codebase.wildfire.handler.AbstractHandler {
 
+    /** An apache iq logger. */
+    static final Log4JWrapper IQ_LOGGER;
+
     /**
      * A synchronization lock used to serialize all incoming iq handler
      * requests.
@@ -48,6 +51,7 @@ public abstract class AbstractHandler extends
     static final Object SERIALIZER;
 
     static {
+        IQ_LOGGER = new Log4JWrapper("XMPP_IQ");
         SERIALIZER = new Object();
     }
 
@@ -76,7 +80,7 @@ public abstract class AbstractHandler extends
     private IQWriter iqWriter;
 
     /** An apache logger. */
-    private final Log4JWrapper logger;
+    protected final Log4JWrapper logger;
 
     /** A thinkParity profile interface. */
     private ProfileModel profileModel;
@@ -93,7 +97,7 @@ public abstract class AbstractHandler extends
     /** Create AbstractHandler. */
     public AbstractHandler(final String action) {
         super(action);
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(getClass());
     }
 
     /**
@@ -127,9 +131,9 @@ public abstract class AbstractHandler extends
             this.queueModel = QueueModel.getModel(session);
             this.streamModel = StreamModel.getModel(session);
             this.userModel = UserModel.getModel(session);
-            logVariable("iq", iq);
             final IQ response = super.handleIQ(iq);
-            logVariable("response", response);
+            IQ_LOGGER.logVariable("iq", iq);
+            IQ_LOGGER.logVariable("iq response", response);
             return response;
         }
     }
@@ -231,26 +235,6 @@ public abstract class AbstractHandler extends
     /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
-    }
-
-    /** Log a trace id. */
-    protected final void logTraceId() {
-        logger.logApiId();
-    }
-
-
-    /**
-     * Log a named variable. Note that the logging renderer will be used only
-     * for the value.
-     * 
-     * @param name
-     *            A variable name.
-     * @param value
-     *            A variable.
-     * @return The value.
-     */
-    protected final <V> V logVariable(final String name, final V value) {
-        return logger.logVariable(name, value);
     }
 
     /**

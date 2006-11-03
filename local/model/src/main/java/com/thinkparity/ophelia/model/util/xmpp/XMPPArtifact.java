@@ -318,8 +318,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         final XMPPMethod method = new XMPPMethod("artifact:readkeyholder");
         method.setParameter("userId", userId);
         method.setParameter("uniqueId", uniqueId);
-        final XMPPMethodResponse result = execute(method);
-        return result.readResultJabberId("keyHolder");
+        return execute(method, Boolean.TRUE).readResultJabberId("keyHolder");
     }
 
 

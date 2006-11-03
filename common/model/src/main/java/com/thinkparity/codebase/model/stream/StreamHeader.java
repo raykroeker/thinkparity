@@ -128,9 +128,10 @@ public final class StreamHeader {
      */
     public enum Type {
 
-        SESSION_BEGIN("Session-Begin"),
+        SESSION_ID("Session-Id"),
         SESSION_TYPE("Session-Type"),
-        STREAM_BEGIN("Stream-Begin"), 
+        STREAM_ID("Stream-Id"),
+        STREAM_SIZE("Stream-Size"),
         UNKNOWN("Unknown");
 
         /**

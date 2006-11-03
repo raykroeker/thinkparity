@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase.model.stream;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -27,7 +28,7 @@ public final class StreamReader extends StreamClient {
      * Open the reader.
      *
      */
-    public void open() {
+    public void open() throws IOException {
         connect(Type.DOWNSTREAM);
     }
 
@@ -35,7 +36,7 @@ public final class StreamReader extends StreamClient {
      * Close the reader.
      *
      */
-    public void close() {
+    public void close() throws IOException {
         disconnect();
     }
 
@@ -48,7 +49,7 @@ public final class StreamReader extends StreamClient {
      *            A target <code>OutputStream</code>.
      */
     public void read(final String streamId, final OutputStream stream) {
-        write(new StreamHeader(StreamHeader.Type.STREAM_BEGIN, streamId));
+        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
         read(stream);
     }
 }

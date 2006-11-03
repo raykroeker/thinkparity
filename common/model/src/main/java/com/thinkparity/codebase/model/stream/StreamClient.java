@@ -26,23 +26,39 @@ import com.thinkparity.codebase.model.session.Environment;
  */
 public abstract class StreamClient {
 
+    /** An apache logger wrapper. */
+    private final static Log4JWrapper logger;
+
+    static {
+        logger = new Log4JWrapper();
+    }
+
+    /** The stream's <code>InputStream</code>. */
     private InputStream input;
 
-    private final Log4JWrapper logger;
-
+    /** The stream's <code>OutputStream</code>. */
     private OutputStream output;
 
+    /** The <code>StreamSession</code>. */
     private final StreamSession session;
 
+    /** The backing <code>Socket</code>. */
     private Socket socket;
 
+    /** The backing socket's <code>InetSocketAddress</code>. */
     private final InetSocketAddress socketAddress;
 
+    /** The <code>SocketFactory</code> used to establish the stream. */
     private final SocketFactory socketFactory;
 
+    /**
+     * Create StreamClient.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
     protected StreamClient(final StreamSession session) {
         super();
-        this.logger = new Log4JWrapper();
         this.session = session;
         final Environment environment = session.getEnvironment();
         this.socketAddress = new InetSocketAddress(
@@ -66,29 +82,20 @@ public abstract class StreamClient {
         }
     }
 
-    protected final void connect(final Type type) {
-        try {
-            doConnect();
-            write(new StreamHeader(StreamHeader.Type.SESSION_BEGIN, session.getId()));
-            write(new StreamHeader(StreamHeader.Type.SESSION_TYPE, type.name()));
-        } catch (final IOException iox) {
-            if (isConnected())
-                try {
-                    doDisconnect();
-                } catch (final IOException iox2) {
-                    /* NOTE We do not want to mask the connection error. */
-                    logger.logError(iox2, "Could not disconnect from bad connection.");
-                }
-            throw new StreamException(iox);
-        }
+    /**
+     * Establish a stream connection.
+     * 
+     * @param type
+     *            A stream <code>Type</code>.
+     */
+    protected final void connect(final Type type) throws IOException {
+        doConnect();
+        write(new StreamHeader(StreamHeader.Type.SESSION_ID, session.getId()));
+        write(new StreamHeader(StreamHeader.Type.SESSION_TYPE, type.name()));
     }
 
-    protected final void disconnect() {
-        try {
-            doDisconnect();
-        } catch (final IOException iox) {
-            throw new StreamException(iox);
-        }
+    protected final void disconnect() throws IOException {
+        doDisconnect();
     }
 
     protected final void read(final OutputStream stream) {
@@ -101,16 +108,42 @@ public abstract class StreamClient {
         }
     }
 
-    protected final void write(final InputStream stream) {
+    /**
+     * Write a stream.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param streamSize
+     *            The stream size <code>Long</code>.
+     */
+    protected final void write(final InputStream stream, final Long streamSize) {
         logger.logApiId();
         try {
-            StreamUtil.copy(stream, output, session.getBufferSize());
-            output.flush();
+
+            int len, total = 0;
+            final byte[] b = new byte[session.getBufferSize()];
+            try {
+                while((len = stream.read(b)) > 0) {
+                    logger.logDebug("UPSTREAM SENT {0}/{1}", total += len, streamSize);
+                    output.write(b, 0, len);
+                    output.flush();
+                }
+            } finally {
+                stream.close();
+                output.flush();
+                output.close();
+            }
         } catch (final IOException iox) {
             throw new StreamException(iox);
         }
     }
 
+    /**
+     * Write a stream header.
+     * 
+     * @param streamHeader
+     *            A <code>StreamHeader</code>.
+     */
     protected final void write(final StreamHeader streamHeader) {
         logger.logApiId();
         logger.logVariable("streamHeader", streamHeader);

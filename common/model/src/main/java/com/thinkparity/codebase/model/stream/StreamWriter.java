@@ -27,7 +27,7 @@ public final class StreamWriter extends StreamClient {
      * 
      * @throws IOException
      */
-    public void close() {
+    public void close() throws IOException {
         disconnect();
     }
 
@@ -35,7 +35,7 @@ public final class StreamWriter extends StreamClient {
      * Open the stream writer.
      * 
      */
-    public void open() {
+    public void open() throws IOException {
         connect(Type.UPSTREAM);
     }
 
@@ -47,8 +47,9 @@ public final class StreamWriter extends StreamClient {
      * @param input
      *            An <code>InputStream</code>.
      */
-    public void write(final String streamId, final InputStream stream) {
-        write(new StreamHeader(StreamHeader.Type.STREAM_BEGIN, streamId));
-        write(stream);
+    public void write(final String streamId, final InputStream stream, final Long streamSize) {
+        write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
+        write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
+        write(stream, streamSize);
     }
 }

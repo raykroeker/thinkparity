@@ -183,6 +183,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             publishArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
             publishArtifact.setParameter("versionId", container.getVersionId());
             publishArtifact.setParameter("name", container.getName());
+            publishArtifact.setParameter("comment", container.getComment());
             publishArtifact.setParameter("artifactCount", entries.size());
             publishArtifact.setParameter("artifactIndex", i++);
             publishArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
@@ -201,6 +202,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("uniqueId", container.getArtifactUniqueId());
         publish.setParameter("versionId", container.getVersionId());
         publish.setParameter("name", container.getName());
+        publish.setParameter("comment", container.getComment());
         publish.setParameter("artifactCount", entries.size());
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedTo", "publishedTo", publishTo);

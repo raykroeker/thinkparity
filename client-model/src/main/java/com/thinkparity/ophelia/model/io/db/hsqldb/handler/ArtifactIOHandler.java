@@ -3,9 +3,18 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
@@ -82,9 +91,9 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 	private static final String INSERT_ARTIFACT_VERSION =
 		new StringBuffer("insert into ARTIFACT_VERSION ")
 		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,ARTIFACT_NAME,ARTIFACT_TYPE,")
-		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+		.append("ARTIFACT_UNIQUE_ID,COMMENT,CREATED_BY,CREATED_ON,UPDATED_BY,")
 		.append("UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?,?,?,?)")
+		.append("values (?,?,?,?,?,?,?,?,?,?)")
 		.toString();
 
 	private static final String INSERT_ARTIFACT_VERSION_META_DATA =
@@ -706,10 +715,11 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setString(3, version.getName());
 		session.setTypeAsString(4, version.getArtifactType());
 		session.setUniqueId(5, version.getArtifactUniqueId());
-		session.setLong(6, readLocalId(version.getCreatedBy()));
-		session.setCalendar(7, version.getCreatedOn());
-		session.setLong(8, readLocalId(version.getUpdatedBy()));
-		session.setCalendar(9, version.getUpdatedOn());
+        session.setString(6, version.getComment());
+		session.setLong(7, readLocalId(version.getCreatedBy()));
+		session.setCalendar(8, version.getCreatedOn());
+		session.setLong(9, readLocalId(version.getUpdatedBy()));
+		session.setCalendar(10, version.getUpdatedOn());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create version.");
 

@@ -9,14 +9,17 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
@@ -30,7 +33,10 @@ import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
+import com.thinkparity.ophelia.browser.Version;
+
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @author raykroeker@gmail.com
@@ -43,6 +49,9 @@ public class WorkspaceImpl implements Workspace {
 
     /** An apache logger. */
     private final Logger logger;
+
+    /** The operating <code>Mode</code>. */
+    private final Mode mode;
 
     /** The workspace preferences. */
     private PreferencesImpl preferencesImpl;
@@ -63,7 +72,9 @@ public class WorkspaceImpl implements Workspace {
 	public WorkspaceImpl(final File workspace) {
         super();
         this.logger = Logger.getLogger(getClass());
+        this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
+        bootstrapLogging();
 	}
 
     /**
@@ -181,7 +192,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }
+    }            
 
     /**
      * Obtain the model's event listeners.
@@ -193,7 +204,7 @@ public class WorkspaceImpl implements Workspace {
     public <T extends EventListener> List<T> getListeners(final Workspace workspace,
             final AbstractModelImpl<T> impl) {
         return listenersImpl.get(impl);
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLog4JDirectory()
@@ -220,7 +231,7 @@ public class WorkspaceImpl implements Workspace {
         return workspace.getRoot().getName();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getPreferences()
      * 
      */
@@ -235,7 +246,7 @@ public class WorkspaceImpl implements Workspace {
         return sessionManagerImpl;
     }
 
-	/**
+    /**
      * Obtain the shutdownHooks
      *
      * @return The List<ShutdownHook>.
@@ -297,7 +308,7 @@ public class WorkspaceImpl implements Workspace {
         sessionManagerImpl = new SessionManagerImpl(this);
         sessionManagerImpl.start();
 
-        xmppSessionImpl = new XMPPSessionImpl();
+        xmppSessionImpl = new XMPPSessionImpl(XMPPSessionDebugger.class);
 
         shutdownHooks = new ArrayList<ShutdownHook>();
         
@@ -342,6 +353,41 @@ public class WorkspaceImpl implements Workspace {
             final Object errorId = getErrorId(t);
             logger.error(errorId, t);
             return new WorkspaceException(errorId.toString(), t);
+        }
+    }
+
+    /**
+     * Initialize logging. Check the operating mode. If in development or
+     * testing mode; enable the sql and xmpp debuggers.
+     * 
+     */
+    private void bootstrapLogging() {
+        if ((Mode.DEVELOPMENT == mode || Mode.TESTING == mode)) {
+            final Properties logging = new Properties();
+            // sql debugger
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+            logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+            logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+            logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
+                    MessageFormat.format("{0}{1}logs{1}{2}",
+                            workspace.getRoot().getAbsolutePath(),
+                            File.separatorChar, "thinkParity SQL.log"));
+            // xmpp debugger
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+            logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+            logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+            logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
+                    MessageFormat.format("{0}{1}logs{1}{2}",
+                            workspace.getRoot().getAbsolutePath(),
+                            File.separatorChar, "thinkParity XMPP.log"));
+            PropertyConfigurator.configure(logging);
+            new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1} - {2}",
+                    Version.getName(), Version.getMode(), Version.getBuildId());
+            new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1} - {2}",
+                    Version.getName(), Version.getMode(), Version.getBuildId());
+
         }
     }
 

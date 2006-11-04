@@ -238,7 +238,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSION =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
             .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
+            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
+            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
             .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
@@ -252,7 +253,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSIONS =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
             .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
+            .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.COMMENT,")
+            .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
             .append("from CONTAINER_VERSION CV ")
             .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
             .append("inner join USER UC on AV.CREATED_BY=UC.USER_ID ")
@@ -922,6 +924,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        version.setArtifactId(session.getLong("CONTAINER_ID"));
        version.setArtifactType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
        version.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+       version.setComment(session.getString("COMMENT"));
        version.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
        version.setCreatedOn(session.getCalendar("CREATED_ON"));
        version.setName(session.getString("ARTIFACT_NAME"));

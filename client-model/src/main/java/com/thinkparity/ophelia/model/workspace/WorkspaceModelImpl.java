@@ -6,18 +6,19 @@ package com.thinkparity.ophelia.model.workspace;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.apache.log4j.Logger;
+import java.util.Map;
 
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityUncheckedException;
@@ -30,6 +31,8 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 
+import org.apache.log4j.Logger;
+
 /**
  * WorkspaceModelImpl
  * @author raykroeker@gmail.com
@@ -39,10 +42,10 @@ import com.thinkparity.ophelia.model.workspace.impl.WorkspaceImpl;
 class WorkspaceModelImpl {
 
     /** A list of workspaces. */
-    private static final List<WorkspaceImpl> WORKSPACES;
+    private static final Map<File, WorkspaceImpl> WORKSPACES;
 
 	static {
-        WORKSPACES = new ArrayList<WorkspaceImpl>(1);
+        WORKSPACES = new HashMap<File, WorkspaceImpl>(1, 0.75F);
 
         Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
             @Override
@@ -50,7 +53,7 @@ class WorkspaceModelImpl {
                 Logger.getLogger(getClass()).trace("Runtime shutting down.");
                 synchronized (WORKSPACES) {
                     List<ShutdownHook> shutdownHooks;
-                    for (final WorkspaceImpl workspace : WORKSPACES) {
+                    for (final WorkspaceImpl workspace : WORKSPACES.values()) {
                         Logger.getLogger(getClass()).trace(
                                 MessageFormat.format("Workspace {0} shutting down.", workspace.getName()));
                         shutdownHooks = workspace.getShutdownHooks();
@@ -174,11 +177,11 @@ class WorkspaceModelImpl {
 	 */
 	Workspace getWorkspace(final File workspace) {
         synchronized (WORKSPACES) {
-            final WorkspaceImpl impl = new WorkspaceImpl(workspace);
-            if (WORKSPACES.contains(impl)) {
-                return WORKSPACES.get(WORKSPACES.indexOf(impl));
+            if (WORKSPACES.containsKey(workspace)) {
+                return WORKSPACES.get(workspace);
             } else {
-                WORKSPACES.add(open(impl));
+                final WorkspaceImpl impl = new WorkspaceImpl(workspace);
+                WORKSPACES.put(workspace, open(impl));
                 return getWorkspace(workspace);
             }
         }
@@ -238,7 +241,7 @@ class WorkspaceModelImpl {
 
     private WorkspaceImpl findImpl(final Workspace workspace) {
         synchronized (WORKSPACES) {
-            for (final WorkspaceImpl impl : WORKSPACES) {
+            for (final WorkspaceImpl impl : WORKSPACES.values()) {
                 if (impl.getWorkspaceDirectory().equals(workspace.getWorkspaceDirectory())) {
                     return impl;
                 }

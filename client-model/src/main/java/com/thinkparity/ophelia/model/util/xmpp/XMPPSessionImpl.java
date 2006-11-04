@@ -71,6 +71,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         logger.logInfo("Smack v{0}", SmackConfiguration.getVersion());
 	}
 
+    /** An <code>XMPPSessionDebugger</code>. */
+    private final Class<? extends XMPPSessionDebugger> debuggerClass;
+
     /** A list of the session listeners. */
     private final List<SessionListener> listeners;
 
@@ -108,11 +111,20 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private final XMPPUser xmppUser;
 
     /**
+     * Create XMPPSessionImpl.
+     *
+     */
+    public XMPPSessionImpl() {
+        this(null);
+    }
+
+    /**
 	 * Create XMPPSessionImpl.
 	 * 
 	 */
-	public XMPPSessionImpl() {
+	public XMPPSessionImpl(final Class<? extends XMPPSessionDebugger> debuggerClass) {
         super();
+        this.debuggerClass = debuggerClass;
 		this.listeners = new ArrayList<SessionListener>();
         this.xmppArchive = new XMPPArchive(this);
         this.xmppBackup = new XMPPBackup(this);
@@ -931,7 +943,10 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
                     environment.getXMPPHost(), environment.getXMPPPort(),
                     environment.getXMPPService());
             configuration.setCompressionEnabled(false);
-            configuration.setDebuggerEnabled(false);
+            configuration.setDebuggerEnabled(null != debuggerClass);
+            if (configuration.isDebuggerEnabled()) {
+                System.setProperty("smack.debuggerClass", debuggerClass.getName());
+            }
             configuration.setTLSEnabled(environment.isXMPPTLSEnabled());
             if (configuration.isTLSEnabled()) {
                 configuration.setExpiredCertificatesCheckEnabled(configuration.isTLSEnabled());

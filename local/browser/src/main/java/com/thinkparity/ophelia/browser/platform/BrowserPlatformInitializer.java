@@ -6,21 +6,21 @@ package com.thinkparity.ophelia.browser.platform;
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
-import com.thinkparity.ophelia.model.workspace.Workspace;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @author raykroeker@gmail.com
@@ -48,8 +48,8 @@ public class BrowserPlatformInitializer {
         default:
             Assert.assertUnreachable("UNKNOWN MODE");
         }
-        log4j.setProperty("log4j.appender.FILE.File", workspace.getLogFile().getAbsolutePath());
-        LogManager.resetConfiguration();
+        log4j.setProperty("thinkparity.log4j.directory",
+                workspace.getLogDirectory().getAbsolutePath());
         PropertyConfigurator.configure(log4j);
         new Log4JWrapper().logInfo("{0} - {1} - {2}",
                 Version.getName(), Version.getMode(), Version.getBuildId());

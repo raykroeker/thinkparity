@@ -95,17 +95,20 @@ public final class Constants {
                 public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
             }
+            public static final class Menu {
+                public static final Color MENU_BORDER = new Color(157, 157, 161, 255);
+            }
         }
         public static final class Swing {
             public static final Color DEFAULT_LIST_SELECTION_BG = new Color(207, 221, 241, 255);
             public static final Color DEFAULT_LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(87, 136, 206, 255);
-            public static final Color MENU_ITEM_SELECTION_FG = Color.WHITE;
-            public static final Color MENU_ITEM_BG = Color.WHITE;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_ITEM_BG = new Color(245, 246, 247, 255);
             public static final Color MENU_ITEM_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(87, 136, 206, 255);
-            public static final Color MENU_SELECTION_FG = Color.WHITE;
-            public static final Color MENU_BG = Color.WHITE;
+            public static final Color MENU_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_BG = new Color(245, 246, 247, 255);
             public static final Color MENU_FG = Color.BLACK;
         }
     }

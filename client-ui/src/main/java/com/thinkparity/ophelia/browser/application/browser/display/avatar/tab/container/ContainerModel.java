@@ -548,6 +548,13 @@ public final class ContainerModel extends TabPanelModel {
     }
     
     /**
+     * Force the tab to paint immediately.
+     */
+    public void paintTabImmediately() {
+        browser.paintTabImmediately();
+    }
+    
+    /**
      * Read the container from the provider.
      * 
      * @param containerId

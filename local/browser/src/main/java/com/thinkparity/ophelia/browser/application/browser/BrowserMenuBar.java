@@ -18,7 +18,9 @@ import javax.swing.JMenuBar;
 import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -152,10 +154,7 @@ public class BrowserMenuBar extends JMenuBar {
         // Create JMenus
         final JMenu newMenu = MenuFactory.create(localization.getString("New"), localization.getString("NewMnemonic"));
         this.add(Box.createRigidArea(new Dimension(6,0))); 
-        newMenu.setBorder(new LineBorder(Color.WHITE));
-  
-        this.add(newMenu);
-        
+        this.add(newMenu);        
         final JMenu profileMenu = MenuFactory.create(localization.getString("Profile"), localization.getString("ProfileMnemonic"));
         this.add(Box.createRigidArea(new Dimension(2,0)));  
         this.add(profileMenu);
@@ -175,6 +174,12 @@ public class BrowserMenuBar extends JMenuBar {
         // Create the OpenHelp menu
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
+        
+        // Add shadows to menus
+        final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
+        newMenu.getPopupMenu().setBorder(new MultiColourLineBorder(colors, 3, Boolean.TRUE));
+        profileMenu.getPopupMenu().setBorder(new MultiColourLineBorder(colors, 3, Boolean.TRUE));
+        helpMenu.getPopupMenu().setBorder(new MultiColourLineBorder(colors, 3, Boolean.TRUE));
         
         // Create the Sign-Up button
         this.add(Box.createRigidArea(new Dimension(9,0)));

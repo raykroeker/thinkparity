@@ -761,6 +761,22 @@ public class Browser extends AbstractApplication {
             }
         });
     }
+    
+    /**
+     * Force the tab to paint immediately.
+     */
+    public void paintTabImmediately() {
+        switch(getMainTitleAvatarTab()) {
+        case CONTACT:
+            getTabContactAvatar().paintTabImmediately();
+            break;
+        case CONTAINER:
+            getTabContainerAvatar().paintTabImmediately();
+            break;
+        default:
+            Assert.assertUnreachable("UNKNOWN TAB");
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()

@@ -231,6 +231,8 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     protected void triggerPopup(final Component invoker, final MouseEvent e) {
+        // Force an immediate paint of the tab, so the shadow works correctly.
+        model.paintTabImmediately();
         new ContainerPopup(model, container).show(invoker, e);
     }
 
@@ -409,10 +411,13 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     protected void formMouseReleased(MouseEvent e) {
-        super.formMouseReleased(e);
+        // Perform selection first since this affects drawing. Drawing
+        // must be completed before the popup opens because of the
+        // shadow border on the popup.
         if (e.isPopupTrigger()) {
             model.selectContainer(container);
-        }        
+        }   
+        super.formMouseReleased(e);
     }
     
     /**

@@ -13,6 +13,9 @@ import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
+
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.PopupMenuInfo;
 import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
 
@@ -108,7 +111,7 @@ public class MenuFactory {
 	 * @return The JPopupMenu.
 	 */
 	private JPopupMenu doCreatePopup() {
-        JPopupMenu jPopupMenu = new JPopupMenu();
+        JPopupMenu jPopupMenu = new ShadowPopupMenu();
         jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuCanceled(PopupMenuEvent e) {
             }
@@ -128,4 +131,12 @@ public class MenuFactory {
         
 		return jPopupMenu;
 	}
+    
+    class ShadowPopupMenu extends JPopupMenu {
+        public ShadowPopupMenu() {
+            super();
+            final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
+            setBorder(new MultiColourLineBorder(colors, 3, Boolean.TRUE));
+        }
+    }
 }

@@ -33,8 +33,6 @@ import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
-import com.thinkparity.ophelia.browser.Version;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -383,11 +381,8 @@ public class WorkspaceImpl implements Workspace {
                             workspace.getRoot().getAbsolutePath(),
                             File.separatorChar, "thinkParity XMPP.log"));
             PropertyConfigurator.configure(logging);
-            new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1} - {2}",
-                    Version.getName(), Version.getMode(), Version.getBuildId());
-            new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1} - {2}",
-                    Version.getName(), Version.getMode(), Version.getBuildId());
-
+            new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+            new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
         }
     }
 

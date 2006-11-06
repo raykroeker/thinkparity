@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.workspace;
 
-
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.HashMap;

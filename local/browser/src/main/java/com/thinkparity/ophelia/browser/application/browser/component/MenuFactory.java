@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.component;
 
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,8 +14,9 @@ import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
+import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.PopupMenuInfo;
 import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
@@ -83,8 +85,12 @@ public class MenuFactory {
 	private MenuFactory() { super(); }
 
 	private JMenu doCreate(final String text) {
-        final BrowserMenu browserMenu = new BrowserMenu(text);
-        return browserMenu;
+        try {
+            final BrowserMenu browserMenu = new BrowserMenu(text);
+            return browserMenu;
+        } catch (final AWTException awtx) {
+            throw new BrowserException("Cannot instantiate browser menu.", awtx);
+        }
     }
 
     /**
@@ -108,35 +114,39 @@ public class MenuFactory {
 	 * @return The JPopupMenu.
 	 */
 	private JPopupMenu doCreatePopup() {
-        JPopupMenu jPopupMenu = new ShadowPopupMenu();
-        jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
-            public void popupMenuCanceled(PopupMenuEvent e) {
-            }
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                final Timer popupTimer = new Timer(PopupMenuInfo.ACTIVATION_DELAY, new ActionListener() {
-                    public void actionPerformed(final ActionEvent timerEvent) {
-                        popupMenuCount--;
-                    }
-                });
-                popupTimer.setRepeats(false);
-                popupTimer.start();
-            }
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                popupMenuCount++;
-            }
-        });
-        
-		return jPopupMenu;
+        try {
+            JPopupMenu jPopupMenu = new ShadowPopupMenu();
+            jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                    final Timer popupTimer = new Timer(PopupMenuInfo.ACTIVATION_DELAY, new ActionListener() {
+                        public void actionPerformed(final ActionEvent timerEvent) {
+                            popupMenuCount--;
+                        }
+                    });
+                    popupTimer.setRepeats(false);
+                    popupTimer.start();
+                }
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    popupMenuCount++;
+                }
+            });
+            
+    		return jPopupMenu;
+        } catch (final AWTException awtx) {
+            throw new BrowserException("Cannot instantiate shadow popop menu.", awtx);
+        }
 	}
 
     /**
      * A popup menu that has a shadow.
      */
     class ShadowPopupMenu extends JPopupMenu {
-        public ShadowPopupMenu() {
+        public ShadowPopupMenu() throws AWTException {
             super();
             final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
-            setBorder(new MultiColourLineBorder(colors, 3, Boolean.TRUE));
+            setBorder(new DropShadowBorder(colors, 3));
         }
     }
 }

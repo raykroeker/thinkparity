@@ -17,15 +17,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -84,8 +82,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -776,6 +774,21 @@ public class Browser extends AbstractApplication {
         default:
             Assert.assertUnreachable("UNKNOWN TAB");
         }
+    }
+    
+    /**
+     * Force the browser title to paint immediately.
+     */
+    public void paintMainTitleImmediately() {
+        MainTitleAvatar mainTitleAvatar = (MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE);
+        mainTitleAvatar.paintMainTitleImmediately();
+    }
+    
+    /**
+     * Force the menu bar to paint immediately.
+     */
+    public void paintMenuBarImmediately() {
+        mainWindow.paintMenuBarImmediately();
     }
 
     /**

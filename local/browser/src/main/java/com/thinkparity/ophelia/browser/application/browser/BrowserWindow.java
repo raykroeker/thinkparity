@@ -190,6 +190,14 @@ public class BrowserWindow extends AbstractJFrame {
     }
     
     /**
+     * Force the menu bar to paint immediately.
+     */
+    public void paintMenuBarImmediately() {
+        final JMenuBar menuBar = getJMenuBar();
+        menuBar.paintImmediately(menuBar.getX(), menuBar.getY(), menuBar.getWidth(), menuBar.getHeight());
+    }
+    
+    /**
      * Open the main window.
      * 
      * @return The main window.

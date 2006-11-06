@@ -90,6 +90,13 @@ public class MainTitleAvatar extends Avatar {
     protected ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.MIDDLE;
     }
+    
+    /**
+     * Force the main title to paint immediately.
+     */
+    public void paintMainTitleImmediately() {
+        paintImmediately(getX(), getY(), getWidth(), getHeight());
+    }
 
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)

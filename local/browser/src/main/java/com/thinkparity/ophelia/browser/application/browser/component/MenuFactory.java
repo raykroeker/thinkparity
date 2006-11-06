@@ -84,9 +84,6 @@ public class MenuFactory {
 
 	private JMenu doCreate(final String text) {
         final BrowserMenu browserMenu = new BrowserMenu(text);
-        // Note that background is transparent so it won't draw.
-        // Then, browserMenu overrides paintComponent to paint a gradient.
-        browserMenu.setBackground(new Color(255, 255, 255, 0));
         return browserMenu;
     }
 
@@ -131,7 +128,10 @@ public class MenuFactory {
         
 		return jPopupMenu;
 	}
-    
+
+    /**
+     * A popup menu that has a shadow.
+     */
     class ShadowPopupMenu extends JPopupMenu {
         public ShadowPopupMenu() {
             super();

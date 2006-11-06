@@ -44,7 +44,7 @@ public final class ContainerModel extends TabPanelModel {
     public final Browser browser;
 
     /** An apache logger. */
-    protected final Log4JWrapper logger;
+    private final Log4JWrapper logger;
 
     /** A container id lookup. */
     private final Map<Long, Long> containerIdLookup;

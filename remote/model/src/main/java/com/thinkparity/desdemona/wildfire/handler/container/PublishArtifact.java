@@ -30,10 +30,10 @@ public class PublishArtifact extends AbstractHandler {
     public void service() {
         logApiId();
         publishArtifact(readUUID("uniqueId"), readLong("versionId"),
-                readString("name"), readInteger("artifactCount"),
-                readInteger("artifactIndex"), readUUID("artifactUniqueId"),
-                readLong("artifactVersionId"), readString("artifactName"),
-                readArtifactType("artifactType"),
+                readString("name"), readString("comment"),
+                readInteger("artifactCount"), readInteger("artifactIndex"),
+                readUUID("artifactUniqueId"), readLong("artifactVersionId"),
+                readString("artifactName"), readArtifactType("artifactType"),
                 readString("artifactChecksum"), readString("artifactStreamId"),
                 readJabberIds("publishTo", "publishTo"),
                 readJabberId("publishedBy"), readCalendar("publishedOn"));
@@ -72,13 +72,14 @@ public class PublishArtifact extends AbstractHandler {
      *            When the artifact was published.
      */
     private void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final Integer artifactIndex, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        getContainerModel().publishArtifact(uniqueId, versionId, name,
+            final String name, final String comment,
+            final Integer artifactCount, final Integer artifactIndex,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final String artifactStreamId,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
+        getContainerModel().publishArtifact(uniqueId, versionId, name, comment,
                 artifactCount, artifactIndex, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
                 artifactChecksum, artifactStreamId, publishTo, publishedBy,

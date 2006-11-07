@@ -3,11 +3,10 @@
  */
 package com.thinkparity.ophelia.model.migrator.hsqldb;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
+
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -20,6 +19,8 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.message.SystemMessageType;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -83,6 +84,8 @@ public class HypersonicMigrator {
                 CONFIG.getProperty("CreateContainer"),
                 CONFIG.getProperty("CreateContainerVersion"),
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
+                CONFIG.getProperty("CreateContainerVersionDelta"),
+                CONFIG.getProperty("CreateContainerVersionArtifactVersionDelta"),
                 CONFIG.getProperty("CreateContainerVersionPublishedTo"),
                 CONFIG.getProperty("CreateContainerDraft"),
                 CONFIG.getProperty("CreateContainerDraftArtifactRel"),

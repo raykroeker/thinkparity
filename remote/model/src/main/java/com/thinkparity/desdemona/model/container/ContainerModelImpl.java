@@ -65,12 +65,14 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            When the container was published.
      */
     void publish(final UUID uniqueId, final Long versionId, final String name,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
+            final String comment, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
         logApiId();
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("name", name);
+        logVariable("comment", comment);
         logVariable("artifactCount", artifactCount);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedTo", publishedTo);
@@ -80,6 +82,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeUniqueId("uniqueId", uniqueId);
             publishArtifact.writeLong("versionId", versionId);
             publishArtifact.writeString("name", name);
+            publishArtifact.writeString("comment", comment);
             publishArtifact.writeInteger("artifactCount", artifactCount);
             publishArtifact.writeJabberId("publishedBy", publishedBy);
             publishArtifact.writeJabberIds("publishedTo", "publishedTo", publishedTo);
@@ -126,16 +129,18 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            When the artifact was published.
      */
     void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final Integer artifactIndex, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final String name, final String comment,
+            final Integer artifactCount, final Integer artifactIndex,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final String artifactStreamId,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         logApiId();
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("name", name);
+        logVariable("comment", comment);
         logVariable("artifactCount", artifactCount);
         logVariable("artifactIndex", artifactIndex);
         logVariable("artifactUniqueId", artifactUniqueId);
@@ -152,6 +157,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             publishArtifact.writeUniqueId("uniqueId", uniqueId);
             publishArtifact.writeLong("versionId", versionId);
             publishArtifact.writeString("name", name);
+            publishArtifact.writeString("comment", comment);
             publishArtifact.writeInteger("artifactCount", artifactCount);
             publishArtifact.writeInteger("artifactIndex", artifactIndex);
             publishArtifact.writeUniqueId("artifactUniqueId", artifactUniqueId);

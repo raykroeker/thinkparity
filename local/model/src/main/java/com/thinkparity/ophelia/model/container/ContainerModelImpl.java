@@ -36,6 +36,9 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
@@ -340,24 +343,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final ContainerDraft postCreationDraft = readDraft(containerId);
             notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
             return postCreationDraft;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Create a container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container version.
-     */
-    ContainerVersion createVersion(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        try {
-            return createVersion(containerId, readNextVersionId(containerId),
-                    localUserId(), currentDateTime());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -744,6 +729,22 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             }
             // create published to list
             containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
+            // calculate differences
+            final ContainerVersion version = readVersion(containerId, versionId);
+            final ContainerVersion previous = readPreviousVersion(containerId, versionId);
+            final ContainerVersion next = readNextVersion(containerId, versionId);
+            if (null == previous) {
+                logger.logInfo("First version of {0}.", name);
+            } else {
+                containerIO.deleteDelta(containerId, previous.getVersionId(), version.getVersionId());
+                containerIO.createDelta(calculateDelta(read(containerId), previous, version));
+            }
+            if (null == next) {
+                logger.logInfo("Latest version of {0}.", name);
+            } else {
+                containerIO.deleteDelta(containerId, version.getVersionId(), next.getVersionId());
+                containerIO.createDelta(calculateDelta(read(containerId), version, next));
+            }
             // send confirmation
             getSessionModel().confirmArtifactReceipt(localUserId(),
                     uniqueId, versionId, localUserId(), currentDateTime());
@@ -880,9 +881,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             }
             // ensure the user is the key holder
             assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
-
+            // previous version
+            final ContainerVersion previous = readLatestVersion(containerId);
             // create version
-            final ContainerVersion version = createVersion(container.getId());
+            final ContainerVersion version = createVersion(container.getId(),
+                    readNextVersionId(containerId), localUserId(), currentDateTime());
 
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getInternalDocumentModel();
@@ -906,6 +909,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             draftDocumentLatestVersion.getArtifactType());
                 }
             }
+            // first version
+            if (null == previous) {
+                logger.logInfo("First version of {0}.", container.getName());
+            } else {
+                // delta previous with version
+                containerIO.createDelta(calculateDelta(read(containerId), version, previous));
+            }
+
             doPublishVersion(containerId, version.getVersionId(), contacts,
                     teamMembers);
 
@@ -1044,6 +1055,33 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         return getInternalAuditModel().read(containerId);
+    }
+
+    /**
+     * Read the delta between two versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container compare version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container compare to version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    ContainerVersionDelta readDelta(final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        logger.logVariable("compareToVersionId", compareToVersionId);
+        try {
+            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
+            assertDoesExistVersion("Compare version does not exist.", containerId, compareToVersionId);
+            return containerIO.readDelta(containerId, compareVersionId,
+                    compareToVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -1212,7 +1250,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 containerIO.readDocumentVersions(containerId, versionId);
             FilterManager.filter(documentVersions, filter);
             ModelSorter.sortDocumentVersions(documentVersions, comparator);
-            return documentVersions;
+            return Collections.unmodifiableList(documentVersions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2056,6 +2094,78 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Calculate the delta of an artifact version between two lists of versions.
+     * 
+     * @param compare
+     *            An <code>ArtifactVersion</code>.
+     * @param compareToList
+     *            An <code>ArtifactVersion</code> <code>List</code>.
+     * @return A <code>Delta</code>.
+     */
+    private Delta calculateDelta(final ArtifactVersion compare,
+            final List<? extends ArtifactVersion> compareToList) {
+        for (final ArtifactVersion compareTo : compareToList) {
+            if (compare.getArtifactId().equals(compareTo.getArtifactId())) {
+                if (compare.getVersionId().equals(compareTo.getVersionId())) {
+                    return Delta.NONE;
+                } else {
+                    return Delta.MODIFIED;
+                }
+            } else {
+                return Delta.ADDED;
+            }
+        }
+        return Delta.REMOVED;
+    }
+
+    /**
+     * Create a version delta for a container and two of its versions.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param compare
+     *            A compare <code>ContainerVersion</code>.
+     * @param compareTo
+     *            A compare to <code>ContainerVersion</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    private ContainerVersionDelta calculateDelta(final Container container,
+            final ContainerVersion compare, final ContainerVersion compareTo) {
+
+        final ContainerVersionDelta versionDelta = new ContainerVersionDelta();
+        versionDelta.setCompareVersionId(compare.getVersionId());
+        versionDelta.setCompareToVersionId(compareTo.getVersionId());
+        versionDelta.setContainerId(container.getId());
+
+        final List<DocumentVersion> compareDocuments =
+            containerIO.readDocumentVersions(
+                    versionDelta.getContainerId(),
+                    versionDelta.getCompareVersionId());
+        final List<DocumentVersion> compareToDocuments =
+            containerIO.readDocumentVersions(
+                    versionDelta.getContainerId(),
+                    versionDelta.getCompareToVersionId());
+        ContainerVersionArtifactVersionDelta artifactVersionDelta;
+        for (final ArtifactVersion compareDocumentVersion : compareDocuments) {
+            artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
+            artifactVersionDelta.setArtifactId(compareDocumentVersion.getArtifactId());
+            artifactVersionDelta.setArtifactVersionId(compareDocumentVersion.getVersionId());
+            artifactVersionDelta.setDelta(calculateDelta(compareDocumentVersion, compareToDocuments));
+            versionDelta.addDelta(artifactVersionDelta);
+        }
+        for (final ArtifactVersion compareToDocumentVersion : compareToDocuments) {
+            if (!versionDelta.containsDelta(compareToDocumentVersion)) {
+                artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
+                artifactVersionDelta.setArtifactId(compareToDocumentVersion.getArtifactId());
+                artifactVersionDelta.setArtifactVersionId(compareToDocumentVersion.getVersionId());
+                artifactVersionDelta.setDelta(calculateDelta(compareToDocumentVersion, compareDocuments));
+                versionDelta.addDelta(artifactVersionDelta);
+            }
+        }
+        return versionDelta;
+    }
+
+    /**
      * Create the container in the distributed network.
      * 
      * @param container
@@ -2065,7 +2175,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final InternalSessionModel sessionModel = getSessionModel();
         sessionModel.createArtifact(localUserId(), container.getUniqueId());
     }
-
 
     /**
      * Create the first draft for a cotnainer.
@@ -2125,7 +2234,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Long versionId, final JabberId createdBy,
             final Calendar createdOn) {
         final Container container = read(containerId);
-        
+
         final ContainerVersion version = new ContainerVersion();
         version.setArtifactId(container.getId());
         version.setArtifactType(container.getType());
@@ -2138,9 +2247,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         version.setVersionId(versionId);
         containerIO.createVersion(version);
 
-        return containerIO.readVersion(version.getArtifactId(), version.getVersionId());
-        
+        return containerIO.readVersion(
+                version.getArtifactId(), version.getVersionId());
     }
+
 
     /**
      * Delete the local info for this container.
@@ -2177,9 +2287,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             for(final Document document : documents) {
                 documentModel.delete(document.getId());
             }
+            // delete the version's deltas
+            containerIO.deleteDeltas(containerId, version.getVersionId());
             // delete the version
             containerIO.deleteVersion(containerId, version.getVersionId());
-
         }
         // delete the index
         getIndexModel().deleteContainer(containerId);
@@ -2649,6 +2760,42 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             documentVersion.getVersionId()));
         }
         return documentVersionStreams;
+    }
+
+    /**
+     * Read the next container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readNextVersion(final Long containerId, final Long versionId) {
+        final Long nextVersionId = artifactIO.readNextVersionId(containerId, versionId);
+        if (null != nextVersionId
+                && doesExistVersion(containerId, nextVersionId)) {
+            return containerIO.readVersion(containerId, nextVersionId);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Read the previous container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readPreviousVersion(final Long containerId,
+            final Long versionId) {
+        final Long previousVersionId = artifactIO.readPreviousVersionId(containerId, versionId);
+        if (null != previousVersionId
+                && doesExistVersion(containerId, previousVersionId)) {
+            return containerIO.readVersion(containerId, previousVersionId);
+        } else {
+            return null;
+        }
+
     }
 
     /**

@@ -16,6 +16,9 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -46,6 +49,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_ID) ")
             .append("values (?)")
             .toString();
+
+    /** Sql to create a container version delta. */
+    private static final String SQL_CREATE_ARTIFACT_DELTA =
+        new StringBuffer("insert into CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        .append("(CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID) ")
+        .append("values (?,?,?,?)")
+        .toString();
+
+    /** Sql to create a container version delta. */
+    private static final String SQL_CREATE_DELTA =
+        new StringBuffer("insert into CONTAINER_VERSION_DELTA ")
+        .append("(CONTAINER_ID,COMPARE_CONTAINER_VERSION_ID,")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID) ")
+        .append("values (?,?,?)")
+        .toString();
 
     /** Sql to create a draft. */
     private static final String SQL_CREATE_DRAFT =
@@ -81,6 +99,44 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=?")
             .toString();
 
+    /** Sql to delete a container version delta. */
+    private static final String SQL_DELETE_ARTIFACT_DELTA =
+        new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        .append("where CONTAINER_VERSION_DELTA_ID=(")
+        .append("select CONTAINER_VERSION_DELTA_ID ")
+        .append("from CONTAINER_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("COMPARE_CONTAINER_VERSION_ID=? and ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?)")
+        .toString();
+
+    /** Sql to delete all container version deltas. */
+    private static final String SQL_DELETE_ARTIFACT_DELTAS =
+        new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        .append("where CONTAINER_VERSION_DELTA_ID=(")
+        .append("select CONTAINER_VERSION_DELTA_ID ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?))")
+        .toString();
+
+    /** Sql to delete a container version delta. */
+    private static final String SQL_DELETE_DELTA =
+        new StringBuffer("delete from CONTAINER_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("COMPARE_CONTAINER_VERSION_ID=? and ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to delete all container version delta. */
+    private static final String SQL_DELETE_DELTAS =
+        new StringBuffer("delete from CONTAINER_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?)")
+        .toString();
+
     /** Sql to delete a draft. */
     private static final String SQL_DELETE_DRAFT =
             new StringBuffer("delete from CONTAINER_DRAFT ")
@@ -106,6 +162,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
             .toString();
 
+    /** Sql to extract the artifact version delta. */
+    private static final String SQL_EXTRACT_DELTA =
+        new StringBuffer("select CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
+        .append("where CVAVD.CONTAINER_VERSION_DELTA_ID=?")
+        .toString();
+
     /** Sql to read a container. */
     private static final String SQL_READ =
             new StringBuffer("select C.CONTAINER_ID,A.ARTIFACT_NAME,")
@@ -123,11 +186,61 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID")
             .toString();
 
+    /** Sql to read the artifact delta count. */
+    private static final String SQL_READ_ARTIFACT_DELTA_COUNT =
+        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        .append("from CONTAINER_VERSION_DELTA CVD ")
+        .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
+        .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
+        .append("where CVD.CONTAINER_ID=? and ")
+        .append("CVD.COMPARE_CONTAINER_VERSION_ID=? and ")
+        .append("CVD.COMPARE_TO_CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the artifact delta count. */
+    private static final String SQL_READ_ARTIFACT_DELTA_COUNT_2 =
+        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        .append("from CONTAINER_VERSION_DELTA CVD ")
+        .append("inner join CONTAINER_VERSION_ARTIFACT_VERSION_DELTA CVAVD ")
+        .append("on CVD.CONTAINER_VERSION_DELTA_ID=CVAVD.CONTAINER_VERSION_DELTA_ID ")
+        .append("where CVD.CONTAINER_ID=? and ")
+        .append("(CVD.COMPARE_CONTAINER_VERSION_ID=? or ")
+        .append("CVD.COMPARE_TO_CONTAINER_VERSION_ID=?)")
+        .toString();
+
     /** Sql to read a container. */
     private static final String SQL_READ_BY_CONTAINER_ID =
             new StringBuffer(SQL_READ).append(" ")
             .append("where C.CONTAINER_ID=?")
             .toString();
+
+    /** Sql to read a version delta. */
+    private static final String SQL_READ_DELTA =
+        new StringBuffer("select CONTAINER_VERSION_DELTA_ID,CONTAINER_ID,")
+        .append("COMPARE_CONTAINER_VERSION_ID,COMPARE_TO_CONTAINER_VERSION_ID ")
+        .append("from CONTAINER_VERSION_DELTA CVD ")
+        .append("where CVD.CONTAINER_ID=? and ")
+        .append("CVD.COMPARE_CONTAINER_VERSION_ID=? and ")
+        .append("CVD.COMPARE_TO_CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the delta count. */
+    private static final String SQL_READ_DELTA_COUNT =
+        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        .append("from CONTAINER_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("COMPARE_CONTAINER_VERSION_ID=? and ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the delta count. */
+    private static final String SQL_READ_DELTA_COUNT_2 =
+        new StringBuffer("select COUNT(CONTAINER_VERSION_DELTA_ID) as \"COUNT\" ")
+        .append("from CONTAINER_VERSION_DELTA ")
+        .append("where CONTAINER_ID=? and ")
+        .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
+        .append("COMPARE_TO_CONTAINER_VERSION_ID=?)")
+        .toString();
 
     /** Sql to read document versions from the artifact version attachments. */
     private static final String SQL_READ_DOCUMENT_VERSIONS =
@@ -370,6 +483,37 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDelta(com.thinkparity.codebase.model.container.ContainerVersionDelta)
+     *
+     */
+    public void createDelta(final ContainerVersionDelta versionDelta) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_DELTA);
+            session.setLong(1, versionDelta.getContainerId());
+            session.setLong(2, versionDelta.getCompareVersionId());
+            session.setLong(3, versionDelta.getCompareToVersionId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not create delta.");
+            versionDelta.setId(session.getIdentity());
+
+            session.prepareStatement(SQL_CREATE_ARTIFACT_DELTA);
+            session.setLong(1, versionDelta.getId());
+            for (final ContainerVersionArtifactVersionDelta delta : versionDelta.getDeltas()) {
+                session.setTypeAsString(2, delta.getDelta());
+                session.setLong(3, delta.getArtifactId());
+                session.setLong(4, delta.getArtifactVersionId());
+            }
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.ophelia.model.container.ContainerDraft)
      */
     public void createDraft(final ContainerDraft draft) {
@@ -397,7 +541,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraftArtifactRel(java.lang.Long, java.lang.Long, com.thinkparity.model.parity.model.container.ContainerDraftArtifactState)
      */
@@ -419,7 +563,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long,
      *      java.lang.Long, java.util.List)
@@ -491,6 +635,71 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDeltas(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public void deleteDelta(final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        final Session session = openSession();
+        try {
+            final int artifactDeltaCount = readArtifactDeltaCount(session, containerId, compareVersionId, compareToVersionId);
+            session.prepareStatement(SQL_DELETE_ARTIFACT_DELTA);
+            session.setLong(1, containerId);
+            session.setLong(2, compareVersionId);
+            session.setLong(3, compareToVersionId);
+            if (artifactDeltaCount != session.executeUpdate())
+                throw new HypersonicException("Could not delete artifact deltas.");
+
+            final int deltaCount = readDeltaCount(session, containerId,
+                    compareVersionId, compareToVersionId);
+            session.prepareStatement(SQL_DELETE_DELTA);
+            session.setLong(1, containerId);
+            session.setLong(2, compareVersionId);
+            session.setLong(3, compareToVersionId);
+            if (deltaCount != session.executeUpdate())
+                throw new HypersonicException("Could not delete delta.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDeltas(java.lang.Long, java.lang.Long)
+     *
+     */
+    public void deleteDeltas(final Long containerId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            final int artifactDeltaCount = readArtifactDeltaCount(session, containerId, versionId);
+            session.prepareStatement(SQL_DELETE_ARTIFACT_DELTAS);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.setLong(3, versionId);
+            if (artifactDeltaCount != session.executeUpdate())
+                throw new HypersonicException("Could not delete artifact deltas.");
+            
+            final int deltaCount = readDeltaCount(session, containerId, versionId);
+            session.prepareStatement(SQL_DELETE_DELTAS);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.setLong(3, versionId);
+            if (deltaCount != session.executeUpdate())
+                throw new HypersonicException("Could not delete deltas.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDraft(java.lang.Long)
      */
     public void deleteDraft(final Long containerId) {
@@ -538,7 +747,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public void deleteVersion(Long containerId, Long versionId) {
         final Session session = openSession();
         try {
-            final int publishedToCount = readPublishedToCount(containerId, versionId);
+            final int publishedToCount =
+                readPublishedToCount(session, containerId, versionId);
             session.prepareStatement(SQL_DELETE_PUBLISHED_TO);
             session.setLong(1, containerId);
             session.setLong(2, versionId);
@@ -599,6 +809,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             return containers;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readDelta(java.lang.Long, java.lang.Long, java.lang.Long)
+     *
+     */
+    public ContainerVersionDelta readDelta(final Long containerId, final Long compareVersionId, final Long compareToVersionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DELTA);
+            session.setLong(1, containerId);
+            session.setLong(2, compareVersionId);
+            session.setLong(3, compareToVersionId);
+            if (session.nextResult()) {
+                return extractDelta(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -898,6 +1129,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * Extract the delta from the session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return A <code>Delta</code>.
+     */
+    ContainerVersionDelta extractDelta(final Session session) {
+        final ContainerVersionDelta delta = new ContainerVersionDelta();
+        delta.setCompareToVersionId(session.getLong("COMPARE_TO_VERSION_ID"));
+        delta.setCompareVersionId(session.getLong("COMPARE_VERSION_ID"));
+        delta.setContainerId(session.getLong("CONTAINER_ID"));
+        delta.setId(session.getLong("CONTAINER_VERSION_DELTA_ID"));
+        session.prepareStatement(SQL_EXTRACT_DELTA);
+        session.setLong(1, delta.getId());
+        session.executeQuery();
+        while (session.nextResult()) {
+            delta.addDelta(extractArtifactDelta(session));
+        }
+        return delta;
+    }
+
+    /**
      * Extract the draft from the session.
      * 
      * @param session
@@ -957,6 +1210,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    /**
+     * Extract the artifact delta from the session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return A <code>ContainerVersionArtifactVersionDelta</code>.
+     */
+    private ContainerVersionArtifactVersionDelta extractArtifactDelta(
+            final Session session) {
+        final ContainerVersionArtifactVersionDelta delta = new ContainerVersionArtifactVersionDelta();
+        delta.setArtifactId(session.getLong("DELTA_ARTIFACT_ID"));
+        delta.setArtifactVersionId(session.getLong("DELTA_ARTIFACT_VERSION_ID"));
+        delta.setDelta(Delta.valueOf(session.getString("DELTA")));
+        return delta;
+    }
+
     private DocumentVersion extractDocumentVersion(final Session session) {
         final DocumentVersion dv = new DocumentVersion();
         dv.setArtifactId(session.getLong("DOCUMENT_ID"));
@@ -993,6 +1262,91 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    /**
+     * Read the artifact delta count.
+     * 
+     * @param session
+     *            A hypersonic <code>Session</code>.
+     * @param deltaId
+     *            A delta id <code>Long</code>.
+     * @return An artifact delta count <code>int</code>.
+     */
+    private int readArtifactDeltaCount(final Session session,
+            final Long containerId, final Long versionId) {
+        session.prepareStatement(SQL_READ_ARTIFACT_DELTA_COUNT_2);
+        session.setLong(1, containerId);
+        session.setLong(2, versionId);
+        session.setLong(3, versionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("COUNT");
+    }
+
+    /**
+     * Read the artifact delta count.
+     * 
+     * @param session
+     *            A hypersonic <code>Session</code>.
+     * @param deltaId
+     *            A delta id <code>Long</code>.
+     * @return An artifact delta count <code>int</code>.
+     */
+    private int readArtifactDeltaCount(final Session session,
+            final Long containerId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        session.prepareStatement(SQL_READ_ARTIFACT_DELTA_COUNT);
+        session.setLong(1, containerId);
+        session.setLong(2, compareVersionId);
+        session.setLong(3, compareToVersionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("COUNT");
+    }
+
+    /**
+     * Read the delta count.
+     * 
+     * @param session
+     *            A hypersonic <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return An artifact delta count <code>int</code>.
+     */
+    private int readDeltaCount(final Session session, final Long containerId,
+            final Long versionId) {
+        session.prepareStatement(SQL_READ_DELTA_COUNT_2);
+        session.setLong(1, containerId);
+        session.setLong(2, versionId);
+        session.setLong(3, versionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("COUNT");
+    }
+
+    /**
+     * Read the delta count.
+     * 
+     * @param session
+     *            A hypersonic <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return An artifact delta count <code>int</code>.
+     */
+    private int readDeltaCount(final Session session, final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        session.prepareStatement(SQL_READ_DELTA_COUNT);
+        session.setLong(1, containerId);
+        session.setLong(2, compareVersionId);
+        session.setLong(3, compareToVersionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("COUNT");
+    }
+
     private Long readLocalId(final JabberId userId) {
         final Session session = openSession();
         try {
@@ -1011,18 +1365,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      *            A version id <code>Long</code>.
      * @return A row count <code>Integer</code>.
      */
-    private Integer readPublishedToCount(final Long containerId,
-            final Long versionId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_PUBLISHED_TO_COUNT);
-            session.setLong(1, containerId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            session.nextResult();
-            return session.getInteger("PUBLISHED_TO_COUNT");
-        } finally {
-            session.close();
-        }
+    private int readPublishedToCount(final Session session,
+            final Long containerId, final Long versionId) {
+        session.prepareStatement(SQL_READ_PUBLISHED_TO_COUNT);
+        session.setLong(1, containerId);
+        session.setLong(2, versionId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("PUBLISHED_TO_COUNT");
     }
 }

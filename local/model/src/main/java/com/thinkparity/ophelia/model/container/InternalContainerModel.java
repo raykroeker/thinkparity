@@ -11,7 +11,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 
@@ -41,19 +40,6 @@ public class InternalContainerModel extends ContainerModel implements
     InternalContainerModel(final Context context,
             final Environment environment, final Workspace workspace) {
         super(environment, workspace);
-    }
-
-    /**
-     * Create a version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>ContainerVersion</code>.
-     */
-    public ContainerVersion createVersion(final Long containerId) {
-        synchronized (getImplLock()) {
-            return getImpl().createVersion(containerId);
-        }
     }
 
     /**

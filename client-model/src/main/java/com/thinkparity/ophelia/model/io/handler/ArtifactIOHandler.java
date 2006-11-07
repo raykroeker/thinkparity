@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -119,6 +120,28 @@ public interface ArtifactIOHandler {
      * @return A version id.
      */
     public Long readLatestVersionId(final Long artifactId);
+
+    /**
+     * Read the next version id in ascending order.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return A <code>Long</code> version id.
+     */
+    public Long readNextVersionId(final Long artifactId, final Long versionId);
+
+    /**
+     * Read the previous version id in ascending order.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return A <code>Long</code> version id.
+     */
+    public Long readPreviousVersionId(final Long artifactId, final Long versionId);
 
     /**
      * Read the artifact state.

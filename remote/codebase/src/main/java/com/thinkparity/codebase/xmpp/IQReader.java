@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.zip.DataFormatException;
 
-import org.dom4j.Element;
-import org.xmpp.packet.IQ;
-
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
@@ -22,6 +19,9 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.util.Base64;
+
+import org.dom4j.Element;
+import org.xmpp.packet.IQ;
 
 /**
  * <b>Title:</b>thinkParity Remote IQ Reader <br>
@@ -63,6 +63,10 @@ public abstract class IQReader {
                     new SimpleTimeZone(0, "GMT"));
         }
         catch(final ParseException px) { throw new RuntimeException(px); }
+    }
+
+    public final EMail readEMail(final String name) {
+        return EMailBuilder.parse(readString(name));
     }
 
     /**
@@ -172,10 +176,6 @@ public abstract class IQReader {
         return (String) readObject(name);
     }
 
-    public final EMail readEMail(final String name) {
-        return EMailBuilder.parse(readString(name));
-    }
-
     /**
      * Decode a Base64 encoded string into an array of bytes.
      *
@@ -206,7 +206,10 @@ public abstract class IQReader {
      */
     protected final Object readObject(final String name) {
         final Element e = iq.getChildElement().element(name);
-        if(null == e) { return null; }
-        else { return e.getData(); }
+        if (null == e) {
+            return null;
+        } else {
+            return e.getData();
+        }
     }
 }

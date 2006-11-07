@@ -636,23 +636,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return super.createFailMessage(t);
 	}
 
-    /**
-     * Create a container version.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return A <code>ContainerVersion</code>.
-     */
-    protected ContainerVersion createVersion(final OpheliaTestUser testUser,
-            final Container container) {
-        try {
-            Thread.sleep(1000);
-        } catch (final InterruptedException ix) {
-            throw new RuntimeException(ix);
-        }
-        return getContainerModel(testUser).createVersion(container.getId());
-    }
-
     protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
         return modelFactory.getArchiveModel(testUser);
     }

@@ -36,6 +36,10 @@ final class StreamServer {
 
     static {
         CHARSET = StreamModelImpl.CHARSET;
+        /*
+         * TODO add timeout information to the session such that x duration of
+         * in-activity will cause the session to be destroyed
+         */
         SESSIONS = new HashMap<String, ServerSession>(50);
     }
 

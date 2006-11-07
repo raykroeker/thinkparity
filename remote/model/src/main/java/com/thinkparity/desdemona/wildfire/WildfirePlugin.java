@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
@@ -80,6 +81,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.active", jiveProperties.get("xmpp.socket.ssl.active"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.keypass", jiveProperties.get("xmpp.socket.ssl.keypass"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
+		System.setProperty("thinkparity.mode", Mode.valueOf((String) jiveProperties.get("thinkparity.mode")).toString());
 		initializeHandlers(pluginDirectory);
 		startStream();
         startArchive();

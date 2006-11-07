@@ -56,6 +56,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                         query.versionId = readLong2();
                     } else if (isStartTag("name")) {
                         query.name = readString2();
+                    } else if (isStartTag("comment")) {
+                        readString2();
                     } else if (isStartTag("artifactCount")) {
                         query.artifactCount = readInteger2();
                     } else if (isStartTag("publishedBy")) {
@@ -83,6 +85,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                         query.containerVersionId = readLong2();
                     } else if (isStartTag("name")) {
                         query.containerName = readString2();
+                    } else if (isStartTag("comment")) {
+                        readString2();
                     } else if (isStartTag("artifactCount")) {
                         query.containerArtifactCount = readInteger2();
                     } else if (isStartTag("artifactIndex")) {

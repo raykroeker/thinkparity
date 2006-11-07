@@ -48,8 +48,8 @@ public class BrowserPlatformInitializer {
         default:
             Assert.assertUnreachable("UNKNOWN MODE");
         }
-        log4j.setProperty("thinkparity.log4j.directory",
-                workspace.getLogDirectory().getAbsolutePath());
+        log4j.setProperty("log4j.appender.FILE.File",
+                new File(workspace.getLogDirectory(), "thinkParity.log").getAbsolutePath());
         PropertyConfigurator.configure(log4j);
         new Log4JWrapper().logInfo("{0} - {1} - {2}",
                 Version.getName(), Version.getMode(), Version.getBuildId());

@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
@@ -152,7 +153,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         synchronized(getImplLock()) { getImpl().delete(containerId); }
     }
 
-	/**
+    /**
      * Delete a draft.
      * 
      * @param containerId
@@ -180,7 +181,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Export a container version to a directory. The 
      * 
      * @param exportDirectory
@@ -331,6 +332,25 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      */
     public Container read(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().read(containerId); }
+    }
+
+    /**
+     * Read the delta between two versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container compare version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container compare to version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    public ContainerVersionDelta readDelta(final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readDelta(containerId, compareVersionId,
+                    compareToVersionId);
+        }
     }
 
     /**

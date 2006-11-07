@@ -110,6 +110,15 @@ public abstract class AbstractIOHandler {
         return sessionManager.openSession(StackUtil.getCaller());
 	}
 
+    protected HypersonicException translateError(final Session session, final Throwable t) {
+        session.rollback();
+        if (t.getClass().isAssignableFrom(HypersonicException.class)) {
+            return (HypersonicException) t;
+        } else {
+            return new HypersonicException(t);
+        }
+    }
+
     /**
      * 
      * @param errorId

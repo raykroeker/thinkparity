@@ -28,8 +28,8 @@ public class Publish extends AbstractHandler {
     public void service() {
         logApiId();
         publish(readUUID("uniqueId"), readLong("versionId"),
-                readString("name"), readInteger("artifactCount"),
-                readJabberId("publishedBy"),
+                readString("name"), readString("comment"),
+                readInteger("artifactCount"), readJabberId("publishedBy"),
                 readJabberIds("publishedTo", "publishedTo"),
                 readCalendar("publishedOn"));
     }
@@ -53,10 +53,10 @@ public class Publish extends AbstractHandler {
      *            When the container was published.
      */
     private void publish(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
-        getContainerModel().publish(uniqueId, versionId, name, artifactCount,
-                publishedBy, publishedTo, publishedOn);
+            final String name, final String comment,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        getContainerModel().publish(uniqueId, versionId, name, comment,
+                artifactCount, publishedBy, publishedTo, publishedOn);
     }
 }

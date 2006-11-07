@@ -295,7 +295,11 @@ public class ElementBuilder {
      */
 	public static final Element addElement(final Element parent, final String name,
             final String value) {
-        return addElement(parent, name, String.class, value);
+        if (null == value) {
+            return addNullElement(parent, name, String.class);
+        } else {
+            return addElement(parent, name, String.class, value);
+        }
     }
 
     public static final Element addElement(final Element parent,

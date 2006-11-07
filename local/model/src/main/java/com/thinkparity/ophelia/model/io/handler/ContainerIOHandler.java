@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -50,6 +51,14 @@ public interface ContainerIOHandler {
      *            The container.
      */
     public void create(final Container container);
+
+    /**
+     * Create a container version delta.
+     * 
+     * @param versionDelta
+     *            A <code>ContainerVersionDelta</code>.
+     */
+    public void createDelta(final ContainerVersionDelta versionDelta);
 
     /**
      * Create a draft.
@@ -102,6 +111,29 @@ public interface ContainerIOHandler {
     public void delete(final Long containerId);
 
     /**
+     * Delete a delta between two versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container version id <code>Long</code>.
+     */
+    public void deleteDelta(final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId);
+
+    /**
+     * Delete all deltas for a version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     */
+    public void deleteDeltas(final Long containerId, final Long versionId);
+
+    /**
      * Delete a container draft.
      * 
      * @param containerId
@@ -149,6 +181,20 @@ public interface ContainerIOHandler {
      * @return A list of containers.
      */
     public List<Container> read(final User localUser);
+
+    /**
+     * Read the container version delta.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    public ContainerVersionDelta readDelta(final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId);
 
     /**
      * Read the documents attached to a container version.

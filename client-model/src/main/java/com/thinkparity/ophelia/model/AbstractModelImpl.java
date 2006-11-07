@@ -302,18 +302,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Assert that the xmpp service is online.
-     * 
-     * @param environment
-     *            A thinkParity <code>Environment</code>.
-     */
-    protected void assertXMPPIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isXMPPReachable(),
-                "XMPP environment {0} is not reachable.",
-                environment.getXMPPService());
-    }
-
-    /**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -347,7 +335,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, reference);
     }
 
-	/**
+    /**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -372,7 +360,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline("USER NOT ONLINE");
     }
 
-    /**
+	/**
      * Assert the user is online.
      *
      * @param assertion
@@ -386,7 +374,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -416,7 +404,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 	}
 
-    /**
+	/**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -429,6 +417,18 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
         Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+    }
+
+    /**
+     * Assert that the xmpp service is online.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     */
+    protected void assertXMPPIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isXMPPReachable(),
+                "XMPP environment {0} is not reachable.",
+                environment.getXMPPService());
     }
 
     /**
@@ -546,6 +546,19 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
+     * Determine whether or not a version exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if a version exists; false otherwise.
+     */
+    protected Boolean doesExistVersion(final Long artifactId, final Long versionId) {
+        return getInternalArtifactModel().doesVersionExist(artifactId, versionId);
+    }
+
+    /**
      * Download a stream from the stream server.
      * 
      * @param streamId
@@ -614,7 +627,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -623,7 +636,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -632,14 +645,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
-    /**
+	/**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
-	}
+	};
 
 	/**
      * Obtain the internal parity download interface.
@@ -648,7 +661,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    };
+    }
 
 	/**
      * Obtain the internal parity library interface.
@@ -668,7 +681,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-	/**
+    /**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -1074,19 +1087,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
             NoSuchPaddingException {
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
-    }
-
-    /**
-     * Determine whether or not a version exists.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return True if a version exists; false otherwise.
-     */
-    private Boolean doesExistVersion(final Long artifactId, final Long versionId) {
-        return getInternalArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
     /**

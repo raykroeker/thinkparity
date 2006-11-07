@@ -59,7 +59,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
-	/**
+    /**
 	 * Sql to delete the artifact version meta data.
 	 * 
 	 */
@@ -74,7 +74,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-    /**
+	/**
 	 * Sql to insert an artifact flag relationship.
 	 * 
 	 */
@@ -96,13 +96,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("values (?,?,?,?,?,?,?,?,?,?)")
 		.toString();
 
-	private static final String INSERT_ARTIFACT_VERSION_META_DATA =
+    private static final String INSERT_ARTIFACT_VERSION_META_DATA =
 		new StringBuffer("insert into ARTIFACT_VERSION_META_DATA ")
 		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,KEY,VALUE) ")
 		.append("values (?,?,?,?)")
 		.toString();
 
-	/**
+    /**
 	 * Sql to get the artifact's flag.
 	 * 
 	 */
@@ -176,7 +176,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
-	
+
 	private static final String SQL_READ_ID =
         new StringBuffer("select A.ARTIFACT_ID ")
         .append("from ARTIFACT A ")
@@ -190,8 +190,26 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where A.ARTIFACT_ID=?")
             .toString();
-
-    /** Sql to read the artifact state. */
+    
+    /** Sql to read the next version id. */
+    private static final String SQL_READ_NEXT_VERSION_ID =
+            new StringBuffer("select ARTIFACT_VERSION_ID NEXT_VERSION_ID ")
+            .append("from ARTIFACT A ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID>? ")
+            .append("order by AV.ARTIFACT_VERSION_ID asc")
+            .toString();
+    
+    /** Sql to read the previous version id. */
+    private static final String SQL_READ_PREVIOUS_VERSION_ID =
+            new StringBuffer("select ARTIFACT_VERSION_ID PREVIOUS_VERSION_ID ")
+            .append("from ARTIFACT A ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID<? ")
+            .append("order by AV.ARTIFACT_VERSION_ID asc")
+            .toString();
+    
+	/** Sql to read the artifact state. */
     private static final String SQL_READ_STATE =
             new StringBuffer("select A.ARTIFACT_STATE_ID ")
             .append("from ARTIFACT A ")
@@ -242,7 +260,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("Where A.ARTIFACT_ID=?")
             .toString();
 
-	/** Sql to restore an artifact. */
+    /** Sql to restore an artifact. */
     private static final String SQL_RESTORE =
         new StringBuffer("insert into ARTIFACT ")
         .append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
@@ -251,7 +269,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("values (?,?,?,?,?,?,?,?)")
         .toString();
 
-	/** Sql to update the remote info of an artifact. */
+    /** Sql to update the remote info of an artifact. */
 	private static final String SQL_UPDATE_REMOTE_INFO =
 		new StringBuffer("update ARTIFACT_REMOTE_INFO ")
 		.append("set UPDATED_BY=?,UPDATED_ON=? ")
@@ -264,7 +282,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-    /** The user io interface. */
+	/** The user io interface. */
     private final UserIOHandler userIO;
 
 	/**
@@ -304,7 +322,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#createTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -344,7 +362,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
      * 
      */
@@ -367,7 +385,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -391,7 +409,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesVersionExist(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -415,7 +433,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
 	 * Obtain the artifact's flags.
 	 * 
 	 * @param artifactId
@@ -462,6 +480,51 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             else { return null; }
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readNextVersionId(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public Long readNextVersionId(final Long artifactId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_NEXT_VERSION_ID);
+            session.setLong(1, artifactId);
+            session.setLong(2, versionId);
+            
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("NEXT_VERSION_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readPreviousVersionId(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public Long readPreviousVersionId(final Long artifactId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PREVIOUS_VERSION_ID);
+            session.setLong(1, artifactId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("PREVIOUS_VERSION_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
     }
 
 	/**
@@ -868,22 +931,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Read the local user id for the jabber id.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A local user id <code>Long</code>.
-     */
-    private Long readLocalId(final JabberId userId) {
-        final Session session = openSession();
-        try {
-            return userIO.readLocalId(session, userId);
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
 	 * Set the flags for the artifact.
 	 * 
 	 * @param session
@@ -957,6 +1004,22 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 				throw new HypersonicException("Could not insert flag.");
 		}
 	}
+
+    /**
+     * Read the local user id for the jabber id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A local user id <code>Long</code>.
+     */
+    private Long readLocalId(final JabberId userId) {
+        final Session session = openSession();
+        try {
+            return userIO.readLocalId(session, userId);
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * Obtain the number of team members for the artifact.

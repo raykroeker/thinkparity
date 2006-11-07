@@ -6,17 +6,19 @@ package com.thinkparity.ophelia.browser.application.browser;
 
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 
 import javax.swing.JMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
 /**
  * @author rob_masako@shaw.ca
@@ -24,11 +26,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
  */
 public class BrowserMenu extends JMenu {
     
-    /** An application. */
-    public final Browser browser;
-    
-    /** The thinkParity application registry. */
-    private final ApplicationRegistry applicationRegistry;
+    /** A drop shadow border. */
+    final DropShadowBorder dropShadowBorder;
     
     /**
      * @param text
@@ -36,15 +35,26 @@ public class BrowserMenu extends JMenu {
      */
     public BrowserMenu(final String text) throws AWTException {
         super(text);
-        this.applicationRegistry = new ApplicationRegistry();
-        this.browser = (Browser)applicationRegistry.get(ApplicationId.BROWSER);
         
         // Make it transparent. The override on paintComponent will paint a gradient.
         setBackground(new Color(255, 255, 255, 0));
         
         // Set up the shadow border on the popup menu
         final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
-        getPopupMenu().setBorder(new DropShadowBorder(colors, 3));
+        dropShadowBorder = new DropShadowBorder(colors, 3);
+        getPopupMenu().setBorder(dropShadowBorder);
+        
+        getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+            public void popupMenuCanceled(final PopupMenuEvent e) {                
+            }
+            public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {                
+            }
+            public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+                final Point p = getPopupMenuOrigin();
+                final Dimension d = getPopupMenu().getPreferredSize();
+                dropShadowBorder.paintUnderneathBorder(BrowserMenu.this, p.x, p.y, d.width, d.height);
+            }            
+        });
     }
 
     /**

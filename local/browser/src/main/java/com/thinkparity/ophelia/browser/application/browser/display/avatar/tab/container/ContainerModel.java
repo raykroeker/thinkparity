@@ -14,15 +14,12 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -33,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -545,13 +543,6 @@ public final class ContainerModel extends TabPanelModel {
             selectedContainer = null;
             synchronize();
         }
-    }
-    
-    /**
-     * Force the tab to paint immediately.
-     */
-    public void paintTabImmediately() {
-        browser.paintTabImmediately();
     }
     
     /**

@@ -82,11 +82,4 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 	 */
 	@Override
 	public final void setState(final State state) {}
-    
-    /**
-     * Force the tab to paint immediately.
-     */
-    public void paintTabImmediately() {
-        paintImmediately(getX(), getY(), getWidth(), getHeight());
-    }
 }

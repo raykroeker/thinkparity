@@ -759,37 +759,6 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
-    /**
-     * Force the tab to paint immediately.
-     */
-    public void paintTabImmediately() {
-        switch(getMainTitleAvatarTab()) {
-        case CONTACT:
-            getTabContactAvatar().paintTabImmediately();
-            break;
-        case CONTAINER:
-            getTabContainerAvatar().paintTabImmediately();
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
-        }
-    }
-    
-    /**
-     * Force the browser title to paint immediately.
-     */
-    public void paintMainTitleImmediately() {
-        MainTitleAvatar mainTitleAvatar = (MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE);
-        mainTitleAvatar.paintMainTitleImmediately();
-    }
-    
-    /**
-     * Force the menu bar to paint immediately.
-     */
-    public void paintMenuBarImmediately() {
-        mainWindow.paintMenuBarImmediately();
-    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()

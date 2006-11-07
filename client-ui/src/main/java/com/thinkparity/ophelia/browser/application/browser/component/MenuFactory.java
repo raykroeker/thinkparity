@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -143,10 +145,25 @@ public class MenuFactory {
      * A popup menu that has a shadow.
      */
     class ShadowPopupMenu extends JPopupMenu {
+        
+        /** A drop shadow border. */
+        final DropShadowBorder dropShadowBorder;
+        
         public ShadowPopupMenu() throws AWTException {
             super();
             final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
-            setBorder(new DropShadowBorder(colors, 3));
+            dropShadowBorder = new DropShadowBorder(colors, 3);
+            setBorder(dropShadowBorder);
+        }
+
+        /**
+         * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+         */
+        @Override
+        public void show(Component invoker, int x, int y) {
+            final Dimension d = getPreferredSize();
+            dropShadowBorder.paintUnderneathBorder(invoker, x, y, d.width, d.height);
+            super.show(invoker, x, y);
         }
     }
 }

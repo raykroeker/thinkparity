@@ -3,19 +3,11 @@
  */
 package com.thinkparity.codebase.swing.border;
 
-import java.awt.AWTException;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
+import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 
@@ -86,7 +78,7 @@ public class DropShadowBorder extends AbstractBorder {
      * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
      * 
      */
-    public Insets getBorderInsets(Component c) {
+    public Insets getBorderInsets(final Component c) {
         final int borderAdjust = 4;
         return new Insets(topThickness, leftThickness, bottomThickness + borderAdjust, rightThickness + borderAdjust);
     }
@@ -96,7 +88,7 @@ public class DropShadowBorder extends AbstractBorder {
      *      java.awt.Insets)
      * 
      */
-    public Insets getBorderInsets(Component c, Insets insets) {
+    public Insets getBorderInsets(final Component c, Insets insets) {
         final int borderAdjust = 4;
         insets.top = topThickness;
         insets.left = leftThickness;
@@ -111,8 +103,8 @@ public class DropShadowBorder extends AbstractBorder {
      *      int, int, int, int)
      * 
      */
-    public Rectangle getInteriorRectangle(Component c, int x, int y, int width,
-            int height) {
+    public Rectangle getInteriorRectangle(final Component c, final int x, final int y, final int width,
+            final int height) {
         return super.getInteriorRectangle(c, x, y, width, height);
     }
 
@@ -127,15 +119,13 @@ public class DropShadowBorder extends AbstractBorder {
      *      java.awt.Graphics, int, int, int, int)
      * 
      */
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    public void paintBorder(final Component c, final Graphics g, final int x, final int y, final int width, final int height) {               
         final Graphics2D g2 = (Graphics2D) g.create();
-        try {
-            final Color oColor = g2.getColor();
-            
+        try {            
             final int borderAdjust = 4;
             final int innerWidth = width - borderAdjust;
             final int innerHeight = height - borderAdjust;
-            
+           
             // Left
             g2.setColor(leftColors[0]);
             g2.drawLine(x, y, x, y + innerHeight - 1);
@@ -221,13 +211,79 @@ public class DropShadowBorder extends AbstractBorder {
             g2.draw(new Line2D.Double(x + width - 3, y + height - 3, x + width - 3, y + height - 3));
             g2.setComposite(makeComposite(0.15f));
             g2.draw(new Line2D.Double(x + width - 2, y + height - 2, x + width - 2, y + height - 2));
-                    
-            g2.setColor(oColor);
         } finally {
             g2.dispose();
         }
     }
     
+    /**
+     * Force painting of the area underneath where the border shadows will be.
+     * If this is not done then artifacts appear in the robot.createScreenCapture
+     * because painting may not be complete yet.
+     * This can't be called from paintBorder() above since paintAll() will cause
+     * an infinite loop. Instead call it just before the popup will be visible.
+     */
+    public void paintUnderneathBorder(final Component c, final int x, final int y, final int width, final int height) {
+        Component deepestComponent = null;
+        
+        // Get the deepest component
+        Component parent = c;
+        while (null != parent) {
+            deepestComponent = parent;
+            parent = parent.getParent();
+        }
+        final int deepestComponentWidth = deepestComponent.getWidth();
+        final int deepestComponentHeight = deepestComponent.getHeight();
+        final Point point = SwingUtilities.convertPoint(c, x, y, deepestComponent);
+        final Rectangle rect = new Rectangle();
+        
+        // If needed paint the dirty region under the vertical border.
+        rect.x = point.x + width - 4;
+        rect.y = point.y;
+        rect.width = 4;
+        rect.height = height;
+        if ((rect.x + rect.width) > deepestComponentWidth) {
+            rect.width = deepestComponentWidth - rect.x;
+        }
+        if ((rect.y + rect.height) > deepestComponentHeight) {
+            rect.height = deepestComponentHeight - rect.y;
+        }        
+        paintUnderneathRectangle(deepestComponent, rect);
+        
+        // If needed paint the dirty region under the horizontal border.
+        rect.x = point.x;
+        rect.y = point.y + height - 4;
+        rect.width = width - 4;
+        rect.height = 4;  
+        if ((rect.x + rect.width) > deepestComponentWidth) {
+            rect.width = deepestComponentWidth - rect.x;
+        }
+        if ((rect.y + rect.height) > deepestComponentHeight) {
+            rect.height = deepestComponentHeight - rect.y;
+        }        
+        paintUnderneathRectangle(deepestComponent, rect);
+    }
+    
+    private void paintUnderneathRectangle(final Component component, final Rectangle rect) {
+        if (!rect.isEmpty()) {
+            final Graphics2D g2 = (Graphics2D)component.getGraphics();
+            try { 
+                g2.setClip(rect);
+                if (component instanceof JComponent) {
+                    JComponent jComponent = (JComponent) component;
+                    boolean doubleBuffered = jComponent.isDoubleBuffered();
+                    jComponent.setDoubleBuffered(false);
+                    jComponent.paintAll(g2);
+                    jComponent.setDoubleBuffered(doubleBuffered); 
+                } else {
+                    component.paintAll(g2);
+                }
+            } finally {
+                g2.dispose();
+            }
+        }
+    }
+        
     private AlphaComposite makeComposite(float alpha) {
         int type = AlphaComposite.SRC_OVER;
         return(AlphaComposite.getInstance(type, alpha));

@@ -30,7 +30,7 @@
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
     <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
-    <property name="target.test-#report.dir" value="${target.dir}/test-report"/>
+    <property name="target.test-report.dir" value="${target.dir}/test-report"/>
     <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
     <!-- runtime vendor libs -->

@@ -1,6 +1,5 @@
-/**
+/*
  * Created On: 7-Nov-06 10:42:10 PM
- * $Id$
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.main;
 
@@ -10,7 +9,6 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -31,11 +29,11 @@ import org.jdesktop.jdic.icons.IconService;
  */
 public class FileIconReader {
     
-    /** An apache logger. */
-    private static final Log4JWrapper slogger;
-    
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
+    
+    /** An apache logger. */
+    private static final Log4JWrapper slogger;
 
     static {
         slogger = new Log4JWrapper();
@@ -96,6 +94,18 @@ public class FileIconReader {
     }
 
     /**
+     * Read a file icon from the cache. This is useful only for
+     * the subset of file icons listed in the enum FileIcon.
+     * 
+     * @param icon
+     *            The icon.
+     * @return The icon.
+     */
+    public ImageIcon read(final FileIcon icon) {
+        return (ImageIcon) read(ICON_CACHE, icon.iconName);
+    }
+    
+    /**
      * Obtain an icon for a file name extension.
      * 
      * @param extension
@@ -130,40 +140,17 @@ public class FileIconReader {
     }
     
     /**
-     * Read a file icon from the cache. This is useful only for
-     * the subset of file icons listed in the enum FileIcon.
+     * See if the key is in the cache.
      * 
-     * @param icon
-     *            The icon.
-     * @return The icon.
+     * @param cache
+     *            The cache.
+     * @param cacheKey
+     *            The cache key.
+     * @return Boolean.
      */
-    public ImageIcon read(final FileIcon icon) {
-        return (ImageIcon) read(ICON_CACHE, icon.iconName);
-    }
-    
-    /**
-     * Read the icon from the system if possible.
-     */
-    private ImageIcon readSystemIcon(final String extension) {
-        ImageIcon imageIcon = null;
-        switch (OSUtil.getOS()) {
-        case WINDOWS_2000:
-        case WINDOWS_XP:
-            Association assoc = associationService
-                    .getFileExtensionAssociation(extension);
-            String iconSpec = assoc.getIconFileName();
-            if (null != iconSpec) {
-                final Image image = IconService.getIcon(iconSpec, 16);
-                if (null != image) {
-                    imageIcon = new ImageIcon(image);
-                }
-            }
-            break;
-        default:
-            break;
-        }
-        
-        return imageIcon;
+    private Boolean isCached(final Map<String, Object> cache,
+            final String cacheKey) {
+        synchronized(cache) { return cache.containsKey(cacheKey); }
     }
 
     /**
@@ -182,6 +169,24 @@ public class FileIconReader {
     }
     
     /**
+     * Read the icon from the system if possible.
+     */
+    private ImageIcon readSystemIcon(final String extension) {
+        final Association assoc =
+            associationService.getFileExtensionAssociation(extension);
+        if (null != assoc) {
+            final String iconSpec = assoc.getIconFileName();
+            if (null != iconSpec) {
+                final Image image = IconService.getIcon(iconSpec, 16);
+                if (null != image) {
+                    return new ImageIcon(image);
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Write to the cache.
      * 
      * @param cache
@@ -197,32 +202,18 @@ public class FileIconReader {
         synchronized(cache) { cache.put(cacheKey, cacheValue); }
     }
     
-    /**
-     * See if the key is in the cache.
-     * 
-     * @param cache
-     *            The cache.
-     * @param cacheKey
-     *            The cache key.
-     * @return Boolean.
-     */
-    private Boolean isCached(final Map<String, Object> cache,
-            final String cacheKey) {
-        synchronized(cache) { return cache.containsKey(cacheKey); }
-    }
-    
     /** All pre-configured file icons. Some common icons aren't read
      *  properly by the jdic library so they are provided here. */
     public enum FileIcon {
         FILE_DEFAULT("FILE_DEFAULT", "IconFileDefault.png"),
-        TXT("TXT", "IconFileTxt.png"),
-        PDF("PDF", "IconFilePdf.png");
-        
-        /** The icon name. */
-        private final String iconName;
+        PDF("PDF", "IconFilePdf.png"),
+        TXT("TXT", "IconFileTxt.png");
         
         /** The icon file name. */
         private final String iconFileName;
+        
+        /** The icon name. */
+        private final String iconName;
 
         /**
          * Create a TabPanelIcon.

@@ -32,15 +32,18 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.border.BottomBorder;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.border.BottomBorder;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -53,10 +56,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.co
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.util.ArtifactUtil;
-import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -1181,14 +1181,23 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public Dimension getPreferredSize(final Boolean first, final Boolean last) {
         return DIMENSION;
     }
+
+    /**
+     * Get the icon associated with this file extension.
+     * 
+     * @return The file icon.
+     */
+    private ImageIcon getIcon(final Document document) {
+        return fileIconReader.getIcon(document);
+    }
     
     /**
      * Get the icon associated with this file extension.
      * 
      * @return The file icon.
      */
-    private ImageIcon getFileIcon(final String extension) {
-        return fileIconReader.getFileIcon(extension);
+    private ImageIcon getIcon(final DocumentVersion version) {
+        return fileIconReader.getIcon(version);
     }
     
     /**
@@ -1197,8 +1206,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @return The document icon.
      */
     private ImageIcon getDocumentIcon(final Document document) {
-        final String extension = ArtifactUtil.getNameExtension(document);
-        return getFileIcon(extension);
+        return getIcon(document);
     }
     
     /**
@@ -1207,8 +1215,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @return The document icon.
      */
     private ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
-        final String extension = ArtifactVersionUtil.getNameExtension(documentVersion);
-        return getFileIcon(extension);
+        return getIcon(documentVersion);
     }
     
     private enum ListType { VERSION, CONTENT }

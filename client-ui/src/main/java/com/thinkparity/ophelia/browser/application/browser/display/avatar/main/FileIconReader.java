@@ -10,15 +10,20 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import org.jdesktop.jdic.filetypes.Association;
-import org.jdesktop.jdic.filetypes.AssociationService;
-import org.jdesktop.jdic.icons.IconService;
-
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
+import com.thinkparity.ophelia.browser.util.ArtifactUtil;
+import com.thinkparity.ophelia.browser.util.ArtifactVersionUtil;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
+
+import org.jdesktop.jdic.filetypes.Association;
+import org.jdesktop.jdic.filetypes.AssociationService;
+import org.jdesktop.jdic.icons.IconService;
 
 /**
  * @author rob_masako@shaw.ca
@@ -55,29 +60,49 @@ public class FileIconReader {
             }
         }
     }
-    
-    /** An apache logger. */
-    private final Log4JWrapper logger;
-    
-    /** A jdic file association service. */
+
+    /** A jdic <code>AssociationService</code>. */
     private final AssociationService associationService;
 
-    /** Creates a new instance of MainPanelImageCache */
+    /**
+     * Create FileIconReader.
+     *
+     */
     public FileIconReader() {
         super();
-        this.logger = new Log4JWrapper();
         this.associationService = new AssociationService();
     }
 
-    /** Debug the cache. */
-    void debug() {
-        debug("File Icon Cache", ICON_CACHE);
-    }
-    
     /**
-     * Get a file icon.
+     * Obtain an icon for a document.
+     * 
+     * @param document.
+     *            A <code>Document</code>.
+     * @return An <code>ImageIcon</code>.
      */
-    public ImageIcon getFileIcon(final String extension) {
+    public ImageIcon getIcon(final Document document) {
+        return getFileIcon(ArtifactUtil.getNameExtension(document));
+    }
+
+    /**
+     * Obtain an icon for a document version.
+     * 
+     * @param version.
+     *            A <code>DocumentVersion</code>.
+     * @return An <code>ImageIcon</code>.
+     */
+    public ImageIcon getIcon(final DocumentVersion version) {
+        return getFileIcon(ArtifactVersionUtil.getNameExtension(version));
+    }
+
+    /**
+     * Obtain an icon for a file name extension.
+     * 
+     * @param extension
+     *            A file name extension <code>String</code>.
+     * @return An <code>ImageIcon</code>.
+     */
+    private ImageIcon getFileIcon(final String extension) {
         final String period = Separator.Period.toString();
         final String name;
         
@@ -142,24 +167,6 @@ public class FileIconReader {
     }
 
     /**
-     * Debug a cache.
-     * 
-     * @param cacheName
-     *            A name for the cache.
-     * @param cache
-     *            The cache.
-     */
-    private void debug(final String cacheName, final Map<String, Object> cache) {
-        logger.logApiId();
-        logger.logVariable("cacheName", cacheName);
-        synchronized (cache) {
-            for(final String key : cache.keySet()) {
-                logger.logVariable("key", key);
-            }
-        }
-    }
-    
-    /**
      * Read from the cache.
      * 
      * @param cache
@@ -168,9 +175,10 @@ public class FileIconReader {
      *            The cache key.
      * @return The cached object.
      */
-    private Object read(final Map<String, Object> cache,
-            final String cacheKey) {
-        synchronized(cache) { return cache.get(cacheKey); }
+    private Object read(final Map<String, Object> cache, final String cacheKey) {
+        synchronized (cache) {
+            return cache.get(cacheKey);
+        }
     }
     
     /**

@@ -11,7 +11,6 @@ import java.net.Socket;
 
 import javax.net.SocketFactory;
 
-import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -26,15 +25,32 @@ import com.thinkparity.codebase.model.session.Environment;
  */
 public abstract class StreamClient {
 
-    /** An apache logger wrapper. */
-    private final static Log4JWrapper logger;
-
-    static {
-        logger = new Log4JWrapper();
-    }
+    /** A default <code>StreamMonitor</code>. */
+    private static final StreamMonitor DEFAULT_MONITOR = new StreamMonitor() {
+        private final Log4JWrapper LOGGER = new Log4JWrapper();
+        public void chunkReceived(int chunkSize) {
+            LOGGER.logApiId();
+            LOGGER.logVariable("chunkSize", chunkSize);
+        }
+        public void chunkSent(final int chunkSize) {
+            LOGGER.logApiId();
+            LOGGER.logVariable("chunkSize", chunkSize);
+        }
+        public void headerReceived(final String header) {
+            LOGGER.logApiId();
+            LOGGER.logVariable("header", header);
+        }
+        public void headerSent(final String header) {
+            LOGGER.logApiId();
+            LOGGER.logVariable("header", header);
+        }
+    };
 
     /** The stream's <code>InputStream</code>. */
     private InputStream input;
+
+    /** A <code>StreamMonitor</code>. */
+    private final StreamMonitor monitor;
 
     /** The stream's <code>OutputStream</code>. */
     private OutputStream output;
@@ -54,17 +70,21 @@ public abstract class StreamClient {
     /**
      * Create StreamClient.
      * 
+     * @param monitor
+     *            A <code>StreamMonitor</code>.
      * @param session
      *            A <code>StreamSession</code>.
      */
-    protected StreamClient(final StreamSession session) {
+    protected StreamClient(final StreamMonitor monitor,
+            final StreamSession session) {
         super();
+        this.monitor = monitor;
         this.session = session;
         final Environment environment = session.getEnvironment();
         this.socketAddress = new InetSocketAddress(
                 environment.getStreamHost(), environment.getStreamPort());
         if (environment.isStreamTLSEnabled()) {
-            logger.logInfo("Stream Client - {0}:{1} - Secure",
+            new Log4JWrapper().logInfo("Stream Client - {0}:{1} - Secure",
                     environment.getStreamHost(), environment.getStreamPort());
             final String keyStorePath = "security/stream_client_keystore";
             final char[] keyStorePassword = "password".toCharArray();
@@ -75,11 +95,21 @@ public abstract class StreamClient {
                 throw new StreamException(x);
             }
         } else {
-            logger.logInfo("Stream Client - {0}:{1}",
+            new Log4JWrapper().logInfo("Stream Client - {0}:{1}",
                     environment.getStreamHost(), environment.getStreamPort());
             socketFactory =
                 com.thinkparity.codebase.net.SocketFactory.getInstance();
         }
+    }
+
+    /**
+     * Create StreamClient.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     */
+    protected StreamClient(final StreamSession streamSession) {
+        this(DEFAULT_MONITOR, streamSession);
     }
 
     /**
@@ -99,10 +129,19 @@ public abstract class StreamClient {
     }
 
     protected final void read(final OutputStream stream) {
-        logger.logApiId();
         try {
-            StreamUtil.copy(input, stream, session.getBufferSize());
-            output.flush();
+            int len;
+            final byte[] b = new byte[session.getBufferSize()];
+            try {
+                while((len = input.read(b)) > 0) {
+                    stream.write(b, 0, len);
+                    stream.flush();
+                    fireChunkReceived(len);
+                }
+            } finally {
+                stream.flush();
+                stream.close();
+            }
         } catch (final IOException iox) {
             throw new StreamException(iox);
         }
@@ -117,21 +156,17 @@ public abstract class StreamClient {
      *            The stream size <code>Long</code>.
      */
     protected final void write(final InputStream stream, final Long streamSize) {
-        logger.logApiId();
         try {
-
-            int len, total = 0;
+            int len;
             final byte[] b = new byte[session.getBufferSize()];
             try {
                 while((len = stream.read(b)) > 0) {
-                    logger.logDebug("UPSTREAM SENT {0}/{1}", total += len, streamSize);
                     output.write(b, 0, len);
                     output.flush();
+                    fireChunkSent(len);
                 }
             } finally {
                 stream.close();
-                output.flush();
-                output.close();
             }
         } catch (final IOException iox) {
             throw new StreamException(iox);
@@ -144,18 +179,16 @@ public abstract class StreamClient {
      * @param streamHeader
      *            A <code>StreamHeader</code>.
      */
-    protected final void write(final StreamHeader streamHeader) {
-        logger.logApiId();
-        logger.logVariable("streamHeader", streamHeader);
+    protected final void write(final StreamHeader header) {
         try {
-            write(streamHeader.toHeader());
+            write(header.toHeader());
+            fireHeaderSent(header);
         } catch (final IOException iox) {
             throw new StreamException(iox);
         }
     }
 
     private void doConnect() throws IOException {
-        logger.logTraceId();
         socket = socketFactory.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
         input = socket.getInputStream();
@@ -163,7 +196,6 @@ public abstract class StreamClient {
     }
 
     private void doDisconnect() throws IOException {
-        logger.logTraceId();
         output.flush();
         output.close();
         output = null;
@@ -173,6 +205,18 @@ public abstract class StreamClient {
         socket = null;
     }
 
+    private void fireChunkReceived(final int chunkSize) {
+        monitor.chunkReceived(chunkSize);
+    }
+
+    private void fireChunkSent(final int chunkSize) {
+        monitor.chunkSent(chunkSize);
+    }
+
+    private void fireHeaderSent(final StreamHeader header) {
+        monitor.headerSent(header.toHeader());
+    }
+
     private boolean isConnected() {
         return null != socket && socket.isConnected();
     }
@@ -180,8 +224,6 @@ public abstract class StreamClient {
     private void write(final String message) throws IOException {
         Assert.assertTrue(isConnected(),
                 "{0} - No longer connected.", socketAddress);
-        logger.logTraceId();
-        logger.logVariable("message.length()", message.length());
         output.write(message.getBytes(session.getCharset().name()));
         output.flush();
     }

@@ -23,6 +23,16 @@ public final class StreamWriter extends StreamClient {
     }
 
     /**
+     * Create StreamWriter.
+     * 
+     * @param session
+     *            A stream <code>Session</code>.
+     */
+    public StreamWriter(final StreamMonitor monitor, final StreamSession session) {
+        super(monitor, session);
+    }
+
+    /**
      * Close the stream writer.
      * 
      * @throws IOException
@@ -40,14 +50,19 @@ public final class StreamWriter extends StreamClient {
     }
 
     /**
-     * Write input.
+     * Write a stream.
      * 
+     * @param monitor
+     *            A progress monitor.
      * @param streamId
      *            A stream id <code>String</code>.
-     * @param input
+     * @param stream
      *            An <code>InputStream</code>.
+     * @param streamSize
+     *            The size of the stream in bytes.
      */
-    public void write(final String streamId, final InputStream stream, final Long streamSize) {
+    public void write(final String streamId, final InputStream stream,
+            final Long streamSize) {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
         write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
         write(stream, streamSize);

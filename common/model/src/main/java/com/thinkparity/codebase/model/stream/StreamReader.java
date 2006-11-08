@@ -17,19 +17,23 @@ public final class StreamReader extends StreamClient {
     /**
      * Create StreamReader.
      * 
+     * @param monitor
+     *            A <code>StreamMonitor</code>.
      * @param session
      *            A <code>StreamSession</code>.
      */
-    public StreamReader(StreamSession session) {
-        super(session);
+    public StreamReader(final StreamMonitor monitor, final StreamSession session) {
+        super(monitor, session);
     }
 
     /**
-     * Open the reader.
-     *
+     * Create StreamReader.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
      */
-    public void open() throws IOException {
-        connect(Type.DOWNSTREAM);
+    public StreamReader(final StreamSession session) {
+        super(session);
     }
 
     /**
@@ -38,6 +42,14 @@ public final class StreamReader extends StreamClient {
      */
     public void close() throws IOException {
         disconnect();
+    }
+
+    /**
+     * Open the reader.
+     *
+     */
+    public void open() throws IOException {
+        connect(Type.DOWNSTREAM);
     }
 
     /**

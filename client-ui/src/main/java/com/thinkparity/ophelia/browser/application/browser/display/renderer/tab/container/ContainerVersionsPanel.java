@@ -46,6 +46,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -108,7 +109,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private int contentPopupCellIndex = -1;
     
     /** An image cache. */
-    protected final MainPanelImageCache imageCache;
+    private final MainPanelImageCache imageCache;
+    
+    /** A file icon reader. */
+    private final FileIconReader fileIconReader;
     
     /** The panel localization. */
     private final MainCellL18n localization;
@@ -137,6 +141,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versionsModel = new DefaultListModel();
         this.versionsContentModel = new DefaultListModel();
         this.imageCache = new MainPanelImageCache();
+        this.fileIconReader = new FileIconReader();
         this.localization = new MainCellL18n("ContainerVersionsPanel");
         initComponents();
         initFocusListeners();
@@ -1183,15 +1188,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @return The file icon.
      */
     private ImageIcon getFileIcon(final String extension) {
-        if (extension.equalsIgnoreCase(".DOC")) {
-            return imageCache.read(TabPanelIcon.FILE_DOC); 
-        } else if (extension.equalsIgnoreCase(".XLS")) {
-            return imageCache.read(TabPanelIcon.FILE_XLS);  
-        } else if (extension.equalsIgnoreCase(".PDF")) {
-            return imageCache.read(TabPanelIcon.FILE_PDF);
-        } else {
-            return imageCache.read(TabPanelIcon.FILE_DEFAULT); 
-        }
+        return fileIconReader.getFileIcon(extension);
     }
     
     /**

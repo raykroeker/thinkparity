@@ -117,6 +117,7 @@ public class MainPanelImageCache {
         DRAFT("IconDraft.png"),
         VERSION("IconVersion.png"),
         USER("IconUser.png"),
+        FILE_TXT("IconFileTxt.png"),
         FILE_DOC("IconFileDoc.png"),
         FILE_XLS("IconFileXls.png"),
         FILE_PDF("IconFilePdf.png"),

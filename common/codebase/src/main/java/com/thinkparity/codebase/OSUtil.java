@@ -11,7 +11,26 @@ package com.thinkparity.codebase;
 public class OSUtil {
 
 	/** The value of os. */
-	private static OS os;
+	private static final OS os;
+
+    static {
+        final String osName = System.getProperty("os.name");
+        if ("Windows XP".equals(osName)) {
+            os = OS.WINDOWS_XP;
+        } else if ("Windows 2000".equals(osName)) {
+            os = OS.WINDOWS_2000;
+        } else if ("Linux".equals(osName)) {
+            os = OS.LINUX;
+        } else if ("Mac OS X".equals(osName)) {
+            os = OS.OSX;
+        } else {
+            os = null;
+        }
+
+        // set the version
+        if (null != os)
+            os.setVersion(System.getProperty("os.version"));
+    }
 
 	/**
      * Obtain the underlying operating system based upon the os.name and
@@ -20,26 +39,7 @@ public class OSUtil {
      * @return An enumerated operating system value.
      */
 	public static OS getOS() {
-		if (null == os) {
-		    synchronized (os) {
-				final String osName = System.getProperty("os.name");
-				if ("Windows XP".equals(osName)) {
-                    os = OS.WINDOWS_XP;
-				} else if ("Windows 2000".equals(osName)) {
-                    os = OS.WINDOWS_2000;
-				} else if ("Linux".equals(osName)) {
-                    os = OS.LINUX;
-				} else if ("Mac OS X".equals(osName)) {
-                    os = OS.OSX;
-				}
-
-				// set the version
-				if (null != os) {
-                    os.setVersion(System.getProperty("os.version"));
-				}
-            }
-		}
-		return os;
+        return os;
 	}
 
     /**

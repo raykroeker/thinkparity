@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -44,6 +43,21 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         archive.setParameter("userId", userId);
         archive.setParameter("uniqueId", uniqueId);
         execute(archive);
+    }
+
+    void createStream(final JabberId userId, final String streamId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("streamId", streamId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        final XMPPMethod createStream = new XMPPMethod("archive:createstream");
+        createStream.setParameter("userId", userId);
+        createStream.setParameter("streamId", streamId);
+        createStream.setParameter("uniqueId", uniqueId);
+        createStream.setParameter("versionId", versionId);
+        execute(createStream);
     }
 
     Container readContainer(final JabberId userId, final UUID uniqueId) {
@@ -86,20 +100,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readDocuments.setParameter("uniqueId", uniqueId);
         readDocuments.setParameter("versionId", versionId);
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
-    }
-
-    InputStream openDocumentVersion(final JabberId userId, final UUID uniqueId,
-            final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersionContent = new XMPPMethod("archive:opendocumentversion");
-        readDocumentVersionContent.setParameter("userId", userId);
-        readDocumentVersionContent.setParameter("uniqueId", uniqueId);
-        readDocumentVersionContent.setParameter("versionId", versionId);
-        return new ByteArrayInputStream(
-                execute(readDocumentVersionContent, Boolean.TRUE).readBytes("content"));
     }
 
     List<DocumentVersion> readDocumentVersions(final JabberId userId,

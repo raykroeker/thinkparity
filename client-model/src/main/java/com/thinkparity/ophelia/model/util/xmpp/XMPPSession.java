@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -306,8 +305,8 @@ public interface XMPPSession {
      *            A document version id <code>Long</code>.
      * @return The document version's content.
      */
-    public InputStream openArchiveDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final Long versionId);
+    public void createArchiveStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId);
 
     /**
      * Open a document version's content.
@@ -320,8 +319,8 @@ public interface XMPPSession {
      *            A document version id <code>Long</code>.
      * @return The document version's content.
      */
-    public InputStream openBackupDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final Long versionId);
+    public void createBackupStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId);
 
     /**
      * Process events queued on the server.

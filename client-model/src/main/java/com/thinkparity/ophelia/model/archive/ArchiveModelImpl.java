@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.archive;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
@@ -19,8 +21,10 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -78,8 +82,16 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("versionId", versionId);
         try {
             assertArchiveOnline();
-            return getSessionModel().openArchiveDocumentVersion(
-                    localUserId(), uniqueId, versionId);
+            final InternalSessionModel sessionModel = getSessionModel();
+            final StreamSession session = sessionModel.createStreamSession();
+            final String streamId = sessionModel.createStream(session);
+            sessionModel.createArchiveStream(localUserId(), streamId, uniqueId,
+                    versionId);
+            try {
+                return new FileInputStream(downloadStream(streamId));
+            } finally {
+                sessionModel.deleteStreamSession(session);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

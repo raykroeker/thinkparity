@@ -3,12 +3,11 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -28,18 +27,19 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         super(core);
     }
 
-    InputStream openDocumentVersion(final JabberId userId, final UUID uniqueId,
-            final Long versionId) {
+    void createStream(final JabberId userId, final String streamId,
+            final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
+        logger.logVariable("streamId", streamId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersionContent = new XMPPMethod("backup:opendocumentversion");
-        readDocumentVersionContent.setParameter("userId", userId);
-        readDocumentVersionContent.setParameter("uniqueId", uniqueId);
-        readDocumentVersionContent.setParameter("versionId", versionId);
-        return new ByteArrayInputStream(
-                execute(readDocumentVersionContent, Boolean.TRUE).readBytes("content"));
+        final XMPPMethod createStream = new XMPPMethod("backup:createstream");
+        createStream.setParameter("userId", userId);
+        createStream.setParameter("streamId", streamId);
+        createStream.setParameter("uniqueId", uniqueId);
+        createStream.setParameter("versionId", versionId);
+        execute(createStream);
     }
 
     Container readContainer(final JabberId userId, final UUID uniqueId) {

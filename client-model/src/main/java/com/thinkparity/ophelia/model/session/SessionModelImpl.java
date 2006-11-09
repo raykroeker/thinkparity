@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -475,9 +474,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 			throw translateError(t);
 		}
 	}
-
     
-    InputStream openArchiveDocumentVersion(final JabberId userId,
+    void createArchiveStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
@@ -486,23 +484,24 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                return xmppSession.openArchiveDocumentVersion(userId, uniqueId, versionId);
+                xmppSession.createArchiveStream(userId, streamId, uniqueId, versionId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
     
-    InputStream openBackupDocumentVersion(final JabberId userId,
+    void createBackupStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("streamId", streamId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                return xmppSession.openBackupDocumentVersion(userId, uniqueId, versionId);
+                xmppSession.createBackupStream(userId, streamId, uniqueId, versionId);
             }
         } catch (final Throwable t) {
             throw translateError(t);

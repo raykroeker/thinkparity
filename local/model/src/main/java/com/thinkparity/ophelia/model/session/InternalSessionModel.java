@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -261,17 +260,17 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    public InputStream openArchiveDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
+    public void createArchiveStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().openArchiveDocumentVersion(userId, uniqueId, versionId);
+            getImpl().createArchiveStream(userId, streamId, uniqueId, versionId);
         }
     }
 
-    public InputStream openBackupDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
+    public void createBackupStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().openBackupDocumentVersion(userId, uniqueId, versionId);
+            getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
         }
     }
 

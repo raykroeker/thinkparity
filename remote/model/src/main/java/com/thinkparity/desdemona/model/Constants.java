@@ -178,8 +178,6 @@ public interface Constants {
             public static final class Container {
                 public static final String PUBLISH = "container:publish";
                 public static final String PUBLISH_ARTIFACT = "container:publishartifact";
-                public static final String SEND = "container:send";
-                public static final String SEND_ARTIFACT = "container:sendartifact";
             }
             public static final class Document {
                 public static final String SEND = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "documentsend";

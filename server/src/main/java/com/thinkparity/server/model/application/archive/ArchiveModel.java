@@ -3,11 +3,11 @@
  */
 package com.thinkparity.desdemona.model.archive;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -83,6 +83,30 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
     }
 
     /**
+     * Open a document version's input stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
+     */
+    public void createStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            getImpl().createStream(userId, streamId, uniqueId, versionId);
+        }
+    }
+
+    public List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeam(userId, uniqueId);
+        }
+    }
+
+    /**
      * Restore an artifact.
      * 
      * @param userId
@@ -115,30 +139,6 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
     public void stop() {
         synchronized (getImplLock()) {
             getImpl().stop();
-        }
-    }
-
-    /**
-     * Open a document version's input stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
-     */
-    public InputStream openDocumentVersionStream(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            return getImpl().openDocumentVersionStream(userId, uniqueId, versionId);
-        }
-    }
-
-    public List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(userId, uniqueId);
         }
     }
 }

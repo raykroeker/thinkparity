@@ -3,11 +3,11 @@
  */
 package com.thinkparity.desdemona.model.backup;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -62,10 +62,10 @@ public class BackupModel extends AbstractModel<BackupModelImpl> {
      *            A document version id <code>Long</code>.
      * @return An <code>InputStream</code>.
      */
-    public InputStream openDocumentVersionStream(final JabberId userId,
+    public void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().openDocumentVersionStream(userId, uniqueId, versionId);
+            getImpl().createStream(userId, streamId, uniqueId, versionId);
         }
     }
 

@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jivesoftware.util.JiveProperties;
-
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,16 +23,23 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.model.session.Session;
+
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
+import com.thinkparity.desdemona.model.session.Session;
+
+import org.jivesoftware.util.JiveProperties;
 
 /**
  * <b>Title:</b>thinkParity Archive Model Implementation</br>
@@ -168,23 +174,36 @@ class ArchiveModelImpl extends AbstractModelImpl {
      *            A document version id <code>Long</code>.
      * @return An <code>InputStream</code>.
      */
-    InputStream openDocumentVersionStream(final JabberId userId,
+    void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logApiId();
         logVariable("userId", userId);
+        logVariable("streamId", streamId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         try {
             assertIsAuthenticatedUser(userId);
             final JabberId archiveId = readArchiveId(userId);
             if (null == archiveId) {
-                return null;
+                logger.logWarning("User {0} has no archive.", userId);
             } else {
                 final ClientModelFactory modelFactory = getModelFactory(archiveId);
                 final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
+                final InternalSessionModel sessionModel = modelFactory.getSessionModel(getClass());
+
                 final Long documentId = artifactModel.readId(uniqueId);
-                return documentModel.openVersionStream(documentId, versionId);
+                final InputStream stream = documentModel.openVersionStream(documentId, versionId);
+                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+
+                final StreamSession streamSession = sessionModel.createStreamSession();
+                final StreamWriter writer = new StreamWriter(streamSession);
+                writer.open();
+                try {
+                    writer.write(streamId, stream, streamSize);
+                } finally {
+                    writer.close();
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);

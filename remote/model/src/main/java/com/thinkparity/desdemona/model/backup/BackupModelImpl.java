@@ -10,17 +10,22 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamWriter;
+
+import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation</br>
@@ -89,10 +94,11 @@ final class BackupModelImpl extends AbstractModelImpl {
      *            A document version id <code>Long</code>.
      * @return An <code>InputStream</code>.
      */
-    InputStream openDocumentVersionStream(final JabberId userId,
+    void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logApiId();
         logVariable("userId", userId);
+        logVariable("streamId", streamId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         try {
@@ -100,13 +106,24 @@ final class BackupModelImpl extends AbstractModelImpl {
             final JabberId archiveId = readArchiveId(userId);
             if (null == archiveId) {
                 logWarning("No archive exists for user {0}.", userId);
-                return null;
             } else {
                 final ClientModelFactory modelFactory = getModelFactory(archiveId);
                 final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
+                final InternalSessionModel sessionModel = modelFactory.getSessionModel(getClass());
+
                 final Long documentId = artifactModel.readId(uniqueId);
-                return documentModel.openVersionStream(documentId, versionId);
+                final InputStream stream = documentModel.openVersionStream(documentId, versionId);
+                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+
+                final StreamSession streamSession = sessionModel.createStreamSession();
+                final StreamWriter writer = new StreamWriter(streamSession);
+                writer.open();
+                try {
+                    writer.write(streamId, stream, streamSize);
+                } finally {
+                    writer.close();
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);

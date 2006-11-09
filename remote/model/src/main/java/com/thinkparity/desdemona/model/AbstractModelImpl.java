@@ -39,6 +39,7 @@ import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
@@ -270,7 +271,7 @@ public abstract class AbstractModelImpl
         return sessionList;
     }
 
-	/**
+    /**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -279,7 +280,7 @@ public abstract class AbstractModelImpl
 		return ContactModel.getModel(session);
 	}
 
-    /**
+	/**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -290,6 +291,10 @@ public abstract class AbstractModelImpl
                     StackUtil.getFrameClassName(2),
                     StackUtil.getFrameMethodName(2),
                     t.getMessage());
+    }
+
+    protected StreamModel getStreamModel() {
+        return StreamModel.getModel(session);
     }
 
 	/**

@@ -123,12 +123,12 @@ public class InternalContainerModel extends ContainerModel implements
     }
 
     public void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
+            final String name, final String comment,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
-                    publishedBy, publishedTo, publishedOn);
+            getImpl().handlePublished(uniqueId, versionId, name, comment,
+                    artifactCount, publishedBy, publishedTo, publishedOn);
         }
     }
 

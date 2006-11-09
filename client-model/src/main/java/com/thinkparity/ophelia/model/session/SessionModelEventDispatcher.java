@@ -44,6 +44,12 @@ class SessionModelEventDispatcher {
         logger.logApiId();
         xmppSession.clearListeners();
         xmppSession.addListener(new ArtifactListener() {
+            public void artifactPublished(final UUID uniqueId,
+                    final Long versionId, final JabberId publishedBy,
+                    final Calendar publishedOn) {
+                getArtifactModel().handlePublished(uniqueId, versionId,
+                        publishedBy, publishedOn);
+            }
             public void handleDraftCreated(final UUID uniqueId,
                     final JabberId createdBy, final Calendar createdOn) {
                 getArtifactModel().handleDraftCreated(uniqueId, createdBy,
@@ -88,10 +94,12 @@ class SessionModelEventDispatcher {
             }
             public void handlePublished(final UUID uniqueId,
                     final Long versionId, final String name,
-                    final Integer artifactCount, final JabberId publishedBy,
+                    final String comment, final Integer artifactCount,
+                    final JabberId publishedBy,
                     final List<JabberId> publishedTo, final Calendar publishedOn) {
                 getContainerModel().handlePublished(uniqueId, versionId, name,
-                        artifactCount, publishedBy, publishedTo, publishedOn);
+                        comment, artifactCount, publishedBy, publishedTo,
+                        publishedOn);
             }
         });
         xmppSession.addListener(new ContactListener() {

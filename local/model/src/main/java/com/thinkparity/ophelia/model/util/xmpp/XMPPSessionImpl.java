@@ -471,11 +471,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
-    public void publish(ContainerVersion container,
-            Map<DocumentVersion, String> documents, List<JabberId> publishTo,
-            JabberId publishedBy, Calendar publishedOn) {
-        xmppContainer.publish(container, documents, publishTo, publishedBy,
-                publishedOn);
+    public void publish(final ContainerVersion container,
+            final Map<DocumentVersion, String> documents,
+            final List<JabberId> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        xmppContainer.publish(container, documents, team, publishTo,
+                publishedBy, publishedOn);
     }
 
     /**

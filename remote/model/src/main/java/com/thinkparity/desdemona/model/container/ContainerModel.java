@@ -66,11 +66,11 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            When the container was published.
      */
     public void publish(final UUID uniqueId, final Long versionId,
-            final String name, final String comment,
+            final String name, final String comment, final List<JabberId> team,
             final Integer artifactCount, final JabberId publishedBy,
             final List<JabberId> publishedTo, final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(uniqueId, versionId, name, comment,
+            getImpl().publish(uniqueId, versionId, name, comment, team,
                     artifactCount, publishedBy, publishedTo, publishedOn);
         }
     }
@@ -108,19 +108,17 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            When the artifact was published.
      */
     public void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final String comment,
-            final Integer artifactCount, final Integer artifactIndex,
-            final UUID artifactUniqueId, final Long artifactVersionId,
-            final String artifactName, final ArtifactType artifactType,
-            final String artifactChecksum, final String artifactStreamId,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final String name, final Integer artifactCount,
+            final Integer artifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final String artifactStreamId, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publishArtifact(uniqueId, versionId, name, comment,
-                    artifactCount, artifactIndex, artifactUniqueId,
-                    artifactVersionId, artifactName, artifactType,
-                    artifactChecksum, artifactStreamId, publishTo, publishedBy,
-                    publishedOn);
+            getImpl().publishArtifact(uniqueId, versionId, name, artifactCount,
+                    artifactIndex, artifactUniqueId, artifactVersionId,
+                    artifactName, artifactType, artifactChecksum,
+                    artifactStreamId, publishTo, publishedBy, publishedOn);
         }
     }
 

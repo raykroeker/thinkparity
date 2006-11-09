@@ -318,6 +318,20 @@ public interface ContainerIOHandler {
     public void restore(final Container container);
 
     /**
+     * Update a container version comment.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comment
+     *            A comment <code>String</code>.
+     */
+    @Deprecated
+    public void updateComment(final Long containerId, final Long versionId,
+            final String comment);
+
+    /**
      * Update a container.
      * 
      * @param containerId

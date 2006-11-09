@@ -57,7 +57,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                     } else if (isStartTag("name")) {
                         query.name = readString2();
                     } else if (isStartTag("comment")) {
-                        readString2();
+                        query.comment = readString2();
                     } else if (isStartTag("artifactCount")) {
                         query.artifactCount = readInteger2();
                     } else if (isStartTag("publishedBy")) {
@@ -85,8 +85,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
                         query.containerVersionId = readLong2();
                     } else if (isStartTag("name")) {
                         query.containerName = readString2();
-                    } else if (isStartTag("comment")) {
-                        readString2();
                     } else if (isStartTag("artifactCount")) {
                         query.containerArtifactCount = readInteger2();
                     } else if (isStartTag("artifactIndex")) {
@@ -161,6 +159,8 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      *            A container.
      * @param documents
      *            A list of documents and their content.
+     * @param team
+     *            A <code>JabberId</code> <code>List</code> of the team.
      * @param publishTo
      *            Whom the container is to be published to.
      * @param publishedBy
@@ -171,11 +171,12 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      */
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final List<JabberId> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);
+        logger.logVariable("team", team);
         logger.logVariable("publishTo", publishTo);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
@@ -187,7 +188,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
             publishArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
             publishArtifact.setParameter("versionId", container.getVersionId());
             publishArtifact.setParameter("name", container.getName());
-            publishArtifact.setParameter("comment", container.getComment());
             publishArtifact.setParameter("artifactCount", entries.size());
             publishArtifact.setParameter("artifactIndex", i++);
             publishArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
@@ -207,6 +207,7 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("versionId", container.getVersionId());
         publish.setParameter("name", container.getName());
         publish.setParameter("comment", container.getComment());
+        publish.setParameter("team", "teamMember", team);
         publish.setParameter("artifactCount", entries.size());
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedTo", "publishedTo", publishTo);
@@ -239,9 +240,10 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     private void handlePublished(final HandlePublishedIQ query) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.handlePublished(query.uniqueId, query.versionId, query.name,
-                        query.artifactCount, query.publishedBy,
-                        query.publishedTo, query.publishedOn);
+                listener.handlePublished(query.uniqueId, query.versionId,
+                                query.name, query.comment, query.artifactCount,
+                                query.publishedBy, query.publishedTo,
+                                query.publishedOn);
             }
         });
     }
@@ -308,6 +310,9 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
         /** How many artifacts in the container. */
         private Integer artifactCount;
+
+        /** A version comment. */
+        private String comment;
 
         /** The name of the container. */
         private String name;

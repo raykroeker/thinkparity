@@ -26,7 +26,7 @@ public interface ContainerListener extends EventListener {
             final ArtifactType artifactType, final String artifactChecksum,
             final String artifactStreamId);
     public void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn);
+            final String name, final String comment,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn);
 }

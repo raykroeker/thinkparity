@@ -126,15 +126,6 @@ public abstract class Artifact {
 	}
 
     /**
-     * Determine whether or not the object has been bookmarked.
-     * 
-     * @return True if it has been bookmarked.
-     */
-    public Boolean isBookmarked() {
-        return flags.contains(ArtifactFlag.BOOKMARK);
-    }
-
-	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
@@ -144,7 +135,7 @@ public abstract class Artifact {
 		return false;
 	}
 
-	/**
+    /**
      * Obtain the created by user id.
      * 
      * @return The created by user id <code>JabberId</code>.
@@ -160,7 +151,7 @@ public abstract class Artifact {
 	 */
 	public Calendar getCreatedOn() { return createdOn; }
 
-    /**
+	/**
 	 * Obtain the current object state.
 	 * 
 	 * @return The current object state.
@@ -176,7 +167,7 @@ public abstract class Artifact {
 	 */
 	public Long getId() { return id; }
 
-	/**
+    /**
 	 * Obtain the name of the object.
 	 * 
 	 * @return The name of the object.
@@ -240,6 +231,24 @@ public abstract class Artifact {
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() { return uniqueId.hashCode(); }
+
+	/**
+     * Determine whether or not the object has been bookmarked.
+     * 
+     * @return True if it has been bookmarked.
+     */
+    public Boolean isBookmarked() {
+        return flags.contains(ArtifactFlag.BOOKMARK);
+    }
+
+	/**
+     * Determine whether or not the artifact is the latest.
+     * 
+     * @return True if it is the latest.
+     */
+    public Boolean isLatest() {
+        return flags.contains(ArtifactFlag.LATEST);
+    }
 
 	/**
      * Determine if the description for the parity object is set.

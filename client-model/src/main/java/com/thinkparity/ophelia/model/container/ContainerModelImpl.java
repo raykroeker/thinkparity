@@ -689,13 +689,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The published on date.
      */
     void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
+            final String name, final String comment,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("name", name);
+        logger.logVariable("comment", comment);
         logger.logVariable("artifactCount", artifactCount);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedTo", publishedTo);
@@ -745,6 +746,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 containerIO.deleteDelta(containerId, version.getVersionId(), next.getVersionId());
                 containerIO.createDelta(calculateDelta(read(containerId), version, next));
             }
+            // apply comment
+            containerIO.updateComment(containerId, version.getVersionId(), comment);
             // send confirmation
             getSessionModel().confirmArtifactReceipt(localUserId(),
                     uniqueId, versionId, localUserId(), currentDateTime());
@@ -885,7 +888,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final ContainerVersion previous = readLatestVersion(containerId);
             // create version
             final ContainerVersion version = createVersion(container.getId(),
-                    readNextVersionId(containerId), localUserId(), currentDateTime());
+                    readNextVersionId(containerId), comment, localUserId(),
+                    currentDateTime());
 
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getInternalDocumentModel();
@@ -2218,27 +2222,54 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Create a container version.
+     * Create a new container version.
      * 
      * @param containerId
-     *            A container id.
+     *            A container id <code>Long</code>.
      * @param versionId
-     *            A container version id.
+     *            A container version id <code>Long</code>.
      * @param createdBy
-     *            By whom the container was created.
+     *            The created by user id <code>JabberId</code>.
      * @param createdOn
-     *            When the container was created.
-     * @return The version.
+     *            The created on <code>Calendar</code>.
+     * @return The new <code>ContainerVersion</code>.
+     * 
+     * @deprecated Use
+     *             {@link ContainerModelImpl#createVersion(Long, Long, String, JabberId, Calendar)}
+     *             instead.
      */
+    @Deprecated
     private ContainerVersion createVersion(final Long containerId,
             final Long versionId, final JabberId createdBy,
             final Calendar createdOn) {
+        return createVersion(containerId, versionId, null, createdBy, createdOn);
+    }
+
+    /**
+     * Create a new container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param comment
+     *            A comment <code>String</code>.
+     * @param createdBy
+     *            The created by user id <code>JabberId</code>.
+     * @param createdOn
+     *            The created on <code>Calendar</code>.
+     * @return The new <code>ContainerVersion</code>.
+     */
+    private ContainerVersion createVersion(final Long containerId,
+            final Long versionId, final String comment,
+            final JabberId createdBy, final Calendar createdOn) {
         final Container container = read(containerId);
 
         final ContainerVersion version = new ContainerVersion();
         version.setArtifactId(container.getId());
         version.setArtifactType(container.getType());
         version.setArtifactUniqueId(container.getUniqueId());
+        version.setComment(comment);
         version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
         version.setName(container.getName());
@@ -2728,6 +2759,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         getSessionModel().deleteStreamSession(session);
 
         getSessionModel().publish(version, documentVersionStreamIds,
+                getInternalArtifactModel().readTeamIds(version.getArtifactId()),
                 publishTo, publishedBy, publishedOn);
     }
 

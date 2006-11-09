@@ -36,7 +36,7 @@ public class BrowserPlatformInitializer {
         final Properties log4j = ConfigFactory.newInstance("log4j.properties");
         switch (Version.getMode()) {
         case DEVELOPMENT:
-            log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
+            log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,FILE");
             break;
         case DEMO:
         case PRODUCTION:

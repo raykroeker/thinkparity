@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.artifact;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +31,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class ArtifactModelImpl extends AbstractModelImpl {
+final class ArtifactModelImpl extends AbstractModelImpl {
 
-	/** Artifact persistance io. */
+    /** Artifact persistance io. */
 	private final ArtifactIOHandler artifactIO;
 
 	/** The artifact model's auditor. */
@@ -76,7 +77,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return addTeamMember(artifactId, user.getLocalId());
     }
 
-    /**
+	/**
      * Add a team member. Since we are using a local user id instead of a remote
      * one we know the user info has already been downloaded and the api does
      * not require the user to be online.
@@ -228,13 +229,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		artifactIO.deleteRemoteInfo(artifactId);
 	}
 
-	void deleteTeam(final Long artifactId) {
+    void deleteTeam(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
         artifactIO.deleteTeamRel(artifactId);
     }
 
-	Boolean doesExist(final Long artifactId) {
+    Boolean doesExist(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("variable", artifactId);
         return null != artifactIO.readUniqueId(artifactId);
@@ -246,14 +247,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return null != artifactIO.readId(uniqueId);
     }
 
-    Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+	Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         logger.logVariable("versionId", versionId);
         return artifactIO.doesVersionExist(artifactId, versionId);
     }
 
-    /**
+	/**
      * Handle the remote event generated when a draft is created.
      * 
      * @param uniqueId
@@ -302,6 +303,25 @@ class ArtifactModelImpl extends AbstractModelImpl {
             break;
         default:
             Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        }
+    }
+
+    void handlePublished(final UUID uniqueId, final Long versionId,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
+        try {
+            final Long artifactId = readId(uniqueId);
+            if (doesVersionExist(artifactId, versionId)) {
+                applyFlagLatest(artifactId);
+            } else {
+                removeFlagLatest(artifactId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -387,7 +407,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -416,7 +436,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return flags.contains(flag);
 	}
 
-    /**
+	/**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -444,7 +464,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-	/**
+    /**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -480,6 +500,27 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel2(artifactId);
+    }
+
+    /**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    List<JabberId> readTeamIds(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            final List<TeamMember> teamMembers = artifactIO.readTeamRel2(artifactId);
+            final List<JabberId> teamIds = new ArrayList<JabberId>(teamMembers.size());
+            for (final TeamMember teamMember : teamMembers) {
+                teamIds.add(teamMember.getId());
+            }
+            return teamIds;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -603,7 +644,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.logVariable("variable", updatedOn);
 		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
-    
+
     /**
      * Update an artifact's state.
      * 
@@ -643,6 +684,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactIO.updateFlags(artifactId, flags);
 		}
 	}
+    
+    /**
+     * Apply the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    private void applyFlagLatest(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            applyFlag(artifactId, ArtifactFlag.LATEST);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
 	 * Remove a flag from an artifact.
@@ -668,6 +725,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
                     artifactId, flag);
 		}
 	}
+
+    /**
+     * Remove the latest flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    private void removeFlagLatest(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            removeFlag(artifactId, ArtifactFlag.LATEST);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
 
 }

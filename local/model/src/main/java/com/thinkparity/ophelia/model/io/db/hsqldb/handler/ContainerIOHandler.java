@@ -397,6 +397,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("values (?)")
             .toString();
 
+    /** Sql to update a container version comment. */
+    private static final String SQL_UPDATE_COMMENT =
+        new StringBuffer("update ARTIFACT_VERSION ")
+        .append("set COMMENT=? ")
+        .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+        .toString();
+
     /** Sql to update the container name. */
     private static final String SQL_UPDATE_NAME =
             new StringBuffer("update ARTIFACT ")
@@ -512,7 +519,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.close();
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.ophelia.model.container.ContainerDraft)
      */
@@ -563,7 +570,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long,
      *      java.lang.Long, java.util.List)
@@ -989,6 +996,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersion(java.lang.Long,
      *      java.lang.Long, java.lang.Long, java.lang.Long)
@@ -1015,7 +1023,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -1051,6 +1058,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } catch (final HypersonicException hx) {  
             session.rollback();
             throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updateComment(java.lang.Long, java.lang.Long, java.lang.String)
+     *
+     */
+    public void updateComment(final Long containerId, final Long versionId,
+            final String comment) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_COMMENT);
+            session.setString(1, comment);
+            session.setLong(2, containerId);
+            session.setLong(3, versionId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update comment.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
             session.close();
         }

@@ -291,11 +291,11 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final List<JabberId> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(container, documents, publishTo, publishedBy,
-                    publishedOn);
+            getImpl().publish(container, documents, team, publishTo,
+                    publishedBy, publishedOn);
         }
     }
 

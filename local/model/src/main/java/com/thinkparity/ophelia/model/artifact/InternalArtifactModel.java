@@ -254,6 +254,14 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
+    public void handlePublished(final UUID uniqueId, final Long versionId,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handlePublished(uniqueId, versionId, publishedBy,
+                    publishedOn);
+        }
+    }
+
 	public void handleReceived(final UUID uniqueId, final Long versionId,
             final JabberId receivedBy, final Calendar recievedOn) {
         synchronized (getImplLock()) {
@@ -322,8 +330,20 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-	public List<TeamMember> readTeam2(final Long artifactId) {
-	    synchronized(getImplLock()) { return getImpl().readTeam2(artifactId); }
+    public List<TeamMember> readTeam2(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().readTeam2(artifactId); }
+    }
+
+    /**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public List<JabberId> readTeamIds(final Long artifactId) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeamIds(artifactId);
+        }
     }
 
     /**

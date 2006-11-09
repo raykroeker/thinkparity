@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -24,6 +23,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.IO;
 import com.thinkparity.ophelia.model.util.MD5Util;
+import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -36,24 +36,6 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @version 1.1.2.1
  */
 class LocalFile {
-
-    /**
-	 * System runtime environment.
-	 */
-	private static final Runtime myRuntime;
-
-    /** Windows wrapper dll. */
-	private static final String OPEN_PARAM_WIN32_DLL = "rundll32.exe";
-
-	/**
-     * The dll to call; and the api to execute. This will automatically provide
-     * the open-with dialogue if no application is associated with the file.
-     */
-	private static final String OPEN_PARAM_WIN32_PROTOCOL = "shell32.dll,ShellExec_RunDLL";
-
-	static {
-		myRuntime = Runtime.getRuntime();
-	}
 
 	/** An apache logger. */
 	protected final Log4JWrapper logger;
@@ -157,20 +139,8 @@ class LocalFile {
 	 * 
 	 * @throws IOException
 	 */
-	void open() throws IOException {
-		switch(OSUtil.getOS()) {
-		case WINDOWS_2000:
-		case WINDOWS_XP:
-			openWin32();
-			break;
-		case LINUX:
-		case OSX:
-		    Assert.assertNotYetImplemented("UNSUPPORTED OS");
-            break;
-		default:
-            Assert.assertUnreachable("UNKNOWN OS");
-			break;
-		}
+	void open(final Opener opener) {
+        opener.open(file);
 	}
 
 	/**
@@ -301,17 +271,5 @@ class LocalFile {
 			Assert.assertTrue("getFileParent(Document)", parent.mkdir());
 		}
 		return parent;
-	}
-
-	/**
-	 * Open the file in a win32 environment.
-	 * 
-	 * @throws IOException
-	 */
-	private void openWin32() throws IOException {
-		myRuntime.exec(new String[] {
-				OPEN_PARAM_WIN32_DLL,
-				OPEN_PARAM_WIN32_PROTOCOL,
-				file.getAbsolutePath() });
 	}
 }

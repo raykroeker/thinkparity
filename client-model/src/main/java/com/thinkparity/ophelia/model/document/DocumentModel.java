@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.events.DocumentListener;
+import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.ProgressIndicator;
 import com.thinkparity.ophelia.model.util.filter.Filter;
@@ -214,8 +215,10 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 * @param documentId
 	 *            The document unique id.
 	 */
-	public void open(final Long documentId) {
-		synchronized(getImplLock()) { getImpl().open(documentId); }
+	public void open(final Long documentId, final Opener opener) {
+		synchronized (getImplLock()) {
+            getImpl().open(documentId, opener);
+		}
 	}
 
 	/**
@@ -226,8 +229,11 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 * @param versionId
 	 *            The version to open.
 	 */
-	public void openVersion(final Long documentId, final Long versionId) {
-		synchronized(getImplLock()) { getImpl().openVersion(documentId, versionId); }
+	public void openVersion(final Long documentId, final Long versionId,
+            final Opener opener) {
+		synchronized (getImplLock()) {
+            getImpl().openVersion(documentId, versionId, opener);
+		}
 	}
 
 	/**

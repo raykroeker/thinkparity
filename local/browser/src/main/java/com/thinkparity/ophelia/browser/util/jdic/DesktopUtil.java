@@ -15,6 +15,17 @@ import org.jdesktop.jdic.desktop.DesktopException;
 public class DesktopUtil {
 
     /**
+     * Open a file.
+     * 
+     * @param file
+     *            A java <code>File</code>.
+     * @throws DesktopException
+     */
+    public static void open(final File file) throws DesktopException {
+        Desktop.open(file);
+    }
+
+    /**
      * Print a file.
      * 
      * @param file

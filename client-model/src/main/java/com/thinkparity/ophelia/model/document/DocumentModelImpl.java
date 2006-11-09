@@ -45,6 +45,7 @@ import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.util.MD5Util;
+import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.filter.ArtifactFilterManager;
@@ -465,15 +466,16 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	void open(final Long documentId) {
+	void open(final Long documentId, final Opener opener) {
 		logger.logApiId();
         logger.logVariable("documentId", documentId);
+        logger.logVariable("opener", opener);
 		try {
 			final Document document = read(documentId);
 
 			// open the local file
 			final LocalFile localFile = getLocalFile(document);
-			localFile.open();
+            localFile.open(opener);
 		} catch (final Throwable t) {
             throw translateError(t);
 		}
@@ -487,15 +489,17 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	 * @param versionId
 	 *            The version id.
 	 */
-	void openVersion(final Long documentId, final Long versionId) {
+	void openVersion(final Long documentId, final Long versionId,
+            final Opener opener) {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("opener", opener);
 		try {
 			final Document document = read(documentId);
 			final DocumentVersion version = readVersion(documentId, versionId);
 			final LocalFile localFile = getLocalFile(document, version);
-			localFile.open();
+			localFile.open(opener);
 		} catch (final Throwable t) {
             throw translateError(t);
 		}

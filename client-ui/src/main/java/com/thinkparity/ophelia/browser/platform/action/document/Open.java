@@ -3,10 +3,17 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.document;
 
+import java.io.File;
+
+import com.thinkparity.ophelia.model.util.Opener;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 
 /**
@@ -38,8 +45,16 @@ public class Open extends AbstractAction {
 	 */
 	public void invoke(final Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
-		getDocumentModel().open(documentId);
-        
+		getDocumentModel().open(documentId, new Opener() {
+		    public void open(final File file) {
+		        try {
+		            DesktopUtil.open(file);
+                } catch (final DesktopException dx) {
+                    throw translateError(dx);
+                }
+            }
+        });
+
         // Flag the document as having been seen
         browser.runApplyDocumentFlagSeen(documentId);
 	}

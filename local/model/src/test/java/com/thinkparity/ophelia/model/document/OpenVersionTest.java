@@ -8,6 +8,8 @@ import java.io.File;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.ophelia.model.util.Opener;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
@@ -32,7 +34,14 @@ public class OpenVersionTest extends DocumentTestCase {
 	 *
 	 */
 	public void testOpenVersion() {
-	    datum.documentModel.openVersion(datum.version.getArtifactId(), datum.version.getVersionId());
+        final Opener opener = new Opener() {
+            public void open(final File file) {
+                assertNotNull("File to open is null.", file);
+                assertTrue("File to open does not exist.", file.exists());
+                assertEquals("File size is incorrect.", datum.file.length(), file.length());
+            }
+        };
+	    datum.documentModel.openVersion(datum.version.getArtifactId(), datum.version.getVersionId(), opener);
 	}
 
 	/**
@@ -45,8 +54,7 @@ public class OpenVersionTest extends DocumentTestCase {
 		final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
         modifyDocument(OpheliaTestUser.JUNIT, document);
         final DocumentVersion version = createDocumentVersion(OpheliaTestUser.JUNIT, document);
-
-		datum = new Fixture(documentModel, version);
+		datum = new Fixture(documentModel, inputFile, version);
 	}
 
 	/**
@@ -60,9 +68,12 @@ public class OpenVersionTest extends DocumentTestCase {
 	/** Test datum definition. */
 	private class Fixture {
 		private final DocumentModel documentModel;
-		private final DocumentVersion version;
-		private Fixture(final DocumentModel documentModel, final DocumentVersion version) {
+		private final File file;
+        private final DocumentVersion version;
+		private Fixture(final DocumentModel documentModel, final File file,
+                final DocumentVersion version) {
 			this.documentModel = documentModel;
+            this.file = file;
 			this.version = version;
 		}
 	}

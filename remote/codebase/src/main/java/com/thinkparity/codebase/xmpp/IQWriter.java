@@ -47,18 +47,6 @@ public abstract class IQWriter {
     public final IQ getIQ() { return iq; }
 
     /**
-     * Write a byte array value.
-     * 
-     * @param name
-     *            The element name.
-     * @param bytes
-     *            The element value.
-     */
-    public final void writeBytes(final String name, final byte[] bytes) {
-        ElementBuilder.addElement(iq.getChildElement(), name, bytes);
-    }
-
-    /**
      * Write a calendar value.
      *
      * @param name

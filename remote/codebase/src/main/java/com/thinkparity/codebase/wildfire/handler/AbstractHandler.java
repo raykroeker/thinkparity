@@ -209,18 +209,6 @@ public abstract class AbstractHandler extends
     }
 
     /**
-     * Write a byte array to the response query.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    protected final void writeBytes(final String name, final byte[] value) {
-        iqWriter.writeBytes(name, value);
-    }
-
-    /**
      * Write a calendar to the response query.
      *
      * @param name
@@ -236,13 +224,6 @@ public abstract class AbstractHandler extends
         iqWriter.writeContainer(name, value);
     }
 
-    protected final void writeStreamSession(final String name, final StreamSession value) {
-        iqWriter.writeStreamSession(name, value);
-    }
-
-    protected final void writeToken(final String name, final Token value) {
-        iqWriter.writeToken(name, value);
-    }
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);
@@ -252,8 +233,6 @@ public abstract class AbstractHandler extends
             final String name, final List<ContainerVersion> values) {
         iqWriter.writeContainerVersions(parentName, name, values);
     }
-
-
     protected final void writeDocuments(final String parentName,
             final String name, final List<Document> values) {
         iqWriter.writeDocuments(parentName, name, values);
@@ -263,6 +242,7 @@ public abstract class AbstractHandler extends
             final String name, final List<DocumentVersion> values) {
         iqWriter.writeDocumentVersions(parentName, name, values);
     }
+
 
     /**
      * Write a list of e-mail values to the response query.
@@ -318,6 +298,10 @@ public abstract class AbstractHandler extends
         iqWriter.writeLong(name, value);
     }
 
+    protected final void writeStreamSession(final String name, final StreamSession value) {
+        iqWriter.writeStreamSession(name, value);
+    }
+
     /**
      * Write a string value to the response query.
      *
@@ -343,6 +327,10 @@ public abstract class AbstractHandler extends
     protected final void writeStrings(final String parentName,
             final String name, final List<String> values) {
         iqWriter.writeStrings(parentName, name, values);
+    }
+
+    protected final void writeToken(final String name, final Token value) {
+        iqWriter.writeToken(name, value);
     }
 
     /**

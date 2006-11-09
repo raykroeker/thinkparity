@@ -78,25 +78,6 @@ public class ElementBuilder {
     }
 
     /**
-     * Add a byte array value.
-     *
-     * @param parent
-     *      The parent element.
-     * @param name
-     *      The element name.
-     * @param
-     *      The element byte array value.
-     * @return The element.
-     */
-    public static final Element addElement(final Element parent, final String name,
-            final byte[] value) {
-        try {
-            return addElement(parent, name, byte[].class, encode(compress(value)));
-        }
-        catch(final IOException iox) { throw new RuntimeException(iox); }
-    }
-
-    /**
      * Add a calendar value.
      *
      * @param parent

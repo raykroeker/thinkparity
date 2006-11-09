@@ -10,37 +10,52 @@ package com.thinkparity.codebase;
  */
 public class OSUtil {
 
-	/**
-	 * Synchronization lock for os.
-	 */
-	private static final Object LOCK = new Object();
-
-	/**
-	 * Cached os value.
-	 */
+	/** The value of os. */
 	private static OS os;
 
 	/**
-	 * Obtain the underlying operating system based upon the os.name and
-	 * os.version system properties.
-	 * 
-	 * @return An enumerated operating system value.
-	 */
-	public static synchronized OS getOS() {
-		synchronized(LOCK) {
-			if(null == os) {
+     * Obtain the underlying operating system based upon the os.name and
+     * os.version system properties.
+     * 
+     * @return An enumerated operating system value.
+     */
+	public static OS getOS() {
+		if (null == os) {
+		    synchronized (os) {
 				final String osName = System.getProperty("os.name");
-				if("Windows XP".equals(osName)) { os = OS.WINDOWS_XP; }
-				else if("Windows 2000".equals(osName)) { os = OS.WINDOWS_2000; }
-				else if("Linux".equals(osName)) { os = OS.LINUX; }
-                else if("Mac OS X".equals(osName)) { os = OS.OSX; }
+				if ("Windows XP".equals(osName)) {
+                    os = OS.WINDOWS_XP;
+				} else if ("Windows 2000".equals(osName)) {
+                    os = OS.WINDOWS_2000;
+				} else if ("Linux".equals(osName)) {
+                    os = OS.LINUX;
+				} else if ("Mac OS X".equals(osName)) {
+                    os = OS.OSX;
+				}
 
 				// set the version
-				if(null != os) { os.setVersion(System.getProperty("os.version")); }
-			}
-			return os;
+				if (null != os) {
+                    os.setVersion(System.getProperty("os.version"));
+				}
+            }
 		}
+		return os;
 	}
+
+    /**
+     * Determine if the platform is windows.
+     * 
+     * @return True if it is Windows 2000 or Windows XP.
+     */
+    public static Boolean isWindows() {
+        switch (getOS()) {
+        case WINDOWS_2000:
+        case WINDOWS_XP:
+            return Boolean.TRUE;
+        default:
+            return Boolean.FALSE;
+        }
+    }
 
 	/**
 	 * Create an OSUtil [Singleton]

@@ -268,6 +268,25 @@ public abstract class StringUtil {
 
     /**
      * Does a search and replace on a string based on the find and replace
+     * criteria. This method will replace all occurances of find in search with
+     * replace.
+     * 
+     * @param search
+     *            The search input <code>String</code>.
+     * @param find
+     *            The find <code>Separator</code>.
+     * @param replace
+     *            The replacement <code>Separator</code>.
+     * @return The result <code>String</code>.
+     */
+    public static String searchAndReplace(final String search,
+            final Separator find, final Separator replace) {
+        return searchAndReplace(search, find.toString(), replace.toString())
+                .toString();
+    }
+
+    /**
+     * Does a search and replace on a string based on the find and replace
      * criteria.  This method will replace all occurances of find in search 
      * with replace.
      * @param search <code>java.lang.StringUtil</code> the string to 

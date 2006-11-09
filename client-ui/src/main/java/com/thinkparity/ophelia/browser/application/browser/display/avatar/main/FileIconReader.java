@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -113,16 +114,8 @@ public class FileIconReader {
      * @return An <code>ImageIcon</code>.
      */
     private ImageIcon getFileIcon(final String extension) {
-        final String period = Separator.Period.toString();
-        final String name;
-        
-        // The name is the extension in all caps with "." removed.
-        if ((-1 != extension.indexOf(period)) &&
-            (1 + extension.lastIndexOf(period) < extension.length())) {
-            name = extension.substring(1 + extension.lastIndexOf(period)).toUpperCase();
-        } else {
-            name = extension.toUpperCase();
-        }
+        final String name = StringUtil.searchAndReplace(extension,
+                Separator.Period, Separator.EmptyString).toUpperCase();
         
         // Return the icon from the cache if available, otherwise
         // get the icon from the system and cache it.

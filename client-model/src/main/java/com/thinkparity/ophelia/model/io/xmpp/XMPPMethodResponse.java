@@ -193,9 +193,8 @@ public class XMPPMethodResponse extends IQ {
      * @param javaValue
      *            The result value.
      */
-    void writeResult(final String name, final Class javaType,
-            final Object javaValue) {
-        result.put(name, new Result(javaType, javaValue));
+    void writeResult(final Result result) {
+        this.result.put(result.name, result);
     }
 
     /**
@@ -214,26 +213,23 @@ public class XMPPMethodResponse extends IQ {
     }
 
     /** Result container including the result data type as well as its value. */
-    private class Result {
+    static final class Result {
 
-        /** The java result data type. */
-        private final Class javaType;
+        /** The result type <code>Class</code>. */
+        Class javaType;
 
-        /** The java result data value. */
-        private final Object javaValue;
+        /** The result value <code>Object</code>. */
+        Object javaValue;
+
+        /** The result name <code>String</code>. */
+        String name;
 
         /**
          * Create Result.
          * 
-         * @param javaType
-         *            The java result data type.
-         * @param javaValue
-         *            The java result data value.
          */
-        private Result(final Class javaType, final Object javaValue) {
+        Result() {
             super();
-            this.javaType = javaType;
-            this.javaValue = javaValue;
         }
     }
 }

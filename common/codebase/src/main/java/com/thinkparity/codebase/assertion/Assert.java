@@ -203,15 +203,28 @@ public class Assert {
 	}
 
     /**
-	 * Assert that an area of code is unreachable. This is achived by throwing
-	 * an <code>UnreachableCodeAssertion</code>.
-	 * 
-	 * @param message
-	 *            An assertion message.
-	 */
-	public static void assertUnreachable(final Object message) {
-		throw Assert.createUnreachable(message);
-	}
+     * Assert that an area of code is unreachable. This is achived by throwing
+     * an <code>UnreachableCodeAssertion</code>.
+     * 
+     * @param message
+     *            An assertion message.
+     */
+    public static void assertUnreachable(final Object message) {
+        throw Assert.createUnreachable(message);
+    }
+
+    /**
+     * Assert that an area of code is unreachable. This is achived by throwing
+     * an <code>UnreachableCodeAssertion</code>.
+     * 
+     * @param message
+     *            An assertion message.
+     */
+    public static void assertUnreachable(final String assertionMessage,
+            final Object... assertionArguments) {
+        throw Assert.createUnreachable(createMessage(assertionMessage,
+                assertionArguments));
+    }
 
 	/**
      * Create a not yet implemented code assertion.

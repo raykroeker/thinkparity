@@ -20,12 +20,12 @@ import com.thinkparity.codebase.model.stream.StreamWriter;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation</br>
@@ -110,19 +110,23 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final ClientModelFactory modelFactory = getModelFactory(archiveId);
                 final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
                 final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
-                final InternalSessionModel sessionModel = modelFactory.getSessionModel(getClass());
 
                 final Long documentId = artifactModel.readId(uniqueId);
                 final InputStream stream = documentModel.openVersionStream(documentId, versionId);
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
 
-                final StreamSession streamSession = sessionModel.createStreamSession();
+                final InternalStreamModel streamModel = getStreamModel();
+                final StreamSession streamSession = streamModel.createSession(userId);
                 final StreamWriter writer = new StreamWriter(streamSession);
                 writer.open();
                 try {
                     writer.write(streamId, stream, streamSize);
                 } finally {
-                    writer.close();
+                    try {
+                        stream.close();
+                    } finally {
+                        writer.close();
+                    }
                 }
             }
         } catch (final Throwable t) {

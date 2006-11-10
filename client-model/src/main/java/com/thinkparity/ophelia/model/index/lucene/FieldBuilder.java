@@ -141,7 +141,7 @@ public class FieldBuilder {
      * @return A reference to this <code>FieldBuilder</code>.
      */
     public FieldBuilder setValue(final JabberId jabberId) {
-        this.value = jabberId.getQualifiedJabberId();
+        this.value = jabberId.getQualifiedUsername();
         return this;
     }
 

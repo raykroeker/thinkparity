@@ -125,17 +125,6 @@ public abstract class AbstractHandler extends
     protected abstract Object getErrorId(final Throwable t);
 
     /**
-     * Read a byte array parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The byte array parameter value.
-     */
-    protected final byte[] readByteArray(final String name) {
-        return iqReader.readByteArray(name);
-    }
-
-    /**
      * Read a calendar parameter.
      * 
      * @param name

@@ -39,6 +39,7 @@ import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
@@ -293,8 +294,8 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-    protected StreamModel getStreamModel() {
-        return StreamModel.getModel(session);
+    protected InternalStreamModel getStreamModel() {
+        return StreamModel.getInternalModel(getContext(), session);
     }
 
 	/**

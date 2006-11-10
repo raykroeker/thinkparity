@@ -11,22 +11,18 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.Stack;
 import java.util.UUID;
-import java.util.zip.DataFormatException;
 
-import org.jivesoftware.smack.provider.IQProvider;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
-import com.thinkparity.ophelia.model.util.Base64;
+import org.jivesoftware.smack.provider.IQProvider;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * <b>Title:</b>thinkParity Abstract Internet Query<br>
@@ -115,27 +111,6 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
-     * Read a byte array at the current parser location.
-     * 
-     * @return A byte array.
-     */
-    protected final byte[] readBytes() throws DataFormatException, IOException {
-        return CompressionUtil.decompress(Base64.decodeBytes(readString()));
-    }
-
-    protected final byte[] readBytes2() throws DataFormatException,
-            IOException, XmlPullParserException {
-        pushName();
-        next(1);
-        final byte[] bytes = readBytes();
-        next(1);
-        if (isEndTag(popName())) {
-            next(1);
-        }
-        return bytes;
-    }
-
-    /**
      * Read a calendar at the current parser location.
      * 
      * @return A calendar.
@@ -190,7 +165,7 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
      * @return A jabber id.
      */
     protected final JabberId readJabberId() {
-        return JabberIdBuilder.parseQualifiedJabberId(readString());
+        return JabberIdBuilder.parse(readString());
     }
 
     /**
@@ -200,7 +175,7 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
      */
     protected final JabberId readJabberId2() throws IOException,
             XmlPullParserException {
-        return JabberIdBuilder.parseQualifiedJabberId(readString2());
+        return JabberIdBuilder.parse(readString2());
     }
 
     /**
@@ -270,25 +245,23 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
         return Long.valueOf(readString2());
     }
 
-    /**
-     * Read a string at the current parser location.
-     * 
-     * @return A string.
-     */
-    protected final String readString() {
-        return parser.getText();
-    }
-
     protected final String readString2() throws IOException,
             XmlPullParserException {
         pushName();
-        next(1);
-        final String string = readString();
+        
+        final String value;
+        if (parser.isEmptyElementTag()) {
+            value = null;
+        }
+        else {
+            next(1);
+            value = readString();
+        }
         next(1);
         if (isEndTag(popName())) {
             next(1);
         }
-        return string;
+        return value;
     }
 
     /**
@@ -342,5 +315,14 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
 
     private void pushName() {
         nameStack.push(parser.getName());
+    }
+
+    /**
+     * Read a string at the current parser location.
+     * 
+     * @return A string.
+     */
+    private final String readString() {
+        return parser.getText();
     }
 }

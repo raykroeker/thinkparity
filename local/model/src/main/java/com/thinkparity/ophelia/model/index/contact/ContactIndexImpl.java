@@ -7,11 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.Term;
-
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -19,6 +17,9 @@ import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.Term;
 
 /**
  * @author raymond@thinkparity.com
@@ -117,6 +118,6 @@ public class ContactIndexImpl extends AbstractIndexImpl<Contact, JabberId> {
      */
     @Override
     protected JabberId resolveHit(final String hitIdValue) {
-        return JabberIdBuilder.parseQualifiedJabberId(hitIdValue);
+        return JabberIdBuilder.parse(hitIdValue);
     }
 }

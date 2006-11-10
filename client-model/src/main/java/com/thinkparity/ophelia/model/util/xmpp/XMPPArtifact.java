@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.EventHandler;
@@ -22,7 +21,6 @@ import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQPro
 import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
 
 import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -113,60 +111,36 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
                 return query;
             }
         });
-        ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
                 final HandleTeamMemberAddedIQ query = new HandleTeamMemberAddedIQ();
-
-                Integer eventType;
-                String name;
-                Boolean isComplete = Boolean.FALSE;
-                while(Boolean.FALSE == isComplete) {
-                    eventType = parser.next();
-                    name = parser.getName();
-
-                    if(XmlPullParser.START_TAG == eventType && Xml.Artifact.UNIQUE_ID.equals(name)) {
-                        parser.next();
-                        query.uniqueId = UUID.fromString(parser.getText());
-                        parser.next();
+                boolean isComplete = false;
+                while (false == isComplete) {
+                    if (isStartTag("uniqueId")) {
+                        query.uniqueId = readUniqueId2();
+                    } else if (isStartTag("jabberId")) {
+                        query.jabberId = readJabberId2();
+                    } else {
+                        isComplete = Boolean.TRUE;
                     }
-                    else if(XmlPullParser.END_TAG == eventType && Xml.Artifact.UNIQUE_ID.equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && Xml.User.JABBER_ID.equals(name)) {
-                        parser.next();
-                        query.jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && Xml.User.JABBER_ID.equals(name)) {
-                        parser.next();
-                    }
-                    else { isComplete = Boolean.TRUE; }
                 }
                 return query;
             }
         });
         ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_REMOVED, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
+                setParser2(parser);
                 final HandleTeamMemberRemovedIQ query = new HandleTeamMemberRemovedIQ();
-
-                Boolean isComplete = Boolean.FALSE;
-                while(Boolean.FALSE == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                        query.uniqueId = readUniqueId();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.User.JABBER_ID)) {
-                        next(1);
-                        query.jabberId = readJabberId();
-                        next(1);
-                    } else if (isEndTag(Xml.User.JABBER_ID)) {
-                        next(1);
+                boolean isComplete = false;
+                while (false == isComplete) {
+                    if (isStartTag("uniqueId")) {
+                        query.uniqueId = readUniqueId2();
+                    } else if (isStartTag("jabberId")) {
+                        query.jabberId = readJabberId2();
+                    } else {
+                        isComplete = Boolean.TRUE;
                     }
-                    else { isComplete = Boolean.TRUE; }
                 }
                 return query;
             }

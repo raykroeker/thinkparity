@@ -37,16 +37,16 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 class LocalFile {
 
-	/** An apache logger. */
+    /** An apache logger. */
 	protected final Log4JWrapper logger;
 
 	/** The local <code>File</code>. */
 	private final File file;
 
-    /** The file's content <code>byte[]</code>. */
+	/** The file's content <code>byte[]</code>. */
 	private byte[] fileBytes;
 
-	/** The file content's checksum <code>String</code>. */
+    /** The file content's checksum <code>String</code>. */
 	private String fileChecksum;
 
 	/** A document name generator. */ 
@@ -120,6 +120,15 @@ class LocalFile {
 		if(parent.exists())
 			Assert.assertTrue("deleteParent()", parent.delete());
 	}
+
+	/**
+     * Determine whether or not the file exists.
+     * 
+     * @return True if the file exists.
+     */
+    boolean exists() {
+        return file.exists();
+    }
 
 	/**
 	 * Obtain the file checksum.

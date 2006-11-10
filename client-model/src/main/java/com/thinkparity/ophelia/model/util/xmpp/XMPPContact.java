@@ -7,14 +7,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.ProviderManager;
-
-import org.xmlpull.v1.XmlPullParser;
-
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
@@ -24,8 +20,11 @@ import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.smackx.packet.contact.IQReadContactsProvider;
 import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
+
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * @author raykroeker@gmail.com
@@ -155,7 +154,6 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
                 return query;
             }
         });
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:readcontacts", new IQReadContactsProvider());
 	}
 
 	/**

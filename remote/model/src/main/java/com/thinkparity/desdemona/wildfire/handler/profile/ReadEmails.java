@@ -25,7 +25,7 @@ public class ReadEmails extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        writeEMails("emails", "emails", readEmails(readJabberId("userId")));
+        writeEMails("emails", "email", readEmails(readJabberId("userId")));
     }
 
     /**

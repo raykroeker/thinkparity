@@ -8,19 +8,19 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
-import org.jivesoftware.smack.XMPPConnection;
-
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.model.Constants.Jabber;
+
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.XMPPConnection;
 
 /**
  * The parity bootstrap's io xmpp session.
@@ -210,12 +210,6 @@ public class XMPPSession {
         xmppMethod.setLongParameters(listName, name, longs);
     }
 
-    public void setParameter(final String name, final byte[] value) {
-        assertMethod("[SET PARAMETER]");
-        debugParameter(name, value);
-        xmppMethod.setParameter(name, value);
-    }
-
     public void setParameter(final String name, final Library.Type value) {
         assertMethod("[SET PARAMETER]");
         debugParameter(name, value);
@@ -304,8 +298,6 @@ public class XMPPSession {
 
     private final void debugLongParameters(final String listName,
             final String name, final List<Long> values) {}
-
-    private void debugParameter(final String name, final byte[] value) {}
 
     private void debugParameter(final String name, final Library.Type value) {}
 

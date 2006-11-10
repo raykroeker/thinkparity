@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.stream;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -29,13 +30,23 @@ public class StreamModel extends AbstractModel<StreamModelImpl> {
     }
 
     /**
-	 * Obtain a thinkParity Stream interface.
-	 * 
-	 * @return A thinkParity Stream interface.
-	 */
-	public static StreamModel getModel(final Session session) {
-		return new StreamModel(session);
-	}
+     * Obtain a thinkParity Stream interface.
+     * 
+     * @return A thinkParity Stream interface.
+     */
+    public static StreamModel getModel(final Session session) {
+        return new StreamModel(session);
+    }
+
+    /**
+     * Obtain a thinkParity Stream interface.
+     * 
+     * @return A thinkParity Stream interface.
+     */
+    public static InternalStreamModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalStreamModel(context, session);
+    }
 
     /**
      * Create StreamModel.

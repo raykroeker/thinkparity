@@ -417,7 +417,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
 	public JabberId getUserId() {
         logger.logApiId();
-		return JabberIdBuilder.parseQualifiedJabberId(xmppConnection.getUser());
+		return JabberIdBuilder.parse(xmppConnection.getUser());
 	}
 
     /**

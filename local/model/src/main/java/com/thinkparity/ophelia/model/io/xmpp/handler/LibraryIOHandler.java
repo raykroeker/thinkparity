@@ -59,7 +59,7 @@ public class LibraryIOHandler extends AbstractIOHandler
         try {
             session.setRemoteMethod("library:createbytes");
             session.setParameter("id", libraryId);
-            session.setParameter("bytes", bytes);
+//            session.setParameter("bytes", bytes);
             session.setParameter("checksum", checksum);
 
             session.execute();

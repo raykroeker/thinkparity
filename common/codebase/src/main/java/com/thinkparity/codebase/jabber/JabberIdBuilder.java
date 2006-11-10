@@ -31,17 +31,6 @@ public class JabberIdBuilder {
         return SINGLETON.doParse(jabberId);
     }
 
-    /**
-	 * Parse the qualified jabber id.
-	 * 
-	 * @param qualifiedJabberId
-	 *            The qualified jabber id: user@domain/resource
-	 * @return The qualified jabber id.
-	 */
-	public static JabberId parseQualifiedJabberId(final String qualifiedJabberId) {
-	    return SINGLETON.doParseQualifiedJabberId(qualifiedJabberId);
-	}
-
 	/**
 	 * Parse the username and build a jabber id.
 	 * 
@@ -120,32 +109,6 @@ public class JabberIdBuilder {
             return new JabberId(username, service, resource);
         }
     }
-
-    /**
-	 * Parse the qualified jabber id.
-	 * 
-	 * <strong>For singleton use only.</strong>
-	 * 
-	 * @param qualifiedJabberId
-	 *            The qualified jabber id: user@domain/resource
-	 * @return The qualified jabber id.
-	 */
-	private JabberId doParseQualifiedJabberId(final String qualifiedJabberId) {
-		final int indexOfAt = qualifiedJabberId.indexOf('@');
-		if(-1 == indexOfAt) throw new IllegalArgumentException("Qualified jabber id contains no user/domain separation:  " + qualifiedJabberId);
-		final String username = qualifiedJabberId.substring(0, indexOfAt);
-		final int indexOfSlash = qualifiedJabberId.indexOf('/');
-		if(-1 == indexOfSlash) throw new IllegalArgumentException("Qualified jabber id contains no domain/resource separation:  " + qualifiedJabberId);
-		final String domain = qualifiedJabberId.substring(indexOfAt + 1, indexOfSlash);
-		final String resource = qualifiedJabberId.substring(indexOfSlash + 1);
-		if(null == username) throw new IllegalArgumentException("Username cannot be null:  " + qualifiedJabberId);
-		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty:  " + qualifiedJabberId);
-		if(null == domain) throw new IllegalArgumentException("Domain cannot be null:  " + qualifiedJabberId);
-		if(1 > domain.length()) throw new IllegalArgumentException("Domain cannot be empty:  " + qualifiedJabberId);
-		if(null == resource) throw new IllegalArgumentException("Resource cannot be null:  " + qualifiedJabberId);
-		if(1 > resource.length()) throw new IllegalArgumentException("Resource cannot be empty:  " + qualifiedJabberId);
-		return new JabberId(username, domain, resource);
-	}
 
 	/**
      * Parse a username and build a jabber id.

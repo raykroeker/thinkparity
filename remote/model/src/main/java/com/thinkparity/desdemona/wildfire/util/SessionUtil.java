@@ -67,7 +67,7 @@ public final class SessionUtil {
         return new Session() {
             /** A user id <code>JabberId</code>. */
             private final JabberId userId =
-                JabberIdBuilder.parseQualifiedJabberId(query.getFrom().toString());
+                JabberIdBuilder.parse(query.getFrom().toString());
             /** A user's internet address. */
             private final InetAddress inetAddress =
                 getClientSession(userId).getConnection().getInetAddress();

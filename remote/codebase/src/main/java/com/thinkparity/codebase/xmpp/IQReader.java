@@ -3,22 +3,18 @@
  */
 package com.thinkparity.codebase.xmpp;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SimpleTimeZone;
-import java.util.zip.DataFormatException;
 
-import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.util.Base64;
 
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
@@ -44,16 +40,6 @@ public abstract class IQReader {
     protected IQReader(final IQ iq) {
         super();
         this.iq = iq;
-    }
-
-    public final byte[] readByteArray(final String name) {
-        final String sData = readString(name);
-        if(null == sData) { return null; }
-        else {
-            try { return decompress(decode(sData)); }
-            catch(final DataFormatException dfx) { throw new RuntimeException(dfx); }
-            catch(final IOException iox) { throw new RuntimeException(iox); }
-        }
     }
 
     public final Calendar readCalendar(final String name) {
@@ -174,27 +160,6 @@ public abstract class IQReader {
      */
     public final String readString(final String name) {
         return (String) readObject(name);
-    }
-
-    /**
-     * Decode a Base64 encoded string into an array of bytes.
-     *
-     * @param s
-     *      A Base64 encoded string.
-     * @return An array of bytes.
-     */
-    protected final byte[] decode(final String s) { return Base64.decode(s); }
-
-    /**
-     * Decompress an array of bytes into its object array.
-     *
-     * @param bytes
-     *      An array of bytes.
-     * @return An array of bytes.
-     */
-    protected final byte[] decompress(final byte[] bytes) throws DataFormatException,
-            IOException {
-        return CompressionUtil.decompress(bytes);
     }
 
     /**

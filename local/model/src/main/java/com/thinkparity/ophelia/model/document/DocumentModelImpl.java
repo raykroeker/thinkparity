@@ -475,6 +475,17 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 
 			// open the local file
 			final LocalFile localFile = getLocalFile(document);
+            if (!localFile.exists()) {
+                final DocumentVersion latestVersion = readLatestVersion(documentId);
+                final InputStream stream = openVersionStream(documentId,
+                        latestVersion.getVersionId());
+                try {
+                    localFile.write(stream);
+                } finally {
+                    stream.close();
+                }
+            }
+            
             localFile.open(opener);
 		} catch (final Throwable t) {
             throw translateError(t);
@@ -499,6 +510,16 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 			final Document document = read(documentId);
 			final DocumentVersion version = readVersion(documentId, versionId);
 			final LocalFile localFile = getLocalFile(document, version);
+            if (!localFile.exists()) {
+                final InputStream stream = openVersionStream(
+                        documentId, versionId);
+                try {
+                    localFile.write(stream);
+                } finally {
+                    stream.close();
+                }
+            }
+
 			localFile.open(opener);
 		} catch (final Throwable t) {
             throw translateError(t);

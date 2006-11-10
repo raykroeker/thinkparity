@@ -15,12 +15,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
-import java.util.zip.DataFormatException;
 
-import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
-import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -44,8 +41,8 @@ import com.thinkparity.codebase.model.user.Token;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
+import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse.Result;
 
-import org.apache.commons.codec.binary.Base64;
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketIDFilter;
@@ -126,6 +123,7 @@ public class XMPPMethod extends IQ {
         try {
             final XMPPMethodResponse response =
                 (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
+//                (XMPPMethodResponse) idCollector.nextResult();
             return response;
         } catch (final Throwable t) {
             final String errorId = new ErrorHelper().getErrorId(t);
@@ -200,10 +198,6 @@ public class XMPPMethod extends IQ {
 
     public final void setParameter(final String name, final ArtifactType value) {
         parameters.add(new XMPPMethodParameter(name, ArtifactType.class, value));
-    }
-
-    public final void setParameter(final String name, final byte[] value) {
-        parameters.add(new XMPPMethodParameter(name, byte[].class, value));
     }
 
     public final void setParameter(final String name, final Calendar value) {
@@ -325,21 +319,12 @@ public class XMPPMethod extends IQ {
         return logger.logVariable(name, value);
     }
 
-    private byte[] compress(final byte[] bytes) {
-        try { return CompressionUtil.compress(bytes, Level.Nine); }
-        catch(final IOException iox) { throw new XMPPException(iox); }
-    }
-
-    private String encode(final byte[] bytes) {
-        return new String(Base64.encodeBase64(bytes));
-    }
-
     private String getParameterXML(final XMPPMethodParameter parameter) {
         final StringBuffer xml = new StringBuffer();
         xml.append("<").append(parameter.name).append(" javaType=\"")
                 .append(parameter.javaType.getName())
                 .append("\"");
-        if(null == parameter.javaValue) { xml.append("/>"); }
+        if (null == parameter.javaValue) { xml.append("/>"); }
         else {
             xml.append(">")
                     .append(getParameterXMLValue(parameter))
@@ -350,18 +335,15 @@ public class XMPPMethod extends IQ {
     }
 
     private String getParameterXMLValue(final XMPPMethodParameter parameter) {
-        if(parameter.javaType.equals(ArtifactType.class)) {
+        if (parameter.javaType.equals(ArtifactType.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(byte[].class)) {
-            return encode(compress((byte[]) parameter.javaValue));
-        }
-        else if(parameter.javaType.equals(Calendar.class)) {
+        else if (parameter.javaType.equals(Calendar.class)) {
             final Calendar valueGMT =
                 DateUtil.getInstance(((Calendar) parameter.javaValue).getTime(), new SimpleTimeZone(0, "GMT"));
             return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
         }
-        else if(parameter.javaType.equals(DocumentVersionContent.class)) {
+        else if (parameter.javaType.equals(DocumentVersionContent.class)) {
             final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
             return new StringBuffer("")
                     .append(getParameterXML(new XMPPMethodParameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
@@ -373,23 +355,23 @@ public class XMPPMethod extends IQ {
         } else if (parameter.javaType.equals(EMail.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(Integer.class)) {
+        else if (parameter.javaType.equals(Integer.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(JabberId.class)) {
+        else if (parameter.javaType.equals(JabberId.class)) {
             return ((JabberId) parameter.javaValue).getQualifiedUsername();
         }
-        else if(parameter.javaType.equals(Long.class)) {
+        else if (parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(Library.Type.class)) {
+        else if (parameter.javaType.equals(Library.Type.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(List.class)) {
+        else if (parameter.javaType.equals(List.class)) {
             final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
             final StringBuffer xmlValue = new StringBuffer("");
 
-            if(null != listItems && 0 < listItems.size()) {
+            if (null != listItems && 0 < listItems.size()) {
                 for(final XMPPMethodParameter listItem : listItems) {
                     xmlValue.append(getParameterXML(listItem));
                 }
@@ -397,10 +379,10 @@ public class XMPPMethod extends IQ {
 
             return xmlValue.toString();
         }
-        else if(parameter.javaType.equals(String.class)) {
+        else if (parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();
         }
-        else if(parameter.javaType.equals(UUID.class)) {
+        else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
         }
         else {
@@ -422,16 +404,20 @@ public class XMPPMethod extends IQ {
 
             parser.next();
             while(true) {
-
+                logger.logVariable("parser.getName()", parser.getName());
+                logger.logVariable("parser.getDepthb()", parser.getDepth());
+                logger.logVariable("parser.getNamespace()", parser.getNamespace());
                 // stop processing when we hit the trailing query tag
-                if(XmlPullParser.END_TAG == parser.getEventType()) {
-                    if(Service.NAME.equals(parser.getName())) { break; }
-                    else { Assert.assertUnreachable("Query end tag."); }
-                }
-                else {
-                    final Class javaType = parseJavaType(parser);
-                    final String name = parseName(parser);
-                    response.writeResult(name, javaType, parseJavaObject(parser, name, javaType));
+                if (XmlPullParser.END_TAG == parser.getEventType()) {
+                    if (Service.NAME.equals(parser.getName())) {
+                        break;
+                    } else {
+                        Assert.assertUnreachable(MessageFormat.format(
+                                "Parsing incomplete for xmlns {0}; tag {1} at depth {2}.",
+                                parser.getNamespace(), parser.getName(), parser.getDepth()));
+                    }
+                } else {
+                    response.writeResult(parseResult(parser));
                 }
             }
             return response;
@@ -440,293 +426,167 @@ public class XMPPMethod extends IQ {
         private Calendar calendarValueOf(final String s) {
             try {
                 return DateUtil.parse(s, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
-            }
-            catch(final ParseException px) { throw new RuntimeException(px); }
-        }
-
-        private byte[] decode(final String s) {
-            return Base64.decodeBase64(s.getBytes());
-        }
-
-        private byte[] decompress(final byte[] bytes) {
-            try { return CompressionUtil.decompress(bytes); }
-            catch(final DataFormatException dfx) { throw new XMPPException(dfx); }
-            catch(final IOException iox) { throw new XMPPException(iox); }
-        }
-
-        private Object parseJavaObject(final XmlPullParser parser,
-                final String name, final Class javaType) throws IOException,
-                XmlPullParserException {
-            if (javaType.equals(ArtifactRemoteInfo.class)) {
-                parser.next();
-                final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
-                remoteInfo.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
-                remoteInfo.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
-                parser.next();
-                return remoteInfo;
-            } else if (javaType.equals(ArtifactState.class)) {
-                parser.next();
-                final ArtifactState state = ArtifactState.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return state;
-            } else if (javaType.equals(Environment.class)) {
-                parser.next();
-                final Environment environment = Environment.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return environment;
-            } else if (javaType.equals(Charset.class)) {
-                parser.next();
-                final Charset charset = Charset.forName(parser.getText());
-                parser.next();
-                parser.next();
-                return charset;
-            } else if (javaType.equals(ArtifactType.class)) {
-                parser.next();
-                final ArtifactType type = ArtifactType.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return type;
-            } else if (javaType.equals(byte[].class)) {
-                parser.next();
-                final byte[] bValue = decompress(decode(parser.getText()));
-                parser.next();
-                parser.next();
-                return bValue;
-            } else if (javaType.equals(Boolean.class)) {
-                parser.next();
-                final Boolean value = Boolean.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return value;
-            } else if(javaType.equals(Calendar.class)) {
-                parser.next();
-                final Calendar value = calendarValueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return value;
-            } else if (javaType.equals(Container.class)) {
-                parser.next();
-                final Container container = new Container();
-                container.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
-                container.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
-                container.setDraft((Boolean) parseJavaObject(parser, "draft", Boolean.class));
-                container.setLocalDraft((Boolean) parseJavaObject(parser, "localDraft", Boolean.class));
-                container.setName((String) parseJavaObject(parser, "name", String.class));
-                container.setRemoteInfo((ArtifactRemoteInfo) parseJavaObject(parser, "remoteInfo", ArtifactRemoteInfo.class));
-                container.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
-                container.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
-                container.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
-                container.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
-                container.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
-                parser.next();
-                return container;
-            } else if (javaType.equals(ContainerVersion.class)) {
-                parser.next();
-                final ContainerVersion version = new ContainerVersion();
-                version.setArtifactType((ArtifactType) parseJavaObject(parser, "artifactType", ArtifactType.class));
-                version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
-                version.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
-                version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
-                version.setName((String) parseJavaObject(parser, "name", String.class));
-                version.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
-                version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
-                version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
-                parser.next();
-                return version;
-            } else if (javaType.equals(Document.class)) {
-                parser.next();
-                final Document document = new Document();
-                document.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
-                document.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
-                document.setName((String) parseJavaObject(parser, "name", String.class));
-                document.setRemoteInfo((ArtifactRemoteInfo) parseJavaObject(parser, "remoteInfo", ArtifactRemoteInfo.class));
-                document.setState((ArtifactState) parseJavaObject(parser, "state", ArtifactState.class));
-                document.setType((ArtifactType) parseJavaObject(parser, "type", ArtifactType.class));
-                document.setUniqueId((UUID) parseJavaObject(parser, "uniqueId", UUID.class));
-                document.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
-                document.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
-                parser.next();
-                return document;
-            } else if (javaType.equals(DocumentVersion.class)) {
-                parser.next();
-                final DocumentVersion version = new DocumentVersion();
-                version.setArtifactType((ArtifactType) parseJavaObject(parser, "artifactType", ArtifactType.class));
-                version.setArtifactUniqueId((UUID) parseJavaObject(parser, "artifactUniqueId", UUID.class));
-                version.setChecksum((String) parseJavaObject(parser, "checksum", String.class));
-                version.setCompression((Integer) parseJavaObject(parser, "checksum", Integer.class));
-                version.setCreatedBy((JabberId) parseJavaObject(parser, "createdBy", JabberId.class));
-                version.setCreatedOn((Calendar) parseJavaObject(parser, "createdOn", Calendar.class));
-                version.setEncoding((String) parseJavaObject(parser, "encoding", String.class));
-                version.setName((String) parseJavaObject(parser, "name", String.class));
-                version.setSize((Long) parseJavaObject(parser, "size", Long.class));
-                version.setUpdatedBy((JabberId) parseJavaObject(parser, "updatedBy", JabberId.class));
-                version.setUpdatedOn((Calendar) parseJavaObject(parser, "updatedOn", Calendar.class));
-                version.setVersionId((Long) parseJavaObject(parser, "versionId", Long.class));
-                parser.next();
-                return version;
-            } else if (javaType.equals(EMail.class)) {
-                parser.next();
-                final EMail value = EMailBuilder.parse(parser.getText());
-                parser.next();
-                parser.next();
-                return value;
-            } else if (javaType.equals(Integer.class)) {
-                parser.next();
-                final Integer value = Integer.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return value;
-            } else if (javaType.equals(StreamSession.class)) {
-                parser.next();
-                final StreamSession session = new StreamSession();
-                session.setBufferSize((Integer) parseJavaObject(parser, "bufferSize", Integer.class));
-                session.setCharset((Charset) parseJavaObject(parser, "charset", Charset.class));
-                session.setEnvironment((Environment) parseJavaObject(parser, "environment", Environment.class));
-                session.setId((String) parseJavaObject(parser, "id", String.class));
-                parser.next();
-                return session;
-            } else if(javaType.equals(String.class)) {
-                parser.next();
-                final String sValue = parser.getText();
-                parser.next();
-                parser.next();
-                return sValue;
-            } else if (javaType.equals(Token.class)) {
-                parser.next();
-                if (XmlPullParser.END_TAG == parser.getEventType()) {
-                    parser.next();
-                    return null;
-                } else {
-                    final Token token = new Token();
-                    token.setValue((String) parseJavaObject(parser, "value", String.class));
-                    parser.next();
-                    return token;
-                }
-            } else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
-                parser.next();
-                final JabberId jabberId = JabberIdBuilder.parse(parser.getText());
-                parser.next();
-                parser.next();
-                return jabberId;
-            }
-            else if(javaType.equals(Long.class)) {
-                parser.next();
-                final Long lValue = Long.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return lValue;
-            }
-            else if(javaType.equals(Library.class)) {
-                parser.next();
-
-                final Library library = new Library();
-                while(true) {
-                    if(XmlPullParser.END_TAG == parser.getEventType()) {
-                        // the expecation is that name equals "library"
-                        if(name.equals(parseName(parser))) { break; }
-                        else {
-                            Assert.assertUnreachable("Library end tag.");
-                        }
-                    }
-                    else {
-                        if("artifactId".equals(parseName(parser))) {
-                            parser.next();
-                            library.setArtifactId(parser.getText());
-                            parser.next();
-                        }
-                        else if("createdOn".equals(parseName(parser))) {
-                            parser.next();
-                            library.setCreatedOn(calendarValueOf(parser.getText()));
-                            parser.next();
-                        }
-                        else if("groupId".equals(parseName(parser))) {
-                            parser.next();
-                            library.setGroupId(parser.getText());
-                            parser.next();
-                        }
-                        else if("id".equals(parseName(parser))) {
-                            parser.next();
-                            library.setId(Long.valueOf(parser.getText()));
-                            parser.next();
-                        }
-                        else if("path".equals(parseName(parser))) {
-                            parser.next();
-                            library.setPath(parser.getText());
-                            parser.next();
-                        }
-                        else if("type".equals(parseName(parser))) {
-                            parser.next();
-                            library.setType(Library.Type.valueOf(parser.getText()));
-                            parser.next();
-                        }
-                        else if("version".equals(parseName(parser))) {
-                            parser.next();
-                            library.setVersion(parser.getText());
-                            parser.next();
-                        }
-                        else {
-                            Assert.assertUnreachable("Library unknown tag.");
-                        }
-                        parser.next();
-                    }
-                }
-                parser.next();
-                return library;
-            }
-            else if(javaType.equals(Library.Type.class)) {
-                parser.next();
-                final Library.Type type = Library.Type.valueOf(parser.getText());
-                parser.next();
-                parser.next();
-                return type;
-            }
-            else if(javaType.equals(List.class)) {
-                parser.next();
-                final List list;
-                // the list is empty
-                if(XmlPullParser.END_TAG == parser.getEventType() &&
-                        name.equals(parseName(parser))) {
-                    list = Collections.emptyList();
-                }
-                else {
-                    list = new ArrayList();
-                    while(true) {
-                        // end of the list
-                        if(XmlPullParser.END_TAG == parser.getEventType() &&
-                                name.equals(parseName(parser))) { break; }
-                        ((ArrayList<Object>) list).add(
-                                parseJavaObject(parser, parseName(parser), parseJavaType(parser)));
-                    }
-                }
-                parser.next();
-                return list;
-            } else if (javaType.equals(UUID.class)) {
-                parser.next();
-                final UUID value = UUID.fromString(parser.getText());
-                parser.next();
-                parser.next();
-                return value;
-            } else {
-                throw Assert.createUnreachable(MessageFormat.format(
-                        "[LBROWSER BOOTSTRAP] [XMPP IO] [JAVA TYPE NOT SUPPORTED] [{0}]",
-                        new Object[] {javaType.getName()}));
+            } catch (final ParseException px) {
+                throw new RuntimeException(px);
             }
         }
 
         private Class parseJavaType(final XmlPullParser parser) {
             final String javaType = parser.getAttributeValue("", "javaType");
-            try { return Class.forName(javaType); }
-            catch(final ClassNotFoundException cnfx) {
+            try {
+                return Class.forName(javaType);
+            } catch (final ClassNotFoundException cnfx) {
                 throw new XMPPException(MessageFormat.format(
-                        "[LBROWSER BOOTSTRAP] [XMPP IO] [JAVA TYPE NOT SUPPORTED] [{0}]",
-                        new Object[] {javaType}));
+                        "Java type {0} not supported.", javaType));
+            }
+        }
+
+        private Object parseJavaValue(final XmlPullParser parser,
+                final Class javaType) throws XmlPullParserException, IOException {
+            logger.logVariable("javaType", javaType);
+            if (javaType.equals(List.class)) {
+                if (parser.isEmptyElementTag()) {
+                    parser.next();
+                    parser.next();
+                    return Collections.emptyList();
+                } else {
+                    parser.next();  // move to first list item
+                    final List javaValue = new ArrayList();
+                    Class listJavaType;
+                    while (XmlPullParser.END_TAG != parser.getEventType()) {
+                        listJavaType = parseJavaType(parser);
+                        ((ArrayList) javaValue).add(
+                                parseJavaValue(parser, listJavaType));
+                    }
+                    parser.next();  // move past end of list
+                    return javaValue;
+                }
+            } else {
+                if (parser.isEmptyElementTag()) {
+                    parser.next();
+                    parser.next();
+                    return null;
+                } else {
+                    parser.next();  // move to element text
+                    final Object javaValue;
+                    if (javaType.equals(String.class)) {
+                        javaValue = parser.getText();
+                        parser.next();
+                    } else if (javaType.equals(ArtifactRemoteInfo.class)) {
+                        javaValue = new ArtifactRemoteInfo();
+                        ((ArtifactRemoteInfo) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((ArtifactRemoteInfo) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                    } else if (javaType.equals(ArtifactState.class)) {
+                        javaValue = ArtifactState.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Environment.class)) {
+                        javaValue = Environment.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Charset.class)) {
+                        javaValue = Charset.forName(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(ArtifactType.class)) {
+                        javaValue = ArtifactType.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Boolean.class)) {
+                        javaValue = Boolean.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Calendar.class)) {
+                        javaValue = calendarValueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Container.class)) {
+                        javaValue = new Container();
+                        ((Container) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((Container) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((Container) javaValue).setDraft((Boolean) parseJavaValue(parser, Boolean.class));
+                        ((Container) javaValue).setLocalDraft((Boolean) parseJavaValue(parser, Boolean.class));
+                        ((Container) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((Container) javaValue).setRemoteInfo((ArtifactRemoteInfo) parseJavaValue(parser, ArtifactRemoteInfo.class));
+                        ((Container) javaValue).setState((ArtifactState) parseJavaValue(parser, ArtifactState.class));
+                        ((Container) javaValue).setType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
+                        ((Container) javaValue).setUniqueId((UUID) parseJavaValue(parser, UUID.class));
+                        ((Container) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((Container) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                    } else if (javaType.equals(ContainerVersion.class)) {
+                        javaValue = new ContainerVersion();
+                        ((ContainerVersion) javaValue).setArtifactType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
+                        ((ContainerVersion) javaValue).setArtifactUniqueId((UUID) parseJavaValue(parser, UUID.class));
+                        ((ContainerVersion) javaValue).setComment((String) parseJavaValue(parser, String.class));
+                        ((ContainerVersion) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((ContainerVersion) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((ContainerVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((ContainerVersion) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((ContainerVersion) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((ContainerVersion) javaValue).setVersionId((Long) parseJavaValue(parser, Long.class));
+                    } else if (javaType.equals(Document.class)) {
+                        javaValue = new Document();
+                        ((Document) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((Document) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((Document) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((Document) javaValue).setRemoteInfo((ArtifactRemoteInfo) parseJavaValue(parser, ArtifactRemoteInfo.class));
+                        ((Document) javaValue).setState((ArtifactState) parseJavaValue(parser, ArtifactState.class));
+                        ((Document) javaValue).setType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
+                        ((Document) javaValue).setUniqueId((UUID) parseJavaValue(parser, UUID.class));
+                        ((Document) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((Document) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                    } else if (javaType.equals(DocumentVersion.class)) {
+                        javaValue = new DocumentVersion();
+                        ((DocumentVersion) javaValue).setArtifactType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
+                        ((DocumentVersion) javaValue).setArtifactUniqueId((UUID) parseJavaValue(parser, UUID.class));
+                        ((DocumentVersion) javaValue).setChecksum((String) parseJavaValue(parser, String.class));
+                        ((DocumentVersion) javaValue).setCompression((Integer) parseJavaValue(parser, Integer.class));
+                        ((DocumentVersion) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((DocumentVersion) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((DocumentVersion) javaValue).setEncoding((String) parseJavaValue(parser, String.class));
+                        ((DocumentVersion) javaValue).setName((String) parseJavaValue(parser, String.class));
+                        ((DocumentVersion) javaValue).setSize((Long) parseJavaValue(parser, Long.class));
+                        ((DocumentVersion) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
+                        ((DocumentVersion) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
+                        ((DocumentVersion) javaValue).setVersionId((Long) parseJavaValue(parser, Long.class));
+                    } else if (javaType.equals(EMail.class)) {
+                        javaValue = EMailBuilder.parse(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Integer.class)) {
+                        javaValue = Integer.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(StreamSession.class)) {
+                        javaValue = new StreamSession();
+                        ((StreamSession) javaValue).setBufferSize((Integer) parseJavaValue(parser, Integer.class));
+                        ((StreamSession) javaValue).setCharset((Charset) parseJavaValue(parser, Charset.class));
+                        ((StreamSession) javaValue).setEnvironment((Environment) parseJavaValue(parser, Environment.class));
+                        ((StreamSession) javaValue).setId((String) parseJavaValue(parser, String.class));
+                    } else if (javaType.equals(Token.class)) {
+                        javaValue = new Token();
+                        ((Token) javaValue).setValue((String) parseJavaValue(parser, String.class));
+                    } else if (javaType.equals(JabberId.class)) {
+                        javaValue = JabberIdBuilder.parse(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Long.class)) {
+                        javaValue = Long.valueOf(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(UUID.class)) {
+                        javaValue = UUID.fromString(parser.getText());
+                        parser.next();
+                    } else {
+                        throw Assert.createUnreachable("Unsupported xml type.");
+                    }
+                    parser.next();  // move to next tag
+                    return javaValue;
+                }
             }
         }
 
         private String parseName(final XmlPullParser parser) {
             return parser.getName();
+        }
+
+        private Result parseResult(final XmlPullParser parser)
+                throws XmlPullParserException, IOException {
+            final Result result = new Result();
+            result.name = parseName(parser);
+            result.javaType = parseJavaType(parser);
+            result.javaValue = parseJavaValue(parser, result.javaType);
+            return result;
         }
     }
 }

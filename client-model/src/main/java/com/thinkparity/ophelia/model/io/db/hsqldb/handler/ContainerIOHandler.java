@@ -115,7 +115,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuffer("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
         .append("where CONTAINER_VERSION_DELTA_ID=(")
         .append("select CONTAINER_VERSION_DELTA_ID ")
-        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
+        .append("from CONTAINER_VERSION_DELTA ")
         .append("where CONTAINER_ID=? and ")
         .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
         .append("COMPARE_TO_CONTAINER_VERSION_ID=?))")

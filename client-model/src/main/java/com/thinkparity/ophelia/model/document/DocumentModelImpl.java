@@ -783,7 +783,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logVariable("documentName", documentName);
         try {
             final Document document = read(documentId);
-            final String originalName = document.getName();
             final LocalFile localFile = getLocalFile(document);
     
             // rename the document
@@ -792,10 +791,6 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     
             // rename the local file
             localFile.rename(documentName);
-
-            // audit the rename
-            auditor.rename(documentId, currentDateTime(), localUserId(),
-                    originalName,documentName);
         } catch (final Throwable t) {
             throw translateError(t);
         }

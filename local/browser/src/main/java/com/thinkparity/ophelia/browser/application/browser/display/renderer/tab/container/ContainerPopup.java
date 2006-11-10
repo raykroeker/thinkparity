@@ -30,6 +30,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 
 /**
  * @author raymond@thinkparity.com
@@ -106,7 +107,12 @@ class ContainerPopup {
         
         jPopupMenu.addSeparator();
         
-        // Rename, archive, delete package
+        // TODO rename
+
+        // archive
+        popupItemFactory.addPopupItem(jPopupMenu, PluginId.ARCHIVE, "ArchiveAction", container);
+
+        // delete
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));  

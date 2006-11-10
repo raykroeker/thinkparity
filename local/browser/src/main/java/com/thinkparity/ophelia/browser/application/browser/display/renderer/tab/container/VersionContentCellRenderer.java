@@ -44,18 +44,10 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         iconJLabel.setIcon(icon);
         
         // Set border.
-        if (cell.isMouseOver() && (cell.getPopupCellIndex() == -1) && !cell.isFillerCell()) {
-            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_MOUSE_OVER_BORDER));
-        } else if (cell.getPopupCellIndex()==index) {
-            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
-/*        } else if (isSelected && !cell.isFillerCell()) {
+        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
             // Note that during a popup, cell.isFocusOnThisList() returns true whereas
             // isFocusOwner() returns false.
-            if (cell.isFocusOnThisList()) {
-                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
-            } else {
-                setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BORDER));
-            }*/
+            setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
         } else {
             final int adjustedIndex = index + 1;
             if (0 == adjustedIndex % 2) {
@@ -73,27 +65,6 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         } else {
             setBackground(Colors.Browser.List.LIST_ODD_BG);
         }
-
-        // This code is here temporarily, for further experimentation with Omid...
-/*        if (isSelected && cell.isSelectedContainer() && !cell.isFillerCell()) {
-            // Note that during a popup, cell.isFocusOnThisList() returns true whereas
-            // isFocusOwner() returns false.
-            if (cell.isFocusOnThisList()) {
-                textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_FG);
-                setBackground(Colors.Browser.List.INNER_LIST_SELECTION_BG);
-            } else {
-                textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_FG);
-                setBackground(Colors.Browser.List.INNER_LIST_SELECTION_NOFOCUS_BG);
-            }
-        } else {
-            final int adjustedIndex = index + cell.getContainerIndex() + 1;
-            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-            if (0 == adjustedIndex % 2) {
-                setBackground(Colors.Browser.List.LIST_EVEN_BG);
-            } else {
-                setBackground(Colors.Browser.List.LIST_ODD_BG);
-            }
-        } */
 
         return this;
     }

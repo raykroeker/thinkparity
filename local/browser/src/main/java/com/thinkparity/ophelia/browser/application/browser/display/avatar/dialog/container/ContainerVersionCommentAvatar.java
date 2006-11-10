@@ -59,8 +59,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
             if (containerVersion.isSetComment()) {
                 commentJTextArea.setText(containerVersion.getComment());
             } else {
-                // TODO Fix this.
-                commentJTextArea.setText("(REMOVE ME) This is the comment that was typed for this version of the package.");
+                commentJTextArea.setText(null);
             }
         }
     }

@@ -71,15 +71,47 @@ class ContainerPopup {
      */
     void show(final Component invoker, final MouseEvent e) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        if (!isDraft()) {
-            final Data createDraftData = new Data(1);
-            createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));        
+        
+        // Publish, new draft, discard draft
+        if (isOnline()) {
+            Boolean bNeedSep = Boolean.FALSE;
+            if (isLocalDraft()) {
+                final Data publishData = new Data(1);
+                publishData.set(Publish.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
+                bNeedSep = Boolean.TRUE;
+            }
+            if (!isDraft()) {
+                final Data createDraftData = new Data(1);
+                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));  
+                bNeedSep = Boolean.TRUE;
+            }
+            if (isLocalDraft()) {
+                final Data deleteDraftData = new Data(1);
+                deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
+                jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData));
+                bNeedSep = Boolean.TRUE;
+            }
+            if (bNeedSep) {
+                jPopupMenu.addSeparator();
+            }
         }
-
+        
+        // Add document
+        final Data addDocumentData = new Data(1);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
+        
+        jPopupMenu.addSeparator();
+        
+        // Rename, archive, delete package
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTAINER_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));        
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));  
+        
+        jPopupMenu.addSeparator();
 
         // include the container's id and unique id in the menu
         if(e.isShiftDown()) {
@@ -105,24 +137,7 @@ class ContainerPopup {
             jPopupMenu.add(uidJMenuItem);
         }
 
-        final Data addDocumentData = new Data(1);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, getId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
-        
-        if(isOnline()) {
-            jPopupMenu.addSeparator();
-            
-            final Data publishData = new Data(1);
-            publishData.set(Publish.DataKey.CONTAINER_ID, getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
-
-            final Data deleteDraftData = new Data(1);
-            deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData));
-        }
-
-        jPopupMenu.addSeparator();
+        // Export, print
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
         final Data printData = new Data(1);
         printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
@@ -141,6 +156,10 @@ class ContainerPopup {
 
     private Boolean isDraft() {
         return container.isDraft();
+    }
+    
+    private Boolean isLocalDraft() {
+        return container.isLocalDraft();
     }
 
     private Boolean isOnline() {

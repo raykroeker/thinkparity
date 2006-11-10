@@ -5,27 +5,26 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
-
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -33,6 +32,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -45,9 +45,6 @@ public final class ContainerPanel extends DefaultTabPanel {
     
     /** The border for odd cells. */
     private static final Border BORDER_ODD;
-    
-    /** The border for a mouse-over cell. */
-    private static final Border BORDER_MOUSE_OVER;
     
     /** The border for the first cell. */
     private static final Border BORDER_FIRST;
@@ -65,21 +62,18 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
     
-    /** Flags to indicate if this is the first and/or last panel. */
-    /** These are saved for the benefit of mouse-over. */
-    private Boolean firstPanel = Boolean.FALSE;
-    private Boolean lastPanel = Boolean.FALSE;
-    
     /** An image cache. */
     protected final MainPanelImageCache imageCache;
     
     /** The panel localization. */
     private final MainCellL18n localization;
     
+    /** The focus manager. */
+    private final FocusManager focusManager;
+    
     static {
         BORDER_EVEN = new LineBorder(Colors.Browser.List.LIST_EVEN_BG);
         BORDER_ODD = new LineBorder(Colors.Browser.List.LIST_ODD_BG);
-        BORDER_MOUSE_OVER = new LineBorder(Colors.Browser.List.LIST_MOUSE_OVER_BORDER);
         BORDER_SELECTED = new LineBorder(Colors.Browser.List.LIST_SELECTION_BORDER);
         BORDER_FIRST = new MultiColourLineBorder(
                 Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG,
@@ -115,9 +109,11 @@ public final class ContainerPanel extends DefaultTabPanel {
         this.model = model;
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
+        this.focusManager = new FocusManager();
         initComponents();
         initBookmarks();
         installMouseOverTracker();
+        focusManager.addFocusListener(this, model);
     }
     
     /**
@@ -132,18 +128,27 @@ public final class ContainerPanel extends DefaultTabPanel {
                 GradientPainter.paintVertical(g2, getSize(),
                         Colors.Browser.List.LIST_GRADIENT_DARK,
                         Colors.Browser.List.LIST_GRADIENT_LIGHT);
-                if (container.isLatest()) {
-                    g2.setColor(Color.green);
-                } else {
-                    g2.setColor(Color.RED);
+                
+                // Draw a border if the container is expanded, selected and focused
+                if (isSelectedContainer() && (focusManager.getFocusList()==FocusManager.FocusList.CONTAINER)) {
+                    g2.setColor(Colors.Browser.List.LIST_SELECTION_BORDER);
+                    g2.drawLine(0, 0, getWidth()-1, 0);
+                    g2.drawLine(0, 0, 0, getHeight()-1);
+                    g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
                 }
-                g2.setColor(Colors.Browser.List.LIST_MOUSE_OVER_BORDER);
-                g2.drawLine(0, 0, getWidth()-1, 0);
-                g2.drawLine(0, 0, 0, getHeight()-1);
-                g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
             }
             finally { g2.dispose(); }
         }        
+    }
+    
+    /**
+     * Called if the focus list changes.
+     * 
+     * @param focusList
+     *      The list with focus.
+     */
+    public void focusChanged(final FocusManager.FocusList focusList) {
+        repaint();
     }
 
     /**
@@ -213,17 +218,25 @@ public final class ContainerPanel extends DefaultTabPanel {
     protected void triggerSingleClick(final MouseEvent e) {
         if (isSetMouseOver()) {
             model.triggerExpand(this);
+            if (!isFocusOwner()) {
+                requestFocusInWindow();
+            }
         }
     }
-
+    
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerDoubleClick(java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setMouseOver(java.lang.Boolean)
      */
     @Override
-    protected void triggerDoubleClick(MouseEvent e) {
-        if (!isSetMouseOver()) {
-            model.triggerExpand(this);
+    public void setMouseOver(Boolean mouseOver) {
+        final Cursor cursor;
+        super.setMouseOver(mouseOver);
+        if (mouseOver) {
+            cursor = new Cursor(Cursor.HAND_CURSOR);
+        } else {
+            cursor = null;
         }
+        changeCursor(cursor, this);
     }
 
     /**
@@ -347,7 +360,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         iconJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);  // The mouse is still over the panel.
+                setMouseOver(Boolean.TRUE);
                 if (container.isBookmarked()) {
                     iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK_ROLLOVER));
                 } else {
@@ -373,28 +386,6 @@ public final class ContainerPanel extends DefaultTabPanel {
             }           
         });
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setMouseOver(java.lang.Boolean)
-     */
-    @Override
-    public void setMouseOver(final Boolean mouseOver) {
-        super.setMouseOver(mouseOver);
-        
-        // If there is no popup then deselect the container.
-        if (!MenuFactory.isPopupMenu()) {
-            model.deselectContainer();
-        }
-        
-        // Draw the appropriate border.
-        setBorder(getBorder(firstPanel, lastPanel));
-        repaint();
-        
-        // If expanded, make the next panel repaint also.
-        if (isExpanded()) {
-            //qqq
-        }
-    }
     
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMousePressed(java.awt.event.MouseEvent)
@@ -402,9 +393,6 @@ public final class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void formMousePressed(MouseEvent e) {
         super.formMousePressed(e);
-        if (e.getButton()==MouseEvent.BUTTON1) {
-            model.deselectContainer();
-        }
     }
 
     /**
@@ -417,6 +405,9 @@ public final class ContainerPanel extends DefaultTabPanel {
         // shadow border on the popup.
         if (e.isPopupTrigger()) {
             model.selectContainer(container);
+            if (!isFocusOwner()) {
+                requestFocusInWindow();
+            } 
         }   
         super.formMouseReleased(e);
     }
@@ -426,7 +417,7 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void prepareForRepaint() {       
         final Color color;
-        if (!isLackMostRecentVersion()) {
+        if ((!container.isLocalDraft()) && (!container.isLatest())) {
             color = Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG;
         } else {
             color = Colors.Browser.List.LIST_FG;
@@ -435,7 +426,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         containerDateJLabel.setForeground(color);
         draftOwnerJLabel.setForeground(color);
         
-        if (isExpanded() || (!isSeen())) {
+        if (!isExpanded() && !isSeen()) {
             containerNameJLabel.setFont(Fonts.DefaultFontBold);
         } else {
             containerNameJLabel.setFont(Fonts.DefaultFont);
@@ -456,27 +447,12 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Color getBackgroundColor() {
         final Color color;
         final Integer containerIndex = model.indexOfContainerPanel(container);
-/*        if (isExpanded()) {
-            if (isSelectedContainer()) {
-                color = Colors.Browser.List.LIST_EXPANDED_SELECTED_BG;
-            } else {
-                color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
-            }*/
+
         if (0 == containerIndex % 2) {
             color = Colors.Browser.List.LIST_EVEN_BG;
         } else {
             color = Colors.Browser.List.LIST_ODD_BG;            
         }
-        
-/*        if (isSelectedContainer()) {
-            color = Colors.Browser.List.LIST_SELECTION_BG;
-        } else if (isExpanded()) {
-            color = Colors.Browser.List.LIST_EXPANDED_NOT_SELECTED_BG;
-        } else if (0 == containerIndex % 2) {
-            color = Colors.Browser.List.LIST_EVEN_BG;
-        } else {
-            color = Colors.Browser.List.LIST_ODD_BG;
-        }*/
         
         return color;
     }  
@@ -505,17 +481,12 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public Border getBorder(final Boolean first, final Boolean last) {
         Border border;
-        this.firstPanel = first;
-        this.lastPanel = last;
         final Integer containerIndex = model.indexOfContainerPanel(container);
  
         if (!isExpanded()) {
-            if (isSetMouseOver() && !isAnyContainerSelected()) {
-                // Mouse over takes effect when there aren't any containers selected.
-                // (A panel is selected when there is a popup on that panel.)
-                border = BORDER_MOUSE_OVER;
-            } else if (isSelectedContainer()) {
-                // This is to highlight a panel when there is a popup on that panel.
+            if (isSelectedContainer()) {
+                // This is to highlight a panel when there is a popup on that panel,
+                // or the user clicked on a container panel.
                 border = BORDER_SELECTED;
             } else if (first && last) {
                 border = BORDER_FIRST_AND_LAST;
@@ -537,59 +508,6 @@ public final class ContainerPanel extends DefaultTabPanel {
         }
                 
         return border;
-
-/*        
-        if (first) {
-            topBorder = BORDER_TOP_FIRST;
-        } else {
-            topBorder = null;
-        }
-        
-        if (!isExpanded()) {
-            if (isSetMouseOver()) {
-                bottomBorder = BORDER_MOUSE_OVER;
-            } else if (last) {
-                bottomBorder = BORDER_BOTTOM_LAST;
-            } else {
-                bottomBorder = BORDER_UNSELECTED;
-            }
-        } else {
-            bottomBorder = null;
-        }
-        
-        saveTopBorder = topBorder;
-        saveBottomBorder = bottomBorder;
-        
-        if (topBorder==null) {
-            return bottomBorder;
-        } else if (bottomBorder==null) {
-            return topBorder;
-        } else {
-            return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
-        }*/
-        
-/*      Code intentionally left here until look and feel is finalized
-        if (isFirstNonDraft()) {
-            topBorder = BORDER_TOP_GROUP;
-        } else if (isExpanded() || isPanelBeforeExpanded()) {
-            topBorder = BORDER_TOP_EXPANDED;
-        } else {
-            topBorder = BORDER_TOP;
-        }
-        
-        if (isExpanded()) {
-            if (isSelectedContainer()) {
-                bottomBorder = BORDER_BOTTOM_EXPANDED_SELECTED;
-            } else {
-                bottomBorder = BORDER_BOTTOM_EXPANDED_NOT_SELECTED;
-            }
-        } else if (last) {
-            bottomBorder = BORDER_BOTTOM_LAST;
-        } else {
-            bottomBorder = BORDER_BOTTOM;
-        }*/
-        
-        //return BorderFactory.createCompoundBorder(topBorder, bottomBorder);
     }
     
     /**
@@ -613,22 +531,6 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine whether or not the user has the most up-to-date version
-     * for this container.
-     * 
-     * @return True if the user has the most up-to-date container version.
-     */
-    public Boolean isLackMostRecentVersion() {
-        // TODO Do this right
-        final String gray = "Gray";
-        if (container.getName().equals(gray)) {
-            return Boolean.FALSE;
-        } else {
-            return Boolean.TRUE;
-        }       
-    }
-    
-    /**
      * Determine if the container is selected.
      * 
      * @return True if the container is selected; false otherwise.
@@ -638,12 +540,14 @@ public final class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * Determine if any container is selected.
-     * 
-     * @return True if any container is selected.
+     * Change the cursor.
      */
-    private Boolean isAnyContainerSelected() {
-        return model.isAnyContainerSelected();
+    private void changeCursor(final Cursor cursor, final Component component) {
+        component.setCursor(cursor);
+        Window window = SwingUtilities.getWindowAncestor(component);
+        if (null!=window) {
+            window.setCursor(cursor);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

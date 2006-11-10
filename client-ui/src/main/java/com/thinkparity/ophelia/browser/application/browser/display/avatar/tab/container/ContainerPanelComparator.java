@@ -52,39 +52,39 @@ public class ContainerPanelComparator implements Comparator<TabPanel>{
             ContainerPanel containerPanel1 = (ContainerPanel) o1;
             ContainerPanel containerPanel2 = (ContainerPanel) o2;
             
-            // Default is put local draft first, then by date (recent first).
-            if (sortColumn==SortColumn.NONE || sortDirection==SortDirection.NONE) {
-                compareResult = containerPanel2.getContainer().isLocalDraft().compareTo(containerPanel1.getContainer().isLocalDraft());
-            } else if (sortColumn==SortColumn.BOOKMARK) {
-                if (sortDirection==SortDirection.DOWN) {
-                    compareResult = containerPanel2.getContainer().isBookmarked().compareTo(containerPanel1.getContainer().isBookmarked());
-                } else {
-                    compareResult = containerPanel1.getContainer().isBookmarked().compareTo(containerPanel2.getContainer().isBookmarked());
-                }
-            } else if (sortColumn==SortColumn.CONTAINER_NAME) {
-                if (sortDirection==SortDirection.DOWN) {
-                    compareResult = containerPanel2.getContainer().getName().compareToIgnoreCase(containerPanel1.getContainer().getName());
-                } else {
-                    compareResult = containerPanel1.getContainer().getName().compareToIgnoreCase(containerPanel2.getContainer().getName());
-                }
-            } else if (sortColumn==SortColumn.CONTAINER_DATE) {
-                if (sortDirection==SortDirection.DOWN) {
-                    compareResult = containerPanel2.getContainer().getUpdatedOn().compareTo(containerPanel1.getContainer().getUpdatedOn());
-                } else {
-                    compareResult = containerPanel1.getContainer().getUpdatedOn().compareTo(containerPanel2.getContainer().getUpdatedOn());
-                }
-            } else if (sortColumn==SortColumn.DRAFT_OWNER) {
-                if (sortDirection==SortDirection.DOWN) {
-                    compareResult = containerPanel1.getContainer().isDraft().compareTo(containerPanel2.getContainer().isDraft());
-                    if ((0==compareResult) && (containerPanel2.getContainer().isDraft())) {
-                        compareResult = containerPanel2.getDraft().getOwner().getName().compareToIgnoreCase(
-                                        containerPanel1.getDraft().getOwner().getName());                       
+            // Default is by date (recent first).
+            if (sortColumn!=SortColumn.NONE && sortDirection!=SortDirection.NONE) {
+                if (sortColumn==SortColumn.BOOKMARK) {
+                    if (sortDirection==SortDirection.DOWN) {
+                        compareResult = containerPanel2.getContainer().isBookmarked().compareTo(containerPanel1.getContainer().isBookmarked());
+                    } else {
+                        compareResult = containerPanel1.getContainer().isBookmarked().compareTo(containerPanel2.getContainer().isBookmarked());
                     }
-                } else {
-                    compareResult = containerPanel2.getContainer().isDraft().compareTo(containerPanel1.getContainer().isDraft());
-                    if ((0==compareResult) && (containerPanel1.getContainer().isDraft())) {
-                        compareResult = containerPanel1.getDraft().getOwner().getName().compareToIgnoreCase(
-                                        containerPanel2.getDraft().getOwner().getName());                       
+                } else if (sortColumn==SortColumn.CONTAINER_NAME) {
+                    if (sortDirection==SortDirection.DOWN) {
+                        compareResult = containerPanel2.getContainer().getName().compareToIgnoreCase(containerPanel1.getContainer().getName());
+                    } else {
+                        compareResult = containerPanel1.getContainer().getName().compareToIgnoreCase(containerPanel2.getContainer().getName());
+                    }
+                } else if (sortColumn==SortColumn.CONTAINER_DATE) {
+                    if (sortDirection==SortDirection.DOWN) {
+                        compareResult = containerPanel2.getContainer().getUpdatedOn().compareTo(containerPanel1.getContainer().getUpdatedOn());
+                    } else {
+                        compareResult = containerPanel1.getContainer().getUpdatedOn().compareTo(containerPanel2.getContainer().getUpdatedOn());
+                    }
+                } else if (sortColumn==SortColumn.DRAFT_OWNER) {
+                    if (sortDirection==SortDirection.DOWN) {
+                        compareResult = containerPanel1.getContainer().isDraft().compareTo(containerPanel2.getContainer().isDraft());
+                        if ((0==compareResult) && (containerPanel2.getContainer().isDraft())) {
+                            compareResult = containerPanel2.getDraft().getOwner().getName().compareToIgnoreCase(
+                                            containerPanel1.getDraft().getOwner().getName());                       
+                        }
+                    } else {
+                        compareResult = containerPanel2.getContainer().isDraft().compareTo(containerPanel1.getContainer().isDraft());
+                        if ((0==compareResult) && (containerPanel1.getContainer().isDraft())) {
+                            compareResult = containerPanel1.getDraft().getOwner().getName().compareToIgnoreCase(
+                                            containerPanel2.getDraft().getOwner().getName());                       
+                        }
                     }
                 }
             }

@@ -29,7 +29,7 @@ public class ReadContactAvatar extends Avatar {
     
     /** Creates new form ContactInfo */
     public ReadContactAvatar() {
-        super("ContactInfo", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("ContactInfoDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         contactInfoJPanel.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
     }

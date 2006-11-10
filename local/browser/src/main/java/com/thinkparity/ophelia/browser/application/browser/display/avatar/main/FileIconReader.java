@@ -114,12 +114,15 @@ public class FileIconReader {
      * @return An <code>ImageIcon</code>.
      */
     private ImageIcon getFileIcon(final String extension) {
+        // The name has the "." removed.
         final String name = StringUtil.searchAndReplace(extension,
                 Separator.Period, Separator.EmptyString).toUpperCase();
         
         // Return the icon from the cache if available, otherwise
         // get the icon from the system and cache it.
-        if (isCached(ICON_CACHE, name)) {
+        if ((null==name) || (name.length()==0)) {
+            return null;
+        } else if (isCached(ICON_CACHE, name)) {
             return (ImageIcon) read(ICON_CACHE, name);
         } else {
             ImageIcon imageIcon = readSystemIcon(extension);
@@ -165,14 +168,16 @@ public class FileIconReader {
      * Read the icon from the system if possible.
      */
     private ImageIcon readSystemIcon(final String extension) {
-        final Association assoc =
-            associationService.getFileExtensionAssociation(extension);
-        if (null != assoc) {
-            final String iconSpec = assoc.getIconFileName();
-            if (null != iconSpec) {
-                final Image image = IconService.getIcon(iconSpec, 16);
-                if (null != image) {
-                    return new ImageIcon(image);
+        if (null != associationService) {
+            final Association assoc =
+                associationService.getFileExtensionAssociation(extension);
+            if (null != assoc) {
+                final String iconSpec = assoc.getIconFileName();
+                if (null != iconSpec) {
+                    final Image image = IconService.getIcon(iconSpec, 16);
+                    if (null != image) {
+                        return new ImageIcon(image);
+                    }
                 }
             }
         }

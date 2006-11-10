@@ -73,7 +73,7 @@ public final class Constants {
                 public static final Color HEADER_FG = Color.BLACK;
                 public static final Color HEADER_ROLLOVER_BG = new Color(87, 136, 206, 255);
                 public static final Color HEADER_ROLLOVER_FG = Color.WHITE;
-                public static final Color ROW_EVEN_BG = new Color(245, 248, 252, 255);
+                public static final Color ROW_EVEN_BG = new Color(245, 246, 247, 255);
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
             public static final class SemiTransparentLayer {
@@ -89,9 +89,7 @@ public final class Constants {
                 public static final Color LIST_EXPANDED_BG = Color.WHITE;
                 public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
                 public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area
-                public static final Color LIST_MOUSE_OVER_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);  // dark gray
                 public static final Color LIST_SELECTION_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);   // dark gray
-                public static final Color INNER_LIST_MOUSE_OVER_BORDER = new Color(100, 100, 100, 255);  // dark gray
                 public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
             }

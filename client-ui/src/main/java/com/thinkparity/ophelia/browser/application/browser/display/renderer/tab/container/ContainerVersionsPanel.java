@@ -7,12 +7,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -26,28 +23,23 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.border.BottomBorder;
-
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
@@ -57,6 +49,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -67,12 +60,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
     
-    /** The border for the bottom of the last cell. */
-    private static final Border BORDER_BOTTOM_LAST;
-    
     static {        
-        DIMENSION = new Dimension(50,100);
-        BORDER_BOTTOM_LAST = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER, 1, new Insets(0,0,1,0));
+        DIMENSION = new Dimension(50,95);
     }
 
     /** The <code>Container</code>. */
@@ -99,23 +88,26 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The version's list model. */
     private final DefaultListModel versionsModel;
     
-    /** Flag indicating whether the left side or the right side has focus. */
-    private ListType focusList = ListType.VERSION;
-    
-    /** The popup cell index on the versions list. */
-    private int versionsPopupCellIndex = -1;
-    
-    /** The popup cell index on the content list. */
-    private int contentPopupCellIndex = -1;
-    
     /** An image cache. */
     private final MainPanelImageCache imageCache;
     
     /** A file icon reader. */
     private final FileIconReader fileIconReader;
+        
+    /** An apache logger. */
+    private final Log4JWrapper logger;
     
     /** The panel localization. */
     private final MainCellL18n localization;
+    
+    /** The focus manager. */
+    private final FocusManager focusManager;
+    
+    /** The previous selection index of the Versions list. */
+    private int previousVersionSelectionIndex = -1;
+    
+    /** The previous selection index of the Content list. */
+    private int previousContentSelectionIndex = -1;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JPanel leftJPanel;
@@ -142,17 +134,27 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.versionsContentModel = new DefaultListModel();
         this.imageCache = new MainPanelImageCache();
         this.fileIconReader = new FileIconReader();
+        this.logger = new Log4JWrapper();
         this.localization = new MainCellL18n("ContainerVersionsPanel");
+        this.focusManager = new FocusManager();
         initComponents();
-        initFocusListeners();
         initResizeListener();
         initMouseOverTrackers();
+        focusManager.addFocusListener(this, model, versionsJList, FocusManager.FocusList.VERSION);
+        focusManager.addFocusListener(this, model, versionsContentJList, FocusManager.FocusList.CONTENT);
     }
     
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     private class GradientJPanel extends javax.swing.JPanel {
+        final ListType listType;
+        
+        public GradientJPanel(final ListType listType) {
+            super();
+            this.listType = listType;
+        }
+        
         protected void paintComponent(final Graphics g) {
             super.paintComponent(g);
             final Graphics g2 = g.create();
@@ -160,32 +162,39 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 GradientPainter.paintVertical(g2, getSize(),
                         Colors.Browser.List.LIST_GRADIENT_LIGHT,
                         Colors.Browser.List.LIST_GRADIENT_DARK);
+                
+                // Draw a border if the container is selected and focused
+                if (isSelectedContainer() && (focusManager.getFocusList()==FocusManager.FocusList.CONTAINER)) {
+                    g2.setColor(Colors.Browser.List.LIST_SELECTION_BORDER);
+                    g2.drawLine(0, getHeight()-1, getWidth()-1, getHeight()-1);
+                    if (listType == ListType.VERSION) {
+                        g2.drawLine(0, 0, 0, getHeight()-1);
+                    } else if (listType == ListType.CONTENT) {
+                        g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
+                    }
+                }
             }
             finally { g2.dispose(); }
         }
     }
     
     /**
-     * Initialize focus listeners, so we always know if focus is on left or right.
+     * Called if the focus list changes.
+     * 
+     * @param focusList
+     *      The list with focus.
      */
-    private void initFocusListeners() {
-        versionsJList.addFocusListener(new FocusAdapter() {
-            public void focusGained(final FocusEvent e) {
-                focusList = ListType.VERSION;
-            }            
-        });
-        versionsContentJList.addFocusListener(new FocusAdapter() {
-            public void focusGained(final FocusEvent e) {
-                focusList = ListType.CONTENT;
-            }
-            public void focusLost(final FocusEvent e) {
-                // We don't want to reset this flag when there
-                // is a popup in the versionsContentJList.
-                if (!isSelectedContainer()) {
-                    focusList = ListType.VERSION;
-                }
-            }
-        });
+    public void focusChanged(final FocusManager.FocusList focusList) {
+        repaint();
+    }
+    
+    /**
+     * Get the focus list.
+     * 
+     * @return The focus list.
+     */
+    private FocusManager.FocusList getFocusList() {
+        return focusManager.getFocusList();
     }
     
     /**
@@ -272,18 +281,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      *              Mouse over flag.
      */
     private void updateCellMouseOver(final JList jList, final Integer index, final Boolean mouseOver) {
-        // If there is no popup then reset the popup flags.
-        if (!MenuFactory.isPopupMenu()) {
-            versionsPopupCellIndex = -1;
-            contentPopupCellIndex = -1;
-        }
-        
         saveSelection(jList);
         if (index < jList.getModel().getSize()) {
             final AbstractCell cell = (AbstractCell) jList.getModel().getElementAt(index);
             cell.setMouseOver(mouseOver);
-            ((DefaultListModel)jList.getModel()).removeElementAt(index);
-            ((DefaultListModel)jList.getModel()).add(index, cell);
+/*            ((DefaultListModel)jList.getModel()).removeElementAt(index);
+            ((DefaultListModel)jList.getModel()).add(index, cell);*/
             restoreSelection(jList);
         }
     }
@@ -379,6 +382,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             versionsModel.addElement(new DraftCell(draft));
         }
     }
+    
+    /**
+     * Get the container associated with this panel.
+     */
+    public Container getContainer() {
+        return container;
+    }
 
     /**
      * Prepare for repaint, for example, adjust colors.
@@ -408,7 +418,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         
         // Make sure one of the lists has focus.
         // TODO This should not have to rely on SwingUtilities.invokeLater to work.
-        if (!versionsJList.isFocusOwner() && !versionsContentJList.isFocusOwner()) {
+/*        if (!versionsJList.isFocusOwner() && !versionsContentJList.isFocusOwner()) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     if (focusList == ListType.CONTENT) {
@@ -418,7 +428,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     }
                 }
             });
-        }
+        }*/
     }
     
     /**
@@ -440,14 +450,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @return A border.
      */
     public Border getBorder(final Boolean first, final Boolean last) {
-        final Border bottomBorder;
-        if (last) {
-            bottomBorder = BORDER_BOTTOM_LAST;
-        } else {
-            bottomBorder = null;
-        }
-
-        return bottomBorder;    
+        return null;    
     }
     
     /**
@@ -488,10 +491,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
-        leftJPanel = new GradientJPanel();
+        leftJPanel = new GradientJPanel(ListType.VERSION);
         versionsJScrollPane = new javax.swing.JScrollPane();
         versionsJList = new javax.swing.JList();
-        rightJPanel = new GradientJPanel();
+        rightJPanel = new GradientJPanel(ListType.CONTENT);
         versionsContentJScrollPane = new javax.swing.JScrollPane();
         versionsContentJList = new javax.swing.JList();
 
@@ -541,7 +544,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 4, 4, 1);
+        gridBagConstraints.insets = new java.awt.Insets(1, 4, 4, 1);
         leftJPanel.add(versionsJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setLeftComponent(leftJPanel);
@@ -562,6 +565,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
         versionsContentJList.setVisibleRowCount(5);
+        versionsContentJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                versionsContentJListValueChanged(evt);
+            }
+        });
         versionsContentJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 versionsContentJListMouseClicked(evt);
@@ -580,7 +588,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 1, 4, 4);
+        gridBagConstraints.insets = new java.awt.Insets(1, 1, 4, 4);
         rightJPanel.add(versionsContentJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setRightComponent(rightJPanel);
@@ -619,39 +627,45 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         selectedVersion.showPopupMenu(versionsJList, e);
     }
     
-    private void versionsContentJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
+    private void versionsContentJListMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
         final JList jList = (JList) e.getSource();
         handleJListMouseClicked(jList, ListType.CONTENT, e);
     }//GEN-LAST:event_versionsContentJListMouseClicked
 
-    private void versionsContentJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
+    private void versionsContentJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
         final JList jList = (JList) e.getSource();
         handleJListMousePressed(jList, ListType.CONTENT, e);
     }//GEN-LAST:event_versionsContentJListMousePressed
 
-    private void versionsContentJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
+    private void versionsContentJListMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
         final JList jList = (JList) e.getSource();
         handleJListMouseReleased(jList, ListType.CONTENT, e);   
     }//GEN-LAST:event_versionsContentJListMouseReleased
 
-    private void versionsJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
+    private void versionsJListMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
         final JList jList = (JList) e.getSource();
         handleJListMouseClicked(jList, ListType.VERSION, e);
     }//GEN-LAST:event_versionsJListMouseClicked
     
-    private void versionsJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
+    private void versionsJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMousePressed
         final JList jList = (JList) e.getSource();
         handleJListMousePressed(jList, ListType.VERSION, e);
     }//GEN-LAST:event_versionsJListMousePressed
 
-    private void versionsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
+    private void versionsJListMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseReleased
         final JList jList = (JList) e.getSource();
         handleJListMouseReleased(jList, ListType.VERSION, e);        
     }//GEN-LAST:event_versionsJListMouseReleased
     
-    private void versionsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_versionsJListValueChanged
-        if (!evt.getValueIsAdjusting()) {
-            logger.logVariable("evt", evt);
+    private void versionsJListValueChanged(final javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_versionsJListValueChanged
+        // Don't allow selection of filler cells.
+        if ((null != versionsJList.getSelectedValue()) &&
+            ((AbstractCell)versionsJList.getSelectedValue()).isFillerCell() &&
+            (previousVersionSelectionIndex != -1)) {
+            setSelectedIndex(versionsJList, previousVersionSelectionIndex);
+        } else if (!e.getValueIsAdjusting()) {
+            previousVersionSelectionIndex = versionsJList.getSelectedIndex();
+            logger.logVariable("evt", e);
             versionsContentModel.clear();
             for (final Object selectedValue : versionsJList.getSelectedValues()) {
                 for (final AbstractContentCell contentCell : ((AbstractVersionCell) selectedValue).contentCells) {
@@ -661,19 +675,33 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
     }//GEN-LAST:event_versionsJListValueChanged
     
+    private void versionsContentJListValueChanged(final javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_versionsContentJListValueChanged
+        // Don't allow selection of filler cells.
+        if ((null != versionsContentJList.getSelectedValue()) &&
+            ((AbstractCell)versionsContentJList.getSelectedValue()).isFillerCell() &&
+            (previousContentSelectionIndex != -1)) {
+            setSelectedIndex(versionsContentJList, previousContentSelectionIndex);
+        } else if (!e.getValueIsAdjusting()) {
+            previousContentSelectionIndex = versionsContentJList.getSelectedIndex();
+        }
+    }//GEN-LAST:event_versionsContentJListValueChanged
+    
     /**
      * Process a JList mouse pressed event.
      */
     private void handleJListMousePressed(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.getButton()==MouseEvent.BUTTON1) {
-            jList.requestFocusInWindow();
-            versionsPopupCellIndex = -1;
-            contentPopupCellIndex = -1;
-        }
         if (e.isPopupTrigger()) { 
             handleJListMousePopupTrigger(jList, listType, e);
+        } else if (e.getButton()==MouseEvent.BUTTON1) {
+            if (isMouseEventWithinCell(jList, e)) {
+                final int index = jList.locationToIndex(e.getPoint());
+                if (!isFillerCell(jList, index)) {                             
+                    setSelectedIndex(jList, index);
+                    e.consume();
+                }
+            }            
         }
     }
     
@@ -694,16 +722,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void handleJListMousePopupTrigger(final JList jList, final ListType listType, final java.awt.event.MouseEvent e) {
         if (isMouseEventWithinCell(jList, e)) {
             final int index = jList.locationToIndex(e.getPoint());
-            if (!isFillerCell(jList, index)) {               
-                if (!jList.isFocusOwner()) {
-                    jList.requestFocusInWindow();
-                }                 
+            if (!isFillerCell(jList, index)) {                              
                 setSelectedIndex(jList, index);
                 if (listType == ListType.VERSION) {
-                    versionsPopupCellIndex = index;
                     triggerJListPopup((AbstractVersionCell) jList.getSelectedValue(), e);
                 } else if (listType == ListType.CONTENT) {
-                    contentPopupCellIndex = index;
                     triggerJListPopup((AbstractContentCell) jList.getSelectedValue(), e);
                 }
                 e.consume();
@@ -812,6 +835,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         if (index != jList.getSelectedIndex()) {
             jList.setSelectedIndex(index);
         }
+        if (!jList.isFocusOwner()) {
+            jList.requestFocusInWindow();
+        } 
     }
     
     /** The abstract list cell. */
@@ -867,10 +893,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             super();
         }
         protected Boolean isFocusOnThisList() {
-            return (ContainerVersionsPanel.this.focusList == ListType.CONTENT);
-        }
-        protected int getPopupCellIndex() {
-            return contentPopupCellIndex;
+            return (getFocusList() == FocusManager.FocusList.CONTENT);
         }
     }
 
@@ -890,10 +913,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             return Collections.unmodifiableList(contentCells);
         }
         protected Boolean isFocusOnThisList() {
-            return (ContainerVersionsPanel.this.focusList == ListType.VERSION);
-        }
-        protected int getPopupCellIndex() {
-            return versionsPopupCellIndex;
+            return (getFocusList() == FocusManager.FocusList.VERSION);
         }
     }
 
@@ -925,12 +945,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             return draft.getContainerId();
         }
         private void initText(final ContainerDraft draft) {
-            final Integer documentCount = draft.getDocumentCount();
-            if (1 == documentCount) {
-                setText(localization.getString("DraftOneDocument"));
-            } else {
-                setText(localization.getString("DraftManyDocuments", documentCount));
-            }
+            setText(localization.getString("Draft"));
         }
     }
 
@@ -1005,18 +1020,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
             final StringBuffer text;
             text = new StringBuffer();
-            if (user.isSetOrganization() && user.isSetTitle()) {
-                text.append(MessageFormat.format("{0} ({1}, {2})",
-                            user.getName(), user.getOrganization(), user.getTitle()));
-            } else if (user.isSetOrganization()) {
-                text.append(MessageFormat.format("{0} ({1})",
-                            user.getName(), user.getOrganization()));
-            } else if (user.isSetTitle()) {
-                text.append(MessageFormat.format("{0} ({1})",
-                            user.getName(), user.getTitle()));
-            } else {
-                text.append(user.getName());
-            }
+            text.append(user.getName());
             text.append(" ");
             if (isPublisher) {
                 text.append(localization.getString("UserPublished"));
@@ -1112,7 +1116,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private CommentCell(final ContainerVersion version) {
             super();
             this.version = version;
-            if (version.isSetComment()) {
+            if ((version.isSetComment()) && (version.getComment().length()>0)) {
                 setText(version.getComment());
             } else {
                 setText(localization.getString("NoComment"));
@@ -1181,41 +1185,23 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public Dimension getPreferredSize(final Boolean first, final Boolean last) {
         return DIMENSION;
     }
-
-    /**
-     * Get the icon associated with this file extension.
-     * 
-     * @return The file icon.
-     */
-    private ImageIcon getIcon(final Document document) {
-        return fileIconReader.getIcon(document);
-    }
     
     /**
-     * Get the icon associated with this file extension.
-     * 
-     * @return The file icon.
-     */
-    private ImageIcon getIcon(final DocumentVersion version) {
-        return fileIconReader.getIcon(version);
-    }
-    
-    /**
-     * Get the document icon.
+     * Get the document icon, ie. associated with the file extension.
      * 
      * @return The document icon.
      */
     private ImageIcon getDocumentIcon(final Document document) {
-        return getIcon(document);
+        return fileIconReader.getIcon(document);
     }
     
     /**
-     * Get the document icon.
+     * Get the document icon, ie. associated with the file extension.
      * 
      * @return The document icon.
      */
     private ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
-        return getIcon(documentVersion);
+        return fileIconReader.getIcon(documentVersion);
     }
     
     private enum ListType { VERSION, CONTENT }

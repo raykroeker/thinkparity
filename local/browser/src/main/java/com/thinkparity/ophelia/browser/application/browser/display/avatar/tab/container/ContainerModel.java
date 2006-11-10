@@ -240,11 +240,15 @@ public final class ContainerModel extends TabPanelModel {
             expandedContainer = ((ContainerPanel)tabPanel).getContainer();
             
             // Flag the container as having been seen.
-            // To prevent delay expanding, don't bother if offline.
+            // To prevent delay expanding during login, don't bother if offline.
+            // TODO Maybe remove this.
             if (isOnline()) {
                 browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
             }
         }
+        
+        // Expanding or collapsing a container also selects it.
+        selectedContainer = ((ContainerPanel)tabPanel).getContainer();
         
         synchronize();
     }
@@ -445,8 +449,20 @@ public final class ContainerModel extends TabPanelModel {
      *            A <code>Container</code>.
      * @return A <code>TabPanel</code>.
      */
-    private TabPanel getContainerPanel(final Container container) {
+    public TabPanel getContainerPanel(final Container container) {
         return containerPanels.get(indexOfContainerPanel(container));
+    }
+    
+    /**
+     * Obtain a versions panel.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>TabPanel</code>.
+     */
+    public TabPanel getVersionsPanel(final Container container) {
+        final TabPanel containerPanel = getContainerPanel(container);
+        return versionsPanels.get(containerPanel);
     }
 
     /**
@@ -510,15 +526,6 @@ public final class ContainerModel extends TabPanelModel {
         } else {
             return Boolean.FALSE;
         }
-    }
-    
-    /**
-     * Determine if any container is selected.
-     * 
-     * @return True if any container is selected.
-     */
-    public Boolean isAnyContainerSelected() {
-        return (selectedContainer != null);
     }
     
     /**

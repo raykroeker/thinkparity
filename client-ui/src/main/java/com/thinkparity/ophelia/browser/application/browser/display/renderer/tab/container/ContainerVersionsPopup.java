@@ -71,6 +71,7 @@ final class ContainerVersionsPopup {
         final Data renameData = new Data(1);
         renameData.set(Rename.DataKey.DOCUMENT_ID, draftDocument.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_RENAME, renameData));
+        
         switch (state) {
         case ADDED:
             break;
@@ -91,13 +92,16 @@ final class ContainerVersionsPopup {
         default:
             throw Assert.createUnreachable("UNKNOWN ARTIFACT STATE");
         }
+        
         if (ContainerDraft.ArtifactState.REMOVED != state) {
             final Data removeData = new Data(2);
             removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draftDocument.getContainerId());
             removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, draftDocument.getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
         }
+        
         jPopupMenu.addSeparator();
+        
         final Data printData = new Data(1);
         printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, draftDocument.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_PRINT_DRAFT, printData));
@@ -115,9 +119,9 @@ final class ContainerVersionsPopup {
     ContainerVersionsPopup(final ContainerModel model,
             final DocumentVersionCell documentVersion) {
         super();
-        // TODO New UI:  The version documents popup will not work.  Need more data.
         this.jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
+        
         final Data openData = new Data(2);
         openData.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getDocumentId());
         openData.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
@@ -145,6 +149,7 @@ final class ContainerVersionsPopup {
         super();
         this.jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
+        
         if(model.isOnline()) {
             final Data publishData = new Data(1);
             publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
@@ -222,6 +227,7 @@ final class ContainerVersionsPopup {
         super();
         this.jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
+        
         if (model.isOnline()) {
             final Data shareData = new Data(2);
             shareData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());

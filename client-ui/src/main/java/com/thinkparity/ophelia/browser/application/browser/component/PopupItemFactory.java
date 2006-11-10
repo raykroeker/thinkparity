@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -20,6 +21,9 @@ import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtensionAction;
 
@@ -75,6 +79,17 @@ public class PopupItemFactory extends AbstractFactory {
     }
 
     /**
+     * Add a popup item for an action extension (plugin) to the menu.
+     * @param extension
+     * @param selection
+     * @return
+     */
+    public void addPopupItem(final JPopupMenu jPopupMenu,
+            final PluginId pluginId, final String name, final Object selection) {
+        SINGLETON.doAddPopupItem(jPopupMenu, pluginId, name, selection);
+    }
+
+    /**
      * Create a popup menu item for an action and its data.
      * This method is suited for main menus (mnemonic and
      * accelerator supported, and menu name used).
@@ -82,11 +97,6 @@ public class PopupItemFactory extends AbstractFactory {
     public JMenuItem createMenuPopupItem(final ActionId actionId,
             final Data data) {
         return SINGLETON.doCreatePopupItem(actionId, data, Boolean.TRUE);        
-    }
-
-    public JMenuItem createPopupItem(final ActionExtension extension,
-            final Object selection) {
-        return SINGLETON.doCreatePopupItem(extension, selection);
     }
 
     /**
@@ -116,21 +126,28 @@ public class PopupItemFactory extends AbstractFactory {
      *            true for main menu, false for context menu
      * @return A popup menu item.
      */
-    private JMenuItem doCreatePopupItem(final ActionExtension extension,
-            final Object selection) {
-        final AbstractAction action;
-        if (actionRegistry.contains(extension)) {
-            action = actionRegistry.get(extension);
-        } else {
-            action = ActionFactory.create(extension);
+    public void doAddPopupItem(final JPopupMenu jPopupMenu,
+            final PluginId pluginId, final String name, final Object selection) {
+        final PluginRegistry pluginRegistry = new PluginRegistry();
+        final Plugin plugin = pluginRegistry.getPlugin(pluginId);
+        if (null != plugin) {
+            final ActionExtension extension =
+                pluginRegistry.getActionExtension(pluginId, name);
+            if (null != extension) {
+                final AbstractAction action;
+                if (actionRegistry.contains(extension)) {
+                    action = actionRegistry.get(extension);
+                } else {
+                    action = ActionFactory.create(extension);
+                }
+
+                final ActionWrapper wrapper = getWrapper(extension, action);        
+                final Data data = new Data(1);
+                data.set(ActionExtensionAction.DataKey.SELECTION, selection);
+                wrapper.setData(data);
+                jPopupMenu.add(new JMenuItem(wrapper));
+            }
         }
-        
-        final ActionWrapper wrapper = getWrapper(extension, action);        
-        final Data data = new Data(1);
-        data.set(ActionExtensionAction.DataKey.SELECTION, selection);
-        wrapper.setData(data);
-        
-        return new JMenuItem(wrapper);
     }
 
     /**

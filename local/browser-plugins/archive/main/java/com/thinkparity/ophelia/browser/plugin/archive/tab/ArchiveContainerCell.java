@@ -9,14 +9,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 
 /**
  * @author raymond@thinkparity.com
@@ -59,15 +57,8 @@ final class ArchiveContainerCell extends ArchiveArtifactCell {
         switch (connection) {
         case ONLINE:
             final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-            final PluginRegistry pluginRegistry = new PluginRegistry();
-            final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
-            if (null != archivePlugin) {
-                final ActionExtension archiveExtension =
-                    pluginRegistry.getActionExtension(PluginId.ARCHIVE, "RestoreAction");
-                jPopupMenu.add(popupItemFactory.createPopupItem(
-                        archiveExtension, (Container) getArtifact()));
-            }
-
+            popupItemFactory.addPopupItem(jPopupMenu, PluginId.ARCHIVE,
+                    "RestoreAction", (Container) getArtifact());
             jPopupMenu.show(invoker, e.getX(), e.getY());
             break;
         case OFFLINE:

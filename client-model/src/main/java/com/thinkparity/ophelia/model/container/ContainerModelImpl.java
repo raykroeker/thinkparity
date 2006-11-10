@@ -147,7 +147,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = FilterManager.createDefault();
-        this.defaultDocumentVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
+        this.defaultDocumentVersionComparator = new ComparatorBuilder().createVersionByName();
         this.defaultFilter = FilterManager.createDefault();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
         this.defaultHistoryFilter = FilterManager.createDefault();

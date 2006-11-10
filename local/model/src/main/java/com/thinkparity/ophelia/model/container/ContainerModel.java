@@ -165,7 +165,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-	/**
+    /**
      * Export a container version to a directory. The 
      * 
      * @param exportDirectory
@@ -195,6 +195,19 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             final Long versionId) {
         synchronized (getImplLock()) {
             getImpl().exportVersion(exportDirectory, containerId, versionId);
+        }
+    }
+
+	/**
+     * Determine whether or not the container has been distributed.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the container has been distributed.
+     */
+    public Boolean isDistributed(final Long containerId) {
+        synchronized (getImplLock()) {
+            return getImpl().isDistributed(containerId);
         }
     }
 

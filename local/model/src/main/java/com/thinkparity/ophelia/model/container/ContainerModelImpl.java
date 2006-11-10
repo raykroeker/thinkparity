@@ -781,6 +781,25 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Determine if the container has been distributed. If a container is
+     * distributed it will have 1 or more versions. If it has not been
+     * distributed it will have no versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the container has been distributed; false otherwise.
+     */
+    Boolean isDistributed(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            return getInternalArtifactModel().doesVersionExist(containerId, Versioning.START);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Print a container draft.
      * 
      * @param containerId
@@ -2245,6 +2264,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
 
+
     /**
      * Create a new container version.
      * 
@@ -2281,7 +2301,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return containerIO.readVersion(
                 version.getArtifactId(), version.getVersionId());
     }
-
 
     /**
      * Delete the local info for this container.
@@ -2491,19 +2510,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Calendar publishedOn) throws IOException {
         return getInternalDocumentModel().handleDocumentPublished(publishedBy,
                 publishedOn, uniqueId, versionId, name, checksum, streamId);
-    }
-
-    /**
-     * Determine if the container has been distributed. If a container is
-     * distributed it will have 1 or more versions. If it has not been
-     * distributed it will have no versions.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the container has been distributed; false otherwise.
-     */
-    private Boolean isDistributed(final Long containerId) {
-        return getInternalArtifactModel().doesVersionExist(containerId, Versioning.START);
     }
 
     /**

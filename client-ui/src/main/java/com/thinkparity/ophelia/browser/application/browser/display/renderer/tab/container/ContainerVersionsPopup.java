@@ -25,17 +25,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.document.Rename;
 
 /**
  * @author raymond@thinkparity.com
@@ -68,9 +60,10 @@ final class ContainerVersionsPopup {
 
         jPopupMenu.addSeparator();
 
-        final Data renameData = new Data(1);
-        renameData.set(Rename.DataKey.DOCUMENT_ID, draftDocument.getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_RENAME, renameData));
+        final Data renameData = new Data(2);
+        renameData.set(RenameDocument.DataKey.CONTAINER_ID, draftDocument.getContainerId());
+        renameData.set(RenameDocument.DataKey.DOCUMENT_ID, draftDocument.getId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_RENAME_DOCUMENT, renameData));
         
         switch (state) {
         case ADDED:

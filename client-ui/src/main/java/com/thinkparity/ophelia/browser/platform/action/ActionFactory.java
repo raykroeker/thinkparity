@@ -163,6 +163,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_RENAME:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Rename(browser);
             break;
+        case CONTAINER_RENAME_DOCUMENT:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.RenameDocument(browser);
+            break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(browser);
             break;
@@ -186,9 +189,6 @@ public class ActionFactory extends AbstractFactory {
             break;
         case DOCUMENT_PRINT_VERSION:
             action = new com.thinkparity.ophelia.browser.platform.action.document.PrintVersion(browser);
-            break;
-		case DOCUMENT_RENAME:
-            action = new com.thinkparity.ophelia.browser.platform.action.document.Rename(browser);
             break;
 		case DOCUMENT_UPDATE_DRAFT:
             action = new com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft(browser);

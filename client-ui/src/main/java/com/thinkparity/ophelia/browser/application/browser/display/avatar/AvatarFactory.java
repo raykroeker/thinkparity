@@ -8,12 +8,12 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.ResetPasswordAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
@@ -119,9 +119,6 @@ public class AvatarFactory {
         case DIALOG_ERROR:
             avatar = new ErrorAvatar();
             break;
-        case DIALOG_RENAME:
-            avatar = new RenameAvatar();
-            break;
 
         case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
             avatar = new CreateInvitationAvatar();
@@ -136,6 +133,10 @@ public class AvatarFactory {
             break;
         case DIALOG_CONTAINER_PUBLISH:
             avatar = new PublishContainerAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_CONTAINER_RENAME_DOCUMENT:
+            avatar = new RenameDocumentAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:

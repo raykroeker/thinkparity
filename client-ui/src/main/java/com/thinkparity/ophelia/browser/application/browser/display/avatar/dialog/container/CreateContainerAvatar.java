@@ -89,24 +89,25 @@ public class CreateContainerAvatar extends Avatar {
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
 
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Explanation"));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Ok"));
+        okJButton.setText(bundle.getString("NewContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Cancel"));
+        cancelJButton.setText(bundle.getString("NewContainerDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
             }
         });
 
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("NewContainerDialog.Name"));
+        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -121,11 +122,11 @@ public class CreateContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -144,7 +145,7 @@ public class CreateContainerAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 9, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(okJButton))

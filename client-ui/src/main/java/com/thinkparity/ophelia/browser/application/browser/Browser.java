@@ -32,11 +32,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
@@ -56,15 +56,9 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.document.Rename;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
@@ -348,18 +342,21 @@ public class Browser extends AbstractApplication {
     /**
      * Display a document rename dialog.
      * 
+     * @param containerId
+     *            The container id.
      * @param documentId
      *            A document id.
      * @param documentName
      *            A document name.
      */
-    public void displayRenameDialog(final Long documentId,
-            final String documentName) {
+    public void displayRenameDocumentDialog(final Long containerId,
+            final Long documentId, final String documentName) {
         final Data input = new Data(3);
-        input.set(RenameAvatar.DataKey.DOCUMENT_ID, documentId);
-        input.set(RenameAvatar.DataKey.DOCUMENT_NAME, documentName);
-        setInput(AvatarId.DIALOG_RENAME, input);
-        displayAvatar(WindowId.RENAME, AvatarId.DIALOG_RENAME);
+        input.set(RenameDocumentAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(RenameDocumentAvatar.DataKey.DOCUMENT_ID, documentId);
+        input.set(RenameDocumentAvatar.DataKey.DOCUMENT_NAME, documentName);
+        setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
     
     /**
@@ -1228,20 +1225,6 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
 
-	/**
-     * Run the document rename action.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param documentId
-     *            A document id.
-     */
-    public void runRenameDocument(final Long documentId) {
-        final Data data = new Data(1);
-        data.set(Rename.DataKey.DOCUMENT_ID, documentId);
-        invoke(ActionId.DOCUMENT_RENAME, data);
-    }
-
     /**
      * Run the document rename action.
      * 
@@ -1254,10 +1237,10 @@ public class Browser extends AbstractApplication {
      */
     public void runRenameDocument(final Long documentId,
             final String documentName) {
-        final Data data = new Data(3);
-        data.set(Rename.DataKey.DOCUMENT_ID, documentId);
-        data.set(Rename.DataKey.DOCUMENT_NAME, documentName);
-        invoke(ActionId.DOCUMENT_RENAME, data);
+        final Data data = new Data(2);
+        data.set(RenameDocument.DataKey.DOCUMENT_ID, documentId);
+        data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
+        invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);
     }
 
     /**

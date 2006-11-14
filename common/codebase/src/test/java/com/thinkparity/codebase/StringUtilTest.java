@@ -21,6 +21,24 @@ public class StringUtilTest extends CodebaseTestCase {
 		super(name);
 	}
 
+    public void testToString() {
+        Pair<String, String> pair = new Pair<String, String>("one", "two");
+        String toString = StringUtil.toString(Pair.class, "pair.getOne()", pair.getOne(),
+                "pair.getTwo()", pair.getTwo());
+        assertEquals("com.thinkparity.codebase.Pair$pair.getOne():one,pair.getTwo():two", toString);
+
+        // null member data
+        pair = null;
+        toString = StringUtil.toString(Pair.class, pair);
+        assertEquals("com.thinkparity.codebase.Pair$null", toString);
+
+        // odd number of member data
+        pair = new Pair<String, String>("one", "two");
+        toString = StringUtil.toString(Pair.class, "pair.getOne()", pair.getOne(),
+                "pair.getTwo()");
+        assertEquals("com.thinkparity.codebase.Pair$pair.getOne():one,pair.getTwo():null", toString);
+    }
+
 	public void testCharset() {
 		Charset charset = StringUtil.Charset.ISO_8859_1.getCharset();
 		Assert.assertNotNull(charset);

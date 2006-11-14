@@ -5,7 +5,9 @@
 package com.thinkparity.ophelia.browser;
 
 import com.thinkparity.codebase.Mode;
+
 import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.mode.ModeManager;
 import com.thinkparity.ophelia.browser.mode.demo.DemoManager;

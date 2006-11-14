@@ -1,7 +1,7 @@
 /*
  * 18-Oct-2005
  */
-package com.thinkparity.ophelia.model.util.logging;
+package com.thinkparity.codebase.model.util.logging.or;
 
 import org.apache.log4j.or.ObjectRenderer;
 

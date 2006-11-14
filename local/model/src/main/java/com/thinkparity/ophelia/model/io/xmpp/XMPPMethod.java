@@ -410,8 +410,26 @@ public class XMPPMethod extends IQ {
          * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
          */
         public IQ parseIQ(final XmlPullParser parser) throws Exception {
-            final XMPPMethodResponse response = new XMPPMethodResponse();
+            try {
+                return doParseIQ(parser);
+            } catch (final Throwable t) {
+                logger.logFatal(t, "Could not parse remote method response.");
+                throw new XMPPException(t);
+            }
+        }
 
+        /**
+         * Parse an xmpp remote method call response.
+         * 
+         * @param parser
+         *            An <code>XmlPullParser</code>.
+         * @return An <code>XMPPMethodResponse</code>.
+         * @throws XmlPullParserException
+         * @throws IOException
+         */
+        private XMPPMethodResponse doParseIQ(final XmlPullParser parser)
+                throws XmlPullParserException, IOException {
+            final XMPPMethodResponse response = new XMPPMethodResponse();
             parser.next();
             while(true) {
                 logger.logVariable("parser.getName()", parser.getName());

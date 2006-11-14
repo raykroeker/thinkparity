@@ -6,16 +6,11 @@ package com.thinkparity.ophelia.browser.platform;
 import java.io.File;
 import java.util.Properties;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.config.ConfigFactory;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
-import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
@@ -33,33 +28,19 @@ public class BrowserPlatformInitializer {
      * 
      */
     private static void initLogging(final Workspace workspace) {
-        final Properties log4j = ConfigFactory.newInstance("log4j.properties");
-        switch (Version.getMode()) {
-        case DEVELOPMENT:
-            log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,FILE");
-            break;
-        case DEMO:
-        case PRODUCTION:
-            log4j.setProperty("log4j.logger.com.thinkparity", "WARN,FILE");
-            break;
-        case TESTING:
-            log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE");
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN MODE");
-        }
-        log4j.setProperty("log4j.appender.FILE.File",
-                new File(workspace.getLogDirectory(), "thinkParity.log").getAbsolutePath());
-        PropertyConfigurator.configure(log4j);
-        new Log4JWrapper().logInfo("{0} - {1} - {2}",
-                Version.getName(), Version.getMode(), Version.getBuildId());
+        // note that only renderers should be configured; and that the existing
+        // configuration should not be reset
+        final Properties logging = new Properties();
+        logging.setProperty("log4j.renderer.java.awt.Point", "com.thinkparity.codebase.log4j.or.PointRenderer");
+        logging.setProperty("log4j.renderer.java.awt.event.MouseEvent", "com.thinkparity.codebase.log4j.or.MouseEventRenderer");
+        PropertyConfigurator.configure(logging);
     }
-
-    /** A thinkParity browser platform <code>Profile</code>. */
-    private final Profile profile;
 
     /** A thinkParity <code>Environment</code>. */
     private final Environment environment;
+
+    /** A thinkParity browser platform <code>Profile</code>. */
+    private final Profile profile;
 
     /**
      * Create BrowserPlatformInitializer.

@@ -373,17 +373,23 @@ public abstract class StringUtil {
     public static String toString(final Class type, final Object... memberData) {
         final StringBuffer toString = new StringBuffer(type.getName())
             .append("$");
+        if (1 == memberData.length)
+            if (null == memberData[0])
+                return toString.append(Separator.Null).toString();
         for (int i = 0; i < memberData.length; i++) {
-            if (0 == i) {
-                toString.append(memberData[i]).append(":");
-                continue;
-            }
+            toString.append(null == memberData[i] ? Separator.Null : memberData[i]);
             if (0 == i % 2) {
-                toString.append(",");
-            }
-            toString.append(memberData[i]);
-            if (1 == i % 2) {
+                // a "label"
                 toString.append(":");
+                if (i + 1 >= memberData.length) {
+                    toString.append(Separator.Null);
+                }
+            }
+            else {
+                // a "value"
+                if (i + 1 < memberData.length) {
+                    toString.append(",");
+                }
             }
         }
         return toString.toString();
@@ -656,6 +662,9 @@ public abstract class StringUtil {
 		 */
 		public static final Separator WindowsNewLineTab =
 			new Separator(WindowsNewLine.append(Tab));
+
+        /** Null. */
+        public static final Separator Null = new Separator("null");
 
 		private static final long serialVersionUID = 1;
 

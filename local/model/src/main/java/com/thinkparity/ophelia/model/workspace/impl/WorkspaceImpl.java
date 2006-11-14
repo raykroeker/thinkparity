@@ -18,6 +18,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -33,6 +34,7 @@ import com.thinkparity.ophelia.model.workspace.Preferences;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -72,7 +74,7 @@ public class WorkspaceImpl implements Workspace {
         this.logger = Logger.getLogger(getClass());
         this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
-        bootstrapLogging();
+        bootstrapLog4J();
 	}
 
     /**
@@ -359,30 +361,99 @@ public class WorkspaceImpl implements Workspace {
      * testing mode; enable the sql and xmpp debuggers.
      * 
      */
-    private void bootstrapLogging() {
-        if ((Mode.DEVELOPMENT == mode || Mode.TESTING == mode)) {
-            final Properties logging = new Properties();
-            // sql debugger
+    private void bootstrapLog4J() {
+        final Properties logging = bootstrapLog4JConfig(mode);
+        // console appender
+        logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+        logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d %p %m%n");
+        // default appender
+        logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d %p %m%n");
+        logging.setProperty("log4j.appender.DEFAULT.File",
+                MessageFormat.format("{0}{1}logs{1}{2}",
+                        workspace.getRoot().getAbsolutePath(),
+                        File.separatorChar, "thinkParity.log"));
+        // sql appender
+        logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
+                MessageFormat.format("{0}{1}logs{1}{2}",
+                        workspace.getRoot().getAbsolutePath(),
+                        File.separatorChar, "thinkParity SQL.log"));
+        // xmpp appender
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
+                MessageFormat.format("{0}{1}logs{1}{2}",
+                        workspace.getRoot().getAbsolutePath(),
+                        File.separatorChar, "thinkParity XMPP.log"));
+        // loggers
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+            logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        case DEVELOPMENT:
+            logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
-            logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
-            logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-            logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %m%n");
-            logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
-                    MessageFormat.format("{0}{1}logs{1}{2}",
-                            workspace.getRoot().getAbsolutePath(),
-                            File.separatorChar, "thinkParity SQL.log"));
-            // xmpp debugger
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
-            logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
-            logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-            logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %m%n");
-            logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
-                    MessageFormat.format("{0}{1}logs{1}{2}",
-                            workspace.getRoot().getAbsolutePath(),
-                            File.separatorChar, "thinkParity XMPP.log"));
-            PropertyConfigurator.configure(logging);
-            new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
-            new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        case TESTING:
+            logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown operating mode.");
+        }
+        // renderers
+        logging.setProperty("log4j.renderer.java.util.Calendar",
+                "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.Document",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
+        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
+        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.user.User",
+                "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
+        logging.setProperty("log4j.renderer.org.jivesoftware.smack.packet.Packet",
+                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
+
+        LogManager.resetConfiguration();
+        PropertyConfigurator.configure(logging);
+        new Log4JWrapper(getClass()).logInfo("{0} - {1}", "thinkParity", "1.0");
+        new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+        new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
+    }
+
+    /**
+     * Create a logging configuration for the operating mode.
+     * 
+     * @param mode
+     *            A thinkParity <code>Mode</code>.
+     * @return A log4j configuration <code>Properties</code>.
+     */
+    private Properties bootstrapLog4JConfig(final Mode mode) {
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+        case TESTING:
+            return new Properties();
+        case DEVELOPMENT:
+            return ConfigFactory.newInstance("log4j.properties");
+        default:
+            throw Assert.createUnreachable("Unknown operating mode.");
         }
     }
 

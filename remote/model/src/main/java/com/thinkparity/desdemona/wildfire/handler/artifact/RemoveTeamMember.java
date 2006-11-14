@@ -3,11 +3,11 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.Constants.Xml;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
@@ -25,9 +25,9 @@ public class RemoveTeamMember extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        removeTeamMember(
-                readUUID(Xml.Artifact.UNIQUE_ID),
-                readJabberId(Xml.User.JABBER_ID));
+        removeTeamMember(readJabberId("userId"),
+                readJabberIds("team", "teamMember"), readUUID("uniqueId"),
+                readJabberId("teamMemberId"));
     }
 
     /**
@@ -38,7 +38,10 @@ public class RemoveTeamMember extends AbstractHandler {
      * @param jabberId
      *            A jabber id.
      */
-    private void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        getArtifactModel().removeTeamMember(uniqueId, jabberId);
+    private void removeTeamMember(final JabberId userId,
+            final List<JabberId> team, final UUID uniqueId,
+            final JabberId teamMemberId) {
+        getArtifactModel().removeTeamMember(userId, team, uniqueId,
+                teamMemberId);
     }
 }

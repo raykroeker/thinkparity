@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -46,9 +47,10 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param jabberId
      *            A user's jabber id.
      */
-	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+	public void addTeamMember(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final JabberId teamMemberId) {
         synchronized (getImplLock()) {
-            getImpl().addTeamMember(uniqueId, jabberId);
+            getImpl().addTeamMember(userId, team, uniqueId, teamMemberId);
         }
     }
 
@@ -67,20 +69,6 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
     }
 
     /**
-     * Restore an artifact for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void restore(final JabberId userId, final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            getImpl().restore(userId, uniqueId);
-        }
-    }
-
-    /**
      * Confrim receipt of an artifact.
      * 
      * @param userId
@@ -92,11 +80,13 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param versionId
      *            The version id <code>Long</code>.
      */
-    public void confirmReceipt(final JabberId userId, final UUID uniqueId,
+    public void confirmReceipt(final JabberId userId,
+            final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final JabberId receivedBy,
             final Calendar receivedOn) {
         synchronized (getImplLock()) {
-            getImpl().confirmReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
+            getImpl().confirmReceipt(userId, team, uniqueId, versionId,
+                    receivedBy, receivedOn);
         }
     }
 
@@ -114,14 +104,17 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 		}
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
      *            The artifact unique id.
      */
-    public void createDraft(final UUID uniqueId) {
-        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
+    public void createDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().createDraft(userId, team, uniqueId);
+        }
     }
 
 	/**
@@ -130,13 +123,14 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param uniqueId
      *            An artifact unique id.
      */
-    public void deleteDraft(final UUID uniqueId) {
+    public void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
         synchronized (getImplLock()) {
-            getImpl().deleteDraft(uniqueId);
+            getImpl().deleteDraft(userId, team, uniqueId);
         }
     }
 
-    /**
+	/**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param artifactUniqueId
@@ -148,7 +142,7 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
 		}
 	}
 
-	/**
+    /**
      * Read the key holder for an artifact.
      * 
      * @param userId
@@ -177,9 +171,25 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param jabberId
      *            A user's jabber id.
      */
-    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+    public void removeTeamMember(final JabberId userId,
+            final List<JabberId> team, final UUID uniqueId,
+            final JabberId teamMemberId) {
         synchronized (getImplLock()) {
-            getImpl().removeTeamMember(uniqueId, jabberId);
+            getImpl().removeTeamMember(userId, team, uniqueId, teamMemberId);
+        }
+    }
+
+	/**
+     * Restore an artifact for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    public void restore(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().restore(userId, uniqueId);
         }
     }
 }

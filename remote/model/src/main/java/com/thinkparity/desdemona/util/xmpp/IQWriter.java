@@ -6,12 +6,13 @@ package com.thinkparity.desdemona.util.xmpp;
 
 import java.util.List;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.xml.dom4j.ElementBuilder;
-
-import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+
+import org.xmpp.packet.IQ;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Writer <br>
@@ -23,8 +24,8 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 public class IQWriter extends com.thinkparity.codebase.xmpp.IQWriter {
 
     /** Create IQWriter. */
-    public IQWriter(final IQ iq) {
-        super(iq);
+    public IQWriter(final IQ iq, final Log4JWrapper logger) {
+        super(iq, logger);
     }
 
     /**

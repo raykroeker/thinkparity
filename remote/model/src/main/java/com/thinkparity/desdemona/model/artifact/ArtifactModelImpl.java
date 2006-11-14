@@ -3,20 +3,23 @@
  */
 package com.thinkparity.desdemona.model.artifact;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
@@ -24,7 +27,8 @@ import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSubscriptionSql;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.UserModel;
-import com.thinkparity.desdemona.util.xmpp.IQWriter;
+
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
 
 /**
  * @author raykroeker@gmail.com
@@ -55,20 +59,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            A user's jabber id.
      */
-    void addTeamMember(final UUID uniqueId, final JabberId userId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("userId", userId);
+    void addTeamMember(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final JabberId teamMemberId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("team", team);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("teamMemberId", teamMemberId);
         try {
             final UserModel userModel = getUserModel();
             if (userModel.isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
-                final User user = userModel.read(userId);
-                final Artifact artifact = read(uniqueId);
-                artifactSubscriptionSql.insert(artifact.getId(),
-                        userId.getUsername(), session.getJabberId());
-                notifyTeamMemberAdded(artifact, user);
+                final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
+                teamMemberAdded.setJabberId(teamMemberId);
+                teamMemberAdded.setUniqueId(uniqueId);
+                enqueueEvent(userId, team, teamMemberAdded);
             }
         } catch(final Throwable t) {
             throw translateError(t);
@@ -99,10 +105,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The original sender of the document.
      * @throws ParityServerModelException
      */
-	void confirmReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy, final Calendar receivedOn) {
+	void confirmReceipt(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final Long versionId,
+            final JabberId receivedBy, final Calendar receivedOn) {
         logApiId();
         logVariable("userId", userId);
+        logger.logVariable("team", team);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("receivedBy", receivedBy);
@@ -112,12 +120,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
             if (getUserModel().isArchive(userId)) {
                 logInfo("Ignoring archive user {0}.", userId);
             } else {
-                final IQWriter notification = createIQWriter("artifact:received");
-                notification.writeUniqueId("uniqueId", uniqueId);
-                notification.writeLong("versionId", versionId);
-                notification.writeJabberId("receivedBy", receivedBy);
-                notification.writeCalendar("receivedOn", receivedOn);
-                notifyTeam(uniqueId, notification.getIQ());
+                final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
+                received.setUniqueId(uniqueId);
+                received.setVersionId(versionId);
+                received.setReceivedBy(receivedBy);
+                received.setReceivedOn(receivedOn);
+                enqueueEvent(userId, team, received);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -142,9 +150,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		try {
 			artifactSql.insert(uniqueId, userId, ArtifactState.ACTIVE, session
                     .getJabberId());
-			final Artifact artifact = read(uniqueId);
-            artifactSubscriptionSql.insert(artifact.getId(),
-                    userId.getUsername(), session.getJabberId());
 			return read(uniqueId);
 		} catch (final Throwable t) {
 		    throw translateError(t);
@@ -157,26 +162,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param uniqueId
      *            The artifact unique id.
      */
-    void createDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+    void createDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("team", team);
+        logger.logVariable("uniqueId", uniqueId);
         try {
-            assertSystemIsKeyHolder("[SYSTEM IS NOT KEY HOLDER]", uniqueId);
+            assertIsAuthenticatedUser(userId);
+            assertSystemIsKeyHolder(uniqueId);
             final Artifact artifact = read(uniqueId);
             artifactSql.updateKeyHolder(
                     artifact.getId(), session.getJabberId().getUsername(),
                     session.getJabberId());
-            notifyDraftCreated(artifact, session.getJabberId(), DateUtil
+            notifyDraftCreated(team, artifact, session.getJabberId(), DateUtil
                     .getInstance());
-        }
-        catch(final ParityServerModelException psmx) {
-            throw translateError(psmx);
-        }
-        catch(final SQLException sqlx) {
-            throw translateError(sqlx);
-        }
-        catch(final UnauthorizedException ux) {
-            throw translateError(ux);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -186,15 +188,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param uniqueId
      *            An artifact unique id.
      */
-    void deleteDraft(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
+    void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("team", team);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             assertIsKeyHolder(uniqueId);
+            assertIsAuthenticatedUser(userId);
+            // update key data
             final Artifact artifact = read(uniqueId);
-            final JabberId sessionJabberId = session.getJabberId();
-            artifactSql.updateKeyHolder(artifact.getId(), User.THINK_PARITY, sessionJabberId);
-            notifyDraftDeleted(artifact, session.getJabberId(), DateUtil.getInstance());
+            artifactSql.updateKeyHolder(artifact.getId(), User.THINK_PARITY, userId);
+            // fire notification
+            final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
+            draftDeleted.setUniqueId(artifact.getUniqueId());
+            draftDeleted.setDeletedBy(userId);
+            draftDeleted.setDeletedOn(currentDateTime());
+            enqueueEvent(userId, team, draftDeleted);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -266,24 +277,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            A user's jabber id.
      */
-    void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("jabberId", jabberId);
+    void removeTeamMember(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final JabberId teamMemberId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("team", team);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("teamMemberId", teamMemberId);
         try {
-            final Artifact artifact = read(uniqueId);
-            final Long artifactId = artifact.getId();
-            final ArtifactSubscription subscription =
-                artifactSubscriptionSql.read(artifactId, jabberId);
-            if(null != subscription) {
-                artifactSubscriptionSql.delete(artifactId, jabberId.getUsername());
-                // if all subscriptions are deleted; delete the artifact
-                if (!artifactSubscriptionSql.existSubscriptions(artifactId)) {
-                    artifactSql.delete(artifactId);
-                }
+            final UserModel userModel = getUserModel();
+            if (userModel.isArchive(userId)) {
+                logInfo("Ignoring archive user {0}.", userId);
+            } else {
+                final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
+                    new ArtifactTeamMemberRemovedEvent();
+                teamMemberRemoved.setUniqueId(uniqueId);
+                teamMemberRemoved.setJabberId(teamMemberId);
+                enqueueEvent(userId, team, teamMemberRemoved);
             }
-            final User user = getUserModel().read(jabberId);
-            notifyTeamMemberRemoved(artifact, user);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -316,72 +327,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @throws ParityServerModelException
      * @throws UnauthorizedException
      */
-    private void notifyDraftCreated(final Artifact artifact,
-            final JabberId createdBy, final Calendar createdOn)
-            throws ParityServerModelException, UnauthorizedException {
-        final IQWriter notification = createIQWriter("artifact:draftcreated");
-        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
-        notification.writeJabberId("createdBy", createdBy);
-        notification.writeCalendar("createdOn", createdOn);
-        final List<JabberId> team = getArtifactModel().readTeamIds(artifact.getUniqueId());
-        team.remove(createdBy);
-        send(team, notification.getIQ());
-    }
-
-    /**
-     * Notify an artifact's team a draft was deleted.
-     * @param artifact An <code>Artifact</code>.
-     * @param deletedBy The <code>JabberId</code> of the deleting user.
-     * @param deletedOn When the draft was deleted.
-     * @throws ParityServerModelException
-     * @throws UnauthorizedException
-     */
-    private void notifyDraftDeleted(final Artifact artifact,
-            final JabberId deletedBy, final Calendar deletedOn)
-            throws ParityServerModelException, UnauthorizedException {
-        final IQWriter notification = createIQWriter("artifact:draftdeleted");
-        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
-        notification.writeJabberId("deletedBy", deletedBy);
-        notification.writeCalendar("deletedOn", deletedOn);
-        final List<JabberId> team = getArtifactModel().readTeamIds(artifact.getUniqueId());
-        team.remove(deletedBy);
-        send(team, notification.getIQ());
-    }
-
-    /**
-     * Notify an artifact's team; a team member was added.
-     * 
-     * @param artifact
-     *            An <code>Artifact</code>.
-     * @param user
-     *            A <code>User</code>.
-     * @throws ParityServerModelException
-     * @throws UnauthorizedException
-     */
-    private void notifyTeamMemberAdded(final Artifact artifact, final User user)
-            throws ParityServerModelException, UnauthorizedException {
-        final IQWriter notification = createIQWriter("artifact:teammemberadded");
-        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
-        notification.writeJabberId("jabberId", user.getId());
-        notifyTeam(artifact.getUniqueId(), notification.getIQ());
-    }
-
-    /**
-     * Notify an artifact's team; a team member was removed.
-     * 
-     * @param artifact
-     *            An <code>Artifact</code>.
-     * @param user
-     *            A <code>user</code>.
-     * @throws ParityServerModelException
-     * @throws UnauthorizedException
-     */
-    private void notifyTeamMemberRemoved(final Artifact artifact,
-            final User user) throws ParityServerModelException,
-            UnauthorizedException {
-        final IQWriter notification = createIQWriter("artifact:teammemberremoved");
-        notification.writeUniqueId("uniqueId", artifact.getUniqueId());
-        notification.writeJabberId("jabberId", user.getId());
-        notifyTeam(artifact.getUniqueId(), notification.getIQ());
+    private void notifyDraftCreated(final List<JabberId> team,
+            final Artifact artifact, final JabberId createdBy,
+            final Calendar createdOn) {
+        final ArtifactDraftCreatedEvent draftCreated = new ArtifactDraftCreatedEvent();
+        draftCreated.setUniqueId(artifact.getUniqueId());
+        draftCreated.setCreatedBy(createdBy);
+        draftCreated.setCreatedOn(createdOn);
+        enqueueEvent(session.getJabberId(), team, draftCreated);
     }
 }

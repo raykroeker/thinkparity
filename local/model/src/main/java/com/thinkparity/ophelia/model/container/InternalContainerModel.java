@@ -5,14 +5,14 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
@@ -71,17 +71,9 @@ public class InternalContainerModel extends ContainerModel implements
      * @param publishedOn
      *            The publish date <code>Calendar</code>.
      */
-    public void handleArtifactPublished(final UUID uniqueId,
-            final Long versionId, final String name,
-            final UUID artifactUniqueId, final Long artifactVersionId,
-            final String artifactName, final ArtifactType artifactType,
-            final String artifactChecksum, final String artifactStreamId,
-            final JabberId publishedBy, final Calendar publishedOn) {
+    public void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
         synchronized(getImplLock()) {
-            getImpl().handleArtifactPublished(uniqueId, versionId,
-                    name, artifactUniqueId, artifactVersionId,
-                    artifactName, artifactType, artifactChecksum,
-                    artifactStreamId, publishedBy, publishedOn);
+            getImpl().handleArtifactPublished(event);
         }
     }
 
@@ -122,13 +114,9 @@ public class InternalContainerModel extends ContainerModel implements
         }
     }
 
-    public void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final String comment,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
+    public void handlePublished(final ContainerPublishedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handlePublished(uniqueId, versionId, name, comment,
-                    artifactCount, publishedBy, publishedTo, publishedOn);
+            getImpl().handlePublished(event);
         }
     }
 

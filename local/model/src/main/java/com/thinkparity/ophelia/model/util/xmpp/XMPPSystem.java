@@ -3,36 +3,17 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+
+import java.util.List;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.xmpp.events.SystemListener;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.xmlpull.v1.XmlPullParser;
+import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
+import com.thinkparity.ophelia.model.util.xmpp.event.SystemListener;
 
 final class XMPPSystem extends AbstractXMPP<SystemListener> {
-
-    static {
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:system:queueupdated", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleQueueUpdatedIQ query = new HandleQueueUpdatedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("updatedOn")) {
-                        readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-    }
 
     /**
      * Create XMPPSystem.
@@ -49,26 +30,27 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      *
      */
     @Override
-    protected void addEventHandlers() {
-        addEventHandler(new XMPPEventHandler<HandleQueueUpdatedIQ>() {
-            public void handleEvent(final HandleQueueUpdatedIQ query) {
-                handleQueueUpdated(query);
-            }
-        }, HandleQueueUpdatedIQ.class);
-    }
+    protected void registerEventHandlers() {}
 
     /**
-     * Process the queue of requests that have accumulated while the user was
-     * offline.
+     * Process the remote event queue. Read the events; notify the local event
+     * handlers then delete the remote event.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    void processQueue(final JabberId userId) {
+    void processEventQueue(final JabberId userId) {
         logger.logApiId();
-        final XMPPMethod processOfflineQueue = new XMPPMethod("system:processqueue");
+        logger.logVariable("userId", userId);
+        final XMPPMethod processOfflineQueue = new XMPPMethod("system:readqueueevents");
         processOfflineQueue.setParameter("userId", userId);
-        execute(processOfflineQueue);
+        final List<XMPPEvent> events =
+            execute(processOfflineQueue, Boolean.TRUE).readResultEvents("events");
+        for (final XMPPEvent event : events) {
+            logger.logVariable("event", event);
+            notifyHandler(event);
+            deleteQueueEvent(userId, event.getId());
+        }
     }
 
     /**
@@ -83,16 +65,17 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     }
 
     /**
-     * Handle the queue updated remote event.
+     * Delete an xmpp event.
      * 
-     * @param query
-     *            The remote event <code>HandleQueueUpdatedIQ</code> event.
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param eventId
+     *            An event id <code>String</code>.
      */
-    private void handleQueueUpdated(final HandleQueueUpdatedIQ query) {
-        processQueue(xmppCore.getUserId());
-    }
-
-    /** A queue update event. */
-    private static final class HandleQueueUpdatedIQ extends AbstractThinkParityIQ {
+    private void deleteQueueEvent(final JabberId userId, final String eventId) {
+        final XMPPMethod deleteEvent = new XMPPMethod("system:deletequeueevent");
+        deleteEvent.setParameter("userId", userId);
+        deleteEvent.setParameter("eventId", eventId);
+        execute(deleteEvent);
     }
 }

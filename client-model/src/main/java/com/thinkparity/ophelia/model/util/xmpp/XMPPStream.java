@@ -8,7 +8,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.xmpp.events.StreamListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.StreamListener;
 
 /**
  * <b>Title:</b><br>
@@ -27,6 +27,13 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
     XMPPStream(final XMPPCore core) {
         super(core);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {}
 
     /**
      * Create a stream.

@@ -3,13 +3,13 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
+import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+
 import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.session.Session;
 
 
@@ -41,31 +41,22 @@ public class QueueModel extends AbstractModel<QueueModelImpl> {
 		super(new QueueModelImpl(session));
 	}
 
-	/**
-	 * Add a message to the parity queue for the given jabber id.
-	 * 
-	 * @param jid
-	 *            The jabber user to enqueue the message for.
-	 * @param iq
-	 *            The query to add.
-	 * @return The created queue item.
-	 * @throws ParityServerModelException
-	 */
-	public QueueItem enqueue(final JID jid, final IQ iq) {
-		synchronized (getImplLock()) {
-            return getImpl().enqueue(jid, iq);
-		}
-	}
+    public void createEvent(final JabberId userId, final JabberId eventUserId,
+            final XMPPEvent event) {
+        synchronized (getImplLock()) {
+            getImpl().createEvent(userId, eventUserId, event);
+        }
+    }
 
-	/**
-     * Process all pending queue items for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-	public void processQueue(final JabberId userId) {
-		synchronized (getImplLock()) {
-            getImpl().processQueue(userId);
-		}
-	}
+	public void deleteEvent(final JabberId userId, final String eventId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteEvent(userId, eventId);
+        }
+    }
+
+	public List<XMPPEvent> readEvents(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readEvents(userId);
+        }
+    }
 }

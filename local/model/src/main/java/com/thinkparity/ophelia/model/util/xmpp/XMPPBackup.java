@@ -14,7 +14,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.xmpp.events.BackupListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.BackupListener;
 
 /**
  * @author raymond@thinkparity.com
@@ -26,6 +26,13 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
     XMPPBackup(final XMPPCore core) {
         super(core);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {}
 
     void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {

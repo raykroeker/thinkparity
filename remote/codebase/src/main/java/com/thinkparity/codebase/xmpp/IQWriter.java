@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.xml.dom4j.ElementBuilder;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -18,8 +19,13 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
+import org.dom4j.Element;
 import org.xmpp.packet.IQ;
+
+import com.thoughtworks.xstream.io.xml.Dom4JWriter;
 
 
 /**
@@ -31,13 +37,22 @@ import org.xmpp.packet.IQ;
  */
 public abstract class IQWriter {
 
+    private static final XStreamUtil XSTREAM_UTIL;
+
+    static {
+        XSTREAM_UTIL = XStreamUtil.getInstance();
+    }
+
     /** The xmpp internet query this data writer is backing. */
     protected final IQ iq;
 
+    protected final Log4JWrapper logger;
+
     /** Create IQDataWriter. */
-    public IQWriter(final IQ iq) {
+    public IQWriter(final IQ iq, final Log4JWrapper logger) {
         super();
         this.iq = iq;
+        this.logger = logger;
     }
 
     /**
@@ -47,6 +62,9 @@ public abstract class IQWriter {
      */
     public final IQ getIQ() { return iq; }
 
+    public Element toEvent() {
+        return iq.getChildElement();
+    }
     /**
      * Write a calendar value.
      *
@@ -62,10 +80,12 @@ public abstract class IQWriter {
     public final void writeContainer(final String name, final Container value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
+
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);
     }
+
     public final void writeContainerVersions(final String parentName,
             final String name, final List<ContainerVersion> values) {
         ElementBuilder.addContainerVersionElements(iq.getChildElement(), parentName, name, values);
@@ -98,6 +118,23 @@ public abstract class IQWriter {
     public final void writeEMails(final String parentName, final String name,
             final List<EMail> values) {
         ElementBuilder.addEMailElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeEvents(final String name, final String childName,
+            final List<XMPPEvent> values) {
+        final Element parent = iq.getChildElement();
+        logger.logVariable("parent", parent.asXML());
+        if (values.size() < 1) {
+            ElementBuilder.addNullElement(parent, name, List.class);
+        } else {
+            final Element element = ElementBuilder.addElement(parent, name, List.class);
+            for (final XMPPEvent value : values) {
+                final Element childElement = ElementBuilder.addElement(element, childName, value.getClass());
+                final Dom4JWriter writer = new Dom4JWriter(childElement);
+                XSTREAM_UTIL.marshal(value, writer);
+            }
+        }
+        logger.logVariable("parent", parent.asXML());
     }
 
     /**

@@ -8,28 +8,20 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
-import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.Publish;
-import com.thinkparity.ophelia.model.Constants.Xml.Container.Method.PublishArtifact;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
-
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.xmlpull.v1.XmlPullParser;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventHandler;
 
 /**
  * <b>Title:</b>thinkParity XMPP Container <br>
@@ -43,101 +35,17 @@ import org.xmlpull.v1.XmlPullParser;
  */
 final class XMPPContainer extends AbstractXMPP<ContainerListener> {
 
-    static {
-        ProviderManager.addIQProvider(Service.NAME, Publish.EVENT_NAME, new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandlePublishedIQ query = new HandlePublishedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("uniqueId")) {
-                        query.uniqueId = readUniqueId2();
-                    } else if (isStartTag("versionId")) {
-                        query.versionId = readLong2();
-                    } else if (isStartTag("name")) {
-                        query.name = readString2();
-                    } else if (isStartTag("comment")) {
-                        query.comment = readString2();
-                    } else if (isStartTag("artifactCount")) {
-                        query.artifactCount = readInteger2();
-                    } else if (isStartTag("publishedBy")) {
-                        query.publishedBy = readJabberId2();
-                    } else if (isStartTag("publishedTo")) {
-                        query.publishedTo = readJabberIds2();
-                    } else if (isStartTag("publishedOn")) {
-                        query.publishedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, PublishArtifact.EVENT_NAME, new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleArtifactPublishedIQ query = new HandleArtifactPublishedIQ();
-                boolean isComplete = false;
-                while(false == isComplete) {
-                    if (isStartTag("uniqueId")) {
-                        query.containerUniqueId = readUniqueId2();
-                    } else if(isStartTag("versionId")) {
-                        query.containerVersionId = readLong2();
-                    } else if (isStartTag("name")) {
-                        query.containerName = readString2();
-                    } else if (isStartTag("artifactCount")) {
-                        query.containerArtifactCount = readInteger2();
-                    } else if (isStartTag("artifactIndex")) {
-                        query.containerArtifactIndex = readInteger2();
-                    } else if (isStartTag("artifactUniqueId")) {
-                        query.artifactUniqueId = readUniqueId2();
-                    } else if (isStartTag("artifactVersionId")) {
-                        query.artifactVersionId = readLong2();
-                    } else if (isStartTag("artifactName")) {
-                        query.artifactName = readString2();
-                    } else if (isStartTag("artifactType")) {
-                        query.artifactType = readArtifactType2();
-                    } else if (isStartTag("artifactChecksum")) {
-                        query.artifactChecksum = readString2();
-                    } else if (isStartTag("artifactStreamId")) {
-                        query.artifactStreamId = readString2();
-                    } else if (isStartTag("publishedBy")) {
-                        query.publishedBy = readJabberId2();
-                    } else if (isStartTag("publishedOn")) {
-                        query.publishedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-    }
-
-    /** Create XMPPContainer. */
+    /**
+     * Create XMPPContainer.
+     * 
+     */
     XMPPContainer(final XMPPCore xmppCore) {
         super(xmppCore);
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
-     */
-    @Override
-    protected void addEventHandlers() {
-        addEventHandler(new XMPPEventHandler<HandleArtifactPublishedIQ>() {
-            public void handleEvent(final HandleArtifactPublishedIQ query) {
-                handleArtifactPublished(query);
-            }
-        }, HandleArtifactPublishedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandlePublishedIQ>() {
-            public void handleEvent(final HandlePublishedIQ query) {
-                handlePublished(query);
-            }
-        }, HandlePublishedIQ.class);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.codebase.event.EventListener)
+     *
      */
     @Override
     protected boolean addListener(final ContainerListener listener) {
@@ -145,7 +53,27 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {
+        registerEventHandler(ContainerArtifactPublishedEvent.class,
+                new XMPPEventHandler<ContainerArtifactPublishedEvent>() {
+                    public void handleEvent(
+                            final ContainerArtifactPublishedEvent query) {
+                        handleArtifactPublished(query);
+                    }});
+        registerEventHandler(ContainerPublishedEvent.class,
+                new XMPPEventHandler<ContainerPublishedEvent>() {
+                    public void handleEvent(final ContainerPublishedEvent query) {
+                        handlePublished(query);
+                    }});
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.codebase.event.EventListener)
+     *
      */
     @Override
     protected boolean removeListener(final ContainerListener listener) {
@@ -219,16 +147,10 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      * Handle the artifact published event generated by the remote model.
      *
      */
-    private void handleArtifactPublished(final HandleArtifactPublishedIQ query) {
+    private void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.handleArtifactPublished(query.publishedBy, query.publishedOn,
-                        query.containerUniqueId, query.containerVersionId,
-                        query.containerName, query.containerArtifactCount,
-                        query.containerArtifactIndex, query.artifactUniqueId,
-                        query.artifactVersionId, query.artifactName,
-                        query.artifactType, query.artifactChecksum,
-                        query.artifactStreamId);
+                listener.handleArtifactPublished(event);
             }
         });
     }
@@ -237,102 +159,11 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      * Handle the published event generated by the remote model.
      *
      */
-    private void handlePublished(final HandlePublishedIQ query) {
+    private void handlePublished(final ContainerPublishedEvent event) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.handlePublished(query.uniqueId, query.versionId,
-                                query.name, query.comment, query.artifactCount,
-                                query.publishedBy, query.publishedTo,
-                                query.publishedOn);
+                listener.handlePublished(event);
             }
         });
-    }
-
-    /**
-     * <b>Title:</b>thinkParity XMPP Container Handler Reactivate Query <br>
-     * <b>Description:</b>Provides a wrapper for data coming from the remote
-     * event.
-     * 
-     * @see XMPPContainer#handleArtifactPublished(com.thinkparity.ophelia.model.util.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
-     * @see XMPPContainer#addEventListeners(XMPPConnection)
-     */
-    private static class HandleArtifactPublishedIQ extends AbstractThinkParityIQ {
-
-        /** The checksum. */
-        protected String artifactChecksum;
-
-        /** The artifact name. */
-        protected String artifactName;
-
-        /** The artifact steam id <code>String</code>. */
-        protected String artifactStreamId;
-
-        /** The type. */
-        protected ArtifactType artifactType;
-
-        /** The unique id. */
-        protected UUID artifactUniqueId;
-
-        /** The version id. */
-        protected Long artifactVersionId;
-
-        /** The artifact count. */
-        protected Integer containerArtifactCount;
-
-        /** The artifact index. */
-        protected Integer containerArtifactIndex;
-
-        /** The container name. */
-        protected String containerName;
-
-        /** The container unique id. */
-        protected UUID containerUniqueId;
-
-        /** The container version id. */
-        protected Long containerVersionId;
-
-        /** By whom the artifact was published. */
-        private JabberId publishedBy;
-
-        /** When the artifact was published. */
-        private Calendar publishedOn;
-
-        /** Create HandleArtifactPublishedIQ. */
-        private HandleArtifactPublishedIQ() { super(); }
-    }
-
-    /**
-     *  <b>Title:</b>thinkParity XMPP Container Handle Published Query <br>
-     * <b>Description:</b>Provides a wrapper for data coming from the remote
-     * event.
-     */
-    private static class HandlePublishedIQ extends AbstractThinkParityIQ {
-
-        /** How many artifacts in the container. */
-        private Integer artifactCount;
-
-        /** A version comment. */
-        private String comment;
-
-        /** The name of the container. */
-        private String name;
-
-        /** Who published the container. */
-        private JabberId publishedBy;
-
-        /** When the container was published. */
-        private Calendar publishedOn;
-
-        /** Who the container was published to. */
-        private List<JabberId> publishedTo;
-
-        /** The artifact unique id. */
-        private UUID uniqueId;
-
-        /** Which version was published. */
-        private Long versionId;
-
-        /** Create HandlePublishedIQ. */
-        private HandlePublishedIQ() { super(); }
     }
 }

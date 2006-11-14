@@ -7,10 +7,9 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author raymond@thinkparity.com
@@ -18,121 +17,63 @@ import java.util.Map;
  */
 public class BeanUtils {
 
-    /** A singleton instance. */
-    private static final BeanUtils SINGLETON;
-
-    static { SINGLETON = new BeanUtils(); }
-
     /**
-     * Copy all properties from a source java bean to a destination java bean.
+     * Obtain the bean info for a bean class.
      * 
-     * @param sourceBean
-     *            A source java bean <code>Object</code>.
-     * @param destinationBean
-     *            A destination java bean <code>Object</code>.
+     * @param beanClass
+     *            A java bean <code>Class</code>.
+     * @return A <code>BeanInfo</code>.
      */
-    public static void copyProperties(final Object sourceBean,
-            final Object destinationBean) {
-        SINGLETON.doCopyProperties(sourceBean, destinationBean);
+    private static BeanInfo getBeanInfo(final Object bean) {
+        try {
+            return Introspector.getBeanInfo(bean.getClass());
+        } catch (final IntrospectionException ix) {
+            throw new BeanException(ix);
+        }
     }
 
-    /**
-     * Obtain all properties for a java bean.
-     * 
-     * @param bean
-     *            A java bean <code>Object</code>.
-     * @return A <code>Map&lt;String, Object&gt;</code>.
-     */
-    public static Map<String, Object> getProperties(final Object bean) {
-        return SINGLETON.doGetProperties(bean);
-    }
+    /** The java bean <code>Object</code>. */
+    private final Object bean;
+
+    /** The bean's <code>BeanInfo</code>. */
+    private final BeanInfo beanInfo;
 
     /**
-     * Obtain the named string property for a java bean.
+     * Create BeanUtils.
      * 
      * @param bean
      *            A java bean <code>Object</code>.
-     * @param name
-     *            The property name <code>String</code>.
-     * @return The property value <code>String</code>.
      */
-    public static String getStringProperty(final Object bean, final String name) {
-        return SINGLETON.doGetStringProperty(bean, name);
-    }
-
-    /** Create BeanUtils. */
-    private BeanUtils() {
+    public BeanUtils(final Object bean) {
         super();
+        this.bean = bean;
+        this.beanInfo = getBeanInfo(bean);
     }
 
     /**
-     * Copy all properties from a source java bean to a destination java bean.
+     * Obtain a field for a property descriptor.
      * 
-     * @param sourceBean
-     *            A source java bean <code>Object</code>.
-     * @param destinationBean
-     *            A destination java bean <code>Object</code>.
+     * @param descriptor
+     *            A <code>PropertyDescriptor</code>.
+     * @return A <code>Field</code> or null; if no such field exists.
      */
-    private void doCopyProperties(final Object sourceBean,
-            final Object destinationBean) {
-        final PropertyDescriptor[] sourceDescriptors = doGetDescriptors(sourceBean);
-        PropertyDescriptor destinationDescriptor;
-        for (final PropertyDescriptor sourceDescriptor : sourceDescriptors) {
-            destinationDescriptor =
-                    doFindDescriptor(destinationBean, sourceDescriptor.getName());
-            doCopyProperty(sourceBean, sourceDescriptor, destinationBean, destinationDescriptor);
+    public Field getField(final PropertyDescriptor descriptor) {
+        try {
+            return bean.getClass().getField(descriptor.getName());
+        } catch (final NoSuchFieldException nsfx) {
+            return null;
         }
     }
 
     /**
-     * Copy a property from a source to a destination bean.
-     * 
-     * @param sourceBean
-     *            A source java bean <code>Object</code>.
-     * @param sourceDescriptor
-     *            A source <code>PropertyDescriptor</code>.
-     * @param destinationBean
-     *            A destination java bean <code>Object</code>
-     * @param destinationDescriptor
-     *            A destination <code>PropertyDescriptor</code>.
-     */
-    private void doCopyProperty(final Object sourceBean,
-            final PropertyDescriptor sourceDescriptor,
-            final Object destinationBean,
-            final PropertyDescriptor destinationDescriptor) {
-        final Method writeMethod = destinationDescriptor.getWriteMethod();
-        if (null != writeMethod) {
-            try {
-                writeMethod.invoke(destinationBean,
-                        new Object[] { doGetProperty(sourceBean, sourceDescriptor) });
-            } catch (final IllegalAccessException iax) {
-                throw new BeanException(iax);
-            } catch (final InvocationTargetException itx) {
-                throw new BeanException(itx);
-            }
-        } else {
-            throw new BeanException("NO SUCH WRITE METHOD");
-        }
-    }
-
-    /**
-     * Find a bean property descriptor.
+     * Obtain the fields for a bean.
      * 
      * @param bean
      *            A java bean <code>Object</code>.
-     * @param name
-     *            A property name <code>String</code>
-     * @return A <code>PropertyDescriptor</code>.
+     * @return A <code>Field[]</code>.
      */
-    private PropertyDescriptor doFindDescriptor(final Object bean,
-            final String name) {
-        final PropertyDescriptor[] descriptors = doGetDescriptors(bean);
-        for (final PropertyDescriptor descriptor : descriptors) {
-            if (descriptor.getName().equals(name)) {
-                return descriptor;
-            }
-        }
-        throw new BeanException("NO SUCH DESCRIPTOR");
+    public Field[] getFields() {
+        return bean.getClass().getFields();
     }
 
     /**
@@ -142,50 +83,8 @@ public class BeanUtils {
      *            A java bean <code>Object</code>.
      * @return A <code>PropertyDescriptor[]</code>.
      */
-    private PropertyDescriptor[] doGetDescriptors(final Object bean) {
-        return getBeanInfo(bean.getClass()).getPropertyDescriptors();
-    }
-
-    /**
-     * Obtain all properties for a java bean.
-     * 
-     * @param bean
-     *            A java bean <code>Object</code>.
-     * @return A <code>Map&lt;String, Object&gt;</code>.
-     */
-    private Map<String, Object> doGetProperties(final Object bean) {
-        final PropertyDescriptor[] descriptors = doGetDescriptors(bean);
-        final Map<String, Object> properties =
-                new HashMap<String, Object>(descriptors.length, 1.0F);
-        for (final PropertyDescriptor descriptor : descriptors) {
-            properties.put(descriptor.getName(), doGetProperty(bean, descriptor));
-        }
-        return properties;
-    }
-
-    /**
-     * Obtain a property from a bean via the descriptor.
-     * 
-     * @param bean
-     *            A java bean <code>Object</code>.
-     * @param descriptor
-     *            A bean <code>PropertyDescriptor</code>.
-     * @return A property <code>Object</code>.
-     */
-    private Object doGetProperty(final Object bean,
-            final PropertyDescriptor descriptor) {
-        final Method readMethod = descriptor.getReadMethod();
-        if (null != readMethod) {
-            try {
-                return readMethod.invoke(bean, new Object[] {});
-            } catch (final IllegalAccessException iax) {
-                throw new BeanException(iax);
-            } catch (final InvocationTargetException itx) {
-                throw new BeanException(itx);
-            }
-        } else {
-            throw new BeanException("NO SUCH METHOD");
-        }
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        return beanInfo.getPropertyDescriptors();
     }
 
     /**
@@ -197,49 +96,18 @@ public class BeanUtils {
      *            A property name <code>String</code>.
      * @return The property value <code>Object</code>.
      */
-    private Object doGetProperty(final Object bean, final String name)
-            throws IllegalAccessException, InvocationTargetException {
-        final PropertyDescriptor descriptor = doFindDescriptor(bean, name);
-        if (null != descriptor) {
-            return doGetProperty(bean, descriptor);
+    public Object readProperty(final PropertyDescriptor descriptor) {
+        final Method readMethod = descriptor.getReadMethod();
+        if (null != readMethod) {
+            try {
+                return readMethod.invoke(bean, new Object[] {});
+            } catch (final IllegalAccessException iax) {
+                throw new BeanException(iax);
+            } catch (final InvocationTargetException itx) {
+                throw new BeanException(itx);
+            }
         } else {
-            throw new BeanException("NO SUCH PROPERTY");
-        }
-    }
-
-    /**
-     * Obtain the named string property for a java bean.
-     * 
-     * @param bean
-     *            A java bean <code>Object</code>.
-     * @param name
-     *            The property name <code>String</code>.
-     * @return The property value <code>String</code>.
-     */
-    private String doGetStringProperty(final Object bean, final String name) {
-        try {
-            return (String) doGetProperty(bean, name);
-        } catch (final IllegalAccessException iax) {
-            throw new BeanException(iax);
-        } catch (final InvocationTargetException iax) {
-            throw new BeanException(iax);
-        } catch (final ClassCastException ccx) {
-            throw new BeanException("WRONG PROPERTY TYPE", ccx);
-        }
-    }
-
-    /**
-     * Obtain the bean info for a bean class.
-     * 
-     * @param beanClass
-     *            A java bean <code>Class</code>.
-     * @return A <code>BeanInfo</code>.
-     */
-    private BeanInfo getBeanInfo(final Class beanClass) {
-        try {
-            return Introspector.getBeanInfo(beanClass);
-        } catch (final IntrospectionException ix) {
-            throw new BeanException(ix);
+            throw new BeanException("NO SUCH METHOD");
         }
     }
 }

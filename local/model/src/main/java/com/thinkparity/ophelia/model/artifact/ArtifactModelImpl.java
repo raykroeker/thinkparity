@@ -18,6 +18,12 @@ import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
@@ -264,19 +270,21 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param createdOn
      *            When the draft was created.
      */
-    void handleDraftCreated(final UUID uniqueId,
-            final JabberId createdBy, final Calendar createdOn) {
+    void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("createdBy", createdBy);
-        logger.logVariable("createdOn", createdOn);
-        final Long artifactId = artifactIO.readId(uniqueId);
-        switch (artifactIO.readType(artifactId)) {
-        case CONTAINER:
-            getContainerModel().handleDraftCreated(artifactId, createdBy, createdOn);
-            break;
-        default:
-            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        logger.logVariable("event", event);
+        try {
+            final Long artifactId = artifactIO.readId(event.getUniqueId());
+            switch (artifactIO.readType(artifactId)) {
+            case CONTAINER:
+                getContainerModel().handleDraftCreated(artifactId,
+                        event.getCreatedBy(), event.getCreatedOn());
+                break;
+            default:
+                Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -290,32 +298,30 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param createdOn
      *            When the draft was deleted.
      */
-    void handleDraftDeleted(final UUID uniqueId,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("deletedBy", deletedBy);
-        logger.logVariable("deletedOn", deletedOn);
-        final Long artifactId = artifactIO.readId(uniqueId);
-        switch (artifactIO.readType(artifactId)) {
-        case CONTAINER:
-            getContainerModel().handleDraftDeleted(artifactId, deletedBy, deletedOn);
-            break;
-        default:
-            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        logger.logVariable("event", event);
+        try {
+            final Long artifactId = artifactIO.readId(event.getUniqueId());
+            switch (artifactIO.readType(artifactId)) {
+            case CONTAINER:
+                getContainerModel().handleDraftDeleted(artifactId,
+                        event.getDeletedBy(), event.getDeletedOn());
+                break;
+            default:
+                Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
-    void handlePublished(final UUID uniqueId, final Long versionId,
-            final JabberId publishedBy, final Calendar publishedOn) {
+    void handlePublished(final ArtifactPublishedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("event", event);
         try {
-            final Long artifactId = readId(uniqueId);
-            if (doesVersionExist(artifactId, versionId)) {
+            final Long artifactId = readId(event.getUniqueId());
+            if (doesVersionExist(artifactId, event.getVersionId())) {
                 applyFlagLatest(artifactId);
             } else {
                 removeFlagLatest(artifactId);
@@ -325,22 +331,27 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void handleReceived(final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar receivedOn) {
+    void handleReceived(final ArtifactReceivedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("receivedBy", receivedBy);
-        logger.logVariable("receivedOn", receivedOn);
-        final Long artifactId = artifactIO.readId(uniqueId);
-        switch (artifactIO.readType(artifactId)) {
-        case CONTAINER:
-            logger.logTraceId();
-            getContainerModel().handleReceived(artifactId, versionId, receivedBy, receivedOn);
-            logger.logTraceId();
-            break;
-        default:
-            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        logger.logVariable("event", event);
+        try {
+            final Long artifactId = artifactIO.readId(event.getUniqueId());
+            if (doesVersionExist(artifactId, event.getVersionId())) {
+                switch (artifactIO.readType(artifactId)) {
+                case CONTAINER:
+                    getContainerModel().handleReceived(artifactId,
+                            event.getVersionId(), event.getReceivedBy(),
+                            event.getReceivedOn());
+                    break;
+                default:
+                    Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+                }
+            } else {
+                logger.logWarning("Artifact version {0}:{1} does not exist locally.",
+                        event.getUniqueId(), event.getVersionId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -353,32 +364,21 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            The user's jabber id.
      */
-    void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
+    void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("jabberId", jabberId);
+        logger.logVariable("event", event);
         try {
-            final Long artifactId = readId(uniqueId);
+            final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
-                logger.logWarning("Artifact {0} no longer exists.", uniqueId);
+                logger.logWarning("Artifact {0} no longer exists.", event.getUniqueId());
             } else {
-                // if receiving your own team member added event you have just been
-                // added to the team; so download the entire team.
-                if (jabberId.equals(localUserId())) {
-                    final List<JabberId> remoteTeam =
-                        getSessionModel().readArtifactTeamIds(uniqueId);
-                    for (final JabberId remoteUser : remoteTeam) {
-                        addTeamMember(artifactId, remoteUser);
-                    }
-                } else {
-                    addTeamMember(artifactId, jabberId);
-                }
+                addTeamMember(artifactId, event.getJabberId());
             }
         } catch (final TrueAssertion ta) {
             if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
                 logger.logWarning(
                         "Team member {0} already exists for artifact {1}.",
-                        jabberId, uniqueId);
+                        event.getJabberId(), event.getUniqueId());
             } else {
                 throw ta;
             }
@@ -395,12 +395,11 @@ final class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            The user's jabber id.
      */
-    void handleTeamMemberRemoved(final UUID uniqueId, final JabberId jabberId) {
+    void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("jabberId", jabberId);
+        logger.logVariable("event", event);
         try {
-            final Long artifactId = readId(uniqueId);
+            final Long artifactId = readId(event.getUniqueId());
             artifactIO.deleteTeamRel(artifactId);
         } catch(final Throwable t) {
             throw translateError(t);

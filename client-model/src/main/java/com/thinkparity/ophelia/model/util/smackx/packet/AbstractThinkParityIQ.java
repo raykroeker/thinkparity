@@ -16,8 +16,13 @@ import org.jivesoftware.smack.packet.IQ;
  */
 public abstract class AbstractThinkParityIQ extends IQ {
 
-    /** Create AbstractThinkParityIQ. */
-    public AbstractThinkParityIQ() { super(); }
+    /**
+     * Create AbstractThinkParityIQ.
+     * 
+     */
+    public AbstractThinkParityIQ() {
+        super();
+    }
 
     /**
      * Since we are a simple wrapper for remote event data; there is no child
@@ -25,5 +30,7 @@ public abstract class AbstractThinkParityIQ extends IQ {
      * 
      */
     @Override
-    public final String getChildElementXML() { return null; }
+    public final String getChildElementXML() {
+        return null;
+    }
 }

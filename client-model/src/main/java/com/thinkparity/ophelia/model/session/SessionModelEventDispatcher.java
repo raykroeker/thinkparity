@@ -3,25 +3,32 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
-
-import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -44,89 +51,56 @@ class SessionModelEventDispatcher {
         logger.logApiId();
         xmppSession.clearListeners();
         xmppSession.addListener(new ArtifactListener() {
-            public void artifactPublished(final UUID uniqueId,
-                    final Long versionId, final JabberId publishedBy,
-                    final Calendar publishedOn) {
-                getArtifactModel().handlePublished(uniqueId, versionId,
-                        publishedBy, publishedOn);
+            public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
+                getArtifactModel().handleDraftCreated(event);
             }
-            public void handleDraftCreated(final UUID uniqueId,
-                    final JabberId createdBy, final Calendar createdOn) {
-                getArtifactModel().handleDraftCreated(uniqueId, createdBy,
-                        createdOn);
+            public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
+                getArtifactModel().handleDraftDeleted(event);
             }
-            public void handleDraftDeleted(final UUID uniqueId,
-                    final JabberId deletedBy, final Calendar deletedOn) {
-                getArtifactModel().handleDraftDeleted(uniqueId, deletedBy,
-                        deletedOn);
+            public void handlePublished(final ArtifactPublishedEvent event) {
+                getArtifactModel().handlePublished(event);
             }
-            public void handleReceived(final UUID uniqueId,
-                    final Long versionId, final JabberId receivedBy,
-                    final Calendar receivedOn) {
-                getArtifactModel().handleReceived(uniqueId, versionId,
-                        receivedBy, receivedOn);
+            public void handleReceived(final ArtifactReceivedEvent event) {
+                getArtifactModel().handleReceived(event);
             }
-            public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
-                logger.logTraceId();
-                getArtifactModel().handleTeamMemberAdded(uniqueId, jabberId);
-                logger.logTraceId();
+            public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
+                getArtifactModel().handleTeamMemberAdded(event);
             }
-            public void teamMemberRemoved(final UUID artifactUniqueId,
-                    final JabberId jabberId) {
-                getArtifactModel().handleTeamMemberRemoved(artifactUniqueId,
-                        jabberId);
+            public void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
+                getArtifactModel().handleTeamMemberRemoved(event);
             }
         });
         xmppSession.addListener(new ContainerListener() {
-            public void handleArtifactPublished(final JabberId publishedBy,
-                    final Calendar publishedOn, final UUID containerUniqueId,
-                    final Long containerVersionId, final String containerName,
-                    final Integer containerArtifactCount,
-                    final Integer containerArtifactIndex,
-                    final UUID artifactUniqueId, final Long artifactVersionId,
-                    final String artifactName, final ArtifactType artifactType,
-                    final String artifactChecksum, final String artifactStreamId) {
-                getContainerModel().handleArtifactPublished(containerUniqueId,
-                        containerVersionId, containerName, artifactUniqueId,
-                        artifactVersionId, artifactName, artifactType,
-                        artifactChecksum, artifactStreamId, publishedBy,
-                        publishedOn);
+            public void handleArtifactPublished(
+                    final ContainerArtifactPublishedEvent event) {
+                getContainerModel().handleArtifactPublished(event);
             }
-            public void handlePublished(final UUID uniqueId,
-                    final Long versionId, final String name,
-                    final String comment, final Integer artifactCount,
-                    final JabberId publishedBy,
-                    final List<JabberId> publishedTo, final Calendar publishedOn) {
-                getContainerModel().handlePublished(uniqueId, versionId, name,
-                        comment, artifactCount, publishedBy, publishedTo,
-                        publishedOn);
+            public void handlePublished(final ContainerPublishedEvent event) {
+                getContainerModel().handlePublished(event);
             }
         });
         xmppSession.addListener(new ContactListener() {
-            public void handleContactDeleted(final JabberId deletedBy,
-                    final Calendar deletedOn) {
-                getContactModel().handleContactDeleted(deletedBy, deletedOn);
+            public void handleDeleted(final ContactDeletedEvent event) {
+                getContactModel().handleContactDeleted(event);
             }
-            public void handleContactUpdated(final JabberId contactId,
-                    final Calendar updatedOn) {
-                getContactModel().handleContactUpdated(contactId, updatedOn);
+            public void handleUpdated(final ContactUpdatedEvent event) {
+                getContactModel().handleContactUpdated(event);
             }
-            public void handleInvitationAccepted(final JabberId acceptedBy,
-                    final Calendar acceptedOn) {
-                getContactModel().handleInvitationAccepted(acceptedBy, acceptedOn);
+            public void handleInvitationAccepted(
+                    final ContactInvitationAcceptedEvent event) {
+                getContactModel().handleInvitationAccepted(event);
             }
-            public void handleInvitationDeclined(final EMail invitedAs,
-                    final JabberId declinedBy, final Calendar declinedOn) {
-                getContactModel().handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
+            public void handleInvitationDeclined(
+                    final ContactInvitationDeclinedEvent event) {
+                getContactModel().handleInvitationDeclined(event);
             }
-            public void handleInvitationDeleted(final EMail invitedAs,
-                    final JabberId deletedBy, final Calendar deletedOn) {
-                getContactModel().handleInvitationDeleted(invitedAs,
-                        deletedBy, deletedOn);
+            public void handleInvitationDeleted(
+                    final ContactInvitationDeletedEvent event) {
+                getContactModel().handleInvitationDeleted(event);
             }
-            public void handleInvitationExtended(final EMail invitedAs,
-                    final JabberId invitedBy, final Calendar invitedOn) {
-                getContactModel().handleInvitationExtended(invitedAs, invitedBy, invitedOn);
+            public void handleInvitationExtended(
+                    final ContactInvitationExtendedEvent event) {
+                getContactModel().handleInvitationExtended(event);
             }
         });
         xmppSession.addListener(new SessionListener() {

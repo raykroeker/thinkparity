@@ -28,6 +28,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
@@ -42,6 +43,7 @@ import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
+import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
 
@@ -50,7 +52,6 @@ import org.jivesoftware.wildfire.ClientSession;
 import org.jivesoftware.wildfire.SessionManager;
 import org.jivesoftware.wildfire.SessionResultFilter;
 import org.jivesoftware.wildfire.XMPPServer;
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -178,9 +179,10 @@ public abstract class AbstractModelImpl
      * @param uniqueId
      *            The artifact unique id.
      */
-    protected void assertSystemIsKeyHolder(final Object assertion,
-            final UUID uniqueId) throws ParityServerModelException {
-        Assert.assertTrue(assertion, isSystemKeyHolder(uniqueId));
+    protected void assertSystemIsKeyHolder(final UUID uniqueId) {
+        Assert.assertTrue(isSystemKeyHolder(uniqueId),
+                "The thinkParity system is not the key holder for artifact {0}.",
+                uniqueId);
     }
 
     /**
@@ -193,21 +195,6 @@ public abstract class AbstractModelImpl
 	protected JID buildJID(final String username) {
 		return JIDBuilder.build(username);
 	}
-
-    /**
-     * Create an iq writer for a query.
-     * 
-     * @param queryName
-     *            A query name.
-     * @return An iq writer.
-     */
-    protected IQWriter createIQWriter(final String queryName) {
-        final IQ iq = new IQ();
-        iq.setType(IQ.Type.set);
-        iq.setChildElement(Xml.NAME, new StringBuffer(Xml.NAMESPACE)
-                .append(":").append(queryName).toString());
-        return new IQWriter(iq);
-    }
 
     /**
      * Obtain the date and time.
@@ -227,6 +214,32 @@ public abstract class AbstractModelImpl
     protected Long currentTimeMillis() {
         // TIME This is a global timestamp
         return System.currentTimeMillis();
+    }
+
+    protected void enqueueEvent(final JabberId userId,
+            final JabberId eventUserId, final XMPPEvent event) {
+        final List<JabberId> eventUserIds = new ArrayList<JabberId>(1);
+        eventUserIds.add(eventUserId);
+        enqueueEvent(userId, eventUserIds, event);
+    }
+
+	protected void enqueueEvent(final JabberId userId,
+            final List<JabberId> eventUserIds, final XMPPEvent event) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("eventUserIds", eventUserIds);
+        logVariable("event", event);
+        for (final JabberId eventUserId : eventUserIds) {
+            createEvent(userId, eventUserId, event);
+            if (isOnline(eventUserId)) {
+                sendQueueUpdated(eventUserId);
+            }
+            backupEvent(userId, eventUserId, event);
+        }
+        // do not backup the same user twice
+        if (!eventUserIds.contains(userId)) {
+            backupEvent(userId, userId, event);
+        }
     }
 
 	/**
@@ -416,26 +429,6 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Send a notification to an artifact team. Note that the user this session
-     * belongs to will *NOT* be notified. This eases data integrity concerns on
-     * the network; for example if a team member is added and the person adding
-     * the team member is notified; they need to check for existing pending team
-     * member row in the db before inserting it. A bit of a hack.
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param notification
-     *            The notification internet query.
-     * @throws ParityServerModelException
-     * @throws UnauthorizedException
-     */
-    protected void notifyTeam(final UUID uniqueId, final IQ notification)
-            throws UnauthorizedException {
-        final List<JabberId> team = getArtifactModel().readTeamIds(uniqueId);
-        send(team, notification);
-    }
-
-    /**
      * Process an xmpp internet query for a jive client session. The to portion
      * of the query will be set according to the session.
      * 
@@ -491,48 +484,6 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Send a query to a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param query
-     *            An xmpp internet query <code>IQ</code>.
-     */
-    protected void send(final JabberId toUserId, final IQ query) {
-        logApiId();
-        logVariable("toUserId", toUserId);
-        logVariable("query", query);
-        final List<JabberId> toUserIds = new ArrayList<JabberId>(1);
-        send(toUserIds, query);
-    }
-
-    /**
-     * Send a query to a list of users.
-     * 
-     * @param toUserIds
-     *            A <code>List&lt;JabberId&gt;</code>.
-     * @param query
-     *            An xmpp internet query <code>IQ</code>.
-     */
-    protected void send(final List<JabberId> toUserIds, final IQ query) {
-        logApiId();
-        logVariable("toUserIds", toUserIds);
-        logVariable("query", query);
-        for (final JabberId toUserId : toUserIds) {
-            query.setTo(getJID(toUserId));
-            enqueue(toUserId, query);
-            if (isOnline(toUserId)) {
-                sendQueueUpdated(toUserId);
-            }
-            backup(toUserId, query);
-        }
-        // do not backup the same user twice
-        if (!toUserIds.contains(session.getJabberId())) {
-            backup(session.getJabberId(), query);
-        }
-    }
-
-	/**
      * Set the to field in the query.
      * 
      * @param query
@@ -561,23 +512,18 @@ public abstract class AbstractModelImpl
         }
     }
 
-    /**
-     * Archive a query for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param query
-     *            An xmpp internet query.
-     */
-    private void backup(final JabberId userId, final IQ query) {
-        final JabberId archiveId = getUserModel().readArchiveId(userId);
-        if (null != archiveId) {
-            query.setTo(getJID(archiveId));
-            enqueue(archiveId, query);
+	private void backupEvent(final JabberId userId, final JabberId eventUserId,
+            final XMPPEvent event) {
+        final JabberId archiveId = getUserModel().readArchiveId(eventUserId);
+        if (null == archiveId) {
+            logger.logInfo("No archive exists for user {0}", eventUserId);
+        } else {
+            createEvent(userId, archiveId, event);
             if (isOnline(archiveId)) {
                 sendQueueUpdated(archiveId);
             } else {
-                logWarning(MessageFormat.format("Archive {0} not online.", archiveId));
+                logWarning("Archive {0} for user {1} is not online.",
+                        archiveId, eventUserId);
             }
         }
     }
@@ -595,18 +541,10 @@ public abstract class AbstractModelImpl
         return filter;
     }
 
-    /**
-	 * Save the iq in the parity offline queue.
-	 * 
-	 * @param jid
-	 *            The jid.
-	 * @param iq
-	 *            The iq packet.
-	 */
-	private void enqueue(final JabberId userId, final IQ iq) {
-		final QueueModel queueModel = QueueModel.getModel(session);
-		queueModel.enqueue(getJID(userId), iq);
-	}
+    private void createEvent(final JabberId userId,
+            final JabberId eventUserId, final XMPPEvent event) {
+        QueueModel.getModel(session).createEvent(userId, eventUserId, event);
+    }
 
     /**
      * Create a JID from a jabber id.
@@ -641,10 +579,8 @@ public abstract class AbstractModelImpl
      * @param uniqueId
      *            An artifact unique id.
      * @return True if the system account is the key holder; false otherwise.
-     * @throws ParityServerModelException
      */
-    private Boolean isSystemKeyHolder(final UUID uniqueId)
-            throws ParityServerModelException {
+    private Boolean isSystemKeyHolder(final UUID uniqueId) {
         return readKeyHolder(uniqueId).equals(User.THINK_PARITY.getId());
     }
 
@@ -655,11 +591,34 @@ public abstract class AbstractModelImpl
      *            A user id <code>JabberId</code>.
      */
     private void sendQueueUpdated(final JabberId userId) {
-        final IQWriter queryWriter = createIQWriter("system:queueupdated");
+        final IQ iq = new IQ();
+        iq.setType(IQ.Type.set);
+        iq.setChildElement(Xml.NAME, new StringBuffer(Xml.NAMESPACE)
+                .append(":system:queueupdated").toString());
+
+        final IQWriter queryWriter = new IQWriter(iq, logger);
         queryWriter.writeCalendar("updatedOn", currentDateTime());
         final IQ query = queryWriter.getIQ();
         for (final ClientSession session : getClientSessions(userId)) {
             process(session, query);
         }        
+    }
+
+    /**
+     * Build a unique id for a user in time. Use the user id plus the current
+     * timestamp to generate a unique id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A unique id <code>String</code>.
+     */
+    protected String buildUserTimestampId(final JabberId userId) {
+        /*
+         * NOTE A user timestamp id is unique per user per timestamp
+         */
+       // TIME A global timestamp
+       final String hashString = new StringBuffer(userId.toString())
+           .append(currentTimeMillis()).toString();
+       return MD5Util.md5Hex(hashString.getBytes());
     }
 }

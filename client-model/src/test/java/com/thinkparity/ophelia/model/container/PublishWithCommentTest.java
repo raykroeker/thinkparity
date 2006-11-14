@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,35 +48,6 @@ public class PublishWithCommentTest extends ContainerTestCase {
         assertEquals("Local artifact key holder does not match expectation.", User.THINK_PARITY.getId(), keyHolder);
         assertTrue("Local key flag is still mistakenly applied.",
                 !getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
-        // ensure the local and remote team jive
-        final List<TeamMember> localTeam =
-            getArtifactModel(OpheliaTestUser.JUNIT).readTeam2(datum.container.getId());
-        final List<JabberId> remoteTeam =
-            getSessionModel(OpheliaTestUser.JUNIT).readArtifactTeamIds(datum.container.getUniqueId());
-        for (final TeamMember localTeamMember : localTeam) {
-            Boolean didFindLocal = Boolean.FALSE;
-            for (final JabberId remoteTeamMemberId : remoteTeam) {
-                if (localTeamMember.getId().equals(remoteTeamMemberId)) {
-                    didFindLocal = Boolean.TRUE;
-                    break;
-                }
-            }
-            assertTrue(MessageFormat.format(
-                    "Could not find local team member {0} in remote team.",
-                    localTeamMember), didFindLocal);
-        }
-        for (final JabberId remoteTeamMemberId : remoteTeam) {
-            Boolean didFindRemote = Boolean.FALSE;
-            for (final TeamMember localTeamMember : localTeam) {
-                if (remoteTeamMemberId.equals(localTeamMember.getId())) {
-                    didFindRemote = Boolean.TRUE;
-                    break;
-                }
-            }
-            assertTrue(MessageFormat.format(
-                    "Could not find remote team member {0} in local team.",
-                    remoteTeamMemberId), didFindRemote);
-        }
     }
 
     /**

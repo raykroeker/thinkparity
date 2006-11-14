@@ -3,9 +3,11 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.desdemona.model.Constants.Xml;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /** 
@@ -23,7 +25,8 @@ public class CreateDraft extends AbstractHandler {
      */
     public void service() {
         logApiId();
-        createDraft(readUUID(Xml.Artifact.UNIQUE_ID));
+        createDraft(readJabberId("userId"),
+                readJabberIds("team", "teamMember"), readUUID("uniqueId"));
     }
 
     /**
@@ -33,7 +36,8 @@ public class CreateDraft extends AbstractHandler {
      *            The artifact unique id.
      *            The artifact bytes.
      */
-    private void createDraft(final UUID uniqueId) {
-        getArtifactModel().createDraft(uniqueId);
+    private void createDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
+        getArtifactModel().createDraft(userId, team, uniqueId);
     }
 }

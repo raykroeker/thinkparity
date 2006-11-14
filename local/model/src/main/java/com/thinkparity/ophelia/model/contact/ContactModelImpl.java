@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.model.contact;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,9 +11,16 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.events.ContactEvent;
@@ -254,12 +260,18 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param deletedOn
      *            When the contact was deleted <code>Calendar</code>.
      */
-    void handleContactDeleted(final JabberId deletedBy, final Calendar deletedOn) {
-        final Contact contact = read(deletedBy);
-        // delete data
-        deleteLocal(deletedBy);
-        // fire event
-        notifyContactDeleted(contact, remoteEventGenerator);
+    void handleContactDeleted(final ContactDeletedEvent event) {
+        logger.logApiId();
+        logger.logVariable("event", event);
+        try {
+            final Contact contact = read(event.getDeletedBy());
+            // delete data
+            deleteLocal(event.getDeletedBy());
+            // fire event
+            notifyContactDeleted(contact, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -270,30 +282,36 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param updatedOn
      *            When the contact was updated <code>Calendar</code>.
      */
-    void handleContactUpdated(final JabberId contactId, final Calendar updatedOn) {
-        final Contact localContact = read(contactId);
-        final Contact remoteContact = readRemote(contactId);
-        // can only happen if the user re-creates
-        // an environment
-        if (null == localContact) {
-            createLocal(remoteContact);
-        } else {
-            remoteContact.setLocalId(localContact.getLocalId());
-            // delete existing emails
-            final List<EMail> emails =
-                contactIO.readEmails(remoteContact.getLocalId());
-            for (final EMail email : emails) {
-                contactIO.deleteEmail(remoteContact.getLocalId(), email);
+    void handleContactUpdated(final ContactUpdatedEvent event) {
+        logger.logApiId();
+        logger.logVariable("event", event);
+        try {
+            final Contact localContact = read(event.getContactId());
+            final Contact remoteContact = readRemote(event.getContactId());
+            // can only happen if the user re-creates
+            // an environment
+            if (null == localContact) {
+                createLocal(remoteContact);
+            } else {
+                remoteContact.setLocalId(localContact.getLocalId());
+                // delete existing emails
+                final List<EMail> emails =
+                    contactIO.readEmails(remoteContact.getLocalId());
+                for (final EMail email : emails) {
+                    contactIO.deleteEmail(remoteContact.getLocalId(), email);
+                }
+                // update data
+                contactIO.update(remoteContact);
+                // create emails
+                for (final EMail email : remoteContact.getEmails()) {
+                    contactIO.createEmail(remoteContact.getLocalId(), email);
+                }
             }
-            // update data
-            contactIO.update(remoteContact);
-            // create emails
-            for (final EMail email : remoteContact.getEmails()) {
-                contactIO.createEmail(remoteContact.getLocalId(), email);
-            }
+            // fire event
+            notifyContactUpdated(remoteContact, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        // fire event
-        notifyContactUpdated(remoteContact, remoteEventGenerator);
     }
 
     /**
@@ -304,24 +322,26 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param acceptedOn
      *            When the invitation was accepted.
      */
-    void handleInvitationAccepted(final JabberId acceptedBy,
-            final Calendar acceptedOn) {
+    void handleInvitationAccepted(final ContactInvitationAcceptedEvent event) {
        logger.logApiId();
-       logger.logVariable("acceptedBy", acceptedBy);
-       logger.logVariable("acceptedOn", acceptedOn);
-       final Contact remoteContact = readRemote(acceptedBy);
-       // delete invitation(s)
-       final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
-       for (final EMail email : remoteContact.getEmails()) {
-           outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
-           contactIO.deleteOutgoingInvitation(
-                   outgoingInvitations.get(
-                           outgoingInvitations.size() - 1).getId());
-       }
-       final Contact localContact = createLocal(remoteContact);
-       // fire event(s)
-       for (final OutgoingInvitation outgoingInvitation : outgoingInvitations) {
-           notifyOutgoingInvitationAccepted(localContact, outgoingInvitation, remoteEventGenerator);
+       logger.logVariable("event", event);
+       try {
+           final Contact remoteContact = readRemote(event.getAcceptedBy());
+           // delete invitation(s)
+           final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
+           for (final EMail email : remoteContact.getEmails()) {
+               outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
+               contactIO.deleteOutgoingInvitation(
+                       outgoingInvitations.get(
+                               outgoingInvitations.size() - 1).getId());
+           }
+           final Contact localContact = createLocal(remoteContact);
+           // fire event(s)
+           for (final OutgoingInvitation outgoingInvitation : outgoingInvitations) {
+               notifyOutgoingInvitationAccepted(localContact, outgoingInvitation, remoteEventGenerator);
+           }
+       } catch (final Throwable t) {
+           throw translateError(t);
        }
     }
 
@@ -333,17 +353,19 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    void handleInvitationDeclined(final EMail invitedAs,
-            final JabberId declinedBy, final Calendar declinedOn) {
+    void handleInvitationDeclined(final ContactInvitationDeclinedEvent event) {
        logger.logApiId();
-       logger.logVariable("declinedBy", declinedBy);
-       logger.logVariable("declinedOn", declinedOn);
-       // delete invitation
-       final OutgoingInvitation invitation =
-               contactIO.readOutgoingInvitation(invitedAs);
-       contactIO.deleteOutgoingInvitation(invitation.getId());
-       // fire event(s)
-       notifyOutgoingInvitationDeclined(invitation, remoteEventGenerator);
+       logger.logVariable("event", event);
+       try {
+           // delete invitation
+           final OutgoingInvitation invitation =
+                   contactIO.readOutgoingInvitation(event.getInvitedAs());
+           contactIO.deleteOutgoingInvitation(invitation.getId());
+           // fire event(s)
+           notifyOutgoingInvitationDeclined(invitation, remoteEventGenerator);
+       } catch (final Throwable t) {
+           throw translateError(t);
+       }
    }
 
     /**
@@ -356,19 +378,16 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param deletedOn
      *            When the invitation was deleted.
      */
-    void handleInvitationDeleted(final EMail invitedAs,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    void handleInvitationDeleted(final ContactInvitationDeletedEvent event) {
         logger.logApiId();
-        logger.logVariable("invitedAs", invitedAs);
-        logger.logVariable("deletedBy", deletedBy);
-        logger.logVariable("deletedOn", deletedOn);
+        logger.logVariable("event", event);
         try {
             final List<IncomingInvitation> invitations = readIncomingInvitations();
             final List<IncomingInvitation> deletedInvitations =
                 new ArrayList<IncomingInvitation>(invitations.size());
             // delete local data
             for (final IncomingInvitation invitation : invitations) {
-                if (invitation.getInvitedAs().equals(invitedAs)) {
+                if (invitation.getInvitedAs().equals(event.getInvitedAs())) {
                     contactIO.deleteIncomingInvitation(invitation.getId());
                     deletedInvitations.add(invitation);
                 }
@@ -390,24 +409,25 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    void handleInvitationExtended(final EMail extendedTo,
-            final JabberId extendedBy, final Calendar extendedOn) {
+    void handleInvitationExtended(final ContactInvitationExtendedEvent event) {
         logger.logApiId();
-        logger.logVariable("extendedTo", extendedTo);
-        logger.logVariable("extendedBy", extendedBy);
-        logger.logVariable("extendedOn", extendedOn);
-        // create user data
-        final InternalUserModel userModel = getInternalUserModel();
-        final User extendedByUser = userModel.readLazyCreate(extendedBy);
-        final IncomingInvitation incoming = new IncomingInvitation();
-        incoming.setCreatedBy(localUser().getLocalId());
-        incoming.setCreatedOn(currentDateTime());
-        incoming.setInvitedAs(extendedTo);
-        incoming.setInvitedBy(extendedByUser.getId());
-        contactIO.createIncomingInvitation(incoming, extendedByUser);
-        // fire event
-        final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
-        notifyIncomingInvitationCreated(postCreation, localEventGenerator);
+        logger.logVariable("event", event);
+        try {
+            // create user data
+            final InternalUserModel userModel = getInternalUserModel();
+            final User extendedByUser = userModel.readLazyCreate(event.getInvitedBy());
+            final IncomingInvitation incoming = new IncomingInvitation();
+            incoming.setCreatedBy(localUser().getLocalId());
+            incoming.setCreatedOn(currentDateTime());
+            incoming.setInvitedAs(event.getInvitedAs());
+            incoming.setInvitedBy(extendedByUser.getId());
+            contactIO.createIncomingInvitation(incoming, extendedByUser);
+            // fire event
+            final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
+            notifyIncomingInvitationCreated(postCreation, localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

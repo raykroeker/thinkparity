@@ -161,8 +161,6 @@ public final class Constants {
         public static final class Container {
             public static final class Method {
                 public static final class Publish {
-                    public static final String EVENT_NAME = "jabber:iq:parity:container:published";
-                    public static final String NAME = "jabber:iq:parity:container:publish";
                     public static final class Parameter {
                         public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
                         public static final String CONTAINER_VERSION_ID = "containerVersionId";
@@ -171,8 +169,6 @@ public final class Constants {
                     }
                 }
                 public static final class PublishArtifact {
-                    public static final String EVENT_NAME = "jabber:iq:parity:container:artifactpublished";
-                    public static final String NAME = "jabber:iq:parity:container:publishartifact";
                     public static final class Parameter {
                         public static final String ARTIFACT_BYTES = "artifactBytes";
                         public static final String ARTIFACT_CHECKSUM = "artifactChecksum";
@@ -193,20 +189,8 @@ public final class Constants {
                 }
             }
         }
-        public static final class EventHandler {
-            public static final class Artifact {
-                public static final String DRAFT_CREATED = Service.NAMESPACE + "artifact:draftcreated";
-                public static final String DRAFT_DELETED = Service.NAMESPACE + "artifact:draftdeleted";
-                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:artifact:teammemberadded";
-                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:artifact:teammemberremoved";
-            }
-        }
 
         public static final class Method {
-            public static final class Artifact {
-                public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
-                public static final String DELETE = "artifact:delete";
-            }
             public static final class Container {
                 public static final String PUBLISH = "container:publish";
                 public static final String PUBLISH_ARTIFACT = "container:publishartifact";

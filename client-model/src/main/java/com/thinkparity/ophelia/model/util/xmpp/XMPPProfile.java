@@ -7,12 +7,14 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.Token;
+
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.events.ProfileListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ProfileListener;
 
 /**
  * <b>Title:</b>thinkParity XMPP Profile<br>
@@ -26,37 +28,20 @@ import com.thinkparity.ophelia.model.util.xmpp.events.ProfileListener;
  */
 final class XMPPProfile extends AbstractXMPP<ProfileListener> {
 
-    /** Create XMPPProfile. */
+    /**
+     * Create XMPPProfile.
+     * 
+     */
     XMPPProfile(final XMPPCore xmppCore) {
         super(xmppCore);
     }
 
     /**
-     * Read the profile's token.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>Token</code>.
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
      */
-    Token readToken(final JabberId userId) {
-        final XMPPMethod readToken = new XMPPMethod("profile:readtoken");
-        readToken.setParameter("userId", userId);
-        return execute(readToken, Boolean.TRUE).readResultToken("token");
-        
-    }
-
-    /**
-     * Create the profile's token.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>Token</code>.
-     */
-    Token createToken(final JabberId userId) {
-        final XMPPMethod createToken = new XMPPMethod("profile:createtoken");
-        createToken.setParameter("userId", userId);
-        return execute(createToken, Boolean.TRUE).readResultToken("token");
-    }
+    @Override
+    protected void registerEventHandlers() {}
 
     /**
      * Add an email to a user's profile.
@@ -75,6 +60,19 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         addEmail.setParameter("userId", userId);
         addEmail.setParameter("email", email);
         execute(addEmail);
+    }
+
+    /**
+     * Create the profile's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    Token createToken(final JabberId userId) {
+        final XMPPMethod createToken = new XMPPMethod("profile:createtoken");
+        createToken.setParameter("userId", userId);
+        return execute(createToken, Boolean.TRUE).readResultToken("token");
     }
 
     /**
@@ -125,6 +123,20 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
+     * Read the profile's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>Token</code>.
+     */
+    Token readToken(final JabberId userId) {
+        final XMPPMethod readToken = new XMPPMethod("profile:readtoken");
+        readToken.setParameter("userId", userId);
+        return execute(readToken, Boolean.TRUE).readResultToken("token");
+        
+    }
+
+    /**
      * Remove an email from a user's profile.
      * 
      * @param userId
@@ -162,29 +174,6 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
-     * Verify an email in a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            An <code>EMail</code>.
-     * @param key
-     *            An email verification key <code>String</code>.
-     */
-    void verifyEmail(final JabberId userId, final EMail email, final String key) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("email", email);
-        logger.logVariable("key", key);
-        assertIsAuthenticatedUser(userId);
-        final XMPPMethod verifyEmail = new XMPPMethod("profile:verifyemail");
-        verifyEmail.setParameter("userId", userId);
-        verifyEmail.setParameter("email", email);
-        verifyEmail.setParameter("key", key);
-        execute(verifyEmail);
-    }
-
-    /**
      * Update the profile.
      * 
      * @param userId
@@ -205,5 +194,28 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
             update.setParameter("title", profile.getTitle());
         }
         execute(update);
+    }
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            An email verification key <code>String</code>.
+     */
+    void verifyEmail(final JabberId userId, final EMail email, final String key) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("email", email);
+        logger.logVariable("key", key);
+        assertIsAuthenticatedUser(userId);
+        final XMPPMethod verifyEmail = new XMPPMethod("profile:verifyemail");
+        verifyEmail.setParameter("userId", userId);
+        verifyEmail.setParameter("email", email);
+        verifyEmail.setParameter("key", key);
+        execute(verifyEmail);
     }
 }

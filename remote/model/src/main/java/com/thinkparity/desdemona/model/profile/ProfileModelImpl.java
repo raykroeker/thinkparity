@@ -13,17 +13,17 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-import org.jivesoftware.wildfire.user.UserManager;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
@@ -31,7 +31,9 @@ import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.smtp.MessageFactory;
 import com.thinkparity.desdemona.util.smtp.TransportManager;
-import com.thinkparity.desdemona.util.xmpp.IQWriter;
+
+import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import org.jivesoftware.wildfire.user.UserManager;
 
 
 /**
@@ -87,6 +89,30 @@ class ProfileModelImpl extends AbstractModelImpl {
             createVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
             TransportManager.deliver(mimeMessage);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create a user's token.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A user's <code>Token</code>.
+     */
+    Token createToken(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            // not to be confused with miller time
+            final byte[] millisTime =
+                String.valueOf(currentTimeMillis()).getBytes();
+            final Token newToken = new Token();
+            newToken.setValue(MD5Util.md5Hex(millisTime));
+            userSql.updateProfileToken(userId, newToken);
+            return userSql.readProfileToken(userId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -178,30 +204,6 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            return userSql.readProfileToken(userId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Create a user's token.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A user's <code>Token</code>.
-     */
-    Token createToken(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            // not to be confused with miller time
-            final byte[] millisTime =
-                String.valueOf(currentTimeMillis()).getBytes();
-            final Token newToken = new Token();
-            newToken.setValue(MD5Util.md5Hex(millisTime));
-            userSql.updateProfileToken(userId, newToken);
             return userSql.readProfileToken(userId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -338,12 +340,10 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     private void notifyContactUpdated(final JabberId userId)
             throws SQLException, UnauthorizedException {
-        // fire notification that the user has been updated
         final List<JabberId> contactIds = contactSql.readIds(userId);
-        final IQWriter notification = createIQWriter("contact:contactupdated");
-        notification.writeJabberId("contactId", userId);
-        notification.writeCalendar("updatedOn", currentDateTime());
-        send(contactIds, notification.getIQ());
+        final ContactUpdatedEvent contactUpdated = new ContactUpdatedEvent();
+        contactUpdated.setContactId(userId);
+        contactUpdated.setUpdatedOn(currentDateTime());
+        enqueueEvent(userId, contactIds, contactUpdated);
     }
-
 }

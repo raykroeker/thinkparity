@@ -21,7 +21,7 @@ import com.thinkparity.codebase.SystemUtil.SystemProperty;
  * @version 1.2
  */
 public abstract class StringUtil {
-	
+
 	/**
 	 * Build a name StringBuffer checking for null.
 	 * @param first <code>java.lang.String</code>
@@ -359,6 +359,34 @@ public abstract class StringUtil {
 			null == search ? null : search.toString(),
 			null == find ? null : find.toString(),
 			null == replace ? null : replace.toString());
+    }
+
+    /**
+     * Generated the toString for an object.
+     * 
+     * @param type
+     *            The object type <code>Class</code>.
+     * @param memberData
+     *            An array of member names and values.
+     * @return A <code>String</code> representation of the type.
+     */
+    public static String toString(final Class type, final Object... memberData) {
+        final StringBuffer toString = new StringBuffer(type.getName())
+            .append("$");
+        for (int i = 0; i < memberData.length; i++) {
+            if (0 == i) {
+                toString.append(memberData[i]).append(":");
+                continue;
+            }
+            if (0 == i % 2) {
+                toString.append(",");
+            }
+            toString.append(memberData[i]);
+            if (1 == i % 2) {
+                toString.append(":");
+            }
+        }
+        return toString.toString();
     }
 
 	public static List<String> tokenize(final String str, final String delim) {

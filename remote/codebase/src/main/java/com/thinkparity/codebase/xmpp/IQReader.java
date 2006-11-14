@@ -4,6 +4,7 @@
 package com.thinkparity.codebase.xmpp;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -98,7 +99,7 @@ public abstract class IQReader {
             final String name) {
         final Element element = iq.getChildElement().element(parentName);
         final Iterator iChildren = element.elementIterator(name);
-        final List<JabberId> jabberIds = new LinkedList<JabberId>();
+        final List<JabberId> jabberIds = new ArrayList<JabberId>();
         while(iChildren.hasNext()) {
             jabberIds.add(JabberIdBuilder.parse(((String) ((Element) iChildren.next()).getData())));
         }

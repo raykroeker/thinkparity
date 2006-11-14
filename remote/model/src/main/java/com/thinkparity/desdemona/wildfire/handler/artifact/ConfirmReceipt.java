@@ -5,6 +5,7 @@
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -29,12 +30,17 @@ public class ConfirmReceipt extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        confirmReceipt(readJabberId("userId"), readUUID("uniqueId"),
-                readLong("versionId"), readJabberId("receivedBy"), readCalendar("receivedOn"));
+        confirmReceipt(readJabberId("userId"),
+                readJabberIds("team", "teamMember"), readUUID("uniqueId"),
+                readLong("versionId"), readJabberId("receivedBy"),
+                readCalendar("receivedOn"));
     }
 
-    private void confirmReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy, final Calendar receivedOn) {
-        getArtifactModel().confirmReceipt(userId, uniqueId, versionId, receivedBy, receivedOn);
+    private void confirmReceipt(final JabberId userId,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy,
+            final Calendar receivedOn) {
+        getArtifactModel().confirmReceipt(userId, team, uniqueId, versionId,
+                receivedBy, receivedOn);
     }
 }

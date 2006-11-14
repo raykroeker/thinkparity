@@ -139,8 +139,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param uniqueId
      *            An artifact unique id.
      */
-    public void createDraft(final UUID uniqueId) {
-        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
+    public void createDraft(final List<JabberId> team, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().createDraft(team, uniqueId);
+        }
     }
 
     public String createStream(final StreamSession session) {
@@ -387,18 +389,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readArchiveTeamIds(userId, uniqueId);
-        }
-    }
-    /**
-     * Read the artifact team.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return A list of jabber ids.
-     */
-    public List<JabberId> readArtifactTeamIds(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readArtifactTeamIds(uniqueId);
         }
     }
 

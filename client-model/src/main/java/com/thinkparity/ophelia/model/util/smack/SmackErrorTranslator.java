@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.model.util.smack;
 
 import com.thinkparity.ophelia.model.util.xmpp.XMPPCore;
 
-
-
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1

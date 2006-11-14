@@ -112,7 +112,7 @@ public abstract class AbstractHandler extends
      * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#createWriter(org.xmpp.packet.IQ)
      */
     public IQWriter createWriter(final IQ iq) {
-        iqWriter = new IQWriter(iq);
+        iqWriter = new IQWriter(iq, logger);
         return iqWriter;
     }
 

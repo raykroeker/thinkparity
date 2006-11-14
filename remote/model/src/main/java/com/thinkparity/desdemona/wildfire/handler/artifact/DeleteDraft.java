@@ -3,7 +3,10 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.List;
 import java.util.UUID;
+
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
@@ -22,7 +25,8 @@ public class DeleteDraft extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        deleteDraft(readUUID("uniqueId"));
+        deleteDraft(readJabberId("userId"),
+                readJabberIds("team", "teamMember"), readUUID("uniqueId"));
     }
 
     /**
@@ -31,7 +35,8 @@ public class DeleteDraft extends AbstractHandler {
      * @param uniqueId
      *            An artifact unique id.
      */
-    private void deleteDraft(final UUID uniqueId) {
-        getArtifactModel().deleteDraft(uniqueId);
+    private void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId) {
+        getArtifactModel().deleteDraft(userId, team, uniqueId);
     }
 }

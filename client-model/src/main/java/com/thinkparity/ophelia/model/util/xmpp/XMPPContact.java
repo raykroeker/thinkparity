@@ -12,19 +12,19 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
-import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQProvider;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
-
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.xmlpull.v1.XmlPullParser;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventHandler;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,132 +32,8 @@ import org.xmlpull.v1.XmlPullParser;
  */
 final class XMPPContact extends AbstractXMPP<ContactListener> {
 
-	static {
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contactdeleted", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleContactDeletedIQ query = new HandleContactDeletedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("deletedBy")) {
-                        query.deletedBy = readJabberId2();
-                    } else if (isStartTag("deletedOn")) {
-                        query.deletedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contact:contactupdated", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleContactUpdatedIQ query = new HandleContactUpdatedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("contactId")) {
-                        query.contactId = readJabberId2();
-                    } else if (isStartTag("updatedOn")) {
-                        query.updatedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("extendedTo")) {
-                        query.invitedAs = readEMail2();
-                    } else if (isStartTag("extendedBy")) {
-                        query.invitedBy = readJabberId2();
-                    } else if (isStartTag("extendedOn")) {
-                        query.invitedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationaccepted", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleInvitationAcceptedIQ query = new HandleInvitationAcceptedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("acceptedBy")) {
-                        query.acceptedBy = readJabberId2();
-                    } else if (isStartTag("acceptedOn")) {
-                        query.acceptedOn = readCalendar2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:contact:invitationdeleted", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser2(parser);
-                final HandleInvitationDeletedIQ query = new HandleInvitationDeletedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    if (isStartTag("deletedBy")) {
-                        query.deletedBy = readJabberId2();
-                    } else if (isStartTag("deletedOn")) {
-                        query.deletedOn = readCalendar2();
-                    } else if (isStartTag("invitedAs")) {
-                        query.invitedAs = readEMail2();
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationdeclined", new AbstractThinkParityIQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
-                final HandleInvitationDeclinedIQ query = new HandleInvitationDeclinedIQ();
-                boolean isComplete = false;
-                while (false == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Contact.INVITED_AS)) {
-                        next(1);
-                        query.invitedAs = readEMail();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.INVITED_AS)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Contact.DECLINED_BY)) {
-                        next(1);
-                        query.declinedBy = readJabberId();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.DECLINED_BY)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Contact.DECLINED_ON)) {
-                        next(1);
-                        query.declinedOn = readCalendar();
-                        next(1);
-                    } else if (isEndTag(Xml.Contact.DECLINED_ON)) {
-                        next(1);
-                    } else {
-                        isComplete = true;
-                    }
-                }
-                return query;
-            }
-        });
-	}
-
 	/**
-	 * Create a XMPPContact.
+	 * Create XMPPContact.
 	 * 
 	 */
 	XMPPContact(final XMPPCore xmppCore) {
@@ -165,45 +41,8 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
-     */
-    @Override
-    protected void addEventHandlers() {
-        addEventHandler(new XMPPEventHandler<HandleInvitationExtendedIQ>() {
-                public void handleEvent(final HandleInvitationExtendedIQ query) {
-                    notifyInvitationExtended(query);
-                }
-            }, HandleInvitationExtendedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleInvitationAcceptedIQ>() {
-                public void handleEvent(final HandleInvitationAcceptedIQ query) {
-                    notifyInvitationAccepted(query);
-                }
-            }, HandleInvitationAcceptedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleInvitationDeclinedIQ>() {
-                public void handleEvent(final HandleInvitationDeclinedIQ query) {
-                    notifyInvitationDeclined(query);
-                }
-            }, HandleInvitationDeclinedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleContactDeletedIQ>() {
-                public void handleEvent(final HandleContactDeletedIQ query) {
-                    notifyContactDeleted(query);
-                }
-            }, HandleContactDeletedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleInvitationDeletedIQ>() {
-                public void handleEvent(final HandleInvitationDeletedIQ query) {
-                    notifyInvitationDeleted(query);
-                }
-            }, HandleInvitationDeletedIQ.class);
-        addEventHandler(new XMPPEventHandler<HandleContactUpdatedIQ>() {
-                public void handleEvent(final HandleContactUpdatedIQ query) {
-                    notifyContactUpdated(query);
-                }
-            }, HandleContactUpdatedIQ.class);
-	}
-
-
-	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.codebase.event.EventListener)
+     *
      */
     @Override
     protected boolean addListener(final ContactListener listener) {
@@ -211,7 +50,50 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.EventListener)
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {
+        registerEventHandler(ContactInvitationExtendedEvent.class,
+                new XMPPEventHandler<ContactInvitationExtendedEvent>() {
+                    public void handleEvent(
+                            final ContactInvitationExtendedEvent query) {
+                        handleInvitationExtended(query);
+                    }});
+        registerEventHandler(ContactInvitationAcceptedEvent.class,
+                new XMPPEventHandler<ContactInvitationAcceptedEvent>() {
+                    public void handleEvent(
+                            final ContactInvitationAcceptedEvent query) {
+                        handleInvitationAccepted(query);
+                    }});
+        registerEventHandler(ContactInvitationDeclinedEvent.class,
+                new XMPPEventHandler<ContactInvitationDeclinedEvent>() {
+                    public void handleEvent(
+                            final ContactInvitationDeclinedEvent query) {
+                        handleInvitationDeclined(query);
+                    }});
+        registerEventHandler(ContactDeletedEvent.class,
+                new XMPPEventHandler<ContactDeletedEvent>() {
+                    public void handleEvent(final ContactDeletedEvent query) {
+                        handleContactDeleted(query);
+                    }});
+        registerEventHandler(ContactInvitationDeletedEvent.class,
+                new XMPPEventHandler<ContactInvitationDeletedEvent>() {
+                    public void handleEvent(
+                            final ContactInvitationDeletedEvent query) {
+                        handleInvitationDeleted(query);
+                    }});
+        registerEventHandler(ContactUpdatedEvent.class,
+                new XMPPEventHandler<ContactUpdatedEvent>() {
+                    public void handleEvent(final ContactUpdatedEvent query) {
+                        handleContactUpdated(query);
+                    }});
+	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.codebase.event.EventListener)
+     *
      */
     @Override
     protected boolean removeListener(final ContactListener listener) {
@@ -370,10 +252,10 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-    private void notifyContactDeleted(final HandleContactDeletedIQ query) {
+    private void handleContactDeleted(final ContactDeletedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-                listener.handleContactDeleted(query.deletedBy, query.deletedOn);
+                listener.handleDeleted(event);
             }
         });
     }
@@ -384,10 +266,10 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-    private void notifyContactUpdated(final HandleContactUpdatedIQ query) {
+    private void handleContactUpdated(final ContactUpdatedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-                listener.handleContactUpdated(query.contactId, query.updatedOn);
+                listener.handleUpdated(event);
             }
         });
     }
@@ -398,10 +280,11 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-    private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
+    private void handleInvitationAccepted(
+            final ContactInvitationAcceptedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
+                listener.handleInvitationAccepted(event);
             }
         });
     }
@@ -412,11 +295,11 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-    private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
+    private void handleInvitationDeclined(
+            final ContactInvitationDeclinedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationDeclined(query.invitedAs, query.declinedBy,
-                        query.declinedOn);
+                listener.handleInvitationDeclined(event);
             }
         });
     }
@@ -427,11 +310,11 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-    private void notifyInvitationDeleted(final HandleInvitationDeletedIQ query) {
+    private void handleInvitationDeleted(
+            final ContactInvitationDeletedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationDeleted(query.invitedAs, query.deletedBy,
-                        query.deletedOn);
+                listener.handleInvitationDeleted(event);
             }
         });
     }
@@ -442,45 +325,12 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
      * @param query
      *            The internet event query.
      */
-	private void notifyInvitationExtended(final HandleInvitationExtendedIQ query) {
+	private void handleInvitationExtended(
+            final ContactInvitationExtendedEvent event) {
         notifyListeners(new EventNotifier<ContactListener>() {
             public void notifyListener(final ContactListener listener) {
-				listener.handleInvitationExtended(query.invitedAs, query.invitedBy,
-                        query.invitedOn);
+				listener.handleInvitationExtended(event);
 			}
 		});
 	}
-
-    private static class HandleContactDeletedIQ extends AbstractThinkParityIQ {
-        private JabberId deletedBy;
-        private Calendar deletedOn;
-    }
-
-    private static class HandleContactUpdatedIQ extends AbstractThinkParityIQ {
-        private JabberId contactId;
-        private Calendar updatedOn;
-    }
-
-    private static class HandleInvitationAcceptedIQ extends AbstractThinkParityIQ {
-        private JabberId acceptedBy;
-        private Calendar acceptedOn;
-    }
-
-    private static class HandleInvitationDeclinedIQ extends AbstractThinkParityIQ {
-        private JabberId declinedBy;
-        private Calendar declinedOn;
-        private EMail invitedAs;
-    }
-
-    private static class HandleInvitationDeletedIQ extends AbstractThinkParityIQ {
-        private JabberId deletedBy;
-        private Calendar deletedOn;
-        private EMail invitedAs;
-    }
-
-    private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
-        private EMail invitedAs;
-        private JabberId invitedBy;
-        private Calendar invitedOn;
-    }
 }

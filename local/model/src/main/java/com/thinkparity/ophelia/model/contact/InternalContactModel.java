@@ -4,12 +4,14 @@
  */
 package com.thinkparity.ophelia.model.contact;
 
-import java.util.Calendar;
-
-import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -44,10 +46,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param deletedOn
      *            When the contact was deleted <code>Calendar</code>.
      */
-    public void handleContactDeleted(final JabberId deletedBy,
-            final Calendar deletedOn) {
+    public void handleContactDeleted(final ContactDeletedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleContactDeleted(deletedBy, deletedOn);
+            getImpl().handleContactDeleted(event);
         }
     }
 
@@ -59,10 +60,9 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param updatedOn
      *            When the contact was updated <code>Calendar</code>.
      */
-    public void handleContactUpdated(final JabberId contactId,
-            final Calendar updatedOn) {
+    public void handleContactUpdated(final ContactUpdatedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleContactUpdated(contactId, updatedOn);
+            getImpl().handleContactUpdated(event);
         }
     }
 
@@ -74,10 +74,10 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param acceptedOn
      *            When the invitation was accepted.
      */
-    public void handleInvitationAccepted(final JabberId acceptedBy,
-            final Calendar acceptedOn) {
+    public void handleInvitationAccepted(
+            final ContactInvitationAcceptedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationAccepted(acceptedBy, acceptedOn);
+            getImpl().handleInvitationAccepted(event);
         }
     }
 
@@ -91,10 +91,10 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param declinedOn
      *            When the invitation was declined.
      */
-    public void handleInvitationDeclined(final EMail invitedAs,
-            final JabberId declinedBy, final Calendar declinedOn) {
+    public void handleInvitationDeclined(
+            final ContactInvitationDeclinedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
+            getImpl().handleInvitationDeclined(event);
         }
     }
 
@@ -108,10 +108,10 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param deletedOn
      *            When the invitation was deleted.
      */
-    public void handleInvitationDeleted(final EMail invitedAs,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    public void handleInvitationDeleted(
+            final ContactInvitationDeletedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationDeleted(invitedAs, deletedBy, deletedOn);
+            getImpl().handleInvitationDeleted(event);
         }
     }
 
@@ -123,10 +123,10 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param invitedOn
      *            When the invitation was extended.
      */
-    public void handleInvitationExtended(final EMail invitedAs, final JabberId invitedBy,
-            final Calendar invitedOn) {
+    public void handleInvitationExtended(
+            final ContactInvitationExtendedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationExtended(invitedAs, invitedBy, invitedOn);
+            getImpl().handleInvitationExtended(event);
         }
     }
 }

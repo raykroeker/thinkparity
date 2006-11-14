@@ -16,11 +16,13 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.util.xmpp.IQWriter;
 
 
 /**
@@ -79,24 +81,24 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("publishedTo", publishedTo);
         logVariable("publishedOn", publishedOn);
         try {
-            final IQWriter publishContainer = createIQWriter("container:published");
-            publishContainer.writeUniqueId("uniqueId", uniqueId);
-            publishContainer.writeLong("versionId", versionId);
-            publishContainer.writeString("name", name);
-            publishContainer.writeString("comment", comment);
-            publishContainer.writeInteger("artifactCount", artifactCount);
-            publishContainer.writeJabberId("publishedBy", publishedBy);
-            publishContainer.writeJabberIds("publishedTo", "publishedTo", publishedTo);
-            publishContainer.writeCalendar("publishedOn", publishedOn);
-            send(publishedTo, publishContainer.getIQ());
-            
-            final IQWriter publishArtifact = createIQWriter("artifact:published");
-            publishArtifact.writeUniqueId("uniqueId", uniqueId);
-            publishArtifact.writeLong("versionId", versionId);
-            publishArtifact.writeJabberId("publishedBy", publishedBy);
-            publishArtifact.writeCalendar("publishedOn", publishedOn);
-            send(team, publishArtifact.getIQ());
-            
+            final ContainerPublishedEvent publishedEvent = new ContainerPublishedEvent();
+            publishedEvent.setArtifactCount(artifactCount);
+            publishedEvent.setComment(comment);
+            publishedEvent.setName(name);
+            publishedEvent.setPublishedBy(publishedBy);
+            publishedEvent.setPublishedOn(publishedOn);
+            publishedEvent.setPublishedTo(publishedTo);
+            publishedEvent.setUniqueId(uniqueId);
+            publishedEvent.setVersionId(versionId);
+            enqueueEvent(session.getJabberId(), publishedTo, publishedEvent);
+
+            final ArtifactPublishedEvent artifactPublishedEvent = new ArtifactPublishedEvent();
+            artifactPublishedEvent.setPublishedBy(publishedBy);
+            artifactPublishedEvent.setPublishedOn(publishedOn);
+            artifactPublishedEvent.setUniqueId(uniqueId);
+            artifactPublishedEvent.setVersionId(versionId);
+            enqueueEvent(session.getJabberId(), team, artifactPublishedEvent);
+
             final Artifact artifact = getArtifactModel().read(uniqueId);
             artifactSql.updateKeyHolder(artifact.getId(),
                     User.THINK_PARITY.getId().getUsername(), publishedBy);
@@ -160,21 +162,21 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("publishedBy", publishedBy);
         logVariable("publishedOn", publishedOn);
         try {
-            final IQWriter publishArtifact = createIQWriter("container:artifactpublished");
-            publishArtifact.writeUniqueId("uniqueId", uniqueId);
-            publishArtifact.writeLong("versionId", versionId);
-            publishArtifact.writeString("name", name);
-            publishArtifact.writeInteger("artifactCount", artifactCount);
-            publishArtifact.writeInteger("artifactIndex", artifactIndex);
-            publishArtifact.writeUniqueId("artifactUniqueId", artifactUniqueId);
-            publishArtifact.writeLong("artifactVersionId", artifactVersionId);
-            publishArtifact.writeString("artifactName", artifactName);
-            publishArtifact.writeArtifactType("artifactType", artifactType);
-            publishArtifact.writeString("artifactChecksum", artifactChecksum);
-            publishArtifact.writeString("artifactStreamId", artifactStreamId);
-            publishArtifact.writeJabberId("publishedBy", publishedBy);
-            publishArtifact.writeCalendar("publishedOn", publishedOn);
-            send(publishTo, publishArtifact.getIQ());
+            final ContainerArtifactPublishedEvent publishArtifactEvent = new ContainerArtifactPublishedEvent();
+            publishArtifactEvent.setArtifactChecksum(artifactChecksum);
+            publishArtifactEvent.setArtifactName(artifactName);
+            publishArtifactEvent.setArtifactStreamId(artifactStreamId);
+            publishArtifactEvent.setArtifactType(artifactType);
+            publishArtifactEvent.setArtifactUniqueId(artifactUniqueId);
+            publishArtifactEvent.setArtifactVersionId(artifactVersionId);
+            publishArtifactEvent.setArtifactCount(artifactCount);
+            publishArtifactEvent.setArtifactIndex(artifactIndex);
+            publishArtifactEvent.setName(name);
+            publishArtifactEvent.setUniqueId(uniqueId);
+            publishArtifactEvent.setVersionId(versionId);
+            publishArtifactEvent.setPublishedBy(publishedBy);
+            publishArtifactEvent.setPublishedOn(publishedOn);
+            enqueueEvent(session.getJabberId(), publishTo, publishArtifactEvent);
         } catch (final Throwable t) {
             throw translateError(t);
         }

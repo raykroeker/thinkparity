@@ -14,7 +14,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
-import com.thinkparity.ophelia.model.util.xmpp.events.ArchiveListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ArchiveListener;
 
 /**
  * @author raymond@thinkparity.com
@@ -26,6 +26,13 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
     XMPPArchive(final XMPPCore core) {
         super(core);
     }
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {}
 
     /**
      * Archive an artifact.

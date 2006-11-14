@@ -3,24 +3,18 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
-import java.io.StringReader;
-import java.sql.SQLException;
-import java.util.Collection;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
+
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.session.Session;
-
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.jivesoftware.wildfire.ClientSession;
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
-
 
 /**
  * The queue model is used to persistantly store text for jabber ids. The text
@@ -31,15 +25,13 @@ import org.xmpp.packet.JID;
  */
 class QueueModelImpl extends AbstractModelImpl {
 
-	/**
-	 * Handle to the parity queue sql interface.
-	 */
+    /** A <code>QueueSql</code> interface. */
 	private final QueueSql queueSql;
 
-    /** A sax xml reader. */
-    private final SAXReader saxReader;
+    /** An <code>XStreamUtil</code> xml streamer. */
+    private final XStreamUtil xstreamUtil;
 
-	/**
+    /**
 	 * Create a QueueModelImpl.
 	 * 
 	 * @param session
@@ -48,100 +40,90 @@ class QueueModelImpl extends AbstractModelImpl {
 	QueueModelImpl(final Session session) {
 		super(session);
 		this.queueSql = new QueueSql();
-        this.saxReader = new SAXReader();
+        this.xstreamUtil = XStreamUtil.getInstance();
 	}
 
-	/**
-	 * Enqueue a message for a jabber id to persistant storage.
-	 * 
-	 * @param jid
-	 *            The message recipient.
-	 * @param iq
-	 *            The iq message.
-	 * @return The enqueued item.
-	 * @throws ParityServerModelException
-	 */
-	QueueItem enqueue(final JID jid, final IQ iq) {
-        logApiId();
-        logVariable("jid", jid);
-        logVariable("iq", iq);
-		try {
-            // deliberately remove the to portion of the query
-            iq.setTo((JID) null);
+    void createEvent(final JabberId userId, final JabberId eventUserId,
+            final XMPPEvent event) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("eventUserId", eventUserId);
+        logger.logVariable("event", event);
+        try {
+            assertIsAuthenticatedUser(userId);
 
-			final String username = jid.getNode();
-			final String message = iq.toXML();
-			final Integer queueId =
-                queueSql.insert(username, message, session.getJabberId());
-			return queueSql.select(queueId);
-		} catch (final Throwable t) {
-			throw translateError(t);
-		}
-	}
+            event.setDate(currentDateTime());
+            event.setId(buildEventId(eventUserId));
+            queueSql.createEvent(eventUserId, event, new XMPPEventWriter() {
+                public void write(final XMPPEvent event, final Writer writer) {
+                    toXML(event, writer);
+                }
+            });
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
-    
+    void deleteEvent(final JabberId userId, final String eventId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("eventId", eventId);
+        try {
+            assertIsAuthenticatedUser(userId);
+
+            queueSql.deleteEvent(userId, eventId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<XMPPEvent> readEvents(final JabberId userId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return queueSql.readEvents(userId, new XMPPEventReader() {
+                public XMPPEvent read(final Reader xml) {
+                    return fromXML(xml);
+                }
+            });
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
-     * Process all queued events for a user.
+     * Build an event id. The event id is a combination of the user id plus the
+     * current date\time.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
+     * @return An event id <code>String</code>.
      */
-	void processQueue(final JabberId userId) {
-        logApiId();
-        logVariable("userId", userId);
-		try {
-            assertIsAuthenticatedUser(userId);
-			final Collection<QueueItem> queueItems = list(userId);
-			Element rootElement;
-			for (final QueueItem queueItem : queueItems) {
-                logVariable("queueItem", queueItem);
-                rootElement = readRootElement(queueItem.getQueueMessage());
-
-                if (isOnline(userId)) {
-                    final IQ query = new IQ(rootElement);
-                    for (final ClientSession session : getClientSessions(userId)) {
-                        process(session, query);
-                    }
-                    dequeue(queueItem);
-                }
-			}
-		} catch (final Throwable t) {
-			throw translateError(t);
-		}
-	}
+    private String buildEventId(final JabberId userId) {
+        return buildUserTimestampId(userId);
+    }
 
     /**
-	 * Dequeue a previously enqueued item from the persistant store.
-	 * 
-	 * @param queueItem
-	 *            The queue item to remove.
-	 * @throws ParityServerModelException
-	 */
-	private void dequeue(final QueueItem queueItem) throws SQLException {
-		final Integer queueId = queueItem.getQueueId();
-		queueSql.delete(queueId);
-	}
-    
-	/**
-	 * Obtain a list of queued items for the jabber id.
-	 * 
-	 * @return A list of queued items.
-	 */
-	private Collection<QueueItem> list(final JabberId userId) throws SQLException {
-		return queueSql.select(userId.getUsername());
-	}
-
-	/**
-     * Read the root element of the xml.
+     * Create an xmpp event from xml.
      * 
      * @param xml
-     *            An xml <code>String</code>.
-     * @return The xml root <code>Element</code>.
-     * @throws DocumentException
+     *            The xml representing the <code>XMPPEvent</code>.
+     * @return An <code>XMPPEvent</code>.
      */
-    private Element readRootElement(final String xml) throws DocumentException {
-        synchronized (saxReader) {
-            return saxReader.read(new StringReader(xml)).getRootElement();
-        }
+    private XMPPEvent fromXML(final Reader xml) {
+        XMPPEvent root = null;
+        return xstreamUtil.eventFromXML(xml, root);
+    }
+
+    /**
+     * Stream the xmpp event to xml.
+     * 
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     * @return The xmpp event as an xml <code>String</code>.
+     */
+    private void toXML(final XMPPEvent event, final Writer xml) {
+        xstreamUtil.toXML(event, xml);
     }
 }

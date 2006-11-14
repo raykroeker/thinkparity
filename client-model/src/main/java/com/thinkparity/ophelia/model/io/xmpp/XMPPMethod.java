@@ -38,10 +38,13 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse.Result;
+import com.thinkparity.ophelia.model.util.xstream.SmackXppReader;
 
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
@@ -122,8 +125,8 @@ public class XMPPMethod extends IQ {
         logVariable("preResponseCollected", DateUtil.getInstance());
         try {
             final XMPPMethodResponse response =
-                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
-//                (XMPPMethodResponse) idCollector.nextResult();
+//                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
+                (XMPPMethodResponse) idCollector.nextResult();
             return response;
         } catch (final Throwable t) {
             final String errorId = new ErrorHelper().getErrorId(t);
@@ -396,6 +399,13 @@ public class XMPPMethod extends IQ {
     /** A remote result reader. */
     private static class XMPPMethodResponseProvider implements IQProvider {
 
+        private final XStreamUtil xstreamUtil;
+
+        private XMPPMethodResponseProvider() {
+            super();
+            this.xstreamUtil = XStreamUtil.getInstance();
+        }
+
         /**
          * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
          */
@@ -405,7 +415,7 @@ public class XMPPMethod extends IQ {
             parser.next();
             while(true) {
                 logger.logVariable("parser.getName()", parser.getName());
-                logger.logVariable("parser.getDepthb()", parser.getDepth());
+                logger.logVariable("parser.getDepth()", parser.getDepth());
                 logger.logVariable("parser.getNamespace()", parser.getNamespace());
                 // stop processing when we hit the trailing query tag
                 if (XmlPullParser.END_TAG == parser.getEventType()) {
@@ -466,6 +476,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return null;
+                } else if (XMPPEvent.class.isAssignableFrom(javaType)) {
+                    XMPPEvent event = null;
+                    event = xstreamUtil.unmarshalEvent(new SmackXppReader(parser), event);
+                    parser.next();
+                    parser.next();
+                    return event;
                 } else {
                     parser.next();  // move to element text
                     final Object javaValue;
@@ -568,7 +584,7 @@ public class XMPPMethod extends IQ {
                         javaValue = UUID.fromString(parser.getText());
                         parser.next();
                     } else {
-                        throw Assert.createUnreachable("Unsupported xml type.");
+                        throw Assert.createUnreachable("Unsupported xml type {0}.", javaType.getName());
                     }
                     parser.next();  // move to next tag
                     return javaValue;

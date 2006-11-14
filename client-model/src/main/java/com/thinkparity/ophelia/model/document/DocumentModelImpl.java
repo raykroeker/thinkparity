@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
@@ -232,19 +233,14 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
      * @param content
      *            The document content.
      */
-    DocumentVersion handleDocumentPublished(final JabberId publishedBy,
-            final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final String streamId) {
+    DocumentVersion handleDocumentPublished(
+            final ContainerArtifactPublishedEvent event) {
         logger.logApiId();
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("checksum", checksum);
-        logger.logVariable("streamId", streamId);
-        return handleDocumentSent(publishedBy, publishedOn, uniqueId,
-                versionId, name, checksum, streamId);
+        logger.logVariable("event", event);
+        return handleDocumentSent(event.getPublishedBy(),
+                event.getPublishedOn(), event.getArtifactUniqueId(),
+                event.getArtifactVersionId(), event.getArtifactName(),
+                event.getArtifactChecksum(), event.getArtifactStreamId());
     }
 
     /**

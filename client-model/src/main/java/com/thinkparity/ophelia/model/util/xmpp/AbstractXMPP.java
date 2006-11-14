@@ -6,20 +6,17 @@ package com.thinkparity.ophelia.model.util.xmpp;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
+
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
-import com.thinkparity.ophelia.model.util.smackx.packet.AbstractThinkParityIQ;
-
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.Packet;
+import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventHandler;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -30,7 +27,11 @@ import com.thoughtworks.xstream.XStream;
 abstract class AbstractXMPP<T extends EventListener> {
 
     /** An apache logger. */
-    protected final Log4JWrapper logger;
+    protected static final Log4JWrapper logger;
+
+    static {
+        logger = new Log4JWrapper();
+    }
 
     /** The xmpp core functionality. */
     protected final XMPPCore xmppCore;
@@ -41,47 +42,17 @@ abstract class AbstractXMPP<T extends EventListener> {
     /** The xmpp interfact implementation's listeners. */
     private final List<T> listeners;
 
+    /** An <code>XMPPEventManager</code>. */
+    private final XMPPEventManager xmppEventManager;
+
     /** Create AbstractXMPP. */
     protected AbstractXMPP(final XMPPCore xmppCore) {
         super();
         this.listeners = new ArrayList<T>();
-        this.logger = new Log4JWrapper(StackUtil.getCallerClassName());
         this.xmppCore = xmppCore;
+        this.xmppEventManager = XMPPEventManager.getInstance(xmppCore);
         this.xstream = new XStream();
     }
-
-    /**
-     * Add an event handler for a remote xmpp event.
-     * 
-     * @param <U>
-     *            The internet query (event) type.
-     * @param eventHandler
-     *            An event handler.
-     * @param queryType
-     *            The query type.
-     */
-    protected <U extends AbstractThinkParityIQ> void addEventHandler(
-            final XMPPEventHandler<U> eventHandler,
-            final Class<? extends U> queryType) {
-        xmppCore.addPacketListener(
-                new PacketListener() {
-                    @SuppressWarnings("unchecked")
-                    public void processPacket(final Packet packet) {
-                        try {
-                            eventHandler.handleEvent((U) packet);
-                        } catch (final Throwable t) {
-                            throw translateError(t);
-                        }
-                    }
-                },
-                new PacketTypeFilter(queryType));
-    }
-
-    /**
-     * Add event handlers for the xmpp implementation.
-     *
-     */
-    protected void addEventHandlers() {}
 
     /**
      * Add an xmpp event listener.
@@ -90,7 +61,6 @@ abstract class AbstractXMPP<T extends EventListener> {
      *            An <code>XMPPEventListener</code>.
      */
     protected boolean addListener(final T listener) {
-        logger.logTraceId();
         synchronized (listeners) {
             if (listeners.contains(listener)) {
                 return false;
@@ -161,27 +131,70 @@ abstract class AbstractXMPP<T extends EventListener> {
     }
 
     /**
+     * Notify the correct event handler for the xmpp remote event.
+     * 
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     */
+    protected void notifyHandler(final XMPPEvent event) {
+        xmppEventManager.notifyHandler(event);
+    }
+
+    /**
      * Notify all event listeners.
      * 
      * @param notifier
      *            A thinkParity <code>EventNotifier</code>.
      */
     protected void notifyListeners(final EventNotifier<T> notifier) {
-        logger.logVariable("xmppCore.getUserId()", xmppCore.getUserId());
-        logger.logTraceId(25);
         synchronized (listeners) {
             for (final T listener : listeners) {
                 try {
                     notifier.notifyListener(listener);
                 } catch (final Throwable t) {
                     logger.logError(t,
-                            "Could not handle remote event {0} for listener {1}.",
-                            notifier, listener);
+                            "Could not handle remote event for listener {0}.",
+                            listener);
                 }
             }
         }
         logger.logTraceId();
     }
+
+    /**
+     * Register an xmpp event handler.
+     * 
+     * @param <U>
+     *            An <code>XMPPEvent</code> type.
+     * @param eventClass
+     *            The event <code>Class</code>.
+     * @param handler
+     *            An <code>XMPPEventHandler</code>.
+     */
+    protected final <U extends XMPPEvent> void registerEventHandler(
+            final Class<U> eventClass, final XMPPEventHandler<U> handler) {
+        xmppEventManager.registerHandler(eventClass, handler);
+    }
+
+    /**
+     * Clear all xmpp event handlers.
+     *
+     */
+    protected final void clearEventHandlers() {
+        xmppEventManager.clearHandlers();
+    }
+
+    /**
+     * Add an event handler for a remote xmpp event.
+     * 
+     * @param <U>
+     *            The internet query (event) type.
+     * @param eventHandler
+     *            An event handler.
+     * @param queryType
+     *            The query type.
+     */
+    protected abstract void registerEventHandlers();
 
     /**
      * Remove an xmpp event listener.
@@ -212,9 +225,5 @@ abstract class AbstractXMPP<T extends EventListener> {
      */
     protected RuntimeException translateError(final Throwable t) {
         return xmppCore.translateError(t);
-    }
-
-    protected interface XMPPEventHandler<T extends AbstractThinkParityIQ> {
-        public void handleEvent(final T query);
     }
 }

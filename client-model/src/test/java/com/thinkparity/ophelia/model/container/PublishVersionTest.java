@@ -3,17 +3,13 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.text.MessageFormat;
 import java.util.List;
-
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
@@ -38,36 +34,6 @@ public class PublishVersionTest extends ContainerTestCase {
         datum.containerModel.publishVersion(
                 datum.container.getId(), datum.version.getVersionId(), datum.contacts);
         assertTrue("The draft published event was not fired.", datum.didNotify);
-
-        // ensure the local and remote team jive
-        final List<TeamMember> localTeam =
-            getArtifactModel(OpheliaTestUser.JUNIT).readTeam2(datum.container.getId());
-        final List<JabberId> remoteTeam =
-            getSessionModel(OpheliaTestUser.JUNIT).readArtifactTeamIds(datum.container.getUniqueId());
-        for (final TeamMember localTeamMember : localTeam) {
-            Boolean didFindLocal = Boolean.FALSE;
-            for (final JabberId remoteTeamMemberId : remoteTeam) {
-                if (localTeamMember.getId().equals(remoteTeamMemberId)) {
-                    didFindLocal = Boolean.TRUE;
-                    break;
-                }
-            }
-            assertTrue(MessageFormat.format(
-                    "Could not find local team member {0} in remote team.",
-                    localTeamMember), didFindLocal);
-        }
-        for (final JabberId remoteTeamMemberId : remoteTeam) {
-            Boolean didFindRemote = Boolean.FALSE;
-            for (final TeamMember localTeamMember : localTeam) {
-                if (remoteTeamMemberId.equals(localTeamMember.getId())) {
-                    didFindRemote = Boolean.TRUE;
-                    break;
-                }
-            }
-            assertTrue(MessageFormat.format(
-                    "Could not find remote team member {0} in local team.",
-                    remoteTeamMemberId), didFindRemote);
-        }
     }
 
     /**

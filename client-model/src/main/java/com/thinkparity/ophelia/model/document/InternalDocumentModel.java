@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.ParityException;
@@ -98,12 +99,10 @@ public class InternalDocumentModel extends DocumentModel implements
      *            The stream id <code>String</code>.
      * @return The document version.
      */
-    public DocumentVersion handleDocumentPublished(final JabberId publishedBy,
-            final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final String streamId) {
+    public DocumentVersion handleDocumentPublished(
+            final ContainerArtifactPublishedEvent event) {
         synchronized(getImplLock()) {
-            return getImpl().handleDocumentPublished(publishedBy, publishedOn,
-                    uniqueId, versionId, name, checksum, streamId);
+            return getImpl().handleDocumentPublished(event);
         }
     }
 

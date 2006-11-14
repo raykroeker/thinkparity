@@ -44,6 +44,8 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants.Versioning;
@@ -316,6 +318,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
+                final InternalArtifactModel artifactModel = getInternalArtifactModel();
+
                 assertOnline("The user is not online.");
                 final Container container = read(containerId);
                 if (!isDistributed(container.getId())) {
@@ -334,9 +338,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     draft.putState(document, ContainerDraft.ArtifactState.NONE);
                 }
                 containerIO.createDraft(draft);
-                getInternalArtifactModel().applyFlagKey(container.getId());
+                artifactModel.applyFlagKey(container.getId());
                 // remote create
-                getSessionModel().createDraft(container.getUniqueId());
+                final List<JabberId> team = artifactModel.readTeamIds(containerId);
+                team.remove(localUserId());
+                getSessionModel().createDraft(team, container.getUniqueId());
             }
             // fire event
             final Container postCreation= read(containerId);
@@ -510,66 +516,52 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @see InternalArtifactModel#doesVersionExist(Long, Long)
      * @see InternalArtifactModel#readId(UUID)
      */
-    void handleArtifactPublished(final UUID uniqueId, final Long versionId,
-            final String name, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final JabberId publishedBy,
-            final Calendar publishedOn) {
+    void handleArtifactPublished(final ContainerArtifactPublishedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("artifactUniqueId", artifactUniqueId);
-        logger.logVariable("artifactVersionId", artifactVersionId);
-        logger.logVariable("artifactName", artifactName);
-        logger.logVariable("artifactType", artifactType);
-        logger.logVariable("artifactChecksum", artifactChecksum);
-        logger.logVariable("artifactStreamId", artifactStreamId);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("event", event);
         try {
-            assertIsNotLocalUserId(publishedBy);
             // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Boolean doesExist = artifactModel.doesExist(uniqueId);
+            final Boolean doesExist = artifactModel.doesExist(event.getUniqueId());
             final Long containerId;
             final Container container;
             final ContainerVersion version;
             if (doesExist) {
-                containerId = artifactModel.readId(uniqueId);
+                containerId = artifactModel.readId(event.getUniqueId());
                 container = read(containerId);
                 final Boolean doesVersionExist =
-                    artifactModel.doesVersionExist(containerId, versionId);
+                    artifactModel.doesVersionExist(containerId, event.getVersionId());
 
                 if (doesVersionExist) {
-                    version = readVersion(container.getId(), versionId);
+                    version = readVersion(container.getId(), event.getVersionId());
                 } else {
                     version = createVersion(container.getId(),
-                            versionId, publishedBy, publishedOn);
+                            event.getVersionId(), event.getPublishedBy(),
+                            event.getPublishedOn());
                 }
             } else { 
                 // ensure the published by user exists locally
-                getInternalUserModel().readLazyCreate(publishedBy);
+                getInternalUserModel().readLazyCreate(event.getPublishedBy());
 
                 container = new Container();
-                container.setCreatedBy(publishedBy);
-                container.setCreatedOn(publishedOn);
-                container.setName(name);
+                container.setCreatedBy(event.getPublishedBy());
+                container.setCreatedOn(event.getPublishedOn());
+                container.setName(event.getName());
                 container.setState(ArtifactState.ACTIVE);
                 container.setType(ArtifactType.CONTAINER);
-                container.setUniqueId(uniqueId);
+                container.setUniqueId(event.getUniqueId());
                 container.setUpdatedBy(container.getCreatedBy());
                 container.setUpdatedOn(container.getCreatedOn());
                 // create
                 containerIO.create(container);
 
                 // create version
-                version = createVersion(container.getId(), versionId,
-                        publishedBy, publishedOn);
+                version = createVersion(container.getId(), event.getVersionId(),
+                        event.getPublishedBy(), event.getPublishedOn());
     
                 // create remote info
-                artifactModel.createRemoteInfo(container.getId(), publishedBy, container.getCreatedOn());
+                artifactModel.createRemoteInfo(container.getId(),
+                        event.getPublishedBy(), container.getCreatedOn());
     
                 // index
                 getIndexModel().indexContainer(container.getId());
@@ -577,11 +569,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
-            switch(artifactType) {
+            switch (event.getArtifactType()) {
             case DOCUMENT:
-                artifactVersion = handleDocumentPublished(artifactUniqueId,
-                        artifactVersionId, artifactName, artifactChecksum,
-                        artifactStreamId, publishedBy, publishedOn);
+                artifactVersion = handleDocumentPublished(event);
                 break;
             case CONTAINER:
             default:
@@ -596,7 +586,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final ContainerVersion postPublishVersion =
                 readVersion(version.getArtifactId(), version.getVersionId());
             notifyContainerPublished(postPublish, null, postPublishVersion,
-                    remoteEventGenerator);
+                        remoteEventGenerator);
         }
         catch(final Throwable t) {
             throw translateError(t);
@@ -688,77 +678,79 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param publishedOn
      *            The published on date.
      */
-    void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final String comment,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
+    void handlePublished(final ContainerPublishedEvent event) {
         logger.logApiId();
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("comment", comment);
-        logger.logVariable("artifactCount", artifactCount);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedTo", publishedTo);
-        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("event", event);
         try {
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Long containerId = artifactModel.readId(uniqueId);
-            // add to local team
-            final InternalUserModel userModel = getInternalUserModel();
-            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
-            final List<User> publishedToUsers = new ArrayList<User>();
-            for (final JabberId publishedToId : publishedTo) {
-                if (!contains(localTeam, publishedToId)) {
-                    artifactModel.addTeamMember(containerId, publishedToId);
+            final Long containerId = artifactModel.readId(event.getUniqueId());
+            if (artifactModel.doesVersionExist(containerId, event.getVersionId())) {
+                logger.logWarning("Container {0}:{1} already exists.", event
+                        .getUniqueId(), event.getVersionId());
+            } else {
+                // add to local team
+                final InternalUserModel userModel = getInternalUserModel();
+                final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
+                final List<User> publishedToUsers = new ArrayList<User>();
+                for (final JabberId publishedToId : event.getPublishedTo()) {
+                    if (!contains(localTeam, publishedToId)) {
+                        artifactModel.addTeamMember(containerId, publishedToId);
+                    }
+                    publishedToUsers.add(userModel.read(publishedToId));
                 }
-                publishedToUsers.add(userModel.read(publishedToId));
-            }
-            // add the sender as well
-            if (!contains(localTeam, publishedBy)) {
-                artifactModel.addTeamMember(containerId, publishedBy);
-            }
-            // delete draft
-            final ContainerDraft draft = readDraft(containerId);
-            if (null == draft) {
-                logger.logWarning("Draft did not previously exist for {0}.", name);
-            } else {
-                for (final Artifact artifact : draft.getArtifacts()) {
-                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                // add the sender as well
+                if (!contains(localTeam, event.getPublishedBy())) {
+                    artifactModel.addTeamMember(containerId, event.getPublishedBy());
                 }
-                containerIO.deleteDraft(containerId);
+                // delete draft
+                final ContainerDraft draft = readDraft(containerId);
+                if (null == draft) {
+                    logger.logWarning("Draft did not previously exist for {0}.", event.getName());
+                } else {
+                    for (final Artifact artifact : draft.getArtifacts()) {
+                        containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                    }
+                    containerIO.deleteDraft(containerId);
+                }
+                // create published to list
+                containerIO.createPublishedTo(containerId, event.getVersionId(), publishedToUsers);
+                // calculate differences
+                final ContainerVersion version = readVersion(containerId, event.getVersionId());
+                final ContainerVersion previous = readPreviousVersion(containerId, event.getVersionId());
+                final ContainerVersion next = readNextVersion(containerId, event.getVersionId());
+                if (null == previous) {
+                    logger.logInfo("First version of {0}.", event.getName());
+                } else {
+                    containerIO.deleteDelta(containerId, previous.getVersionId(),
+                            version.getVersionId());
+                    containerIO.createDelta(calculateDelta(read(containerId),
+                            previous, version));
+                }
+                if (null == next) {
+                    logger.logInfo("Latest version of {0}.", event.getName());
+                } else {
+                    containerIO.deleteDelta(containerId, version.getVersionId(),
+                            next.getVersionId());
+                    containerIO.createDelta(calculateDelta(read(containerId),
+                            version, next));
+                }
+                // apply comment
+                containerIO.updateComment(containerId, version.getVersionId(),
+                        event.getComment());
+                // send confirmation
+                getSessionModel().confirmArtifactReceipt(localUserId(),
+                        event.getUniqueId(), event.getVersionId(), localUserId(),
+                        currentDateTime());
+                // audit\fire event
+                final Container postPublish = read(containerId);
+                final ContainerDraft postPublishDraft = readDraft(containerId);
+                final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
+                auditContainerPublished(postPublish, postPublishDraft,
+                        postPublishVersion, event.getPublishedBy(),
+                        event.getPublishedTo(), event.getPublishedOn());
+                notifyContainerPublished(postPublish, postPublishDraft,
+                        postPublishVersion, remoteEventGenerator);
             }
-            // create published to list
-            containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
-            // calculate differences
-            final ContainerVersion version = readVersion(containerId, versionId);
-            final ContainerVersion previous = readPreviousVersion(containerId, versionId);
-            final ContainerVersion next = readNextVersion(containerId, versionId);
-            if (null == previous) {
-                logger.logInfo("First version of {0}.", name);
-            } else {
-                containerIO.deleteDelta(containerId, previous.getVersionId(), version.getVersionId());
-                containerIO.createDelta(calculateDelta(read(containerId), previous, version));
-            }
-            if (null == next) {
-                logger.logInfo("Latest version of {0}.", name);
-            } else {
-                containerIO.deleteDelta(containerId, version.getVersionId(), next.getVersionId());
-                containerIO.createDelta(calculateDelta(read(containerId), version, next));
-            }
-            // apply comment
-            containerIO.updateComment(containerId, version.getVersionId(), comment);
-            // send confirmation
-            getSessionModel().confirmArtifactReceipt(localUserId(),
-                    uniqueId, versionId, localUserId(), currentDateTime());
-            // audit\fire event
-            final Container postPublish = read(containerId);
-            final ContainerDraft postPublishDraft = readDraft(containerId);
-            final ContainerVersion postPublishVersion = readVersion(containerId, versionId);
-            auditContainerPublished(postPublish, postPublishDraft,
-                    postPublishVersion, publishedBy, publishedTo, publishedOn);
-            notifyContainerPublished(postPublish, postPublishDraft,
-                    postPublishVersion, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2504,12 +2496,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * 
      * @see InternalDocumentModel#handleDocumentPublished(JabberId, Calendar, UUID, Long, String, String, InputStream)
      */
-    private DocumentVersion handleDocumentPublished(final UUID uniqueId,
-            final Long versionId, final String name, final String checksum,
-            final String streamId, final JabberId publishedBy,
-            final Calendar publishedOn) throws IOException {
-        return getInternalDocumentModel().handleDocumentPublished(publishedBy,
-                publishedOn, uniqueId, versionId, name, checksum, streamId);
+    private DocumentVersion handleDocumentPublished(
+            final ContainerArtifactPublishedEvent event) throws IOException {
+        return getInternalDocumentModel().handleDocumentPublished(event);
     }
 
     /**

@@ -3,15 +3,14 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-import org.jivesoftware.smack.XMPPConnection;
-
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.events.UserListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.UserListener;
 
 /**
  * @author raykroeker@gmail.com
@@ -29,13 +28,12 @@ final class XMPPUser extends AbstractXMPP<UserListener> {
 		super(xmppCore);
 	}
 
-	/**
-	 * Add the packet listeners to the connection.
-	 * 
-	 * @param xmppConnection
-	 *            The xmpp connection.
-	 */
-	void addPacketListeners(final XMPPConnection xmppConnection) {}
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
+     *
+     */
+    @Override
+    protected void registerEventHandlers() {}
 
     /**
      * Extract the user from the xmpp response.

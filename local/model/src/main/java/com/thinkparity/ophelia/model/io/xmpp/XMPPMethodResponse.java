@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.jivesoftware.smack.packet.IQ;
 
@@ -82,6 +83,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<EMail> readResultEMails(final String name) {
         return (List<EMail>) readResult(name);
+    }
+
+    public List<XMPPEvent> readResultEvents(final String name) {
+        return (List<XMPPEvent>) readResult(name);
     }
 
     /**

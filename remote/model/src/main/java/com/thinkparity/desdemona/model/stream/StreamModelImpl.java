@@ -237,13 +237,7 @@ final class StreamModelImpl extends AbstractModelImpl {
      * @return A stream session id <code>String</code>.
      */
     private String buildSessionId(final JabberId userId) {
-        /*
-         * NOTE A stream session id is unique per user per timestamp
-         */
-        final String hashString = new StringBuffer(userId.toString())
-                .append(currentTimeMillis())
-                .toString();
-        return MD5Util.md5Hex(hashString.getBytes());
+        return buildUserTimestampId(userId);
     }
 
     /**

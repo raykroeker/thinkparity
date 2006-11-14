@@ -4,6 +4,7 @@
 package com.thinkparity.codebase.xml.dom4j;
 
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.SimpleTimeZone;
@@ -24,7 +25,22 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
+import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 
 /**
@@ -35,6 +51,12 @@ import org.dom4j.Element;
  * @version 1.1.2.5
  */
 public class ElementBuilder {
+
+    private static final DocumentFactory DOCUMENT_FACTORY;
+
+    static {
+        DOCUMENT_FACTORY = DocumentFactory.getInstance();
+    }
 
     public static final Element addContainerElements(final Element parent,
             final String parentName, final String name,
@@ -465,6 +487,7 @@ public class ElementBuilder {
         }
     }
 
+
     public static final Element addProfileEMailElements(final Element parent,
             final String parentName, final String name,
             final List<ProfileEMail> values) {
@@ -506,6 +529,200 @@ public class ElementBuilder {
         }
     }
 
+    public static final Element createElement(final String name,
+            final ArtifactDraftCreatedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactDraftCreatedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactDraftCreatedEvent.class);
+            addElement(element, "createdBy", value.getCreatedBy());
+            addElement(element, "createdOn", value.getCreatedOn());
+            addElement(element, "uniqueId", value.getUniqueId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ArtifactDraftDeletedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactDraftDeletedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactDraftDeletedEvent.class);
+            addElement(element, "deletedBy", value.getDeletedBy());
+            addElement(element, "deletedOn", value.getDeletedOn());
+            addElement(element, "uniqueId", value.getUniqueId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ArtifactPublishedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactPublishedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactPublishedEvent.class);
+            addElement(element, "publishedBy", value.getPublishedBy());
+            addElement(element, "publishedOn", value.getPublishedOn());
+            addElement(element, "uniqueId", value.getUniqueId());
+            addElement(element, "versionId", value.getVersionId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ArtifactReceivedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactReceivedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactReceivedEvent.class);
+            addElement(element, "receivedBy", value.getReceivedBy());
+            addElement(element, "receivedOn", value.getReceivedOn());
+            addElement(element, "uniqueId", value.getUniqueId());
+            addElement(element, "versionId", value.getVersionId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ArtifactTeamMemberAddedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactTeamMemberAddedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactTeamMemberAddedEvent.class);
+            addElement(element, "jabberId", value.getJabberId());
+            addElement(element, "uniqueId", value.getUniqueId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ArtifactTeamMemberRemovedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ArtifactTeamMemberRemovedEvent.class);
+        } else {
+            final Element element = createElement(name, ArtifactTeamMemberRemovedEvent.class);
+            addElement(element, "jabberId", value.getJabberId());
+            addElement(element, "uniqueId", value.getUniqueId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactDeletedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactDeletedEvent.class);
+        } else {
+            final Element element = createElement(name, ContactDeletedEvent.class);
+            addElement(element, "deletedBy", value.getDeletedBy());
+            addElement(element, "deletedOn", value.getDeletedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactInvitationAcceptedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactInvitationAcceptedEvent.class);
+        } else {
+            final Element element = createElement(name, ContactInvitationAcceptedEvent.class);
+            addElement(element, "acceptedBy", value.getAcceptedBy());
+            addElement(element, "acceptedOn", value.getAcceptedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactInvitationDeclinedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactInvitationDeclinedEvent.class);
+        } else {
+            final Element element = createElement(name, ContactInvitationDeclinedEvent.class);
+            addElement(element, "declinedBy", value.getDeclinedBy());
+            addElement(element, "declinedOn", value.getDeclinedOn());
+            addElement(element, "invitedAs", value.getInvitedAs());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactInvitationDeletedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactInvitationDeclinedEvent.class);
+        } else {
+            final Element element = createElement(name, ContactInvitationDeclinedEvent.class);
+            addElement(element, "deletedBy", value.getDeletedBy());
+            addElement(element, "deletedOn", value.getDeletedOn());
+            addElement(element, "invitedAs", value.getInvitedAs());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactInvitationExtendedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactInvitationExtendedEvent.class);
+        } else {
+            final Element element = createElement(name, ContactInvitationExtendedEvent.class);
+            addElement(element, "invitedAs", value.getInvitedAs());
+            addElement(element, "invitedBy", value.getInvitedBy());
+            addElement(element, "invitedOn", value.getInvitedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContactUpdatedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContactUpdatedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "contactId", value.getContactId());
+            addElement(element, "updatedOn", value.getUpdatedOn());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContainerArtifactPublishedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContainerArtifactPublishedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "artifactChecksum", value.getArtifactChecksum());
+            addElement(element, "artifactCount", value.getArtifactCount());
+            addElement(element, "artifactIndex", value.getArtifactIndex());
+            addElement(element, "artifactName", value.getArtifactName());
+            addElement(element, "streamId", value.getArtifactStreamId());
+            addElement(element, "artifactType", value.getArtifactType());
+            addElement(element, "uniqueId", value.getArtifactUniqueId());
+            addElement(element, "versionId", value.getArtifactVersionId());
+            addElement(element, "name", value.getName());
+            addElement(element, "publishedBy", value.getPublishedBy());
+            addElement(element, "publishedOn", value.getPublishedOn());
+            addElement(element, "uniqueId", value.getUniqueId());
+            addElement(element, "versionId", value.getVersionId());
+            return element;
+        }
+    }
+
+    public static final Element createElement(final String name,
+            final ContainerPublishedEvent value) {
+        if (null == value) {
+            return createNullElement(name, ContainerArtifactPublishedEvent.class);
+        } else {
+            final Element element = createElement(name, value.getClass());
+            addElement(element, "artifactCount", value.getArtifactCount());
+            addElement(element, "comment", value.getComment());
+            addElement(element, "name", value.getName());
+            addElement(element, "publishedBy", value.getPublishedBy());
+            addElement(element, "publishedOn", value.getPublishedOn());
+            addJabberIdElements(element, "publishedTo", value.getPublishedTo());
+            addElement(element, "uniqueId", value.getUniqueId());
+            addElement(element, "versionId", value.getVersionId());
+            return element;
+        }
+    }
+
     private static final Element addElement(final Element parent,
             final String name, final ArtifactRemoteInfo value) {
         final Element element = addElement(parent, name, ArtifactRemoteInfo.class);
@@ -533,10 +750,10 @@ public class ElementBuilder {
      *            The element name.
      * @return The element.
      */
-    private static final Element addElement(final Element parent,
+    public static final Element addElement(final Element parent,
             final String name, final Class type) {
         final Element element = parent.addElement(name);
-        element.addAttribute("javaType", type.getName());
+        applyCoreAttributes(element, type);
         return element;
     }
 
@@ -584,11 +801,40 @@ public class ElementBuilder {
         }
     }
 
-    private static final Element addNullElement(final Element parent,
+    private static final Element addJabberIdElements(final Element parent,
+            final String name, final List<JabberId> values) {
+        if (values.size() < 1) {
+            return addNullElement(parent, name, List.class);
+        } else {
+            final String childName = MessageFormat.format("{0}-element", name);
+            final Element element = addElement(parent, name, List.class);
+            for (final JabberId value : values) {
+                addElement(element, childName, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addNullElement(final Element parent,
             final String name, final Class type) {
         final Element element = parent.addElement(name);
-        element.addAttribute("javaType", type.getName());
+        applyCoreAttributes(element, type);
         return element;
+    }
+
+    private static void applyCoreAttributes(final Element element,
+            final Class type) {
+        element.addAttribute("javaType", type.getName());
+    }
+
+    private static final Element createElement(final String name, final Class type) {
+        final Element element = DOCUMENT_FACTORY.createElement(name);
+        applyCoreAttributes(element, type);
+        return element;
+    }
+
+    private static final Element createNullElement(final String name, final Class type) {
+        return createElement(name, type);
     }
 
 	/** Create ElementBuilder */

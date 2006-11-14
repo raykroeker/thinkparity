@@ -24,10 +24,10 @@ import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.events.ArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.ContainerListener;
-import com.thinkparity.ophelia.model.util.xmpp.events.SessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
 
 /**
  * XMPPSession
@@ -106,8 +106,8 @@ public interface XMPPSession {
      *            A jabber id.
      * @throws SmackException
      */
-    public void addTeamMember(final UUID artifactUniqueId,
-            final JabberId jabberId);
+    public void addTeamMember(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final JabberId teamMemberId);
 
     /**
      * Archive an artifact.
@@ -138,8 +138,23 @@ public interface XMPPSession {
      *            By whom the artifact was received <code>JabberId</code>.
      */
     public void confirmArtifactReceipt(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar recievedOn);
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final JabberId receivedBy,
+            final Calendar receivedOn);
+
+    /**
+     * Open a document version's content.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return The document version's content.
+     */
+    public void createArchiveStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId);
 
     /**
      * Create an artifact
@@ -152,12 +167,27 @@ public interface XMPPSession {
     public void createArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
+     * Open a document version's content.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return The document version's content.
+     */
+    public void createBackupStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId);
+
+    /**
      * Create a draft for an artifact.
      * 
      * @param artifact
      *            An artifact.
      */
-    public void createDraft(final UUID uniqueId);
+    public void createDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId);
 
     /**
      * Create a stream.
@@ -230,7 +260,8 @@ public interface XMPPSession {
      * @param uniqueId
      *            An artifact unique id.
      */
-    public void deleteDraft(final UUID uniqueId);
+    public void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId);
 
     /**
      * Delete a stream.
@@ -295,38 +326,10 @@ public interface XMPPSession {
 	public void logout();
 
     /**
-     * Open a document version's content.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return The document version's content.
-     */
-    public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId);
-
-    /**
-     * Open a document version's content.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return The document version's content.
-     */
-    public void createBackupStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId);
-
-    /**
-     * Process events queued on the server.
+     * Process the remote event  queue.
      * 
      */
-    public void processQueue(final JabberId userId);
+    public void processEventQueue(final JabberId userId);
 
     /**
      * Publish a container.
@@ -423,15 +426,6 @@ public interface XMPPSession {
      */
     public List<JabberId> readArchiveTeamIds(final JabberId userId,
             final UUID uniqueId);
-
-    /**
-     * Read the artifact team.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return A <code>List&lt;JabberId&gt;</code>.
-     */
-    public List<JabberId> readArtifactTeamIds(final UUID artifactUniqueId);
 
     /**
      * Read the backup's containers.
@@ -641,7 +635,9 @@ public interface XMPPSession {
      * @param jabberId
      *            A jabber id.
      */
-    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId);
+    public void removeTeamMember(final JabberId userId,
+            final List<JabberId> team, final UUID uniqueId,
+            final JabberId teamMemberId);
 
     /**
      * Reset a user's credentials.

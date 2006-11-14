@@ -12,6 +12,12 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.user.TeamMember;
@@ -230,10 +236,9 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param createdOn
      *            When the draft was created.
      */
-    public void handleDraftCreated(final UUID uniqueId,
-            final JabberId createdBy, final Calendar createdOn) {
+    public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleDraftCreated(uniqueId, createdBy, createdOn);
+            getImpl().handleDraftCreated(event);
         }
     }
 
@@ -247,25 +252,21 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param createdOn
      *            When the draft was deleted.
      */
-    public void handleDraftDeleted(final UUID uniqueId,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleDraftDeleted(uniqueId, deletedBy, deletedOn);
+            getImpl().handleDraftDeleted(event);
         }
     }
 
-    public void handlePublished(final UUID uniqueId, final Long versionId,
-            final JabberId publishedBy, final Calendar publishedOn) {
+    public void handlePublished(final ArtifactPublishedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handlePublished(uniqueId, versionId, publishedBy,
-                    publishedOn);
+            getImpl().handlePublished(event);
         }
     }
 
-	public void handleReceived(final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar recievedOn) {
+	public void handleReceived(final ArtifactReceivedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleReceived(uniqueId, versionId, receivedBy, recievedOn);
+            getImpl().handleReceived(event);
         }
     }
 
@@ -278,10 +279,9 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            The user's jabber id.
      */
-    public void handleTeamMemberAdded(final UUID uniqueId,
-            final JabberId jabberId) {
+    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
         synchronized(getImplLock()) {
-            getImpl().handleTeamMemberAdded(uniqueId, jabberId);
+            getImpl().handleTeamMemberAdded(event);
         }
     }
     
@@ -293,10 +293,10 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param jabberId
      *            A jabber id.
      */
-    public void handleTeamMemberRemoved(final UUID uniqueId,
-            final JabberId jabberId) {
+    public void handleTeamMemberRemoved(
+            final ArtifactTeamMemberRemovedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleTeamMemberRemoved(uniqueId, jabberId);
+            getImpl().handleTeamMemberRemoved(event);
         }
     }
 

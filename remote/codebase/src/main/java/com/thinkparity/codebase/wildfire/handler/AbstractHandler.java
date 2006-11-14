@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.wildfire.IQHandlerInfo;
@@ -216,6 +217,11 @@ public abstract class AbstractHandler extends
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);
+    }
+
+    protected final void writeEvents(final String name, final String childName,
+            final List<XMPPEvent> values) {
+        iqWriter.writeEvents(name, childName, values);
     }
 
     protected final void writeContainerVersions(final String parentName,

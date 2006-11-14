@@ -8,11 +8,6 @@ import java.io.File;
 
 import org.jdesktop.jdic.desktop.DesktopException;
 
-import com.thinkparity.codebase.model.document.Document;
-
-
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -44,21 +39,16 @@ public class PrintDraft extends AbstractAction {
     public void invoke(final Data data) {
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final DocumentModel documentModel = getDocumentModel();
-        final Document document = documentModel.get(documentId);
 
-        final Browser browser = getBrowserApplication();
-        if(browser.confirm(getId().toString(), new Object[] { document
-                .getName() })) {
-            documentModel.printDraft(documentId, new Printer() {
-                public void print(final File file) {
-                    try {
-                        DesktopUtil.print(file);
-                    } catch (final DesktopException dx) {
-                        throw translateError(dx);
-                    }
+        documentModel.printDraft(documentId, new Printer() {
+            public void print(final File file) {
+                try {
+                    DesktopUtil.print(file);
+                } catch (final DesktopException dx) {
+                    throw translateError(dx);
                 }
-            });
-        }
+            }
+        });
     }
 
     public enum DataKey { DOCUMENT_ID }

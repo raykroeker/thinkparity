@@ -8,10 +8,6 @@ import java.io.File;
 
 import org.jdesktop.jdic.desktop.DesktopException;
 
-import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.document.DocumentVersion;
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -44,22 +40,16 @@ public class PrintVersion extends AbstractAction {
         final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         final DocumentModel documentModel = getDocumentModel();
-        final Document document = documentModel.get(documentId);
-        final DocumentVersion version = documentModel.getVersion(documentId, versionId);
 
-        final Browser browser = getBrowserApplication();
-        if(browser.confirm(getId().toString(), new Object[] {
-            document.getName(), version.getCreatedOn().getTime() })) {
-            documentModel.printVersion(documentId, versionId, new Printer() {
-                public void print(final File file) {
-                    try {
-                        DesktopUtil.print(file);
-                    } catch (final DesktopException dx) {
-                        throw translateError(dx);
-                    }
+        documentModel.printVersion(documentId, versionId, new Printer() {
+            public void print(final File file) {
+                try {
+                    DesktopUtil.print(file);
+                } catch (final DesktopException dx) {
+                    throw translateError(dx);
                 }
-            });
-        }
+            }
+        });
     }
 
     public enum DataKey { DOCUMENT_ID, VERSION_ID }

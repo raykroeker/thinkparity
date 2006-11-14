@@ -28,7 +28,6 @@ import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
 import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 
@@ -143,11 +142,8 @@ class ContainerPopup {
             jPopupMenu.add(uidJMenuItem);
         }
 
-        // Export, print
+        // Export
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
-        final Data printData = new Data(1);
-        printData.set(PrintDraft.DataKey.CONTAINER_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
 
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }

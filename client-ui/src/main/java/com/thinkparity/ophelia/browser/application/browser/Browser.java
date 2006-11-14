@@ -986,9 +986,9 @@ public class Browser extends AbstractApplication {
      *
      */
     public void runAddContainerDocuments(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection().showOpenDialog(mainWindow)) {
             persistence.set(
-                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY,
+                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION,
                     jFileChooser.getCurrentDirectory());
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
         }
@@ -1149,6 +1149,73 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
+    }
+    
+    /**
+     * Run the export draft action, browse to select the directory.
+     * 
+     * @param containerId
+     *            The container id.
+     *
+     */
+    public void runExportDraft(final Long containerId) {
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection().showOpenDialog(mainWindow)) {
+            persistence.set(
+                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
+                    jFileChooser.getCurrentDirectory());
+            runExportDraft(containerId, jFileChooser.getSelectedFile());
+        }
+    }
+    
+    /**
+     * Run the export draft action.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param directory
+     *            The directory.
+     */
+    public void runExportDraft(final Long containerId, final File directory) {
+        final Data data = new Data(2);
+        data.set(ExportDraft.DataKey.CONTAINER_ID, containerId);
+        data.set(ExportDraft.DataKey.DIRECTORY, directory);
+        invoke(ActionId.CONTAINER_EXPORT_DRAFT, data);
+    }
+    
+    /**
+     * Run the export version action, browse to select the directory.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.          
+     *
+     */
+    public void runExportVersion(final Long containerId, final Long versionId) {
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection().showOpenDialog(mainWindow)) {
+            persistence.set(
+                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
+                    jFileChooser.getCurrentDirectory());
+            runExportVersion(containerId, versionId, jFileChooser.getSelectedFile());
+        }
+    }
+    
+    /**
+     * Run the export version action.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.              
+     * @param directory
+     *            The directory.
+     */
+    public void runExportVersion(final Long containerId, final Long versionId, final File directory) {
+        final Data data = new Data(3);
+        data.set(ExportVersion.DataKey.CONTAINER_ID, containerId);
+        data.set(ExportVersion.DataKey.VERSION_ID, versionId);
+        data.set(ExportVersion.DataKey.DIRECTORY, directory);
+        invoke(ActionId.CONTAINER_EXPORT_VERSION, data);
     }
     
     /**
@@ -1686,16 +1753,34 @@ public class Browser extends AbstractApplication {
 	 * 
 	 * @return The file chooser.
 	 */
-	private JFileChooser getJFileChooser() {
+	private JFileChooser getJFileChooserForFileSelection() {
 		if(null == jFileChooser) {
             jFileChooser = new JFileChooser();
             jFileChooser.setMultiSelectionEnabled(Boolean.TRUE);
+            jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		}
         jFileChooser.setCurrentDirectory(persistence.get(
-                Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY,
+                Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION,
                 (File) null));
 		return jFileChooser;
 	}
+    
+    /**
+     * Obtain the file chooser for folder selection.
+     * 
+     * @return The file chooser.
+     */
+    private JFileChooser getJFileChooserForFolderSelection() {
+        if(null == jFileChooser) {
+            jFileChooser = new JFileChooser();
+            jFileChooser.setMultiSelectionEnabled(Boolean.FALSE);
+            jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        }
+        jFileChooser.setCurrentDirectory(persistence.get(
+                Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
+                (File) null));
+        return jFileChooser;
+    }
 
     /**
      * Obtain the main status avatar.

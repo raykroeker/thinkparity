@@ -243,8 +243,10 @@ public final class Constants {
     /** Lookup keys. */
     public static final class Keys {
         public static final class Persistence {
-            public static final String JFILECHOOSER_CURRENT_DIRECTORY =
-                "javax.swing.JFileChooser.currentDirectory";
+            public static final String JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION =
+                "javax.swing.JFileChooser.currentDirectoryFileSelection";
+            public static final String JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION =
+                "javax.swing.JFileChooser.currentDirectoryFolderSelection";
         }
     }
 

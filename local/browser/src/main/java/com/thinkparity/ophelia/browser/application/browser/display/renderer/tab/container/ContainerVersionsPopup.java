@@ -157,9 +157,14 @@ final class ContainerVersionsPopup {
         final Data addDocumentData = new Data(2);
         addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
         addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));       
-        jPopupMenu.addSeparator();       
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_DRAFT, Data.emptyData()));
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
+        
+        jPopupMenu.addSeparator();
+        
+        final Data exportData = new Data(1);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_DRAFT, exportData));
+
         final Data printData = new Data(1);
         printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PRINT_DRAFT, printData));
@@ -228,7 +233,11 @@ final class ContainerVersionsPopup {
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH_VERSION, shareData));    
             jPopupMenu.addSeparator();
         }
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_VERSION, Data.emptyData()));
+        final Data exportData = new Data(2);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportVersion.DataKey.VERSION_ID, version.getVersionId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_VERSION, exportData));
+        
         final Data printData = new Data(2);
         printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
         printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());

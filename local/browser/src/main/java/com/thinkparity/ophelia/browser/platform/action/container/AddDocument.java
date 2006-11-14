@@ -52,9 +52,9 @@ public class AddDocument extends AbstractAction {
             // prompt for files
             browser.runAddContainerDocuments(containerId);
         } else {
-            final ArtifactModel artifactModel = browser.getArtifactModel();
-            final ContainerModel containerModel = browser.getContainerModel();
-            final DocumentModel documentModel = browser.getDocumentModel();
+            final ArtifactModel artifactModel = getArtifactModel();
+            final ContainerModel containerModel = getContainerModel();
+            final DocumentModel documentModel = getDocumentModel();
             Document document;
             for(final File file : files) {
                 try {

@@ -4,7 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.io.File;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -16,6 +16,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @version $Revision$
  */
 public class ExportVersion extends AbstractAction  {
+    
+    /** The browser application. */
+    private final Browser browser;
 
     /**
      * Create ExportVersion.
@@ -25,6 +28,7 @@ public class ExportVersion extends AbstractAction  {
      */
     public ExportVersion(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT_VERSION);
+        this.browser = browser;
     }
 
     /**
@@ -32,6 +36,17 @@ public class ExportVersion extends AbstractAction  {
      */
     @Override
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("ExportVersion");     
-    }  
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+        File directory = (File) data.get(DataKey.DIRECTORY);  
+        
+        if(null == directory) {
+            // prompt for destination
+            browser.runExportVersion(containerId, versionId);
+        } else {
+            getContainerModel().exportVersion(directory, containerId, versionId);    
+        }
+    } 
+    
+    public enum DataKey { CONTAINER_ID, VERSION_ID, DIRECTORY }
 }

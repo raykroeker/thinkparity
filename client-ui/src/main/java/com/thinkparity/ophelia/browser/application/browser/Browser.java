@@ -308,8 +308,27 @@ public class Browser extends AbstractApplication {
      *            The container id.
      */
     public void displayPublishContainerDialog(final Long containerId) {
-        final Data input = new Data(1);
+        final Data input = new Data(2);
+        input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH);
         input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
+    }
+    
+    /**
+     * Display the "publish container" dialog for a version.
+     * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            A version id.        
+     */
+    public void displayPublishContainerDialog(final Long containerId, final Long versionId) {
+        final Data input = new Data(3);
+        input.set(PublishContainerAvatar.DataKey.PUBLISH_TYPE, PublishContainerAvatar.PublishType.PUBLISH_VERSION);
+        input.set(PublishContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
@@ -317,6 +336,10 @@ public class Browser extends AbstractApplication {
     /**
      * Display the container version comment dialog.
      * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            A version id.        
      */
     public void displayContainerVersionInfoDialog(final Long containerId, final Long versionId) {
         final Data input = new Data(2);
@@ -1167,27 +1190,18 @@ public class Browser extends AbstractApplication {
     public void runProfileSignUp() {
         invoke(ActionId.PROFILE_SIGN_UP, Data.emptyData());
     }
-  
-    /**
-     *  Publish the container.
-     *  
-     *  @param containerId
-     *              The container id.
-     *              
-     */
-    public void runPublishContainer(final Long containerId) {
-        final Data data = new Data(1);
-        data.set(Publish.DataKey.CONTAINER_ID, containerId);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
-        });
-    }    
     
     /**
      * Publish the container.
      * 
      *  @param containerId
-     *              The container id.     
+     *              The container id.
+     *  @param teamMembers
+     *              The team members. 
+     *  @param contacts
+     *              The contacts. 
+     *  @param comment
+     *              The comment.                                          
      */
     public void runPublishContainer(final Long containerId,
             final List<TeamMember> teamMembers, final List<Contact> contacts,
@@ -1199,6 +1213,30 @@ public class Browser extends AbstractApplication {
         data.set(Publish.DataKey.COMMENT, comment);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
+        });
+    }
+    
+    /**
+     * Publish the container version (ie. forward).
+     * 
+     *  @param containerId
+     *              The container id.
+     *  @param versionId
+     *              The version id.            
+     *  @param teamMembers
+     *              The team members. 
+     *  @param contacts
+     *              The contacts.   
+     */
+    public void runPublishContainerVersion(final Long containerId, final Long versionId,
+            final List<TeamMember> teamMembers, final List<Contact> contacts) {
+        final Data data = new Data(4);
+        data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
+        data.set(PublishVersion.DataKey.VERSION_ID, versionId);
+        data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
+        data.set(PublishVersion.DataKey.CONTACTS, contacts);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { invoke(ActionId.CONTAINER_PUBLISH_VERSION, data); }
         });
     }
     

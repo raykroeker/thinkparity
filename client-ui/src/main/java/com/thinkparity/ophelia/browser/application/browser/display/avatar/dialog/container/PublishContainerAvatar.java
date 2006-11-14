@@ -13,8 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -25,6 +27,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
@@ -34,6 +38,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -91,15 +96,96 @@ public class PublishContainerAvatar extends Avatar {
     }
 
     public void reload() {
-        Long containerId = getInputContainerId();
-        // If containerId is null then this call to reload() is too early,
+        // If input is null then this call to reload() is too early,
         // the input isn't set up yet.
-        if (null!=containerId) {                        
-            TableSorter sorter = new TableSorter(new CustomTableModel(containerId));
+        if (input!=null) { 
+            reloadExplanation();
+            reloadComment();
+            final PublishType publishType = getInputPublishType();
+            final Long containerId = getInputContainerId();
+            final Long versionId;
+            if (publishType==PublishType.PUBLISH_VERSION) {
+                versionId = getInputVersionId();
+            } else {
+                versionId = getLatestVersionId(containerId);
+            }            
+            TableSorter sorter = new TableSorter(new CustomTableModel(publishType, containerId, versionId));
             namesJTable.setModel(sorter);
             sorter.setTableHeader(namesJTable.getTableHeader());
             initColumnSizes(namesJTable);
             okJButton.setEnabled(isInputValid());
+        }
+    }
+        
+    /**
+     * Get the avatar title.
+     * 
+     * @return the avatar title
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getAvatarTitle()
+     */
+    @Override
+    public String getAvatarTitle() {
+        final PublishType publishType;
+        if (input==null) {
+            publishType = PublishType.PUBLISH;
+        } else {
+            publishType = getInputPublishType();
+        }
+        
+        if (publishType == PublishType.PUBLISH_VERSION) {
+            return getString("PublishVersionTitle");
+        } else {
+            return getString("Title");
+        }
+    }
+    
+    /**
+     * Reload the explanation control.
+     */
+    private void reloadExplanation() {
+        final PublishType publishType = getInputPublishType();
+        final Long containerId = getInputContainerId();
+        final Long versionId = getInputVersionId();
+        final String name = ((PublishContainerProvider) contentProvider).getContainerName(containerId);
+        if (publishType == PublishType.PUBLISH_VERSION) {
+            final Calendar publishDate = getPublishDate(containerId, versionId);
+            explanationJLabel.setText(getString("PublishVersionExplanation", new Object[] {name, publishDate.getTime()}));
+        } else {
+            explanationJLabel.setText(getString("Explanation", new Object[] {name}));    
+        }
+    }
+    
+    /**
+     * Reload the comment control.
+     * Normally the control is blank and editable. If PUBLISH_VERSION then
+     * load the existing comment and don't allow edit.
+     */
+    private void reloadComment() {
+        final PublishType publishType = getInputPublishType();
+        if (publishType == PublishType.PUBLISH_VERSION) {
+            final Long containerId = getInputContainerId();
+            final Long versionId = getInputVersionId();
+            final String comment = ((PublishContainerProvider) contentProvider).getContainerVersionComment(containerId, versionId);
+            commentJTextField.setText(comment);
+            commentJTextField.setEditable(false);
+            commentJTextField.setFocusable(false);
+        } else {
+            commentJTextField.setText(null);
+            commentJTextField.setEditable(true);
+            commentJTextField.setFocusable(true);
+        }
+    }
+    
+    /**
+     * Obtain the input container id.
+     *
+     * @return A PublishType.
+     */
+    private PublishType getInputPublishType() {
+        if (input!=null) {
+            return (PublishType) ((Data) input).get(DataKey.PUBLISH_TYPE);
+        } else {
+            return null;
         }
     }
     
@@ -111,6 +197,19 @@ public class PublishContainerAvatar extends Avatar {
     private Long getInputContainerId() {
         if (input!=null) {
             return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Obtain the input version id.
+     *
+     * @return A version id.
+     */
+    private Long getInputVersionId() {
+        if (input!=null) {
+            return (Long) ((Data) input).get(DataKey.VERSION_ID);
         } else {
             return null;
         }
@@ -134,8 +233,10 @@ public class PublishContainerAvatar extends Avatar {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        explanationJLabel.setFocusable(false);
 
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
+        commentJLabel.setFocusable(false);
 
         namesJScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(231, 239, 250)));
         namesJTable.setIntercellSpacing(new java.awt.Dimension(0, 0));
@@ -165,12 +266,12 @@ public class PublishContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
-                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
+                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -214,36 +315,81 @@ public class PublishContainerAvatar extends Avatar {
      * Publish the container. (Expect to call this if the user presses "OK" and input is valid.)
      */
     private void publishContainer() {
-        Long containerId = getInputContainerId();
-        TableSorter sorter = (TableSorter)namesJTable.getModel();
-        CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
+        final PublishType publishType = getInputPublishType();
+        final Long containerId = getInputContainerId(); 
+        final TableSorter sorter = (TableSorter)namesJTable.getModel();
+        final CustomTableModel model = (CustomTableModel)(sorter.getTableModel());
         final List<TeamMember> teamMembers = model.getSelectedTeamMembers();
         final List<Contact> contacts = model.getSelectedContacts();
-        final String comment = commentJTextField.getText();
-        getController().runPublishContainer(containerId, teamMembers, contacts, comment);    
+        if (publishType==PublishType.PUBLISH_VERSION) {
+            final Long versionId = getInputVersionId();
+            getController().runPublishContainerVersion(containerId, versionId, teamMembers, contacts);    
+        } else {
+            final String comment = commentJTextField.getText();
+            getController().runPublishContainer(containerId, teamMembers, contacts, comment);  
+        }  
     }
     
     /**
-     * Read team members.
+     * Get most recent version id, or null if there is no version.
+     */
+    private Long getLatestVersionId(final Long containerId) {
+        return ((PublishContainerProvider)contentProvider).getLatestVersionId(containerId);
+    }
+    
+    /**
+     * Get the publish date.
+     */
+    private Calendar getPublishDate(final Long containerId, final Long versionId) {
+        if (null==versionId) {
+            // True if there is no published version yet.
+            return null;
+        } else {
+            return ((PublishContainerProvider)contentProvider).getPublishDate(containerId, versionId);
+        }
+    }
+    
+    /**
+     * Get the publisher.
+     */
+    private User getPublisher(final Long containerId, final Long versionId) {
+        if (null==versionId) {
+            // True if there is no published version yet.
+            return null;
+        } else {
+            return ((PublishContainerProvider)contentProvider).getPublisher(containerId, versionId);
+        }
+    }
+    
+    /**
+     * Read users that got this version.
+     */
+    private Map<User, ArtifactReceipt> readVersionUsers(final Long containerId, final Long versionId) {
+        if (null==versionId) {
+            // True if there is no published version yet.
+            return null;
+        } else {
+            return ((PublishContainerProvider)contentProvider).getVersionUsers(containerId, versionId);
+        }
+    }
+    
+    /**
+     * Read team members. The current user is removed.
      * 
      * @param containerId
      *          The container id.
      * @return The list of team members.
      */
     private List<TeamMember> readTeamMembers(final Long containerId) {
-        if (null==containerId) {
-            return null;
-        } else {
-            final Profile profile = readProfile();
-            final List<TeamMember> list = new LinkedList<TeamMember>();
-            final TeamMember[] array = (TeamMember[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(1, containerId);
-            for (final TeamMember teamMember : array) {
-                if (!teamMember.getId().equals(profile.getId())) {
-                    list.add(teamMember);
-                }
+        final Profile profile = readProfile();  
+        final List<TeamMember> allTeamMembers = ((PublishContainerProvider)contentProvider).readTeamMembers(containerId);
+        final List<TeamMember> teamMembers = new LinkedList <TeamMember>();
+        for (final TeamMember teamMember : allTeamMembers) {
+            if (!teamMember.getId().equals(profile.getId())) {
+                teamMembers.add(teamMember);
             }
-            return list;
         }
+        return teamMembers;
     }
 
     /**
@@ -256,9 +402,9 @@ public class PublishContainerAvatar extends Avatar {
      * @return The list of contacts.
      */
     private List<Contact> readContacts(List<TeamMember> teamMembers) {
-        final List<Contact> list = new LinkedList<Contact>();
-        final Contact[] array = (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
-        for (final Contact contact : array) {
+        final List<Contact> allContacts = ((PublishContainerProvider)contentProvider).readContacts();
+        final List<Contact> contacts = new LinkedList <Contact>();
+        for (final Contact contact : allContacts) {
             Boolean found = Boolean.FALSE;
             for (final TeamMember teamMember : teamMembers) {
                 if (teamMember.getId().equals(contact.getId())) {
@@ -267,10 +413,10 @@ public class PublishContainerAvatar extends Avatar {
                 }
             }
             if (!found) {
-                list.add((Contact) contact);
+                contacts.add(contact);
             }
         }
-        return list;
+        return contacts;
     }
 
     /**
@@ -279,7 +425,7 @@ public class PublishContainerAvatar extends Avatar {
      * @return The profile.
      */
     private Profile readProfile() {
-        final Profile profile = (Profile) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, null);
+        final Profile profile = (Profile) ((PublishContainerProvider)contentProvider).readProfile();
         return profile;
     }
     
@@ -348,26 +494,48 @@ public class PublishContainerAvatar extends Avatar {
         private final boolean[] canEdit = new boolean [] {
                 true, false, false, false, false
             };
-               
+        
+        private final PublishType publishType;
+        private final Boolean versionExists;
+        private final User publisher;
+        private final Map<User, ArtifactReceipt> versionUsers;
         private final List<TeamMember> teamMembers;
         private final List<Contact> contacts;
         private List<Boolean> publishTo;
         
-        public CustomTableModel(final Long containerId) {
+        public CustomTableModel(final PublishType publishType, final Long containerId, final Long versionId) {
             super();
             if (null==containerId) {
-                // Likely true on first call to reload()
+                Assert.assertNotNull("containerId cannot be null.", containerId);
+                this.publishType = PublishType.PUBLISH;
+                versionExists = Boolean.FALSE;
+                publisher = null;
+                versionUsers = null;
                 teamMembers = null;
                 contacts = null;
                 publishTo = null;
             } else {
+                this.publishType = publishType;
+                versionExists = (null!=versionId);
+                publisher = getPublisher(containerId, versionId);
+                versionUsers = readVersionUsers(containerId, versionId);
                 teamMembers = readTeamMembers(containerId);
                 contacts = readContacts(teamMembers);
                 publishTo = new ArrayList<Boolean>(getRowCount());
-                for (int i = 0; i < getRowCount(); i++) {
-                    if (i < teamMembers.size()) {
-                        publishTo.add(Boolean.TRUE);
-                    } else {
+                
+                // When publishing, by default select those that were
+                // sent the last version (not the same as all team members)
+                if (publishType == PublishType.PUBLISH) {                    
+                    for (int i = 0; i < getRowCount(); i++) {
+                        if (i < teamMembers.size()) {
+                            TeamMember teamMember = teamMembers.get(i);
+                            publishTo.add(isVersionUser(teamMember));
+                        } else {
+                            publishTo.add(Boolean.FALSE);
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < getRowCount(); i++) {
                         publishTo.add(Boolean.FALSE);
                     }
                 }
@@ -420,7 +588,17 @@ public class PublishContainerAvatar extends Avatar {
         }
         
         public String getColumnName(final int columnIndex) {
-            return localization.getString("TableColumnTitle" + columnIndex);
+            if (columnIndex == 4) {
+                if (versionExists && (publishType==PublishType.PUBLISH)) {
+                    return localization.getString("TableColumnTitle4_NotFirstPublish");
+                } else if (versionExists && (publishType==PublishType.PUBLISH_VERSION)) {
+                    return localization.getString("TableColumnTitle4_Forward"); 
+                } else {
+                    return localization.getString("TableColumnTitle4_FirstPublish");
+                }
+            } else {
+                return localization.getString("TableColumnTitle" + columnIndex);
+            }
         }
         
         public boolean isCellEditable(final int rowIndex, final int columnIndex) {
@@ -460,11 +638,52 @@ public class PublishContainerAvatar extends Avatar {
             case 3:
                 value = user.getOrganization();
                 break;
+            case 4:                     
+                if (user.getId().equals(publisher.getId())) {
+                    value = localization.getString("TeamMemberPublisher");
+                } else if (isVersionUser(user)) {
+                    ArtifactReceipt receipt = getArtifactReceipt(user);    
+                    if ((null == receipt) || (!receipt.isSetReceivedOn())) {
+                        value = localization.getString("TeamMemberDidNotReceive");
+                    } else {
+                        value = localization.getString("TeamMemberReceived", new Object[] {receipt.getReceivedOn().getTime()});     
+                    }
+                } else if (teamMembers.contains(user)) {
+                    // Team members that didn't get sent this version
+                    if (publishType==PublishType.PUBLISH_VERSION) {
+                        value = localization.getString("TeamMemberNotSentToForward"); 
+                    } else {
+                        value = localization.getString("TeamMemberNotSentToPublish");
+                    }
+                } else {
+                    // Will be true for non-team members, eg. contacts
+                    value = null;
+                }
+                break;
             default:
                 value = null;
                 break;
             }
             return value;
+        }
+        
+        public Boolean isVersionUser(final User user) {
+            for (final User versionUser : versionUsers.keySet()) {
+                if (versionUser.getId().equals(user.getId())) {
+                    return Boolean.TRUE;
+                }
+            }
+            return Boolean.FALSE;
+            
+        }
+        
+        public ArtifactReceipt getArtifactReceipt(final User user) {
+            for (final User versionUser : versionUsers.keySet()) {
+                if (versionUser.getId().equals(user.getId())) {
+                    return versionUsers.get(versionUser);
+                }
+            }
+            return null;
         }
     }
     
@@ -608,5 +827,6 @@ public class PublishContainerAvatar extends Avatar {
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
     
-    public enum DataKey { CONTAINER_ID }
+    public enum PublishType { PUBLISH, PUBLISH_VERSION }
+    public enum DataKey { PUBLISH_TYPE, CONTAINER_ID, VERSION_ID }
 }

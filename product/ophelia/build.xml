@@ -162,10 +162,23 @@
         </copy>
         <copy todir="${target.release.dir}/${release.version}/lib">
             <fileset dir="${basedir}/vendor">
-                <include name="**/*.jar"/>
-                <exclude name="**/*-sources.jar"/>
-                <exclude name="**/*-javadoc.jar"/>
-                <exclude name="**/junit.jar"/>
+                <include name="commons-codec/1.3/commons-codec.jar"/>
+                <include name="dom4j/1.6.1/dom4j.jar"/>
+                <include name="fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
+                <include name="fop/0.20.5/batik.jar"/>
+                <include name="fop/0.20.5/fop.jar"/>
+                <include name="groovy/1.0-JSR06/groovy.jar"/>
+                <include name="hsqldb/1.8.0.2/hsqldb.jar"/>
+                <include name="jdic/0.9.1/${platform}/jdic.jar"/>
+                <include name="jdic_icon/0.1.1/${platform}/jdic_icon.jar"/>
+                <include name="log4j/1.2.13/log4j.jar"/>
+                <include name="lucene/1.9.1/lucene.jar"/>
+                <include name="nativeskin/6.7/nativeskin.jar"/>
+                <include name="smack/2.2.1/smack.jar"/>
+                <include name="smackx/2.2.1/smackx.jar"/>
+                <include name="swing-layout/1.0/swing-layout.jar"/>
+                <include name="xpp3/1.1.3.4.O/xpp3.jar"/>
+                <include name="xstream/1.2.1/xstream.jar"/>
             </fileset>
             <mapper type="flatten"/>
         </copy>

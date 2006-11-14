@@ -7,10 +7,10 @@ package com.thinkparity.desdemona.util.xmpp;
 import java.util.List;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.xml.dom4j.ElementBuilder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 
 import org.xmpp.packet.IQ;
 

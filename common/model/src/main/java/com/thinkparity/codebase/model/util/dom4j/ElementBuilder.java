@@ -1,7 +1,7 @@
 /*
  * Created On: Dec 7, 2005
  */
-package com.thinkparity.codebase.xml.dom4j;
+package com.thinkparity.codebase.model.util.dom4j;
 
 import java.nio.charset.Charset;
 import java.text.MessageFormat;

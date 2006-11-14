@@ -11,7 +11,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.xml.dom4j.ElementBuilder;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -19,6 +18,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 

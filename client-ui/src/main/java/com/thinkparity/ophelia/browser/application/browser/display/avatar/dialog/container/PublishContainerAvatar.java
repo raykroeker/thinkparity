@@ -640,7 +640,7 @@ public class PublishContainerAvatar extends Avatar {
                 value = user.getOrganization();
                 break;
             case 4:                     
-                if (user.getId().equals(publisher.getId())) {
+                if ((null!=publisher) && (user.getId().equals(publisher.getId()))) {
                     value = localization.getString("TeamMemberPublisher");
                 } else if (isVersionUser(user)) {
                     ArtifactReceipt receipt = getArtifactReceipt(user);    
@@ -669,19 +669,22 @@ public class PublishContainerAvatar extends Avatar {
         }
         
         public Boolean isVersionUser(final User user) {
-            for (final User versionUser : versionUsers.keySet()) {
-                if (versionUser.getId().equals(user.getId())) {
-                    return Boolean.TRUE;
+            if (null != versionUsers) {
+                for (final User versionUser : versionUsers.keySet()) {
+                    if (versionUser.getId().equals(user.getId())) {
+                        return Boolean.TRUE;
+                    }
                 }
             }
-            return Boolean.FALSE;
-            
+            return Boolean.FALSE;            
         }
         
         public ArtifactReceipt getArtifactReceipt(final User user) {
-            for (final User versionUser : versionUsers.keySet()) {
-                if (versionUser.getId().equals(user.getId())) {
-                    return versionUsers.get(versionUser);
+            if (null != versionUsers) {
+                for (final User versionUser : versionUsers.keySet()) {
+                    if (versionUser.getId().equals(user.getId())) {
+                        return versionUsers.get(versionUser);
+                    }
                 }
             }
             return null;

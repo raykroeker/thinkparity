@@ -175,9 +175,9 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public void export(final File exportDirectory, final Long containerId) {
+    public File export(final File exportDirectory, final Long containerId) {
         synchronized (getImplLock()) {
-            getImpl().export(exportDirectory, containerId);
+            return getImpl().export(exportDirectory, containerId);
         }
     }
 
@@ -191,10 +191,10 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    public void exportVersion(final File exportDirectory, final Long containerId,
+    public File exportVersion(final File exportDirectory, final Long containerId,
             final Long versionId) {
         synchronized (getImplLock()) {
-            getImpl().exportVersion(exportDirectory, containerId, versionId);
+            return getImpl().exportVersion(exportDirectory, containerId, versionId);
         }
     }
 

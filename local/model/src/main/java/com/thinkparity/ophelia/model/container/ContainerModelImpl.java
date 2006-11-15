@@ -417,7 +417,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param containerId
      *            The container id <code>Long</code>.
      */
-    void export(final File exportDirectory, final Long containerId) {
+    File export(final File exportDirectory, final Long containerId) {
         logger.logApiId();
         logger.logVariable("exportDirectory", exportDirectory);
         logger.logVariable("containerId", containerId);
@@ -426,7 +426,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     "Export directory {0} is not a directory.", exportDirectory);
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            export(exportDirectory, container, versions);
+            return export(exportDirectory, container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -442,7 +442,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    void exportVersion(final File exportDirectory, final Long containerId,
+    File exportVersion(final File exportDirectory, final Long containerId,
             final Long versionId) {
         logger.logApiId();
         logger.logVariable("exportDirectory", exportDirectory);
@@ -454,7 +454,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Container container = read(containerId);
             final List<ContainerVersion> versions = new ArrayList<ContainerVersion>(1);
             versions.add(readVersion(containerId, versionId));
-            export(exportDirectory, container, versions);
+            return export(exportDirectory, container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2314,7 +2314,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @throws IOException
      * @throws TransformerException
      */
-    private void export(final File exportDirectory, final Container container,
+    private File export(final File exportDirectory, final Container container,
             final List<ContainerVersion> versions) throws IOException,
             TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
@@ -2369,7 +2369,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
                 "{0}.zip", container.getName()));
         ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
-        FileUtil.copy(zipFile, new File(exportDirectory, zipFile.getName()));
+        final File exportFile = new File(exportDirectory, zipFile.getName());
+        FileUtil.copy(zipFile, exportFile);
+        return exportFile;
     }
 
     /**

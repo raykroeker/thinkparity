@@ -209,7 +209,7 @@ public class ExportAvatar extends Avatar {
         cancelJButton = new javax.swing.JButton();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJLabel.setText(bundle.getString("ExportDialog.Explanation")); // NOI18N
+        explanationJLabel.setText(bundle.getString("ExportDialog.ExplanationContainer")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         explanationJLabel.setFocusable(false);
 
@@ -306,10 +306,15 @@ public class ExportAvatar extends Avatar {
     
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         if(isInputValid()) {
-            final Long containerId = getInputContainerId();
-            final Long versionId = getInputVersionId();
             File directory = new File(SwingUtil.extract(directoryJTextField));
-            getController().runExportVersion(containerId, versionId, directory);
+            final ExportType exportType = getExportType();
+            final Long containerId = getInputContainerId();
+            if (exportType==ExportType.CONTAINER) {
+                getController().runExport(containerId, directory);                 
+            } else {
+                final Long versionId = getInputVersionId();
+                getController().runExportVersion(containerId, versionId, directory);
+            }
             disposeWindow();
         }
     }//GEN-LAST:event_okJButtonActionPerformed

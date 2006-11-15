@@ -332,21 +332,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=?")
             .toString();
 
-    /** Sql to read the container published to list. */
-    private static final String SQL_READ_SHARED_WITH =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE ")
-            .append("from CONTAINER C ")
-            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
-            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
-            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
-            .append("inner join CONTAINER_VERSION_SHARED_WITH CVSW on CV.CONTAINER_ID=CVSW.CONTAINER_ID ")
-            .append("and CV.CONTAINER_VERSION_ID=CVSW.CONTAINER_VERSION_ID ")
-            .append("inner join USER U on CVSW.USER_ID=U.USER_ID ")
-            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
-            .toString();
-
     /** Sql to read a container version. */
     private static final String SQL_READ_VERSION =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
@@ -926,27 +911,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                         session.getCalendar("RECEIVED_ON"));
             }
             return publishedTo;
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readSharedWith(java.lang.Long, java.lang.Long)
-     */
-    public List<User> readSharedWith(final Long containerId,
-            final Long versionId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_SHARED_WITH);
-            session.setLong(1, containerId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            final List<User> sharedWith = new ArrayList<User>();
-            while (session.nextResult()) {
-                sharedWith.add(userIO.extractUser(session));
-            }
-            return sharedWith;
         } finally {
             session.close();
         }

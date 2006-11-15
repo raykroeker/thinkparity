@@ -684,73 +684,68 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
-            if (artifactModel.doesVersionExist(containerId, event.getVersionId())) {
-                logger.logWarning("Container {0}:{1} already exists.", event
-                        .getUniqueId(), event.getVersionId());
-            } else {
-                // add to local team
-                final InternalUserModel userModel = getInternalUserModel();
-                final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
-                final List<User> publishedToUsers = new ArrayList<User>();
-                for (final JabberId publishedToId : event.getPublishedTo()) {
-                    if (!contains(localTeam, publishedToId)) {
-                        artifactModel.addTeamMember(containerId, publishedToId);
-                    }
-                    publishedToUsers.add(userModel.read(publishedToId));
+            // add to local team
+            final InternalUserModel userModel = getInternalUserModel();
+            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
+            final List<User> publishedToUsers = new ArrayList<User>();
+            for (final JabberId publishedToId : event.getPublishedTo()) {
+                if (!contains(localTeam, publishedToId)) {
+                    artifactModel.addTeamMember(containerId, publishedToId);
                 }
-                // add the sender as well
-                if (!contains(localTeam, event.getPublishedBy())) {
-                    artifactModel.addTeamMember(containerId, event.getPublishedBy());
-                }
-                // delete draft
-                final ContainerDraft draft = readDraft(containerId);
-                if (null == draft) {
-                    logger.logWarning("Draft did not previously exist for {0}.", event.getName());
-                } else {
-                    for (final Artifact artifact : draft.getArtifacts()) {
-                        containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
-                    }
-                    containerIO.deleteDraft(containerId);
-                }
-                // create published to list
-                containerIO.createPublishedTo(containerId, event.getVersionId(), publishedToUsers);
-                // calculate differences
-                final ContainerVersion version = readVersion(containerId, event.getVersionId());
-                final ContainerVersion previous = readPreviousVersion(containerId, event.getVersionId());
-                final ContainerVersion next = readNextVersion(containerId, event.getVersionId());
-                if (null == previous) {
-                    logger.logInfo("First version of {0}.", event.getName());
-                } else {
-                    containerIO.deleteDelta(containerId, previous.getVersionId(),
-                            version.getVersionId());
-                    containerIO.createDelta(calculateDelta(read(containerId),
-                            previous, version));
-                }
-                if (null == next) {
-                    logger.logInfo("Latest version of {0}.", event.getName());
-                } else {
-                    containerIO.deleteDelta(containerId, version.getVersionId(),
-                            next.getVersionId());
-                    containerIO.createDelta(calculateDelta(read(containerId),
-                            version, next));
-                }
-                // apply comment
-                containerIO.updateComment(containerId, version.getVersionId(),
-                        event.getComment());
-                // send confirmation
-                getSessionModel().confirmArtifactReceipt(localUserId(),
-                        event.getUniqueId(), event.getVersionId(), localUserId(),
-                        currentDateTime());
-                // audit\fire event
-                final Container postPublish = read(containerId);
-                final ContainerDraft postPublishDraft = readDraft(containerId);
-                final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
-                auditContainerPublished(postPublish, postPublishDraft,
-                        postPublishVersion, event.getPublishedBy(),
-                        event.getPublishedTo(), event.getPublishedOn());
-                notifyContainerPublished(postPublish, postPublishDraft,
-                        postPublishVersion, remoteEventGenerator);
+                publishedToUsers.add(userModel.read(publishedToId));
             }
+            // add the sender as well
+            if (!contains(localTeam, event.getPublishedBy())) {
+                artifactModel.addTeamMember(containerId, event.getPublishedBy());
+            }
+            // delete draft
+            final ContainerDraft draft = readDraft(containerId);
+            if (null == draft) {
+                logger.logWarning("Draft did not previously exist for {0}.", event.getName());
+            } else {
+                for (final Artifact artifact : draft.getArtifacts()) {
+                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                }
+                containerIO.deleteDraft(containerId);
+            }
+            // create published to list
+            containerIO.createPublishedTo(containerId, event.getVersionId(), publishedToUsers);
+            // calculate differences
+            final ContainerVersion version = readVersion(containerId, event.getVersionId());
+            final ContainerVersion previous = readPreviousVersion(containerId, event.getVersionId());
+            final ContainerVersion next = readNextVersion(containerId, event.getVersionId());
+            if (null == previous) {
+                logger.logInfo("First version of {0}.", event.getName());
+            } else {
+                containerIO.deleteDelta(containerId, previous.getVersionId(),
+                        version.getVersionId());
+                containerIO.createDelta(calculateDelta(read(containerId),
+                        previous, version));
+            }
+            if (null == next) {
+                logger.logInfo("Latest version of {0}.", event.getName());
+            } else {
+                containerIO.deleteDelta(containerId, version.getVersionId(),
+                        next.getVersionId());
+                containerIO.createDelta(calculateDelta(read(containerId),
+                        version, next));
+            }
+            // apply comment
+            containerIO.updateComment(containerId, version.getVersionId(),
+                    event.getComment());
+            // send confirmation
+            getSessionModel().confirmArtifactReceipt(localUserId(),
+                    event.getUniqueId(), event.getVersionId(), localUserId(),
+                    currentDateTime());
+            // audit\fire event
+            final Container postPublish = read(containerId);
+            final ContainerDraft postPublishDraft = readDraft(containerId);
+            final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
+            auditContainerPublished(postPublish, postPublishDraft,
+                    postPublishVersion, event.getPublishedBy(),
+                    event.getPublishedTo(), event.getPublishedOn());
+            notifyContainerPublished(postPublish, postPublishDraft,
+                    postPublishVersion, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1504,97 +1499,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("filter", filter);
         return readPublishedTo(containerId, versionId, defaultUserComparator,
                 filter); 
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        return readSharedWith(containerId, versionId, defaultUserComparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.\
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Comparator<User> comparator) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        return readSharedWith(containerId, versionId, comparator,
-                defaultUserFilter);
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param comparator
-     *            A <code>Comparator&lt;User&gt;</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Comparator<User> comparator,
-            final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("comparator", comparator);
-        logger.logVariable("filter", filter);
-        final List<User> users = containerIO.readSharedWith(containerId, versionId);
-        FilterManager.filter(users, filter);
-        ModelSorter.sortUsers(users, comparator);
-        final Map<User, ArtifactReceipt> sharedWith = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
-        for (final User user : users) {
-            sharedWith.put(user, new ArtifactReceipt());
-        }
-        return sharedWith;
-    }
-
-    /**
-     * Read a list of users the container version was shared with.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param filter
-     *            A <code>Filter&lt;? super User&gt;</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    Map<User, ArtifactReceipt> readSharedWith(final Long containerId,
-            final Long versionId, final Filter<? super User> filter) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("filter", filter);
-        return readSharedWith(containerId, versionId, defaultUserComparator,
-                filter);
     }
 
     /**
@@ -2427,15 +2331,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
             new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith =
-            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         InputStream stream;
         File directory, file;
         for (final ContainerVersion version : versions) {
             versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
             publishedTo.put(version, readPublishedTo(
-                    version.getArtifactId(), version.getVersionId()));
-            sharedWith.put(version, readSharedWith(
                     version.getArtifactId(), version.getVersionId()));
 
             documents.put(version, readDocumentVersions(
@@ -2464,8 +2364,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
         pdfWriter.write(nameGenerator.pdfFileName(container), container,
                 readUser(container.getCreatedBy()), versions,
-                versionsPublishedBy, documents, documentsSize, publishedTo,
-                sharedWith);
+                versionsPublishedBy, documents, documentsSize, publishedTo);
 
         final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
                 "{0}.zip", container.getName()));

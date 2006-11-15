@@ -251,18 +251,6 @@ public interface ContainerIOHandler {
             final Long versionId);
 
     /**
-     * Read the shared with list for the container version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>List&lt;User&gt;</code>.
-     */
-    public List<User> readSharedWith(final Long containerId,
-            final Long versionId);
-
-    /**
      * Read a container version.
      * 
      * @param containerId

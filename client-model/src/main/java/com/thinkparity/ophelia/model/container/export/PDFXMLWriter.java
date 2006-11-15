@@ -44,8 +44,6 @@ final class PDFXMLWriter {
 
     private final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo;
 
-    private final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith;
-    
     private Statistics statistics;
 
     private final List<ContainerVersion> versions;
@@ -61,7 +59,6 @@ final class PDFXMLWriter {
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
        this.publishedTo = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
-       this.sharedWith = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
        this.versions = new ArrayList<ContainerVersion>();
        this.versionsPublishedBy = new HashMap<ContainerVersion, User>();
        this.exportFileSystem = exportFileSystem;
@@ -89,8 +86,7 @@ final class PDFXMLWriter {
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith)
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo)
             throws IOException, TransformerException {
         this.container = container;
         this.containerCreatedBy = containerCreatedBy;
@@ -100,8 +96,6 @@ final class PDFXMLWriter {
         this.documentsSize.putAll(documentsSize);
         this.publishedTo.clear();
         this.publishedTo.putAll(publishedTo);
-        this.sharedWith.clear();
-        this.sharedWith.putAll(publishedTo);
         this.versions.clear();
         this.versions.addAll(versions);
         this.versionsPublishedBy.clear();
@@ -159,12 +153,8 @@ final class PDFXMLWriter {
 
     private List<PDFXMLUser> createPDFXMLUsers(final ContainerVersion version) {
         final Map<User, ArtifactReceipt> publishedTo = this.publishedTo.get(version);
-        final Map<User, ArtifactReceipt> sharedWith = this.sharedWith.get(version);
-        final List<PDFXMLUser> pdfXML = new ArrayList<PDFXMLUser>(publishedTo.size() + sharedWith.size());
+        final List<PDFXMLUser> pdfXML = new ArrayList<PDFXMLUser>(publishedTo.size());
         for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-            pdfXML.add(createPDFXMLUser(entry.getKey(), entry.getValue()));
-        }
-        for (final Entry<User, ArtifactReceipt> entry : sharedWith.entrySet()) {
             pdfXML.add(createPDFXMLUser(entry.getKey(), entry.getValue()));
         }
         return pdfXML;
@@ -221,11 +211,6 @@ final class PDFXMLWriter {
         for (final ContainerVersion version : publishedTo.keySet()) {
             this.statistics.usersPerVersion.put(version, publishedTo.get(version).size());
             this.statistics.usersSum += publishedTo.get(version).size();
-        }
-        for (final ContainerVersion version : sharedWith.keySet()) {
-            this.statistics.usersPerVersion.put(version,
-                    this.statistics.usersPerVersion.get(version) + sharedWith.get(version).size());
-            this.statistics.usersSum += sharedWith.get(version).size();
         }
     }
 

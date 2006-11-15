@@ -17,18 +17,19 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.fop.apps.Driver;
-
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+
+import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.fop.apps.Driver;
 
 /**
  * @author raymond@thinkparity.com
@@ -79,13 +80,11 @@ public final class PDFWriter  {
             final Map<ContainerVersion, User> versionsPublishedBy,
             final Map<ContainerVersion, List<DocumentVersion>> documents,
             final Map<DocumentVersion, Long> documentsSize,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> sharedWith)
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo)
             throws TransformerException, IOException {
         final String xmlPath = "pdfWriter.xml";
         xmlWriter.write(xmlPath, container, containerCreatedBy, versions,
-                versionsPublishedBy, documents, documentsSize, publishedTo,
-                sharedWith);
+                versionsPublishedBy, documents, documentsSize, publishedTo);
 
         final Driver driver = new Driver();
         final Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_DEBUG);

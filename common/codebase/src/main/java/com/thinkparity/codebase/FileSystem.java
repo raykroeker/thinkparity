@@ -94,6 +94,14 @@ public class FileSystem {
         return findFile(path);
     }
 
+    /**
+     * Delete the entire file system tree.
+     *
+     */
+    public void deleteTree() {
+        FileUtil.deleteTree(root);
+    }
+
     /** @see java.lang.Object#equals(java.lang.Object) */
     public boolean equals(Object obj) {
         if(null != obj && obj instanceof FileSystem) {
@@ -158,18 +166,6 @@ public class FileSystem {
     public int hashCode() { return root.hashCode(); }
 
     /**
-     * List all files (non-recursive) in the file system beneath the root that
-     * match the filter.
-     * 
-     * @param filter
-     *            A <code>FileFilter</code>.
-     * @return A list of files.
-     */
-    public File[] list(final String path, final FileFilter filter) {
-        return list(path, filter, Boolean.FALSE);
-    }
-
-    /**
      * List all files in the file system beneath the relative path. If a
      * recursive listing is required; see
      * {@link #list(String, Boolean) list(String,Boolean)}.
@@ -203,6 +199,18 @@ public class FileSystem {
         } else {
             return file.listFiles();
         }
+    }
+
+    /**
+     * List all files (non-recursive) in the file system beneath the root that
+     * match the filter.
+     * 
+     * @param filter
+     *            A <code>FileFilter</code>.
+     * @return A list of files.
+     */
+    public File[] list(final String path, final FileFilter filter) {
+        return list(path, filter, Boolean.FALSE);
     }
 
     /**

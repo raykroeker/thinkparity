@@ -47,7 +47,7 @@ public class ZipUtil {
 			for (final File file : files) {
                 // dont' add the zipFile
                 if (file.getAbsolutePath().equals(zipFile.getAbsolutePath()))
-                    break;
+                    continue;
 
                 zipStream.putNextEntry(new ZipEntry(resolveName(inputDirectory, file)));
                 fileStream  = new FileInputStream(file);

@@ -243,10 +243,12 @@ public final class Constants {
     /** Lookup keys. */
     public static final class Keys {
         public static final class Persistence {
-            public static final String JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION =
-                "javax.swing.JFileChooser.currentDirectoryFileSelection";
-            public static final String JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION =
-                "javax.swing.JFileChooser.currentDirectoryFolderSelection";
+            public static final String CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY =
+                "com.thinkparity.ophelia.browser.platform.action.container.AddDocument#CurrentDirectory";
+            public static final String CONTAINER_EXPORT_DRAFT_SELECTED_DIRECTORY =
+                "com.thinkparity.ophelia.browser.platform.action.container.ExportDraft#SelectedDirectory";
+            public static final String CONTAINER_EXPORT_VERSION_SELECTED_DIRECTORY =
+                "com.thinkparity.ophelia.browser.platform.action.container.ExportVersion#SelectedDirectory";
         }
     }
 

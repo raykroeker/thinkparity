@@ -2323,56 +2323,60 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 workspace.createTempDirectory(
                         nameGenerator.exportDirectoryName(container)));
 
-        final InternalDocumentModel documentModel = getInternalDocumentModel();
-        final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
-        final Map<ContainerVersion, User> versionsPublishedBy =
-            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-        final Map<ContainerVersion, List<DocumentVersion>> documents =
-            new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
-        final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
-            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
-        InputStream stream;
-        File directory, file;
-        for (final ContainerVersion version : versions) {
-            versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
-            publishedTo.put(version, readPublishedTo(
-                    version.getArtifactId(), version.getVersionId()));
-
-            documents.put(version, readDocumentVersions(
-                    version.getArtifactId(), version.getVersionId()));
-            directory = exportFileSystem.createDirectory(
-                    nameGenerator.exportDirectoryName(version));
-            for (final DocumentVersion documentVersion : documents.get(version)) {
-                documentsSize.put(documentVersion, readDocumentVersionSize(
-                        documentVersion.getArtifactId(), documentVersion.getVersionId()));
-
-                file = new File(directory,
-                        documentNameGenerator.exportFileName(documentVersion));
-                Assert.assertTrue(file.createNewFile(),
-                        "Cannot create file {0}.", file);
-                stream = documentModel.openVersionStream(
-                        documentVersion.getArtifactId(),
-                        documentVersion.getVersionId());
-                try {
-                    FileUtil.write(stream, file);
-                } finally {
-                    stream.close();
+        try {
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
+            final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
+            final Map<ContainerVersion, User> versionsPublishedBy =
+                new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+            final Map<ContainerVersion, List<DocumentVersion>> documents =
+                new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
+            final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
+                new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+            InputStream stream;
+            File directory, file;
+            for (final ContainerVersion version : versions) {
+                versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
+                publishedTo.put(version, readPublishedTo(
+                        version.getArtifactId(), version.getVersionId()));
+    
+                documents.put(version, readDocumentVersions(
+                        version.getArtifactId(), version.getVersionId()));
+                directory = exportFileSystem.createDirectory(
+                        nameGenerator.exportDirectoryName(version));
+                for (final DocumentVersion documentVersion : documents.get(version)) {
+                    documentsSize.put(documentVersion, readDocumentVersionSize(
+                            documentVersion.getArtifactId(), documentVersion.getVersionId()));
+    
+                    file = new File(directory,
+                            documentNameGenerator.exportFileName(documentVersion));
+                    Assert.assertTrue(file.createNewFile(),
+                            "Cannot create file {0}.", file);
+                    stream = documentModel.openVersionStream(
+                            documentVersion.getArtifactId(),
+                            documentVersion.getVersionId());
+                    try {
+                        FileUtil.write(stream, file);
+                    } finally {
+                        stream.close();
+                    }
                 }
             }
+    
+            final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
+            pdfWriter.write(nameGenerator.pdfFileName(container), container,
+                    readUser(container.getCreatedBy()), versions,
+                    versionsPublishedBy, documents, documentsSize, publishedTo);
+    
+            final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
+                    "{0}.zip", container.getName()));
+            ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
+            final File exportFile = new File(exportDirectory, zipFile.getName());
+            FileUtil.copy(zipFile, exportFile, Boolean.TRUE);
+            return exportFile;
+        } finally {
+            exportFileSystem.deleteTree();
         }
-
-        final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
-        pdfWriter.write(nameGenerator.pdfFileName(container), container,
-                readUser(container.getCreatedBy()), versions,
-                versionsPublishedBy, documents, documentsSize, publishedTo);
-
-        final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
-                "{0}.zip", container.getName()));
-        ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
-        final File exportFile = new File(exportDirectory, zipFile.getName());
-        FileUtil.copy(zipFile, exportFile);
-        return exportFile;
     }
 
     /**

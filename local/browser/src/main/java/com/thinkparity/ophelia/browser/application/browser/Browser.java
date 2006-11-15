@@ -17,13 +17,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -56,7 +58,16 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.ExportDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -76,8 +87,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -203,6 +214,22 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the container version comment dialog.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            A version id.        
+     */
+    public void displayContainerVersionInfoDialog(final Long containerId, final Long versionId) {
+        final Data input = new Data(2);
+        input.set(ContainerVersionCommentAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(ContainerVersionCommentAvatar.DataKey.VERSION_ID, versionId);
+        setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
+    }
+    
+    /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
      * provided with the container name.
@@ -234,7 +261,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -244,7 +271,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-
+    
     /**
      * Display an error dialog.
      *
@@ -257,7 +284,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-    
+
     /**
      * Display an error dialog
      * 
@@ -279,7 +306,7 @@ public class Browser extends AbstractApplication {
             input.set(ErrorAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
     }
-
+    
     /**
      * Display an error dialog.
      * 
@@ -292,14 +319,14 @@ public class Browser extends AbstractApplication {
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
     }
-    
+
     /**
      * Display the info (or Help About) dialog.
      */
     public void displayInfoDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
     }
-
+    
     /**
      * Display the "publish container" dialog.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
@@ -331,22 +358,6 @@ public class Browser extends AbstractApplication {
         input.set(PublishContainerAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
-    }
-    
-    /**
-     * Display the container version comment dialog.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            A version id.        
-     */
-    public void displayContainerVersionInfoDialog(final Long containerId, final Long versionId) {
-        final Data input = new Data(2);
-        input.set(ContainerVersionCommentAvatar.DataKey.CONTAINER_ID, containerId);
-        input.set(ContainerVersionCommentAvatar.DataKey.VERSION_ID, versionId);
-        setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
 
     /**
@@ -849,17 +860,14 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
     
+    public Boolean isBrowserWindowMaximized() {
+        return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
+    }
+
     /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
-
-    /**
-	 * Minimize the browser application.
-	 */
-	public void minimize() {
-		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
-	}
     
     /**
      * Maximize (or un-maximize) the browser application.
@@ -867,6 +875,13 @@ public class Browser extends AbstractApplication {
     public void maximize() {
         mainWindow.maximizeMainWindow(!isBrowserWindowMaximized());
     }
+
+	/**
+	 * Minimize the browser application.
+	 */
+	public void minimize() {
+		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
+	}
 
 	/**
      * Move and resize the browser window.
@@ -887,8 +902,8 @@ public class Browser extends AbstractApplication {
         newS.height += s.height;
         mainWindow.setMainWindowSizeAndLocation(newL, newS);
     }
-
-	/**
+    
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -906,8 +921,8 @@ public class Browser extends AbstractApplication {
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
-    
-    /**
+
+	/**
      * Resize the browser window.
      * 
      * @param s
@@ -920,7 +935,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSize(newS);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -941,7 +956,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void restoreState(final State state) {}
-
+    
     /**
 	 * Accept an invitation.
 	 * 
@@ -965,18 +980,6 @@ public class Browser extends AbstractApplication {
         data.set(AddBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
-    
-    /**
-     * Run the remove bookmark action.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    public void runRemoveContainerBookmark(final Long containerId) {
-        final Data data = new Data(1);
-        data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
-        invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
-    }
   
 	/**
      * Run the create document action, browse to select the document.
@@ -986,9 +989,9 @@ public class Browser extends AbstractApplication {
      *
      */
     public void runAddContainerDocuments(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection().showOpenDialog(mainWindow)) {
-            persistence.set(
-                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION,
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection(
+                Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY).showOpenDialog(mainWindow)) {
+            persistence.set(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
                     jFileChooser.getCurrentDirectory());
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
         }
@@ -1159,10 +1162,10 @@ public class Browser extends AbstractApplication {
      *
      */
     public void runExportDraft(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection().showOpenDialog(mainWindow)) {
-            persistence.set(
-                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
-                    jFileChooser.getCurrentDirectory());
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection(
+                Keys.Persistence.CONTAINER_EXPORT_DRAFT_SELECTED_DIRECTORY).showOpenDialog(mainWindow)) {
+            persistence.set(Keys.Persistence.CONTAINER_EXPORT_DRAFT_SELECTED_DIRECTORY,
+                    jFileChooser.getSelectedFile());
             runExportDraft(containerId, jFileChooser.getSelectedFile());
         }
     }
@@ -1192,10 +1195,10 @@ public class Browser extends AbstractApplication {
      *
      */
     public void runExportVersion(final Long containerId, final Long versionId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection().showOpenDialog(mainWindow)) {
-            persistence.set(
-                    Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
-                    jFileChooser.getCurrentDirectory());
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection(
+                Keys.Persistence.CONTAINER_EXPORT_VERSION_SELECTED_DIRECTORY).showOpenDialog(mainWindow)) {
+            persistence.set(Keys.Persistence.CONTAINER_EXPORT_VERSION_SELECTED_DIRECTORY,
+                    jFileChooser.getSelectedFile());
             runExportVersion(containerId, versionId, jFileChooser.getSelectedFile());
         }
     }
@@ -1321,6 +1324,18 @@ public class Browser extends AbstractApplication {
     }
     
 	/**
+     * Run the remove bookmark action.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void runRemoveContainerBookmark(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
+    }
+
+    /**
      * Run the profile's remove email action.
      *
      */
@@ -1389,7 +1404,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-
+  
     /**
      * Update the user's profile.
      * 
@@ -1423,7 +1438,7 @@ public class Browser extends AbstractApplication {
         }
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-  
+
     /**
      * Run the profile's verify email action.  Since no key is specified; this
      * will display a dialog.
@@ -1492,8 +1507,8 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }        
     }
-
-    /**
+    
+	/**
      * Set the cursor.
      * 
      * @param cursor
@@ -1502,8 +1517,8 @@ public class Browser extends AbstractApplication {
     public void setCursor(Cursor cursor) {
         mainWindow.getContentPane().setCursor(cursor);
     }
-    
-	/**
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -1530,7 +1545,7 @@ public class Browser extends AbstractApplication {
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId)
      */
@@ -1538,7 +1553,7 @@ public class Browser extends AbstractApplication {
     protected Avatar getAvatar(final AvatarId id) {
         return super.getAvatar(id);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
      */
@@ -1619,7 +1634,7 @@ public class Browser extends AbstractApplication {
         open(WindowId.CONFIRM, AvatarId.DIALOG_CONFIRM, input);
         return getConfirmAvatar().didConfirm();
     }
-
+    
     /**
 	 * Display an avatar.
 	 * 
@@ -1648,23 +1663,6 @@ public class Browser extends AbstractApplication {
 			public void run() { window.open(avatar); }
 		});
 	}
-    
-    /**
-     * Set up the semi-transparent layer on the browser window.
-     * It will turn on immediately and turn off when the window
-     * is closed.
-     * 
-     * @param window
-     *          A window.
-     */
-    private void setUpSemiTransparentLayer(final Window window) {
-        mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
-        window.addWindowListener(new WindowAdapter() {
-            public void windowClosed(WindowEvent e) {
-                mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
-            }
-        });
-    }
     
     /**
      * Display an avatar on the status display.
@@ -1753,15 +1751,15 @@ public class Browser extends AbstractApplication {
 	 * 
 	 * @return The file chooser.
 	 */
-	private JFileChooser getJFileChooserForFileSelection() {
+	private JFileChooser getJFileChooserForFileSelection(
+            final String currentDirectoryKey) {
 		if(null == jFileChooser) {
             jFileChooser = new JFileChooser();
             jFileChooser.setMultiSelectionEnabled(Boolean.TRUE);
 		}
 		jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        jFileChooser.setCurrentDirectory(persistence.get(
-                Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION,
-                (File) null));
+        jFileChooser.setCurrentDirectory(
+                persistence.get(currentDirectoryKey, (File) null));
 		return jFileChooser;
 	}
     
@@ -1770,15 +1768,14 @@ public class Browser extends AbstractApplication {
      * 
      * @return The file chooser.
      */
-    private JFileChooser getJFileChooserForFolderSelection() {
+    private JFileChooser getJFileChooserForFolderSelection(final String currentDirectoryKey) {
         if(null == jFileChooser) {
             jFileChooser = new JFileChooser();
             jFileChooser.setMultiSelectionEnabled(Boolean.FALSE);
         }
         jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        jFileChooser.setCurrentDirectory(persistence.get(
-                Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
-                (File) null));
+        jFileChooser.setCurrentDirectory(
+                persistence.get(currentDirectoryKey, (File) null));
         return jFileChooser;
     }
 
@@ -1841,15 +1838,11 @@ public class Browser extends AbstractApplication {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
     
-    public Boolean isBrowserWindowMaximized() {
-        return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
-    }
-
-	private Boolean isBrowserWindowOpen() {
+    private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-    private void open(final WindowId windowId,
+	private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
 
@@ -1861,7 +1854,7 @@ public class Browser extends AbstractApplication {
         window.open(avatar);
     }
 
-	/**
+    /**
 	 * Open the main browser window.
 	 *
 	 */
@@ -1871,7 +1864,7 @@ public class Browser extends AbstractApplication {
 		mainWindow.open();
 	}
 
-    private void reOpenMainWindow() {
+	private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         displayHelper.setBrowserWindow(mainWindow);
         mainWindow.reOpen();
@@ -1945,6 +1938,23 @@ public class Browser extends AbstractApplication {
             input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
         }
         getMainStatusAvatar().setInput((Data) input.clone());
+    }
+
+    /**
+     * Set up the semi-transparent layer on the browser window.
+     * It will turn on immediately and turn off when the window
+     * is closed.
+     * 
+     * @param window
+     *          A window.
+     */
+    private void setUpSemiTransparentLayer(final Window window) {
+        mainWindow.enableSemiTransparentLayer(Boolean.TRUE);
+        window.addWindowListener(new WindowAdapter() {
+            public void windowClosed(WindowEvent e) {
+                mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
+            }
+        });
     }
 
     /**

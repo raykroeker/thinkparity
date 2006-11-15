@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
@@ -78,6 +79,36 @@ public abstract class FileUtil {
 			bos.close();
 		}
 	}
+
+    /**
+     * Copy a source file to a target file.
+     * 
+     * @param source
+     *            The source <code>File</code>.
+     * @param target
+     *            The target <code>File</code>.
+     * @param nice
+     *            Whether or not to try incrementing names if the target exists.
+     */
+    public static void copy(final File source, final File target,
+            final Boolean nice) throws FileNotFoundException, IOException {
+        final File realTarget;
+        if (Boolean.TRUE == nice) {
+            File niceTarget = target;
+            final String name = getName(target);
+            final String extension = getExtension(target);
+            int index = 1;
+            while (niceTarget.exists()) {
+                niceTarget = new File(target.getParentFile(),
+                        MessageFormat.format("{0} - Copy {1}.{2}",
+                                name, index++, extension));
+            }
+            realTarget = niceTarget;
+        } else {
+            realTarget = target;
+        }
+        copy(source, realTarget);
+    }
 	/**
 	 * Delete a filesystem tree.
 	 * 

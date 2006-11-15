@@ -136,9 +136,6 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_EXPORT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Export(browser);
             break;
-        case CONTAINER_EXPORT_DRAFT:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.ExportDraft(browser);
-            break;
         case CONTAINER_EXPORT_VERSION:
             action = new com.thinkparity.ophelia.browser.platform.action.container.ExportVersion(browser);
             break;            

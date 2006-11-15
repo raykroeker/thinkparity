@@ -669,6 +669,11 @@ public class PublishContainerAvatar extends Avatar {
         }
         
         public Boolean isVersionUser(final User user) {
+            if (null != publisher) {
+                if (publisher.getId().equals(user.getId())) {
+                    return Boolean.TRUE;
+                }
+            }
             if (null != versionUsers) {
                 for (final User versionUser : versionUsers.keySet()) {
                     if (versionUser.getId().equals(user.getId())) {

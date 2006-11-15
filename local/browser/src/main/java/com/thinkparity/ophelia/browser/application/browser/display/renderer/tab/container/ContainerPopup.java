@@ -143,7 +143,9 @@ class ContainerPopup {
         }
 
         // Export
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, Data.emptyData()));
+        final Data exportData = new Data(1);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, getId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, exportData));
 
         jPopupMenu.show(invoker, e.getX(), e.getY());
     }

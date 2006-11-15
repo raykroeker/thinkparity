@@ -17,15 +17,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -37,6 +36,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ExportAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
@@ -58,16 +58,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.ExportDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -87,8 +78,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -212,7 +203,7 @@ public class Browser extends AbstractApplication {
     public void displayContactCreateInvitation() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
-
+        
     /**
      * Display the container version comment dialog.
      * 
@@ -318,6 +309,37 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey,
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
+    } 
+    
+    /**
+     * Display an export dialog for a container, ie. export all versions.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void displayExportDialog(final Long containerId) {
+        final Data input = new Data(2);
+        input.set(ExportAvatar.DataKey.EXPORT_TYPE, ExportAvatar.ExportType.CONTAINER);
+        input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
+    }
+    
+    /**
+     * Display an export dialog for a version.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            A version id.           
+     */
+    public void displayExportDialog(final Long containerId, final Long versionId) {
+        final Data input = new Data(3);
+        input.set(ExportAvatar.DataKey.EXPORT_TYPE, ExportAvatar.ExportType.VERSION);
+        input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(ExportAvatar.DataKey.VERSION_ID, versionId);
+        setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
     }
 
     /**
@@ -989,8 +1011,7 @@ public class Browser extends AbstractApplication {
      *
      */
     public void runAddContainerDocuments(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection(
-                Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY).showOpenDialog(mainWindow)) {
+        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFileSelection().showOpenDialog(mainWindow)) {
             persistence.set(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
                     jFileChooser.getCurrentDirectory());
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
@@ -1155,52 +1176,18 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Run the export draft action, browse to select the directory.
-     * 
-     * @param containerId
-     *            The container id.
-     *
-     */
-    public void runExportDraft(final Long containerId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection(
-                Keys.Persistence.CONTAINER_EXPORT_DRAFT_SELECTED_DIRECTORY).showOpenDialog(mainWindow)) {
-            persistence.set(Keys.Persistence.CONTAINER_EXPORT_DRAFT_SELECTED_DIRECTORY,
-                    jFileChooser.getSelectedFile());
-            runExportDraft(containerId, jFileChooser.getSelectedFile());
-        }
-    }
-    
-    /**
-     * Run the export draft action.
+     * Run the export action.
      * 
      * @param containerId
      *            The container id.
      * @param directory
      *            The directory.
      */
-    public void runExportDraft(final Long containerId, final File directory) {
+    public void runExport(final Long containerId, final File directory) {
         final Data data = new Data(2);
-        data.set(ExportDraft.DataKey.CONTAINER_ID, containerId);
-        data.set(ExportDraft.DataKey.DIRECTORY, directory);
-        invoke(ActionId.CONTAINER_EXPORT_DRAFT, data);
-    }
-    
-    /**
-     * Run the export version action, browse to select the directory.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            The version id.          
-     *
-     */
-    public void runExportVersion(final Long containerId, final Long versionId) {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooserForFolderSelection(
-                Keys.Persistence.CONTAINER_EXPORT_VERSION_SELECTED_DIRECTORY).showOpenDialog(mainWindow)) {
-            persistence.set(Keys.Persistence.CONTAINER_EXPORT_VERSION_SELECTED_DIRECTORY,
-                    jFileChooser.getSelectedFile());
-            runExportVersion(containerId, versionId, jFileChooser.getSelectedFile());
-        }
+        data.set(Export.DataKey.CONTAINER_ID, containerId);
+        data.set(Export.DataKey.DIRECTORY, directory);
+        invoke(ActionId.CONTAINER_EXPORT, data);
     }
     
     /**
@@ -1751,33 +1738,12 @@ public class Browser extends AbstractApplication {
 	 * 
 	 * @return The file chooser.
 	 */
-	private JFileChooser getJFileChooserForFileSelection(
-            final String currentDirectoryKey) {
-		if(null == jFileChooser) {
-            jFileChooser = new JFileChooser();
-            jFileChooser.setMultiSelectionEnabled(Boolean.TRUE);
-		}
-		jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        jFileChooser.setCurrentDirectory(
-                persistence.get(currentDirectoryKey, (File) null));
+	private JFileChooser getJFileChooserForFileSelection() {
+        jFileChooser = JFileChooserUtil.getJFileChooser(JFileChooser.FILES_ONLY, Boolean.TRUE, null,
+                persistence.get(Keys.Persistence.CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY,
+                        (File) null));
 		return jFileChooser;
 	}
-    
-    /**
-     * Obtain the file chooser for folder selection.
-     * 
-     * @return The file chooser.
-     */
-    private JFileChooser getJFileChooserForFolderSelection(final String currentDirectoryKey) {
-        if(null == jFileChooser) {
-            jFileChooser = new JFileChooser();
-            jFileChooser.setMultiSelectionEnabled(Boolean.FALSE);
-        }
-        jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        jFileChooser.setCurrentDirectory(
-                persistence.get(currentDirectoryKey, (File) null));
-        return jFileChooser;
-    }
 
     /**
      * Obtain the main status avatar.

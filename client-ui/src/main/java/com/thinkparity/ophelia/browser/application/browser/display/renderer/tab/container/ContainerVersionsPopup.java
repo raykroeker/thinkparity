@@ -160,10 +160,6 @@ final class ContainerVersionsPopup {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData));
         
         jPopupMenu.addSeparator();
-        
-        final Data exportData = new Data(1);
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.ExportDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT_DRAFT, exportData));
 
         final Data printData = new Data(1);
         printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());

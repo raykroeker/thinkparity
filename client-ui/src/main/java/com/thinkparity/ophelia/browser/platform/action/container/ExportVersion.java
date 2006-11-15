@@ -42,7 +42,7 @@ public class ExportVersion extends AbstractAction  {
         
         if(null == directory) {
             // prompt for destination
-            browser.runExportVersion(containerId, versionId);
+            browser.displayExportDialog(containerId, versionId);
         } else {
             getContainerModel().exportVersion(directory, containerId, versionId);    
         }

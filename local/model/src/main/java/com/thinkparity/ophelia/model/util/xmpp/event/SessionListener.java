@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.util.xmpp.event;
 
 import com.thinkparity.codebase.event.EventListener;
 
+
 /**
  * XMPPSessionListener
  * This interface is used when a client is interested in knowing about the

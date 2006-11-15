@@ -22,12 +22,11 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.util.smack.SmackException;
-import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
 
 /**
  * XMPPSession
@@ -55,28 +54,17 @@ public interface XMPPSession {
             final JabberId invitedBy, final Calendar acceptedOn);
 
     /**
-     * Add an xmpp artifact event listener.
+     * Add an xmpp event listener.
      * 
-     * @param l
-     *            The xmpp artifact event listener.
+     * @param <T>
+     *            An <code>XMPPEvent</code> type.
+     * @param eventClass
+     *            An event <code>Class</code>.
+     * @param listener
+     *            An <code>XMPPEventListener</code>.
      */
-    public void addListener(final ArtifactListener listener);
-
-    /**
-     * Add an xmpp contact event listener.
-     * 
-     * @param l
-     *            The xmpp contact event listener.
-     */
-    public void addListener(final ContactListener listener);
-
-    /**
-     * Add an xmpp container event listener.
-     * 
-     * @param l
-     *            The xmpp container event listener.
-     */
-    public void addListener(final ContainerListener listener);
+    public <T extends XMPPEvent> void addListener(final Class<T> eventClass,
+            final XMPPEventListener<T> listener);
 
     /**
      * Add an xmpp session event listener.
@@ -326,8 +314,10 @@ public interface XMPPSession {
 	public void logout();
 
     /**
-     * Process the remote event  queue.
+     * Process the remotely queued events.
      * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
      */
     public void processEventQueue(final JabberId userId);
 
@@ -584,30 +574,6 @@ public interface XMPPSession {
      * @return A <code>User</code>.
      */
     public User readUser(final JabberId userId);
-
-    /**
-     * Remove an artifact listener.
-     * 
-     * @param listener
-     *            An <code>ArtifactListener</code>.
-     */
-    public void removeListener(final ArtifactListener listener);
-
-    /**
-     * Remove a contact listener.
-     * 
-     * @param listener
-     *            A <code>ContactListener</code>.
-     */
-    public void removeListener(final ContactListener listener);
-
-    /**
-     * Remove a container listener.
-     * 
-     * @param listener
-     *            An <code>ContainerListener</code>.
-     */
-    public void removeListener(final ContainerListener listener);
 
     /**
      * Remove a session listener.

@@ -4,8 +4,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp.event;
 
-import com.thinkparity.codebase.event.EventListener;
-
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -20,7 +18,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface ArtifactListener extends EventListener {
+public interface ArtifactListener extends XMPPEventListener {
     public void handleDraftCreated(final ArtifactDraftCreatedEvent event);
     public void handleDraftDeleted(final ArtifactDraftDeletedEvent event);
     public void handlePublished(final ArtifactPublishedEvent event);

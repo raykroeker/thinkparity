@@ -731,8 +731,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         version, next));
             }
             // apply comment
-            containerIO.updateComment(containerId, version.getVersionId(),
-                    event.getComment());
+            if (null != event.getComment() && 0 < event.getComment().trim().length())
+                containerIO.updateComment(containerId, version.getVersionId(),
+                        event.getComment());
             // send confirmation
             getSessionModel().confirmArtifactReceipt(localUserId(),
                     event.getUniqueId(), event.getVersionId(), localUserId(),

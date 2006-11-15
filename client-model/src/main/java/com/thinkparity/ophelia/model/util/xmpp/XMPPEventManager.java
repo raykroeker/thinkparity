@@ -72,10 +72,7 @@ final class XMPPEventManager {
      */
     @SuppressWarnings("unchecked")
     <T extends XMPPEvent> void notifyHandler(final T event) {
-        final XMPPEventHandler<T> handler;
-        synchronized (registry) {
-            handler = registry.get(event.getClass());
-        }
+        final XMPPEventHandler<T> handler = registry.get(event.getClass());
         if (null == handler) {
             logger.logWarning("No handler has been registered for event {0}.",
                     event.getClass());

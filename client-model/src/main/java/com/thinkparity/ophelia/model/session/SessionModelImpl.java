@@ -1283,7 +1283,6 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                         }
                     }
                 }
-
                 // process queued events
                 xmppSession.processEventQueue(localUserId());
             }

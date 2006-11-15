@@ -29,13 +29,6 @@ final class XMPPStream extends AbstractXMPP<StreamListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
-
-    /**
      * Create a stream.
      * 
      * @param userId

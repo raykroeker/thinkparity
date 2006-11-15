@@ -27,13 +27,6 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         super(core);
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
-
     void createStream(final JabberId userId, final String streamId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();

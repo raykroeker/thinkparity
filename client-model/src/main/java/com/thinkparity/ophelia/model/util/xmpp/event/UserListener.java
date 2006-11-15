@@ -3,10 +3,8 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp.event;
 
-import com.thinkparity.codebase.event.EventListener;
-
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface UserListener extends EventListener {}
+public interface UserListener extends XMPPEventListener {}

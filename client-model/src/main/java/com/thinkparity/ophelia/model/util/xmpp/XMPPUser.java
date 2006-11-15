@@ -29,13 +29,6 @@ final class XMPPUser extends AbstractXMPP<UserListener> {
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
-
-    /**
      * Extract the user from the xmpp response.
      * 
      * @param response

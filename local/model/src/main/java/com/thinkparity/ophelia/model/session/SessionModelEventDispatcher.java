@@ -25,10 +25,8 @@ import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.ContainerListener;
 import com.thinkparity.ophelia.model.util.xmpp.event.SessionListener;
+import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventListener;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -48,69 +46,108 @@ class SessionModelEventDispatcher {
         super();
         this.logger = new Log4JWrapper();
         this.modelFactory = modelFactory;
-        logger.logApiId();
         xmppSession.clearListeners();
-        xmppSession.addListener(new ArtifactListener() {
-            public void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
+        xmppSession.addListener(ArtifactDraftCreatedEvent.class,
+                new XMPPEventListener<ArtifactDraftCreatedEvent>() {
+            public void handleEvent(final ArtifactDraftCreatedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handleDraftCreated(event);
-            }
-            public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
+            }});
+        xmppSession.addListener(ArtifactDraftDeletedEvent.class,
+                new XMPPEventListener<ArtifactDraftDeletedEvent>() {
+            public void handleEvent(final ArtifactDraftDeletedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handleDraftDeleted(event);
-            }
-            public void handlePublished(final ArtifactPublishedEvent event) {
+            }});
+        xmppSession.addListener(ArtifactPublishedEvent.class,
+                new XMPPEventListener<ArtifactPublishedEvent>() {
+            public void handleEvent(final ArtifactPublishedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handlePublished(event);
-            }
-            public void handleReceived(final ArtifactReceivedEvent event) {
+            }});
+        xmppSession.addListener(ArtifactReceivedEvent.class,
+                new XMPPEventListener<ArtifactReceivedEvent>() {
+            public void handleEvent(final ArtifactReceivedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handleReceived(event);
-            }
-            public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
+            }});
+        xmppSession.addListener(ArtifactTeamMemberAddedEvent.class,
+                new XMPPEventListener<ArtifactTeamMemberAddedEvent>() {
+            public void handleEvent(final ArtifactTeamMemberAddedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handleTeamMemberAdded(event);
-            }
-            public void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
+            }});
+        xmppSession.addListener(ArtifactTeamMemberRemovedEvent.class,
+                new XMPPEventListener<ArtifactTeamMemberRemovedEvent>() {
+            public void handleEvent(final ArtifactTeamMemberRemovedEvent event) {
+                logger.logApiId();
                 getArtifactModel().handleTeamMemberRemoved(event);
-            }
-        });
-        xmppSession.addListener(new ContainerListener() {
-            public void handleArtifactPublished(
-                    final ContainerArtifactPublishedEvent event) {
-                getContainerModel().handleArtifactPublished(event);
-            }
-            public void handlePublished(final ContainerPublishedEvent event) {
-                getContainerModel().handlePublished(event);
-            }
-        });
-        xmppSession.addListener(new ContactListener() {
-            public void handleDeleted(final ContactDeletedEvent event) {
+            }});
+        xmppSession.addListener(ContactDeletedEvent.class,
+                new XMPPEventListener<ContactDeletedEvent>() {
+            public void handleEvent(final ContactDeletedEvent event) {
+                logger.logApiId();
                 getContactModel().handleContactDeleted(event);
-            }
-            public void handleUpdated(final ContactUpdatedEvent event) {
-                getContactModel().handleContactUpdated(event);
-            }
-            public void handleInvitationAccepted(
-                    final ContactInvitationAcceptedEvent event) {
+            }});
+        xmppSession.addListener(ContactDeletedEvent.class,
+                new XMPPEventListener<ContactDeletedEvent>() {
+            public void handleEvent(final ContactDeletedEvent event) {
+                logger.logApiId();
+                getContactModel().handleContactDeleted(event);
+            }});
+        xmppSession.addListener(ContactInvitationAcceptedEvent.class,
+                new XMPPEventListener<ContactInvitationAcceptedEvent>() {
+            public void handleEvent(final ContactInvitationAcceptedEvent event) {
+                logger.logApiId();
                 getContactModel().handleInvitationAccepted(event);
-            }
-            public void handleInvitationDeclined(
-                    final ContactInvitationDeclinedEvent event) {
+            }});
+        xmppSession.addListener(ContactInvitationDeclinedEvent.class,
+                new XMPPEventListener<ContactInvitationDeclinedEvent>() {
+            public void handleEvent(final ContactInvitationDeclinedEvent event) {
+                logger.logApiId();
                 getContactModel().handleInvitationDeclined(event);
-            }
-            public void handleInvitationDeleted(
-                    final ContactInvitationDeletedEvent event) {
+            }});
+        xmppSession.addListener(ContactInvitationDeletedEvent.class,
+                new XMPPEventListener<ContactInvitationDeletedEvent>() {
+            public void handleEvent(final ContactInvitationDeletedEvent event) {
+                logger.logApiId();
                 getContactModel().handleInvitationDeleted(event);
-            }
-            public void handleInvitationExtended(
-                    final ContactInvitationExtendedEvent event) {
+            }});
+        xmppSession.addListener(ContactInvitationExtendedEvent.class,
+                new XMPPEventListener<ContactInvitationExtendedEvent>() {
+            public void handleEvent(final ContactInvitationExtendedEvent event) {
+                logger.logApiId();
                 getContactModel().handleInvitationExtended(event);
-            }
-        });
+            }});
+        xmppSession.addListener(ContactUpdatedEvent.class,
+                new XMPPEventListener<ContactUpdatedEvent>() {
+            public void handleEvent(final ContactUpdatedEvent event) {
+                logger.logApiId();
+                getContactModel().handleContactUpdated(event);
+            }});
+        xmppSession.addListener(ContainerArtifactPublishedEvent.class,
+                new XMPPEventListener<ContainerArtifactPublishedEvent>() {
+            public void handleEvent(final ContainerArtifactPublishedEvent event) {
+                logger.logApiId();
+                getContainerModel().handleArtifactPublished(event);
+            }});
+        xmppSession.addListener(ContainerPublishedEvent.class,
+                new XMPPEventListener<ContainerPublishedEvent>() {
+            public void handleEvent(final ContainerPublishedEvent event) {
+                logger.logApiId();
+                getContainerModel().handlePublished(event);
+            }});
         xmppSession.addListener(new SessionListener() {
             public void sessionEstablished() {
+                logger.logApiId();
                 getSessionModel().handleSessionEstablished();
             }
             public void sessionTerminated() {
+                logger.logApiId();
                 getSessionModel().handleSessionTerminated();
             }
             public void sessionTerminated(final Exception x) {
+                logger.logApiId();
                 getSessionModel().handleSessionTerminated(x);
             }
         });

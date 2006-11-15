@@ -7,22 +7,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.event.ArtifactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventHandler;
 
 /**
  * @author raykroeker@gmail.com
@@ -39,64 +30,6 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
 	XMPPArtifact(final XMPPCore xmppCore) {
 		super(xmppCore);
 	}
-
-	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
-     * 
-     */
-    @Override
-    protected void registerEventHandlers() {
-        registerEventHandler(ArtifactPublishedEvent.class,
-                new XMPPEventHandler<ArtifactPublishedEvent>() {
-                    public void handleEvent(final ArtifactPublishedEvent event) {
-                        handlePublished(event);
-                    }});
-        registerEventHandler(ArtifactDraftCreatedEvent.class,
-                new XMPPEventHandler<ArtifactDraftCreatedEvent>() {
-                    public void handleEvent(
-                            final ArtifactDraftCreatedEvent event) {
-                        handleDraftCreated(event);
-                    }});
-        registerEventHandler(ArtifactDraftDeletedEvent.class,
-                new XMPPEventHandler<ArtifactDraftDeletedEvent>() {
-                    public void handleEvent(
-                            final ArtifactDraftDeletedEvent event) {
-                        handleDraftDeleted(event);
-                    }});
-        registerEventHandler(ArtifactTeamMemberAddedEvent.class,
-                new XMPPEventHandler<ArtifactTeamMemberAddedEvent>() {
-                    public void handleEvent(
-                            final ArtifactTeamMemberAddedEvent event) {
-                        handleTeamMemberAdded(event);
-                    }});
-        registerEventHandler(ArtifactTeamMemberRemovedEvent.class,
-                new XMPPEventHandler<ArtifactTeamMemberRemovedEvent>() {
-                    public void handleEvent(
-                            final ArtifactTeamMemberRemovedEvent event) {
-                        handleTeamMemberRemoved(event);
-                    }});
-        registerEventHandler(ArtifactReceivedEvent.class,
-                new XMPPEventHandler<ArtifactReceivedEvent>() {
-                    public void handleEvent(final ArtifactReceivedEvent event) {
-                        handleReceived(event);
-                    }});
-	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
-     */
-    @Override
-    protected boolean addListener(final ArtifactListener listener) {
-        return super.addListener(listener);
-    }
-
-	/**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.ophelia.model.util.xmpp.events.XMPPEventListener)
-     */
-    @Override
-    protected boolean removeListener(final ArtifactListener listener) {
-        return super.removeListener(listener);
-    }
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -273,89 +206,5 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         removeTeamMember.setParameter("uniqueId", uniqueId);
         removeTeamMember.setParameter("teamMemberId", teamMemberId);
         execute(removeTeamMember);
-    }
-
-    /**
-     * Handle the draft created remote event.
-     * 
-     * @param event
-     *            The <code>ArtifactDraftCreatedEvent</code>.
-     */
-    private void handleDraftCreated(final ArtifactDraftCreatedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-                listener.handleDraftCreated(event);
-            }
-        });
-    }
-
-    /**
-     * Handle the draft deleted remote event.
-     * 
-     * @param event
-     *            The <code>ArtifactDraftDeletedEvent</code>.
-     */
-    private void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-                listener.handleDraftDeleted(event);
-            }
-        });
-    }
-
-    /**
-     * Handle the artifact published remote event.
-     * 
-     * @param query
-     *            The artifact published remote event.
-     */
-    private void handlePublished(final ArtifactPublishedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-                listener.handlePublished(event);
-            }
-        });
-    }
-
-    /**
-     * Handle the artifact received remote event.
-     * 
-     * @param event
-     *            The <code>ArtifactReceivedEvent</code>.
-     */
-    private void handleReceived(final ArtifactReceivedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-                listener.handleReceived(event);
-            }
-        });
-    }
-
-    /**
-     * Receive a notification re team member addition
-     * 
-     * @param query
-     *            The internet query.
-     */
-	private void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-				listener.handleTeamMemberAdded(event);
-			}
-		});
-	}
-
-    /**
-     * Receive a notification regarding the removal of a team member.
-     * 
-     * @param query
-     *            The internet query.
-     */
-    private void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
-        notifyListeners(new EventNotifier<ArtifactListener>() {
-            public void notifyListener(final ArtifactListener listener) {
-                listener.handleTeamMemberRemoved(event);
-            }
-        });
     }
 }

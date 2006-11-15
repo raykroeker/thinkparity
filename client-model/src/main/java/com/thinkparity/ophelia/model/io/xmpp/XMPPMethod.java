@@ -102,6 +102,7 @@ public class XMPPMethod extends IQ {
      * @return An xmpp method response.
      */
     public XMPPMethodResponse execute(final XMPPConnection xmppConnection) {
+        logger.logVariable("name", name);
         // add an executed on parameter
         setParameter(Xml.All.EXECUTED_ON, DateUtil.getInstance());
 
@@ -109,10 +110,10 @@ public class XMPPMethod extends IQ {
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
 
         // TIME This is a local timestamp.
-        logVariable("preSendPacket", DateUtil.getInstance());
+        logger.logVariable("preSendPacket", DateUtil.getInstance());
         xmppConnection.sendPacket(this);
         // TIME This is a local timestamp.
-        logVariable("postSendPacket", DateUtil.getInstance());
+        logger.logVariable("postSendPacket", DateUtil.getInstance());
 
         // this sleep has been inserted because when packets are sent within
         // x milliseconds of each other, they tend to get swallowed by the
@@ -122,7 +123,7 @@ public class XMPPMethod extends IQ {
 
         // the timeout is used because the timeout is not expected to be long;
         // and it helps debug non-implemented responses
-        logVariable("preResponseCollected", DateUtil.getInstance());
+        logger.logVariable("preResponseCollected", DateUtil.getInstance());
         try {
             final XMPPMethodResponse response =
 //                (XMPPMethodResponse) idCollector.nextResult(7 * 1000);
@@ -136,30 +137,23 @@ public class XMPPMethod extends IQ {
             throw new XMPPException(errorId);
         } finally {
             // re-set the parameters post execution
-            logVariable("postResponseCollected", DateUtil.getInstance());
+            logger.logVariable("postResponseCollected", DateUtil.getInstance());
             parameters.clear();
         }
     }
 
-    /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */
+    /**
+     * @see org.jivesoftware.smack.packet.IQ#getChildElementXML()
+     *
+     */
     public String getChildElementXML() {
         final StringBuffer childElementXML = new StringBuffer()
-            .append("<query xmlns=\"jabber:iq:parity:")
-            .append(name)
-            .append("\">")
+            .append("<query xmlns=\"jabber:iq:parity:").append(name).append("\">")
             .append(getParametersXML())
             .append("</query>");
-        logVariable("childElementXML.length():", childElementXML.length());
+        logger.logVariable("childElementXML.length()", childElementXML.length());
+        logger.logVariable("childElementXML", childElementXML);
         return childElementXML.toString();
-    }
-
-    public final void setDocumentVersionParameters(final String listname,
-            final String name, final List<DocumentVersionContent> values) {
-        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
-        for(final DocumentVersionContent value : values) {
-            parameters.add(new XMPPMethodParameter(name, DocumentVersionContent.class, value));
-        }
-        this.parameters.add(new XMPPMethodParameter(listname, List.class, parameters));
     }
 
     /**
@@ -310,18 +304,6 @@ public class XMPPMethod extends IQ {
         return xml.toString();
     }
 
-    /**
-     * Log a variable.  Note that only the variable value will be rendered.
-     * 
-     * @param name
-     *            The variable name.
-     * @param value
-     *            The variable value.
-     */
-    protected final <V> V logVariable(final String name, final V value) {
-        return logger.logVariable(name, value);
-    }
-
     private String getParameterXML(final XMPPMethodParameter parameter) {
         final StringBuffer xml = new StringBuffer();
         xml.append("<").append(parameter.name).append(" javaType=\"")
@@ -418,6 +400,14 @@ public class XMPPMethod extends IQ {
             }
         }
 
+        private Calendar calendarValueOf(final String s) {
+            try {
+                return DateUtil.parse(s, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
+            } catch (final ParseException px) {
+                throw new RuntimeException(px);
+            }
+        }
+
         /**
          * Parse an xmpp remote method call response.
          * 
@@ -449,14 +439,6 @@ public class XMPPMethod extends IQ {
                 }
             }
             return response;
-        }
-
-        private Calendar calendarValueOf(final String s) {
-            try {
-                return DateUtil.parse(s, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
-            } catch (final ParseException px) {
-                throw new RuntimeException(px);
-            }
         }
 
         private Class parseJavaType(final XmlPullParser parser) {

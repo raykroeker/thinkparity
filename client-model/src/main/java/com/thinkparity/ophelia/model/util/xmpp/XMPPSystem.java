@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
-
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -15,6 +14,9 @@ import com.thinkparity.ophelia.model.util.xmpp.event.SystemListener;
 
 final class XMPPSystem extends AbstractXMPP<SystemListener> {
 
+    /** The event queue lock. */
+    private final Object queueLock;
+
     /**
      * Create XMPPSystem.
      *
@@ -23,14 +25,8 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      */
     XMPPSystem(final XMPPCore core) {
         super(core);
+        this.queueLock = new Object();
     }
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
 
     /**
      * Process the remote event queue. Read the events; notify the local event
@@ -42,14 +38,15 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     void processEventQueue(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        final XMPPMethod processOfflineQueue = new XMPPMethod("system:readqueueevents");
-        processOfflineQueue.setParameter("userId", userId);
-        final List<XMPPEvent> events =
-            execute(processOfflineQueue, Boolean.TRUE).readResultEvents("events");
-        for (final XMPPEvent event : events) {
-            logger.logVariable("event", event);
-            notifyHandler(event);
-            deleteQueueEvent(userId, event.getId());
+        synchronized (queueLock) {
+            final XMPPMethod processOfflineQueue = new XMPPMethod("system:readqueueevents");
+            processOfflineQueue.setParameter("userId", userId);
+            final List<XMPPEvent> events =
+                execute(processOfflineQueue, Boolean.TRUE).readResultEvents("events");
+            for (final XMPPEvent event : events) {
+                xmppCore.handleEvent(event);
+                deleteQueueEvent(userId, event.getId());
+            }
         }
     }
 

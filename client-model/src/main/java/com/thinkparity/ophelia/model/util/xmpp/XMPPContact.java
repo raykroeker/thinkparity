@@ -8,23 +8,15 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.util.xmpp.event.ContactListener;
-import com.thinkparity.ophelia.model.util.xmpp.event.XMPPEventHandler;
 
 /**
  * @author raykroeker@gmail.com
@@ -39,66 +31,6 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
 	XMPPContact(final XMPPCore xmppCore) {
 		super(xmppCore);
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addListener(com.thinkparity.codebase.event.EventListener)
-     *
-     */
-    @Override
-    protected boolean addListener(final ContactListener listener) {
-        return super.addListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#addEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {
-        registerEventHandler(ContactInvitationExtendedEvent.class,
-                new XMPPEventHandler<ContactInvitationExtendedEvent>() {
-                    public void handleEvent(
-                            final ContactInvitationExtendedEvent query) {
-                        handleInvitationExtended(query);
-                    }});
-        registerEventHandler(ContactInvitationAcceptedEvent.class,
-                new XMPPEventHandler<ContactInvitationAcceptedEvent>() {
-                    public void handleEvent(
-                            final ContactInvitationAcceptedEvent query) {
-                        handleInvitationAccepted(query);
-                    }});
-        registerEventHandler(ContactInvitationDeclinedEvent.class,
-                new XMPPEventHandler<ContactInvitationDeclinedEvent>() {
-                    public void handleEvent(
-                            final ContactInvitationDeclinedEvent query) {
-                        handleInvitationDeclined(query);
-                    }});
-        registerEventHandler(ContactDeletedEvent.class,
-                new XMPPEventHandler<ContactDeletedEvent>() {
-                    public void handleEvent(final ContactDeletedEvent query) {
-                        handleContactDeleted(query);
-                    }});
-        registerEventHandler(ContactInvitationDeletedEvent.class,
-                new XMPPEventHandler<ContactInvitationDeletedEvent>() {
-                    public void handleEvent(
-                            final ContactInvitationDeletedEvent query) {
-                        handleInvitationDeleted(query);
-                    }});
-        registerEventHandler(ContactUpdatedEvent.class,
-                new XMPPEventHandler<ContactUpdatedEvent>() {
-                    public void handleEvent(final ContactUpdatedEvent query) {
-                        handleContactUpdated(query);
-                    }});
-	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#removeListener(com.thinkparity.codebase.event.EventListener)
-     *
-     */
-    @Override
-    protected boolean removeListener(final ContactListener listener) {
-        return super.removeListener(listener);
-    }
 
     /**
      * Accept the contact invitation.
@@ -245,92 +177,4 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         contact.addAllEmails(response.readResultEMails("emails"));
         return contact;
     }
-
-    /**
-     * Fire a local event for the remote contact deleted event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-    private void handleContactDeleted(final ContactDeletedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-                listener.handleDeleted(event);
-            }
-        });
-    }
-
-    /**
-     * Fire a local event for the remote contact updated event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-    private void handleContactUpdated(final ContactUpdatedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-                listener.handleUpdated(event);
-            }
-        });
-    }
-
-	/**
-     * Fire a local event for the remote invitation accepted event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-    private void handleInvitationAccepted(
-            final ContactInvitationAcceptedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationAccepted(event);
-            }
-        });
-    }
-
-    /**
-     * Fire a local event for the remote invitation declined event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-    private void handleInvitationDeclined(
-            final ContactInvitationDeclinedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationDeclined(event);
-            }
-        });
-    }
-
-    /**
-     * Fire a local event for the remote invitation deleted event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-    private void handleInvitationDeleted(
-            final ContactInvitationDeletedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-                listener.handleInvitationDeleted(event);
-            }
-        });
-    }
-
-    /**
-     * Fire a local event for the remote invitation extended event.
-     * 
-     * @param query
-     *            The internet event query.
-     */
-	private void handleInvitationExtended(
-            final ContactInvitationExtendedEvent event) {
-        notifyListeners(new EventNotifier<ContactListener>() {
-            public void notifyListener(final ContactListener listener) {
-				listener.handleInvitationExtended(event);
-			}
-		});
-	}
 }

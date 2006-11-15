@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp.event;
 
-import com.thinkparity.codebase.event.EventListener;
-
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationDeclinedEvent;
@@ -20,7 +18,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface ContactListener extends EventListener {
+public interface ContactListener extends XMPPEventListener {
     public void handleDeleted(final ContactDeletedEvent event);
     public void handleInvitationAccepted(final ContactInvitationAcceptedEvent event);
 	public void handleInvitationDeclined(final ContactInvitationDeclinedEvent event);

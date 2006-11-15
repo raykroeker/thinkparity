@@ -4,7 +4,9 @@
 package com.thinkparity.ophelia.model.workspace.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +76,7 @@ public class WorkspaceImpl implements Workspace {
         this.logger = Logger.getLogger(getClass());
         this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
+        redirectStreams();
         bootstrapLog4J();
 	}
 
@@ -192,7 +195,7 @@ public class WorkspaceImpl implements Workspace {
      */
     public File getIndexDirectory() {
         return initChild(DirectoryNames.Workspace.INDEX);
-    }            
+    }
 
     /**
      * Obtain the model's event listeners.
@@ -204,7 +207,7 @@ public class WorkspaceImpl implements Workspace {
     public <T extends EventListener> List<T> getListeners(final Workspace workspace,
             final AbstractModelImpl<T> impl) {
         return listenersImpl.get(impl);
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLog4JDirectory()
@@ -231,7 +234,7 @@ public class WorkspaceImpl implements Workspace {
         return workspace.getRoot().getName();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getPreferences()
      * 
      */
@@ -246,7 +249,7 @@ public class WorkspaceImpl implements Workspace {
         return sessionManagerImpl;
     }
 
-    /**
+	/**
      * Obtain the shutdownHooks
      *
      * @return The List<ShutdownHook>.
@@ -366,11 +369,11 @@ public class WorkspaceImpl implements Workspace {
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d %p %m%n");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d %t %p %m%n");
         // default appender
         logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d %p %m%n");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d %t %p %m%n");
         logging.setProperty("log4j.appender.DEFAULT.File",
                 MessageFormat.format("{0}{1}logs{1}{2}",
                         workspace.getRoot().getAbsolutePath(),
@@ -378,7 +381,7 @@ public class WorkspaceImpl implements Workspace {
         // sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}logs{1}{2}",
                         workspace.getRoot().getAbsolutePath(),
@@ -386,7 +389,7 @@ public class WorkspaceImpl implements Workspace {
         // xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %m%n");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}logs{1}{2}",
                         workspace.getRoot().getAbsolutePath(),
@@ -420,15 +423,17 @@ public class WorkspaceImpl implements Workspace {
         }
         // renderers
         logging.setProperty("log4j.renderer.java.util.Calendar",
-                "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+            "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
+            "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
         logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.Document",
-                "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
+            "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
         logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
-                "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
+            "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
         logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.user.User",
-                "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
+            "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
         logging.setProperty("log4j.renderer.org.jivesoftware.smack.packet.Packet",
-                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
+            "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
 
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
@@ -503,4 +508,43 @@ public class WorkspaceImpl implements Workspace {
         return new FileSystem(workspace);
 	}
 
+    /**
+     * Redirect the output and err streams.
+     *
+     */
+    private void redirectStreams() {
+        initChild(DirectoryNames.Workspace.LOG);
+        final File output = new File(MessageFormat.format(
+                "{0}{1}logs{1}{2}", workspace.getRoot().getAbsolutePath(),
+                File.separatorChar, "System.out.log"));
+        final File err = new File(MessageFormat.format(
+                "{0}{1}logs{1}{2}", workspace.getRoot().getAbsolutePath(),
+                File.separatorChar, "System.err.log"));
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+        case TESTING:       // redirect output\err streams
+            try {
+                System.setOut(new PrintStream(new FileOutputStream(output)));
+                System.setErr(new PrintStream(new FileOutputStream(err)));
+            } catch (final IOException iox) {
+                throw translateError(iox);
+            }
+            break;
+        case DEVELOPMENT:   // redirect output\err streams
+            System.out.println(MessageFormat.format(
+                    "System output directed to: {0}", output.getAbsolutePath()));
+            System.out.println(MessageFormat.format(
+                    "System err directed to: {0}", err.getAbsolutePath()));
+            try {
+                System.setOut(new PrintStream(new FileOutputStream(output)));
+                System.setErr(new PrintStream(new FileOutputStream(err)));
+            } catch (final IOException iox) {
+                throw translateError(iox);
+            }
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown mode.");
+        }
+    }
 }

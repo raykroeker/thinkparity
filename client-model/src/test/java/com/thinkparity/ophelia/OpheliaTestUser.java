@@ -6,14 +6,12 @@ package com.thinkparity.ophelia;
 import java.io.File;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
@@ -137,10 +135,6 @@ public class OpheliaTestUser extends User {
         try {
             session = new XMPPSessionImpl();
             session.login(environment, credentials);
-            final JabberId userId = JabberIdBuilder.build(
-                    credentials.getUsername(), Constants.Jabber.DOMAIN,
-                    credentials.getResource());
-            session.processEventQueue(userId);
         } finally {
             Assert.assertNotNull(session,
                     "User {0}'s session is null.", credentials.getUsername());

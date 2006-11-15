@@ -1757,8 +1757,8 @@ public class Browser extends AbstractApplication {
 		if(null == jFileChooser) {
             jFileChooser = new JFileChooser();
             jFileChooser.setMultiSelectionEnabled(Boolean.TRUE);
-            jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		}
+		jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         jFileChooser.setCurrentDirectory(persistence.get(
                 Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FILE_SELECTION,
                 (File) null));
@@ -1774,8 +1774,8 @@ public class Browser extends AbstractApplication {
         if(null == jFileChooser) {
             jFileChooser = new JFileChooser();
             jFileChooser.setMultiSelectionEnabled(Boolean.FALSE);
-            jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         }
+        jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         jFileChooser.setCurrentDirectory(persistence.get(
                 Keys.Persistence.JFILECHOOSER_CURRENT_DIRECTORY_FOLDER_SELECTION,
                 (File) null));

@@ -28,13 +28,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
-
-    /**
      * Archive an artifact.
      * 
      * @param userId

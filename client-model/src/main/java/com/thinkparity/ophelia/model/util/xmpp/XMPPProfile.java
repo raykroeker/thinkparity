@@ -37,13 +37,6 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.util.xmpp.AbstractXMPP#registerEventHandlers()
-     *
-     */
-    @Override
-    protected void registerEventHandlers() {}
-
-    /**
      * Add an email to a user's profile.
      * 
      * @param userId

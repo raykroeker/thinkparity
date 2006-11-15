@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.document;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
@@ -47,7 +48,9 @@ public final class DocumentNameGenerator {
      * @return A file name <code>String</code>..
      */
     public String exportFileName(final DocumentVersion version) {
-        return localFileName(version);
+        return MessageFormat.format("{0}.{1}",
+                FileUtil.getName(version.getName()),
+                FileUtil.getExtension(version.getName()));
     }
 
     /**

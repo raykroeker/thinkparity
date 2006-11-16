@@ -6,12 +6,16 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -62,8 +66,12 @@ public class ExportAvatar extends Avatar {
             reloadDirectory();
             okJButton.setEnabled(isInputValid());
         }
+        directoryJButton.requestFocusInWindow();
     }
     
+    /**
+     * Make the escape key behave like cancel.
+     */
     private void bindEscapeKey() {
         bindEscapeKey("Cancel", new AbstractAction() {
             /** @see java.io.Serializable */
@@ -200,13 +208,16 @@ public class ExportAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JButton cancelJButton;
+        javax.swing.JLabel directoryJLabel;
+
         explanationJLabel = new javax.swing.JLabel();
         directoryJLabel = new javax.swing.JLabel();
-        directoryJTextField = new javax.swing.JTextField();
         directoryJButton = new javax.swing.JButton();
         openWhenDoneCheckBox = new javax.swing.JCheckBox();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
+        directoryJTextField = new javax.swing.JTextField();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("ExportDialog.ExplanationContainer")); // NOI18N
@@ -216,10 +227,8 @@ public class ExportAvatar extends Avatar {
         directoryJLabel.setText(bundle.getString("ExportDialog.Directory")); // NOI18N
         directoryJLabel.setFocusable(false);
 
-        directoryJTextField.setEditable(false);
-        directoryJTextField.setFocusable(false);
-
         directoryJButton.setText(bundle.getString("ExportDialog.DirectoryButton")); // NOI18N
+        directoryJButton.setPreferredSize(new java.awt.Dimension(45, 23));
         directoryJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 directoryJButtonActionPerformed(evt);
@@ -243,6 +252,8 @@ public class ExportAvatar extends Avatar {
                 cancelJButtonActionPerformed(evt);
             }
         });
+
+        directoryJTextField.setEditable(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -278,7 +289,7 @@ public class ExportAvatar extends Avatar {
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(directoryJLabel)
                         .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(directoryJButton))
+                    .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(openWhenDoneCheckBox)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -321,9 +332,7 @@ public class ExportAvatar extends Avatar {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cancelJButton;
     private javax.swing.JButton directoryJButton;
-    private javax.swing.JLabel directoryJLabel;
     private javax.swing.JTextField directoryJTextField;
     private javax.swing.JLabel explanationJLabel;
     private javax.swing.JButton okJButton;

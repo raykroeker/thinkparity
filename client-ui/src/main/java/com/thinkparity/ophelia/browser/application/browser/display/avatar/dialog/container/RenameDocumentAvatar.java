@@ -62,11 +62,17 @@ public class RenameDocumentAvatar extends Avatar {
         }
     }
     
+    /**
+     *  Initialize the document handler for the name text field.
+     */
     private void initDocumentHandler() {
         javax.swing.text.Document document = nameJTextField.getDocument();
         document.addDocumentListener( new DocumentHandler() );   
     }
     
+    /**
+     * Make the escape key behave like cancel.
+     */
     private void bindEscapeKey() {
         bindEscapeKey("Cancel", new AbstractAction() {
             /** @see java.io.Serializable */

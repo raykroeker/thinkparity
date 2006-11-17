@@ -1252,7 +1252,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     } else {
                         // first login in this environment
                         if (monitor.confirmSynchronize()) {
-                            getContainerModel().restoreBackup();
+// NOCOMMIT Backup is crashing.
+// getContainerModel().restoreBackup();
                             createToken(remoteToken);
                         } else {
                             xmppSession.logout();
@@ -1272,7 +1273,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                         // here we know the local environment is different from
                         // what was expected
                         if (monitor.confirmSynchronize()) {
-                            getContainerModel().restoreBackup();      
+// NOCOMMIT Backup is crashing.
+// getContainerModel().restoreBackup();      
                         } else {
                             xmppSession.logout();
                             return; /*

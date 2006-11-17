@@ -1045,10 +1045,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             super();
             this.version = version;
             initText(version, publishedBy);
-            setIcon(imageCache.read(TabPanelIcon.VERSION));
+            if (isComment()) {
+                setIcon(imageCache.read(TabPanelIcon.VERSION_WITH_COMMENT));
+            } else {
+                setIcon(imageCache.read(TabPanelIcon.VERSION)); 
+            }
             int countCells = 0;
-            addContentCell(new CommentCell(version));
-            countCells++;
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
                 countCells++;
@@ -1069,6 +1071,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
+            if (isComment()) {
+                ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionInfoDialog(getArtifactId(), getVersionId());
+            }
         }
         Long getArtifactId() {
             return version.getArtifactId();
@@ -1076,9 +1081,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
+        Boolean isComment() {
+            return ((version.isSetComment()) && (version.getComment().length()>0));
+        }
         private void initText(final ContainerVersion version, final User publishedBy) {
             if (isToday(version.getCreatedOn().getTime())) {
                 setText(localization.getString("VersionToday", version.getCreatedOn().getTime(), publishedBy.getName()));
+            } else if (isThisYear(version.getCreatedOn().getTime())) {
+                setText(localization.getString("VersionThisYear", version.getCreatedOn().getTime(), publishedBy.getName()));        
             } else {
                 setText(localization.getString("Version", version.getCreatedOn().getTime(), publishedBy.getName())); 
             }
@@ -1103,35 +1113,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runOpenDocumentVersion(getDocumentId(), getVersionId());
         }
         Long getDocumentId() {
-            return version.getArtifactId();
-        }
-        Long getVersionId() {
-            return version.getVersionId();
-        }
-    }
-    
-    /** A version comment cell. */
-    final class CommentCell extends AbstractContentCell {
-        private final ContainerVersion version;
-        private CommentCell(final ContainerVersion version) {
-            super();
-            this.version = version;
-            if ((version.isSetComment()) && (version.getComment().length()>0)) {
-                setText(version.getComment());
-            } else {
-                setText(localization.getString("NoComment"));
-            }
-            setIcon(imageCache.read(TabPanelIcon.COMMENT));
-        }
-        @Override
-        protected void showPopupMenu(final Component invoker, final MouseEvent e) {
-            new ContainerVersionsPopup(model, this).show(invoker, e);
-        }
-        @Override
-        protected void doubleClick(final Component invoker, final MouseEvent e) {
-            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionInfoDialog(getArtifactId(), getVersionId());
-        }
-        Long getArtifactId() {
             return version.getArtifactId();
         }
         Long getVersionId() {

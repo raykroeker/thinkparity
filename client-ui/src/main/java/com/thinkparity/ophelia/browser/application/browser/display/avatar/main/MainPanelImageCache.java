@@ -116,6 +116,7 @@ public class MainPanelImageCache {
         CONTAINER_BOOKMARK_ROLLOVER("IconContainer_Bookmark_Rollover.png"),
         DRAFT("IconDraft.png"),
         VERSION("IconVersion.png"),
+        VERSION_WITH_COMMENT("IconVersionWithComment.png"),
         USER("IconUser.png"),
         FILE_TXT("IconFileTxt.png"),
         FILE_DOC("IconFileDoc.png"),

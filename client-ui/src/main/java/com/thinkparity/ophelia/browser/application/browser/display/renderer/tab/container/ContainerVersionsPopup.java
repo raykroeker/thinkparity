@@ -11,12 +11,9 @@ import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.CommentCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DocumentVersionCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.DraftDocumentCell;
@@ -28,6 +25,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -185,27 +183,6 @@ final class ContainerVersionsPopup {
         readData.set(Read.DataKey.CONTACT_ID, user.getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_READ, readData));
     }
-    
-    /**
-     * Create ContainerVersionsPopup. This will create a popup menu for a
-     * comment cell.
-     * 
-     * @param model
-     *            The <code>ContainerModel</code>.
-     * @param comment
-     *            A <code>CommentCell</code>.
-     */
-    ContainerVersionsPopup(final ContainerModel model,
-            final CommentCell comment) {
-        super();
-        this.jPopupMenu = MenuFactory.createPopup();
-        final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
-
-        final Data data = new Data(2);
-        data.set(DisplayVersionInfo.DataKey.CONTAINER_ID, comment.getArtifactId());
-        data.set(DisplayVersionInfo.DataKey.VERSION_ID, comment.getVersionId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DISPLAY_VERSION_INFO, data));
-    }
 
     /**
      * Create ContainerVersionsPopup. This will construct a popup menu for a
@@ -221,6 +198,14 @@ final class ContainerVersionsPopup {
         super();
         this.jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
+        
+        if (version.isComment()) {
+            final Data commentData = new Data(2);
+            commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
+            commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData));
+            jPopupMenu.addSeparator();
+        }
         
         if (model.isOnline()) {
             final Data shareData = new Data(2);

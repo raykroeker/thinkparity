@@ -298,4 +298,15 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
         todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
         return dateStr.toString().equals(todayStr.toString());
     }
+    
+    /**
+     * Determine if the specified date is this year.
+     */
+    protected Boolean isThisYear(Date date) {
+        final StringBuffer dateStr = new StringBuffer();
+        final StringBuffer todayStr = new StringBuffer();
+        dateStr.append(MessageFormat.format("{0,date,yyyy}", date));
+        todayStr.append(MessageFormat.format("{0,date,yyyy}", Calendar.getInstance().getTime()));
+        return dateStr.toString().equals(todayStr.toString());
+    }        
 }

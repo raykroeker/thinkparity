@@ -17,12 +17,16 @@ public class OSUtil {
         final String osName = System.getProperty("os.name");
         if ("Windows XP".equals(osName)) {
             os = OS.WINDOWS_XP;
+            os.setPlatform(Platform.WIN32);
         } else if ("Windows 2000".equals(osName)) {
             os = OS.WINDOWS_2000;
+            os.setPlatform(Platform.WIN32);
         } else if ("Linux".equals(osName)) {
             os = OS.LINUX;
+            os.setPlatform(Platform.LINUX);
         } else if ("Mac OS X".equals(osName)) {
             os = OS.OSX;
+            os.setPlatform(Platform.UNIX);
         } else {
             os = null;
         }

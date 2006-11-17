@@ -4,14 +4,17 @@
 package com.thinkparity.ophelia.model.artifact;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -331,7 +334,29 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      */
     public List<TeamMember> readTeam2(final Long artifactId) {
-        synchronized(getImplLock()) { return getImpl().readTeam2(artifactId); }
+        // TODO Rename to readTeam.
+        synchronized (getImplLock()) {
+            return getImpl().readTeam2(artifactId);
+        }
+    }
+
+    /**
+     * Read the team for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param comparator
+     *            An artifact sort <code>Comparator</code>.
+     * @param filter
+     *            An artifact <code>Filter</code>.
+     * @return A <code>TeamMember</code> <code>List</code>.
+     */
+    public List<TeamMember> readTeam(final Long artifactId,
+            final Comparator<? super User> comparator,
+            final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeam(artifactId, comparator, filter);
+        }
     }
 
     /**

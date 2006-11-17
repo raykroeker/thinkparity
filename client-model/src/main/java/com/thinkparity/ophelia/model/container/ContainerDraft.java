@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
@@ -96,15 +97,6 @@ public class ContainerDraft {
     }
 
     /**
-     * Obtain the document count for the draft.
-     *
-     * @return A document count <code>Integer</code>.
-     */
-    public Integer getDocumentCount() {
-       return getDocuments().size(); 
-    }
-
-    /**
      * Obtain the id
      *
      * @return The Long.
@@ -120,6 +112,15 @@ public class ContainerDraft {
      */
     public Document getDocument(final Long documentId) {
         return (Document) getArtifact(documentId);
+    }
+
+    /**
+     * Obtain the document count for the draft.
+     *
+     * @return A document count <code>Integer</code>.
+     */
+    public Integer getDocumentCount() {
+       return getDocuments().size(); 
     }
 
     /**
@@ -226,6 +227,17 @@ public class ContainerDraft {
      */
     public void setContainerId(final Long containerId) {
         this.containerId = containerId;
+    }
+
+    /**
+     * Set the documents.
+     * 
+     * @param documents
+     *            A <code>Document</code> <code>List</code>.
+     */
+    public void setDocuments(final List<Document> documents) {
+        artifacts.clear();
+        artifacts.addAll(documents);
     }
 
     /**

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.util.sort;
 
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 
 
@@ -12,21 +14,28 @@ import com.thinkparity.codebase.model.artifact.Artifact;
  */
 class NameComparator extends AbstractArtifactComparator {
 
+    /** A general purpose string comparator. */
+    private final StringComparator comparator;
+
 	/**
 	 * Create a NameComparator.
 	 * 
 	 */
 	NameComparator(final Boolean doCompareAscending) {
 		super(doCompareAscending);
+        this.comparator = new StringComparator(doCompareAscending);
 	}
 
 	/**
 	 * @see java.util.Comparator#compare(T, T)
 	 * 
 	 */
-	public int compare(Artifact o1, Artifact o2) {
-		final int compareResult = o1.getName().compareTo(o2.getName());
-		if(0 == compareResult) { return subCompare(o1, o2); }
-		else { return compareResult * resultMultiplier; }
+	public int compare(final Artifact o1, final Artifact o2) {
+		final int compareResult = comparator.compare(o1.getName(), o2.getName());
+		if (0 == compareResult) {
+            return subCompare(o1, o2);
+		} else {
+            return compareResult;
+		}
 	}
 }

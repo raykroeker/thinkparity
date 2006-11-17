@@ -87,7 +87,7 @@ public class ModelSorter {
     }
 
     public static void sortTeamMembers(final List<TeamMember> list,
-            final Comparator<User> comparator) {
+            final Comparator<? super User> comparator) {
         Collections.sort(list, comparator);
     }
 

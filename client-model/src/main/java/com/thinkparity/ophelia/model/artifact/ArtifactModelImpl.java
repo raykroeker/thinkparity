@@ -5,12 +5,15 @@ package com.thinkparity.ophelia.model.artifact;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.TrueAssertion;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -31,6 +34,7 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -487,6 +491,33 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readTeamRel(artifactId);
+    }
+
+    /**
+     * Read the team for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param comparator
+     *            An artifact sort <code>Comparator</code>.
+     * @param filter
+     *            An artifact <code>Filter</code>.
+     * @return A <code>TeamMember</code> <code>List</code>.
+     */
+    List<TeamMember> readTeam(final Long artifactId,
+            final Comparator<? super User> comparator,
+            final Filter<? super User> filter) {
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        try {
+            final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
+            FilterManager.filter(team, filter);
+            ModelSorter.sortTeamMembers(team, comparator);
+            return team;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

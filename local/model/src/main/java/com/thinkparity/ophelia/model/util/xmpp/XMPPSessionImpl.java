@@ -473,7 +473,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *
      */
     public void processEventQueue(final JabberId userId) {
-        xmppSystem.processEventQueue(getUserId());
+        xmppSystem.processEventQueue(userId);
     }
 
 	/**

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.l10n.L18n;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
@@ -66,6 +67,29 @@ public final class ContainerNameGenerator {
      */
     public String exportDirectoryName(final ContainerVersion version) {
         return directoryName(version);
+    }
+
+    /**
+     * Generate a directory name for export.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A directory name <code>String</code>.
+     */
+    public String exportFileName(final Container container) {
+        return MessageFormat.format("{0}.zip", container.getName());
+    }
+
+    /**
+     * Generate a directory name for export.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A directory name <code>String</code>.
+     */
+    public String exportFileName(final ContainerVersion version) {
+        return MessageFormat.format("{0} {1,date,MMM dd, yyyy h mm ss a}.zip",
+                version.getName(), version.getUpdatedOn().getTime());
     }
 
     /**

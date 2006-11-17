@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.util.sort.user;
 
 import java.util.Comparator;
 
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.util.sort.AbstractComparator;
@@ -17,21 +19,30 @@ import com.thinkparity.ophelia.model.util.sort.AbstractComparator;
 public class OrganizationComparator extends AbstractComparator<User> implements
         Comparator<User> {
 
+    /** A general purpose string comparator. */
+    private final StringComparator comparator;
+
     /**
      * Create NameComparator.
      * 
      * @param doCompareAscending
      *            Compare in ascending order.
      */
-    OrganizationComparator(final Boolean doCompareAscending) { super(doCompareAscending); }
+    OrganizationComparator(final Boolean doCompareAscending) {
+        super(doCompareAscending);
+        this.comparator = new StringComparator(doCompareAscending);
+    }
 
     /**
      * @see java.util.Comparator#compare(T, T)
      * 
      */
     public int compare(final User o1, final User o2) {
-        final int compareResult = o1.getOrganization().compareTo(o2.getOrganization());
-        if(0 == compareResult) { return subCompare(o1, o2); }
-        else { return compareResult * resultMultiplier; }
+        final int compareResult = comparator.compare(o1.getOrganization(), o2.getOrganization());
+        if (0 == compareResult) {
+            return subCompare(o1, o2);
+        } else {
+            return compareResult;
+        }
     }
 }

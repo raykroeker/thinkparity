@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.container;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -14,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.Map.Entry;
 
@@ -426,7 +426,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     "Export directory {0} is not a directory.", exportDirectory);
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            return export(exportDirectory, container, versions);
+            return export(exportDirectory,
+                    getNameGenerator().exportFileName(container), container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -453,8 +454,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     "Export directory {0} is not a directory.", exportDirectory);
             final Container container = read(containerId);
             final List<ContainerVersion> versions = new ArrayList<ContainerVersion>(1);
-            versions.add(readVersion(containerId, versionId));
-            return export(exportDirectory, container, versions);
+            final ContainerVersion version = readVersion(containerId, versionId);
+            versions.add(version);
+            return export(exportDirectory,
+                    getNameGenerator().exportFileName(version), container, versions);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1300,6 +1303,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
+
+        // START-NOTE:this should be a parameterized comparator
+        if (null != draft) {
+            final List<Document> documents = new ArrayList<Document>();
+            documents.addAll(draft.getDocuments());
+            ModelSorter.sortDocuments(documents, defaultComparator);
+            draft.setDocuments(documents);
+        }
+        // END-NOTE:this should be a parameterized comparator
+
         if (null != draft) {
             for (final Document document : draft.getDocuments()) {
                 if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
@@ -1469,8 +1482,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             users.add(entry.getKey());
         }
         FilterManager.filter(users, filter);
-        ModelSorter.sortUsers(users, comparator);
-        final Map<User, ArtifactReceipt> filteredPublishedTo = new HashMap<User, ArtifactReceipt>(users.size(), 1.0F);
+        final Map<User, ArtifactReceipt> filteredPublishedTo = new TreeMap<User, ArtifactReceipt>(comparator);
         for (final User user : users) {
             final ArtifactReceipt receipt = new ArtifactReceipt();
             receipt.setArtifactId(containerId);
@@ -1512,7 +1524,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<TeamMember> readTeam(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        return getInternalArtifactModel().readTeam2(containerId);
+        return getInternalArtifactModel().readTeam(containerId,
+                UserComparatorFactory.createName(Boolean.TRUE),
+                FilterManager.createDefault());
     }
 
     /**
@@ -2315,7 +2329,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @throws IOException
      * @throws TransformerException
      */
-    private File export(final File exportDirectory, final Container container,
+    private File export(final File exportDirectory,
+            final String exportFileName, final Container container,
             final List<ContainerVersion> versions) throws IOException,
             TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
@@ -2368,11 +2383,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     readUser(container.getCreatedBy()), versions,
                     versionsPublishedBy, documents, documentsSize, publishedTo);
     
-            final File zipFile = new File(exportFileSystem.getRoot(), MessageFormat.format(
-                    "{0}.zip", container.getName()));
+            final File zipFile = new File(exportFileSystem.getRoot(), exportFileName);
             ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot());
             final File exportFile = new File(exportDirectory, zipFile.getName());
-            FileUtil.copy(zipFile, exportFile, Boolean.TRUE);
+            FileUtil.copy(zipFile, exportFile, Boolean.TRUE,
+                    getString("container.export.niceFilePattern"));
             return exportFile;
         } finally {
             exportFileSystem.deleteTree();

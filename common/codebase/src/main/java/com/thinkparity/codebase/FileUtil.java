@@ -89,9 +89,18 @@ public abstract class FileUtil {
      *            The target <code>File</code>.
      * @param nice
      *            Whether or not to try incrementing names if the target exists.
+     * @param niceMessage
+     *            A message format to use when constructing a file name. The
+     *            arguments will be
+     *            <ol start="0">
+     *            <li>name
+     *            <li>index
+     *            <li>extension
+     *            </ol>
      */
     public static void copy(final File source, final File target,
-            final Boolean nice) throws FileNotFoundException, IOException {
+            final Boolean nice, final String niceMessage)
+            throws FileNotFoundException, IOException {
         final File realTarget;
         if (Boolean.TRUE == nice) {
             File niceTarget = target;
@@ -100,7 +109,7 @@ public abstract class FileUtil {
             int index = 1;
             while (niceTarget.exists()) {
                 niceTarget = new File(target.getParentFile(),
-                        MessageFormat.format("{0} - Copy {1}.{2}",
+                        MessageFormat.format(niceMessage,
                                 name, index++, extension));
             }
             realTarget = niceTarget;

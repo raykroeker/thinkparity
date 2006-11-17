@@ -6,6 +6,9 @@ package com.thinkparity.ophelia.model;
 import java.awt.Color;
 import java.io.File;
 
+import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
  * The parity local model constants.
  *
@@ -22,9 +25,38 @@ public final class Constants {
         public static final Integer NONE = 0;
     }
     public static final class Directories {
+        /** A user's home directory <code>File</code>. */
+        public static final File USER_HOME;
+        /** A user's data directory <code>File</code>. */
+        public static final File USER_DATA;
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
         public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);
         public static final File INSTALL = new File(System.getProperty("parity.install"));
+        static {
+            switch (OSUtil.getOS()) {
+            case WINDOWS_2000:
+            case WINDOWS_XP:
+                USER_HOME = new File(System.getenv("USERPROFILE"));
+                USER_DATA = new File(USER_HOME, "My Documents\\thinkParity");
+                break;
+            case LINUX:
+            case OSX:
+                USER_HOME = new File(System.getenv("HOME"));
+                USER_DATA = new File(USER_HOME, "Documents/thinkParity");
+                break;
+            default:
+                throw Assert.createUnreachable("Unknown os.");
+            }
+            if (!USER_DATA.exists()) {
+                Assert.assertTrue(USER_DATA.mkdirs(),
+                        "Cannot create directory {0}.",
+                        USER_DATA.getAbsolutePath());
+            } else {
+                Assert.assertTrue(USER_DATA.isDirectory(),
+                        "{0} is not a directory.",
+                        USER_DATA.getAbsolutePath());
+            }
+        }
     }
 
 

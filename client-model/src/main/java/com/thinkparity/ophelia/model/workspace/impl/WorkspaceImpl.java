@@ -25,6 +25,7 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
@@ -502,9 +503,12 @@ public class WorkspaceImpl implements Workspace {
 	 */
 	private FileSystem initRoot(final File workspace) {
 		if (!workspace.exists())
-			Assert.assertTrue(
-                    MessageFormat.format("CANNOT INIT ROOT:  {0}", workspace),
-                    workspace.mkdirs());
+			Assert.assertTrue(workspace.mkdirs(),
+                    "Cannot initialize workspace {0}.", workspace);
+        if (!Directories.USER_DATA.exists())
+            Assert.assertTrue(
+                    Directories.USER_DATA.mkdirs(),
+                    "Cannot create directory {0}.", Directories.USER_DATA);
         return new FileSystem(workspace);
 	}
 

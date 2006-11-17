@@ -14,12 +14,15 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -30,34 +33,36 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public final class ContainerModel extends TabPanelModel {
-
+public final class ContainerModel extends TabPanelModel implements
+        ThinkParitySwingMonitor {
+    
     /** An application. */
     public final Browser browser;
-
-    /** An apache logger. */
-    private final Log4JWrapper logger;
 
     /** A container id lookup. */
     private final Map<Long, Long> containerIdLookup;
 
+    /** A comparator for sorting containers. */
+    private ContainerPanelComparator containerPanelComparator;
+
     /** A list of all container panels. */
     private final List<TabPanel> containerPanels;
-    
+
     /** The expanded container. */
     private Container expandedContainer = null;
-    
-    /** The selected container. */
-    private Container selectedContainer = null;
 
     /** A list model. */
     private final DefaultListModel listModel;
+
+    /** An apache logger. */
+    private final Log4JWrapper logger;
 
     /**
      * The user input search expression.
@@ -65,7 +70,7 @@ public final class ContainerModel extends TabPanelModel {
      * @see #applySearch(String)
      */
     private String searchExpression;
-
+    
     /**
      * A list of contact ids matching the search criteria.
      * 
@@ -73,15 +78,15 @@ public final class ContainerModel extends TabPanelModel {
      * @see #removeSearch()
      */
     private List<Long> searchResults;
+    
+    /** The selected container. */
+    private Container selectedContainer = null;
 
     /** A map of the container panel to its versions panel. */
     private final Map<TabPanel, TabPanel> versionsPanels;
 
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
-    
-    /** A comparator for sorting containers. */
-    private ContainerPanelComparator containerPanelComparator;
 
     /**
      * Create BrowserContainersModel.
@@ -140,6 +145,28 @@ public final class ContainerModel extends TabPanelModel {
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
     }
+    
+    /**
+     * Deselect the selected container, leaving no container selected.
+     * 
+     */
+    public void deselectContainer() {
+        if (selectedContainer != null) {
+            selectedContainer = null;
+            synchronize();
+        }
+    }
+
+    /**
+     * Obtain a container panel.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>TabPanel</code>.
+     */
+    public TabPanel getContainerPanel(final Container container) {
+        return containerPanels.get(indexOfContainerPanel(container));
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
@@ -151,6 +178,66 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Obtain a versions panel.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>TabPanel</code>.
+     */
+    public TabPanel getVersionsPanel(final Container container) {
+        final TabPanel containerPanel = getContainerPanel(container);
+        return versionsPanels.get(containerPanel);
+    }
+
+    /**
+     * Obtain the index of the container panel.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>Integer</code> index; or -1 if the container does not
+     *         exist in the panel list.
+     */
+    public Integer indexOfContainerPanel(final Container container) {
+        for (int i = 0; i < containerPanels.size(); i++) {
+            if (((ContainerPanel) containerPanels.get(i)).getContainerId()
+                    .equals(container.getId())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Determine if the panel is expanded.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if the panel is expanded; false otherwise.
+     */
+    public Boolean isExpanded(final TabPanel tabPanel) {
+        if (tabPanel instanceof ContainerPanel) {
+            return isExpandedContainer(((ContainerPanel)tabPanel).getContainer());
+        } else {
+            return Boolean.TRUE;
+        }
+    }
+
+    /**
+     * Determine if the container is expanded.
+     * 
+     * @param container
+     *            A container.
+     * @return True if the container is expanded; false otherwise.
+     */
+    public Boolean isExpandedContainer(final Container container) {
+        if (expandedContainer != null) {
+            return expandedContainer.equals(container);
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
      * Determine whether or not the user is online.
      * 
      * @return True if the user is online.
@@ -159,6 +246,27 @@ public final class ContainerModel extends TabPanelModel {
         return browser.getConnection() == Connection.ONLINE;
     }
 
+    /**
+     * Determine if the container is selected.
+     * 
+     * @param container
+     *            A container.
+     * @return True if the container is selected; false otherwise.
+     */
+    public Boolean isSelectedContainer(final Container container) {
+        if (selectedContainer != null) {
+            return selectedContainer.equals(container);
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#monitor()
+     *
+     */
+    public void monitor() {}
+    
     /**
      * Remove the search.
      * 
@@ -178,6 +286,51 @@ public final class ContainerModel extends TabPanelModel {
             searchResults = null;
             synchronize();
         }
+    }
+    
+    /**
+     * Change selection.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void selectContainer(final Container container) {
+        if (!isSelectedContainer(container)) {
+            selectedContainer = container;
+            synchronize();
+        }
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setStep(int)
+     *
+     */
+    public void setStep(final int step) {}
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setStep(int, java.lang.String)
+     *
+     */
+    public void setStep(final int step, final String note) {}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setSteps(int)
+     *
+     */
+    public void setSteps(final int steps) {}
+
+    /**
+     * Trigger a sort.
+     * 
+     * @param sortElement
+     *          What the containers will be sorted by.
+     * @param sortDirection
+     *          The direction of the sort.
+     */
+    public void sortContainers(SortColumn sortColumn, SortDirection sortDirection) {
+        containerPanelComparator = new ContainerPanelComparator(sortColumn, sortDirection);
+        sortContainers();
+        synchronize();
     }
 
     /**
@@ -227,6 +380,17 @@ public final class ContainerModel extends TabPanelModel {
 
     /**
      * Toggle the expansion of a panel on and off.
+     * 
+     * @param container
+     *      The container.
+     */
+    public void triggerExpand(final Container container) {
+        final TabPanel containerPanel = getContainerPanel(container);
+        triggerExpand(containerPanel);
+    }
+
+    /**
+     * Toggle the expansion of a panel on and off.
      *
      * @param panel
      *      The container <code>TabPanel</code>.
@@ -252,18 +416,7 @@ public final class ContainerModel extends TabPanelModel {
         
         synchronize();
     }
-    
-    /**
-     * Toggle the expansion of a panel on and off.
-     * 
-     * @param container
-     *      The container.
-     */
-    public void triggerExpand(final Container container) {
-        final TabPanel containerPanel = getContainerPanel(container);
-        triggerExpand(containerPanel);
-    }
-    
+
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -280,26 +433,16 @@ public final class ContainerModel extends TabPanelModel {
         sortContainers();
         debug();
     }
-    
-    /**
-     * Sort containers.
-     */
-    private void sortContainers() {        
-        Collections.sort(containerPanels, containerPanelComparator);       
-    }
-    
-    /**
-     * Trigger a sort.
-     * 
-     * @param sortElement
-     *          What the containers will be sorted by.
-     * @param sortDirection
-     *          The direction of the sort.
-     */
-    public void sortContainers(SortColumn sortColumn, SortDirection sortDirection) {
-        containerPanelComparator = new ContainerPanelComparator(sortColumn, sortDirection);
-        sortContainers();
-        synchronize();
+
+    void execWorker(final Long containerId, final ThinkParitySwingWorker worker) {
+        final TabPanel containerPanel = getContainerPanel(read(containerId));
+        // if it's expanded collapse it
+        if (isExpanded(containerPanel))
+            triggerExpand(containerPanel);
+        // disable it
+        disable(containerPanel);
+        worker.setMonitor(this);
+        worker.start();
     }
 
     /**
@@ -352,7 +495,7 @@ public final class ContainerModel extends TabPanelModel {
     void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
-
+    
     /**
      * Add a container panel. This will read the container's versions and add
      * the appropriate version panel as well.
@@ -421,7 +564,7 @@ public final class ContainerModel extends TabPanelModel {
     private void addContainerPanel(final Integer index, final Container container) {
         addContainerPanel(index, Boolean.FALSE, container);
     }
-
+    
     /**
      * Clear all panels.
      *
@@ -430,7 +573,7 @@ public final class ContainerModel extends TabPanelModel {
         containerPanels.clear();
         versionsPanels.clear();
     }
-
+    
     /**
      * Determine if the container panel exists.
      * 
@@ -441,116 +584,14 @@ public final class ContainerModel extends TabPanelModel {
     private Boolean containsContainerPanel(final Container container) {
         return -1 != indexOfContainerPanel(container);
     }
-
-    /**
-     * Obtain a container panel.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return A <code>TabPanel</code>.
-     */
-    public TabPanel getContainerPanel(final Container container) {
-        return containerPanels.get(indexOfContainerPanel(container));
-    }
     
     /**
-     * Obtain a versions panel.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return A <code>TabPanel</code>.
-     */
-    public TabPanel getVersionsPanel(final Container container) {
-        final TabPanel containerPanel = getContainerPanel(container);
-        return versionsPanels.get(containerPanel);
-    }
-
-    /**
-     * Obtain the index of the container panel.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @return A <code>Integer</code> index; or -1 if the container does not
-     *         exist in the panel list.
-     */
-    public Integer indexOfContainerPanel(final Container container) {
-        for (int i = 0; i < containerPanels.size(); i++) {
-            if (((ContainerPanel) containerPanels.get(i)).getContainerId()
-                    .equals(container.getId())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Determine if the panel is expanded.
+     * Disable a panel.
      * 
      * @param tabPanel
      *            A <code>TabPanel</code>.
-     * @return True if the panel is expanded; false otherwise.
      */
-    public Boolean isExpanded(final TabPanel tabPanel) {
-        if (tabPanel instanceof ContainerPanel) {
-            return isExpandedContainer(((ContainerPanel)tabPanel).getContainer());
-        } else {
-            return Boolean.TRUE;
-        }
-    }
-    
-    /**
-     * Determine if the container is expanded.
-     * 
-     * @param container
-     *            A container.
-     * @return True if the container is expanded; false otherwise.
-     */
-    public Boolean isExpandedContainer(final Container container) {
-        if (expandedContainer != null) {
-            return expandedContainer.equals(container);
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Determine if the container is selected.
-     * 
-     * @param container
-     *            A container.
-     * @return True if the container is selected; false otherwise.
-     */
-    public Boolean isSelectedContainer(final Container container) {
-        if (selectedContainer != null) {
-            return selectedContainer.equals(container);
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Change selection.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    public void selectContainer(final Container container) {
-        if (!isSelectedContainer(container)) {
-            selectedContainer = container;
-            synchronize();
-        }
-    }
-    
-    /**
-     * Deselect the selected container, leaving no container selected.
-     * 
-     */
-    public void deselectContainer() {
-        if (selectedContainer != null) {
-            selectedContainer = null;
-            synchronize();
-        }
-    }
+    private void disable(final TabPanel tabPanel) {}
     
     /**
      * Read the container from the provider.
@@ -562,7 +603,7 @@ public final class ContainerModel extends TabPanelModel {
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-
+    
     /**
      * Read the containers from the provider.
      * 
@@ -668,6 +709,13 @@ public final class ContainerModel extends TabPanelModel {
         if (isExpandedContainer(container)) {
             expandedContainer = null;
         }        
+    }
+
+    /**
+     * Sort containers.
+     */
+    private void sortContainers() {        
+        Collections.sort(containerPanels, containerPanelComparator);       
     }
 
     /**

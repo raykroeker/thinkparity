@@ -24,6 +24,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.Printer;
@@ -273,6 +274,24 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
         synchronized (getImplLock()) {
             getImpl().publish(containerId, comment, contacts, teamMembers);
+        }
+    }
+
+    /**
+     * Publish the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param teamMembers
+     *            A list of team members to publish to.
+     * @param contacts
+     *            A list of contacts to publish to.
+     */
+    public void publish(final PublishMonitor monitor, final Long containerId,
+            final String comment, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
+        synchronized (getImplLock()) {
+            getImpl().publish(monitor, containerId, comment, contacts, teamMembers);
         }
     }
 

@@ -10,11 +10,17 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.user.TeamMember;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * Publish a document.  This will send a given document version to
@@ -76,9 +82,9 @@ public class Publish extends AbstractAction {
                     contacts.add((Contact) contactIn);
                 }
             }
-            
-            getContainerModel().publish(containerId, comment, contacts, teamMembers);
-            getArtifactModel().applyFlagSeen(containerId);            
+            getContainerModel().publish(containerId, comment,
+                    contacts, teamMembers);
+            getArtifactModel().applyFlagSeen(containerId);
         }
 	}
 
@@ -88,4 +94,59 @@ public class Publish extends AbstractAction {
 	 * @see Data
 	 */
 	public enum DataKey { CONTAINER_ID, CONTACTS, TEAM_MEMBERS, COMMENT }
+
+    /** A publish action worker object. */
+    private static class PublishWorker extends ThinkParitySwingWorker {
+        private final ArtifactModel artifactModel;
+        private final String comment;
+        private final List<Contact> contacts;
+        private final Long containerId;
+        private final ContainerModel containerModel;
+        private final List<TeamMember> teamMembers;
+        private final PublishMonitor publishMonitor;
+        private PublishWorker(final Publish publish, final String comment,
+                final List<Contact> contacts, final Long containerId,
+                final List<TeamMember> teamMembers) {
+            super(publish);
+            this.artifactModel = publish.getArtifactModel();
+            this.comment = comment;
+            this.contacts = contacts;
+            this.containerId = containerId;
+            this.containerModel = publish.getContainerModel();
+            this.teamMembers = teamMembers;
+            this.publishMonitor = new PublishMonitor() {
+                private final long timeDuration = 1 * 1000;
+                private long timeStart;
+                private Integer stageIndex;
+                private Integer stages;
+                public void initialize(final Integer stages) {
+                    this.stages = stages;
+                }
+                public void processBegin() {
+                    this.stageIndex = 0;
+                    this.timeStart = System.currentTimeMillis();
+                }
+                public void processEnd() {}
+                public void stageBegin(final PublishStage stage) {
+                    final long timeNow = System.currentTimeMillis();
+                    if (timeNow > timeStart + timeDuration) {
+                        monitor.setSteps(stages);
+                        monitor.setStep(stageIndex);
+                        monitor.monitor();
+                    }
+                }
+                public void stageEnd(final PublishStage stage) {
+                    stageIndex++;
+                    monitor.setStep(stageIndex);
+                }
+            };
+        }
+        @Override
+        public Object construct() {
+            containerModel.publish(publishMonitor, containerId, comment,
+                    contacts, teamMembers);
+            artifactModel.applyFlagSeen(containerId);
+            return containerModel.readLatestVersion(containerId);
+        }
+    }
 }

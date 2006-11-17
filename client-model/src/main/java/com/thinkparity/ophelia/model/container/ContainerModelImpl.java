@@ -55,6 +55,8 @@ import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -82,6 +84,18 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @version 1.1.2.3
  */
 final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
+
+    private static final PublishMonitor PUBLISH_MONITOR;
+
+    static {
+        PUBLISH_MONITOR = new PublishMonitor() {
+            public void initialize(final Integer stages) {}
+            public void processBegin() {}
+            public void processEnd() {}
+            public void stageBegin(final PublishStage stage) {}
+            public void stageEnd(final PublishStage stage) {}
+        };
+    }
 
     /** The artifact io layer. */
     private final ArtifactIOHandler artifactIO;
@@ -882,6 +896,34 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("comment", comment);
         logger.logVariable("contacts", contacts);
         logger.logVariable("teamMembers", teamMembers);
+        try {
+            publish(PUBLISH_MONITOR, containerId, comment, contacts, teamMembers);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Publish the container. Publishing involves determining if the working
+     * version of a document differes from the latest version and if so creating
+     * a new version; then sending the latest version to all team members.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param contacts
+     *            A list of contacts to publish to.
+     * @param teamMembers
+     *            A list of team members to publish to.
+     */
+    void publish(final PublishMonitor monitor, final Long containerId,
+            final String comment, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
+        logger.logApiId();
+        logger.logVariable("monitor", monitor);
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("comment", comment);
+        logger.logVariable("contacts", contacts);
+        logger.logVariable("teamMembers", teamMembers);
         assertOnline("USER NOT ONLINE");
         assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
         assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
@@ -897,6 +939,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // previous version
             final ContainerVersion previous = readLatestVersion(containerId);
             // create version
+            initialize(monitor, draft.getArtifacts().size() + 2);
+            fireStageBegin(monitor, PublishStage.CreateVersion);
             final ContainerVersion version = createVersion(container.getId(),
                     readNextVersionId(containerId), comment, localUserId(),
                     currentDateTime());
@@ -931,8 +975,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 containerIO.createDelta(calculateDelta(read(containerId), version, previous));
             }
 
-            doPublishVersion(containerId, version.getVersionId(), contacts,
-                    teamMembers);
+            fireStageEnd(monitor, PublishStage.CreateVersion);
+
+            doPublishVersion(monitor, containerId, version.getVersionId(),
+                    contacts, teamMembers);
 
             // delete draft
             for(final Artifact artifact : draft.getArtifacts()) {
@@ -976,7 +1022,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getInternalArtifactModel().removeFlagKey(containerId);
 
             final List<TeamMember> teamMembers = Collections.emptyList();
-            doPublishVersion(containerId, versionId, contacts, teamMembers);
+            doPublishVersion(PUBLISH_MONITOR, containerId, versionId, contacts,
+                    teamMembers);
 
             // fire event
             final Container postPublish = read(containerId);
@@ -2282,7 +2329,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A container version id <code>Long</code>.
      */
-    private void doPublishVersion(final Long containerId, final Long versionId,
+    private void doPublishVersion(final PublishMonitor monitor,
+            final Long containerId, final Long versionId,
             final List<Contact> contacts, final List<TeamMember> teamMembers)
             throws IOException {
         final Container container = read(containerId);
@@ -2305,7 +2353,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             publishToUsers.add(teamMember);
         }
         final Calendar currentDateTime = currentDateTime();
-        publish(version, publishTo, localUserId(), currentDateTime);
+        publish(monitor, version, publishTo, localUserId(), currentDateTime);
 
         // update remote team
         final InternalSessionModel sessionModel = getSessionModel();
@@ -2394,6 +2442,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
+    private void fireStageBegin(final PublishMonitor monitor,
+            final PublishStage stage) {
+        monitor.stageBegin(stage);
+    }
+
+    private void fireStageEnd(final PublishMonitor monitor,
+            final PublishStage stage) {
+        monitor.stageEnd(stage);
+    }
+
     /**
      * Handle a document published remote event.
      * 
@@ -2420,6 +2478,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event) throws IOException {
         return getInternalDocumentModel().handleDocumentPublished(event);
+    }
+
+
+    private void initialize(final PublishMonitor monitor,
+            final Integer stages) {
+        monitor.initialize(stages);
     }
 
     /**
@@ -2658,9 +2722,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param publishedOn
      *            The publish date.
      */
-    private void publish(final ContainerVersion version,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) throws IOException {
+    private void publish(final PublishMonitor monitor,
+            final ContainerVersion version, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn)
+            throws IOException {
         final Map<DocumentVersion, InputStream> documentVersionStreams =
             readDocumentVersionStreams(version.getArtifactId(),
                     version.getVersionId());
@@ -2669,14 +2734,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final StreamSession session = getSessionModel().createStreamSession();
         for (final Entry<DocumentVersion, InputStream> entry :
                 documentVersionStreams.entrySet()) {
+            fireStageBegin(monitor, PublishStage.UploadStream);
             documentVersionStreamIds.put(entry.getKey(),
                     uploadStream(session, entry.getValue(), entry.getKey().getSize()));
+            fireStageEnd(monitor, PublishStage.UploadStream);
         }
         getSessionModel().deleteStreamSession(session);
 
+	fireStageBegin(monitor, PublishStage.PublishContainer);
         getSessionModel().publish(version, documentVersionStreamIds,
                 getInternalArtifactModel().readTeamIds(version.getArtifactId()),
                 publishTo, publishedBy, publishedOn);
+        fireStageEnd(monitor, PublishStage.PublishContainer);
     }
 
     private Long readDocumentVersionSize(final Long documentId,

@@ -17,14 +17,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -52,13 +54,23 @@ import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Export;
+import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -78,8 +90,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -91,7 +103,7 @@ import com.thinkparity.ophelia.model.user.TeamMember;
  */
 public class Browser extends AbstractApplication {
 
-	/** Action registry. */
+    /** Action registry. */
 	private final ActionRegistry actionRegistry;
 
 	/**
@@ -103,12 +115,12 @@ public class Browser extends AbstractApplication {
 	/** The browser's connection. */
     private Connection connection;
 
-    /** The browser controller's display helper. */
+	/** The browser controller's display helper. */
     private final BrowserDisplayHelper displayHelper;
-	
-	/** The browser's event dispatcher. */
-	private EventDispatcher ed;
 
+    /** The browser's event dispatcher. */
+	private EventDispatcher ed;
+	
 	/**
 	 * The file chooser.
 	 * 
@@ -118,14 +130,14 @@ public class Browser extends AbstractApplication {
 
 	/** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
-    
-    /** A persistence for browser settings. */
-    private final Persistence persistence;
 
-	/** Contains the browser's session information. */
+	/** A persistence for browser settings. */
+    private final Persistence persistence;
+    
+    /** Contains the browser's session information. */
 	private final BrowserSession session;
 
-    /**
+	/**
 	 * Create Browser.
 	 * 
 	 */
@@ -178,7 +190,7 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
         return confirm(input);
     }
-    
+
     /**
      * Open a confirmation dialog.
      * 
@@ -195,7 +207,7 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
     }
-
+    
     /**
      * Display the invite dialogue.
      *
@@ -203,7 +215,7 @@ public class Browser extends AbstractApplication {
     public void displayContactCreateInvitation() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
-        
+
     /**
      * Display the container version comment dialog.
      * 
@@ -219,7 +231,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
-    
+        
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -252,7 +264,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-
+    
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -262,7 +274,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-    
+
     /**
      * Display an error dialog.
      *
@@ -275,7 +287,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-
+    
     /**
      * Display an error dialog
      * 
@@ -297,7 +309,7 @@ public class Browser extends AbstractApplication {
             input.set(ErrorAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
     }
-    
+
     /**
      * Display an error dialog.
      * 
@@ -309,7 +321,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey,
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
-    } 
+    }
     
     /**
      * Display an export dialog for a container, ie. export all versions.
@@ -323,7 +335,7 @@ public class Browser extends AbstractApplication {
         input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
         setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
-    }
+    } 
     
     /**
      * Display an export dialog for a version.
@@ -341,14 +353,14 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
     }
-
+    
     /**
      * Display the info (or Help About) dialog.
      */
     public void displayInfoDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
     }
-    
+
     /**
      * Display the "publish container" dialog.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
@@ -381,7 +393,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-
+    
     /**
      * Display the contact info dialogue.
      *
@@ -414,7 +426,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
-    
+
     /**
      * Display the update profile dialog.
      *
@@ -422,7 +434,7 @@ public class Browser extends AbstractApplication {
     public void displayResetProfilePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
     }
-
+    
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayTab(AvatarId.TAB_CONTACT);
@@ -483,6 +495,11 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
+
+    public void executeContainerWorker(final Long containerId,
+            final ThinkParitySwingWorker worker) {
+        getTabContainerAvatar().execWorker(containerId, worker);
+    }
 
     /**
      * Notify the application that a contact has been added.

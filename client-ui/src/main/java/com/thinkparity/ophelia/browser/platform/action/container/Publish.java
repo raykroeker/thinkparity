@@ -53,8 +53,9 @@ public class Publish extends AbstractAction {
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
         final String comment = (String) data.get(DataKey.COMMENT);
         
-        if (((null==contactsIn) || contactsIn.isEmpty()) &&
-            ((null==teamMembersIn) || teamMembersIn.isEmpty())) {
+        if ((null == contactsIn || contactsIn.isEmpty()) &&
+            (null == teamMembersIn || teamMembersIn.isEmpty())) {
+            // TODO raymond@thinkparity.com - Adjust such that the list input is never null 
             // Launch publish dialog
             browser.displayPublishContainerDialog(containerId);
         } else {
@@ -82,9 +83,8 @@ public class Publish extends AbstractAction {
                     contacts.add((Contact) contactIn);
                 }
             }
-            getContainerModel().publish(containerId, comment,
-                    contacts, teamMembers);
-            getArtifactModel().applyFlagSeen(containerId);
+            browser.executeContainerWorker(containerId, new PublishWorker(this,
+                    comment, contacts, containerId, teamMembers));
         }
 	}
 
@@ -93,7 +93,7 @@ public class Publish extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { CONTAINER_ID, CONTACTS, TEAM_MEMBERS, COMMENT }
+	public enum DataKey { COMMENT, CONTACTS, CONTAINER_ID, TEAM_MEMBERS }
 
     /** A publish action worker object. */
     private static class PublishWorker extends ThinkParitySwingWorker {
@@ -102,8 +102,8 @@ public class Publish extends AbstractAction {
         private final List<Contact> contacts;
         private final Long containerId;
         private final ContainerModel containerModel;
-        private final List<TeamMember> teamMembers;
         private final PublishMonitor publishMonitor;
+        private final List<TeamMember> teamMembers;
         private PublishWorker(final Publish publish, final String comment,
                 final List<Contact> contacts, final Long containerId,
                 final List<TeamMember> teamMembers) {
@@ -115,21 +115,26 @@ public class Publish extends AbstractAction {
             this.containerModel = publish.getContainerModel();
             this.teamMembers = teamMembers;
             this.publishMonitor = new PublishMonitor() {
-                private final long timeDuration = 1 * 1000;
-                private long timeStart;
                 private Integer stageIndex;
                 private Integer stages;
+                private final long timeDuration = 1 * 1000;
+                private boolean monitoring;
+                private long timeStart;
+                private long timeEnd;
                 public void initialize(final Integer stages) {
+                    this.monitoring = false;
+                    this.stageIndex = 0;
                     this.stages = stages;
                 }
                 public void processBegin() {
-                    this.stageIndex = 0;
                     this.timeStart = System.currentTimeMillis();
                 }
-                public void processEnd() {}
+                public void processEnd() {
+                    this.timeEnd = System.currentTimeMillis();
+                }
                 public void stageBegin(final PublishStage stage) {
                     final long timeNow = System.currentTimeMillis();
-                    if (timeNow > timeStart + timeDuration) {
+                    if (!monitoring && timeNow > timeStart + timeDuration) {
                         monitor.setSteps(stages);
                         monitor.setStep(stageIndex);
                         monitor.monitor();

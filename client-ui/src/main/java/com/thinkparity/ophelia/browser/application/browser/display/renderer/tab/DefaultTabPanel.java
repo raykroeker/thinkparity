@@ -47,50 +47,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
 	}
 
     /**
-     * Install a mouse over tracker which tracks the mouse and updates the
-     * underlying panel's "mouseOver" property.
-     */
-    protected final void installMouseOverTracker() {
-        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                setMouseOver(Boolean.FALSE);
-            }
-        };
-        addMouseListener(mouseOverListener);     
-    }
-    
-    protected final void installMouseOverTracker(final Component component) {
-        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                setMouseOver(Boolean.FALSE);
-            }
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                formMouseClicked(e);
-            }
-            @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                formMousePressed(e);
-            }
-            @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                formMouseReleased(e);
-            }
-        };
-        component.addMouseListener(mouseOverListener);
-    }
-
-    /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -105,49 +61,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             return false;
         }
     }
-
-    /**
-	 * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getId()
-	 */
-	public Object getId() {
-		return id;
-	}
-
-    /**
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        return getId().hashCode();
-    }
-
-    /**
-     * Determine whether or not the mouse over flag is set.
-     * 
-     * @return The mouse over <code>Boolean</code>.
-     */
-    public Boolean isSetMouseOver() {
-        return mouseOver;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setMouseOver(java.lang.Boolean)
-     */
-    public void setMouseOver(final Boolean mouseOver) {
-        this.mouseOver = mouseOver;
-    }
-    
-    /**
-     * Prepare for repaint, for example, adjust colors.  
-     */
-    public void prepareForRepaint() {        
-    }
-    
-    /**
-     * Prepare for repaint, after validate().
-     */
-    public void prepareForRepaintAfterValidate() {
-    }
     
     /**
      * Get the background color.
@@ -156,21 +69,8 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      */
     public Color getBackgroundColor() { 
         return getBackground();
-    }  
-    
-    /**
-     * Get the preferred size.
-     * 
-     * @param first
-     *          True if this is the first entity in the list.
-     * @param last
-     *          True if this is the last entity in the list.
-     * @return The preferred size <code>Dimension</code>.
-     */   
-    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
-        return getPreferredSize();
     }
-    
+
     /**
      * Get the border.
      * 
@@ -185,35 +85,86 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
 
     /**
-     * The mouse event handler for the panel's double click event.
+	 * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getId()
+	 */
+	public Object getId() {
+		return id;
+	}
+
+    /**
+     * Get the preferred size.
      * 
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void triggerDoubleClick(final MouseEvent e) {
+     * @param first
+     *          True if this is the first entity in the list.
+     * @param last
+     *          True if this is the last entity in the list.
+     * @return The preferred size <code>Dimension</code>.
+     */   
+    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
+        return getPreferredSize();
     }
 
     /**
-     * The event handler called to display the popup menu.
-     * 
-     * @param invoker
-     *            The invoker <code>Component</code> upon which to display the
-     *            popup menu.
-     * @param e
-     *            The <code>MouseEvent</code>.
+     * @see java.lang.Object#hashCode()
      */
-    protected void triggerPopup(final Component invoker, final MouseEvent e) {
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 
     /**
-     * The mouse event handler for the panel's single click event.
+     * Install a progress bar on the panel. By default this does nothing.
      * 
-     * @param e
-     *            A <code>MouseEvent</code>.
      */
-    protected void triggerSingleClick(final MouseEvent e) {
+    public void installProgressBar(final Integer steps) {
     }
 
+    /**
+     * Determine whether or not the mouse over flag is set.
+     * 
+     * @return The mouse over <code>Boolean</code>.
+     */
+    public Boolean isSetMouseOver() {
+        return mouseOver;
+    }
+
+    /**
+     * Prepare for repaint, for example, adjust colors.  
+     */
+    public void prepareForRepaint() {        
+    }
+
+    /**
+     * Prepare for repaint, after validate().
+     */
+    public void prepareForRepaintAfterValidate() {
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setMouseOver(java.lang.Boolean)
+     */
+    public void setMouseOver(final Boolean mouseOver) {
+        this.mouseOver = mouseOver;
+    }
+    
+    /**
+     * Uninstall a progress bar on the panel. By default this does nothing.
+     * 
+     */
+    public void uninstallProgressBar() {
+    }
+    
+    /**
+     * Update the progress.
+     * 
+     * @param completion
+     *            The completion <code>Float</code>.
+     * @param status
+     *            A status <code>String</code>.
+     */
+    public void updateProgress(final Integer step, final String status) {
+    }  
+    
     /**
      * The panel's mouse clicked event handler.
      * 
@@ -238,7 +189,7 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             }
         }
     }
-
+    
     /**
      * The panel's mouse pressed event.
      * 
@@ -270,6 +221,91 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
 
     /**
+     * Install a mouse over tracker which tracks the mouse and updates the
+     * underlying panel's "mouseOver" property.
+     */
+    protected final void installMouseOverTracker() {
+        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                setMouseOver(Boolean.TRUE);
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                setMouseOver(Boolean.FALSE);
+            }
+        };
+        addMouseListener(mouseOverListener);     
+    }
+
+    protected final void installMouseOverTracker(final Component component) {
+        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                formMouseClicked(e);
+            }
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                setMouseOver(Boolean.TRUE);
+            }
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                setMouseOver(Boolean.FALSE);
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                formMousePressed(e);
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                formMouseReleased(e);
+            }
+        };
+        component.addMouseListener(mouseOverListener);
+    }
+
+    /**
+     * Determine if the specified date is today's date.
+     */
+    protected Boolean isToday(Date date) {
+        final StringBuffer dateStr = new StringBuffer();
+        final StringBuffer todayStr = new StringBuffer();
+        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
+        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
+        return dateStr.toString().equals(todayStr.toString());
+    }
+
+    /**
+     * The mouse event handler for the panel's double click event.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void triggerDoubleClick(final MouseEvent e) {
+    }
+
+    /**
+     * The event handler called to display the popup menu.
+     * 
+     * @param invoker
+     *            The invoker <code>Component</code> upon which to display the
+     *            popup menu.
+     * @param e
+     *            The <code>MouseEvent</code>.
+     */
+    protected void triggerPopup(final Component invoker, final MouseEvent e) {
+    }
+
+    /**
+     * The mouse event handler for the panel's single click event.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void triggerSingleClick(final MouseEvent e) {
+    }
+    
+    /**
      * Initialize the panel's swing\awt components. In this case; event handlers
      * are created\registered for the panel's mouse events.
      * 
@@ -287,26 +323,4 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             }
         });
     }
-    
-    /**
-     * Determine if the specified date is today's date.
-     */
-    protected Boolean isToday(Date date) {
-        final StringBuffer dateStr = new StringBuffer();
-        final StringBuffer todayStr = new StringBuffer();
-        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
-        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
-        return dateStr.toString().equals(todayStr.toString());
-    }
-    
-    /**
-     * Determine if the specified date is this year.
-     */
-    protected Boolean isThisYear(Date date) {
-        final StringBuffer dateStr = new StringBuffer();
-        final StringBuffer todayStr = new StringBuffer();
-        dateStr.append(MessageFormat.format("{0,date,yyyy}", date));
-        todayStr.append(MessageFormat.format("{0,date,yyyy}", Calendar.getInstance().getTime()));
-        return dateStr.toString().equals(todayStr.toString());
-    }        
 }

@@ -13,6 +13,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,17 +27,21 @@ import javax.swing.JList;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -49,7 +54,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -1085,9 +1089,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             return ((version.isSetComment()) && (version.getComment().length()>0));
         }
         private void initText(final ContainerVersion version, final User publishedBy) {
-            if (isToday(version.getCreatedOn().getTime())) {
+            final Calendar now = DateUtil.getInstance();
+            if (DateUtil.isSameDay(version.getCreatedOn(), now)) {
                 setText(localization.getString("VersionToday", version.getCreatedOn().getTime(), publishedBy.getName()));
-            } else if (isThisYear(version.getCreatedOn().getTime())) {
+            } else if (DateUtil.isSameYear(version.getCreatedOn(), now)) {
                 setText(localization.getString("VersionThisYear", version.getCreatedOn().getTime(), publishedBy.getName()));        
             } else {
                 setText(localization.getString("Version", version.getCreatedOn().getTime(), publishedBy.getName())); 

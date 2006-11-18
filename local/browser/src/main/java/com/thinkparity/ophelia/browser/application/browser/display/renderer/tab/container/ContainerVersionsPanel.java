@@ -1022,6 +1022,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
+            final Calendar now = DateUtil.getInstance();
             final StringBuffer text;
             text = new StringBuffer();
             text.append(user.getName());
@@ -1030,7 +1031,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 text.append(localization.getString("UserPublished"));
             } else if ((null == receipt) || (!receipt.isSetReceivedOn())) {
                 text.append(localization.getString("UserDidNotReceive"));
-            } else if (isToday(receipt.getReceivedOn().getTime())) {
+            } else if (DateUtil.isSameDay(receipt.getReceivedOn(), now)) {
                 text.append(localization.getString("UserReceivedToday",receipt.getReceivedOn().getTime()));
             } else {
                 text.append(localization.getString("UserReceived",receipt.getReceivedOn().getTime()));

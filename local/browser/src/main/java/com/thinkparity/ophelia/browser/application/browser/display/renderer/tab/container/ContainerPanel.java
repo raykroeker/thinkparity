@@ -11,11 +11,13 @@ import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Calendar;
 
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 
@@ -322,7 +324,8 @@ public class ContainerPanel extends DefaultTabPanel {
         this.draft = draft;
 
         containerNameJLabel.setText(container.getName());
-        if (isToday(container.getUpdatedOn().getTime())) {
+        final Calendar now = DateUtil.getInstance();
+        if (DateUtil.isSameDay(container.getUpdatedOn(), now)) {
             containerDateJLabel.setText(localization.getString("TextToday", container.getUpdatedOn().getTime()));
         } else {
             containerDateJLabel.setText(localization.getString("Text", container.getUpdatedOn().getTime())); 

@@ -7,9 +7,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
-import java.text.MessageFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
@@ -262,17 +259,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             }
         };
         component.addMouseListener(mouseOverListener);
-    }
-
-    /**
-     * Determine if the specified date is today's date.
-     */
-    protected Boolean isToday(Date date) {
-        final StringBuffer dateStr = new StringBuffer();
-        final StringBuffer todayStr = new StringBuffer();
-        dateStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", date));
-        todayStr.append(MessageFormat.format("{0,date,yyyyMMMdd}", Calendar.getInstance().getTime()));
-        return dateStr.toString().equals(todayStr.toString());
     }
 
     /**

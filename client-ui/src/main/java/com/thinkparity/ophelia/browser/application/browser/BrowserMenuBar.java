@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -15,12 +14,10 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -76,6 +73,12 @@ public class BrowserMenuBar extends JMenuBar {
     /** Un-Maximize label rollover icon. */
     private static final Icon UNMAXIMIZE_ROLLOVER_ICON;
     
+    /** Sign-Up label icon. */
+    private static final Icon SIGNUP_ICON;
+    
+    /** Sign-Up label rollover icon. */
+    private static final Icon SIGNUP_ROLLOVER_ICON;
+    
     
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
@@ -89,6 +92,9 @@ public class BrowserMenuBar extends JMenuBar {
         
         UNMAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximize.png");
         UNMAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximizeRollover.png");
+        
+        SIGNUP_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUp.png");
+        SIGNUP_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUpRollover.png");
     }
 
     /**
@@ -174,11 +180,11 @@ public class BrowserMenuBar extends JMenuBar {
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
         
         // Create the Sign-Up button
-        this.add(Box.createRigidArea(new Dimension(9,0)));
+        this.add(Box.createHorizontalGlue());
         this.add(getSignUpButton());
+        this.add(Box.createRigidArea(new Dimension(2,0)));
         
         // Add minimize, maximize and close buttons
-        this.add(Box.createHorizontalGlue());
         this.add(getMinimizeButton());
         this.add(Box.createRigidArea(new Dimension(2,0)));
         this.add(getMaximizeButton(maximized));
@@ -188,19 +194,15 @@ public class BrowserMenuBar extends JMenuBar {
     }
     
     private JLabel getSignUpButton() {
-        final javax.swing.JLabel signUpJLabel = new JLabel(" Sign-Up ");
-        signUpJLabel.setForeground(new Color(249, 162, 94, 255));
-        signUpJLabel.setFont(Fonts.DefaultFontBold);
-        // The next line prevents the label getting wider than it needs to be.
-        signUpJLabel.setMaximumSize(getPreferredSize());
+        final javax.swing.JLabel signUpJLabel = new JLabel(SIGNUP_ICON);
         signUpJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                signUpJLabel.setBorder(new LineBorder(new Color(249, 162, 94, 255)));
+                ((JLabel) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
             }
             @Override
-            public void mouseExited(final MouseEvent e) {
-                signUpJLabel.setBorder(null);   
+            public void mouseExited(final MouseEvent e) { 
+                ((JLabel) e.getSource()).setIcon(SIGNUP_ICON);
             }
             @Override
             public void mouseClicked(final MouseEvent e) {
@@ -266,19 +268,6 @@ public class BrowserMenuBar extends JMenuBar {
         return closeJLabel;        
     }
     
-    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
-        browser.closeBrowserWindow();
-        closeJLabelMouseExited(evt);
-    }
-
-    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
-    }
-
-    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
-    }
-    
     private void minimizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
         browser.minimize();
         minimizeJLabelMouseExited(evt);
@@ -311,5 +300,18 @@ public class BrowserMenuBar extends JMenuBar {
         } else {
             ((JLabel) evt.getSource()).setIcon(MAXIMIZE_ICON);
         }
+    }
+       
+    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+        browser.closeBrowserWindow();
+        closeJLabelMouseExited(evt);
+    }
+
+    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }
+
+    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
     }
 }

@@ -223,7 +223,7 @@ public class DisplayInfoAvatar extends Avatar {
 
     private void webPageJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseClicked
         try {
-            String runString = "rundll32 url.dll,FileProtocolHandler " + getWebPage();
+            String runString = "rundll32 url.dll,FileProtocolHandler " + getWebPage().toString();
             Runtime.getRuntime().exec(runString);
         } catch (final Throwable t) {
             throw new BrowserException(LAUNCH_WEB_BROWSER_ERROR, t);            

@@ -76,7 +76,9 @@ class WindowPanel extends AbstractJPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
-		add(new WindowTitle(avatar.getAvatarTitle()), c.clone());
+        if (avatar.isAvatarTitle()) {
+		    add(new WindowTitle(avatar.getAvatarTitle()), c.clone());
+        }
 
 		jPanels.add(avatar);
 		ac.gridy++;

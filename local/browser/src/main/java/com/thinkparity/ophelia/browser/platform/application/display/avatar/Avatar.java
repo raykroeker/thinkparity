@@ -147,6 +147,14 @@ public abstract class Avatar extends AbstractJPanel {
             resizer.addComponentsThatSupportMouseMove(componentsThatSupportMouseMove);
         }
     }
+    
+    /**
+     * Determine if there is an avatar title, used for dialogs.
+     * With few exceptions (eg. help-about) this should be true.
+     */
+    public Boolean isAvatarTitle() {
+        return Boolean.TRUE;
+    }
 
 	/**
      * Get the avatar title, used for dialogs.

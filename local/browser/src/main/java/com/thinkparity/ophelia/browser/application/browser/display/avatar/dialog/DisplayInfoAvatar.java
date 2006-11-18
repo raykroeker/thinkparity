@@ -8,6 +8,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 
 import java.awt.Cursor;
 
+import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.http.Link;
+import com.thinkparity.codebase.http.LinkFactory;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -46,7 +51,15 @@ public class DisplayInfoAvatar extends Avatar {
     public AvatarId getId() {
         return AvatarId.DIALOG_PLATFORM_DISPLAY_INFO;
     }
-    
+       
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarTitle()
+     */
+    @Override
+    public Boolean isAvatarTitle() {
+        return Boolean.FALSE;
+    }
+
     private void initVersionJLabel() {
         versionJLabel.setText(getString("Version", new Object[] { Version.getVersion() }));
     }
@@ -56,9 +69,23 @@ public class DisplayInfoAvatar extends Avatar {
     }
     
     private void initWebPageJLabel() {
-        // TODO Get www.thinkparity.com from somewhere. Below returns thinkparity.dyndns.org
-        //final String webPage = LinkFactory.getInstance(Application.OPHELIA, Version.getMode()).create().toString();
-        //webPageJLabel.setText(webPage);
+        webPageJLabel.setText(getString("WebPage", new Object[] {getWebPageString()}));
+    }
+    
+    private Link getWebPage() {
+        return LinkFactory.getInstance(Application.OPHELIA, Version.getMode()).create();
+    }
+    
+    // The web page string will have text up to "//" stripped to get rid of http://
+    private String getWebPageString() {
+        final Link link = getWebPage();
+        if (null != link) {
+            final String webPage = link.toString();
+            if (null != webPage) {
+                return StringUtil.removeBefore(webPage, "//");
+            }            
+        }
+        return null;
     }
     
     
@@ -140,7 +167,7 @@ public class DisplayInfoAvatar extends Avatar {
         add(fillLeftJLabel, gridBagConstraints);
 
         webPageJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        webPageJLabel.setText(bundle.getString("DisplayInfoAvatar.WebPage")); // NOI18N
+        webPageJLabel.setText(bundle.getString("DisplayInfoAvatar.ExampleWebPage")); // NOI18N
         webPageJLabel.setFocusable(false);
         webPageJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -196,7 +223,8 @@ public class DisplayInfoAvatar extends Avatar {
 
     private void webPageJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseClicked
         try {
-            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler http://www.thinkparity.com/");
+            String runString = "rundll32 url.dll,FileProtocolHandler " + getWebPage();
+            Runtime.getRuntime().exec(runString);
         } catch (final Throwable t) {
             throw new BrowserException(LAUNCH_WEB_BROWSER_ERROR, t);            
         }
@@ -204,12 +232,12 @@ public class DisplayInfoAvatar extends Avatar {
     }//GEN-LAST:event_webPageJLabelMouseClicked
 
     private void webPageJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseExited
-        webPageJLabel.setText(getString("WebPage"));
+        webPageJLabel.setText(getString("WebPage", new Object[] {getWebPageString()}));
         setCursor(null);
     }//GEN-LAST:event_webPageJLabelMouseExited
 
     private void webPageJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseEntered
-        webPageJLabel.setText(getString("WebPageHighlighted"));
+        webPageJLabel.setText(getString("WebPageHighlighted", new Object[] {getWebPageString()}));
         setCursor(new Cursor(Cursor.HAND_CURSOR));
     }//GEN-LAST:event_webPageJLabelMouseEntered
 

@@ -191,8 +191,24 @@ public abstract class StringUtil {
 		return sw.toString();
     }
 	
-
-
+    /**
+     * Remove any characters before the find string within the search string.
+     * @param search String
+     * @param find String
+     * @return String
+     */
+    public static synchronized String removeBefore(final String search,
+            final String find) {
+        if(null == search)
+            return null;
+        if(null == find)
+            return search;
+        final Integer findIndex = search.indexOf(find);
+        if(findIndex > 0)
+            return search.substring(findIndex+find.length());
+        return search;
+    }
+    
 	/**
 	 * Remove any characters after the find string within the search string.
 	 * @param search String

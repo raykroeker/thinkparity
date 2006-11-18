@@ -106,7 +106,7 @@ public final class ContainerModel extends TabPanelModel implements
         this.visiblePanels = new ArrayList<TabPanel>();
         this.containerPanelComparator = new ContainerPanelComparator();
     }
-    
+
     /**
      * Apply the user's search to the container list.
      * 
@@ -148,7 +148,7 @@ public final class ContainerModel extends TabPanelModel implements
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
     }
-
+    
     /**
      * Deselect the selected container, leaving no container selected.
      * 
@@ -209,18 +209,18 @@ public final class ContainerModel extends TabPanelModel implements
         }
         return -1;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.WorkerDisplay#installProgressBar(java.lang.Long)
      *
      */
-    public void installProgressBar(final Long containerId, final Integer steps) {
+    public void installProgressBar(final Long containerId) {
         final Integer panelIndex = panelIndexLookup.get(containerId);
         
         final ContainerPanel containerPanel = (ContainerPanel) containerPanels.get(panelIndex);
-        containerPanel.installProgressBar(steps);
+        containerPanel.installProgressBar();
     }
-
+    
     /**
      * Determine if the panel is expanded.
      * 
@@ -307,6 +307,17 @@ public final class ContainerModel extends TabPanelModel implements
             selectedContainer = container;
             synchronize();
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.WorkerDisplay#setDetermination(java.lang.Integer)
+     *
+     */
+    public void setDetermination(final Long containerId, final Integer steps) {
+        final Integer panelIndex = panelIndexLookup.get(containerId);
+
+        final ContainerPanel containerPanel = (ContainerPanel) containerPanels.get(panelIndex);
+        containerPanel.setProgressDetermination(steps);
     }
 
     /**

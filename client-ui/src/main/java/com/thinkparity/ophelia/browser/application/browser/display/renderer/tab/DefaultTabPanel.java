@@ -113,8 +113,16 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      * Install a progress bar on the panel. By default this does nothing.
      * 
      */
-    public void installProgressBar(final Integer steps) {
+    public void installProgressBar() {
     }
+
+    /**
+     * Set the progress bar determination.
+     * 
+     * @param steps
+     *            An <code>Integer</code> number of steps.
+     */
+    public void setProgressDetermination(final Integer steps) {}
 
     /**
      * Determine whether or not the mouse over flag is set.

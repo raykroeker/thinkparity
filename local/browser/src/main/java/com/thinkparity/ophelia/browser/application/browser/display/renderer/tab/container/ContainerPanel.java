@@ -266,9 +266,8 @@ public class ContainerPanel extends DefaultTabPanel {
      *
      */
     @Override
-    public void installProgressBar(final Integer steps) {
-        progressBar.setMinimum(1);
-        progressBar.setMaximum(steps);
+    public void installProgressBar() {
+        progressBar.setIndeterminate(true);
         containerJPanel.remove(rightSideJPanel);
         containerJPanel.add(progressBarJPanel);
         validate();
@@ -353,6 +352,17 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setProgressDetermination(java.lang.Integer)
+     *
+     */
+    @Override
+    public void setProgressDetermination(final Integer steps) {
+        progressBar.setMinimum(1);
+        progressBar.setMaximum(steps);
+        progressBar.setIndeterminate(false);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#uninstallProgressBar()
      *
      */
@@ -381,7 +391,6 @@ public class ContainerPanel extends DefaultTabPanel {
     protected void formMousePressed(MouseEvent e) {
         super.formMousePressed(e);
     }
-
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMouseReleased(java.awt.event.MouseEvent)
      */
@@ -612,6 +621,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private Boolean isExpanded() {
         return model.isExpanded(this);
     }
+
     /**
      * Determine if the container is selected.
      * 

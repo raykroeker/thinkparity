@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,6 +43,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
@@ -85,11 +87,13 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
+    private static final int STEP_SIZE = 1024;
+
     private static final PublishMonitor PUBLISH_MONITOR;
 
     static {
         PUBLISH_MONITOR = new PublishMonitor() {
-            public void initialize(final Integer stages) {}
+            public void determine(final Integer stages) {}
             public void processBegin() {}
             public void processEnd() {}
             public void stageBegin(final PublishStage stage) {}
@@ -939,7 +943,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // previous version
             final ContainerVersion previous = readLatestVersion(containerId);
             // create version
-            initialize(monitor, draft.getArtifacts().size() + 2);
+            fireProcessBegin(monitor);
             fireStageBegin(monitor, PublishStage.CreateVersion);
             final ContainerVersion version = createVersion(container.getId(),
                     readNextVersionId(containerId), comment, localUserId(),
@@ -998,6 +1002,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
+        } finally {
+            fireProcessEnd(monitor);
         }
     }
 
@@ -2222,7 +2228,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
 
-
     /**
      * Create a new container version.
      * 
@@ -2259,6 +2264,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return containerIO.readVersion(
                 version.getArtifactId(), version.getVersionId());
     }
+
 
     /**
      * Delete the local info for this container.
@@ -2442,6 +2448,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
+    /**
+     * Notify the monitor of the end of the process.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     */
+    private void fireProcessEnd(final PublishMonitor monitor) {
+        monitor.processEnd();
+    }
+
     private void fireStageBegin(final PublishMonitor monitor,
             final PublishStage stage) {
         monitor.stageBegin(stage);
@@ -2480,10 +2496,32 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return getInternalDocumentModel().handleDocumentPublished(event);
     }
 
+    /**
+     * Initialize a publish monitor.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     * @param stages
+     *            An <code>Integer</code>. number of stages.
+     */
+    private void fireDetermine(final PublishMonitor monitor,
+            final Iterator<DocumentVersion> iDocuments) {
+        int steps = 1;
+        while (iDocuments.hasNext()) {
+            // each 1K is a step
+            steps += (iDocuments.next().getSize() / STEP_SIZE);
+        }
+        monitor.determine(steps);
+    }
 
-    private void initialize(final PublishMonitor monitor,
-            final Integer stages) {
-        monitor.initialize(stages);
+    /**
+     * Fire the process being for the publish monitor.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     */
+    private void fireProcessBegin(final PublishMonitor monitor) {
+        monitor.processBegin();
     }
 
     /**
@@ -2732,11 +2770,24 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final Map<DocumentVersion, String> documentVersionStreamIds =
             new HashMap<DocumentVersion, String>(documentVersionStreams.size(), 1.0F);
         final StreamSession session = getSessionModel().createStreamSession();
+        fireDetermine(monitor, documentVersionStreams.keySet().iterator());
         for (final Entry<DocumentVersion, InputStream> entry :
                 documentVersionStreams.entrySet()) {
             fireStageBegin(monitor, PublishStage.UploadStream);
-            documentVersionStreamIds.put(entry.getKey(),
-                    uploadStream(session, entry.getValue(), entry.getKey().getSize()));
+            documentVersionStreamIds.put(entry.getKey(), uploadStream(
+                    new StreamMonitor() {
+                        private long totalChunks = 0;
+                        public void chunkReceived(final int chunkSize) {}
+                        public void chunkSent(final int chunkSize) {
+                            totalChunks += chunkSize;
+                            if (totalChunks >= STEP_SIZE) {
+                                totalChunks -= STEP_SIZE;
+                                fireStageEnd(monitor, PublishStage.UploadStream);
+                            }
+                        }
+                        public void headerReceived(final String header) {}
+                        public void headerSent(final String header) {}
+                    }, session, entry.getValue(), entry.getKey().getSize()));
             fireStageEnd(monitor, PublishStage.UploadStream);
         }
         getSessionModel().deleteStreamSession(session);

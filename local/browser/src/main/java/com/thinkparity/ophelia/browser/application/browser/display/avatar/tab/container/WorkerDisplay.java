@@ -17,7 +17,15 @@ interface WorkerDisplay {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    void installProgressBar(final Long containerId, final Integer steps);
+    void installProgressBar(final Long containerId);
+
+    /**
+     * Set the number of steps to complete.
+     * 
+     * @param steps
+     *            The number of steps to complete.
+     */
+    void setDetermination(final Long containerId, final Integer steps);
 
     /**
      * Update the progress for a container.

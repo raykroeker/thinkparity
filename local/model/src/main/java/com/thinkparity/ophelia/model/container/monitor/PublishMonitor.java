@@ -10,7 +10,7 @@ package com.thinkparity.ophelia.model.container.monitor;
  * @version 1.1.2.1
  */
 public interface PublishMonitor {
-    public void initialize(final Integer stages);
+    public void determine(final Integer stages);
     public void processBegin();
     public void processEnd();
     public void stageBegin(final PublishStage stage);

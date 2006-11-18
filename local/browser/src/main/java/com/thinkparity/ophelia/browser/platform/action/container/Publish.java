@@ -117,32 +117,26 @@ public class Publish extends AbstractAction {
             this.publishMonitor = new PublishMonitor() {
                 private Integer stageIndex;
                 private Integer stages;
-                private final long timeDuration = 1 * 1000;
-                private boolean monitoring;
-                private long timeStart;
-                private long timeEnd;
-                public void initialize(final Integer stages) {
-                    this.monitoring = false;
+                public void determine(final Integer stages) {
                     this.stageIndex = 0;
                     this.stages = stages;
+                    monitor.setSteps(stages);
+                    monitor.setStep(stageIndex);
                 }
                 public void processBegin() {
-                    this.timeStart = System.currentTimeMillis();
+                    monitor.monitor();
                 }
-                public void processEnd() {
-                    this.timeEnd = System.currentTimeMillis();
-                }
+                public void processEnd() {}
                 public void stageBegin(final PublishStage stage) {
-                    final long timeNow = System.currentTimeMillis();
-                    if (!monitoring && timeNow > timeStart + timeDuration) {
-                        monitor.setSteps(stages);
+                    if (null != stages && stages.intValue() > 0) {
                         monitor.setStep(stageIndex);
-                        monitor.monitor();
                     }
                 }
                 public void stageEnd(final PublishStage stage) {
-                    stageIndex++;
-                    monitor.setStep(stageIndex);
+                    if (null != stages && stages.intValue() > 0) {
+                        stageIndex++;
+                        monitor.setStep(stageIndex);
+                    }
                 }
             };
         }

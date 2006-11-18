@@ -23,8 +23,6 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
 
     private int step = 0;
 
-    private int steps = 0;
-
     /**
      * Create WorkerMonitor.
      *
@@ -41,7 +39,7 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
      */
     public void monitor() {
         // start the monitoring process
-        display.installProgressBar(container.getId(), steps);
+        display.installProgressBar(container.getId());
     }
 
     /**
@@ -68,7 +66,7 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
      *
      */
     public void setSteps(int steps) {
-        this.steps = steps;
+        display.setDetermination(container.getId(), steps);
     }
 
     /**

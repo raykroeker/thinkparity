@@ -41,6 +41,7 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamWriter;
@@ -1052,10 +1053,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A <code>Iterable</code> series of <code>InputStream</code>.
      * @throws IOException
      */
-    protected String uploadStream(final StreamSession session,
-            final InputStream stream, final Long streamSize) throws IOException {
+    protected String uploadStream(final StreamMonitor monitor,
+            final StreamSession session, final InputStream stream,
+            final Long streamSize) throws IOException {
         final InternalSessionModel sessionModel = getSessionModel();
-        final StreamWriter writer = new StreamWriter(session);
+        final StreamWriter writer = new StreamWriter(monitor, session);
         writer.open();
         try {
             final String streamId = sessionModel.createStream(session);

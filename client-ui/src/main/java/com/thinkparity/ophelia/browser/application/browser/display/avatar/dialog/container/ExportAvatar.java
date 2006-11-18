@@ -8,8 +8,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Calendar;
 
@@ -29,6 +27,7 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+import com.thinkparity.ophelia.model.Constants;
 
 /**
  *
@@ -168,9 +167,28 @@ public class ExportAvatar extends Avatar {
      * Reload the directory control.
      */
     private void reloadDirectory() {
-        final File file = persistence.get(Keys.Persistence.CONTAINER_EXPORT_SELECTED_DIRECTORY, (File) null);
-        if (null != file) {
-            directoryJTextField.setText(file.getAbsolutePath());
+        final File startingDirectory = getStartingDirectory();
+        if (null != startingDirectory) {
+            directoryJTextField.setText(startingDirectory.getAbsolutePath());
+        } else {
+            directoryJTextField.setText(null);
+        }
+    }
+    
+    /**
+     * Get the starting directory.
+     */
+    private File getStartingDirectory() {
+        final File persistedDirectory = persistence.get(Keys.Persistence.CONTAINER_EXPORT_SELECTED_DIRECTORY, (File) null);
+        if ((null != persistedDirectory) && persistedDirectory.isDirectory()) {
+            return persistedDirectory;
+        } else {
+            final File defaultDirectory = Constants.Directories.USER_DATA; 
+            if ((null != defaultDirectory) && defaultDirectory.isDirectory()) {
+                return defaultDirectory;
+            } else {
+                return null;
+            }
         }
     }
     
@@ -193,9 +211,7 @@ public class ExportAvatar extends Avatar {
     private JFileChooser getJFileChooser(final Boolean initialize) {
         if (initialize) {
             return JFileChooserUtil.getJFileChooser(JFileChooser.DIRECTORIES_ONLY, Boolean.FALSE,
-                    getString("JFileChooserTitle"),
-                    persistence.get(Keys.Persistence.CONTAINER_EXPORT_SELECTED_DIRECTORY,
-                            (File) null));
+                    getString("JFileChooserTitle"), getStartingDirectory());
         } else {
             return JFileChooserUtil.getJFileChooser();
         }
@@ -209,35 +225,27 @@ public class ExportAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JButton cancelJButton;
-        javax.swing.JLabel directoryJLabel;
 
         explanationJLabel = new javax.swing.JLabel();
-        directoryJLabel = new javax.swing.JLabel();
+        directoryJTextField = new javax.swing.JTextField();
         directoryJButton = new javax.swing.JButton();
-        openWhenDoneCheckBox = new javax.swing.JCheckBox();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
-        directoryJTextField = new javax.swing.JTextField();
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJLabel.setText(bundle.getString("ExportDialog.ExplanationContainer")); // NOI18N
+        explanationJLabel.setText(bundle.getString("ExportDialog.ExplanationVersion")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         explanationJLabel.setFocusable(false);
 
-        directoryJLabel.setText(bundle.getString("ExportDialog.Directory")); // NOI18N
-        directoryJLabel.setFocusable(false);
+        directoryJTextField.setEditable(false);
+        directoryJTextField.setText(bundle.getString("ExportDialog.ExampleText")); // NOI18N
 
         directoryJButton.setText(bundle.getString("ExportDialog.DirectoryButton")); // NOI18N
-        directoryJButton.setPreferredSize(new java.awt.Dimension(45, 23));
         directoryJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 directoryJButtonActionPerformed(evt);
             }
         });
-
-        openWhenDoneCheckBox.setText(bundle.getString("ExportDialog.RunWhenDoneCheckbox")); // NOI18N
-        openWhenDoneCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        openWhenDoneCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         okJButton.setText(bundle.getString("ExportDialog.OK")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -253,26 +261,21 @@ public class ExportAvatar extends Avatar {
             }
         });
 
-        directoryJTextField.setEditable(false);
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, openWhenDoneCheckBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(directoryJLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(directoryJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(directoryJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(7, 7, 7)
                         .add(cancelJButton)))
                 .addContainerGap())
         );
@@ -283,31 +286,31 @@ public class ExportAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(explanationJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(directoryJLabel)
-                        .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(openWhenDoneCheckBox)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelJButton)
-                    .add(okJButton))
+                    .add(directoryJButton)
+                    .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 13, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(okJButton)
+                    .add(cancelJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void directoryJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_directoryJButtonActionPerformed
         if(JFileChooser.APPROVE_OPTION == getJFileChooser(Boolean.TRUE).showOpenDialog(this)) {
+            // Get the path and see if it is valid.
             // Note that getJFileChooser().getSelectedDirectory() does not do what we want, it gets the parent directory.
-            directoryJTextField.setText(getJFileChooser().getSelectedFile().getAbsolutePath());
-            okJButton.setEnabled(isInputValid());
-            persistence.set(
-                    Keys.Persistence.CONTAINER_EXPORT_SELECTED_DIRECTORY,
-                    getJFileChooser().getSelectedFile());
+            final File directory = getJFileChooser().getSelectedFile();
+            if (directory.isDirectory()) {            
+                directoryJTextField.setText(directory.getAbsolutePath());
+                okJButton.setEnabled(isInputValid());
+                persistence.set(
+                        Keys.Persistence.CONTAINER_EXPORT_SELECTED_DIRECTORY,
+                        getJFileChooser().getSelectedFile());
+            }
         }
     }// GEN-LAST:event_directoryJButtonActionPerformed
 
@@ -336,7 +339,6 @@ public class ExportAvatar extends Avatar {
     private javax.swing.JTextField directoryJTextField;
     private javax.swing.JLabel explanationJLabel;
     private javax.swing.JButton okJButton;
-    private javax.swing.JCheckBox openWhenDoneCheckBox;
     // End of variables declaration//GEN-END:variables
 
     public enum ExportType { CONTAINER, VERSION }

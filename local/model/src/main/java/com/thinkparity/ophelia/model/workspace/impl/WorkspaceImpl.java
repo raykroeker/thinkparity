@@ -540,12 +540,12 @@ public class WorkspaceImpl implements Workspace {
                     "System output directed to: {0}", output.getAbsolutePath()));
             System.out.println(MessageFormat.format(
                     "System err directed to: {0}", err.getAbsolutePath()));
-            try {
-                System.setOut(new PrintStream(new FileOutputStream(output)));
-                System.setErr(new PrintStream(new FileOutputStream(err)));
-            } catch (final IOException iox) {
-                throw translateError(iox);
-            }
+//            try {
+//                System.setOut(new PrintStream(new FileOutputStream(output)));
+//                System.setErr(new PrintStream(new FileOutputStream(err)));
+//            } catch (final IOException iox) {
+//                throw translateError(iox);
+//            }
             break;
         default:
             throw Assert.createUnreachable("Unknown mode.");

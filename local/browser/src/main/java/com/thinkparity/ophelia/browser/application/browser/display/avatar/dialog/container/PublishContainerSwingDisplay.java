@@ -1,7 +1,7 @@
 /*
  * Created On:  17-Nov-06 2:14:05 PM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
 /**
  * <b>Title:</b><br>
@@ -9,7 +9,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-interface WorkerDisplay {
+interface PublishContainerSwingDisplay {
 
     /**
      * Install a progress bar.

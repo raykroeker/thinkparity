@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.net.SocketFactory;
 
@@ -17,13 +18,17 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
+ * <b>Title:</b>thinkParity Stream Client<br>
+ * <b>Description:</b>The stream client has the ability to create the remote
+ * socket connection; negotiate the stream headers then read from and write to
+ * the remote socket.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
- * 
- * HACK The stream client masks all io errors with a stream error. This is not
- * desirable and should be adjusted.
+ * @see StreamReader
+ * @see StreamWriter
  */
-public abstract class StreamClient {
+abstract class StreamClient {
 
     /** A default <code>StreamMonitor</code>. */
     private static final StreamMonitor DEFAULT_MONITOR = new StreamMonitor() {
@@ -43,6 +48,13 @@ public abstract class StreamClient {
         public void headerSent(final String header) {
             LOGGER.logApiId();
             LOGGER.logVariable("header", header);
+        }
+        public void streamError(final StreamException error) {
+            LOGGER.logApiId();
+            if (error.isRecoverable())
+                LOGGER.logError(error, "A recoverable stream error has occured.");
+            else
+                LOGGER.logError(error, "An unrecoverable stream error has occured.");
         }
     };
 
@@ -92,7 +104,7 @@ public abstract class StreamClient {
                 socketFactory =
                     com.thinkparity.codebase.net.SocketFactory.getSecureInstance(keyStorePath, keyStorePassword, keyStorePath, keyStorePassword);
             } catch (final Exception x) {
-                throw new StreamException(x);
+                throw panic(x);
             }
         } else {
             new Log4JWrapper().logInfo("Stream Client - {0}:{1}",
@@ -113,7 +125,7 @@ public abstract class StreamClient {
     }
 
     /**
-     * Establish a stream connection.
+     * Connect the stream client.
      * 
      * @param type
      *            A stream <code>Type</code>.
@@ -124,10 +136,21 @@ public abstract class StreamClient {
         write(new StreamHeader(StreamHeader.Type.SESSION_TYPE, type.name()));
     }
 
+    /**
+     * Disconnect the stream client.
+     * 
+     * @throws IOException
+     */
     protected final void disconnect() throws IOException {
         doDisconnect();
     }
 
+    /**
+     * Read the underlying stream write it to stream.
+     * 
+     * @param stream
+     *            The <code>OutputStream</code> to write to.
+     */
     protected final void read(final OutputStream stream) {
         try {
             int len;
@@ -143,7 +166,7 @@ public abstract class StreamClient {
                 stream.close();
             }
         } catch (final IOException iox) {
-            throw new StreamException(iox);
+            throw panic(iox);
         }
     }
 
@@ -169,7 +192,7 @@ public abstract class StreamClient {
                 stream.close();
             }
         } catch (final IOException iox) {
-            throw new StreamException(iox);
+            throw panic(iox);
         }
     }
 
@@ -184,10 +207,15 @@ public abstract class StreamClient {
             write(header.toHeader());
             fireHeaderSent(header);
         } catch (final IOException iox) {
-            throw new StreamException(iox);
+            throw panic(iox);
         }
     }
 
+    /**
+     * Connect the stream client.
+     * 
+     * @throws IOException
+     */
     private void doConnect() throws IOException {
         socket = socketFactory.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
@@ -195,6 +223,11 @@ public abstract class StreamClient {
         output = socket.getOutputStream();
     }
 
+    /**
+     * Disconnect the stream client.
+     * 
+     * @throws IOException
+     */
     private void doDisconnect() throws IOException {
         output.flush();
         output.close();
@@ -205,22 +238,112 @@ public abstract class StreamClient {
         socket = null;
     }
 
+    /**
+     * Notiry the client monitor that a chunk has been received.
+     * 
+     * @param chunkSize
+     *            The <code>int</code> chunk size.
+     */
     private void fireChunkReceived(final int chunkSize) {
-        monitor.chunkReceived(chunkSize);
+        try {
+            monitor.chunkReceived(chunkSize);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+        }
     }
 
+    /**
+     * Notify the client monitor that a chunk has been sent.
+     * 
+     * @param chunkSize
+     *            The <code>int</code> size of the chunk.
+     */
     private void fireChunkSent(final int chunkSize) {
-        monitor.chunkSent(chunkSize);
+        try {
+            monitor.chunkSent(chunkSize);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+        }
     }
 
+    /**
+     * Notify the client monitor that a header has been sent.
+     * 
+     * @param header
+     *            The <code>StreamHeader</code>.
+     */
     private void fireHeaderSent(final StreamHeader header) {
-        monitor.headerSent(header.toHeader());
+        try {
+            monitor.headerSent(header.toHeader());
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+        }
     }
 
+    /**
+     * Determine if the stream client is connected.
+     * 
+     * @return True if the stream client is connected.
+     */
     private boolean isConnected() {
         return null != socket && socket.isConnected();
     }
 
+    /**
+     * Determine whether or not a stream error is recoverable. The criteria for
+     * being able to recover are:
+     * <ul>
+     * <li>Being able to create a socket connection to the socket address.
+     * </ul>
+     * 
+     * @return True if the stream host is reachable.
+     */
+    private Boolean isRecoverable() {
+        Socket socket = null;
+        try {
+            socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
+            return Boolean.TRUE;
+        } catch (final Throwable t) {
+            return Boolean.FALSE;
+        } finally {
+            if (null != socket) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (final IOException iox) {
+                        panic(iox);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Panic. Check if the error is one that can be recovered from; and create
+     * the appropriate stream error response.
+     * 
+     * @return A <code>StreamException</code>.
+     */
+    private StreamException panic(final Throwable t) {
+        if(SocketException.class.isAssignableFrom(t.getClass())) {
+            if ("Connection reset.".equals(t.getMessage())) {
+                return new StreamException(isRecoverable(), t);
+            } else {
+                return new StreamException(Boolean.FALSE, t);
+            }
+        } else {
+            return new StreamException(Boolean.FALSE, t);
+        }
+    }
+
+    /**
+     * Write a message to the output stream.
+     * 
+     * @param message
+     *            A message <code>String</code>.
+     * @throws IOException
+     */
     private void write(final String message) throws IOException {
         Assert.assertTrue(isConnected(),
                 "{0} - No longer connected.", socketAddress);
@@ -228,7 +351,6 @@ public abstract class StreamClient {
         output.flush();
     }
 
-    protected enum Type {
-        DOWNSTREAM, UPSTREAM
-    }
+    /** An enumeration of the client type. */
+    protected enum Type { DOWNSTREAM, UPSTREAM }
 }

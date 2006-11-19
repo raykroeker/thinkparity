@@ -13,6 +13,6 @@ public interface PublishMonitor {
     public void determine(final Integer stages);
     public void processBegin();
     public void processEnd();
-    public void stageBegin(final PublishStage stage);
+    public void stageBegin(final PublishStage stage, final Object data);
     public void stageEnd(final PublishStage stage);
 }

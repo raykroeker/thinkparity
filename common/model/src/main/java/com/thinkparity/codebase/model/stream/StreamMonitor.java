@@ -10,8 +10,9 @@ package com.thinkparity.codebase.model.stream;
  * @version 1.1.2.1
  */
 public interface StreamMonitor {
-    public void chunkSent(final int chunkSize);
     public void chunkReceived(final int chunkSize);
-    public void headerSent(final String header);
+    public void chunkSent(final int chunkSize);
     public void headerReceived(final String header);
+    public void headerSent(final String header);
+    public void streamError(final StreamException error);
 }

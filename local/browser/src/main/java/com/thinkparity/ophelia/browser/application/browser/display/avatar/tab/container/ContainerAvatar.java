@@ -13,7 +13,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * @author raymond@thinkparity.com
@@ -27,11 +26,6 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
      */
     public ContainerAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerModel());
-    }
-
-    public void execWorker(final Long containerId,
-            final ThinkParitySwingWorker worker) {
-        model.execWorker(containerId, worker);
     }
 
     /**

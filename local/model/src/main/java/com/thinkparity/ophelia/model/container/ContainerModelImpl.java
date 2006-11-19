@@ -43,6 +43,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
@@ -87,16 +88,16 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
-    private static final int STEP_SIZE = 1024;
-
     private static final PublishMonitor PUBLISH_MONITOR;
+
+    private static final int STEP_SIZE = 1024;
 
     static {
         PUBLISH_MONITOR = new PublishMonitor() {
             public void determine(final Integer stages) {}
             public void processBegin() {}
             public void processEnd() {}
-            public void stageBegin(final PublishStage stage) {}
+            public void stageBegin(final PublishStage stage, final Object data) {}
             public void stageEnd(final PublishStage stage) {}
         };
     }
@@ -2449,6 +2450,34 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Initialize a publish monitor.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     * @param stages
+     *            An <code>Integer</code>. number of stages.
+     */
+    private void fireDetermine(final PublishMonitor monitor,
+            final Iterator<DocumentVersion> iDocuments) {
+        int steps = 1;
+        while (iDocuments.hasNext()) {
+            // each 1K is a step
+            steps += (iDocuments.next().getSize() / STEP_SIZE);
+        }
+        monitor.determine(steps);
+    }
+
+    /**
+     * Fire the process being for the publish monitor.
+     * 
+     * @param monitor
+     *            A <code>PublishMonitor</code>.
+     */
+    private void fireProcessBegin(final PublishMonitor monitor) {
+        monitor.processBegin();
+    }
+
+    /**
      * Notify the monitor of the end of the process.
      * 
      * @param monitor
@@ -2459,8 +2488,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     private void fireStageBegin(final PublishMonitor monitor,
+            final PublishStage stage, final Object data) {
+        monitor.stageBegin(stage, data);
+    }
+
+    private void fireStageBegin(final PublishMonitor monitor,
             final PublishStage stage) {
-        monitor.stageBegin(stage);
+        fireStageBegin(monitor, stage, null);
     }
 
     private void fireStageEnd(final PublishMonitor monitor,
@@ -2494,34 +2528,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event) throws IOException {
         return getInternalDocumentModel().handleDocumentPublished(event);
-    }
-
-    /**
-     * Initialize a publish monitor.
-     * 
-     * @param monitor
-     *            A <code>PublishMonitor</code>.
-     * @param stages
-     *            An <code>Integer</code>. number of stages.
-     */
-    private void fireDetermine(final PublishMonitor monitor,
-            final Iterator<DocumentVersion> iDocuments) {
-        int steps = 1;
-        while (iDocuments.hasNext()) {
-            // each 1K is a step
-            steps += (iDocuments.next().getSize() / STEP_SIZE);
-        }
-        monitor.determine(steps);
-    }
-
-    /**
-     * Fire the process being for the publish monitor.
-     * 
-     * @param monitor
-     *            A <code>PublishMonitor</code>.
-     */
-    private void fireProcessBegin(final PublishMonitor monitor) {
-        monitor.processBegin();
     }
 
     /**
@@ -2773,7 +2779,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         fireDetermine(monitor, documentVersionStreams.keySet().iterator());
         for (final Entry<DocumentVersion, InputStream> entry :
                 documentVersionStreams.entrySet()) {
-            fireStageBegin(monitor, PublishStage.UploadStream);
+            fireStageBegin(monitor, PublishStage.UploadStream,
+                    entry.getKey().getName());
             documentVersionStreamIds.put(entry.getKey(), uploadStream(
                     new StreamMonitor() {
                         private long totalChunks = 0;
@@ -2787,6 +2794,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         }
                         public void headerReceived(final String header) {}
                         public void headerSent(final String header) {}
+                        public void streamError(final StreamException error) {}
                     }, session, entry.getValue(), entry.getKey().getSize()));
             fireStageEnd(monitor, PublishStage.UploadStream);
         }

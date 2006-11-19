@@ -42,7 +42,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerPanel extends DefaultTabPanel {
+public final class ContainerPanel extends DefaultTabPanel {
     
     /** The border for even cells. */
     private static final Border BORDER_EVEN;
@@ -60,6 +60,7 @@ public class ContainerPanel extends DefaultTabPanel {
     
     /** The border for odd cells. */
     private static final Border BORDER_ODD;
+
     /** The border for a selected cell. */
     private static final Border BORDER_SELECTED;
     
@@ -92,43 +93,17 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>Container</code>. */
     private Container container = null;
     
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerDateJLabel;
-    
-    private javax.swing.JPanel containerDateJPanel;
-
-    private javax.swing.JPanel containerJPanel;
-    
-    private javax.swing.JLabel containerNameJLabel;
-
     /** A <code>ContainerDraft</code>. */
     private ContainerDraft draft = null;
-
-    private javax.swing.JLabel draftOwnerJLabel;
     
-    private javax.swing.JPanel draftOwnerJPanel;
-    
-    private javax.swing.JLabel eastPaddingJLabel;
-
     /** The focus manager. */
     private final FocusManager focusManager;
 
-    private javax.swing.JLabel iconJLabel;
-
     /** The panel localization. */
     private final MainCellL18n localization;
-
+    
     /** The container panel's model. */
     private final ContainerModel model;
-
-    private javax.swing.JProgressBar progressBar;
-    
-    private javax.swing.JPanel progressBarJPanel;
-    
-    private javax.swing.JPanel rightSideJPanel;
-
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
     
     /**
      * Create ContainerPanel.
@@ -262,18 +237,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
     
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#installProgressBar()
-     *
-     */
-    @Override
-    public void installProgressBar() {
-        progressBar.setIndeterminate(true);
-        containerJPanel.remove(rightSideJPanel);
-        containerJPanel.add(progressBarJPanel);
-        validate();
-    }
-    
-    /**
      * Determine whether or not the container has been seen.
      * 
      * @return True if the container has been seen; false otherwise.
@@ -352,45 +315,13 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setProgressDetermination(java.lang.Integer)
-     *
-     */
-    @Override
-    public void setProgressDetermination(final Integer steps) {
-        progressBar.setMinimum(1);
-        progressBar.setMaximum(steps);
-        progressBar.setIndeterminate(false);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#uninstallProgressBar()
-     *
-     */
-    @Override
-    public void uninstallProgressBar() {
-        containerJPanel.remove(progressBarJPanel);
-        containerJPanel.add(rightSideJPanel);
-        validate();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#updateProgress(java.lang.Float, java.lang.String)
-     *
-     */
-    @Override
-    public void updateProgress(final Integer step, final String status) {
-        progressBar.setValue(step);
-        if (null != status && 0 < status.trim().length())
-            progressBar.setString(status);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMousePressed(java.awt.event.MouseEvent)
      */
     @Override
     protected void formMousePressed(MouseEvent e) {
         super.formMousePressed(e);
     }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#formMouseReleased(java.awt.event.MouseEvent)
      */
@@ -407,6 +338,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }   
         super.formMouseReleased(e);
     }
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
@@ -431,6 +363,7 @@ public class ContainerPanel extends DefaultTabPanel {
             finally { g2.dispose(); }
         }        
     }
+
     /**
      * Show the popup menu for the container.
      * 
@@ -441,6 +374,7 @@ public class ContainerPanel extends DefaultTabPanel {
     protected void triggerPopup(final Component invoker, final MouseEvent e) {
         new ContainerPopup(model, container).show(invoker, e);
     }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#triggerSingleClick(java.awt.event.MouseEvent)
      */
@@ -453,8 +387,10 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
     }
+
     /**
      * Change the cursor.
+     * 
      */
     private void changeCursor(final Cursor cursor, final Component component) {
         component.setCursor(cursor);
@@ -463,8 +399,10 @@ public class ContainerPanel extends DefaultTabPanel {
             window.setCursor(cursor);
         }
     }
+
     /**
-     * Initialize bookmarks
+     * Initialize the bookmark label's mouse listeners.
+     * 
      */
     private void initBookmarks() {
         iconJLabel.addMouseListener(new MouseAdapter() {
@@ -496,17 +434,16 @@ public class ContainerPanel extends DefaultTabPanel {
             }           
         });
     }
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        progressBarJPanel = new javax.swing.JPanel();
-        progressBar = new javax.swing.JProgressBar();
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         containerJPanel = new javax.swing.JPanel();
@@ -517,17 +454,6 @@ public class ContainerPanel extends DefaultTabPanel {
         draftOwnerJPanel = new javax.swing.JPanel();
         draftOwnerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
-
-        org.jdesktop.layout.GroupLayout progressBarJPanelLayout = new org.jdesktop.layout.GroupLayout(progressBarJPanel);
-        progressBarJPanel.setLayout(progressBarJPanelLayout);
-        progressBarJPanelLayout.setHorizontalGroup(
-            progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-        );
-        progressBarJPanelLayout.setVerticalGroup(
-            progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -611,6 +537,7 @@ public class ContainerPanel extends DefaultTabPanel {
         add(eastPaddingJLabel, new java.awt.GridBagConstraints());
 
     }// </editor-fold>//GEN-END:initComponents
+
     /**
      * Determine if the panel is expanded.
      * 
@@ -630,4 +557,17 @@ public class ContainerPanel extends DefaultTabPanel {
     private Boolean isSelectedContainer() {
         return model.isSelectedContainer(container);
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel containerDateJLabel;
+    private javax.swing.JPanel containerDateJPanel;
+    private javax.swing.JPanel containerJPanel;
+    private javax.swing.JLabel containerNameJLabel;
+    private javax.swing.JLabel draftOwnerJLabel;
+    private javax.swing.JPanel draftOwnerJPanel;
+    private javax.swing.JLabel eastPaddingJLabel;
+    private javax.swing.JLabel iconJLabel;
+    private javax.swing.JPanel rightSideJPanel;
+    private javax.swing.JLabel westPaddingJLabel;
+    // End of variables declaration//GEN-END:variables
 }

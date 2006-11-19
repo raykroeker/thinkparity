@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
@@ -83,17 +84,19 @@ public class Publish extends AbstractAction {
                     contacts.add((Contact) contactIn);
                 }
             }
-            browser.executeContainerWorker(containerId, new PublishWorker(this,
-                    comment, contacts, containerId, teamMembers));
+            final ThinkParitySwingMonitor monitor =
+                (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
+            final ThinkParitySwingWorker worker = new PublishWorker(this,
+                    comment, contacts, containerId, teamMembers);
+            worker.setMonitor(monitor);
+            worker.start();
         }
 	}
 
-	/**
-	 * The key used to set\get the data.
-	 * 
-	 * @see Data
-	 */
-	public enum DataKey { COMMENT, CONTACTS, CONTAINER_ID, TEAM_MEMBERS }
+	/** Data keys. */
+	public enum DataKey {
+        COMMENT, CONTACTS, CONTAINER_ID, MONITOR, TEAM_MEMBERS
+    }
 
     /** A publish action worker object. */
     private static class PublishWorker extends ThinkParitySwingWorker {
@@ -127,9 +130,13 @@ public class Publish extends AbstractAction {
                     monitor.monitor();
                 }
                 public void processEnd() {}
-                public void stageBegin(final PublishStage stage) {
+                public void stageBegin(final PublishStage stage,
+                        final Object data) {
                     if (null != stages && stages.intValue() > 0) {
-                        monitor.setStep(stageIndex);
+                        if (PublishStage.UploadStream == stage)
+                            monitor.setStep(stageIndex, (String) data);
+                        else
+                            monitor.setStep(stageIndex);
                     }
                 }
                 public void stageEnd(final PublishStage stage) {

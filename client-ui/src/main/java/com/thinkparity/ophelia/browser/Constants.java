@@ -31,6 +31,19 @@ public final class Constants {
             public static final class Border {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
+            public static final class List {
+                public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
+                public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
+                public static final Color LIST_EXPANDED_BG = Color.WHITE;
+                public static final Color LIST_FG = Color.BLACK;
+                public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
+                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area
+                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
+                public static final Color LIST_ODD_BG = Color.WHITE;
+                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);    // blue
+                public static final Color LIST_SELECTION_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);   // dark gray
+                public static final Color LIST_SELECTION_FG = Color.BLACK;
+            }
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
                 public static final Color BG_GRAD_START = Color.WHITE;
@@ -40,33 +53,29 @@ public final class Constants {
             public static final class MainTitle {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
                 public static final Color BG_GRAD_START = new Color(239, 241, 242, 255);
+                public static final Color BOTTOM_BORDER = new Color(167, 167, 167, 255);
                 public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
-                public static final Color BOTTOM_BORDER = new Color(167, 167, 167, 255);
             }
             public static final class MainTitleTop {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
-            public static final class Window {
-                public static final Color BORDER_COLOR_OUTER = new Color(110, 110, 130, 255);
-                public static final Color BORDER_COLOR_MID_AT_TOP = new Color(176, 181, 189, 255);      // Continues gradient exactly
-                public static final Color BORDER_COLOR_MID_AT_BOTTOM = new Color(134, 138, 144, 255);   // MainTitle.BG_GRAD_FINISH * 0.7
-                public static final Color BORDER_COLOR_INNER_AT_TOP = new Color(154, 158, 164, 255);    // MainTitle.BG_GRAD_FINISH * 0.8
-                public static final Color BORDER_COLOR_INNER_AT_BOTTOM = new Color(134, 138, 144, 255); // MainTitle.BG_GRAD_FINISH * 0.7
-                public static final Color BG_GRAD_FINISH = new Color(173, 177, 185, 255);      // MainTitle.BG_GRAD_FINISH * 0.9
-                public static final Color BG_GRAD_START = new Color(221, 227, 236, 255);       // MainTitle.BG_GRAD_FINISH * 1.15
-                public static final Color TITLE_BOTTOM_BORDER = new Color(154, 158, 164, 255);
+            public static final class Menu {
+                public static final Color MENU_BORDER = new Color(157, 157, 161, 255);
+            }
+            public static final class ProgressBar {
+                public static final Color BORDER = new Color(115, 106, 96, 255);
+            }
+            public static final class SemiTransparentLayer {
+                public static final float LAYER_ALPHA = 0.30F;
+                public static final Color LAYER_COLOR = new Color(239, 241, 242, 255);
             }
             public static final class TabCell {
                 public static final Color TEXT = Color.BLACK;
                 public static final Color TEXT_CLOSED = Color.BLACK;
                 public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
-            }
-            public static final class UpdateProfile {
-                public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
-                public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
             public static final class Table {
                 public static final Color HEADER_BG = new Color(245, 248, 252, 255);
@@ -76,38 +85,32 @@ public final class Constants {
                 public static final Color ROW_EVEN_BG = new Color(245, 246, 247, 255);
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
-            public static final class SemiTransparentLayer {
-                public static final Color LAYER_COLOR = new Color(239, 241, 242, 255);
-                public static final float LAYER_ALPHA = 0.30F;
+            public static final class UpdateProfile {
+                public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
+                public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
-            public static final class List {
-                public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);    // blue
-                public static final Color LIST_SELECTION_FG = Color.BLACK;
-                public static final Color LIST_FG = Color.BLACK;
-                public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
-                public static final Color LIST_ODD_BG = Color.WHITE;
-                public static final Color LIST_EXPANDED_BG = Color.WHITE;
-                public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
-                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area
-                public static final Color LIST_SELECTION_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);   // dark gray
-                public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
-                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
-            }
-            public static final class Menu {
-                public static final Color MENU_BORDER = new Color(157, 157, 161, 255);
+            public static final class Window {
+                public static final Color BG_GRAD_FINISH = new Color(173, 177, 185, 255);      // MainTitle.BG_GRAD_FINISH * 0.9
+                public static final Color BG_GRAD_START = new Color(221, 227, 236, 255);       // MainTitle.BG_GRAD_FINISH * 1.15
+                public static final Color BORDER_COLOR_INNER_AT_BOTTOM = new Color(134, 138, 144, 255); // MainTitle.BG_GRAD_FINISH * 0.7
+                public static final Color BORDER_COLOR_INNER_AT_TOP = new Color(154, 158, 164, 255);    // MainTitle.BG_GRAD_FINISH * 0.8
+                public static final Color BORDER_COLOR_MID_AT_BOTTOM = new Color(134, 138, 144, 255);   // MainTitle.BG_GRAD_FINISH * 0.7
+                public static final Color BORDER_COLOR_MID_AT_TOP = new Color(176, 181, 189, 255);      // Continues gradient exactly
+                public static final Color BORDER_COLOR_OUTER = new Color(110, 110, 130, 255);
+                public static final Color TITLE_BOTTOM_BORDER = new Color(154, 158, 164, 255);
             }
         }
         public static final class Swing {
             public static final Color DEFAULT_LIST_SELECTION_BG = new Color(207, 221, 241, 255);
             public static final Color DEFAULT_LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(187, 183, 199, 255);
-            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_ITEM_BG = new Color(245, 246, 247, 255);
-            public static final Color MENU_ITEM_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(187, 183, 199, 255);
-            public static final Color MENU_SELECTION_FG = Color.BLACK;
             public static final Color MENU_BG = new Color(245, 246, 247, 255);
             public static final Color MENU_FG = Color.BLACK;
+            public static final Color MENU_ITEM_BG = new Color(245, 246, 247, 255);
+            public static final Color MENU_ITEM_FG = Color.BLACK;
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_SELECTION_FG = Color.BLACK;
         }
     }
 
@@ -119,8 +122,8 @@ public final class Constants {
     /** Dimension constants. */
     public static final class Dimensions {
         public static final class BrowserWindow {
-            public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
             public static final Point DEFAULT_LOCATION = new Point(100, 100);
+            public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
             public static final Dimension MIN_SIZE = new Dimension(400, 200);
             public static final class Display {
                 public static final Integer STATUS_HEIGHT = 34;
@@ -152,24 +155,23 @@ public final class Constants {
 
     public static final class Icons {
         public static final class BrowserTitle {
-            public static final Icon TAB =
-                ImageIOUtil.readIcon("BrowserTitle_Tab.png");
-            public static final Icon TAB_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_TabRollover.png");
-            public static final Icon TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
             public static final Icon LEFTMOST_TAB =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTab.png");
             public static final Icon LEFTMOST_TAB_ROLLOVER =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTabRollover.png");
             public static final Icon LEFTMOST_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelected.png");
+            public static final Icon TAB =
+                ImageIOUtil.readIcon("BrowserTitle_Tab.png");
+            public static final Icon TAB_ROLLOVER =
+                ImageIOUtil.readIcon("BrowserTitle_TabRollover.png");
+            public static final Icon TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
         }
     }
 
     public static final class Images {
         public static final BufferedImage WINDOW_ICON_IMAGE = ImageIOUtil.read("ThinkParity32x32.png");
-        public static final BufferedImage PROGRESS_BAR = ImageIOUtil.read("ProgressBarSlice.png");
         public static final class BrowserTitle {
             public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
                 ImageIOUtil.read("BrowserBottomLeftInner.png");
@@ -209,6 +211,12 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
+        }
+        public static final class ProgressBar {
+            public static final BufferedImage OFF = ImageIOUtil.read("ProgressBarOffSlice.png");
+            public static final BufferedImage OFF_DIVIDER = ImageIOUtil.read("ProgressBarOffDividerSlice.png");
+            public static final BufferedImage ON = ImageIOUtil.read("ProgressBarOnSlice.png");
+            public static final BufferedImage ON_DIVIDER = ImageIOUtil.read("ProgressBarOnDividerSlice.png");
         }
     }
 

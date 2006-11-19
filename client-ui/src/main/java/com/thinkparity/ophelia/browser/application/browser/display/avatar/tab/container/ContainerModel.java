@@ -33,14 +33,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public final class ContainerModel extends TabPanelModel implements
-        WorkerDisplay {
+public final class ContainerModel extends TabPanelModel {
 
     /** An application. */
     public final Browser browser;
@@ -62,9 +60,6 @@ public final class ContainerModel extends TabPanelModel implements
 
     /** An apache logger. */
     private final Log4JWrapper logger;
-
-    /** A way to lookup container panel indicies from container ids. */
-    private final Map<Long, Integer> panelIndexLookup;
 
     /**
      * The user input search expression.
@@ -101,7 +96,6 @@ public final class ContainerModel extends TabPanelModel implements
         this.containerPanels = new ArrayList<TabPanel>();
         this.listModel = new DefaultListModel();
         this.logger = new Log4JWrapper();
-        this.panelIndexLookup = new HashMap<Long, Integer>();
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
         this.containerPanelComparator = new ContainerPanelComparator();
@@ -211,17 +205,6 @@ public final class ContainerModel extends TabPanelModel implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.WorkerDisplay#installProgressBar(java.lang.Long)
-     *
-     */
-    public void installProgressBar(final Long containerId) {
-        final Integer panelIndex = panelIndexLookup.get(containerId);
-        
-        final ContainerPanel containerPanel = (ContainerPanel) containerPanels.get(panelIndex);
-        containerPanel.installProgressBar();
-    }
-    
-    /**
      * Determine if the panel is expanded.
      * 
      * @param tabPanel
@@ -307,17 +290,6 @@ public final class ContainerModel extends TabPanelModel implements
             selectedContainer = container;
             synchronize();
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.WorkerDisplay#setDetermination(java.lang.Integer)
-     *
-     */
-    public void setDetermination(final Long containerId, final Integer steps) {
-        final Integer panelIndex = panelIndexLookup.get(containerId);
-
-        final ContainerPanel containerPanel = (ContainerPanel) containerPanels.get(panelIndex);
-        containerPanel.setProgressDetermination(steps);
     }
 
     /**
@@ -419,18 +391,6 @@ public final class ContainerModel extends TabPanelModel implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.WorkerDisplay#updateProgress(java.lang.Float, java.lang.String)
-     *
-     */
-    public void updateProgress(final Long containerId, final Integer step,
-            final String status) {
-        final Integer panelIndex = panelIndexLookup.get(containerId);
-        
-        final ContainerPanel containerPanel = (ContainerPanel) containerPanels.get(panelIndex);
-        containerPanel.updateProgress(step, status);
-    }
-
-    /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
      * 
@@ -445,18 +405,6 @@ public final class ContainerModel extends TabPanelModel implements
         }
         sortContainers();
         debug();
-    }
-
-    void execWorker(final Long containerId, final ThinkParitySwingWorker worker) {
-        final Container container = read(containerId);
-        final TabPanel containerPanel = getContainerPanel(container);
-        // if it's expanded collapse it
-        if (isExpanded(containerPanel))
-            triggerExpand(containerPanel);
-        // disable it
-        disable(containerPanel);
-        worker.setMonitor(new WorkerMonitor(this, container));
-        worker.start();
     }
 
     /**
@@ -537,7 +485,6 @@ public final class ContainerModel extends TabPanelModel implements
             final Container container) {
         final TabPanel containerPanel = toDisplay(container);
         containerPanels.add(index, containerPanel);
-        panelIndexLookup.put(container.getId(), index);
         if (expanded) {
             expandedContainer = container;
         }
@@ -599,14 +546,6 @@ public final class ContainerModel extends TabPanelModel implements
     private Boolean containsContainerPanel(final Container container) {
         return -1 != indexOfContainerPanel(container);
     }
-    
-    /**
-     * Disable a panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void disable(final TabPanel tabPanel) {}
     
     /**
      * Read the container from the provider.
@@ -717,7 +656,6 @@ public final class ContainerModel extends TabPanelModel implements
             }
         }
         containerPanels.remove(containerPanel);
-        panelIndexLookup.remove(container.getId());
         versionsPanels.remove(containerPanel);
         if (isSelectedContainer(container)) {
             selectedContainer = null;

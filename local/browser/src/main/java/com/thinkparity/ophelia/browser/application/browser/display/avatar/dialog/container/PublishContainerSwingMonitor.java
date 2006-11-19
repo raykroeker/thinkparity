@@ -1,9 +1,7 @@
 /*
  * Created On:  17-Nov-06 2:11:16 PM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
-
-import com.thinkparity.codebase.model.container.Container;
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
@@ -13,23 +11,26 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class WorkerMonitor implements ThinkParitySwingMonitor {
+final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
 
-    private final Container container;
+    private final Long containerId;
 
-    private final WorkerDisplay display;
+    private final PublishContainerSwingDisplay display;
 
     private String note = "";
 
     private int step = 0;
 
     /**
-     * Create WorkerMonitor.
+     * Create PublishContainerSwingMonitor.
      *
+     * @param display
+     * @param container
      */
-    WorkerMonitor(final WorkerDisplay display, final Container container) {
+    PublishContainerSwingMonitor(final PublishContainerSwingDisplay display,
+            final Long containerId) {
         super();
-        this.container = container;
+        this.containerId = containerId;
         this.display = display;
     }
 
@@ -39,7 +40,7 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
      */
     public void monitor() {
         // start the monitoring process
-        display.installProgressBar(container.getId());
+        display.installProgressBar(containerId);
     }
 
     /**
@@ -66,7 +67,7 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
      *
      */
     public void setSteps(int steps) {
-        display.setDetermination(container.getId(), steps);
+        display.setDetermination(containerId, steps);
     }
 
     /**
@@ -74,6 +75,6 @@ final class WorkerMonitor implements ThinkParitySwingMonitor {
      *
      */
     private void updateProgressBar() {
-        display.updateProgress(container.getId(), step, note);
+        display.updateProgress(containerId, step, note);
     }
 }

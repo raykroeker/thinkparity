@@ -54,7 +54,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
+import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation;
@@ -495,11 +495,6 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-
-    public void executeContainerWorker(final Long containerId,
-            final ThinkParitySwingWorker worker) {
-        getTabContainerAvatar().execWorker(containerId, worker);
-    }
 
     /**
      * Notify the application that a contact has been added.
@@ -1277,16 +1272,20 @@ public class Browser extends AbstractApplication {
      *  @param comment
      *              The comment.                                          
      */
-    public void runPublishContainer(final Long containerId,
-            final List<TeamMember> teamMembers, final List<Contact> contacts,
-            final String comment) {
+    public void runPublishContainer(final ThinkParitySwingMonitor monitor,
+            final Long containerId, final List<TeamMember> teamMembers,
+            final List<Contact> contacts, final String comment) {
         final Data data = new Data(4);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
-        data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
         data.set(Publish.DataKey.CONTACTS, contacts);
-        data.set(Publish.DataKey.COMMENT, comment);
+        if (null != comment)
+            data.set(Publish.DataKey.COMMENT, comment);
+        data.set(Publish.DataKey.MONITOR, monitor);
+        data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
+            public void run() {
+                invoke(ActionId.CONTAINER_PUBLISH, data);
+            }
         });
     }
     

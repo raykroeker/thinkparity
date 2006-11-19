@@ -110,21 +110,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
     }
 
     /**
-     * Install a progress bar on the panel. By default this does nothing.
-     * 
-     */
-    public void installProgressBar() {
-    }
-
-    /**
-     * Set the progress bar determination.
-     * 
-     * @param steps
-     *            An <code>Integer</code> number of steps.
-     */
-    public void setProgressDetermination(final Integer steps) {}
-
-    /**
      * Determine whether or not the mouse over flag is set.
      * 
      * @return The mouse over <code>Boolean</code>.
@@ -150,24 +135,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
      */
     public void setMouseOver(final Boolean mouseOver) {
         this.mouseOver = mouseOver;
-    }
-    
-    /**
-     * Uninstall a progress bar on the panel. By default this does nothing.
-     * 
-     */
-    public void uninstallProgressBar() {
-    }
-    
-    /**
-     * Update the progress.
-     * 
-     * @param completion
-     *            The completion <code>Float</code>.
-     * @param status
-     *            A status <code>String</code>.
-     */
-    public void updateProgress(final Integer step, final String status) {
     }  
     
     /**

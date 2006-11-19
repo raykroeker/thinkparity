@@ -1,22 +1,19 @@
 /*
- * ExportAvatar.java
- *
- * Created on November 14, 2006, 1:47 PM
+ * Created On: November 14, 2006, 1:47 PM
  */
-
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.Constants;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -27,11 +24,11 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.Constants;
 
 /**
  *
- * @author  Administrator
+ * @author robert@thinkparity.com
+ * @version 1.1.2.5
  */
 public class ExportAvatar extends Avatar {
        

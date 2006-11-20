@@ -23,7 +23,6 @@ import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
@@ -43,9 +42,6 @@ public class ImportTxHandler extends TransferHandler {
     
     /** An apache logger error statement. */
     private static final String IMPORT_IOX = "Browser Drag and Drop IO Error";
-
-    /** An apache logger error statement. */
-    private static final String IMPORT_MX = "Browser Drag and Drop Mouse Info Error";
 
     /** An apache logger error statement. */
     private static final String IMPORT_UFX = "Browser Drag and Drop Unsupported Data Format Error";

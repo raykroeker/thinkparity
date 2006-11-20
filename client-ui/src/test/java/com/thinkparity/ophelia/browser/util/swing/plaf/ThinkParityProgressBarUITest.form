@@ -63,9 +63,6 @@
           <Connection code="BorderFactory.createLineBorder(Browser.ProgressBar.BORDER, 1)" type="code"/>
         </Property>
       </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="jProgressBar1.setUI(new ThinkParityProgressBarUI());"/>
-      </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="goIndeterminateJButton">
       <Properties>

@@ -24,15 +24,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.TableSorter;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.TableSorter;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -42,7 +39,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityProgressBarUI;
+import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * <b>Title:</b><br>
@@ -109,7 +106,6 @@ public final class PublishContainerAvatar extends Avatar implements
      *
      */
     public void installProgressBar(final Long containerId) {
-        publishJProgressBar.setUI(new ThinkParityProgressBarUI());
         publishJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);

@@ -212,12 +212,6 @@ public final class Constants {
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
         }
-        public static final class ProgressBar {
-            public static final BufferedImage OFF = ImageIOUtil.read("ProgressBarOffSlice.png");
-            public static final BufferedImage OFF_DIVIDER = ImageIOUtil.read("ProgressBarOffDividerSlice.png");
-            public static final BufferedImage ON = ImageIOUtil.read("ProgressBarOnSlice.png");
-            public static final BufferedImage ON_DIVIDER = ImageIOUtil.read("ProgressBarOnDividerSlice.png");
-        }
     }
 
     public static final class InsetFactors {

@@ -131,28 +131,22 @@ public final class Constants {
             }
         }
     }
-
-    /** Parity directories. */
+    /** thinkParity directories. */
     public static final class Directories {
-
-        /** System property parity.install. */
-        public static final File PARITY_INSTALL =
-            new File(System.getProperty("parity.install"));
-
-        public static final File PARITY_PLUGIN_ROOT =
-            new File(PARITY_INSTALL, "plugins");
+        public static final File PARITY_INSTALL = new File(SystemProperties.THINKPARITY_INSTALL);
+        public static final File PARITY_PLUGIN_ROOT = new File(PARITY_INSTALL, "plugins");
     }
-    
+    /** thinkParity directory names. */
     public static final class DirectoryNames {
         public static final String DEFAULT_PROFILE = "Default";
         public static final String PLUGIN_LIB = "lib";
     }
-
+    /** thinkParity file extensions. */
     public static final class FileExtensions {
         public static final String JAR = ".jar";
         public static final String PAR = ".par";
     }
-
+    /** thinkParity icons. */
     public static final class Icons {
         public static final class BrowserTitle {
             public static final Icon LEFTMOST_TAB =
@@ -169,7 +163,6 @@ public final class Constants {
                 ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
         }
     }
-
     public static final class Images {
         public static final BufferedImage WINDOW_ICON_IMAGE = ImageIOUtil.read("ThinkParity32x32.png");
         public static final class BrowserTitle {
@@ -213,7 +206,6 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTitle_Logo.png");
         }
     }
-
     public static final class InsetFactors {
         public static final Float LEVEL_0 = 1.0F;
         public static final Float LEVEL_1 = 2.0F;
@@ -240,7 +232,7 @@ public final class Constants {
                 .append("thinkParity.jar")
                 .toString();
         public static final MessageFormat OPTION_PARITY_IMAGE = new MessageFormat("-Dparity.image.name={0}");
-        public static final MessageFormat OPTION_PARITY_INSTALL = new MessageFormat("-Dparity.install={0}");
+        public static final MessageFormat OPTION_PARITY_INSTALL = new MessageFormat("-D{0}={1}");
     }
 
     /** Lookup keys. */
@@ -278,7 +270,7 @@ public final class Constants {
     public static final class Resize {
         public static final Integer EDGE_PIXEL_BUFFER = 6;
     }
-    
+
     public static final class Search {
         public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
     }
@@ -286,5 +278,15 @@ public final class Constants {
     public static final class Session {
         public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;
         public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
+    }
+    
+    /** thinkParity system properties. */
+    public static final class SystemProperties {
+        private static final String THINKPARITY_INSTALL = System.getProperty(SystemPropertyNames.THINKPARITY_INSTALL);
+    }
+
+    /** thinkParity system property names. */
+    public static final class SystemPropertyNames {
+        public static final String THINKPARITY_INSTALL = "thinkparity.install";
     }
 }

@@ -40,7 +40,7 @@ public final class Constants {
         public static final String ParityImageMain = "parity.image.main";
         public static final String ParityImageMainArgs = "parity.image.mainargs";
         public static final String ParityImageName = "parity.image.name";
-        public static final String ParityInstall = "parity.install";
+        public static final String ParityInstall = "thinkparity.install";
     }
 
     public static final class Sundry {

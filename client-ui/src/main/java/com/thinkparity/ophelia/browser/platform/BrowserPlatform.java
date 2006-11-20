@@ -15,9 +15,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Java;
+import com.thinkparity.ophelia.browser.Constants.SystemPropertyNames;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationFactory;
@@ -328,7 +330,7 @@ public class BrowserPlatform implements Platform {
         commands.add(Java.EXECUTABLE);
         if(properties.containsKey("parity.image.name"))
             commands.add(Java.OPTION_PARITY_IMAGE.format(new Object[] {properties.getProperty("parity.image.name")}));
-        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {Directories.PARITY_INSTALL.getAbsolutePath()}));
+        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {SystemPropertyNames.THINKPARITY_INSTALL, Directories.PARITY_INSTALL.getAbsolutePath()}));
         Assert.assertNotYetImplemented("BrowserPlatform#restart");
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);

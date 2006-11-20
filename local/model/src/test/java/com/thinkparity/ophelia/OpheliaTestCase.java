@@ -111,14 +111,14 @@ public abstract class OpheliaTestCase extends TestCase {
      */
     private static void initParityInstall() {
         final File parent = SESSION.getOutputDirectory();
-        final File install = new File(parent, "parity.install");
+        final File install = new File(parent, "thinkparity.install");
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL]", install.mkdir());
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL CORE]", new File(install, "core").mkdir());
         final File lib = new File(install, "lib");
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL LIB]", lib.mkdir());
         Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL LIB NATIVE]", new File(lib, "win32").mkdir());
 
-        System.setProperty("parity.install", install.getAbsolutePath());
+        System.setProperty("thinkparity.install", install.getAbsolutePath());
     }
 
     /**

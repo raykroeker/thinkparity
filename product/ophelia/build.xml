@@ -143,6 +143,8 @@
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/ophelia/browser/"/>
+                <!-- NOTE demo resources -->
+                <include name="demo/"/>
                 <include name="fonts/"/>
                 <include name="images/"/>
                 <include name="localization/"/>
@@ -202,9 +204,10 @@
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${release.version}/lib/${platform}">
                     <jre minVersion="1.5.0" maxVersion="1.5.0_08"
-                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+                            args="-Dthinkparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
             </config>
         </launch4j>
+        <!-- NOTE demo installer -->
         <launch4j>
             <config dontWrapJar="true" headerType="0"
                     jarPath="thinkParity.jar"
@@ -214,7 +217,7 @@
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${release.version}/lib/${platform}">
                     <jre minVersion="1.5.0" maxVersion="1.5.0_08"
-                            args="-Dparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode-DEMO -Dthinkparity.environment=DEMO"/>
+                            args="-Dthinkparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=DEMO -Dthinkparity.environment=DEMO"/>
             </config>
         </launch4j>
         <!-- nsis -->

@@ -30,8 +30,8 @@ public final class Constants {
         /** A user's data directory <code>File</code>. */
         public static final File USER_DATA;
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
-        public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);
-        public static final File INSTALL = new File(System.getProperty("parity.install"));
+        public static final File DOWNLOAD = new File(System.getProperty("thinkparity.install"), DirectoryNames.DOWNLOAD);
+        public static final File INSTALL = new File(System.getProperty("thinkparity.install"));
         static {
             switch (OSUtil.getOS()) {
             case WINDOWS_2000:

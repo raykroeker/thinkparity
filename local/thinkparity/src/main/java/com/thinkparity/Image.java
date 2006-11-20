@@ -98,16 +98,21 @@ public class Image {
 
         // create class loader
         final ClassLoader classLoader = URLClassLoader.newInstance(classPath, null);
+        Thread.currentThread().setContextClassLoader(classLoader);
         try {
             // execute
             final Class mainClass = classLoader.loadClass(mainClassName);
             final Method mainMethod = mainClass.getMethod("main", new Class[] {mainArgs.getClass()});
             mainMethod.invoke(null, new Object[] {mainArgs});
+        } catch (final ClassNotFoundException cnfx) {
+            throw new ThinkParityException("", cnfx);
+        } catch (final NoSuchMethodException nsmx) {
+            throw new ThinkParityException("", nsmx);
+        } catch(final IllegalAccessException iax) {
+            throw new ThinkParityException("", iax);
+        } catch (final InvocationTargetException itx) {
+            throw new ThinkParityException("", itx);
         }
-        catch(final ClassNotFoundException cnfx) { throw new ThinkParityException("", cnfx); }
-        catch(final NoSuchMethodException nsmx) { throw new ThinkParityException("", nsmx); }
-        catch(final IllegalAccessException iax) { throw new ThinkParityException("", iax); }
-        catch(final InvocationTargetException itx) { throw new ThinkParityException("", itx); }
     }
 
     /**
@@ -119,7 +124,9 @@ public class Image {
 
     /** Mount the image. */
     public void mount() {
-        if(isMounted()) { throw new IllegalStateException(); }
+        if (isMounted()) {
+            throw new IllegalStateException();
+        }
 
         ThinkParity.checkFileExists(root, FileNames.ThinkParityImageProperties);
         // load the image configuration

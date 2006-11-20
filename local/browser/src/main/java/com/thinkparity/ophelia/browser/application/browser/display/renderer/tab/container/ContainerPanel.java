@@ -18,13 +18,10 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
-
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -34,9 +31,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -105,6 +104,24 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The container panel's model. */
     private final ContainerModel model;
     
+    /** The browser application. */
+    private final Browser browser;
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel containerDateJLabel;    
+    private javax.swing.JPanel containerDateJPanel;
+    private javax.swing.JPanel containerJPanel;    
+    private javax.swing.JLabel containerNameJLabel;
+    private javax.swing.JLabel draftOwnerJLabel;    
+    private javax.swing.JPanel draftOwnerJPanel;    
+    private javax.swing.JLabel eastPaddingJLabel;
+    private javax.swing.JLabel iconJLabel;
+    private javax.swing.JProgressBar progressBar;   
+    private javax.swing.JPanel progressBarJPanel;    
+    private javax.swing.JPanel rightSideJPanel;
+    private javax.swing.JLabel westPaddingJLabel;
+    // End of variables declaration//GEN-END:variables
+    
     /**
      * Create ContainerPanel.
      * 
@@ -112,6 +129,7 @@ public final class ContainerPanel extends DefaultTabPanel {
     public ContainerPanel(final ContainerModel model) {
         super();
         this.model = model;
+        this.browser = ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER));
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
         this.focusManager = new FocusManager();
@@ -284,6 +302,8 @@ public final class ContainerPanel extends DefaultTabPanel {
             final ContainerDraft draft) {
         this.container = container;
         this.draft = draft;
+        
+        setTransferHandler(new ImportTxHandler(browser, model, container));
 
         containerNameJLabel.setText(container.getName());
         final Calendar now = DateUtil.getInstance();
@@ -297,21 +317,6 @@ public final class ContainerPanel extends DefaultTabPanel {
         } else {
             draftOwnerJLabel.setText("");
         }
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#setMouseOver(java.lang.Boolean)
-     */
-    @Override
-    public void setMouseOver(Boolean mouseOver) {
-        final Cursor cursor;
-        super.setMouseOver(mouseOver);
-        if (mouseOver) {
-            cursor = new Cursor(Cursor.HAND_CURSOR);
-        } else {
-            cursor = null;
-        }
-        changeCursor(cursor, this);
     }
 
     /**
@@ -409,28 +414,21 @@ public final class ContainerPanel extends DefaultTabPanel {
             @Override
             public void mouseClicked(final MouseEvent e) {
                 if (container.isBookmarked()) {
-                    ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runRemoveContainerBookmark(container.getId());
+                    browser.runRemoveContainerBookmark(container.getId());
                 } else {
-                    ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runAddContainerBookmark(container.getId());
+                    browser.runAddContainerBookmark(container.getId());
                 }
             }
             @Override
             public void mouseEntered(final MouseEvent e) {
                 setMouseOver(Boolean.TRUE);
-                if (container.isBookmarked()) {
-                    iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK_ROLLOVER));
-                } else {
-                    iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_ROLLOVER));
-                }
+                final Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
+                changeCursor(cursor, ContainerPanel.this);
             }
             @Override
             public void mouseExited(final MouseEvent e) {
                 setMouseOver(Boolean.FALSE);
-                if (container.isBookmarked()) {
-                    iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK));
-                } else {
-                    iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER));
-                }
+                changeCursor(null, ContainerPanel.this);
             }           
         });
     }
@@ -557,17 +555,4 @@ public final class ContainerPanel extends DefaultTabPanel {
     private Boolean isSelectedContainer() {
         return model.isSelectedContainer(container);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerDateJLabel;
-    private javax.swing.JPanel containerDateJPanel;
-    private javax.swing.JPanel containerJPanel;
-    private javax.swing.JLabel containerNameJLabel;
-    private javax.swing.JLabel draftOwnerJLabel;
-    private javax.swing.JPanel draftOwnerJPanel;
-    private javax.swing.JLabel eastPaddingJLabel;
-    private javax.swing.JLabel iconJLabel;
-    private javax.swing.JPanel rightSideJPanel;
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
 }

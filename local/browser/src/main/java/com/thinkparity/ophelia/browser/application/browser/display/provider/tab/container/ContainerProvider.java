@@ -38,6 +38,9 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 
     /** A thinkParity container interface. */
     private final ContainerModel containerModel;
+    
+    /** A thinkParity document interface. */
+    private final DocumentModel documentModel;
 
     /** A thinkParity user interface. */
     private final UserModel userModel;
@@ -59,6 +62,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             final DocumentModel documentModel, final UserModel userModel) {
         super(profile);
         this.containerModel = containerModel;
+        this.documentModel = documentModel;
         this.userModel = userModel;
     }
 
@@ -117,6 +121,17 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public ContainerDraft readDraft(final Long containerId) {
     	return containerModel.readDraft(containerId);
+    } 
+    
+    /**
+     * Read a the latest container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion readLatestVersion(final Long containerId) {
+        return containerModel.readLatestVersion(containerId);
     }  
 
     /**
@@ -164,5 +179,16 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public List<Long> search(final String expression) {
     	return containerModel.search(expression);
+    }
+    
+    /**
+     * Determine if the draft document has been modified.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return True if the draft document has been modified; false otherwise.
+     */
+    public Boolean isDraftDocumentModified(final Long documentId) {
+        return documentModel.isDraftModified(documentId);
     }
 }

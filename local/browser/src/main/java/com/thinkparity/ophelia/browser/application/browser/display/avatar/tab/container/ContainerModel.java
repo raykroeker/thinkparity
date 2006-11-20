@@ -14,15 +14,12 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -33,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -257,6 +255,49 @@ public final class ContainerModel extends TabPanelModel {
             return Boolean.FALSE;
         }
     }
+    
+    /**
+     * Determine if the draft document has been modified.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return True if the draft document has been modified; false otherwise.
+     */
+    public Boolean isDraftDocumentModified(final Long documentId) {
+        return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId);
+    }
+    
+    /**
+     * Get the list of draft documents.
+     * 
+     * @param container
+     *              The container
+     * @return A list of documents.
+     */
+    public List<Document> getDraftDocuments(final Container container) {
+        if (container.isLocalDraft()) {
+            final ContainerDraft draft = readDraft(container.getId());
+            if (null != draft) {
+                return draft.getDocuments();
+            }
+        }
+        return new ArrayList<Document>();
+    }
+    
+    /**
+     * Get the list of latest version documents.
+     * 
+     * @param container
+     *              The container
+     * @return A list of version documents.
+     */
+    public List<DocumentVersion> getLatestVersionDocuments(final Container container) {
+        final ContainerVersion version = readLatestVersion(container.getId());
+        if (null != version) {
+            return readDocumentVersions(container.getId(), version.getArtifactId());
+        }
+        return new ArrayList<DocumentVersion>();
+    }
 
     /**
      * Remove the search.
@@ -415,7 +456,7 @@ public final class ContainerModel extends TabPanelModel {
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    void syncContainer(final Long containerId, final Boolean remote) {
+    public void syncContainer(final Long containerId, final Boolean remote) {
         debug();
         final Container container = read(containerId);
         // remove the container from the panel list
@@ -454,7 +495,7 @@ public final class ContainerModel extends TabPanelModel {
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    void syncDocument(final Long documentId, final Boolean remote) {
+    public void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
     
@@ -591,6 +632,17 @@ public final class ContainerModel extends TabPanelModel {
      */
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
+    }
+    
+    /**
+     * Read the latest version for a container.
+     * 
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readLatestVersion(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readLatestVersion(containerId);
     }
 
     /**

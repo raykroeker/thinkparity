@@ -3,13 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -20,10 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 
@@ -31,17 +26,14 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -51,9 +43,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -76,6 +70,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     /** The <code>ContainerModel</code>. */
     private final ContainerModel model;
+    
+    /** The browser application. */
+    private final Browser browser;
 
     /** The version's published by <code>User</code>. */
     private final Map<ContainerVersion, User> publishedBy;
@@ -107,12 +104,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The focus manager. */
     private final FocusManager focusManager;
     
+    /** A transparent JPanel to assist with drag and drop. */
+    private final TransparentJPanel transparentJPanel;
+    
     /** The previous selection index of the Versions list. */
     private int previousVersionSelectionIndex = -1;
     
     /** The previous selection index of the Content list. */
     private int previousContentSelectionIndex = -1;
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JPanel leftJPanel;
     javax.swing.JPanel rightJPanel;
@@ -131,6 +131,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         super();
         this.documentVersions = new HashMap<ContainerVersion, List<DocumentVersion>>();
         this.model = model;
+        this.browser = ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER));
         this.publishedBy = new HashMap<ContainerVersion, User>();
         this.users = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>();
         this.versions = new ArrayList<ContainerVersion>();
@@ -141,11 +142,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.logger = new Log4JWrapper();
         this.localization = new MainCellL18n("ContainerVersionsPanel");
         this.focusManager = new FocusManager();
+        this.transparentJPanel = new TransparentJPanel(this);
         initComponents();
         initResizeListener();
         initMouseOverTrackers();
         focusManager.addFocusListener(this, model, versionsJList, FocusManager.FocusList.VERSION);
-        focusManager.addFocusListener(this, model, versionsContentJList, FocusManager.FocusList.CONTENT);
+        focusManager.addFocusListener(this, model, versionsContentJList, FocusManager.FocusList.CONTENT);        
     }
     
     /**
@@ -381,10 +383,15 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public void setContainerAndDraft(final Container container, final ContainerDraft draft) {
         this.container = container;
-
+        
         if ((null != draft) && container.isLocalDraft()) {
             versionsModel.addElement(new DraftCell(draft));
         }
+        
+        // Set up drag and drop
+        if (null != transparentJPanel) {
+            transparentJPanel.setTransferHandler(new ImportTxHandler(browser, model, container));
+        }        
     }
     
     /**
@@ -419,6 +426,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         // Make sure the split pane is in a 50/50 split.
         // This can only be done after the first validation() completes.
         versionsJSplitPane.setDividerLocation(0.5);
+        
+        // Initialize the transparentJPanel after it has been added.
+        transparentJPanel.initialize(this);
         
         // Make sure one of the lists has focus.
         // TODO This should not have to rely on SwingUtilities.invokeLater to work.
@@ -605,6 +615,32 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void versionsContentJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_versionsContentJListValueChanged
+        // Don't allow selection of filler cells.
+        if ((null != versionsContentJList.getSelectedValue()) &&
+            ((AbstractCell)versionsContentJList.getSelectedValue()).isFillerCell() &&
+            (previousContentSelectionIndex != -1)) {
+            setSelectedIndex(versionsContentJList, previousContentSelectionIndex);
+        } else if (!e.getValueIsAdjusting()) {
+            previousContentSelectionIndex = versionsContentJList.getSelectedIndex();
+        }
+    }//GEN-LAST:event_versionsContentJListValueChanged
+
+    private void versionsContentJListMouseClicked(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_versionsContentJListMouseClicked
+        final JList jList = (JList) e.getSource();
+        handleJListMouseClicked(jList, ListType.CONTENT, e);
+    }// GEN-LAST:event_versionsContentJListMouseClicked
+
+    private void versionsContentJListMousePressed(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_versionsContentJListMousePressed
+        final JList jList = (JList) e.getSource();
+        handleJListMousePressed(jList, ListType.CONTENT, e);
+    }// GEN-LAST:event_versionsContentJListMousePressed
+
+    private void versionsContentJListMouseReleased(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_versionsContentJListMouseReleased
+        final JList jList = (JList) e.getSource();
+        handleJListMouseReleased(jList, ListType.CONTENT, e);
+    }                                                  
+
     private void rightJPanelMouseClicked(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_rightJPanelMouseClicked
         formMouseClicked(e);
     }// GEN-LAST:event_rightJPanelMouseClicked
@@ -631,21 +667,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         selectedVersion.showPopupMenu(versionsJList, e);
     }
     
-    private void versionsContentJListMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseClicked
-        final JList jList = (JList) e.getSource();
-        handleJListMouseClicked(jList, ListType.CONTENT, e);
-    }//GEN-LAST:event_versionsContentJListMouseClicked
-
-    private void versionsContentJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMousePressed
-        final JList jList = (JList) e.getSource();
-        handleJListMousePressed(jList, ListType.CONTENT, e);
-    }//GEN-LAST:event_versionsContentJListMousePressed
-
-    private void versionsContentJListMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsContentJListMouseReleased
-        final JList jList = (JList) e.getSource();
-        handleJListMouseReleased(jList, ListType.CONTENT, e);   
-    }//GEN-LAST:event_versionsContentJListMouseReleased
-
     private void versionsJListMouseClicked(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_versionsJListMouseClicked
         final JList jList = (JList) e.getSource();
         handleJListMouseClicked(jList, ListType.VERSION, e);
@@ -678,18 +699,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
         }
     }//GEN-LAST:event_versionsJListValueChanged
-    
-    private void versionsContentJListValueChanged(final javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_versionsContentJListValueChanged
-        // Don't allow selection of filler cells.
-        if ((null != versionsContentJList.getSelectedValue()) &&
-            ((AbstractCell)versionsContentJList.getSelectedValue()).isFillerCell() &&
-            (previousContentSelectionIndex != -1)) {
-            setSelectedIndex(versionsContentJList, previousContentSelectionIndex);
-        } else if (!e.getValueIsAdjusting()) {
-            previousContentSelectionIndex = versionsContentJList.getSelectedIndex();
-        }
-    }//GEN-LAST:event_versionsContentJListValueChanged
-    
+        
     /**
      * Process a JList mouse pressed event.
      */
@@ -971,7 +981,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
-            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runOpenDocument(getId());
+            browser.runOpenDocument(getId());
         }
         Long getContainerId() {
             return draft.getContainerId();
@@ -1018,7 +1028,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
-            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runReadContact(getId());
+            browser.runReadContact(getId());
         }
         
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
@@ -1077,7 +1087,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
             if (isComment()) {
-                ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayContainerVersionInfoDialog(getArtifactId(), getVersionId());
+                browser.displayContainerVersionInfoDialog(getArtifactId(), getVersionId());
             }
         }
         Long getArtifactId() {
@@ -1116,7 +1126,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
-            ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).runOpenDocumentVersion(getDocumentId(), getVersionId());
+            browser.runOpenDocumentVersion(getDocumentId(), getVersionId());
         }
         Long getDocumentId() {
             return version.getArtifactId();
@@ -1189,6 +1199,90 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     private ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
         return fileIconReader.getIcon(documentVersion);
+    }
+    
+    /**
+     * Transparent JPanel class.
+     * 
+     * This transparent panel exists to catch drag and drop events for
+     * the containerVersionsPanel. An alternate approach might have been to call
+     * setTransferHandler() on ContainerVersionsPanel and on the two JLists inside it.
+     * This behaves poorly because the selection on the JList changes while dragging.
+     */
+    private class TransparentJPanel extends javax.swing.JPanel {
+        
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+        
+        /** Initialized flag. */
+        private Boolean initialized = Boolean.FALSE;
+        
+        /** JFrame ancestor */
+        private JFrame jFrameAncestor = null;
+        
+        public TransparentJPanel(final ContainerVersionsPanel containerVersionsPanel) {
+            super();
+            setBorder(null);
+            setOpaque(false);
+        }
+        
+        /**
+         * Initialize method, called after the containerVersionsPanel has been added
+         * to its parent.
+         * 
+         * @param containerVersionsPanel
+         *          The panel.
+         */
+        public void initialize(final ContainerVersionsPanel containerVersionsPanel) {
+            if (!initialized && (null != containerVersionsPanel.getParent())) {                
+                initialized = Boolean.TRUE;
+                
+                final Window window = SwingUtilities.getWindowAncestor(containerVersionsPanel);
+                if (window instanceof JFrame) {
+                    this.jFrameAncestor = (JFrame) window;
+                }
+                
+                jFrameAncestor.getLayeredPane().add(TransparentJPanel.this, JLayeredPane.PALETTE_LAYER);
+                reposition(containerVersionsPanel);
+                
+                containerVersionsPanel.getParent().addContainerListener(new ContainerListener() {
+                    public void componentAdded(final ContainerEvent e) { 
+                        if (e.getChild().equals(containerVersionsPanel)) {
+                            if (null != jFrameAncestor) {
+                                jFrameAncestor.getLayeredPane().add(TransparentJPanel.this, JLayeredPane.PALETTE_LAYER);
+                            }
+                        }
+                    }
+                    public void componentRemoved(final ContainerEvent e) {  
+                        if (e.getChild().equals(containerVersionsPanel)) {
+                            if (null != jFrameAncestor) {
+                                jFrameAncestor.getLayeredPane().remove(TransparentJPanel.this);
+                            }
+                        }
+                    }                
+                });
+                
+                containerVersionsPanel.addComponentListener(new ComponentAdapter() {
+                    @Override
+                    public void componentMoved(final ComponentEvent e) {
+                        reposition(containerVersionsPanel);
+                    }
+                    @Override
+                    public void componentResized(final ComponentEvent e) {
+                        reposition(containerVersionsPanel);
+                    }                
+                });
+            }
+        }
+        
+        private void reposition(final ContainerVersionsPanel containerVersionsPanel) {
+            if (null != jFrameAncestor) {
+                final Point location = SwingUtilities.convertPoint(containerVersionsPanel.getParent(),
+                        containerVersionsPanel.getLocation(), jFrameAncestor);
+                setSize(containerVersionsPanel.getSize());
+                setLocation(location.x-1, location.y-1);
+            }
+        }
     }
     
     private enum ListType { VERSION, CONTENT }

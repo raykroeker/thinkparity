@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.util;
 
-
 import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -13,10 +12,10 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
-
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityScrollBarUI;
 
 /**
  * thinkParity Swing
@@ -33,8 +32,7 @@ public class Swing {
     public static void init() {
         System.setProperty("sun.awt.noerasebackground", "true");
 
-        final UIDefaults defaults = UIManager.getDefaults();
-
+        UIDefaults defaults = UIManager.getDefaults();
         defaults.put("List.selectionBackground", Colors.Swing.DEFAULT_LIST_SELECTION_BG);
         defaults.put("List.selectionForeground", Colors.Swing.DEFAULT_LIST_SELECTION_FG);
         defaults.put("Menu.font", BrowserConstants.Fonts.DefaultFont);
@@ -58,13 +56,20 @@ public class Swing {
         		laf = new MetalLookAndFeel();
         		break;
     		default:
-    			throw Assert.createUnreachable("UNSUPPORTED OPERATING SYSTEM");
+    			throw Assert.createUnreachable("Unsupported operating system.");
         	}
         	UIManager.setLookAndFeel(laf);
+        } catch(final Throwable t) {
+            throw new RuntimeException(t);
         }
-        catch(final Throwable t) { throw new RuntimeException(t); }
+
+        defaults = UIManager.getDefaults();
+        defaults.put("ScrollBarUI", ThinkParityScrollBarUI.class.getName());
     }
 
-    /** Create Swing. */
+    /**
+     * Create Swing.
+     * 
+     */
     private Swing() { super(); }
 }

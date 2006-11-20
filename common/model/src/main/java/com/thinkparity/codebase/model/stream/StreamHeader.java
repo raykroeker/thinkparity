@@ -131,6 +131,7 @@ public final class StreamHeader {
         SESSION_ID("Session-Id"),
         SESSION_TYPE("Session-Type"),
         STREAM_ID("Stream-Id"),
+        STREAM_OFFSET("Stream-Offset"),
         STREAM_SIZE("Stream-Size"),
         UNKNOWN("Unknown");
 

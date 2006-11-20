@@ -79,6 +79,9 @@ abstract class StreamClient {
     /** The <code>SocketFactory</code> used to establish the stream. */
     private final SocketFactory socketFactory;
 
+    /** The stream client <code>Type</code>. */
+    private final Type type;
+
     /**
      * Create StreamClient.
      * 
@@ -87,7 +90,7 @@ abstract class StreamClient {
      * @param session
      *            A <code>StreamSession</code>.
      */
-    protected StreamClient(final StreamMonitor monitor,
+    protected StreamClient(final Type type, final StreamMonitor monitor,
             final StreamSession session) {
         super();
         this.monitor = monitor;
@@ -112,6 +115,7 @@ abstract class StreamClient {
             socketFactory =
                 com.thinkparity.codebase.net.SocketFactory.getInstance();
         }
+        this.type = type;
     }
 
     /**
@@ -120,8 +124,8 @@ abstract class StreamClient {
      * @param streamSession
      *            A <code>StreamSession</code>.
      */
-    protected StreamClient(final StreamSession streamSession) {
-        this(DEFAULT_MONITOR, streamSession);
+    protected StreamClient(final Type type, final StreamSession streamSession) {
+        this(type, DEFAULT_MONITOR, streamSession);
     }
 
     /**
@@ -130,7 +134,7 @@ abstract class StreamClient {
      * @param type
      *            A stream <code>Type</code>.
      */
-    protected final void connect(final Type type) throws IOException {
+    protected final void connect() throws IOException {
         doConnect();
         write(new StreamHeader(StreamHeader.Type.SESSION_ID, session.getId()));
         write(new StreamHeader(StreamHeader.Type.SESSION_TYPE, type.name()));
@@ -192,8 +196,29 @@ abstract class StreamClient {
                 stream.close();
             }
         } catch (final IOException iox) {
+            if(SocketException.class.isAssignableFrom(iox.getClass())) {
+                if ("Connection reset.".equals(iox.getMessage())) {
+                    if (isResumable()) {
+                        try {
+                            connect();
+                        } catch (final IOException iox2) {
+                            throw panic(iox);
+                        }
+                        resumeWrite(stream, streamSize);
+                    }
+                }
+            }
             throw panic(iox);
         }
+    }
+
+    /**
+     * Resume the client write operation. Re-establish the connection; write a
+     * header indicating the position; and continue.
+     * 
+     */
+    private void resumeWrite(final InputStream stream, final Long streamSize) {
+        Assert.assertNotYetImplemented("");
     }
 
     /**
@@ -298,7 +323,7 @@ abstract class StreamClient {
      * 
      * @return True if the stream host is reachable.
      */
-    private Boolean isRecoverable() {
+    private Boolean isResumable() {
         Socket socket = null;
         try {
             socket = socketFactory.createSocket(
@@ -326,15 +351,7 @@ abstract class StreamClient {
      * @return A <code>StreamException</code>.
      */
     private StreamException panic(final Throwable t) {
-        if(SocketException.class.isAssignableFrom(t.getClass())) {
-            if ("Connection reset.".equals(t.getMessage())) {
-                return new StreamException(isRecoverable(), t);
-            } else {
-                return new StreamException(Boolean.FALSE, t);
-            }
-        } else {
-            return new StreamException(Boolean.FALSE, t);
-        }
+        return new StreamException(Boolean.FALSE, t);
     }
 
     /**

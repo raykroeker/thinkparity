@@ -535,17 +535,7 @@ public class WorkspaceImpl implements Workspace {
                 throw translateError(iox);
             }
             break;
-        case DEVELOPMENT:   // redirect output\err streams
-            System.out.println(MessageFormat.format(
-                    "System output directed to: {0}", output.getAbsolutePath()));
-            System.out.println(MessageFormat.format(
-                    "System err directed to: {0}", err.getAbsolutePath()));
-//            try {
-//                System.setOut(new PrintStream(new FileOutputStream(output)));
-//                System.setErr(new PrintStream(new FileOutputStream(err)));
-//            } catch (final IOException iox) {
-//                throw translateError(iox);
-//            }
+        case DEVELOPMENT:   // do not redirect output\err streams
             break;
         default:
             throw Assert.createUnreachable("Unknown mode.");

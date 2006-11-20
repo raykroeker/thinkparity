@@ -23,7 +23,7 @@ public final class StreamReader extends StreamClient {
      *            A <code>StreamSession</code>.
      */
     public StreamReader(final StreamMonitor monitor, final StreamSession session) {
-        super(monitor, session);
+        super(Type.DOWNSTREAM, monitor, session);
     }
 
     /**
@@ -33,7 +33,7 @@ public final class StreamReader extends StreamClient {
      *            A <code>StreamSession</code>.
      */
     public StreamReader(final StreamSession session) {
-        super(session);
+        super(Type.DOWNSTREAM, session);
     }
 
     /**
@@ -49,7 +49,7 @@ public final class StreamReader extends StreamClient {
      *
      */
     public void open() throws IOException {
-        connect(Type.DOWNSTREAM);
+        connect();
     }
 
     /**

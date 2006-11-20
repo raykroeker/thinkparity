@@ -19,7 +19,7 @@ public final class StreamWriter extends StreamClient {
      *            A stream <code>Session</code>.
      */
     public StreamWriter(final StreamSession session) {
-        super(session);
+        super(Type.UPSTREAM, session);
     }
 
     /**
@@ -29,7 +29,7 @@ public final class StreamWriter extends StreamClient {
      *            A stream <code>Session</code>.
      */
     public StreamWriter(final StreamMonitor monitor, final StreamSession session) {
-        super(monitor, session);
+        super(Type.UPSTREAM, monitor, session);
     }
 
     /**
@@ -46,7 +46,7 @@ public final class StreamWriter extends StreamClient {
      * 
      */
     public void open() throws IOException {
-        connect(Type.UPSTREAM);
+        connect();
     }
 
     /**

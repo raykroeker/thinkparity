@@ -354,14 +354,6 @@ public final class ContainerPanel extends DefaultTabPanel {
                 GradientPainter.paintVertical(g2, getSize(),
                         Colors.Browser.List.LIST_GRADIENT_DARK,
                         Colors.Browser.List.LIST_GRADIENT_LIGHT);
-                
-                // Draw a border if the container is expanded, selected and focused
-                if (isSelectedContainer() && (focusManager.getFocusList()==FocusManager.FocusList.CONTAINER)) {
-                    g2.setColor(Colors.Browser.List.LIST_SELECTION_BORDER);
-                    g2.drawLine(0, 0, getWidth()-1, 0);
-                    g2.drawLine(0, 0, 0, getHeight()-1);
-                    g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
-                }
             }
             finally { g2.dispose(); }
         }        

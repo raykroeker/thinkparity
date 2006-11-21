@@ -12,10 +12,6 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import org.apache.log4j.Logger;
-
-import com.thinkparity.browser.util.log4j.LoggerFactory;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -33,12 +29,6 @@ public class CollapseToolTipAnimation extends AbstractJPanelAnimation {
 		SIZE_HEIGHT_STEP = 3;
 		TIMER_INTERVAL = 10;
 	}
-
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Animation flag indicating whether the animation is complete.
@@ -87,14 +77,10 @@ public class CollapseToolTipAnimation extends AbstractJPanelAnimation {
 	}
 
 	public void start() {
-		logger.debug(toolTip.getSize());
-		logger.debug(toolTip.getLocation());
 		timer.start();
 	}
 
 	public void stop() {
-		logger.debug(toolTip.getSize());
-		logger.debug(toolTip.getLocation());
 		timer.stop();
 	}
 

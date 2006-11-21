@@ -8,8 +8,6 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
-import com.thinkparity.browser.ui.MainWindow;
-
 /**
  * Create a simple animation that will increase the size of the browser to
  * pre-set maximum; then stop.
@@ -21,13 +19,11 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 
 	private static final int INCREMENT_STEP;
 
-	private static final int MAX_BROWSER_HEIGHT;
-
 	static {
-		MAX_BROWSER_HEIGHT = MainWindow.getDefaultSize().height;
 		INCREMENT_STEP = 3;
 	}
 
+    private final int maximumHeight;
 	private boolean isDone;
 
 	/**
@@ -36,6 +32,7 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 	public ShowJFrameAnimator(final JFrame jFrame) {
 		super(jFrame);
 		this.isDone = false;
+        this.maximumHeight = jFrame.getPreferredSize().height;
 	}
 
 	/**
@@ -61,7 +58,7 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 	 */
 	private Dimension incrementHeight(final Dimension size) {
 		final double newHeight = size.getHeight() + INCREMENT_STEP;
-		if(newHeight <= MAX_BROWSER_HEIGHT) {
+		if(newHeight <= maximumHeight) {
 			size.setSize(size.getWidth(), newHeight);
 		}
 		else { isDone = true; }

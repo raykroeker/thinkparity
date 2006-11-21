@@ -168,17 +168,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 GradientPainter.paintVertical(g2, getSize(),
                         Colors.Browser.List.LIST_GRADIENT_LIGHT,
                         Colors.Browser.List.LIST_GRADIENT_DARK);
-                
-                // Draw a border if the container is selected and focused
-                if (isSelectedContainer() && (focusManager.getFocusList()==FocusManager.FocusList.CONTAINER)) {
-                    g2.setColor(Colors.Browser.List.LIST_SELECTION_BORDER);
-                    g2.drawLine(0, getHeight()-1, getWidth()-1, getHeight()-1);
-                    if (listType == ListType.VERSION) {
-                        g2.drawLine(0, 0, 0, getHeight()-1);
-                    } else if (listType == ListType.CONTENT) {
-                        g2.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
-                    }
-                }
             }
             finally { g2.dispose(); }
         }
@@ -1032,22 +1021,24 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
-            final Calendar now = DateUtil.getInstance();
-            final StringBuffer text;
-            text = new StringBuffer();
-            text.append(user.getName());
-            text.append(" ");
             if (isPublisher) {
-                text.append(localization.getString("UserPublished"));
-            } else if ((null == receipt) || (!receipt.isSetReceivedOn())) {
-                text.append(localization.getString("UserDidNotReceive"));
-            } else if (DateUtil.isSameDay(receipt.getReceivedOn(), now)) {
-                text.append(localization.getString("UserReceivedToday",receipt.getReceivedOn().getTime()));
+                setText(localization.getString("UserPublished", user.getName()));
             } else {
-                text.append(localization.getString("UserReceived",receipt.getReceivedOn().getTime()));
+                final Calendar now = DateUtil.getInstance();
+                final StringBuffer text;
+                text = new StringBuffer();
+                text.append(user.getName());
+                text.append(" ");
+                if ((null == receipt) || (!receipt.isSetReceivedOn())) {
+                    text.append(localization.getString("UserDidNotReceive"));
+                } else if (DateUtil.isSameDay(receipt.getReceivedOn(), now)) {
+                    text.append(localization.getString("UserReceivedToday",receipt.getReceivedOn().getTime()));
+                } else {
+                    text.append(localization.getString("UserReceived",receipt.getReceivedOn().getTime()));
+                }
+                
+                setText(text.toString());
             }
-            
-            setText(text.toString());
         }
     }
 
@@ -1066,12 +1057,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 setIcon(imageCache.read(TabPanelIcon.VERSION)); 
             }
             int countCells = 0;
+            addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
+            countCells++;            
             for (final DocumentVersion documentVersion : documentVersions) {
                 addContentCell(new DocumentVersionCell(documentVersion));
                 countCells++;
             }
-            addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
-            countCells++;
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
                 addContentCell(new UserCell(entry.getKey(), Boolean.FALSE, entry.getValue()));
                 countCells++;
@@ -1102,11 +1093,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private void initText(final ContainerVersion version, final User publishedBy) {
             final Calendar now = DateUtil.getInstance();
             if (DateUtil.isSameDay(version.getCreatedOn(), now)) {
-                setText(localization.getString("VersionToday", version.getCreatedOn().getTime(), publishedBy.getName()));
+                setText(localization.getString("VersionToday", version.getCreatedOn().getTime()));
             } else if (DateUtil.isSameYear(version.getCreatedOn(), now)) {
-                setText(localization.getString("VersionThisYear", version.getCreatedOn().getTime(), publishedBy.getName()));        
+                setText(localization.getString("VersionThisYear", version.getCreatedOn().getTime()));        
             } else {
-                setText(localization.getString("Version", version.getCreatedOn().getTime(), publishedBy.getName())); 
+                setText(localization.getString("Version", version.getCreatedOn().getTime())); 
             }
         } 
     }

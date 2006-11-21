@@ -225,7 +225,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * @return The user comment <code>String</code>.
      */
     private String extractComment() {
-        return SwingUtil.extract(commentJTextField);
+        return SwingUtil.extract(commentJTextArea);
     }
 
     /**
@@ -354,15 +354,16 @@ public final class PublishContainerAvatar extends Avatar implements
         javax.swing.JLabel titleJLabel;
 
         explanationJLabel = new javax.swing.JLabel();
-        commentJLabel = new javax.swing.JLabel();
-        commentJTextField = new javax.swing.JTextField();
         namesJScrollPane = new javax.swing.JScrollPane();
         namesJTable = new PublishJTable();
+        commentJLabel = new javax.swing.JLabel();
+        commentJScrollPane = new javax.swing.JScrollPane();
+        commentJTextArea = new javax.swing.JTextArea();
         buttonBarJPanel = new javax.swing.JPanel();
-        cancelJButton = new javax.swing.JButton();
-        publishJButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        publishJButton = new javax.swing.JButton();
+        cancelJButton = new javax.swing.JButton();
         progressBarJPanel = new javax.swing.JPanel();
         titleJLabel = new javax.swing.JLabel();
         documentJLabel = new javax.swing.JLabel();
@@ -374,9 +375,6 @@ public final class PublishContainerAvatar extends Avatar implements
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         explanationJLabel.setFocusable(false);
 
-        commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
-        commentJLabel.setFocusable(false);
-
         namesJScrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(231, 239, 250)));
         namesJTable.setIntercellSpacing(new java.awt.Dimension(0, 0));
         namesJTable.setRowSelectionAllowed(false);
@@ -384,13 +382,19 @@ public final class PublishContainerAvatar extends Avatar implements
         namesJTable.setShowVerticalLines(false);
         namesJScrollPane.setViewportView(namesJTable);
 
+        commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
+        commentJLabel.setFocusable(false);
+
+        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        commentJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        commentJTextArea.setLineWrap(true);
+        commentJTextArea.setWrapStyleWord(true);
+        commentJScrollPane.setViewportView(commentJTextArea);
+
         buttonBarJPanel.setOpaque(false);
-        cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
-        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
-            }
-        });
+        jLabel1.setText(" ");
+
+        jLabel2.setText(" ");
 
         publishJButton.setText(bundle.getString("PublishContainerDialog.publishJButton")); // NOI18N
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -399,36 +403,40 @@ public final class PublishContainerAvatar extends Avatar implements
             }
         });
 
-        jLabel1.setText(" ");
-
-        jLabel2.setText(" ");
+        cancelJButton.setText(bundle.getString("PublishContainerDialog.Cancel")); // NOI18N
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout buttonBarJPanelLayout = new org.jdesktop.layout.GroupLayout(buttonBarJPanel);
         buttonBarJPanel.setLayout(buttonBarJPanelLayout);
         buttonBarJPanelLayout.setHorizontalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
-                .addContainerGap(280, Short.MAX_VALUE)
-                .add(cancelJButton)
+            .add(buttonBarJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
+                    .add(publishJButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(publishJButton))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+                .add(cancelJButton))
         );
 
         buttonBarJPanelLayout.linkSize(new java.awt.Component[] {cancelJButton, publishJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
+            .add(buttonBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel2)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(publishJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(publishJButton))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -440,20 +448,19 @@ public final class PublishContainerAvatar extends Avatar implements
         documentNameJLabel.setText("!My Document.doc!");
 
         publishJProgressBar.setBorder(new javax.swing.border.LineBorder(Colors.Browser.ProgressBar.BORDER, 1, true));
-        publishJProgressBar.setOpaque(false);
 
         org.jdesktop.layout.GroupLayout progressBarJPanelLayout = new org.jdesktop.layout.GroupLayout(progressBarJPanel);
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-            .add(progressBarJPanelLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(documentJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 390, Short.MAX_VALUE)
+                .add(21, 21, 21)
+                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
+            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -473,35 +480,33 @@ public final class PublishContainerAvatar extends Avatar implements
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-                    .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(commentJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(commentJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE))
-                    .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .add(commentJScrollPane)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commentJLabel)
-                    .add(commentJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+                .add(commentJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -545,10 +550,12 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<Contact> contacts = new LinkedList <Contact>();
         for (final Contact contact : allContacts) {
             Boolean found = Boolean.FALSE;
-            for (final TeamMember teamMember : teamMembers) {
-                if (teamMember.getId().equals(contact.getId())) {
-                    found = Boolean.TRUE;
-                    break;
+            if (null != teamMembers) {
+                for (final TeamMember teamMember : teamMembers) {
+                    if (teamMember.getId().equals(contact.getId())) {
+                        found = Boolean.TRUE;
+                        break;
+                    }
                 }
             }
             if (!found) {
@@ -566,24 +573,34 @@ public final class PublishContainerAvatar extends Avatar implements
         final Profile profile = (Profile) ((PublishContainerProvider)contentProvider).readProfile();
         return profile;
     }
+    
     /**
      * Read team members. The current user is removed.
+     * When forwarding, an empty list is returned.
+     * When this is the first publish, an empty list is returned.
      * 
      * @param containerId
      *          The container id.
+     * @param versionId
+     *          The version id.
+     * @param publishType
+     *          The publish type.               
      * @return The list of team members.
      */
-    private List<TeamMember> readTeamMembers(final Long containerId) {
-        final Profile profile = readProfile();  
-        final List<TeamMember> allTeamMembers = ((PublishContainerProvider)contentProvider).readTeamMembers(containerId);
+    private List<TeamMember> readTeamMembers(final Long containerId, final Long versionId, final PublishType publishType) {
         final List<TeamMember> teamMembers = new LinkedList <TeamMember>();
-        for (final TeamMember teamMember : allTeamMembers) {
-            if (!teamMember.getId().equals(profile.getId())) {
-                teamMembers.add(teamMember);
+        if ((publishType == PublishType.PUBLISH) && (null != versionId)) { 
+            final Profile profile = readProfile();  
+            final List<TeamMember> allTeamMembers = ((PublishContainerProvider)contentProvider).readTeamMembers(containerId);
+            for (final TeamMember teamMember : allTeamMembers) {
+                if (!teamMember.getId().equals(profile.getId())) {
+                    teamMembers.add(teamMember);
+                }
             }
         }
         return teamMembers;
     }
+    
     /**
      * Read users that got this version.
      */
@@ -595,6 +612,7 @@ public final class PublishContainerAvatar extends Avatar implements
             return ((PublishContainerProvider)contentProvider).getVersionUsers(containerId, versionId);
         }
     }
+    
     /**
      * Reload the comment control.
      * Normally the control is blank and editable. If PUBLISH_VERSION then
@@ -606,15 +624,16 @@ public final class PublishContainerAvatar extends Avatar implements
             final Long containerId = getInputContainerId();
             final Long versionId = getInputVersionId();
             final String comment = ((PublishContainerProvider) contentProvider).getContainerVersionComment(containerId, versionId);
-            commentJTextField.setText(comment);
-            commentJTextField.setEditable(false);
-            commentJTextField.setFocusable(false);
+            commentJTextArea.setText(comment);
+            commentJTextArea.setEditable(false);
+            commentJTextArea.setFocusable(false);
         } else {
-            commentJTextField.setText(null);
-            commentJTextField.setEditable(true);
-            commentJTextField.setFocusable(true);
+            commentJTextArea.setText(null);
+            commentJTextArea.setEditable(true);
+            commentJTextArea.setFocusable(true);
         }
     }
+    
     /**
      * Reload the explanation control.
      */
@@ -625,13 +644,15 @@ public final class PublishContainerAvatar extends Avatar implements
         final String name = ((PublishContainerProvider) contentProvider).getContainerName(containerId);
         if (publishType == PublishType.PUBLISH_VERSION) {
             final Calendar publishDate = getPublishDate(containerId, versionId);
-            explanationJLabel.setText(getString("PublishVersionExplanation", new Object[] {name, publishDate.getTime()}));
+            explanationJLabel.setText(getString("PublishVersionExplanation", new Object[] {publishDate.getTime(), name}));
         } else {
             explanationJLabel.setText(getString("Explanation", new Object[] {name}));    
         }
     }
+    
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
     public enum PublishType { PUBLISH, PUBLISH_VERSION }
+    
     /**
      * The table model.
      */
@@ -642,8 +663,8 @@ public final class PublishContainerAvatar extends Avatar implements
         private final boolean[] canEdit = new boolean [] {
                 true, false, false, false, false
             };
-        private final List<Contact> contacts;
         
+        private final List<Contact> contacts;       
         private final User publisher;
         private List<Boolean> publishTo;
         private final PublishType publishType;
@@ -668,10 +689,10 @@ public final class PublishContainerAvatar extends Avatar implements
             } else {
                 this.publishType = publishType;
                 versionExists = (null!=versionId);
-                publisher = getPublisher(containerId, versionId);
-                versionUsers = readVersionUsers(containerId, versionId);
-                teamMembers = readTeamMembers(containerId);
-                contacts = readContacts(teamMembers);
+                publisher = getPublisher(containerId, versionId);                
+                versionUsers = readVersionUsers(containerId, versionId); 
+                teamMembers = readTeamMembers(containerId, versionId, publishType);
+                contacts = readContacts(teamMembers); 
                 publishTo = new ArrayList<Boolean>(getRowCount());
                 
                 // When publishing, by default select those that were
@@ -709,18 +730,12 @@ public final class PublishContainerAvatar extends Avatar implements
         }
         
         public int getColumnCount() {
-            return 5;
+            return 4;
         }
         
         public String getColumnName(final int columnIndex) {
-            if (columnIndex == 4) {
-                if (versionExists && (publishType==PublishType.PUBLISH)) {
-                    return localization.getString("TableColumnTitle4_NotFirstPublish");
-                } else if (versionExists && (publishType==PublishType.PUBLISH_VERSION)) {
-                    return localization.getString("TableColumnTitle4_Forward"); 
-                } else {
-                    return localization.getString("TableColumnTitle4_FirstPublish");
-                }
+            if (columnIndex == 0) {
+                return " ";
             } else {
                 return localization.getString("TableColumnTitle" + columnIndex);
             }
@@ -774,28 +789,6 @@ public final class PublishContainerAvatar extends Avatar implements
                 break;
             case 3:
                 value = user.getOrganization();
-                break;
-            case 4:                     
-                if ((null!=publisher) && (user.getId().equals(publisher.getId()))) {
-                    value = localization.getString("TeamMemberPublisher");
-                } else if (isVersionUser(user)) {
-                    ArtifactReceipt receipt = getArtifactReceipt(user);    
-                    if ((null == receipt) || (!receipt.isSetReceivedOn())) {
-                        value = localization.getString("TeamMemberDidNotReceive");
-                    } else {
-                        value = localization.getString("TeamMemberReceived", new Object[] {receipt.getReceivedOn().getTime()});     
-                    }
-                } else if (teamMembers.contains(user)) {
-                    // Team members that didn't get sent this version
-                    if (publishType==PublishType.PUBLISH_VERSION) {
-                        value = localization.getString("TeamMemberNotSentToForward"); 
-                    } else {
-                        value = localization.getString("TeamMemberNotSentToPublish");
-                    }
-                } else {
-                    // Will be true for non-team members, eg. contacts
-                    value = null;
-                }
                 break;
             default:
                 value = null;
@@ -980,7 +973,8 @@ public final class PublishContainerAvatar extends Avatar implements
     private javax.swing.JPanel buttonBarJPanel;
     private javax.swing.JButton cancelJButton;
     private javax.swing.JLabel commentJLabel;
-    private javax.swing.JTextField commentJTextField;
+    private javax.swing.JScrollPane commentJScrollPane;
+    private javax.swing.JTextArea commentJTextArea;
     private javax.swing.JLabel documentJLabel;
     private javax.swing.JLabel documentNameJLabel;
     private javax.swing.JLabel explanationJLabel;

@@ -53,7 +53,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
             final Graphics2D g2 = (Graphics2D) g.create();
             try {
                 final Point leftLocation = leftJLabel.getLocation();
-                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 4, leftLocation.y - 3, null);
+                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 3, leftLocation.y - 3, null);
             } finally {
                 g2.dispose();
             }
@@ -126,7 +126,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 82;
+        gridBagConstraints.ipadx = 84;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.insets = new java.awt.Insets(12, 0, 3, 0);
         add(searchJTextField, gridBagConstraints);
@@ -143,7 +143,10 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
-        repaint();
+        if (null != getParent()) {
+            // Note repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
+            getParent().repaint();
+        }
     }//GEN-LAST:event_searchJTextFieldFocusLost
 
     private void searchJTextFieldFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained

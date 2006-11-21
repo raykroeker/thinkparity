@@ -144,6 +144,7 @@ final class BrowserDisplayHelper extends BrowserHelper {
         avatar.reload();
         display.revalidate();
         display.repaint();
+        display.requestFocusInWindow();
     }
 
     /**

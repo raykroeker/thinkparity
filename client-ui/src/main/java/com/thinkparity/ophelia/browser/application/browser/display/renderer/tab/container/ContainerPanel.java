@@ -116,12 +116,10 @@ public final class ContainerPanel extends DefaultTabPanel {
     private javax.swing.JPanel draftOwnerJPanel;    
     private javax.swing.JLabel eastPaddingJLabel;
     private javax.swing.JLabel iconJLabel;
-    private javax.swing.JProgressBar progressBar;   
-    private javax.swing.JPanel progressBarJPanel;    
     private javax.swing.JPanel rightSideJPanel;
     private javax.swing.JLabel westPaddingJLabel;
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Create ContainerPanel.
      * 

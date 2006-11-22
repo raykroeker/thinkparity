@@ -4,9 +4,7 @@
 package com.thinkparity.ophelia.model.workspace.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +75,6 @@ public class WorkspaceImpl implements Workspace {
         this.logger = Logger.getLogger(getClass());
         this.mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
         this.workspace = initRoot(workspace);
-        redirectStreams();
         bootstrapLog4J();
 	}
 
@@ -367,6 +364,7 @@ public class WorkspaceImpl implements Workspace {
      */
     private void bootstrapLog4J() {
         final Properties logging = bootstrapLog4JConfig(mode);
+        final File loggingRoot = bootstrapLog4JRoot(mode);
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
@@ -376,24 +374,21 @@ public class WorkspaceImpl implements Workspace {
         logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d %t %p %m%n");
         logging.setProperty("log4j.appender.DEFAULT.File",
-                MessageFormat.format("{0}{1}logs{1}{2}",
-                        workspace.getRoot().getAbsolutePath(),
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity.log"));
         // sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
-                MessageFormat.format("{0}{1}logs{1}{2}",
-                        workspace.getRoot().getAbsolutePath(),
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity SQL.log"));
         // xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
-                MessageFormat.format("{0}{1}logs{1}{2}",
-                        workspace.getRoot().getAbsolutePath(),
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XMPP.log"));
         // loggers
         switch (mode) {
@@ -464,6 +459,28 @@ public class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * Bootstrap the log4j root directory. If a thinkparity.logging.root exists
+     * use it as the logging root directory; otherwise use workspace/logs.
+     * 
+     * 
+     * @param mode
+     *            The thinkParity operating <code>Mode</code>.
+     * @return The logging root directory <code>File</code>.
+     */
+    private File bootstrapLog4JRoot(final Mode mode) {
+        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
+        if (null == loggingRootProperty) {
+            return new File(workspace.getRoot(), "logs");
+        } else {
+            final File loggingRoot = new File(loggingRootProperty);
+            Assert.assertTrue(loggingRoot.exists() && loggingRoot.isDirectory()
+                    && loggingRoot.canRead() && loggingRoot.canWrite(),
+                    "Specified logging root {0} is not valid.", loggingRoot);
+            return loggingRoot;
+        }
+    }
+
+    /**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -511,34 +528,4 @@ public class WorkspaceImpl implements Workspace {
                     "Cannot create directory {0}.", Directories.USER_DATA);
         return new FileSystem(workspace);
 	}
-
-    /**
-     * Redirect the output and err streams.
-     *
-     */
-    private void redirectStreams() {
-        initChild(DirectoryNames.Workspace.LOG);
-        final File output = new File(MessageFormat.format(
-                "{0}{1}logs{1}{2}", workspace.getRoot().getAbsolutePath(),
-                File.separatorChar, "System.out.log"));
-        final File err = new File(MessageFormat.format(
-                "{0}{1}logs{1}{2}", workspace.getRoot().getAbsolutePath(),
-                File.separatorChar, "System.err.log"));
-        switch (mode) {
-        case DEMO:
-        case PRODUCTION:
-        case TESTING:       // redirect output\err streams
-            try {
-                System.setOut(new PrintStream(new FileOutputStream(output)));
-                System.setErr(new PrintStream(new FileOutputStream(err)));
-            } catch (final IOException iox) {
-                throw translateError(iox);
-            }
-            break;
-        case DEVELOPMENT:   // do not redirect output\err streams
-            break;
-        default:
-            throw Assert.createUnreachable("Unknown mode.");
-        }
-    }
 }

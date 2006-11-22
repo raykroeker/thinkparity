@@ -18,7 +18,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -298,7 +298,7 @@ public final class ContainerModel extends TabPanelModel {
         if (null != version) {
             return readDocumentVersions(container.getId(), version.getArtifactId());
         } else {
-            return new ArrayList<DocumentVersion>();
+            return Collections.emptyList();
         }
     }
 
@@ -539,16 +539,16 @@ public final class ContainerModel extends TabPanelModel {
             }
         }
         final List<ContainerVersion> versions = readVersions(container.getId());
-        final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions =
-            new HashMap<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
+            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> users =
             new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
 
-        Map<DocumentVersion, ContainerVersionArtifactVersionDelta> versionDocumentVersions;
+        Map<DocumentVersion, Delta> versionDocumentVersions;
         for (final ContainerVersion version : versions) {
             versionDocumentVersions = readDocumentVersionsWithDelta(version.getArtifactId(), version.getVersionId());
-            for (final Entry<DocumentVersion, ContainerVersionArtifactVersionDelta> entry : versionDocumentVersions.entrySet()) {
+            for (final Entry<DocumentVersion, Delta> entry : versionDocumentVersions.entrySet()) {
                 containerIdLookup.put(entry.getKey().getArtifactId(), container.getId());
             }
             documentVersions.put(version, versionDocumentVersions);
@@ -632,9 +632,9 @@ public final class ContainerModel extends TabPanelModel {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
+     * @return A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
      */
-    private Map<DocumentVersion, ContainerVersionArtifactVersionDelta> readDocumentVersionsWithDelta(final Long containerId,
+    private Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(final Long containerId,
             final Long versionId) {
         return ((ContainerProvider) contentProvider).readDocumentVersionsWithDelta(
                 containerId, versionId);
@@ -773,7 +773,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container,
             final ContainerDraft draft, final List<ContainerVersion> versions,
-            final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions,
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerVersionsPanel panel = new ContainerVersionsPanel(this);

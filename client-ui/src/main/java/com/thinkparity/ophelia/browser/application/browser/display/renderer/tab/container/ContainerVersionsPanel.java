@@ -29,7 +29,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -67,7 +67,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private Container container;
 
     /** The version's <code>DocumentVersion</code>s. */
-    private final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions;
+    private final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions;
 
     /** The <code>ContainerModel</code>. */
     private final ContainerModel model;
@@ -130,7 +130,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public ContainerVersionsPanel(final ContainerModel model) {
         super();
-        this.documentVersions = new HashMap<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>>();
+        this.documentVersions = new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>();
         this.model = model;
         this.browser = ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER));
         this.publishedBy = new HashMap<ContainerVersion, User>();
@@ -326,14 +326,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @param version
      *            A <code>ContainerVersion</code>.
      * @param documentVersions
-     *            A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
+     *            A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
      * @param users
      *            A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
      * @param publishedBy
      *            A <code>User</code>.
      */
     public void add(final ContainerVersion version,
-            final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions,
+            final Map<DocumentVersion, Delta> documentVersions,
             final Map<User, ArtifactReceipt> users, final User publishedBy) {
         this.versions.add(version);
         this.documentVersions.put(version, documentVersions);
@@ -1047,7 +1047,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     final class VersionCell extends AbstractVersionCell {
         private final ContainerVersion version;
         private VersionCell(final ContainerVersion version,
-                final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions,
+                final Map<DocumentVersion, Delta> documentVersions,
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             super();
             this.version = version;
@@ -1060,7 +1060,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             int countCells = 0;
             addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
             countCells++;
-            for (final Entry<DocumentVersion, ContainerVersionArtifactVersionDelta> entry : documentVersions.entrySet()) {
+            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
                 addContentCell(new DocumentVersionCell(entry.getKey(), entry.getValue()));
                 countCells++;
             }
@@ -1106,7 +1106,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** A version document cell. */
     final class DocumentVersionCell extends AbstractContentCell {
         private final DocumentVersion version;
-        private DocumentVersionCell(final DocumentVersion version, final ContainerVersionArtifactVersionDelta delta) {
+        private DocumentVersionCell(final DocumentVersion version, final Delta delta) {
             super();
             this.version = version;
             initText(version, delta);   
@@ -1126,13 +1126,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
-        private void initText(final DocumentVersion documentVersion, final ContainerVersionArtifactVersionDelta delta) {
+        private void initText(final DocumentVersion documentVersion, final Delta delta) {
             if (null==delta) {
-                setText(documentVersion.getName());
+                setText(MessageFormat.format("{0} - {1}", documentVersion.getName(), Delta.ADDED.toString()));
             } else {
                 final String formatPattern;
                 
-                switch (delta.getDelta()) {
+                switch (delta) {
                 case ADDED:
                 case MODIFIED:
                 case REMOVED:
@@ -1146,7 +1146,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 }
                 
                 setText(MessageFormat.format(formatPattern,
-                        documentVersion.getName(), delta.getDelta().toString()));
+                        documentVersion.getName(), delta.toString()));
             }
         }
     }

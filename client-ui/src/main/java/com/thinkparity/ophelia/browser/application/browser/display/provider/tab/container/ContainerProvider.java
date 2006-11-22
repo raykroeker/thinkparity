@@ -3,14 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -20,13 +19,13 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.sort.StringComparator;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -138,21 +137,31 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             final Long containerId, final Long versionId) {
         
         // Find the delta comparing this versionId to the next one.
-        final Long nextVersionId = getNextVersion(containerId, versionId);
-        if (null == nextVersionId) {
-            return Collections.emptyMap();
+        final ContainerVersion nextVersion = containerModel.readNextVersion(containerId, versionId);
+        final ContainerVersionDelta delta;
+        if (null == nextVersion) {
+            delta = null;
         } else {
-            final ContainerVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
+            delta = getDelta(containerId, versionId, nextVersion.getVersionId());
+        }
 
-            // Get the documents and build a map.
-            final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
-            final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>();
-            for (final DocumentVersion document : documents) {
+        // Get the documents and build a map.
+        final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
+        final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>(new Comparator<DocumentVersion>() {
+            public int compare(final DocumentVersion o1, final DocumentVersion o2) {
+            return new StringComparator(Boolean.TRUE).compare(o1.getName(), o2.getName());
+            }
+            });
+        
+        for (final DocumentVersion document : documents) {
+            if (null == delta) {
+                documentVersions.put(document, Delta.ADDED);
+            } else {
                 documentVersions.put(document, getDelta(delta, document));
             }
-
-        	return documentVersions;
         }
+
+    	return documentVersions;
     }
 
     /**
@@ -224,6 +233,15 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     	return containerModel.search(expression);
     }
     
+    /**
+     * Get a delta.
+     * 
+     * @param delta
+     *        A delta <code>ContainerVersionDelta</code>.
+     * @param documentVersion
+     *        A document version <code>DocumentVersion</code>.
+     * @return The <code>Delta</code>.
+     */
     private Delta getDelta(final ContainerVersionDelta delta,
             final DocumentVersion documentVersion) {
         for (final ContainerVersionArtifactVersionDelta versionDelta :
@@ -250,27 +268,5 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     private ContainerVersionDelta getDelta(final Long containerId,
             final Long versionId, final Long compareVersionId) {
         return containerModel.readDelta(containerId, versionId, compareVersionId);
-    }
-    
-    /**
-     * Get the next version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return The next version id.
-     */
-    private Long getNextVersion(final Long containerId, final Long versionId) {
-        Long nextVersionId = null;
-        final List<ContainerVersion> versions = containerModel.readVersions(containerId);
-        for (int index = 0; index < versions.size()-1; index++) {
-            if (versions.get(index).getVersionId().equals(versionId)) {
-                nextVersionId = versions.get(index+1).getVersionId();
-                break;
-            }
-        }
-        
-        return nextVersionId;
     }
 }

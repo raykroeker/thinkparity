@@ -500,6 +500,22 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     }
 
     /**
+     * Read the previous container version sequentially.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion readPreviousVersion(final Long containerId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readPreviousVersion(containerId, versionId);
+        }
+    }
+
+    /**
      * Read a list of team members the container version was published to.
      * 
      * @param containerId

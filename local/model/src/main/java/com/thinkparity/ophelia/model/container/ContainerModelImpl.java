@@ -1498,6 +1498,34 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Read the next container version sequentially.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    ContainerVersion readPreviousVersion(final Long containerId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final Long nextVersionId =
+                artifactIO.readPreviousVersionId(containerId, versionId);
+            if (null != nextVersionId
+                    && doesExistVersion(containerId, nextVersionId)) {
+                return containerIO.readVersion(containerId, nextVersionId);
+            } else {
+                return null;
+            }     
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read a list of team members the container version was published to.
      * 
      * @param containerId
@@ -2864,25 +2892,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             documentVersion.getVersionId()));
         }
         return documentVersionStreams;
-    }
-
-    /**
-     * Read the previous container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A <code>ContainerVersion</code>.
-     */
-    private ContainerVersion readPreviousVersion(final Long containerId,
-            final Long versionId) {
-        final Long previousVersionId = artifactIO.readPreviousVersionId(containerId, versionId);
-        if (null != previousVersionId
-                && doesExistVersion(containerId, previousVersionId)) {
-            return containerIO.readVersion(containerId, previousVersionId);
-        } else {
-            return null;
-        }
-
     }
 
     /**

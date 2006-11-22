@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -19,13 +21,13 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -137,7 +139,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             final Long containerId, final Long versionId) {
         
         // Find the delta comparing this versionId to the next one.
-        final ContainerVersion nextVersion = containerModel.readNextVersion(containerId, versionId);
+        final ContainerVersion nextVersion = containerModel.readPreviousVersion(containerId, versionId);
         final ContainerVersionDelta delta;
         if (null == nextVersion) {
             delta = null;

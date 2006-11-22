@@ -57,7 +57,7 @@ public class ComparatorBuilder {
         return new HistoryItemIdComparator(Boolean.TRUE);
     }
 
-	public Comparator<HistoryItem> createIdDescending() {
+    public Comparator<HistoryItem> createIdDescending() {
         return new HistoryItemIdComparator(Boolean.FALSE);
     }
 
@@ -82,21 +82,11 @@ public class ComparatorBuilder {
 	}
 
 	/**
-     * Create an artifact version comparator to sort by name.
+     * Create a version by name comparator.
      * 
      * @return An <code>ArtifactVersion</code> <code>Comparator</code>.
      */
     public Comparator<ArtifactVersion> createVersionByName() {
-        return new AbstractComparator<ArtifactVersion>(Boolean.TRUE) {
-            public int compare(final ArtifactVersion o1,
-                    final ArtifactVersion o2) {
-                final int compareResult = o1.getName().compareTo(o2.getName());
-                if (0 == compareResult) {
-                    return subCompare(o1, o2);
-                } else {
-                    return compareResult * resultMultiplier;
-                }
-            }
-        };
+        return new VersionNameComparator(Boolean.TRUE);
     }
 }

@@ -1,21 +1,21 @@
 /*
  * Apr 26, 2006
  */
-package com.thinkparity.ophelia.browser.application.system.tray;
+package com.thinkparity.ophelia.browser.application.system.notify;
 
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class TrayNotification {
+public class Notification {
 
     private String message;
 
     /**
      * Create a TrayNotification.
      */
-    public TrayNotification() { super(); }
+    public Notification() { super(); }
 
     /**
      * @return Returns the message.

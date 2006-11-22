@@ -15,6 +15,7 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -22,6 +23,8 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -32,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -166,6 +168,39 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Get the list of draft documents.
+     * 
+     * @param container
+     *              The container
+     * @return A list of documents.
+     */
+    public List<Document> getDraftDocuments(final Container container) {
+        if (container.isLocalDraft()) {
+            final ContainerDraft draft = readDraft(container.getId());
+            if (null != draft) {
+                return draft.getDocuments();
+            }
+        }
+        return new ArrayList<Document>();
+    }
+
+    /**
+     * Get the list of latest version documents.
+     * 
+     * @param container
+     *              The container
+     * @return A list of version documents.
+     */
+    public List<DocumentVersion> getLatestVersionDocuments(final Container container) {
+        final ContainerVersion version = readLatestVersion(container.getId());
+        if (null != version) {
+            return readDocumentVersions(container.getId(), version.getArtifactId());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
     @Override
@@ -205,6 +240,17 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Determine if the draft document has been modified.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return True if the draft document has been modified; false otherwise.
+     */
+    public Boolean isDraftDocumentModified(final Long documentId) {
+        return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId);
+    }
+
+    /**
      * Determine if the panel is expanded.
      * 
      * @param tabPanel
@@ -218,7 +264,7 @@ public final class ContainerModel extends TabPanelModel {
             return Boolean.TRUE;
         }
     }
-
+    
     /**
      * Determine if the container is expanded.
      * 
@@ -233,7 +279,7 @@ public final class ContainerModel extends TabPanelModel {
             return Boolean.FALSE;
         }
     }
-
+    
     /**
      * Determine whether or not the user is online.
      * 
@@ -242,7 +288,7 @@ public final class ContainerModel extends TabPanelModel {
     public Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
-
+    
     /**
      * Determine if the container is selected.
      * 
@@ -255,50 +301,6 @@ public final class ContainerModel extends TabPanelModel {
             return selectedContainer.equals(container);
         } else {
             return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Determine if the draft document has been modified.
-     * 
-     * @param documentId
-     *            A document id.
-     * @return True if the draft document has been modified; false otherwise.
-     */
-    public Boolean isDraftDocumentModified(final Long documentId) {
-        return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId);
-    }
-    
-    /**
-     * Get the list of draft documents.
-     * 
-     * @param container
-     *              The container
-     * @return A list of documents.
-     */
-    public List<Document> getDraftDocuments(final Container container) {
-        if (container.isLocalDraft()) {
-            final ContainerDraft draft = readDraft(container.getId());
-            if (null != draft) {
-                return draft.getDocuments();
-            }
-        }
-        return new ArrayList<Document>();
-    }
-    
-    /**
-     * Get the list of latest version documents.
-     * 
-     * @param container
-     *              The container
-     * @return A list of version documents.
-     */
-    public List<DocumentVersion> getLatestVersionDocuments(final Container container) {
-        final ContainerVersion version = readLatestVersion(container.getId());
-        if (null != version) {
-            return readDocumentVersions(container.getId(), version.getArtifactId());
-        } else {
-            return Collections.emptyList();
         }
     }
 
@@ -351,6 +353,57 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Synchronize the container in the display.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    public void syncContainer(final Long containerId, final Boolean remote) {
+        debug();
+        final Container container = read(containerId);
+        // remove the container from the panel list
+        if (null == container) {
+            removeContainerPanel(container);
+        } else {
+            if (containsContainerPanel(container)) {
+                // if the reload is the result of a remote event add the container
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                final Integer indexOfContainerPanel = indexOfContainerPanel(container);
+                final Boolean expanded = isExpandedContainer(container);
+                removeContainerPanel(container);
+                if (remote) {
+                    addContainerPanel(0, expanded, container);
+                } else {
+                    addContainerPanel(indexOfContainerPanel, expanded, container);
+                }
+            } else {
+                addContainerPanel(0, container);
+            }
+        }
+        
+        // Sort the container list
+        sortContainers();
+
+        synchronize();
+        debug();
+    }
+    
+    /**
+     * Synchronize a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    public void syncDocument(final Long documentId, final Boolean remote) {
+        syncContainer(containerIdLookup.get(documentId), remote);
+    }
+
+    /**
      * Create the final list of container cells; container draft cells; draft
      * document cells; container version cells and container version document
      * cells. The search filter is also applied here.
@@ -394,7 +447,7 @@ public final class ContainerModel extends TabPanelModel {
         
         debug();
     }
-    
+
     /**
      * Toggle the expansion of a panel on and off.
      * 
@@ -449,57 +502,6 @@ public final class ContainerModel extends TabPanelModel {
         }
         sortContainers();
         debug();
-    }
-
-    /**
-     * Synchronize the container in the display.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
-     */
-    public void syncContainer(final Long containerId, final Boolean remote) {
-        debug();
-        final Container container = read(containerId);
-        // remove the container from the panel list
-        if (null == container) {
-            removeContainerPanel(container);
-        } else {
-            if (containsContainerPanel(container)) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
-                final Integer indexOfContainerPanel = indexOfContainerPanel(container);
-                final Boolean expanded = isExpandedContainer(container);
-                removeContainerPanel(container);
-                if (remote) {
-                    addContainerPanel(0, expanded, container);
-                } else {
-                    addContainerPanel(indexOfContainerPanel, expanded, container);
-                }
-            } else {
-                addContainerPanel(0, container);
-            }
-        }
-        
-        // Sort the container list
-        sortContainers();
-
-        synchronize();
-        debug();
-    }
-
-    /**
-     * Synchronize a document.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
-     */
-    public void syncDocument(final Long documentId, final Boolean remote) {
-        syncContainer(containerIdLookup.get(documentId), remote);
     }
     
     /**
@@ -636,7 +638,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(final Long containerId,
             final Long versionId) {
-        return ((ContainerProvider) contentProvider).readDocumentVersionsWithDelta(
+        return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
 

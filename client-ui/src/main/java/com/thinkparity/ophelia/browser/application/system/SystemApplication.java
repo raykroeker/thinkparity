@@ -5,17 +5,19 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.message.SystemMessage;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
-import com.thinkparity.ophelia.browser.application.system.tray.TrayNotification;
+import com.thinkparity.ophelia.browser.application.system.notify.Notification;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -27,7 +29,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.message.SystemMessage;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -265,6 +268,16 @@ public class SystemApplication extends AbstractApplication {
         connection = Connection.ONLINE;
         impl.reloadConnectionStatus(connection);
     }
+
+    /**
+     * 
+     * @param container
+     */
+    void fireContainerDraftCreated(final ContainerEvent e) {
+        fireNotification("Notification.ContainerDraftCreatedMessage", e
+                .getContainer().getName(), getName(e.getDraft().getOwner()));
+    }
+
     /**
      * Notify a document key has been closed.
      * 
@@ -378,9 +391,22 @@ public class SystemApplication extends AbstractApplication {
      *            The notification message.
      */
     private void fireNotification(final String notificationMessage) {
-        final TrayNotification notification = new TrayNotification();
+        final Notification notification = new Notification();
         notification.setMessage(notificationMessage);
         impl.fireNotification(notification);
+    }
+
+    /**
+     * Fire a notification message.
+     * 
+     * @param messageKey
+     *            A notification message key.
+     * @param messageArguments
+     *            A notification message arguments.
+     */
+    private void fireNotification(final String messageKey,
+            final Object... messageArguments) {
+        fireNotification(getString(messageKey, messageArguments));
     }
 
     private String getName(final User user) {

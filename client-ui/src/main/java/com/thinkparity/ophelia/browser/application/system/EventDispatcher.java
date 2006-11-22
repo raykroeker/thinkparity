@@ -3,8 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.DocumentAdapter;
-import com.thinkparity.ophelia.model.events.DocumentEvent;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.events.SessionListener;
 
@@ -16,14 +20,20 @@ import com.thinkparity.ophelia.model.events.SessionListener;
  */
 class EventDispatcher {
 
-	/** The document listener. */
+	/** A thinkParity <code>ContainerListener</code>. */
+    private ContainerListener containerListener;
+
+    /** A thinkParity <code>ContactListener</code>. */
+    private ContactListener contactListener;
+
+    /** A thinkParity document listener. */
 	private DocumentListener documentListener;
 
-	/** The application. */
-	private final SystemApplication systemApplication;
-
-    /** The session listener. */
+	/** A thinkParity session listener. */
     private SessionListener sessionListener;
+
+    /** The <code>SystemApplication</code>. */
+	private final SystemApplication systemApplication;
 
 	/**
 	 * Create an EventDispatcher.
@@ -42,6 +52,12 @@ class EventDispatcher {
      * 
      */
 	void end() {
+        systemApplication.getContactModel().removeListener(contactListener);
+        contactListener = null;
+
+        systemApplication.getContainerModel().removeListener(containerListener);
+        containerListener = null;
+
 		systemApplication.getDocumentModel().removeListener(documentListener);
 		documentListener = null;
 
@@ -55,6 +71,12 @@ class EventDispatcher {
      * 
      */
 	void start() {
+        contactListener = createContactListener();
+        systemApplication.getContactModel().addListener(contactListener);
+
+        containerListener = createContainerListener();
+        systemApplication.getContainerModel().addListener(containerListener);
+
 		documentListener = createDocumentListener();
 		systemApplication.getDocumentModel().addListener(documentListener);
 
@@ -62,49 +84,51 @@ class EventDispatcher {
         systemApplication.getSessionModel().addListener(sessionListener);
 	}
 
-	/**
+    /**
+     * Create a thinkParity contact listener.
+     * 
+     * @return A <code>ContactListener</code>.
+     */
+    private ContactListener createContactListener() {
+        return new ContactAdapter() {};
+    }
+
+	private ContainerListener createContainerListener() {
+        return new ContainerAdapter() {
+            @Override
+            public void draftCreated(final ContainerEvent e) {
+                if (e.isRemote())
+                    systemApplication.fireContainerDraftCreated(e);
+            }
+            @Override
+            public void draftDeleted(final ContainerEvent e) {
+            }
+            @Override
+            public void draftPublished(final ContainerEvent e) {
+            }
+            @Override
+            public void teamMemberAdded(final ContainerEvent e) {
+            }
+            @Override
+            public void teamMemberRemoved(final ContainerEvent e) {
+            }
+        };
+    }
+
+    /**
 	 * Create an update listener for the document model.
 	 * 
 	 * @return The creation listener.
 	 */
 	private DocumentListener createDocumentListener() {
-		return new DocumentAdapter() {
-            public void documentClosed(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentClosed(e.getDocument());
-            }
-            public void documentCreated(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentCreated(e.getUser(), e.getDocument());
-            }
-            public void documentUpdated(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentUpdated(e.getDocument());
-			}
-            public void keyRequestAccepted(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentKeyRequestAccepted(e.getUser(), e.getDocument());
-            }
-            public void keyRequestDeclined(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentKeyRequestDeclined(e.getUser(), e.getDocument());
-            }
-            public void keyRequested(final DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentKeyRequested(e.getUser(), e.getDocument());
-            }
-            public void documentReactivated(DocumentEvent e) {
-                if(e.isRemote())
-                    systemApplication.fireDocumentReactivated(e.getUser(), e.getDocument(), e.getDocumentVersion());
-            }
-            public void teamMemberAdded(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    systemApplication.fireDocumentTeamMemberAdded(e.getUser(), e.getDocument());
-                }
-            }
-		};
+		return new DocumentAdapter() {};
 	}
 
+    /**
+     * Create a session listener.
+     * 
+     * @return A <code>SessionListener</code>.
+     */
     private SessionListener createSessionListener() {
         return new SessionListener() {
             public void sessionEstablished() {

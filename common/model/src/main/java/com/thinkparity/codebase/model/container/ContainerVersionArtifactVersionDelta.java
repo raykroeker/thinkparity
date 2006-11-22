@@ -55,8 +55,7 @@ public final class ContainerVersionArtifactVersionDelta {
     }
 
     public boolean isFor(final ArtifactVersion artifactVersion) {
-        return artifactId.equals(artifactVersion.getArtifactId())
-            && artifactVersionId.equals(artifactVersion.getVersionId());
+        return artifactId.equals(artifactVersion.getArtifactId());
     }
 
     /**

@@ -8,17 +8,17 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
-
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
+
+import org.jdesktop.jdic.tray.SystemTray;
+import org.jdesktop.jdic.tray.TrayIcon;
 
 
 /**
@@ -67,17 +67,9 @@ public class Tray {
 	}
 
     /**
-     * Display a notification.
+     * Install the system tray.
      * 
-     * @param notification
-     *            The tray notification.
      */
-    public void display(final TrayNotification notification) {
-        setCaption(notification);
-        displayInfo(notification);
-    }
-
-    /** Install the system tray.*/
 	public void install() {
 		systemTrayIcon = new TrayIcon(readTrayIcon());
         systemTrayIcon.addBalloonActionListener(new ActionListener() {
@@ -164,20 +156,6 @@ public class Tray {
     }
 
     /**
-     * Display an informational notification.
-     * 
-     * @param notification
-     *            The notification.
-     */
-    private void displayInfo(final TrayNotification notification) {
-        if(notification.getMessage().length() > 0) {
-            systemTrayIcon.displayMessage(
-                    systemApplication.getString("Notification.InfoCaption"),
-                    notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
-        }
-    }
-
-    /**
      * Obtain a localized string from the system application.
      * 
      * @param key
@@ -197,20 +175,6 @@ public class Tray {
      */
     private void setCaption() {
         systemTrayIcon.setCaption(createCaption().toString());
-    }
-
-    /**
-     * Set the system tray icon caption for a notification. The platform
-     * connection status will always be displayed; in addition to the
-     * notification.
-     * 
-     * @param notification
-     *            The notification.
-     */
-    private void setCaption(final TrayNotification notification) {
-        systemTrayIcon.setCaption(createCaption()
-                .append(getString("LastUpdate", new Object[] {notification.getMessage()}))
-                .toString());
     }
 
     /** Update the offline menu. */

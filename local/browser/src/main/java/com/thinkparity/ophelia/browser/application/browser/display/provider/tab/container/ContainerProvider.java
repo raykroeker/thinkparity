@@ -3,20 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
-import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -135,35 +130,15 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 *            A container version id <code>Long</code>.
      * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
 	 */
-    public Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long versionId) {
-        
-        // Find the delta comparing this versionId to the previous (older) one.
         final ContainerVersion previousVersion = containerModel.readPreviousVersion(containerId, versionId);
-        final ContainerVersionDelta delta;
         if (null == previousVersion) {
-            delta = null;
+            return containerModel.readDocumentVersionDeltas(containerId, versionId);
         } else {
-            delta = getDelta(containerId, versionId, previousVersion.getVersionId());
+            return containerModel.readDocumentVersionDeltas(containerId,
+                    versionId, previousVersion.getVersionId());
         }
-
-        // Get the documents and build a map.
-        final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
-        final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>(new Comparator<DocumentVersion>() {
-            public int compare(final DocumentVersion o1, final DocumentVersion o2) {
-            return new StringComparator(Boolean.TRUE).compare(o1.getName(), o2.getName());
-            }
-            });
-        
-        for (final DocumentVersion document : documents) {
-            if (null == delta) {
-                documentVersions.put(document, Delta.ADDED);
-            } else {
-                documentVersions.put(document, getDelta(delta, document));
-            }
-        }
-
-    	return documentVersions;
     }
 
     /**
@@ -233,42 +208,5 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public List<Long> search(final String expression) {
     	return containerModel.search(expression);
-    }
-    
-    /**
-     * Get a delta.
-     * 
-     * @param delta
-     *        A delta <code>ContainerVersionDelta</code>.
-     * @param documentVersion
-     *        A document version <code>DocumentVersion</code>.
-     * @return The <code>Delta</code>.
-     */
-    private Delta getDelta(final ContainerVersionDelta delta,
-            final DocumentVersion documentVersion) {
-        for (final ContainerVersionArtifactVersionDelta versionDelta :
-                delta.getDeltas()) {
-            if (versionDelta.getArtifactId().equals(documentVersion.getArtifactId()) &&
-                    versionDelta.getArtifactVersionId().equals(documentVersion.getVersionId())) {
-                return versionDelta.getDelta();
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * Get a delta.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param compareVersionId
-     *            A compare version id <code>Long</code>.
-     * @return The <code>ContainerVersionArtifactVersionDelta</code>.         
-     */
-    private ContainerVersionDelta getDelta(final Long containerId,
-            final Long versionId, final Long compareVersionId) {
-        return containerModel.readDelta(containerId, versionId, compareVersionId);
     }
 }

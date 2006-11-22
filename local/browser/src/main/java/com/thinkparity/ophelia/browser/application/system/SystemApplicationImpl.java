@@ -7,8 +7,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.ophelia.browser.application.system.notify.Notification;
+import com.thinkparity.ophelia.browser.application.system.notify.NotifyPanel;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
-import com.thinkparity.ophelia.browser.application.system.tray.TrayNotification;
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
@@ -24,8 +25,8 @@ class SystemApplicationImpl extends Thread {
 	 */
 	Boolean running = Boolean.FALSE;
 
-	/** Queue of pending new/updated artifacts\versions\system messages. */
-	private final List<TrayNotification> queue;
+	/** Queue of notifications not yet displayed. */
+	private final List<Notification> queue;
 
 	/** The system application. */
 	private final SystemApplication sysApp;
@@ -36,7 +37,7 @@ class SystemApplicationImpl extends Thread {
 	SystemApplicationImpl(final SystemApplication sysApp) {
 		super("[BROWSER2] [APP] [SYS] [THREAD]");
 		this.sysApp = sysApp;
-        this.queue = new LinkedList<TrayNotification>();
+        this.queue = new LinkedList<Notification>();
 	}
 
 	/**
@@ -96,8 +97,8 @@ class SystemApplicationImpl extends Thread {
 	 * @param artifact
 	 *            The artifact.
 	 */
-	void fireNotification(final TrayNotification notification) {
-		synchronized(this) {
+	void fireNotification(final Notification notification) {
+		synchronized (this) {
 			queue.add(notification);
 			notifyAll();
 		}
@@ -141,11 +142,11 @@ class SystemApplicationImpl extends Thread {
 	private void processQueue() {
         if (0 < getQueueTotal()) {
             synchronized (this) {
-                TrayNotification notification;
-                for (final Iterator<TrayNotification> i = queue.iterator();
+                Notification notification;
+                for (final Iterator<Notification> i = queue.iterator();
                         i.hasNext();) {
                     notification = i.next();
-                    sysTray.display(notification);
+                    NotifyPanel.display(notification);
                     i.remove();
                 }
             }

@@ -742,7 +742,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 containerIO.deleteDelta(containerId, previous.getVersionId(),
                         version.getVersionId());
                 containerIO.createDelta(calculateDelta(read(containerId),
-                        previous, version));
+                        version, previous));
             }
             if (null == next) {
                 logger.logInfo("Latest version of {0}.", event.getName());
@@ -750,7 +750,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 containerIO.deleteDelta(containerId, version.getVersionId(),
                         next.getVersionId());
                 containerIO.createDelta(calculateDelta(read(containerId),
-                        version, next));
+                        next, version));
             }
             // apply comment
             if (null != event.getComment() && 0 < event.getComment().trim().length())
@@ -1136,17 +1136,57 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container compare to version id <code>Long</code>.
      * @return A <code>ContainerVersionDelta</code>.
      */
-    ContainerVersionDelta readDelta(final Long containerId,
-            final Long compareVersionId, final Long compareToVersionId) {
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId,
+            final Long compareToVersionId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("compareVersionId", compareVersionId);
         logger.logVariable("compareToVersionId", compareToVersionId);
         try {
             assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
-            assertDoesExistVersion("Compare to version does not exist.", containerId, compareToVersionId);
-            return containerIO.readDelta(containerId, compareVersionId,
-                    compareToVersionId);
+            assertDoesExistVersion("Compare to version does not exist.", containerId, compareVersionId);
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            // the two versions exist
+            final ContainerVersionDelta delta = containerIO.readDelta(
+                    containerId, compareVersionId, compareToVersionId);
+            for (final ContainerVersionArtifactVersionDelta artifactDelta :
+                delta.getDeltas()) {
+                deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                        artifactDelta.getArtifactVersionId()),
+                        artifactDelta.getDelta());
+            }
+            return deltas;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the delta for a version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container compare version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        try {
+            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            // only one version exists therefore all addeds
+            final List<DocumentVersion> versions = readDocumentVersions(containerId, compareVersionId);
+            for (final DocumentVersion version : versions) {
+                deltas.put(version, Delta.ADDED);
+            }
+            return deltas;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1512,11 +1552,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
         try {
-            final Long nextVersionId =
+            final Long previousVersionId =
                 artifactIO.readPreviousVersionId(containerId, versionId);
-            if (null != nextVersionId
-                    && doesExistVersion(containerId, nextVersionId)) {
-                return containerIO.readVersion(containerId, nextVersionId);
+            if (null != previousVersionId
+                    && doesExistVersion(containerId, previousVersionId)) {
+                return containerIO.readVersion(containerId, previousVersionId);
             } else {
                 return null;
             }     
@@ -2138,48 +2178,33 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Calculate the delta of an artifact version between two lists of versions.
-     * 
-     * @param compare
-     *            An <code>ArtifactVersion</code>.
-     * @param compareToList
-     *            An <code>ArtifactVersion</code> <code>List</code>.
-     * @return A <code>Delta</code>.
-     */
-    private Delta calculateDelta(final ArtifactVersion compare,
-            final List<? extends ArtifactVersion> compareToList) {
-        for (final ArtifactVersion compareTo : compareToList) {
-            if (compare.getArtifactId().equals(compareTo.getArtifactId())) {
-                if (compare.getVersionId().equals(compareTo.getVersionId())) {
-                    return Delta.NONE;
-                } else {
-                    return Delta.MODIFIED;
-                }
-            } else {
-                return Delta.ADDED;
-            }
-        }
-        return Delta.REMOVED;
-    }
-
-    /**
-     * Create a version delta for a container and two of its versions.
+     * Calculate a delta between a version and its previous version.
      * 
      * @param container
      *            A <code>Container</code>.
      * @param compare
-     *            A compare <code>ContainerVersion</code>.
+     *            A <code>ContainerVersion</code>.
      * @param compareTo
-     *            A compare to <code>ContainerVersion</code>.
+     *            Another <code>ContainerVersion</code>.
      * @return A <code>ContainerVersionDelta</code>.
      */
     private ContainerVersionDelta calculateDelta(final Container container,
             final ContainerVersion compare, final ContainerVersion compareTo) {
-
         final ContainerVersionDelta versionDelta = new ContainerVersionDelta();
         versionDelta.setCompareVersionId(compare.getVersionId());
         versionDelta.setCompareToVersionId(compareTo.getVersionId());
         versionDelta.setContainerId(container.getId());
+
+        final Delta didNotHit, notContains;
+        if (compare.getVersionId() > compareTo.getVersionId()) {
+            didNotHit = Delta.REMOVED;
+            notContains = Delta.ADDED;
+        } else if (compare.getVersionId() < compareTo.getVersionId()) {
+            didNotHit = Delta.ADDED;
+            notContains = Delta.REMOVED;
+        } else {
+            throw Assert.createUnreachable("Unexpected equality.");
+        }
 
         final List<DocumentVersion> compareDocuments =
             containerIO.readDocumentVersions(
@@ -2190,19 +2215,42 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     versionDelta.getContainerId(),
                     versionDelta.getCompareToVersionId());
         ContainerVersionArtifactVersionDelta artifactVersionDelta;
-        for (final ArtifactVersion compareDocumentVersion : compareDocuments) {
+        boolean didHit;
+
+        // walk through compare to version's documents
+        for (final ArtifactVersion compareToDocument : compareToDocuments) {
             artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
-            artifactVersionDelta.setArtifactId(compareDocumentVersion.getArtifactId());
-            artifactVersionDelta.setArtifactVersionId(compareDocumentVersion.getVersionId());
-            artifactVersionDelta.setDelta(calculateDelta(compareDocumentVersion, compareToDocuments));
+            artifactVersionDelta.setArtifactId(compareToDocument.getArtifactId());
+            artifactVersionDelta.setArtifactVersionId(compareToDocument.getVersionId());
+            // walk through compare version's documents
+            didHit = false;
+            for (final ArtifactVersion versionDocument : compareDocuments) {
+                // the artifact exists in this version; and in the compare version
+                // therefore it must be the same or modified
+                if (versionDocument.getArtifactId().equals(compareToDocument.getArtifactId())) {
+                    // the version numbers are the same; no change
+                    if (versionDocument.getVersionId().equals(compareToDocument.getVersionId())) {
+                        artifactVersionDelta.setDelta(Delta.NONE);
+                    } else {
+                        artifactVersionDelta.setDelta(Delta.MODIFIED);
+                    }
+                    didHit = true;
+                    break;
+                }
+            }
+            // the document is not in compare's version
+            if (!didHit) {
+                artifactVersionDelta.setDelta(didNotHit);
+            }
             versionDelta.addDelta(artifactVersionDelta);
         }
-        for (final ArtifactVersion compareToDocumentVersion : compareToDocuments) {
-            if (!versionDelta.containsDelta(compareToDocumentVersion)) {
+        // walk through next version's documents
+        for (final ArtifactVersion compareDocument : compareDocuments) {
+            if (!versionDelta.containsDelta(compareDocument)) {
                 artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
-                artifactVersionDelta.setArtifactId(compareToDocumentVersion.getArtifactId());
-                artifactVersionDelta.setArtifactVersionId(compareToDocumentVersion.getVersionId());
-                artifactVersionDelta.setDelta(calculateDelta(compareToDocumentVersion, compareDocuments));
+                artifactVersionDelta.setArtifactId(compareDocument.getArtifactId());
+                artifactVersionDelta.setArtifactVersionId(compareDocument.getVersionId());
+                artifactVersionDelta.setDelta(notContains);
                 versionDelta.addDelta(artifactVersionDelta);
             }
         }

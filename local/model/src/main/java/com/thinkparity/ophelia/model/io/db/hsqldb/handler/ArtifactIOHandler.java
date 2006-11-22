@@ -206,7 +206,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("from ARTIFACT A ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID<? ")
-            .append("order by AV.ARTIFACT_VERSION_ID asc")
+            .append("order by AV.ARTIFACT_VERSION_ID desc")
             .toString();
     
 	/** Sql to read the artifact state. */

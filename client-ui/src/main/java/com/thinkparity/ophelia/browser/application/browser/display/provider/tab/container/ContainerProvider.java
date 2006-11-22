@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -138,16 +139,20 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         
         // Find the delta comparing this versionId to the next one.
         final Long nextVersionId = getNextVersion(containerId, versionId);
-        final ContainerVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
-        
-        // Get the documents and build a map.
-        final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
-        final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>();
-        for (final DocumentVersion document : documents) {
-            documentVersions.put(document, getDelta(delta, document));
+        if (null == nextVersionId) {
+            return Collections.emptyMap();
+        } else {
+            final ContainerVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
+
+            // Get the documents and build a map.
+            final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
+            final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>();
+            for (final DocumentVersion document : documents) {
+                documentVersions.put(document, getDelta(delta, document));
+            }
+
+        	return documentVersions;
         }
-        
-    	return documentVersions;
     }
 
     /**

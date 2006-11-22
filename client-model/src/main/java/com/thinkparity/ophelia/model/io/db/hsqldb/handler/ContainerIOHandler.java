@@ -814,6 +814,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, compareVersionId);
             session.setLong(3, compareToVersionId);
+            session.executeQuery();
             if (session.nextResult()) {
                 return extractDelta(session);
             } else {

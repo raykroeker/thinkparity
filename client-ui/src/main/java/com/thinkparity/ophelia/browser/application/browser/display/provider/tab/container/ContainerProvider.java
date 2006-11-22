@@ -3,26 +3,29 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -78,6 +81,17 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	}
 
 	/**
+     * Determine if the draft document has been modified.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return True if the draft document has been modified; false otherwise.
+     */
+    public Boolean isDraftDocumentModified(final Long documentId) {
+        return documentModel.isDraftModified(documentId);
+    }
+
+    /**
 	 * Read a list of containers.
 	 * 
 	 * @return A list of containers.
@@ -85,7 +99,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<Container> read() {
     	return containerModel.read();
     }
-
+    
     /**
 	 * Read a container.
 	 * 
@@ -96,7 +110,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Container read(final Long containerId) {
     	return containerModel.read(containerId);
     }
-    
+
     /**
      * Read the documents.
      * 
@@ -119,21 +133,19 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 *            A container version id <code>Long</code>.
      * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
 	 */
-    public Map<DocumentVersion, ContainerVersionArtifactVersionDelta> readDocumentVersionsWithDelta(final Long containerId,
-            final Long versionId) {
+    public Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(
+            final Long containerId, final Long versionId) {
         
         // Find the delta comparing this versionId to the next one.
         final Long nextVersionId = getNextVersion(containerId, versionId);
-        final ContainerVersionArtifactVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
+        final ContainerVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
         
         // Get the documents and build a map.
         final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
-        final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions =
-            new HashMap<DocumentVersion, ContainerVersionArtifactVersionDelta>(documents.size(), 1.0F);
+        final Map<DocumentVersion, Delta> documentVersions = new TreeMap<DocumentVersion, Delta>();
         for (final DocumentVersion document : documents) {
-            documentVersions.put(document, delta);
+            documentVersions.put(document, getDelta(delta, document));
         }
-        int x = 0;
         
     	return documentVersions;
     }
@@ -207,15 +219,32 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     	return containerModel.search(expression);
     }
     
+    private Delta getDelta(final ContainerVersionDelta delta,
+            final DocumentVersion documentVersion) {
+        for (final ContainerVersionArtifactVersionDelta versionDelta :
+                delta.getDeltas()) {
+            if (versionDelta.getArtifactId().equals(documentVersion.getArtifactId()) &&
+                    versionDelta.getArtifactVersionId().equals(documentVersion.getVersionId())) {
+                return versionDelta.getDelta();
+            }
+        }
+        return null;
+    }
+    
     /**
-     * Determine if the draft document has been modified.
+     * Get a delta.
      * 
-     * @param documentId
-     *            A document id.
-     * @return True if the draft document has been modified; false otherwise.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param compareVersionId
+     *            A compare version id <code>Long</code>.
+     * @return The <code>ContainerVersionArtifactVersionDelta</code>.         
      */
-    public Boolean isDraftDocumentModified(final Long documentId) {
-        return documentModel.isDraftModified(documentId);
+    private ContainerVersionDelta getDelta(final Long containerId,
+            final Long versionId, final Long compareVersionId) {
+        return containerModel.readDelta(containerId, versionId, compareVersionId);
     }
     
     /**
@@ -238,35 +267,5 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         }
         
         return nextVersionId;
-    }
-    
-    /**
-     * Get a delta.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param compareVersionId
-     *            A compare version id <code>Long</code>.
-     * @return The <code>ContainerVersionArtifactVersionDelta</code>.         
-     */
-    private ContainerVersionArtifactVersionDelta getDelta(final Long containerId,
-            final Long versionId, final Long compareVersionId) {
-        ContainerVersionArtifactVersionDelta desiredDelta = null;
-        if (null != compareVersionId) {
-            final ContainerVersionDelta versionDelta = containerModel.readDelta(containerId, versionId, compareVersionId);
-            if (null != versionDelta) {
-                final List<ContainerVersionArtifactVersionDelta> deltas = versionDelta.getDeltas();
-                for (final ContainerVersionArtifactVersionDelta delta : deltas) {
-                    if (delta.getArtifactVersionId().equals(versionId)) {
-                        desiredDelta = delta;
-                        break;                   
-                    }
-                }
-            }
-        }
-        
-        return desiredDelta;
     }
 }

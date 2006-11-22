@@ -1132,8 +1132,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     ContainerVersionDelta extractDelta(final Session session) {
         final ContainerVersionDelta delta = new ContainerVersionDelta();
-        delta.setCompareToVersionId(session.getLong("COMPARE_TO_VERSION_ID"));
-        delta.setCompareVersionId(session.getLong("COMPARE_VERSION_ID"));
+        delta.setCompareToVersionId(session.getLong("COMPARE_TO_CONTAINER_VERSION_ID"));
+        delta.setCompareVersionId(session.getLong("COMPARE_CONTAINER_VERSION_ID"));
         delta.setContainerId(session.getLong("CONTAINER_ID"));
         delta.setId(session.getLong("CONTAINER_VERSION_DELTA_ID"));
         session.prepareStatement(SQL_EXTRACT_DELTA);

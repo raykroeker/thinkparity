@@ -138,13 +138,13 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(
             final Long containerId, final Long versionId) {
         
-        // Find the delta comparing this versionId to the next one.
-        final ContainerVersion nextVersion = containerModel.readPreviousVersion(containerId, versionId);
+        // Find the delta comparing this versionId to the previous (older) one.
+        final ContainerVersion previousVersion = containerModel.readPreviousVersion(containerId, versionId);
         final ContainerVersionDelta delta;
-        if (null == nextVersion) {
+        if (null == previousVersion) {
             delta = null;
         } else {
-            delta = getDelta(containerId, versionId, nextVersion.getVersionId());
+            delta = getDelta(containerId, versionId, previousVersion.getVersionId());
         }
 
         // Get the documents and build a map.

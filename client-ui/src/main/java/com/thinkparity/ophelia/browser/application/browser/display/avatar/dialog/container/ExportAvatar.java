@@ -13,8 +13,7 @@ import javax.swing.JFileChooser;
 import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
 
-import com.thinkparity.ophelia.model.Constants;
-
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;

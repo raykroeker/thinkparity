@@ -77,6 +77,17 @@ class QueueModelImpl extends AbstractModelImpl {
         }
     }
 
+    void deleteEvents(final JabberId userId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            queueSql.deleteEvents(userId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     List<XMPPEvent> readEvents(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);

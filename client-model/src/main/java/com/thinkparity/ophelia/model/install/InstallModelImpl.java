@@ -13,13 +13,13 @@ import java.util.Properties;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.Constants.Image;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -43,50 +43,57 @@ class InstallModelImpl extends AbstractModelImpl {
     void install(final Release release) throws ParityException {
         logger.logApiId();
         logger.logVariable("variable", release);
-
-        final File installRoot = new File(Directories.INSTALL, release.getVersion());
-        final File downloadRoot = new File(Directories.DOWNLOAD, release.getVersion());
-
-        // write the install image properties
-        final Properties imageProperties =
-            createImageProperties(release, new FileSystem(downloadRoot));
-        final String header = new StringBuffer(release.getGroupId())
-                .append(":").append(release.getArtifactId())
-                .append(":").append(release.getVersion())
-                .toString();
-
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(
-                    new File(downloadRoot, Image.PROPERTIES_FILENAME));
-            imageProperties.store(fos, header);
-        }
-        catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
-        finally {
-            if(null != fos) {
-                try { fos.close(); }
-                catch(final IOException iox) {
-                    throw ParityErrorTranslator.translate(iox);
+            final File installRoot = new File(
+                    workspace.createTempDirectory("install-install"),
+                    release.getVersion());
+            final File downloadRoot = new File(
+                    workspace.createTempDirectory("install-download"),
+                    release.getVersion());
+    
+            // write the install image properties
+            final Properties imageProperties =
+                createImageProperties(release, new FileSystem(downloadRoot));
+            final String header = new StringBuffer(release.getGroupId())
+                    .append(":").append(release.getArtifactId())
+                    .append(":").append(release.getVersion())
+                    .toString();
+    
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(
+                        new File(downloadRoot, Image.PROPERTIES_FILENAME));
+                imageProperties.store(fos, header);
+            }
+            catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
+            finally {
+                if(null != fos) {
+                    try { fos.close(); }
+                    catch(final IOException iox) {
+                        throw ParityErrorTranslator.translate(iox);
+                    }
                 }
             }
+    
+            // delete the download manifest
+            final File downloadManifest = new File(downloadRoot, release.getVersion() + ".download");
+            Assert.assertTrue(MessageFormat.format(
+                    "[LMODEL] [INSTALL MODEL] [INSTALL] [CANNOT DELETE DOWNLOAD MANIFEST] [{0}]",
+                    new Object[] {downloadManifest.getAbsolutePath()}),
+                    downloadManifest.delete());
+    
+            // rename the download
+            Assert.assertTrue(
+                    MessageFormat.format(
+                            "[LMODEL] [INSTALL MODEL] [INSTALL] [CANNOT RENAME DOWNLOAD TO INSTALL] [{0}] [{1}]",
+                            new Object[] {downloadRoot.getAbsolutePath(), installRoot.getAbsolutePath()}),
+                    downloadRoot.renameTo(installRoot));
+    
+            // delete the download
+            FileUtil.deleteTree(downloadRoot);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-
-        // delete the download manifest
-        final File downloadManifest = new File(downloadRoot, release.getVersion() + ".download");
-        Assert.assertTrue(MessageFormat.format(
-                "[LMODEL] [INSTALL MODEL] [INSTALL] [CANNOT DELETE DOWNLOAD MANIFEST] [{0}]",
-                new Object[] {downloadManifest.getAbsolutePath()}),
-                downloadManifest.delete());
-
-        // rename the download
-        Assert.assertTrue(
-                MessageFormat.format(
-                        "[LMODEL] [INSTALL MODEL] [INSTALL] [CANNOT RENAME DOWNLOAD TO INSTALL] [{0}] [{1}]",
-                        new Object[] {downloadRoot.getAbsolutePath(), installRoot.getAbsolutePath()}),
-                downloadRoot.renameTo(installRoot));
-
-        // delete the download
-        FileUtil.deleteTree(Directories.DOWNLOAD);
     }
 
     /**

@@ -1254,7 +1254,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                         if (monitor.confirmSynchronize()) {
 // NOCOMMIT Backup is crashing.
 // getContainerModel().restoreBackup();
-                            createToken(remoteToken);
+                            createToken(xmppSession.createToken(localUserId()));
                         } else {
                             xmppSession.logout();
                             return; /*

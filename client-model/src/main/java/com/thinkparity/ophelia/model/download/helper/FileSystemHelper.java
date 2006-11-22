@@ -15,11 +15,11 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 
 import com.thinkparity.ophelia.model.AbstractModelImplHelper;
-import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 
 /**
@@ -35,8 +35,9 @@ public class FileSystemHelper extends AbstractModelImplHelper {
      * 
      * @return A release file system helper.
      */
-    public static FileSystemHelper getDownloadHelper(final Release release) {
-        final File root = new File(Directories.DOWNLOAD, release.getVersion());
+    public static FileSystemHelper getDownloadHelper(final File downloadRoot,
+            final Release release) {
+        final File root = new File(downloadRoot, release.getVersion());
         return new FileSystemHelper(root);
     }
 

@@ -139,7 +139,7 @@ public class BrowserPlatform implements Platform {
      */
 	private BrowserPlatform(final Mode mode, final Environment environment,
             final Profile profile) {
-        new BrowserPlatformInitializer(environment, profile).initialize();
+        new BrowserPlatformInitializer(environment, profile).initialize(mode);
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();

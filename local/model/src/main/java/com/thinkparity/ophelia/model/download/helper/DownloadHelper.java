@@ -47,9 +47,11 @@ public class DownloadHelper extends AbstractModelImplHelper {
     /** A parity release. */
     private final Release release;
 
-    public DownloadHelper(final InternalModelFactory modelFactory, final Release release) {
+    public DownloadHelper(final InternalModelFactory modelFactory,
+            final Release release) throws IOException {
         super();
-        this.fsHelper = FileSystemHelper.getDownloadHelper(release);
+        this.fsHelper = FileSystemHelper.getDownloadHelper(
+                modelFactory.getWorkspace().createTempDirectory(), release);
         this.ilModel = modelFactory.getLibraryModel();
         this.release = release;
         this.manifest = new Properties();

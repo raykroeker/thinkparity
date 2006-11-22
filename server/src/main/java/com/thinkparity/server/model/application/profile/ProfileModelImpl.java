@@ -106,11 +106,13 @@ class ProfileModelImpl extends AbstractModelImpl {
         logVariable("userId", userId);
         try {
             assertIsAuthenticatedUser(userId);
-            // not to be confused with miller time
-            final byte[] millisTime =
-                String.valueOf(currentTimeMillis()).getBytes();
+            final Token existingToken = userSql.readProfileToken(userId);
+            if (null != existingToken)
+                getQueueModel().deleteEvents(userId);
+
             final Token newToken = new Token();
-            newToken.setValue(MD5Util.md5Hex(millisTime));
+            newToken.setValue(MD5Util.md5Hex(
+                    String.valueOf(currentTimeMillis()).getBytes()));
             userSql.updateProfileToken(userId, newToken);
             return userSql.readProfileToken(userId);
         } catch (final Throwable t) {

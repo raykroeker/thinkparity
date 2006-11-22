@@ -8,18 +8,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jivesoftware.database.DbConnectionManager;
-import org.jivesoftware.database.SequenceManager;
-
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.ArtifactState;
+
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicConnectionProvider;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
+
+import org.jivesoftware.database.DbConnectionManager;
+import org.jivesoftware.database.SequenceManager;
 
 
 /**
@@ -32,7 +34,7 @@ public abstract class AbstractSql implements HypersonicConnectionProvider {
 	protected static final  Log4JWrapper logger;
 
     static {
-        logger = new Log4JWrapper();
+        logger = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
     }
 
     protected static final HypersonicException translateError(

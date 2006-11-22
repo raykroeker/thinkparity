@@ -38,6 +38,7 @@ import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
+import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
@@ -70,7 +71,7 @@ public abstract class AbstractModelImpl
 
     static {
         NO_SESSION = User.THINK_PARITY.getId();
-        XMPP_IQ_LOGGER = new Log4JWrapper("XMPP_IQ");
+        XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
     }
 
     /** An apache logger. */
@@ -249,6 +250,10 @@ public abstract class AbstractModelImpl
      */
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), session);
+    }
+
+    protected InternalQueueModel getQueueModel() {
+        return QueueModel.getInternalModel(getContext(), session);
     }
 
     /**

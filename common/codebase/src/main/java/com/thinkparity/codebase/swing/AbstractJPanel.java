@@ -17,8 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -101,7 +99,7 @@ public class AbstractJPanel extends JPanel {
 	protected AbstractJPanel(final Color background) {
 		super();
 		this.containerTools = new ContainerTools(this);
-        this.logger = new Log4JWrapper(Logger.getLogger(getClass()));
+        this.logger = new Log4JWrapper(getClass());
 		addMouseListener(debugMouseAdapter);
 		setOpaque(true);
 		setBackground(background);

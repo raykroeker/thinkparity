@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.model.download;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.thinkparity.codebase.model.migrator.Library;
@@ -13,7 +12,6 @@ import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.Constants;
-import com.thinkparity.ophelia.model.ParityErrorTranslator;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.download.helper.DownloadHelper;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -38,16 +36,19 @@ class DownloadModelImpl extends AbstractModelImpl {
      *            A release.
      * @throws ParityException
      */
-    void download(final Release release) throws ParityException {
+    void download(final Release release) {
         logger.logApiId();
         logger.logVariable("variable", release);
-        final List<Library> libraries = readLibraries(release.getId());
-        final DownloadHelper helper = new DownloadHelper(internalModelFactory, release);
         try {
-            if(!helper.isStarted()) { helper.start(libraries); }
+            final List<Library> libraries = readLibraries(release.getId());
+            final DownloadHelper helper = new DownloadHelper(internalModelFactory, release);
+            if (!helper.isStarted()) {
+                helper.start(libraries);
+            }
             helper.resume();
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
     }
 
     /**
@@ -57,13 +58,17 @@ class DownloadModelImpl extends AbstractModelImpl {
      *            A release.
      * @return True the download for the latest version is complete.
      */
-    Boolean isComplete(final Release release) throws ParityException {
+    Boolean isComplete(final Release release) {
         logger.logApiId();
         logger.logVariable("variable", release);
-        // check to see if the latest release has already been downloaded
-        final DownloadHelper download = new DownloadHelper(internalModelFactory, release);
-        try { return download.isComplete(); }
-        catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
+        try {
+            // check to see if the latest release has already been downloaded
+            final DownloadHelper download = new DownloadHelper(
+                    internalModelFactory, release);
+            return download.isComplete();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -71,11 +76,19 @@ class DownloadModelImpl extends AbstractModelImpl {
      * 
      * @return A release.
      */
-    Release read() throws ParityException {
-        final Release latest = readLatestRelease();
-        final DownloadHelper helper = new DownloadHelper(internalModelFactory, latest);
-        try { if(helper.isComplete()) { return latest; } else { return null; } }
-        catch(final IOException iox) { throw ParityErrorTranslator.translate(iox); }
+    Release read() {
+        logger.logApiId();
+        try {
+            final Release latest = readLatestRelease();
+            final DownloadHelper helper = new DownloadHelper(internalModelFactory, latest);
+            if (helper.isComplete()) {
+                return latest;
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     private Release readLatestRelease() {

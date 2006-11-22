@@ -11,10 +11,10 @@ import java.util.Locale;
 import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants;
-import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.workspace.Preferences;
 
 /**
@@ -64,10 +64,6 @@ class PreferencesImpl implements Preferences {
         javaProperties.remove(Constants.Preferences.Properties.PASSWORD);
     }
 
-    public File getArchiveOutputDirectory() {
-        return Directories.ARCHIVE;
-    }
-
     public Long getLastRun() {
         return getLong("lastRun");
     }
@@ -82,10 +78,6 @@ class PreferencesImpl implements Preferences {
 
     public String getUsername() {
         return javaProperties.getProperty("parity.username", null);
-    }
-
-    public Boolean isSetArchiveOutputDirectory() {
-        return null != getArchiveOutputDirectory();
     }
 
     public Boolean isSetLocale() { return Boolean.TRUE; }

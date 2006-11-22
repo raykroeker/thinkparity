@@ -21,7 +21,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.ErrorHelper;
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
@@ -164,7 +163,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         this.internalModelFactory = new InternalModelFactory(getContext(),
                 environment, workspace);
 		this.l18n = new Localization(LocalizationContext.MODEL);
-        this.logger = new Log4JWrapper(StackUtil.getCallerClassName());
+        this.logger = new Log4JWrapper(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}

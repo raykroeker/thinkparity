@@ -23,7 +23,6 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.Constants.Directories;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Files;
@@ -363,6 +362,11 @@ public class WorkspaceImpl implements Workspace {
      * 
      */
     private void bootstrapLog4J() {
+        /* HACK if the logging root is set; we know we are being run within the
+         * thinkParity server and need not reset the configuration. */
+        final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
+        final boolean isDesktop = null == loggingRootProperty;
+
         final Properties logging = bootstrapLog4JConfig(mode);
         final File loggingRoot = bootstrapLog4JRoot(mode);
         // console appender
@@ -395,6 +399,8 @@ public class WorkspaceImpl implements Workspace {
         case DEMO:
         case PRODUCTION:
             logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
@@ -402,6 +408,8 @@ public class WorkspaceImpl implements Workspace {
             break;
         case DEVELOPMENT:
             logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
@@ -409,6 +417,8 @@ public class WorkspaceImpl implements Workspace {
             break;
         case TESTING:
             logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
@@ -430,10 +440,10 @@ public class WorkspaceImpl implements Workspace {
             "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
         logging.setProperty("log4j.renderer.org.jivesoftware.smack.packet.Packet",
             "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
-
-        LogManager.resetConfiguration();
+        if (isDesktop)
+            LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
-        new Log4JWrapper(getClass()).logInfo("{0} - {1}", "thinkParity", "1.0");
+        new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", "1.0");
         new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
         new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
     }
@@ -522,10 +532,6 @@ public class WorkspaceImpl implements Workspace {
 		if (!workspace.exists())
 			Assert.assertTrue(workspace.mkdirs(),
                     "Cannot initialize workspace {0}.", workspace);
-        if (!Directories.USER_DATA.exists())
-            Assert.assertTrue(
-                    Directories.USER_DATA.mkdirs(),
-                    "Cannot create directory {0}.", Directories.USER_DATA);
         return new FileSystem(workspace);
 	}
 }

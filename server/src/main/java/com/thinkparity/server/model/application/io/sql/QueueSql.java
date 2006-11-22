@@ -37,7 +37,20 @@ public class QueueSql extends AbstractSql {
             .append("where USERNAME=? and EVENT_ID=?")
             .toString();
 
-    /** Sql to read events. */
+    /** Sql to delete all events for a user. */
+    private static final String SQL_DELETE_EVENTS =
+        new StringBuffer("delete from PARITY_EVENT_QUEUE ")
+        .append("where USERNAME=?")
+        .toString();
+
+    /** Sql to read a user's event count. */
+    private static final String SQL_READ_EVENT_COUNT =
+        new StringBuffer("select COUNT(PEQ.EVENT_ID) EVENT_COUNT ")
+        .append("from PARITY_EVENT_QUEUE PEQ ")
+        .append("where PEQ.USERNAME=?")
+        .toString();
+
+	/** Sql to read events. */
 	private static final String SQL_READ_EVENTS =
         new StringBuffer("select EVENT_ID,EVENT_DATE,EVENT_XML,USERNAME ")
         .append("from PARITY_EVENT_QUEUE PEQ ")
@@ -50,7 +63,7 @@ public class QueueSql extends AbstractSql {
 	 */
 	public QueueSql() { super(); }
 
-	public void createEvent(final JabberId userId, final XMPPEvent event,
+    public void createEvent(final JabberId userId, final XMPPEvent event,
             final XMPPEventWriter eventWriter) {
         final HypersonicSession session = openSession();
         try {
@@ -83,7 +96,24 @@ public class QueueSql extends AbstractSql {
 
             session.commit();
         } catch (final Throwable t) {
-            translateError(session, t);
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void deleteEvents(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            final Integer eventCount = readEventCount(userId);
+            session.prepareStatement(SQL_DELETE_EVENTS);
+            session.setString(1, userId.getUsername());
+            if (eventCount.intValue() != session.executeUpdate())
+                throw new HypersonicException("Could not delete queue events.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
             session.close();
         }
@@ -112,5 +142,23 @@ public class QueueSql extends AbstractSql {
             final XMPPEventReader eventReader) {
         final Reader reader = new StringReader(session.getString("EVENT_XML"));
         return eventReader.read(reader);
+    }
+
+    private Integer readEventCount(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EVENT_COUNT);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getInteger("EVENT_COUNT");
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        } finally {
+            session.close();
+        }
     }
 }

@@ -51,7 +51,7 @@ public abstract class AbstractHandler extends
     static final Object SERIALIZER;
 
     static {
-        IQ_LOGGER = new Log4JWrapper("XMPP_IQ");
+        IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
         SERIALIZER = new Object();
     }
 

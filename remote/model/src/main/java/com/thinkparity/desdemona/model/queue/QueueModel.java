@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.AbstractModel;
@@ -23,6 +24,20 @@ import com.thinkparity.desdemona.model.session.Session;
 public class QueueModel extends AbstractModel<QueueModelImpl> {
 
     /**
+     * Obtain an internal thinkParity queue model.
+     * 
+     * @param context
+     *            A thinkParity <code>Context</code>.
+     * @param session
+     *            A user's <code>Session</code>.
+     * @return An <code>InternalQueueModel</code>.
+     */
+    public static InternalQueueModel getInternalModel(final Context context,
+            final Session session) {
+        return new InternalQueueModel(context, session);
+    }
+
+    /**
 	 * Obtain a handle to a queue model.
 	 * 
 	 * @param session
@@ -35,9 +50,12 @@ public class QueueModel extends AbstractModel<QueueModelImpl> {
 	}
 
 	/**
-	 * Create a QueueModel.
-	 */
-	private QueueModel(final Session session) {
+     * Create QueueModel.
+     * 
+     * @param session
+     *            A user's <code>Session</code>.
+     */
+	protected QueueModel(final Session session) {
 		super(new QueueModelImpl(session));
 	}
 

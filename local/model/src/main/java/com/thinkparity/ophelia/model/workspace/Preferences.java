@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.workspace;
 
-import java.io.File;
 import java.util.Locale;
 
 import com.thinkparity.codebase.model.user.User;
@@ -16,8 +15,6 @@ public interface Preferences {
 
 	public void clearPassword();
 
-	public File getArchiveOutputDirectory();
-
 	public Locale getLocale();
 
 	public String getPassword();
@@ -27,8 +24,6 @@ public interface Preferences {
 	public String getUsername();
 
     public Long getLastRun();
-
-	public Boolean isSetArchiveOutputDirectory();
 
 	public Boolean isSetLocale();
 

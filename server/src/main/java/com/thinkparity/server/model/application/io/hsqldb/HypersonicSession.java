@@ -35,7 +35,7 @@ public final class HypersonicSession {
     protected static final Log4JWrapper LOGGER;
 
     static {
-        LOGGER = new Log4JWrapper("SQL_DEBUGGER");
+        LOGGER = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
     }
 
     /** A <code>Connection</code>. */

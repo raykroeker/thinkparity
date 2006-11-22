@@ -36,11 +36,11 @@ public final class InternalModelFactory {
     /** A thinkParity <code>Context</code>. */
     private final Context context;
 
-    /** A thinkParity <code>Workspace</code>. */
-    private final Workspace workspace;
-
     /** A thinkParity <code>Environment</code>. */
     private final Environment environment;
+
+    /** A thinkParity <code>Workspace</code>. */
+    private final Workspace workspace;
 
     /**
      * Create InternalModelFactory.
@@ -74,15 +74,24 @@ public final class InternalModelFactory {
         return ContainerModel.getInternalModel(context, environment, workspace);
     }
 
-    public InternalSessionModel getSessionModel() {
-        return SessionModel.getInternalModel(context, environment, workspace);
-    }
-
     public InternalDocumentModel getDocumentModel() {
         return DocumentModel.getInternalModel(context, environment, workspace);
     }
 
     public InternalLibraryModel getLibraryModel() {
         return LibraryModel.getInternalModel(context, environment, workspace);
+    }
+
+    public InternalSessionModel getSessionModel() {
+        return SessionModel.getInternalModel(context, environment, workspace);
+    }
+
+    /**
+     * Obtain the thinkParity workspace.
+     * 
+     * @return A <code>Workspace</code>.
+     */
+    public Workspace getWorkspace() {
+        return workspace;
     }
 }

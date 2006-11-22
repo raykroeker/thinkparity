@@ -94,9 +94,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     public void debug() {
         final Component[] components = tabJPanel.getComponents();
         logger.logDebug("{0} components.", components.length);
-        for (final Component component : components) {
-            logger.logVariable("component", component);
-        }
     }
 
     /**
@@ -351,7 +348,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 }
                 
                 repaint();
-                debug();
             }
             
             public void intervalAdded(final ListDataEvent e) {
@@ -396,7 +392,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 }
                 
                 repaint();
-                debug();
             }
             
             public void intervalRemoved(final ListDataEvent e) {
@@ -439,7 +434,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 }
                 
                 repaint();
-                debug();
             } 
         });
     }

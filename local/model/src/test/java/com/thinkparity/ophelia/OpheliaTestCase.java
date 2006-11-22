@@ -38,8 +38,6 @@ public abstract class OpheliaTestCase extends TestCase {
         new Log4JWrapper().logInfo("Environment:  {0}", ENVIRONMENT);
         SESSION = TestCase.getTestSession();
         new Log4JWrapper().logInfo("Session:  {0}", SESSION);
-        // init archive
-		initParityArchive();
 		// init install
 		initParityInstall();
         // reference the class to run the static initializer
@@ -88,20 +86,6 @@ public abstract class OpheliaTestCase extends TestCase {
      * @return A calendar.
      */
     protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
-
-    /**
-     * Initialize the parity archive directory for a test run.
-     * 
-     * @param parent
-     *            The parent within which to create the archive dir.
-     */
-    private static void initParityArchive() {
-        final File parent = SESSION.getOutputDirectory();
-        final File archive = new File(parent, "parity.archive");
-        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT ARCHIVE]", archive.mkdir());
-
-        System.setProperty("parity.archive.directory", archive.getAbsolutePath());
-    }
 
     /**
      * Initialize the parity install directory for a test run.

@@ -14,6 +14,8 @@ import javax.swing.Icon;
 
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.FuzzyDateFormat;
+import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -135,6 +137,35 @@ public final class Constants {
     public static final class Directories {
         public static final File PARITY_INSTALL = new File(SystemProperties.THINKPARITY_INSTALL);
         public static final File PARITY_PLUGIN_ROOT = new File(PARITY_INSTALL, "plugins");
+        /** A user's home directory <code>File</code>. */
+        public static final File USER_HOME;
+        /** A user's data directory <code>File</code>. */
+        public static final File USER_DATA;
+        static {
+            switch (OSUtil.getOS()) {
+            case WINDOWS_2000:
+            case WINDOWS_XP:
+                USER_HOME = new File(System.getenv("USERPROFILE"));
+                USER_DATA = new File(USER_HOME, "My Documents\\thinkParity");
+                break;
+            case LINUX:
+            case OSX:
+                USER_HOME = new File(System.getenv("HOME"));
+                USER_DATA = new File(USER_HOME, "Documents/thinkParity");
+                break;
+            default:
+                throw Assert.createUnreachable("Unknown os.");
+            }
+            if (!USER_DATA.exists()) {
+                Assert.assertTrue(USER_DATA.mkdirs(),
+                        "Cannot create directory {0}.",
+                        USER_DATA.getAbsolutePath());
+            } else {
+                Assert.assertTrue(USER_DATA.isDirectory(),
+                        "{0} is not a directory.",
+                        USER_DATA.getAbsolutePath());
+            }
+        }
     }
     /** thinkParity directory names. */
     public static final class DirectoryNames {

@@ -29,6 +29,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -66,7 +67,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private Container container;
 
     /** The version's <code>DocumentVersion</code>s. */
-    private final Map<ContainerVersion, List<DocumentVersion>> documentVersions;
+    private final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions;
 
     /** The <code>ContainerModel</code>. */
     private final ContainerModel model;
@@ -129,7 +130,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public ContainerVersionsPanel(final ContainerModel model) {
         super();
-        this.documentVersions = new HashMap<ContainerVersion, List<DocumentVersion>>();
+        this.documentVersions = new HashMap<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>>();
         this.model = model;
         this.browser = ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER));
         this.publishedBy = new HashMap<ContainerVersion, User>();
@@ -325,14 +326,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      * @param version
      *            A <code>ContainerVersion</code>.
      * @param documentVersions
-     *            A <code>List&lt;Document&gt;</code>.
+     *            A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
      * @param users
      *            A <code>Map&lt;User, ArtifactReceipt&gt;</code>.
      * @param publishedBy
      *            A <code>User</code>.
      */
     public void add(final ContainerVersion version,
-            final List<DocumentVersion> documentVersions,
+            final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions,
             final Map<User, ArtifactReceipt> users, final User publishedBy) {
         this.versions.add(version);
         this.documentVersions.put(version, documentVersions);
@@ -1046,7 +1047,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     final class VersionCell extends AbstractVersionCell {
         private final ContainerVersion version;
         private VersionCell(final ContainerVersion version,
-                final List<DocumentVersion> documentVersions,
+                final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions,
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             super();
             this.version = version;
@@ -1058,9 +1059,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
             int countCells = 0;
             addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
-            countCells++;            
-            for (final DocumentVersion documentVersion : documentVersions) {
-                addContentCell(new DocumentVersionCell(documentVersion));
+            countCells++;
+            for (final Entry<DocumentVersion, ContainerVersionArtifactVersionDelta> entry : documentVersions.entrySet()) {
+                addContentCell(new DocumentVersionCell(entry.getKey(), entry.getValue()));
                 countCells++;
             }
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
@@ -1105,10 +1106,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** A version document cell. */
     final class DocumentVersionCell extends AbstractContentCell {
         private final DocumentVersion version;
-        private DocumentVersionCell(final DocumentVersion version) {
+        private DocumentVersionCell(final DocumentVersion version, final ContainerVersionArtifactVersionDelta delta) {
             super();
             this.version = version;
-            setText(MessageFormat.format("{0}", version.getName()));
+            initText(version, delta);   
             setIcon(getDocumentIcon(version));
         }
         @Override
@@ -1124,6 +1125,29 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         Long getVersionId() {
             return version.getVersionId();
+        }
+        private void initText(final DocumentVersion documentVersion, final ContainerVersionArtifactVersionDelta delta) {
+            if (null==delta) {
+                setText(documentVersion.getName());
+            } else {
+                final String formatPattern;
+                
+                switch (delta.getDelta()) {
+                case ADDED:
+                case MODIFIED:
+                case REMOVED:
+                    formatPattern = "{0} - {1}";
+                    break;
+                case NONE:
+                    formatPattern = "{0}";
+                    break;
+                default:
+                    throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
+                }
+                
+                setText(MessageFormat.format(formatPattern,
+                        documentVersion.getName(), delta.getDelta().toString()));
+            }
         }
     }
     

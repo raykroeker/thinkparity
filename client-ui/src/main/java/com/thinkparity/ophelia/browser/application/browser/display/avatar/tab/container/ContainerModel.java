@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
@@ -17,6 +18,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -295,8 +297,9 @@ public final class ContainerModel extends TabPanelModel {
         final ContainerVersion version = readLatestVersion(container.getId());
         if (null != version) {
             return readDocumentVersions(container.getId(), version.getArtifactId());
+        } else {
+            return new ArrayList<DocumentVersion>();
         }
-        return new ArrayList<DocumentVersion>();
     }
 
     /**
@@ -536,24 +539,24 @@ public final class ContainerModel extends TabPanelModel {
             }
         }
         final List<ContainerVersion> versions = readVersions(container.getId());
-        final Map<ContainerVersion, List<DocumentVersion>> documentVersions = new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> users = new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions =
+            new HashMap<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> users =
+            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
 
-        List<DocumentVersion> versionDocumentVersions;
+        Map<DocumentVersion, ContainerVersionArtifactVersionDelta> versionDocumentVersions;
         for (final ContainerVersion version : versions) {
-            versionDocumentVersions = readDocumentVersions(version.getArtifactId(),
-                    version.getVersionId());
-            for (final DocumentVersion versionDocumentVersion : versionDocumentVersions) { 
-                containerIdLookup.put(versionDocumentVersion.getArtifactId(), container.getId());
+            versionDocumentVersions = readDocumentVersionsWithDelta(version.getArtifactId(), version.getVersionId());
+            for (final Entry<DocumentVersion, ContainerVersionArtifactVersionDelta> entry : versionDocumentVersions.entrySet()) {
+                containerIdLookup.put(entry.getKey().getArtifactId(), container.getId());
             }
             documentVersions.put(version, versionDocumentVersions);
             users.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
         versionsPanels.put(containerPanel,
-                toDisplay(container, draft, versions, documentVersions, users,
-                        publishedBy));
+                toDisplay(container, draft, versions, documentVersions, users, publishedBy));
     }
 
     /**
@@ -607,6 +610,20 @@ public final class ContainerModel extends TabPanelModel {
     private List<Container> readContainers() {
         return ((ContainerProvider) contentProvider).read();
     }
+    
+    /**
+     * Read the documents from the provider.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A list of DocumentVersion.
+     */
+    private List<DocumentVersion> readDocumentVersions(final Long containerId, final Long versionId) {
+        return ((ContainerProvider) contentProvider).readDocumentVersions(
+                containerId, versionId);
+    }
 
     /**
      * Read the documents from the provider.
@@ -615,11 +632,11 @@ public final class ContainerModel extends TabPanelModel {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A <code>List&lt;Document&gt;</code>.
+     * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
      */
-    private List<DocumentVersion> readDocumentVersions(final Long containerId,
+    private Map<DocumentVersion, ContainerVersionArtifactVersionDelta> readDocumentVersionsWithDelta(final Long containerId,
             final Long versionId) {
-        return ((ContainerProvider) contentProvider).readDocumentVersions(
+        return ((ContainerProvider) contentProvider).readDocumentVersionsWithDelta(
                 containerId, versionId);
     }
 
@@ -744,13 +761,19 @@ public final class ContainerModel extends TabPanelModel {
      *            A <code>Container</code>.
      * @param draft
      *            A <code>ContainerDraft</code>.
-     * @param containers
-     *            A <code>List&lt;ContainerVersion&gt;</code>.
-     * @return A <code>List&lt;TabPanel&gt;</code>.
+     * @param versions
+     *            A list of <code>ContainerVersion</code>.         
+     * @param documentVersions
+     *            The document versions.
+     * @param users
+     *            The users.
+     * @param publishedBy
+     *            Publisher.
+     * @return A <code>TabPanel</code>.
      */
     private TabPanel toDisplay(final Container container,
             final ContainerDraft draft, final List<ContainerVersion> versions,
-            final Map<ContainerVersion, List<DocumentVersion>> documentVersions,
+            final Map<ContainerVersion, Map<DocumentVersion, ContainerVersionArtifactVersionDelta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerVersionsPanel panel = new ContainerVersionsPanel(this);

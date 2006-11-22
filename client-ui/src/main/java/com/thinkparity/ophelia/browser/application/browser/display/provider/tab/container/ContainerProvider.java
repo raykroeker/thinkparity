@@ -3,25 +3,26 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
-
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -68,13 +69,11 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 
     @Override
 	public Object getElement(Integer index, Object input) {
-		// TODO Auto-generated method stub
 		throw Assert.createNotYetImplemented("ContainerProvider#getElement");
 	}
 
 	@Override
 	public Object[] getElements(Integer index, Object input) {
-		// TODO Auto-generated method stub
 		throw Assert.createNotYetImplemented("ContainerProvider#getElements");
 	}
 
@@ -97,19 +96,46 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Container read(final Long containerId) {
     	return containerModel.read(containerId);
     }
+    
+    /**
+     * Read the documents.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     */
+    public List<DocumentVersion> readDocumentVersions(final Long containerId, final Long versionId) {
+        return containerModel.readDocumentVersions(containerId, versionId);
+    }
 
     /**
-	 * Read the documents.
+	 * Read the documents and associated delta.
 	 * 
 	 * @param containerId
 	 *            A container id <code>Long</code>.
 	 * @param versionId
 	 *            A container version id <code>Long</code>.
-	 * @return A <code>List&lt;DocumentVersion&gt;</code>.
+     * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
 	 */
-    public List<DocumentVersion> readDocumentVersions(final Long containerId,
+    public Map<DocumentVersion, ContainerVersionArtifactVersionDelta> readDocumentVersionsWithDelta(final Long containerId,
             final Long versionId) {
-    	return containerModel.readDocumentVersions(containerId, versionId);
+        
+        // Find the delta comparing this versionId to the next one.
+        final Long nextVersionId = getNextVersion(containerId, versionId);
+        final ContainerVersionArtifactVersionDelta delta = getDelta(containerId, versionId, nextVersionId);
+        
+        // Get the documents and build a map.
+        final List<DocumentVersion> documents = containerModel.readDocumentVersions(containerId, versionId);
+        final Map<DocumentVersion, ContainerVersionArtifactVersionDelta> documentVersions =
+            new HashMap<DocumentVersion, ContainerVersionArtifactVersionDelta>(documents.size(), 1.0F);
+        for (final DocumentVersion document : documents) {
+            documentVersions.put(document, delta);
+        }
+        int x = 0;
+        
+    	return documentVersions;
     }
 
     /**
@@ -190,5 +216,57 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      */
     public Boolean isDraftDocumentModified(final Long documentId) {
         return documentModel.isDraftModified(documentId);
+    }
+    
+    /**
+     * Get the next version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The next version id.
+     */
+    private Long getNextVersion(final Long containerId, final Long versionId) {
+        Long nextVersionId = null;
+        final List<ContainerVersion> versions = containerModel.readVersions(containerId);
+        for (int index = 0; index < versions.size()-1; index++) {
+            if (versions.get(index).getVersionId().equals(versionId)) {
+                nextVersionId = versions.get(index+1).getVersionId();
+                break;
+            }
+        }
+        
+        return nextVersionId;
+    }
+    
+    /**
+     * Get a delta.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param compareVersionId
+     *            A compare version id <code>Long</code>.
+     * @return The <code>ContainerVersionArtifactVersionDelta</code>.         
+     */
+    private ContainerVersionArtifactVersionDelta getDelta(final Long containerId,
+            final Long versionId, final Long compareVersionId) {
+        ContainerVersionArtifactVersionDelta desiredDelta = null;
+        if (null != compareVersionId) {
+            final ContainerVersionDelta versionDelta = containerModel.readDelta(containerId, versionId, compareVersionId);
+            if (null != versionDelta) {
+                final List<ContainerVersionArtifactVersionDelta> deltas = versionDelta.getDeltas();
+                for (final ContainerVersionArtifactVersionDelta delta : deltas) {
+                    if (delta.getArtifactVersionId().equals(versionId)) {
+                        desiredDelta = delta;
+                        break;                   
+                    }
+                }
+            }
+        }
+        
+        return desiredDelta;
     }
 }

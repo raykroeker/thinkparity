@@ -182,7 +182,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-	/**
+    /**
      * Export a container version to a directory. The 
      * 
      * @param exportDirectory
@@ -212,7 +212,7 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    /**
+	/**
      * Print a container draft.
      * 
      * @param containerId
@@ -480,6 +480,22 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
     public ContainerVersion readLatestVersion(final Long containerId) {
         synchronized (getImplLock()) {
             return getImpl().readLatestVersion(containerId);
+        }
+    }
+
+    /**
+     * Read the next container version sequentially.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion readNextVersion(final Long containerId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readNextVersion(containerId, versionId);
         }
     }
 

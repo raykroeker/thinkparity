@@ -1144,7 +1144,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("compareToVersionId", compareToVersionId);
         try {
             assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
-            assertDoesExistVersion("Compare version does not exist.", containerId, compareToVersionId);
+            assertDoesExistVersion("Compare to version does not exist.", containerId, compareToVersionId);
             return containerIO.readDelta(containerId, compareVersionId,
                     compareToVersionId);
         } catch (final Throwable t) {
@@ -1466,6 +1466,34 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             return containerIO.readLatestVersion(containerId);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Read the next container version sequentially.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    ContainerVersion readNextVersion(final Long containerId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        try {
+            final Long nextVersionId =
+                artifactIO.readNextVersionId(containerId, versionId);
+            if (null != nextVersionId
+                    && doesExistVersion(containerId, nextVersionId)) {
+                return containerIO.readVersion(containerId, nextVersionId);
+            } else {
+                return null;
+            }     
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -2229,6 +2257,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
 
+
     /**
      * Create a new container version.
      * 
@@ -2265,7 +2294,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return containerIO.readVersion(
                 version.getArtifactId(), version.getVersionId());
     }
-
 
     /**
      * Delete the local info for this container.
@@ -2488,13 +2516,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     private void fireStageBegin(final PublishMonitor monitor,
-            final PublishStage stage, final Object data) {
-        monitor.stageBegin(stage, data);
+            final PublishStage stage) {
+        fireStageBegin(monitor, stage, null);
     }
 
     private void fireStageBegin(final PublishMonitor monitor,
-            final PublishStage stage) {
-        fireStageBegin(monitor, stage, null);
+            final PublishStage stage, final Object data) {
+        monitor.stageBegin(stage, data);
     }
 
     private void fireStageEnd(final PublishMonitor monitor,
@@ -2836,23 +2864,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             documentVersion.getVersionId()));
         }
         return documentVersionStreams;
-    }
-
-    /**
-     * Read the next container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A <code>ContainerVersion</code>.
-     */
-    private ContainerVersion readNextVersion(final Long containerId, final Long versionId) {
-        final Long nextVersionId = artifactIO.readNextVersionId(containerId, versionId);
-        if (null != nextVersionId
-                && doesExistVersion(containerId, nextVersionId)) {
-            return containerIO.readVersion(containerId, nextVersionId);
-        } else {
-            return null;
-        }
     }
 
     /**

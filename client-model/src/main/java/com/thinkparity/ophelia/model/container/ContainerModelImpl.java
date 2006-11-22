@@ -364,7 +364,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 getSessionModel().createDraft(team, container.getUniqueId());
             }
             // fire event
-            final Container postCreation= read(containerId);
+            final Container postCreation = read(containerId);
             final ContainerDraft postCreationDraft = readDraft(containerId);
             notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
             return postCreationDraft;

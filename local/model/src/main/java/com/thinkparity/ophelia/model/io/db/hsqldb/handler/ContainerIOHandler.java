@@ -495,6 +495,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 session.setTypeAsString(2, delta.getDelta());
                 session.setLong(3, delta.getArtifactId());
                 session.setLong(4, delta.getArtifactVersionId());
+                if (1 != session.executeUpdate())
+                    throw new HypersonicException("Could not create artifact delta.");
             }
 
             session.commit();

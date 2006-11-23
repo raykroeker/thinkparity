@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -24,9 +25,6 @@ public class AbstractJPanel extends JPanel {
 
 	/** Default background color. */
 	private static final Color DEFAULT_BACKGROUND;
-
-	/** @see java.io.Serializable */
-	private static final long serialVersionUID = 1;
 
 	static {
 		// COLOR 249, 249, 249, 255
@@ -72,7 +70,7 @@ public class AbstractJPanel extends JPanel {
 		}
 	};
 
-	/** A helper class dedicated to encapsulate moving a window around. */
+	/** A helper class dedicated to encapsulation of a move visitor. */
     private AbstractJPanelMoveHelper moveHelper;
 
 	/**
@@ -116,9 +114,13 @@ public class AbstractJPanel extends JPanel {
 	 */
 	public Boolean isInputValid() { return Boolean.TRUE; }
 
-	/**
-     * Add a move listener to the component for the panel.
-     *
+    /**
+     * Add a move listener to the component for the panel. A move listener will
+     * allow the user will be able to click on and drag the component in order
+     * to move the underlying window ancestor.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
      */
     protected final void addMoveListener(final JComponent jComponent) {
         if (null == moveHelper) {
@@ -127,7 +129,19 @@ public class AbstractJPanel extends JPanel {
         moveHelper.addListener(jComponent);
     }
 
-	/**
+    /**
+     * Add a resize listener to the component for the panel. A resize listener
+     * will allow the user to resize the underlying window ancestor by grabbing
+     * an edge within the panel dragging.
+     * 
+     * @param edge
+     *            An <code>Edge</code> to add.
+     */
+    protected final void addResizeListener(final Edge edge) {
+        throw Assert.createNotYetImplemented("");
+    }
+
+    /**
      * Bind the enter key to the action.
      *
      * @param action
@@ -137,7 +151,7 @@ public class AbstractJPanel extends JPanel {
         bindKey(getEnterKeyStroke(), command, action);
     }
 
-	/**
+    /**
      * Bind the escape key to an action.
      *
      * @param action
@@ -147,7 +161,7 @@ public class AbstractJPanel extends JPanel {
         bindKey(getEscapeKeyStroke(), command, action);
     }
 
-	/**
+    /**
      * Dispose of the window.
      * 
      */
@@ -155,7 +169,30 @@ public class AbstractJPanel extends JPanel {
         SwingUtilities.getWindowAncestor(this).dispose();
     }
 
-    /**
+	/**
+     * Remove a move listener from a component for the panel.
+     * 
+     * @param jComponent
+     *            A <code>JPanel</code>.
+     * @see AbstractJPanel#addMoveListener(JComponent)
+     */
+    protected final void removeMoveListener(final JComponent jComponent) {
+        if (null == moveHelper)
+            return;
+        moveHelper.removeListener(jComponent);
+    }
+
+	/**
+     * Remove a resize listener from a component for the panel.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     */
+    protected final void removeResizeListener(final Edge edge) {
+        throw Assert.createNotYetImplemented("");
+    }
+
+	/**
 	 * Set a default background color. 
 	 *
 	 */
@@ -178,4 +215,7 @@ public class AbstractJPanel extends JPanel {
         actionMap.put(command, action);
         inputMap.put(keyStroke, command);
     }
+
+    /** An enumerated definition of a panel edge. */
+    public enum Edge { EAST, NORTH, SOUTH, WEST }
 }

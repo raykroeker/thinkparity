@@ -21,6 +21,17 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 final class AbstractJPanelMoveHelper {
 
+    /**
+     * A client property key <code>String</code> used to store the mouse input
+     * adapter within the component.
+     */
+    private static final String LISTENER_CLIENT_PROPERTY_KEY;
+
+    static {
+        LISTENER_CLIENT_PROPERTY_KEY = new StringBuffer(AbstractJPanelMoveHelper.class.getName())
+            .append("#mouseInputListener").toString();
+    }
+
     /** An apache logger wrapper. */
     private final Log4JWrapper logger;
 
@@ -48,18 +59,24 @@ final class AbstractJPanelMoveHelper {
      *            A <code>JComponent</code>.
      */
     void addListener(final JComponent jComponent) {
-        final MouseInputListener mouseInputListener = new MouseInputAdapter() {
-            @Override
-            public void mouseDragged(final MouseEvent e) {
-                jComponentMouseDragged(e);
-            }
-            @Override
-            public void mousePressed(final MouseEvent e) {
-                jComponentMousePressed(e);
-            }
-        };
-        jComponent.addMouseMotionListener(mouseInputListener);
-        jComponent.addMouseListener(mouseInputListener);
+        // property to protect against adding it twice
+        MouseInputListener mouseInputListener =
+            (MouseInputListener) jComponent.getClientProperty(LISTENER_CLIENT_PROPERTY_KEY);
+        if (null == mouseInputListener) {
+            mouseInputListener = new MouseInputAdapter() {
+                @Override
+                public void mouseDragged(final MouseEvent e) {
+                    jComponentMouseDragged(e);
+                }
+                @Override
+                public void mousePressed(final MouseEvent e) {
+                    jComponentMousePressed(e);
+                }
+            };
+            jComponent.addMouseMotionListener(mouseInputListener);
+            jComponent.addMouseListener(mouseInputListener);
+            jComponent.putClientProperty(LISTENER_CLIENT_PROPERTY_KEY, mouseInputListener);
+        }
     }
 
     /**
@@ -70,6 +87,23 @@ final class AbstractJPanelMoveHelper {
         logger.logVariable("mousePressed", mousePressed);
         logger.logVariable("offsetX", offsetX);
         logger.logVariable("offsetY", offsetY);
+    }
+
+    /**
+     * Remove a move listener from the component.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     */
+    void removeListener(final JComponent jComponent) {
+        MouseInputListener mouseInputListener =
+            (MouseInputListener) jComponent.getClientProperty(LISTENER_CLIENT_PROPERTY_KEY);
+        if (null != mouseInputListener) {
+            jComponent.removeMouseMotionListener(mouseInputListener);
+            jComponent.removeMouseListener(mouseInputListener);
+            jComponent.putClientProperty(LISTENER_CLIENT_PROPERTY_KEY, null);
+            mouseInputListener = null;
+        }        
     }
 
     /**

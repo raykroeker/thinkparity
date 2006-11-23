@@ -60,7 +60,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private static final Dimension DIMENSION;
     
     static {        
-        DIMENSION = new Dimension(50,95);
+        DIMENSION = new Dimension(50,96);
     }
 
     /** The <code>Container</code>. */
@@ -396,9 +396,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     public void prepareForRepaint() {          
         // Set background colour
-        final Color color = getBackgroundColor();
+/*        final Color color = getBackgroundColor();
         leftJPanel.setBackground(color);
-        rightJPanel.setBackground(color);  
+        rightJPanel.setBackground(color);  */
         
         // If necessary, add filler rows to the versions list
         // so the backgrounds will paint in alternating colours
@@ -511,7 +511,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsJSplitPane.setMinimumSize(new java.awt.Dimension(52, 75));
         leftJPanel.setLayout(new java.awt.GridBagLayout());
 
-        leftJPanel.setBackground(new java.awt.Color(255, 255, 255));
         leftJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 leftJPanelMouseClicked(evt);
@@ -524,7 +523,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsJScrollPane.setBorder(null);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
-        versionsJList.setVisibleRowCount(5);
+        versionsJList.setVisibleRowCount(4);
         versionsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 versionsJListValueChanged(evt);
@@ -548,14 +547,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 4, 4, 1);
         leftJPanel.add(versionsJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setLeftComponent(leftJPanel);
 
         rightJPanel.setLayout(new java.awt.GridBagLayout());
 
-        rightJPanel.setBackground(new java.awt.Color(255, 255, 255));
         rightJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 rightJPanelMouseClicked(evt);
@@ -568,7 +565,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         versionsContentJScrollPane.setBorder(null);
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
-        versionsContentJList.setVisibleRowCount(5);
+        versionsContentJList.setVisibleRowCount(4);
         versionsContentJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 versionsContentJListValueChanged(evt);
@@ -592,7 +589,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 1, 4, 4);
         rightJPanel.add(versionsContentJScrollPane, gridBagConstraints);
 
         versionsJSplitPane.setRightComponent(rightJPanel);

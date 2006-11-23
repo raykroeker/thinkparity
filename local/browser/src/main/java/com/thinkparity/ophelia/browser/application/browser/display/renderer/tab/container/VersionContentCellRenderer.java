@@ -7,6 +7,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Component;
+import java.awt.Graphics;
 
 import javax.swing.Icon;
 import javax.swing.JList;
@@ -14,6 +15,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractContentCell;
@@ -28,6 +30,17 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
     /** Creates new form VersionContentCellRenderer */
     public VersionContentCellRenderer() {
         initComponents();
+    }
+    
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics g2 = g.create();
+        try {
+            GradientPainter.paintVertical(g2, getSize(),
+                    Colors.Browser.List.LIST_GRADIENT_LIGHT,
+                    Colors.Browser.List.LIST_GRADIENT_DARK);
+        }
+        finally { g2.dispose(); }
     }
 
     /**
@@ -44,7 +57,7 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         iconJLabel.setIcon(icon);
         
         // Set border.
-        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
+/*        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
             // Note that during a popup, cell.isFocusOnThisList() returns true whereas
             // isFocusOwner() returns false.
             setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
@@ -55,16 +68,16 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
             } else {
                 setBorder(new LineBorder(Colors.Browser.List.LIST_ODD_BG));
             }
-        }
+        }*/
         
         // Set foreground and background colours.
         textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-        final int adjustedIndex = index + 1;
+/*        final int adjustedIndex = index + 1;
         if (0 == adjustedIndex % 2) {
             setBackground(Colors.Browser.List.LIST_EVEN_BG);
         } else {
             setBackground(Colors.Browser.List.LIST_ODD_BG);
-        }
+        }*/
 
         return this;
     }
@@ -86,9 +99,9 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
 
         setLayout(new java.awt.GridBagLayout());
 
-        setMaximumSize(new java.awt.Dimension(32767, 18));
-        setMinimumSize(new java.awt.Dimension(20, 18));
-        setPreferredSize(new java.awt.Dimension(20, 18));
+        setMaximumSize(new java.awt.Dimension(32767, 24));
+        setMinimumSize(new java.awt.Dimension(20, 24));
+        setPreferredSize(new java.awt.Dimension(20, 24));
         westPaddingJLabel.setFocusable(false);
         westPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
         westPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
@@ -114,6 +127,7 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         add(textJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

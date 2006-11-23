@@ -361,8 +361,8 @@ public final class ContainerPanel extends DefaultTabPanel {
             final Graphics g2 = g.create();
             try {
                 GradientPainter.paintVertical(g2, getSize(),
-                        Colors.Browser.List.LIST_GRADIENT_DARK,
-                        Colors.Browser.List.LIST_GRADIENT_LIGHT);
+                        Colors.Browser.List.LIST_CONTAINER_GRADIENT_TOP,
+                        Colors.Browser.List.LIST_CONTAINER_GRADIENT_BOTTOM);
             }
             finally { g2.dispose(); }
         }        

@@ -36,6 +36,9 @@ public final class Constants {
             public static final class List {
                 public static final Color LIST_CONTAINERS_BORDER = new Color(212, 212, 212, 255);
                 public static final Color LIST_CONTAINERS_BACKGROUND = new Color(234, 234, 234, 255);
+                public static final Color LIST_CONTAINER_GRADIENT_TOP = Color.WHITE;
+                public static final Color LIST_CONTAINER_GRADIENT_BOTTOM = new Color(251, 243, 233, 255);               
+                
                 public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
                 public static final Color LIST_EXPANDED_BG = Color.WHITE;

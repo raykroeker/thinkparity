@@ -125,7 +125,6 @@ public class MainPanelImageCache {
         FILE_PDF("IconFilePdf.png"),
         FILE_DEFAULT("IconFileDefault.png"),
         COMMENT("IconComment.png"),
-        SELECTED("IconSelected.png"),
         
         // Column sort icons
         SORT_NONE("SortNone.png"),

@@ -60,7 +60,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         iconJLabel.setIcon(icon);
         
         // Set border.
-        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
+/*        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
             // Note that during a popup, cell.isFocusOnThisList() returns true whereas
             // isFocusOwner() returns false.
             setBorder(new LineBorder(Colors.Browser.List.INNER_LIST_SELECTION_BORDER));
@@ -71,23 +71,16 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
             } else {
                 setBorder(new LineBorder(Colors.Browser.List.LIST_ODD_BG));
             }
-        }
-        
-        // Set selected icon.
-        if (isSelected && !cell.isFillerCell()) {
-            selectedIconJLabel.setIcon(imageCache.read(TabPanelIcon.SELECTED));
-        } else {
-            selectedIconJLabel.setIcon(imageCache.read(TabPanelIcon.INVISIBLE));
-        }
+        }*/
 
         // Set foreground and background colours.
         textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-        final int adjustedIndex = index + 1;
+/*        final int adjustedIndex = index + 1;
         if (0 == adjustedIndex % 2) {
             setBackground(Colors.Browser.List.LIST_EVEN_BG);
         } else {
             setBackground(Colors.Browser.List.LIST_ODD_BG);
-        }
+        }*/
 
         return this;
     }
@@ -105,13 +98,12 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         textJLabel = new javax.swing.JLabel();
-        selectedIconJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        setMaximumSize(new java.awt.Dimension(32767, 18));
-        setMinimumSize(new java.awt.Dimension(20, 18));
-        setPreferredSize(new java.awt.Dimension(20, 18));
+        setMaximumSize(new java.awt.Dimension(32767, 24));
+        setMinimumSize(new java.awt.Dimension(20, 24));
+        setPreferredSize(new java.awt.Dimension(20, 24));
         westPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
         westPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
         westPaddingJLabel.setPreferredSize(new java.awt.Dimension(3, 16));
@@ -139,18 +131,14 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         add(textJLabel, gridBagConstraints);
-
-        selectedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Invisible16x16.png")));
-        add(selectedIconJLabel, new java.awt.GridBagConstraints());
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JLabel iconJLabel;
-    javax.swing.JLabel selectedIconJLabel;
     javax.swing.JLabel textJLabel;
     // End of variables declaration//GEN-END:variables
     

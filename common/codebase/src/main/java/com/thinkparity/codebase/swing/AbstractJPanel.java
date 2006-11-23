@@ -9,13 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -39,7 +33,7 @@ public class AbstractJPanel extends JPanel {
 		DEFAULT_BACKGROUND = new Color(249, 249, 249, 255);
 	}
 
-	/**
+    /**
      * Obtain the enter key stroke.
      *
      * @return A key stroke.
@@ -57,13 +51,13 @@ public class AbstractJPanel extends JPanel {
         return KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
     }
 
-    /** An apache logger. */
+	/** An apache logger. */
 	protected final Log4JWrapper logger;
 
-	/** Swing container tools. */
+    /** Swing container tools. */
 	private final ContainerTools containerTools;
 
-	/**
+    /**
 	 * The debug mouse adapter for a jpanel. This mouse adapter will print the
 	 * geometry and component composition to the logger.
 	 * 
@@ -77,6 +71,9 @@ public class AbstractJPanel extends JPanel {
 			}
 		}
 	};
+
+	/** A helper class dedicated to encapsulate moving a window around. */
+    private AbstractJPanelMoveHelper moveHelper;
 
 	/**
 	 * Create a AbstractJPanel.
@@ -120,6 +117,17 @@ public class AbstractJPanel extends JPanel {
 	public Boolean isInputValid() { return Boolean.TRUE; }
 
 	/**
+     * Add a move listener to the component for the panel.
+     *
+     */
+    protected final void addMoveListener(final JComponent jComponent) {
+        if (null == moveHelper) {
+            moveHelper = new AbstractJPanelMoveHelper(this);
+        }
+        moveHelper.addListener(jComponent);
+    }
+
+	/**
      * Bind the enter key to the action.
      *
      * @param action
@@ -140,6 +148,14 @@ public class AbstractJPanel extends JPanel {
     }
 
 	/**
+     * Dispose of the window.
+     * 
+     */
+    protected void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
+
+    /**
 	 * Set a default background color. 
 	 *
 	 */
@@ -161,13 +177,5 @@ public class AbstractJPanel extends JPanel {
     
         actionMap.put(command, action);
         inputMap.put(keyStroke, command);
-    }
-
-    /**
-     * Dispose of the window.
-     * 
-     */
-    protected void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
     }
 }

@@ -1007,7 +1007,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         private UserCell(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
             this.user = user;
             initText(user, isPublisher, receipt);
-            setIcon(imageCache.read(TabPanelIcon.USER));
+            initIcon(isPublisher, receipt);
         }
         JabberId getId() {
             return user.getId();
@@ -1019,6 +1019,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
             browser.runReadContact(getId());
+        }
+        
+        private void initIcon(final Boolean isPublisher, final ArtifactReceipt receipt) {
+            if ((isPublisher) || ((null != receipt) && (receipt.isSetReceivedOn()))) {
+                setIcon(imageCache.read(TabPanelIcon.USER));
+            } else {
+                setIcon(imageCache.read(TabPanelIcon.USER_NOT_RECEIVED));
+            }
         }
         
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {

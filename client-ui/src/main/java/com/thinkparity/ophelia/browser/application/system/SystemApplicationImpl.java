@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.system.notify.Notification;
-import com.thinkparity.ophelia.browser.application.system.notify.NotifyPanel;
+import com.thinkparity.ophelia.browser.application.system.notify.NotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 import com.thinkparity.ophelia.browser.platform.Platform;
 
@@ -146,7 +146,7 @@ class SystemApplicationImpl extends Thread {
                 for (final Iterator<Notification> i = queue.iterator();
                         i.hasNext();) {
                     notification = i.next();
-                    NotifyPanel.display(notification);
+                    NotifyFrame.display(notification);
                     i.remove();
                 }
             }

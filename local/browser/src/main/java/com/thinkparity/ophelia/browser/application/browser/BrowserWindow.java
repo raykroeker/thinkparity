@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -12,8 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
-
-import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
@@ -26,6 +31,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -93,10 +100,6 @@ public class BrowserWindow extends AbstractJFrame {
     /** The semi-transparent JPanel */
     private final SemiTransparentJPanel semiTransparentJPanel;
     
-    /** The Resizer */
-    @SuppressWarnings("unused")
-    private final Resizer resizer;
-
 	/**
 	 * Create a BrowserWindow.
 	 * 
@@ -142,9 +145,7 @@ public class BrowserWindow extends AbstractJFrame {
         // Set up the semi-transparent JPanel
         semiTransparentJPanel = new SemiTransparentJPanel(Boolean.FALSE);
         getLayeredPane().add(semiTransparentJPanel, JLayeredPane.PALETTE_LAYER);
-        
-        // Set up the resizer
-        resizer = new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
+        new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.ALL_EDGES);
 	}
 
 	/**

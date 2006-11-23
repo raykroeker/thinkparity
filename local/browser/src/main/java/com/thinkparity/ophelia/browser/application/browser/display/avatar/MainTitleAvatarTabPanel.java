@@ -65,22 +65,14 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /** The selected tab. */
     private Tab selectedTab;
     
-    /** The Resizer for the panel*/
-    @SuppressWarnings("unused")
-    private final Resizer resizer;
-    
-    /** The resizer for the containerJLabel */
-    @SuppressWarnings("unused")
-    private final Resizer containerJLabelResizer;
-
     /** Creates new form BrowserTitleTabs */
     public MainTitleAvatarTabPanel() {
         super();
         this.allTabs = new HashMap<TabId, Tab>();
         this.pluginTabs = new HashMap<PluginExtension, Tab>();
         initComponents();
-        this.resizer = new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.LEFT);
-        this.containerJLabelResizer = new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT); 
+        new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.LEFT);
+        new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
     }
 
     /**

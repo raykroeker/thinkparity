@@ -45,10 +45,6 @@ public class BrowserMenuBar extends JMenuBar {
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
     
-    /** The Resizer */
-    @SuppressWarnings("unused")
-    private final Resizer resizer;
-    
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
     
@@ -142,7 +138,7 @@ public class BrowserMenuBar extends JMenuBar {
         this.browser = browser;
         this.localization = new JFrameLocalization("BrowserWindow.Menu");   
         this.popupItemFactory = PopupItemFactory.getInstance();
-        this.resizer = new Resizer(browser, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
+        new Resizer(browser, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
         
         // Double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {

@@ -8,13 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.workspace.Preferences;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Directories;
@@ -35,8 +37,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.update.UpdateHelper;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.workspace.Preferences;
-import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -502,9 +504,9 @@ public class BrowserPlatform implements Platform {
      *
      */
     private void startApplications() {
+        applicationFactory.create(ApplicationId.SYSTEM).start(this);
         applicationFactory.create(ApplicationId.BROWSER).start(this);
         applicationFactory.create(ApplicationId.SESSION).start(this);
-        applicationFactory.create(ApplicationId.SYSTEM).start(this);
     }
 
     /**

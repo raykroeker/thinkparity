@@ -142,10 +142,6 @@ public abstract class Avatar extends AbstractJPanel {
         }
 
         this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
-        final List<Component> componentsThatSupportMouseMove = getComponentsThatSupportMouseMove();
-        if (null!=componentsThatSupportMouseMove) {
-            resizer.addComponentsThatSupportMouseMove(componentsThatSupportMouseMove);
-        }
     }
     
     /**
@@ -304,15 +300,6 @@ public abstract class Avatar extends AbstractJPanel {
      */
     protected Resizer.ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.BOTTOM;
-    }
-    
-    /**
-     * Get the list of components that a user can drag on to move the parent.
-     * Override this method for example if a dialog has a text label that
-     * can be used for dragging and moving the dialog.
-     */
-    protected List<Component> getComponentsThatSupportMouseMove() {
-        return null;
     }
     
     /**

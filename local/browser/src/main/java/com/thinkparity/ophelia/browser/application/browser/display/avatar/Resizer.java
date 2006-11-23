@@ -131,39 +131,6 @@ public class Resizer {
     }
 
     /**
-     * Add components that a user can drag on to move the parent.
-     * 
-     * @param components
-     *            List of components.
-     */
-    public void addComponentsThatSupportMouseMove(final List<Component>componentsThatSupportMouseMove) {
-        if (null != componentsThatSupportMouseMove) {
-            for (final Component component : componentsThatSupportMouseMove) {
-                final MouseMotionAdapter mouseMotionAdapter = new MouseMotionAdapter() {
-                    public void mouseDragged(java.awt.event.MouseEvent evt) {
-                        formMouseDragged(evt, component);
-                    }
-                };
-                final MouseAdapter mouseAdapter = new MouseAdapter() {
-                    public void mousePressed(java.awt.event.MouseEvent evt) {
-                        formMousePressed(evt, component);
-                    }
-                    public void mouseReleased(java.awt.event.MouseEvent evt) {
-                        formMouseReleased(evt, component);
-                    }
-                };
-                component.addMouseMotionListener(mouseMotionAdapter);
-                component.addMouseListener(mouseAdapter);
-                
-                // Save so they can be removed later.
-                components.add(component);
-                mouseMotionAdapters.put(component, mouseMotionAdapter);
-                mouseAdapters.put(component, mouseAdapter);
-            }
-        }
-    }
-    
-    /**
      * These get and set methods are used by classes that intend to do
      * their own resizing. (For example, the bottom right resize control.)
      */

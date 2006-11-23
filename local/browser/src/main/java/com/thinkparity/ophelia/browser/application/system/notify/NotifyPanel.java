@@ -70,6 +70,7 @@ public final class NotifyPanel extends AbstractJPanel {
         initComponents();
         this.notificationIndex = 0;
         this.notificationText = new StringBuffer();
+        addMoveListener(notificationJPanel);
     }
 
     /**

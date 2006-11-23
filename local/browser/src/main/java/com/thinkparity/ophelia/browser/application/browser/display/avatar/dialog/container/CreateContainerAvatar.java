@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
-import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +31,7 @@ public class CreateContainerAvatar extends Avatar {
         super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initNameJTextField();
+        addMoveListener(explanationJLabel);
     }
     
     public AvatarId getId() {
@@ -43,16 +43,6 @@ public class CreateContainerAvatar extends Avatar {
 
     public State getState() {
         return null;
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getComponentsThatSupportMouseMove()
-     */
-    @Override
-    protected List<Component> getComponentsThatSupportMouseMove() {
-        List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
-        componentsThatSupportMouseMove.add(explanationJLabel);
-        return componentsThatSupportMouseMove;
     }
     
     /**

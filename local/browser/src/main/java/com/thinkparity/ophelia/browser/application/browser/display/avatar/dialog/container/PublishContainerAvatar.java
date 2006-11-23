@@ -61,6 +61,7 @@ public final class PublishContainerAvatar extends Avatar implements
         namesJScrollPane.getViewport().setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJTable.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJTable.getTableHeader().setDefaultRenderer(new PublishTableHeaderRenderer(namesJTable.getTableHeader()));
+        addMoveListener(explanationJLabel);
     }
 
     /**
@@ -201,16 +202,6 @@ public final class PublishContainerAvatar extends Avatar implements
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getComponentsThatSupportMouseMove()
-     */
-    @Override
-    protected List<Component> getComponentsThatSupportMouseMove() {
-        List<Component> componentsThatSupportMouseMove = new ArrayList<Component>();
-        componentsThatSupportMouseMove.add(explanationJLabel);
-        return componentsThatSupportMouseMove;
-    }
-    
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
@@ -667,28 +658,22 @@ public final class PublishContainerAvatar extends Avatar implements
         private final List<Contact> contacts;       
         private final User publisher;
         private List<Boolean> publishTo;
-        private final PublishType publishType;
         private final List<TeamMember> teamMembers;
         private final Class[] types = new Class [] {
                 java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
-        private final Boolean versionExists;
         private final Map<User, ArtifactReceipt> versionUsers;
         
         public CustomTableModel(final PublishType publishType, final Long containerId, final Long versionId) {
             super();
             if (null==containerId) {
                 Assert.assertNotNull("containerId cannot be null.", containerId);
-                this.publishType = PublishType.PUBLISH;
-                versionExists = Boolean.FALSE;
                 publisher = null;
                 versionUsers = null;
                 teamMembers = null;
                 contacts = null;
                 publishTo = null;
             } else {
-                this.publishType = publishType;
-                versionExists = (null!=versionId);
                 publisher = getPublisher(containerId, versionId);                
                 versionUsers = readVersionUsers(containerId, versionId); 
                 teamMembers = readTeamMembers(containerId, versionId, publishType);

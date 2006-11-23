@@ -124,7 +124,7 @@ public class AbstractJPanel extends JPanel {
      */
     protected final void addMoveListener(final JComponent jComponent) {
         if (null == moveHelper) {
-            moveHelper = new AbstractJPanelMoveHelper(this);
+            moveHelper = new AbstractJPanelMoveHelper(this, 25);
         }
         moveHelper.addListener(jComponent);
     }

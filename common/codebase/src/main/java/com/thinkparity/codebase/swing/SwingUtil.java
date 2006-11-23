@@ -3,12 +3,18 @@
  */
 package com.thinkparity.codebase.swing;
 
+import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raymond@thinkparity.com
@@ -16,10 +22,13 @@ import javax.swing.JTextField;
  */
 public class SwingUtil {
 
+	/** An array of the screen devices. */
+    private static GraphicsDevice[] screenDevices;
+
 	/** A singleton instance. */
 	private static final SwingUtil SINGLETON;
 
-	static { SINGLETON = new SwingUtil(); }
+    static { SINGLETON = new SwingUtil(); }
 
     /**
      * Extract the value of a checkbox.
@@ -68,7 +77,33 @@ public class SwingUtil {
 		return SINGLETON.doesRegionContain(region, point);
 	}
 
-	/** Create SwingUtil. */
+    /**
+     * Obtain the primary screen size.
+     * 
+     * @return A <code>Dimension</code>.
+     */
+    static Dimension getPrimaryScreenSize() {
+        return Toolkit.getDefaultToolkit().getScreenSize();
+    }
+
+    static GraphicsDevice getScreen(final Point p) {
+        if (null == screenDevices) {
+            final GraphicsEnvironment graphicsEnvironment =
+                GraphicsEnvironment.getLocalGraphicsEnvironment();
+            screenDevices = graphicsEnvironment.getScreenDevices();
+        }
+        for (final GraphicsDevice screenDevice : screenDevices) {
+            if (regionContains(screenDevice.getDefaultConfiguration().getBounds(), p))
+                    return screenDevice;
+        }
+        throw Assert.createUnreachable("Point not within any display device.");
+    }
+
+    static Rectangle getScreenBounds(final GraphicsDevice screenDevice) {
+        return screenDevice.getDefaultConfiguration().getBounds();
+    }
+
+    /** Create SwingUtil. */
 	private SwingUtil() { super(); }
 
     /**

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase.swing;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
@@ -41,15 +42,19 @@ final class AbstractJPanelMoveHelper {
     /** The offset x and y coordinates the mouse was dragged. */
     private int offsetX, offsetY;
 
+    /** The number of pixels from the edge of a screen to interpret as sticky. */
+    private final int stickyPixels;
+
     /**
      * Create AbstractJPanelMoveHelper.
      * 
      * @param jPanel
      *            A <code>JPanel</code>.
      */
-    AbstractJPanelMoveHelper(final JPanel jPanel) {
+    AbstractJPanelMoveHelper(final JPanel jPanel, final int stickyPixels) {
         super();
         this.logger = new Log4JWrapper();
+        this.stickyPixels = stickyPixels;
     }
 
     /**
@@ -140,8 +145,22 @@ final class AbstractJPanelMoveHelper {
             final Window window =
                 SwingUtilities.getWindowAncestor(((JComponent) e.getSource()));
             final Point location = window.getLocation();
+            final Dimension size = window.getSize();
+            final Dimension primaryScreenSize = SwingUtil.getPrimaryScreenSize();
             location.x += offsetX;
             location.y += offsetY;
+            // if the location on the screen is within a given number of pixels;
+            // stick to the size of the side of the screen
+            if (stickyPixels > location.x) {
+                location.x = 0;
+            } else if (location.x + size.width > primaryScreenSize.width - stickyPixels) {
+                location.x = primaryScreenSize.width - size.width;
+            }
+            if (stickyPixels > location.y) {
+                location.y = 0;
+            } else if (location.y + size.height > primaryScreenSize.height - stickyPixels) {
+                location.y = primaryScreenSize.height - size.height;
+            }
             window.setLocation(location);
         }
     }

@@ -34,6 +34,8 @@ public final class Constants {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
             public static final class List {
+                public static final Color LIST_CONTAINERS_BORDER = new Color(212, 212, 212, 255);
+                public static final Color LIST_CONTAINERS_BACKGROUND = new Color(234, 234, 234, 255);
                 public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
                 public static final Color LIST_EXPANDED_BG = Color.WHITE;
@@ -56,7 +58,6 @@ public final class Constants {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
                 public static final Color BG_GRAD_START = new Color(239, 241, 242, 255);
                 public static final Color BOTTOM_BORDER = new Color(167, 167, 167, 255);
-                public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
             }
@@ -233,6 +234,8 @@ public final class Constants {
                 ImageIOUtil.read("DialogTopRightOuter.png");
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
+            public static final BufferedImage SEARCH_BACKGROUND =
+                ImageIOUtil.read("BrowserTitle_SearchBackground.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
         }

@@ -45,14 +45,17 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (searchJTextField.hasFocus()) {
-            final Graphics2D g2 = (Graphics2D) g.create();
-            try {
+        final Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            if (searchJTextField.hasFocus()) {
                 final Point leftLocation = leftJLabel.getLocation();
-                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 3, leftLocation.y - 3, null);
-            } finally {
-                g2.dispose();
+                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 1, leftLocation.y - 1, null);
+            } else {
+                final Point leftLocation = searchJTextField.getLocation();
+                g2.drawImage(Images.BrowserTitle.SEARCH_BACKGROUND, leftLocation.x, leftLocation.y + 1, null);   
             }
+        } finally {
+            g2.dispose();
         }
     }
 
@@ -78,7 +81,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         rightJLabel = new javax.swing.JLabel();
         searchJTextField = new javax.swing.JTextField();
         searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));
-        searchJTextField.setBackground(Colors.Browser.MainTitle.SEARCH_BACKGROUND);
         searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(final DocumentEvent e) {
                 searchJTextFieldChangedUpdate(e);
@@ -96,15 +98,21 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
         setOpaque(false);
         rightJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchRight.png")));
+        rightJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        rightJLabel.setMaximumSize(new java.awt.Dimension(25, 19));
+        rightJLabel.setMinimumSize(new java.awt.Dimension(25, 19));
+        rightJLabel.setPreferredSize(new java.awt.Dimension(25, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 3, 4);
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 4, 4);
         add(rightJLabel, gridBagConstraints);
 
-        searchJTextField.setMinimumSize(new java.awt.Dimension(11, 20));
-        searchJTextField.setPreferredSize(new java.awt.Dimension(11, 20));
+        searchJTextField.setMargin(new java.awt.Insets(3, 5, 0, 4));
+        searchJTextField.setMinimumSize(new java.awt.Dimension(1, 19));
+        searchJTextField.setOpaque(false);
+        searchJTextField.setPreferredSize(new java.awt.Dimension(1, 19));
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchJTextFieldActionPerformed(evt);
@@ -122,18 +130,22 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 84;
+        gridBagConstraints.ipadx = 92;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 3, 0);
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 4, 0);
         add(searchJTextField, gridBagConstraints);
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
+        leftJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        leftJLabel.setMaximumSize(new java.awt.Dimension(25, 19));
+        leftJLabel.setMinimumSize(new java.awt.Dimension(25, 19));
+        leftJLabel.setPreferredSize(new java.awt.Dimension(25, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 4, 3, 0);
+        gridBagConstraints.insets = new java.awt.Insets(11, 4, 4, 0);
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

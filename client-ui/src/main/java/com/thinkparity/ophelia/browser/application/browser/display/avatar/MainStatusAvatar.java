@@ -86,9 +86,11 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public void reload() {
-        this.profile = getInputProfile();
-        reloadCustom();
-        reloadConnection();
+        if (null != input) {
+            this.profile = getInputProfile();
+            reloadCustom();
+            reloadConnection();
+        }
     }
 
     /**
@@ -262,7 +264,10 @@ public class MainStatusAvatar extends Avatar {
         switch(getInputConnection()) {
         case ONLINE:
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
-            connectionText = profile.getName();
+            if (null == profile)
+                connectionText = getString(Connection.ONLINE);
+            else
+                connectionText = profile.getName();
             break;
         case OFFLINE:
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);

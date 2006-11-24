@@ -1575,6 +1575,9 @@ public class Browser extends AbstractApplication {
 
     /** Display the main status avatar. */
     void displayMainStatusAvatar() {
+        final Data input = new Data(1);
+        input.set(MainStatusAvatar.DataKey.PROFILE, getProfile());
+        setInput(AvatarId.MAIN_STATUS, input);
         displayStatus(AvatarId.MAIN_STATUS);
     }
 

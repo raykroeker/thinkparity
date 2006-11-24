@@ -12,6 +12,7 @@ import java.awt.Window;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
@@ -41,6 +42,9 @@ public class MainStatusAvatar extends Avatar {
     
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
+    
+    /** A thinkParity user's profile. */
+    private Profile profile;
 
     /** Creates new form BrowserStatus */
     MainStatusAvatar() {
@@ -82,6 +86,7 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public void reload() {
+        this.profile = getInputProfile();
         reloadCustom();
         reloadConnection();
     }
@@ -168,6 +173,19 @@ public class MainStatusAvatar extends Avatar {
             return (Object[]) ((Data) input).get(DataKey.CUSTOM_MESSAGE_ARGUMENTS);
         }
     }
+    
+    /**
+     * Obtain the input profile.
+     * 
+     * @return The input profile.
+     */
+    private Profile getInputProfile() {
+        if(null == input) {
+            return null;
+        } else {
+            return (Profile) ((Data) input).get(DataKey.PROFILE);
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -184,7 +202,7 @@ public class MainStatusAvatar extends Avatar {
 
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
 
-        connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND);
+        connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -245,9 +263,15 @@ public class MainStatusAvatar extends Avatar {
             final String connectionText;
             switch(getInputConnection()) {
             case ONLINE:
-                connectionText = getString(Connection.ONLINE);
+                connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
+                if (null != profile) {
+                    connectionText = profile.getName();
+                } else {
+                    connectionText = getString(Connection.ONLINE);
+                }
                 break;
             case OFFLINE:
+                connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
                 connectionText = getString(Connection.OFFLINE);
                 break;
             default:
@@ -318,5 +342,5 @@ public class MainStatusAvatar extends Avatar {
     private javax.swing.JLabel customJLabel;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS }
+    public enum DataKey { PROFILE, CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS }
 }

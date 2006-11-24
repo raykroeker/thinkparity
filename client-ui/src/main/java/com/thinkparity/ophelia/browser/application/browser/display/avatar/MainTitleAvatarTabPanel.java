@@ -262,9 +262,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     private void reloadDisplayName() {
         nameJLabel.setText("");
-        if(null != profile) {
+/*        if(null != profile) {
             nameJLabel.setText(profile.getName());
-        }
+        }*/
     }
     /**
      * Reload the tab images.

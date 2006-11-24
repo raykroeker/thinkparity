@@ -54,7 +54,8 @@ public final class Constants {
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
                 public static final Color BG_GRAD_START = Color.WHITE;
-                public static final Color CONNECTION_FOREGROUND = new Color(255, 96, 6, 255);
+                public static final Color CONNECTION_FOREGROUND_OFFLINE = new Color(255, 96, 6, 255);
+                public static final Color CONNECTION_FOREGROUND_ONLINE = Color.BLACK;
                 public static final Color TOP_BORDER = new Color(130, 130, 130, 255);
             }
             public static final class MainTitle {

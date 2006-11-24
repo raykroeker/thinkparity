@@ -242,12 +242,14 @@ public final class Constants {
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("BrowserTitle_Logo.png");
             public static final BufferedImage[] CONTAINER_BACKGROUND_LEFT = new BufferedImage[] {
+                ImageIOUtil.read("ContainerBackgroundLeft_0Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_1Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_2Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_3Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_4Selected.png")
             };
             public static final BufferedImage[] CONTAINER_BACKGROUND_MID = new BufferedImage[] {
+                ImageIOUtil.read("ContainerBackgroundMid_0Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_1Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_2Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_3Selected.png"),

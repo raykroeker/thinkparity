@@ -4,11 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -58,12 +54,16 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
+    
+    /** Number of rows visible in the expanded package lists. */
+    private static final Integer NUMBER_VISIBLE_ROWS;
 
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {        
         DIMENSION = new Dimension(50,96);
+        NUMBER_VISIBLE_ROWS = 4;
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
     }
 
@@ -135,6 +135,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     javax.swing.JPanel rightJPanel;
     private javax.swing.JList versionsContentJList;
     private javax.swing.JList versionsJList;
+    javax.swing.JScrollPane versionsJScrollPane;
     javax.swing.JSplitPane versionsJSplitPane;
     // End of variables declaration//GEN-END:variables
 
@@ -162,6 +163,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.transparentJPanel = new TransparentJPanel(this);
         initComponents();
         initResizeListener();
+        initScrollbarAdjustmentListener();
         initMouseOverTrackers();
         initBackgroundImages();
         focusManager.addFocusListener(this, model, versionsJList, FocusManager.FocusList.VERSION);
@@ -176,14 +178,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         super.paintComponent(g);
         final int rightWidth = getWidth() / 2;
         final int leftWidth = getWidth() - rightWidth - 5;
-        int index = versionsJList.getSelectedIndex() - versionsJList.getFirstVisibleIndex();
-        
-        // TODO fix this
-        if (index < 0 ) {
-            index = 0;
-        }
-        if (index > 3) {
-            index = 3;
+        final int selectedIndex = versionsJList.getSelectedIndex() - versionsJList.getFirstVisibleIndex();        
+        final int imageIndex;
+        if (versionsJList.getSelectedIndex() < 0 ) {
+            imageIndex = 0;
+        } else if ((selectedIndex < 0 ) || (selectedIndex >= NUMBER_VISIBLE_ROWS)) {
+            imageIndex = 0;
+        } else {
+            imageIndex = selectedIndex + 1;
         }
         
         // Prepare the right side.        
@@ -200,19 +202,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         
         // Prepare the left side.
-        if ((null == scaledContainerBackgroundLeft[index]) || scaledContainerBackgroundLeft[index].getWidth() < leftWidth) {
+        if ((null == scaledContainerBackgroundLeft[imageIndex]) || scaledContainerBackgroundLeft[imageIndex].getWidth() < leftWidth) {
             initBackgroundImages(getWidth());
         }
-        if ((null == clippedContainerBackgroundLeft[index]) || (clippedContainerBackgroundLeft[index].getWidth() != leftWidth)) {
-            clippedContainerBackgroundLeft[index] = scaledContainerBackgroundLeft[index].getSubimage(
+        if ((null == clippedContainerBackgroundLeft[imageIndex]) || (clippedContainerBackgroundLeft[imageIndex].getWidth() != leftWidth)) {
+            clippedContainerBackgroundLeft[imageIndex] = scaledContainerBackgroundLeft[imageIndex].getSubimage(
                     0, 0, leftWidth, getHeight());
         }
                 
         // Paint
         final Graphics g2 = g.create();
         try {
-            g2.drawImage(clippedContainerBackgroundLeft[index], 0, 0, leftWidth, getHeight(), null);
-            g2.drawImage(Images.BrowserTitle.CONTAINER_BACKGROUND_MID[index], leftWidth, 0, 5, getHeight(), null);
+            g2.drawImage(clippedContainerBackgroundLeft[imageIndex], 0, 0, leftWidth, getHeight(), null);
+            g2.drawImage(Images.BrowserTitle.CONTAINER_BACKGROUND_MID[imageIndex], leftWidth, 0, 5, getHeight(), null);
             g2.drawImage(clippedContainerBackgroundRight, getWidth()-rightWidth, 0, rightWidth, getHeight(), null);
         }
         finally { g2.dispose(); }
@@ -223,10 +225,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     private void initBackgroundImages() {
         if (null == scaledContainerBackgroundLeft) {
-            scaledContainerBackgroundLeft = new BufferedImage[4];
+            scaledContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS+1];
         }
         if (null == clippedContainerBackgroundLeft) {
-            clippedContainerBackgroundLeft = new BufferedImage[4];
+            clippedContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS+1];
         }
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         initBackgroundImages((int)screenSize.getWidth());
@@ -240,7 +242,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
      */
     private void initBackgroundImages(final int newWidth) {
         // Set up and if necessary scale the left background images
-        for (int index = 0; index < 4; index++) {
+        for (int index = 0; index < NUMBER_VISIBLE_ROWS+1; index++) {
             if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getWidth()) {
                 scaledContainerBackgroundLeft[index] = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index];
             } else {
@@ -412,6 +414,21 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 versionsJSplitPane.setDividerLocation(0.5);               
             }            
         });
+    }
+    
+    /**
+     * Initialize the scrollbar adjustment listener.
+     */
+    private void initScrollbarAdjustmentListener() {
+        final JScrollBar jScrollBar = versionsJScrollPane.getVerticalScrollBar();
+        if (null != jScrollBar) {
+            jScrollBar.addAdjustmentListener(new AdjustmentListener() {
+                public void adjustmentValueChanged(final AdjustmentEvent e) { 
+                    // Selection is indicated by background image, therefore, repaint.
+                    ContainerVersionsPanel.this.repaint();
+                }                
+            });
+        }
     }
 
     /**
@@ -588,7 +605,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane versionsContentJScrollPane;
-        javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
         leftJPanel = new javax.swing.JPanel();
@@ -789,6 +805,8 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 }
             }
         }
+        // Selection is indicated by background image, therefore, repaint.
+        repaint();
     }//GEN-LAST:event_versionsJListValueChanged
         
     /**

@@ -7,15 +7,12 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Component;
-import java.awt.Graphics;
 
 import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractContentCell;
@@ -31,17 +28,6 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
     public VersionContentCellRenderer() {
         initComponents();
     }
-    
-/*    protected void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        final Graphics g2 = g.create();
-        try {
-            GradientPainter.paintVertical(g2, getSize(),
-                    Colors.Browser.List.LIST_GRADIENT_LIGHT,
-                    Colors.Browser.List.LIST_GRADIENT_DARK);
-        }
-        finally { g2.dispose(); }
-    }*/
 
     /**
      * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
@@ -51,10 +37,24 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
             final Object value, final int index, final boolean isSelected,
             final boolean cellHasFocus) {
         final AbstractContentCell cell = (AbstractContentCell) value;
-        textJLabel.setText(cell.getText());
-        final Icon icon = cell.getIcon();
+
         // Set icon, even if it is null
+        final Icon icon = cell.getIcon();
         iconJLabel.setIcon(icon);
+        
+        // Underline text if it is selected
+        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {
+            // Note that during a popup, cell.isFocusOnThisList() returns true whereas
+            // isFocusOwner() returns false.
+            final StringBuffer text;
+            text = new StringBuffer();
+            text.append("<html><u>");
+            text.append(cell.getText());
+            text.append("</u><html>");
+            textJLabel.setText(text.toString());
+        } else {
+            textJLabel.setText(cell.getText()); 
+        }
         
         // Set border.
 /*        if (isSelected && !cell.isFillerCell() && cell.isFocusOnThisList()) {

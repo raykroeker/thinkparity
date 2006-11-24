@@ -56,15 +56,15 @@ public final class NotifyPanel extends AbstractJPanel {
         NOTIFICATIONS = new Vector<Notification>();
     }
 
-    private Image scaledBackground;
-
-    private Dimension scaledSize;
-
     /** The current notification index. */
     private int notificationIndex;
 
     /** The buffer to use when displaying the notification. */
     private final StringBuffer notificationText;
+
+    private Image scaledBackground;
+
+    private Dimension scaledSize;
 
     /**
      * Create NotifyPanel.
@@ -77,7 +77,6 @@ public final class NotifyPanel extends AbstractJPanel {
         this.notificationText = new StringBuffer();
         addMoveListener(notificationJLabel);
     }
-
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
@@ -293,32 +292,28 @@ public final class NotifyPanel extends AbstractJPanel {
         }
         return false;
     }
-
     private void logoJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoJLabelMouseClicked
         NOTIFICATIONS.get(notificationIndex).invokeAction();
     }//GEN-LAST:event_logoJLabelMouseClicked
-
     private void nextJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextJLabelMouseClicked
         if (isNextEnabled()) {
             notificationIndex++;
             reload();
         }
     }//GEN-LAST:event_nextJLabelMouseClicked
-
     private void nextJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextJLabelMouseEntered
         if (isNextEnabled()) {
             ((JLabel) evt.getSource()).setIcon(NEXT_ICONS[1]);
         }
     }//GEN-LAST:event_nextJLabelMouseEntered
-
     private void nextJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextJLabelMouseExited
         if (isNextEnabled()) {
             ((JLabel) evt.getSource()).setIcon(NEXT_ICONS[0]);
         }
     }//GEN-LAST:event_nextJLabelMouseExited
-
     private void notificationJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_notificationJLabelMouseClicked
     }//GEN-LAST:event_notificationJLabelMouseClicked
+
 
     private void previousJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_previousJLabelMouseClicked
         if (isPreviousEnabled()) {
@@ -394,7 +389,6 @@ public final class NotifyPanel extends AbstractJPanel {
             previousJLabel.setEnabled(false);
         }
     }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel closeJLabel;

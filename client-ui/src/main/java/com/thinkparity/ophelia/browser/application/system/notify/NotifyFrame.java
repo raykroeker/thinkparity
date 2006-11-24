@@ -6,12 +6,15 @@
 
 package com.thinkparity.ophelia.browser.application.system.notify;
 
+import java.awt.AWTException;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
@@ -29,6 +32,33 @@ public class NotifyFrame extends AbstractJDialog {
     private static Persistence framePersistence;
 
     /**
+     * Test the notification display.
+     * 
+     * @param notification
+     *            A <code>Notification</code>.
+     */
+    static void testDisplay(final Notification notification) {
+        if (null == frame) {
+            try {
+                frame = new NotifyFrame();
+            } catch (final AWTException awtx) {
+                throw new BrowserException("Could not instantiate notification dialogue.", awtx);
+            }
+        }
+        synchronized (notification) {
+            frame.doDisplay(notification);
+        }
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (frame.isVisible())
+                    frame.toFront();
+                else
+                    frame.setVisible(true);
+            }
+        });
+    }
+
+    /**
      * Display a notification. The notification is added to an internal list and
      * if the notify panel is not already visible it is set to visible.
      * 
@@ -36,15 +66,19 @@ public class NotifyFrame extends AbstractJDialog {
      */
     public static void display(final Notification notification) {
         if (null == frame) {
-            framePersistence = PersistenceFactory.getPersistence(NotifyFrame.class);
-            frame = new NotifyFrame();
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(final WindowEvent e) {
-                    framePersistence.set("location", frame.getLocation());
-                }
-            });
-            frame.setLocation(framePersistence.get("location", new Point(0, 0)));
+            try {
+                framePersistence = PersistenceFactory.getPersistence(NotifyFrame.class);
+                frame = new NotifyFrame();
+                frame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(final WindowEvent e) {
+                        framePersistence.set("location", frame.getLocation());
+                    }
+                });
+                frame.setLocation(framePersistence.get("location", new Point(0, 0)));
+            } catch (final AWTException awtx) {
+                throw new BrowserException("Could not instantiate notification dialogue.", awtx);
+            }
         }
         synchronized (notification) {
             frame.doDisplay(notification);
@@ -83,10 +117,11 @@ public class NotifyFrame extends AbstractJDialog {
      * Create NotifyFrame.
      * 
      */
-    private NotifyFrame() {
+    private NotifyFrame() throws AWTException {
         super(null, Boolean.FALSE, "");
         initComponents();
         new NativeSkin().roundCorners(this);
+        getRootPane().setBorder(new WindowBorder2());
     }
 
     /**

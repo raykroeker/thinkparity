@@ -6,9 +6,6 @@ package com.thinkparity.ophelia.browser.util.l2fprod;
 import java.awt.Window;
 
 import com.l2fprod.gui.region.Region;
-import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
  * A wrapper class for all native skin calls.
@@ -28,20 +25,16 @@ public final class NativeSkin {
 	private static final Boolean NO_NATIVE_SKIN;
 
 	static {
-        switch (OSUtil.getOS()) {
-        case LINUX:
-        case OSX:
-        case WINDOWS_2000:
-            new Log4JWrapper().logInfo(
-                    "Native skin library not available for your os {0}.",
-                    OSUtil.getOS());
+        // enable native skin if it's supported on this os *and* it's not turned
+        // of internally
+        if (com.l2fprod.gui.nativeskin.NativeSkin.isSupported()) {
+            if (!Boolean.getBoolean("thinkparity.nonativeskin")) {
+                NO_NATIVE_SKIN = Boolean.FALSE;
+            } else {
+                NO_NATIVE_SKIN = Boolean.TRUE;
+            }
+        } else {
             NO_NATIVE_SKIN = Boolean.TRUE;
-            break;
-        case WINDOWS_XP:
-            NO_NATIVE_SKIN = Boolean.getBoolean("thinkparity.nonativeskin");
-            break;
-        default:
-            throw Assert.createUnreachable("UNKNOWN OS");
         }
 
 		if (NO_NATIVE_SKIN) {
@@ -64,7 +57,7 @@ public final class NativeSkin {
      * 
      * @return True if the corners are rounded.
      */
-    public Boolean isRounded() {
+    public Boolean isNativeSkin() {
         return !NO_NATIVE_SKIN;
     }
 
@@ -75,7 +68,7 @@ public final class NativeSkin {
 	 *            A <code>Window</code>.
 	 */
 	public void roundCorners(final Window window) {
-		if (isRounded()) {
+		if (isNativeSkin()) {
 			final Region region = NATIVE_SKIN.createRoundRectangleRegion(0, 0,
 					window.getWidth() + 1, window.getHeight() + 1, 9, 9);
 			NATIVE_SKIN.setWindowRegion(window, region, true);

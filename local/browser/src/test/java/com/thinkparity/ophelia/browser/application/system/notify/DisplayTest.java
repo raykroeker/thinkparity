@@ -33,7 +33,7 @@ public final class DisplayTest extends BrowserTestCase {
 
     public void testDisplay() {
         for (final Notification notification : datum.notifications) {
-            NotifyFrame.display(notification);
+            NotifyFrame.testDisplay(notification);
             try {
                 Thread.sleep(1 * 1000);
             } catch (final InterruptedException ix) {}

@@ -145,23 +145,26 @@ final class AbstractJPanelMoveHelper {
             final Window window =
                 SwingUtilities.getWindowAncestor(((JComponent) e.getSource()));
             final Point location = window.getLocation();
+            final Point newLocation = (Point) location.clone();
             final Dimension size = window.getSize();
             final Dimension primaryScreenSize = SwingUtil.getPrimaryScreenSize();
-            location.x += offsetX;
-            location.y += offsetY;
+            newLocation.x += offsetX;
+            newLocation.y += offsetY;
             // if the location on the screen is within a given number of pixels;
             // stick to the size of the side of the screen
-            if (stickyPixels > location.x) {
-                location.x = 0;
-            } else if (location.x + size.width > primaryScreenSize.width - stickyPixels) {
-                location.x = primaryScreenSize.width - size.width;
+            if (stickyPixels > newLocation.x) {
+                newLocation.x = 0;
+            } else if (newLocation.x + size.width > primaryScreenSize.width - stickyPixels) {
+                newLocation.x = primaryScreenSize.width - size.width;
             }
-            if (stickyPixels > location.y) {
-                location.y = 0;
-            } else if (location.y + size.height > primaryScreenSize.height - stickyPixels) {
-                location.y = primaryScreenSize.height - size.height;
+            if (stickyPixels > newLocation.y) {
+                newLocation.y = 0;
+            } else if (newLocation.y + size.height > primaryScreenSize.height - stickyPixels) {
+                newLocation.y = primaryScreenSize.height - size.height;
             }
-            window.setLocation(location);
+            window.setLocation(newLocation);
+            window.firePropertyChange("location.x", Long.valueOf(location.x), Long.valueOf(newLocation.x));
+            window.firePropertyChange("location.y", Long.valueOf(location.y), Long.valueOf(newLocation.y));
         }
     }
 }

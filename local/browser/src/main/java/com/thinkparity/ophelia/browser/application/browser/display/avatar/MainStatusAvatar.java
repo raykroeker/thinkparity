@@ -258,27 +258,20 @@ public class MainStatusAvatar extends Avatar {
      */
     private void reloadConnection() {
         connectionJLabel.setText("");
-        final Connection connection = getInputConnection();
-        if (null != connection) {
-            final String connectionText;
-            switch(getInputConnection()) {
-            case ONLINE:
-                connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
-                if (null != profile) {
-                    connectionText = profile.getName();
-                } else {
-                    connectionText = getString(Connection.ONLINE);
-                }
-                break;
-            case OFFLINE:
-                connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
-                connectionText = getString(Connection.OFFLINE);
-                break;
-            default:
-                throw Assert.createUnreachable("UNKNOWN CONNECTION");
-            }
-            connectionJLabel.setText(connectionText);
+        final String connectionText;
+        switch(getInputConnection()) {
+        case ONLINE:
+            connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
+            connectionText = profile.getName();
+            break;
+        case OFFLINE:
+            connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
+            connectionText = getString(Connection.OFFLINE);
+            break;
+        default:
+            throw Assert.createUnreachable("UNKNOWN CONNECTION");
         }
+        connectionJLabel.setText(connectionText);
     }
 
     /**

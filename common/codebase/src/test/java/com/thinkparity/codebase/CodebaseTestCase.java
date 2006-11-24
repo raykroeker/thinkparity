@@ -13,6 +13,8 @@ import com.thinkparity.codebase.junitx.TestCase;
  */
 public abstract class CodebaseTestCase extends TestCase {
 
+    protected static abstract class Fixture {}
+
 	/**
      * Assert that two byte arrays are equal.
      * 

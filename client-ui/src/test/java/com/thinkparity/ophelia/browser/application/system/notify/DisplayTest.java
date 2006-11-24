@@ -58,19 +58,30 @@ public final class DisplayTest extends BrowserTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         final Notification[] notifications = new Notification[4];
-        Notification notification;
-        notification = new Notification();
-        notification.setMessage("A new something or other has arrived from elsewhere.");
-        notifications[0] = notification;
-        notification = new Notification();
-        notification.setMessage("A second new something or other has arrived from elsewhere.");
-        notifications[1] = notification;
-        notification = new Notification();
-        notification.setMessage("A third new something or other has arrived from even farther away.");
-        notifications[2] = notification;
-        notification = new Notification();
-        notification.setMessage("This is just getting boring.");
-        notifications[3] = notification;
+        notifications[0] = new Notification() {
+            public String getMessage() {
+                return "A new something or other has arrived from elsewhere.";
+            }
+            public void invokeAction() {}
+        };
+        notifications[1] = new Notification() {
+            public String getMessage() {
+                return "A second new something or other has arrived from elsewhere.";
+            }
+            public void invokeAction() {}
+        };
+        notifications[2] = new Notification() {
+            public String getMessage() {
+                return "A third new something or other has arrived from even farther away.";
+            }
+            public void invokeAction() {}
+        };
+        notifications[3] = new Notification() {
+            public String getMessage() {
+                return "This is just getting boring.";
+            }
+            public void invokeAction() {}
+        };
         datum = new Fixture(notifications);
     }
 

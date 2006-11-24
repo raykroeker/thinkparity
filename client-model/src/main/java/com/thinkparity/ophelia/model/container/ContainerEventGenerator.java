@@ -44,20 +44,6 @@ class ContainerEventGenerator {
     }
 
     /**
-     * Generate a container event for a container and a container version.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @return A container event.
-     */
-    ContainerEvent generate(final Container container,
-            final ContainerVersion version) {
-        return new ContainerEvent(source, container, version);
-    }
-
-    /**
      * Generate a container event for a container and a draft.
      * 
      * @param container
@@ -68,22 +54,6 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final Container container, final ContainerDraft draft) {
         return new ContainerEvent(source, container, draft);
-    }
-
-    /**
-     * Generate a container event for a container a document and a draft.
-     * 
-     * @param container
-     *            A container.
-     * @param draft
-     *            A draft.
-     * @param document
-     *            A document.
-     * @return A container event.
-     */
-    ContainerEvent generate(final Container container,
-            final ContainerDraft draft, final Document document) {
-        return new ContainerEvent(source, container, draft, document);
     }
 
     /**
@@ -103,6 +73,36 @@ class ContainerEventGenerator {
     }
 
     /**
+     * Generate a container event for a container a document and a draft.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A draft.
+     * @param document
+     *            A document.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerDraft draft, final Document document) {
+        return new ContainerEvent(source, container, draft, document);
+    }
+
+    /**
+     * Generate a container event for a container and a container version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerVersion version) {
+        return new ContainerEvent(source, container, version);
+    }
+
+    /**
      * Generate a container event for a <code>Container</code> and a
      * <code>TeamMember</code>.
      * 
@@ -114,6 +114,22 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final Container container, final TeamMember teamMember) {
         return new ContainerEvent(source, container, teamMember);
+    }
+
+    /**
+     * Generate a container event for a container; team member and version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A <code>ContainerEvent</code>.
+     */
+    ContainerEvent generate(final Container container,
+            final TeamMember teamMember, final ContainerVersion version) {
+        return new ContainerEvent(source, container, teamMember, version);
     }
 
     /**

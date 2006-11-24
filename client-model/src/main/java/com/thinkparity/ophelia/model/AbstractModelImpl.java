@@ -30,7 +30,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -907,7 +906,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected void notifyListeners(final EventNotifier<T> notifier) {
         final List<T> listeners = getWorkspaceModel().getListeners(workspace, this);
         for (final T listener : listeners) {
-            notifier.notifyListener(listener);
+            try {
+                notifier.notifyListener(listener);
+            } catch (final Throwable t) {
+                logger.logWarning(t, "Event listener {0} failed.", listener);
+            }
         }
     }
 

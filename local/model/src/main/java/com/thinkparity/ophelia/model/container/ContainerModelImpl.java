@@ -6,16 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
@@ -28,7 +19,6 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -603,12 +593,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     version.getVersionId(), artifactVersion.getArtifactId(),
                     artifactVersion.getVersionId(),
                     artifactVersion.getArtifactType());
-
-            final Container postPublish = read(container.getId());
-            final ContainerVersion postPublishVersion =
-                readVersion(version.getArtifactId(), version.getVersionId());
-            notifyContainerPublished(postPublish, null, postPublishVersion,
-                        remoteEventGenerator);
         }
         catch(final Throwable t) {
             throw translateError(t);
@@ -717,9 +701,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 publishedToUsers.add(userModel.read(publishedToId));
             }
             // add the sender as well
+            final TeamMember publishedBy;
             if (!contains(localTeam, event.getPublishedBy())) {
-                artifactModel.addTeamMember(containerId, event.getPublishedBy());
+                publishedBy = artifactModel.addTeamMember(containerId, event.getPublishedBy());
+            } else {
+                publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
             }
+
             // delete draft
             final ContainerDraft draft = readDraft(containerId);
             if (null == draft) {
@@ -762,12 +750,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     currentDateTime());
             // audit\fire event
             final Container postPublish = read(containerId);
-            final ContainerDraft postPublishDraft = readDraft(containerId);
             final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
-            auditContainerPublished(postPublish, postPublishDraft,
+            auditContainerPublished(postPublish, draft,
                     postPublishVersion, event.getPublishedBy(),
                     event.getPublishedTo(), event.getPublishedOn());
-            notifyContainerPublished(postPublish, postPublishDraft,
+            notifyContainerPublished(postPublish, publishedBy,
                     postPublishVersion, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -2707,6 +2694,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A container version.
      * @param eventGenerator
      *            A container event generator.
+     */
+    private void notifyContainerPublished(final Container container,
+            final TeamMember teamMember, final ContainerVersion version,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftPublished(eventGenerator.generate(container,
+                        teamMember, version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A <code>ContainerEventGenerator</code>.
      */
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion version,

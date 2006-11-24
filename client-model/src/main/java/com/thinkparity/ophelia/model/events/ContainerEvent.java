@@ -38,12 +38,17 @@ public class ContainerEvent {
      * Create ContainerEvent.
      * 
      * @param source
-     *            The event source
+     *            The <code>Source</code>.
      * @param container
-     *            The container.
+     *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
      */
-    public ContainerEvent(final Source source, final Container container) {
-        this(source, container, null, null, null, null);
+    public ContainerEvent(final Source source, final Container container,
+            final TeamMember teamMember, final ContainerVersion version) {
+        this(source, container, null, version, teamMember, null);
     }
 
     /**
@@ -52,13 +57,10 @@ public class ContainerEvent {
      * @param source
      *            The event source
      * @param container
-     *            The <code>Container</code>.
-     * @param version
-     *            The <code>ContainerVersion</code>.
+     *            The container.
      */
-    public ContainerEvent(final Source source, final Container container,
-            final ContainerVersion version) {
-        this(source, container, null, version, null, null);
+    public ContainerEvent(final Source source, final Container container) {
+        this(source, container, null, null, null, null);
     }
 
     /**
@@ -108,6 +110,21 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
         this(source, container, draft, null, null, document);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source
+     * @param container
+     *            The <code>Container</code>.
+     * @param version
+     *            The <code>ContainerVersion</code>.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerVersion version) {
+        this(source, container, null, version, null, null);
     }
 
     /**

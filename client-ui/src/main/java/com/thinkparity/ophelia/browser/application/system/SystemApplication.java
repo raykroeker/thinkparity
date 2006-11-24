@@ -5,15 +5,12 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.codebase.assertion.Assert;
+import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.FuzzyDateFormat;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.message.SystemMessage;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -29,8 +26,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raykroeker@gmail.com
@@ -50,10 +47,13 @@ public class SystemApplication extends AbstractApplication {
 	/** The event dispatcher. */
 	private EventDispatcher ed;
 
+	/** A fuzzy date formatter. */
+    private final FuzzyDateFormat fuzzyDateFormat;
+
 	/** The application impl. */
 	private SystemApplicationImpl impl;
 
-	/**
+    /**
      * Create SystemApplication.
      * 
      * @param platform
@@ -63,29 +63,10 @@ public class SystemApplication extends AbstractApplication {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
+        this.fuzzyDateFormat = new FuzzyDateFormat();
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#debugVariable(java.lang.String, java.lang.Object)
-     */
-    @Override
-    public <V> V debugVariable(final String name, final V value) {
-        return super.debugVariable(name, value);
-    }
-
-	/** Display the about dialogue. */
-    public void displayAbout() {}
-
 	/**
-     * Get the auto login preference.
-     *
-     * @return True if auto login is set; false otherwise.
-     */
-    public Boolean doAutoLogin() {
-        return getPlatform().getPersistence().doAutoLogin();
-    }
-
-    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -126,7 +107,7 @@ public class SystemApplication extends AbstractApplication {
 		return super.getString(localKey, arguments);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -270,130 +251,70 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire the contact updated event.
      * 
-     * @param container
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    void fireContactUpdated(final ContactEvent e) {
+        fireNotification("Norification.ContactUpdatedMessage",
+                getName(e.getContact()));
+    }
+
+    /**
+     * Fire the container draft created event.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
     void fireContainerDraftCreated(final ContainerEvent e) {
-        fireNotification("Notification.ContainerDraftCreatedMessage", e
-                .getContainer().getName(), getName(e.getDraft().getOwner()));
+        fireNotification("Notification.ContainerDraftCreatedMessage",
+                getName(e.getDraft().getOwner()), e.getContainer().getName());
     }
 
     /**
-     * Notify a document key has been closed.
+     * Fire the container draft created event.
      * 
-     * @param document
-     *            The document.
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
-    void fireDocumentClosed(final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentClosedMessage",
-                new Object[] {document.getName()}));
+    void fireContainerDraftDeleted(final ContainerEvent e) {
+        fireNotification("Notification.ContainerDraftDeletedMessage",
+                getName(e.getDraft().getOwner()), e.getContainer().getName());
     }
 
     /**
-     * Notify a document key has created.
+     * Fire the container draft created event.
      * 
-     * @param user
-     *            The originating user.
-     * @param document
-     *            The document.
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
-    void fireDocumentCreated(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentCreatedMessage",
-                new Object[] {document.getName(), getName(user)}));
+    void fireContainerDraftPublished(final ContainerEvent e) {
+        fireNotification("Notification.ContainerDraftPublishedMessage",
+                getName(e.getTeamMember()),
+                e.getContainer().getName(),
+                fuzzyDateFormat.format(e.getVersion().getUpdatedOn()));
     }
 
     /**
-     * Notify a document key request has been accepted.
+     * Fire the container draft created event.
      * 
-     * @param document
-     *            The document.
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
-    void fireDocumentKeyRequestAccepted(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentKeyRequestAcceptedMessage",
-                new Object[] {getName(user), document.getName()}));
+    void fireContainerTeamMemberAdded(final ContainerEvent e) {
+        fireNotification("Notification.ContainerTeamMemberAddedMessage",
+                getName(e.getTeamMember()), e.getContainer().getName());
     }
-
     /**
-     * Notify a document key request has been accepted.
+     * Fire the container draft created event.
      * 
-     * @param document
-     *            The document.
+     * @param e
+     *            A <code>ContainerEvent</code>.
      */
-    void fireDocumentKeyRequestDeclined(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentKeyRequestDeclinedMessage",
-                new Object[] {getName(user), document.getName()}));
-    }
-
-    /**
-     * Notify a document key has been requested.
-     * 
-     * @param document
-     *            The document.
-     */
-    void fireDocumentKeyRequested(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentKeyRequestedMessage",
-                new Object[] {getName(user), document.getName()}));
-    }
-    void fireDocumentReactivated(final User user, final Document document,
-            final DocumentVersion version) {
-        fireNotification(getString(
-                "Notification.DocumentReactivatedMessage",
-                new Object[] {document.getName(), getName(user)}));
-    }
-
-    /**
-     * Notify a document team member has been added.
-     *
-     * @param user
-     *      A user.
-     * @param document
-     *      A document.
-     */
-    void fireDocumentTeamMemberAdded(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentTeamMemberAddedMessage",
-                new Object[] {getName(user), document.getName()}));
-    }
-
-    /**
-     * Notify a document has been updated.
-     * 
-     * @param document
-     *            The document.
-     */
-    void fireDocumentUpdated(final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentUpdatedMessage",
-                new Object[] {document.getName()}));
-    }
-
-    /**
-     * Notify a system message has been created.
-     * 
-     * @param systemMessage
-     *            The system message.
-     */
-    void fireSystemMessageCreated(final SystemMessage systemMessage) {
-        fireNotification(getString(
-                "Notification.SystemMessageCreatedMessage",
-                new Object[] {systemMessage}));
-    }
-
-    /**
-     * Notify an update.
-     * 
-     * @param notificationMessage
-     *            The notification message.
-     */
-    private void fireNotification(final String notificationMessage) {
-        final Notification notification = new Notification();
-        notification.setMessage(notificationMessage);
-        impl.fireNotification(notification);
+    void fireContainerTeamMemberRemoved(final ContainerEvent e) {
+        fireNotification("Notification.ContainerTeamMemberRemovedMessage",
+                getName(e.getTeamMember()), e.getContainer().getName());
     }
 
     /**
@@ -404,11 +325,41 @@ public class SystemApplication extends AbstractApplication {
      * @param messageArguments
      *            A notification message arguments.
      */
-    private void fireNotification(final String messageKey,
-            final Object... messageArguments) {
-        fireNotification(getString(messageKey, messageArguments));
+    private void fireNotification(final ActionId actionId,
+            final String messageKey, final Object... messageArguments) {
+        impl.fireNotification(new Notification() {
+            public String getMessage() {
+                return getString(messageKey, messageArguments);
+            }
+            public void invokeAction() {
+                run(actionId, Data.emptyData());
+            }
+            
+        });
     }
 
+    /**
+     * Fire a notification; using the default action of restoring the browser
+     * window.
+     * 
+     * @param messageKey
+     *            A message key <code>String</code>.
+     * @param messageArguments
+     *            A variable length list of message argument <code>Object</code>.
+     */
+    private void fireNotification(final String messageKey,
+            final Object... messageArguments) {
+        fireNotification(ActionId.PLATFORM_BROWSER_RESTORE, messageKey,
+                messageArguments);
+    }
+
+    /**
+     * Extract the name from the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return The <code>User</code>'s name.
+     */
     private String getName(final User user) {
         return user.getName();
     }

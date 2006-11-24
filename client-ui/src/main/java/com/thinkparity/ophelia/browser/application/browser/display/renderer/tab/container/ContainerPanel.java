@@ -11,13 +11,12 @@ import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Calendar;
 
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
-import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.GradientPainter;
@@ -69,7 +68,10 @@ public final class ContainerPanel extends DefaultTabPanel {
     
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
-    
+
+    /** A <code>FuzzyDateFormat</code>. */
+    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
+
     static {
         BORDER_DEFAULT = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         BORDER_EVEN = new LineBorder(Colors.Browser.List.LIST_EVEN_BG);
@@ -87,8 +89,8 @@ public final class ContainerPanel extends DefaultTabPanel {
         BORDER_LAST_ODD = new MultiColourLineBorder(
                 Colors.Browser.List.LIST_ODD_BG, Colors.Browser.List.LIST_ODD_BG,
                 Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_ODD_BG);
-        
         DIMENSION = new Dimension(50,25);
+        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
     }
     
     /** An image cache. */
@@ -313,12 +315,7 @@ public final class ContainerPanel extends DefaultTabPanel {
         setTransferHandler(new ImportTxHandler(browser, model, container));
 
         containerNameJLabel.setText(container.getName());
-        final Calendar now = DateUtil.getInstance();
-        if (DateUtil.isSameDay(container.getUpdatedOn(), now)) {
-            containerDateJLabel.setText(localization.getString("TextToday", container.getUpdatedOn().getTime()));
-        } else {
-            containerDateJLabel.setText(localization.getString("Text", container.getUpdatedOn().getTime())); 
-        }  
+        containerDateJLabel.setText(FUZZY_DATE_FORMAT.format(container.getUpdatedOn()));
         if (container.isDraft()) {
             draftOwnerJLabel.setText(draft.getOwner().getName());
         } else {

@@ -9,12 +9,13 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.SocketFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
@@ -31,32 +32,43 @@ import com.thinkparity.codebase.model.session.Environment;
 abstract class StreamClient {
 
     /** A default <code>StreamMonitor</code>. */
-    private static final StreamMonitor DEFAULT_MONITOR = new StreamMonitor() {
-        private final Log4JWrapper LOGGER = new Log4JWrapper();
-        public void chunkReceived(int chunkSize) {
-            LOGGER.logApiId();
-            LOGGER.logVariable("chunkSize", chunkSize);
-        }
-        public void chunkSent(final int chunkSize) {
-            LOGGER.logApiId();
-            LOGGER.logVariable("chunkSize", chunkSize);
-        }
-        public void headerReceived(final String header) {
-            LOGGER.logApiId();
-            LOGGER.logVariable("header", header);
-        }
-        public void headerSent(final String header) {
-            LOGGER.logApiId();
-            LOGGER.logVariable("header", header);
-        }
-        public void streamError(final StreamException error) {
-            LOGGER.logApiId();
-            if (error.isRecoverable())
-                LOGGER.logError(error, "A recoverable stream error has occured.");
-            else
-                LOGGER.logError(error, "An unrecoverable stream error has occured.");
-        }
-    };
+    private static final StreamMonitor DEFAULT_MONITOR;
+
+    /** A list of socket error messages know to be recoverable from. */
+    private static final List<String> RECOVERABLE_MESSAGES;
+
+    static {
+        DEFAULT_MONITOR = new StreamMonitor() {
+            private final Log4JWrapper LOGGER = new Log4JWrapper();
+            public void chunkReceived(int chunkSize) {
+                LOGGER.logApiId();
+                LOGGER.logVariable("chunkSize", chunkSize);
+            }
+            public void chunkSent(final int chunkSize) {
+                LOGGER.logApiId();
+                LOGGER.logVariable("chunkSize", chunkSize);
+            }
+            public void headerReceived(final String header) {
+                LOGGER.logApiId();
+                LOGGER.logVariable("header", header);
+            }
+            public void headerSent(final String header) {
+                LOGGER.logApiId();
+                LOGGER.logVariable("header", header);
+            }
+            public void streamError(final StreamException error) {
+                LOGGER.logApiId();
+                if (error.isRecoverable())
+                    LOGGER.logError(error, "A recoverable stream error has occured.");
+                else
+                    LOGGER.logError(error, "An unrecoverable stream error has occured.");
+            }
+        };
+        RECOVERABLE_MESSAGES = new ArrayList<String>(2);
+        RECOVERABLE_MESSAGES.add("Connection reset");
+        RECOVERABLE_MESSAGES.add("Socket closed");
+        RECOVERABLE_MESSAGES.add("Software caused connection abort: socket write error");
+    }
 
     /** The stream's <code>InputStream</code>. */
     private InputStream input;
@@ -197,7 +209,7 @@ abstract class StreamClient {
             }
         } catch (final IOException iox) {
             if(SocketException.class.isAssignableFrom(iox.getClass())) {
-                if ("Connection reset.".equals(iox.getMessage())) {
+                if (RECOVERABLE_MESSAGES.contains(iox.getMessage())) {
                     if (isResumable()) {
                         try {
                             connect();
@@ -210,15 +222,6 @@ abstract class StreamClient {
             }
             throw panic(iox);
         }
-    }
-
-    /**
-     * Resume the client write operation. Re-establish the connection; write a
-     * header indicating the position; and continue.
-     * 
-     */
-    private void resumeWrite(final InputStream stream, final Long streamSize) {
-        Assert.assertNotYetImplemented("");
     }
 
     /**
@@ -352,6 +355,15 @@ abstract class StreamClient {
      */
     private StreamException panic(final Throwable t) {
         return new StreamException(Boolean.FALSE, t);
+    }
+
+    /**
+     * Resume the client write operation. Re-establish the connection; write a
+     * header indicating the position; and continue.
+     * 
+     */
+    private void resumeWrite(final InputStream stream, final Long streamSize) {
+        Assert.assertNotYetImplemented("");
     }
 
     /**

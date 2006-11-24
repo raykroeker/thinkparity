@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -59,9 +58,13 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     
     /** Dimension of the cell. */
     private static final Dimension DIMENSION;
-    
+
+    /** A <code>FuzzyDateFormat</code>. */
+    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
+
     static {        
         DIMENSION = new Dimension(50,96);
+        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
     }
 
     /** The <code>Container</code>. */
@@ -1131,19 +1134,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             if (isPublisher) {
                 setText(localization.getString("UserPublished", user.getName()));
             } else {
-                final Calendar now = DateUtil.getInstance();
-                final StringBuffer text;
-                text = new StringBuffer();
-                text.append(user.getName());
-                text.append(" ");
-                if ((null == receipt) || (!receipt.isSetReceivedOn())) {
+                final StringBuffer text = new StringBuffer(user.getName())
+                    .append(" ");
+                if (null == receipt || !receipt.isSetReceivedOn()) {
                     text.append(localization.getString("UserDidNotReceive"));
-                } else if (DateUtil.isSameDay(receipt.getReceivedOn(), now)) {
-                    text.append(localization.getString("UserReceivedToday",receipt.getReceivedOn().getTime()));
                 } else {
-                    text.append(localization.getString("UserReceived",receipt.getReceivedOn().getTime()));
+                    text.append(localization.getString("UserReceived",
+                            FUZZY_DATE_FORMAT.format(receipt.getReceivedOn())));
                 }
-                
                 setText(text.toString());
             }
         }
@@ -1198,14 +1196,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             return ((version.isSetComment()) && (version.getComment().length()>0));
         }
         private void initText(final ContainerVersion version, final User publishedBy) {
-            final Calendar now = DateUtil.getInstance();
-            if (DateUtil.isSameDay(version.getCreatedOn(), now)) {
-                setText(localization.getString("VersionToday", version.getCreatedOn().getTime()));
-            } else if (DateUtil.isSameYear(version.getCreatedOn(), now)) {
-                setText(localization.getString("VersionThisYear", version.getCreatedOn().getTime()));        
-            } else {
-                setText(localization.getString("Version", version.getCreatedOn().getTime())); 
-            }
+            setText(localization.getString("Version", FUZZY_DATE_FORMAT.format(version.getCreatedOn())));
         } 
     }
 

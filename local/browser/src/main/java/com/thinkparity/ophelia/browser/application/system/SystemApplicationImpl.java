@@ -86,6 +86,8 @@ class SystemApplicationImpl extends Thread {
         sysTray.unInstall();
         sysTray = null;
 
+        NotifyFrame.close();
+
         synchronized (this) {
             notifyAll();
         }

@@ -6,8 +6,14 @@
 
 package com.thinkparity.ophelia.browser.application.system.notify;
 
+import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import com.thinkparity.codebase.swing.AbstractJDialog;
 
+import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
+import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
 
 /**
@@ -16,7 +22,11 @@ import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
  */
 public class NotifyFrame extends AbstractJDialog {
 
+    /** The <code>NotifyFrame</code> singleton instance. */
     private static NotifyFrame frame;
+
+    /** The notification frame <code>Persistence</code>. */
+    private static Persistence framePersistence;
 
     /**
      * Display a notification. The notification is added to an internal list and
@@ -26,7 +36,15 @@ public class NotifyFrame extends AbstractJDialog {
      */
     public static void display(final Notification notification) {
         if (null == frame) {
+            framePersistence = PersistenceFactory.getPersistence(NotifyFrame.class);
             frame = new NotifyFrame();
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(final WindowEvent e) {
+                    framePersistence.set("location", frame.getLocation());
+                }
+            });
+            frame.setLocation(framePersistence.get("location", new Point(0, 0)));
         }
         synchronized (notification) {
             frame.doDisplay(notification);
@@ -41,6 +59,22 @@ public class NotifyFrame extends AbstractJDialog {
         });
     }
 
+    /**
+     * Close the notification.
+     *
+     */
+    public static void close() {
+        if (isDisplayed()) {
+            frame.dispose();
+            frame = null;
+        }
+    }
+
+    /**
+     * Determine whether or not the notification frame is being displayed.
+     * 
+     * @return True if the notification frame is currently being displayed.
+     */
     public static Boolean isDisplayed() {
         return null != frame && frame.isVisible();
     }
@@ -50,7 +84,7 @@ public class NotifyFrame extends AbstractJDialog {
      * 
      */
     private NotifyFrame() {
-        super(null, Boolean.TRUE, "");
+        super(null, Boolean.FALSE, "");
         initComponents();
         new NativeSkin().roundCorners(this);
     }

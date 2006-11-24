@@ -8,8 +8,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 
-import com.thinkparity.codebase.assertion.Assert;
+import org.jdesktop.jdic.tray.SystemTray;
+import org.jdesktop.jdic.tray.TrayIcon;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.Version;
@@ -17,28 +20,31 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
-
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Tray {
+public final class Tray {
 
-	/**
+    /**
 	 * Read the system tray icon.
 	 * 
 	 * @return The image icon.
 	 */
 	private static Icon readTrayIcon() { return ImageIOUtil.readIcon("SystemTray.png"); }
 
-    /** Indicates whether or not the system tray is installed. */
+	/** Indicates whether or not the system tray is installed. */
 	private Boolean isInstalled;
+
+    /** An apache logger wrapper. */
+    private final Log4JWrapper logger;
 
     /** A menu builder for the system tray application. */
     private final TrayMenuBuilder menuBuilder;
+
+    /** The local user's profile. */
+    private final Profile profile;
 
     /** The system application. */
 	private final SystemApplication systemApplication;
@@ -49,9 +55,6 @@ public class Tray {
     /** The system tray icon. */
 	private TrayIcon systemTrayIcon;
 
-    /** The local user's profile. */
-    private final Profile profile;
-
     /**
 	 * Create a Tray.
 	 * 
@@ -60,6 +63,7 @@ public class Tray {
 	 */
 	public Tray(final SystemApplication systemApplication, final Profile profile) {
 		super();
+        this.logger = new Log4JWrapper(getClass());
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
         this.profile = profile;
 		this.isInstalled = Boolean.FALSE;
@@ -105,7 +109,7 @@ public class Tray {
      *      The platform connection.
      */
     public void reloadConnection(final Platform.Connection cx) {
-        systemApplication.debugVariable("cx", cx);
+        logger.logVariable("cx", cx);
         switch(cx) {
         case OFFLINE:
             updateMenuOffline();

@@ -5,6 +5,7 @@ package com.thinkparity.codebase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.ResourceBundle;
 
 /**
  * @author raymond@thinkparity.com
@@ -12,8 +13,12 @@ import java.util.Calendar;
  */
 public class FuzzyDateFormat {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+    /** A localization bundle. */
+    private static final ResourceBundle BUNDLE;
+
+    static {
+        BUNDLE = ResourceBundle.getBundle("localization/FuzzyDateFormat_Messages");
+    }
 
     /** The default date pattern. */
     private final String defaultPattern;
@@ -30,9 +35,14 @@ public class FuzzyDateFormat {
     /** The pattern to use when the target occurs within the same week. */
     private final String withinWeekPattern;
 
-    /** Create FuzzyDateFormat. */
+    /**
+     * Create FuzzyDateFormat.
+     * 
+     */
     public FuzzyDateFormat() {
-        this("'on' MMM d, yyyy", "'at' hh:mm a", "'on' MMM d", "'on' MMM d", "'on' EEE");
+        this(BUNDLE.getString("Default"), BUNDLE.getString("SameDay"), BUNDLE
+                .getString("SameMonth"), BUNDLE.getString("SameYear"), BUNDLE
+                .getString("WithinWeek"));
     }
 
     /**

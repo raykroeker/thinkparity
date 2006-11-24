@@ -9,6 +9,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,10 +34,10 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
@@ -114,6 +115,18 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The previous selection index of the Content list. */
     private int previousContentSelectionIndex = -1;
     
+    /** The scaled up background image on the right. */
+    private BufferedImage scaledContainerBackgroundRight = null;
+    
+    /** The scaled up background images on the left. */
+    private BufferedImage[] scaledContainerBackgroundLeft = null;
+    
+    /** The clipped down background image on the right. */
+    private BufferedImage clippedContainerBackgroundRight = null;
+    
+    /** The clipped down background images on the left. */
+    private BufferedImage[] clippedContainerBackgroundLeft = null;
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JPanel leftJPanel;
     javax.swing.JPanel rightJPanel;
@@ -147,28 +160,108 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         initComponents();
         initResizeListener();
         initMouseOverTrackers();
+        initBackgroundImages();
         focusManager.addFocusListener(this, model, versionsJList, FocusManager.FocusList.VERSION);
-        focusManager.addFocusListener(this, model, versionsContentJList, FocusManager.FocusList.CONTENT);        
-    }
+        focusManager.addFocusListener(this, model, versionsContentJList, FocusManager.FocusList.CONTENT);
+    }  
     
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
-    private class GradientJPanel extends javax.swing.JPanel {
-        final ListType listType;
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final int rightWidth = getWidth() / 2;
+        final int leftWidth = getWidth() - rightWidth - 5;
+        int index = versionsJList.getSelectedIndex() - versionsJList.getFirstVisibleIndex();
         
-        public GradientJPanel(final ListType listType) {
-            super();
-            this.listType = listType;
+        // TODO fix this
+        if (index < 0 ) {
+            index = 0;
+        }
+        if (index > 3) {
+            index = 3;
         }
         
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            final Graphics g2 = g.create();
+        // Prepare the right side.        
+        //  - Resize the scaled background image if it is not large enough. This operation is a bit slow
+        // so we only use it to make the image larger. This covers the unlikely scenario that the width
+        // becomes larger than the screen size.
+        //  - Then clip the background image if it is too large. This operation is quicker than scaling.
+        if ((null == scaledContainerBackgroundRight) || scaledContainerBackgroundRight.getWidth() < rightWidth) {
+            initBackgroundImages(rightWidth);
+        }
+        if ((null == clippedContainerBackgroundRight) || (clippedContainerBackgroundRight.getWidth() != rightWidth)) {
+            clippedContainerBackgroundRight = scaledContainerBackgroundRight.getSubimage(
+                    0, 0, rightWidth, getHeight());
+        }
+        
+        // Prepare the left side.
+        if ((null == scaledContainerBackgroundLeft[index]) || scaledContainerBackgroundLeft[index].getWidth() < leftWidth) {
+            initBackgroundImages(getWidth());
+        }
+        if ((null == clippedContainerBackgroundLeft[index]) || (clippedContainerBackgroundLeft[index].getWidth() != leftWidth)) {
+            clippedContainerBackgroundLeft[index] = scaledContainerBackgroundLeft[index].getSubimage(
+                    0, 0, leftWidth, getHeight());
+        }
+                
+        // Paint
+        final Graphics g2 = g.create();
+        try {
+            g2.drawImage(clippedContainerBackgroundLeft[index], 0, 0, leftWidth, getHeight(), null);
+            g2.drawImage(Images.BrowserTitle.CONTAINER_BACKGROUND_MID[index], leftWidth, 0, 5, getHeight(), null);
+            g2.drawImage(clippedContainerBackgroundRight, getWidth()-rightWidth, 0, rightWidth, getHeight(), null);
+        }
+        finally { g2.dispose(); }
+    }
+    
+    /**
+     * Initialize background images so they start out at screen width.
+     */
+    private void initBackgroundImages() {
+        if (null == scaledContainerBackgroundLeft) {
+            scaledContainerBackgroundLeft = new BufferedImage[4];
+        }
+        if (null == clippedContainerBackgroundLeft) {
+            clippedContainerBackgroundLeft = new BufferedImage[4];
+        }
+        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        initBackgroundImages((int)screenSize.getWidth());
+    }
+    
+    /**
+     * Initialize background images to the specified size (or larger).
+     * 
+     * @param newDimension
+     *      New dimension.
+     */
+    private void initBackgroundImages(final int newWidth) {
+        // Set up and if necessary scale the left background images
+        for (int index = 0; index < 4; index++) {
+            if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getWidth()) {
+                scaledContainerBackgroundLeft[index] = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index];
+            } else {
+                final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getScaledInstance(
+                        newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getHeight(), Image.SCALE_SMOOTH);
+                scaledContainerBackgroundLeft[index] = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+                final Graphics g2 = scaledContainerBackgroundLeft[index].createGraphics();
+                try {
+                    g2.drawImage(image, 0, 0, null);
+                }
+                finally { g2.dispose(); }
+            }
+        }
+        
+        // Set up and if necessary scale the right background image
+        if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getWidth()) {
+            scaledContainerBackgroundRight = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT;
+        } else {
+            final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getScaledInstance(
+                    newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getHeight(), Image.SCALE_SMOOTH);
+            scaledContainerBackgroundRight = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+            final Graphics g2 = scaledContainerBackgroundRight.createGraphics();
             try {
-                GradientPainter.paintVertical(g2, getSize(),
-                        Colors.Browser.List.LIST_GRADIENT_LIGHT,
-                        Colors.Browser.List.LIST_GRADIENT_DARK);
+                g2.drawImage(image, 0, 0, null);
             }
             finally { g2.dispose(); }
         }
@@ -495,22 +588,25 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         javax.swing.JScrollPane versionsJScrollPane;
 
         versionsJSplitPane = new javax.swing.JSplitPane();
-        leftJPanel = new GradientJPanel(ListType.VERSION);
+        leftJPanel = new javax.swing.JPanel();
         versionsJScrollPane = new javax.swing.JScrollPane();
+        versionsJScrollPane.getViewport().setOpaque(false);
         versionsJList = new javax.swing.JList();
-        rightJPanel = new GradientJPanel(ListType.CONTENT);
+        rightJPanel = new javax.swing.JPanel();
         versionsContentJScrollPane = new javax.swing.JScrollPane();
+        versionsContentJScrollPane.getViewport().setOpaque(false);
         versionsContentJList = new javax.swing.JList();
 
         setLayout(new java.awt.GridBagLayout());
 
-        setOpaque(false);
         versionsJSplitPane.setBorder(null);
         versionsJSplitPane.setDividerSize(0);
         versionsJSplitPane.setResizeWeight(0.5);
         versionsJSplitPane.setMinimumSize(new java.awt.Dimension(52, 75));
+        versionsJSplitPane.setOpaque(false);
         leftJPanel.setLayout(new java.awt.GridBagLayout());
 
+        leftJPanel.setOpaque(false);
         leftJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 leftJPanelMouseClicked(evt);
@@ -521,8 +617,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         });
 
         versionsJScrollPane.setBorder(null);
+        versionsJScrollPane.setOpaque(false);
         versionsJList.setModel(versionsModel);
         versionsJList.setCellRenderer(new VersionCellRenderer());
+        versionsJList.setOpaque(false);
         versionsJList.setVisibleRowCount(4);
         versionsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -553,6 +651,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
 
         rightJPanel.setLayout(new java.awt.GridBagLayout());
 
+        rightJPanel.setOpaque(false);
         rightJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 rightJPanelMouseClicked(evt);
@@ -563,8 +662,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         });
 
         versionsContentJScrollPane.setBorder(null);
+        versionsContentJScrollPane.setOpaque(false);
         versionsContentJList.setModel(versionsContentModel);
         versionsContentJList.setCellRenderer(new VersionContentCellRenderer());
+        versionsContentJList.setOpaque(false);
         versionsContentJList.setVisibleRowCount(4);
         versionsContentJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -597,6 +698,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 34, 0, 0);
         add(versionsJSplitPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

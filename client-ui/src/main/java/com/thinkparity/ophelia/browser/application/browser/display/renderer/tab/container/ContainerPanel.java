@@ -467,6 +467,9 @@ public final class ContainerPanel extends DefaultTabPanel {
         add(westPaddingJLabel, gridBagConstraints);
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
+        iconJLabel.setMaximumSize(new java.awt.Dimension(16, 16));
+        iconJLabel.setMinimumSize(new java.awt.Dimension(16, 16));
+        iconJLabel.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;

@@ -93,9 +93,7 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel westPaddingJLabel;
 
-        westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
         textJLabel = new javax.swing.JLabel();
 
@@ -103,15 +101,8 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
 
         setMaximumSize(new java.awt.Dimension(32767, 24));
         setMinimumSize(new java.awt.Dimension(20, 24));
+        setOpaque(false);
         setPreferredSize(new java.awt.Dimension(20, 24));
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(3, 16));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(3, 16));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(3, 16));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        add(westPaddingJLabel, gridBagConstraints);
-
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;

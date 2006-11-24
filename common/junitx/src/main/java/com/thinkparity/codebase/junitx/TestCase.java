@@ -47,7 +47,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected TestCase(final String name) {
 		super(name);
 		this.testCaseHelper = new TestCaseHelper(this);
-		this.logger = new Log4JWrapper(getClass());
+		this.logger = new Log4JWrapper("TEST_DEBUGGER");
 	}
 
 	/**

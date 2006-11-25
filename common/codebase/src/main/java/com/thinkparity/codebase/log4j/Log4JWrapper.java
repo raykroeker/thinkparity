@@ -11,6 +11,7 @@ import com.thinkparity.codebase.StackUtil;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
 
 /**
  * @author raymond@thinkparity.com
@@ -77,6 +78,14 @@ public class Log4JWrapper {
      */
     public Log4JWrapper(final String name) {
         this(Logger.getLogger(name));
+    }
+
+    /**
+     * Clear all logging contexts.
+     * 
+     */
+    public final void clearContext() {
+        NDC.clear();
     }
 
     public final String getErrorId(final String errorPattern,
@@ -330,6 +339,24 @@ public class Log4JWrapper {
                     warningArguments), w);
         }
         return w;
+    }
+
+    /**
+     * Pop a logging context. Useful for adding context to timing statements.
+     * 
+     */
+    public final void popContext() {
+        NDC.pop();
+    }
+
+    /**
+     * Push a logging context. Useful for adding context to timing statements.
+     * 
+     * @param context
+     *            A <code>Log4JContext</code>.
+     */
+    public final void pushContext(final Log4JContext context) {
+        NDC.push(context.getContext());
     }
 
     /**

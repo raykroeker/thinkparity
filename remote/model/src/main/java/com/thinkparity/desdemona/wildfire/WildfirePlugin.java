@@ -124,25 +124,25 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         // console appender
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout.ConversionPattern", "%d %t %p %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
         // default appender
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout.ConversionPattern", "%d %t %p %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server.log"));
         // sql appender
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server SQL.log"));
         // xmpp appender
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server XMPP.log"));

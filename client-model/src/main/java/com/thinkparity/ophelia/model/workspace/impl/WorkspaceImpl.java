@@ -372,25 +372,25 @@ public class WorkspaceImpl implements Workspace {
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d %t %p %m%n");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
         // default appender
         logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d %t %p %m%n");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
         logging.setProperty("log4j.appender.DEFAULT.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity.log"));
         // sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity SQL.log"));
         // xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d %t %m%n");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XMPP.log"));

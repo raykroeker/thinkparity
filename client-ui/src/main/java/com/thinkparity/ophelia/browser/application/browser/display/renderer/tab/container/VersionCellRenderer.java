@@ -55,8 +55,9 @@ final class VersionCellRenderer extends AbstractJPanel implements ListCellRender
     public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
         final AbstractVersionCell cell = (AbstractVersionCell) value;
         textJLabel.setText(cell.getText());
-        final Icon icon = cell.getIcon();
+        
         // Set icon, even if it is null
+        final Icon icon = cell.getIcon();
         iconJLabel.setIcon(icon);
         
         // Set border.

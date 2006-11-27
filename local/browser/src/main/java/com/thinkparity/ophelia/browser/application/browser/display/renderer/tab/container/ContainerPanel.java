@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Calendar;
 
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -26,7 +27,6 @@ import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -102,6 +102,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** A <code>ContainerDraft</code>. */
     private ContainerDraft draft = null;
     
+    /** The date of the latest version. */
+    private Calendar latestVersionDate = null;
+    
     /** The focus manager. */
     private final FocusManager focusManager;
 
@@ -115,15 +118,9 @@ public final class ContainerPanel extends DefaultTabPanel {
     private final Browser browser;
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerDateJLabel;
-    private javax.swing.JPanel containerDateJPanel;
-    private javax.swing.JPanel containerJPanel;
     private javax.swing.JLabel containerNameJLabel;
-    private javax.swing.JLabel draftOwnerJLabel;
-    private javax.swing.JPanel draftOwnerJPanel;
     private javax.swing.JLabel eastPaddingJLabel;
     private javax.swing.JLabel iconJLabel;
-    private javax.swing.JPanel rightSideJPanel;
     private javax.swing.JLabel westPaddingJLabel;
     // End of variables declaration//GEN-END:variables
 
@@ -276,21 +273,7 @@ public final class ContainerPanel extends DefaultTabPanel {
      * Prepare for repaint, for example, adjust colors.
      */
     public void prepareForRepaint() {       
-        final Color color;
-        if ((!container.isLocalDraft()) && (!container.isLatest())) {
-            color = Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG;
-        } else {
-            color = Colors.Browser.List.LIST_FG;
-        }
-        containerNameJLabel.setForeground(color);
-        containerDateJLabel.setForeground(color);
-        draftOwnerJLabel.setForeground(color);
-        
-        if (!isExpanded() && !isSeen()) {
-            containerNameJLabel.setFont(Fonts.DefaultFontBold);
-        } else {
-            containerNameJLabel.setFont(Fonts.DefaultFont);
-        }
+        initText();
         
         if (container.isBookmarked()) {
             iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK));
@@ -313,14 +296,51 @@ public final class ContainerPanel extends DefaultTabPanel {
         this.draft = draft;
         
         setTransferHandler(new ImportTxHandler(browser, model, container));
-
-        containerNameJLabel.setText(container.getName());
-        containerDateJLabel.setText(FUZZY_DATE_FORMAT.format(container.getUpdatedOn()));
-        if (container.isDraft()) {
-            draftOwnerJLabel.setText(draft.getOwner().getName());
-        } else {
-            draftOwnerJLabel.setText("");
+        initText();
+    }
+    
+    public void setLatestVersionDate(final Calendar latestVersionDate) {
+        this.latestVersionDate = latestVersionDate;
+    }
+    
+    /**
+     * Initialize the text that will be displayed.
+     */
+    private void initText() {
+        final StringBuffer text = new StringBuffer("<html>");
+        
+        // Show the container name.
+        // It is gray if the user doesn't have the latest.
+        // It is bold if not expanded and not seen.
+        if (!isExpanded() && !isSeen()) {
+            text.append("<B>");
         }
+        if ((!container.isLocalDraft()) && (!container.isLatest())) {
+            text.append("<font color=\"").append(Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG).append("\">");
+        }
+        text.append(container.getName());
+        if ((!container.isLocalDraft()) && (!container.isLatest())) {
+            text.append("</font>");
+        }
+        if (!isExpanded() && !isSeen()) {
+            text.append("</B>");
+        }
+        
+        // If not expanded, the user sees the draft owner if he is up to date with versions.
+        // Otherwise show the publish date.
+        if (!isExpanded()) {
+            text.append("&nbsp&nbsp"); // 2 spaces
+            text.append("<font color=\"").append(Colors.Browser.List.LIST_SECONDARY_TEXT_FG).append("\">");
+            if (container.isDraft() && container.isLatest()) {
+                text.append(localization.getString("ContainerMessageDraftOwner", draft.getOwner().getName()));
+            } else if (null != latestVersionDate) {
+                text.append(localization.getString("ContainerMessagePublishDate", FUZZY_DATE_FORMAT.format(latestVersionDate)));
+            }
+            
+            text.append("</font>");
+        }
+        text.append("</html>");
+        containerNameJLabel.setText(text.toString());
     }
 
     /**
@@ -440,13 +460,7 @@ public final class ContainerPanel extends DefaultTabPanel {
 
         westPaddingJLabel = new javax.swing.JLabel();
         iconJLabel = new javax.swing.JLabel();
-        containerJPanel = new javax.swing.JPanel();
         containerNameJLabel = new javax.swing.JLabel();
-        rightSideJPanel = new javax.swing.JPanel();
-        containerDateJPanel = new javax.swing.JPanel();
-        containerDateJLabel = new javax.swing.JLabel();
-        draftOwnerJPanel = new javax.swing.JPanel();
-        draftOwnerJLabel = new javax.swing.JLabel();
         eastPaddingJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -473,57 +487,17 @@ public final class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         add(iconJLabel, gridBagConstraints);
 
-        containerJPanel.setLayout(new java.awt.GridLayout(1, 3));
-
-        containerJPanel.setOpaque(false);
         containerNameJLabel.setText("!Package!");
         containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 24));
         containerNameJLabel.setMinimumSize(new java.awt.Dimension(100, 24));
         containerNameJLabel.setPreferredSize(new java.awt.Dimension(100, 24));
-        containerJPanel.add(containerNameJLabel);
-
-        rightSideJPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        rightSideJPanel.setOpaque(false);
-        containerDateJPanel.setLayout(new java.awt.GridBagLayout());
-
-        containerDateJPanel.setOpaque(false);
-        containerDateJLabel.setText("!Date!");
-        containerDateJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        containerDateJLabel.setMaximumSize(new java.awt.Dimension(500, 24));
-        containerDateJLabel.setMinimumSize(new java.awt.Dimension(50, 24));
-        containerDateJLabel.setPreferredSize(new java.awt.Dimension(50, 24));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        containerDateJPanel.add(containerDateJLabel, gridBagConstraints);
-
-        rightSideJPanel.add(containerDateJPanel);
-
-        draftOwnerJPanel.setLayout(new java.awt.GridBagLayout());
-
-        draftOwnerJPanel.setOpaque(false);
-        draftOwnerJLabel.setText("!Draft Owner!");
-        draftOwnerJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        draftOwnerJLabel.setMaximumSize(new java.awt.Dimension(500, 24));
-        draftOwnerJLabel.setMinimumSize(new java.awt.Dimension(50, 24));
-        draftOwnerJLabel.setPreferredSize(new java.awt.Dimension(50, 24));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        draftOwnerJPanel.add(draftOwnerJLabel, gridBagConstraints);
-
-        rightSideJPanel.add(draftOwnerJPanel);
-
-        containerJPanel.add(rightSideJPanel);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        add(containerJPanel, gridBagConstraints);
+        add(containerNameJLabel, gridBagConstraints);
 
         eastPaddingJLabel.setFocusable(false);
         eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));

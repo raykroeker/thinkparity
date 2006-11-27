@@ -34,18 +34,20 @@ public final class Constants {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
             public static final class List {
+                public static final String LIST_LACK_MOST_RECENT_VERSION_FG = "#646464";  // Dark gray
+                public static final String LIST_SECONDARY_TEXT_FG = "#646464";
                 public static final Color LIST_CONTAINERS_BORDER = new Color(212, 212, 212, 255);
                 public static final Color LIST_CONTAINERS_BACKGROUND = new Color(234, 234, 234, 255);
                 public static final Color LIST_CONTAINER_GRADIENT_TOP = new Color(254, 254, 254, 255);
-                public static final Color LIST_CONTAINER_GRADIENT_BOTTOM = new Color(245, 246, 248, 255);               
+                public static final Color LIST_CONTAINER_GRADIENT_BOTTOM = new Color(245, 246, 248, 255);
+       
                 
                 public static final Color INNER_LIST_SELECTION_BORDER = new Color(100, 100, 100, 255);   // dark gray
                 public static final Color LIST_EVEN_BG = new Color(245, 246, 247, 255);         // light gray (bluish gray on my monitor)
                 public static final Color LIST_EXPANDED_BG = Color.WHITE;
                 public static final Color LIST_FG = Color.BLACK;
                 public static final Color LIST_GRADIENT_DARK = new Color(204, 208, 214, 255);   // darker color taken from browser title area
-                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area
-                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);  // dark gray                
+                public static final Color LIST_GRADIENT_LIGHT = new Color(245, 246, 247, 255);  // lighter color taken from browser title area              
                 public static final Color LIST_ODD_BG = Color.WHITE;
                 public static final Color LIST_SELECTION_BG = new Color(207, 221, 241, 255);    // blue
                 public static final Color LIST_SELECTION_BORDER = new Color(130, 130, 130, 255); // new Color(100, 100, 100, 255);   // dark gray

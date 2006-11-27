@@ -462,7 +462,7 @@ public final class ContainerModel extends TabPanelModel {
     /**
      * Toggle the expansion of a panel on and off.
      *
-     * @param panel
+     * @param tabPanel
      *      The container <code>TabPanel</code>.
      */
     @Override
@@ -753,6 +753,10 @@ public final class ContainerModel extends TabPanelModel {
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ContainerPanel(this);
         panel.setContainerAndDraft(container, readDraft(container.getId()));
+        final ContainerVersion version = readLatestVersion(container.getId());
+        if (null != version) {
+            panel.setLatestVersionDate(version.getCreatedOn());
+        }
         return panel;
     }
 

@@ -487,8 +487,11 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     public void setContainerAndDraft(final Container container, final ContainerDraft draft) {
         this.container = container;
         
-        if ((null != draft) && container.isLocalDraft()) {
-            versionsModel.addElement(new DraftCell(draft));
+        // Add the draft cell
+        if (null != draft) {
+            if (container.isLocalDraft() || (container.isDraft() && container.isLatest())) {
+                versionsModel.addElement(new DraftCell(draft, container.isLocalDraft()));
+            }
         }
         
         // Set up drag and drop
@@ -1043,15 +1046,19 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** A draft cell. */
     final class DraftCell extends AbstractVersionCell {
         private final ContainerDraft draft;
-        private DraftCell(final ContainerDraft draft) {
+        private final Boolean isLocalDraft;
+        private DraftCell(final ContainerDraft draft, final Boolean isLocalDraft) {
             super();
             this.draft = draft;
-            initText(draft);
+            this.isLocalDraft = isLocalDraft;
+            initText(draft, isLocalDraft);
             setIcon(imageCache.read(TabPanelIcon.DRAFT));
             int countCells = 0;
-            for (final Document document : draft.getDocuments()) {
-                addContentCell(new DraftDocumentCell(draft, document));
-                countCells++;
+            if (isLocalDraft) {
+                for (final Document document : draft.getDocuments()) {
+                    addContentCell(new DraftDocumentCell(draft, document));
+                    countCells++;
+                }
             }
             for (int i = countCells; i < versionsContentJList.getVisibleRowCount(); i++) {
                 addContentCell(new ContentFillerCell());
@@ -1059,7 +1066,9 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         @Override
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
-            new ContainerVersionsPopup(model, this).show(invoker, e);
+            if (isLocalDraft) {
+                new ContainerVersionsPopup(model, this).show(invoker, e);
+            }
         }
         @Override
         protected void doubleClick(final Component invoker, final MouseEvent e) {
@@ -1067,8 +1076,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getContainerId() {
             return draft.getContainerId();
         }
-        private void initText(final ContainerDraft draft) {
-            setText(localization.getString("Draft"));
+        private void initText(final ContainerDraft draft, final Boolean isLocalDraft) {
+            if (isLocalDraft) {
+                setText(localization.getString("Draft"));
+            } else {
+                setText(localization.getString("DraftNotLocal", draft.getOwner().getName()));
+            }
         }
     }
 
@@ -1101,13 +1114,14 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         ContainerDraft.ArtifactState getState() {
             return draft.getState(document);
         }
+        
         private void initText(final ContainerDraft draft, final Document document) {
             final String formatPattern;
             switch (draft.getState(document)) {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                formatPattern = "{0} - {1}";
+                formatPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
                 break;
             case NONE:
                 formatPattern = "{0}";
@@ -1116,7 +1130,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
             setText(MessageFormat.format(formatPattern,
-                    document.getName(), draft.getState(document).toString()));
+                    document.getName(), draft.getState(document).toString().toLowerCase()));
         }
     }
 
@@ -1149,19 +1163,18 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         }
         
         private void initText(final User user, final Boolean isPublisher, final ArtifactReceipt receipt) {
+            final StringBuffer text = new StringBuffer("<html>").append(user.getName()).append(" ");
+            text.append("<font color=\"#646464\">");
             if (isPublisher) {
-                setText(localization.getString("UserPublished", user.getName()));
+                text.append(localization.getString("UserPublished"));
+            } else if (null == receipt || !receipt.isSetReceivedOn()) {
+                text.append(localization.getString("UserDidNotReceive"));
             } else {
-                final StringBuffer text = new StringBuffer(user.getName())
-                    .append(" ");
-                if (null == receipt || !receipt.isSetReceivedOn()) {
-                    text.append(localization.getString("UserDidNotReceive"));
-                } else {
-                    text.append(localization.getString("UserReceived",
-                            FUZZY_DATE_FORMAT.format(receipt.getReceivedOn())));
-                }
-                setText(text.toString());
+                text.append(localization.getString("UserReceived",
+                        FUZZY_DATE_FORMAT.format(receipt.getReceivedOn())));
             }
+            text.append("</font></html>");
+            setText(text.toString());
         }
     }
 
@@ -1180,12 +1193,12 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 setIcon(imageCache.read(TabPanelIcon.VERSION)); 
             }
             int countCells = 0;
-            addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
-            countCells++;
             for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
                 addContentCell(new DocumentVersionCell(entry.getKey(), entry.getValue()));
                 countCells++;
             }
+            addContentCell(new UserCell(publishedBy, Boolean.TRUE, null));
+            countCells++;
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
                 addContentCell(new UserCell(entry.getKey(), Boolean.FALSE, entry.getValue()));
                 countCells++;
@@ -1214,7 +1227,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             return ((version.isSetComment()) && (version.getComment().length()>0));
         }
         private void initText(final ContainerVersion version, final User publishedBy) {
-            setText(localization.getString("Version", FUZZY_DATE_FORMAT.format(version.getCreatedOn())));
+            setText(localization.getString("Version", FUZZY_DATE_FORMAT.format(version.getCreatedOn()), publishedBy.getName()));
         } 
     }
 
@@ -1241,28 +1254,28 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         Long getVersionId() {
             return version.getVersionId();
         }
+
         private void initText(final DocumentVersion documentVersion, final Delta delta) {
-            if (null==delta) {
-                setText(MessageFormat.format("{0} - {1}", documentVersion.getName(), Delta.ADDED.toString()));
-            } else {
-                final String formatPattern;
-                
-                switch (delta) {
-                case ADDED:
-                case MODIFIED:
-                case REMOVED:
-                    formatPattern = "{0} - {1}";
-                    break;
-                case NONE:
-                    formatPattern = "{0}";
-                    break;
-                default:
-                    throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
-                }
-                
-                setText(MessageFormat.format(formatPattern,
-                        documentVersion.getName(), delta.toString()));
+            final String formatPattern;
+            Delta finalDelta = delta;
+            if (null == finalDelta) {
+                finalDelta = Delta.ADDED;
+            }            
+            switch (delta) {
+            case ADDED:
+            case MODIFIED:
+            case REMOVED:
+                formatPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
+                break;
+            case NONE:
+                formatPattern = "{0}";
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
+            
+            setText(MessageFormat.format(formatPattern,
+                    documentVersion.getName(), delta.toString().toLowerCase()));
         }
     }
     

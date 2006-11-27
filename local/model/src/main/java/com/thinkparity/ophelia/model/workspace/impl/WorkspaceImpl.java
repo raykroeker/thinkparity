@@ -372,25 +372,25 @@ public class WorkspaceImpl implements Workspace {
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} %x %t %p %m%n");
         // default appender
         logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", "%d{ISO8601} %x %t %p %m%n");
         logging.setProperty("log4j.appender.DEFAULT.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity.log"));
         // sql appender
         logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %x %t %m%n");
         logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity SQL.log"));
         // xmpp appender
         logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %x %t %m%n");
         logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XMPP.log"));
@@ -428,18 +428,27 @@ public class WorkspaceImpl implements Workspace {
             throw Assert.createUnreachable("Unknown operating mode.");
         }
         // renderers
-        logging.setProperty("log4j.renderer.java.util.Calendar",
-            "com.thinkparity.codebase.log4j.or.CalendarRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
-            "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.Document",
-            "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
-            "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.user.User",
-            "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
-        logging.setProperty("log4j.renderer.org.jivesoftware.smack.packet.Packet",
-            "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
+        logging.setProperty(
+                "log4j.renderer.java.util.Calendar",
+                "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
+                "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.container.Container",
+                "com.thinkparity.codebase.model.util.logging.or.ContainerRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.Document",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.user.User",
+                "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
+        logging.setProperty(
+                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
+                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
         if (isDesktop)
             LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);

@@ -419,8 +419,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 }
             }
             // delete local data
+            final InternalDocumentModel documentModel = getInternalDocumentModel();
             final ContainerDraft draft = readDraft(containerId);
             for (final Artifact artifact : draft.getArtifacts()) {
+                documentModel.deleteDraft(artifact.getId());
                 containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
             }
             containerIO.deleteDraft(containerId);
@@ -1015,11 +1017,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     contacts, teamMembers);
 
             // delete draft
-            for(final Artifact artifact : draft.getArtifacts()) {
-                containerIO.deleteDraftArtifactRel(
-                        container.getId(), artifact.getId());
+            for (final Artifact artifact : draft.getArtifacts()) {
+                documentModel.deleteDraft(artifact.getId());
+                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
             }
-            containerIO.deleteDraft(container.getId());
+            containerIO.deleteDraft(containerId);
 
             // remove key
             getInternalArtifactModel().removeFlagKey(container.getId());

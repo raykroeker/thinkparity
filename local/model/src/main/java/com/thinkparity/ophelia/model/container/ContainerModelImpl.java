@@ -6,7 +6,16 @@ package com.thinkparity.ophelia.model.container;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
@@ -19,6 +28,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -323,7 +333,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            assertContainerDraftDoesNotExist("Draft already exist.", containerId);
+            assertContainerDraftDoesNotExist(containerId);
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
@@ -399,12 +409,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            assertDoesExistLocalDraft("Draft does not exist.", containerId);
+            assertDoesExistDraft(containerId, "Draft does not exist.");
             final Container container = read(containerId);
-            if (!isFirstDraft(container.getId())) {
-                assertOnline("User is not online.");
-                assertIsDistributed("Draft has not been distributed.", containerId);
-                getSessionModel().deleteDraft(container.getUniqueId());
+            if (doesExistLocalDraft(containerId)) {
+                if (!isFirstDraft(container.getId())) {
+                    assertOnline("User is not online.");
+                    assertIsDistributed("Draft has not been distributed.", containerId);
+                    getSessionModel().deleteDraft(container.getUniqueId());
+                }
             }
             // delete local data
             final ContainerDraft draft = readDraft(containerId);
@@ -413,6 +425,39 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             }
             containerIO.deleteDraft(containerId);
             notifyDraftDeleted(container, draft, localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Determine whether or not a local draft exists.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return True if a draft exists; and the draft owner is the current user.
+     */
+    private Boolean doesExistLocalDraft(final Long containerId) {
+        final ContainerDraft draft = readDraft(containerId);
+        if (null != draft) {
+            return draft.getOwner().getId().equals(localUserId());
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * Determine whether or not a draft exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if a draft exists.
+     */
+    Boolean doesExistDraft(final Long containerId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        try {
+            return null != readDraft(containerId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -713,10 +758,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (null == draft) {
                 logger.logWarning("Draft did not previously exist for {0}.", event.getName());
             } else {
-                for (final Artifact artifact : draft.getArtifacts()) {
-                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
-                }
-                containerIO.deleteDraft(containerId);
+                deleteDraft(containerId);
             }
             // create published to list
             containerIO.createPublishedTo(containerId, event.getVersionId(), publishedToUsers);
@@ -1113,73 +1155,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
-     * Read the delta between two versions.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param compareVersionId
-     *            A container compare version id <code>Long</code>.
-     * @param compareToVersionId
-     *            A container compare to version id <code>Long</code>.
-     * @return A <code>ContainerVersionDelta</code>.
-     */
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId, final Long compareVersionId,
-            final Long compareToVersionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("compareVersionId", compareVersionId);
-        logger.logVariable("compareToVersionId", compareToVersionId);
-        try {
-            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
-            assertDoesExistVersion("Compare to version does not exist.", containerId, compareVersionId);
-            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
-                    new ComparatorBuilder().createVersionByName());
-            // the two versions exist
-            final ContainerVersionDelta delta = containerIO.readDelta(
-                    containerId, compareVersionId, compareToVersionId);
-            for (final ContainerVersionArtifactVersionDelta artifactDelta :
-                delta.getDeltas()) {
-                deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
-                        artifactDelta.getArtifactVersionId()),
-                        artifactDelta.getDelta());
-            }
-            return deltas;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Read the delta for a version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param compareVersionId
-     *            A container compare version id <code>Long</code>.
-     * @return A <code>ContainerVersionDelta</code>.
-     */
-    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId, final Long compareVersionId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("compareVersionId", compareVersionId);
-        try {
-            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
-            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
-                    new ComparatorBuilder().createVersionByName());
-            // only one version exists therefore all addeds
-            final List<DocumentVersion> versions = readDocumentVersions(containerId, compareVersionId);
-            for (final DocumentVersion version : versions) {
-                deltas.put(version, Delta.ADDED);
-            }
-            return deltas;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * Read the documents for the container.
      * 
      * @param containerId
@@ -1264,6 +1239,73 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("filter", filter);
         return readDocuments(containerId, versionId, defaultDocumentComparator, filter);
+    }
+
+    /**
+     * Read the delta for a version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container compare version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        try {
+            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            // only one version exists therefore all addeds
+            final List<DocumentVersion> versions = readDocumentVersions(containerId, compareVersionId);
+            for (final DocumentVersion version : versions) {
+                deltas.put(version, Delta.ADDED);
+            }
+            return deltas;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read the delta between two versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param compareVersionId
+     *            A container compare version id <code>Long</code>.
+     * @param compareToVersionId
+     *            A container compare to version id <code>Long</code>.
+     * @return A <code>ContainerVersionDelta</code>.
+     */
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        logger.logVariable("compareToVersionId", compareToVersionId);
+        try {
+            assertDoesExistVersion("Compare version does not exist.", containerId, compareVersionId);
+            assertDoesExistVersion("Compare to version does not exist.", containerId, compareVersionId);
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            // the two versions exist
+            final ContainerVersionDelta delta = containerIO.readDelta(
+                    containerId, compareVersionId, compareToVersionId);
+            for (final ContainerVersionArtifactVersionDelta artifactDelta :
+                delta.getDeltas()) {
+                deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                        artifactDelta.getArtifactVersionId()),
+                        artifactDelta.getDelta());
+            }
+            return deltas;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -2004,6 +2046,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         Assert.assertTrue(assertion, doesExistLocalDraft(containerId));
     }
 
+    private void assertDoesExistDraft(final Long containerId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(doesExistDraft(containerId), assertMessage,
+                assertArguments);
+    }
+
     /**
      * Assert the state transition for a draft artifact is valid.
      * 
@@ -2296,6 +2344,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return team.get(0);
     }
 
+
     /**
      * Create a new container version.
      * 
@@ -2319,7 +2368,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Calendar createdOn) {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
-
 
     /**
      * Create a new container version.
@@ -2402,21 +2450,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         getIndexModel().deleteContainer(containerId);
         // delete the container
         containerIO.delete(containerId);
-    }
-
-    /**
-     * Determine whether or not a local draft exists.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return True if a draft exists; and the draft owner is the current user.
-     */
-    private Boolean doesExistLocalDraft(final Long containerId) {
-        final ContainerDraft draft = readDraft(containerId);
-        if(null != draft) {
-            return draft.getOwner().getId().equals(localUserId());
-        }
-        else { return Boolean.FALSE; }
     }
 
     /**
@@ -2687,29 +2720,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * Fire a container published event.
      * 
      * @param container
-     *            A container.
-     * @param draft
-     *            A container draft.
-     * @param version
-     *            A container version.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerPublished(final Container container,
-            final TeamMember teamMember, final ContainerVersion version,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.draftPublished(eventGenerator.generate(container,
-                        teamMember, version));
-            }
-        });
-    }
-
-    /**
-     * Fire a container published event.
-     * 
-     * @param container
      *            A <code>Container</code>.
      * @param draft
      *            A <code>ContainerDraft</code>.
@@ -2745,6 +2755,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.draftPublished(eventGenerator.generate(container, version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container published event.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerPublished(final Container container,
+            final TeamMember teamMember, final ContainerVersion version,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.draftPublished(eventGenerator.generate(container,
+                        teamMember, version));
             }
         });
     }

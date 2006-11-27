@@ -43,6 +43,19 @@ public class InternalContainerModel extends ContainerModel implements
     }
 
     /**
+     * Determine whether or not a draft exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if a draft exists.
+     */
+    public Boolean doesExistDraft(final Long containerId) {
+        synchronized (getImplLock()) {
+            return getImpl().doesExistDraft(containerId);
+        }
+    }
+
+    /**
      * Handle the container artifact published remote event. If the container
      * does not yet exist it will be created; same goes for the version. The
      * artifact will then be passed off to the appropriate model then attached

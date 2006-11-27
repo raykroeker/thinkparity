@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -329,6 +330,20 @@ final class ArtifactModelImpl extends AbstractModelImpl {
                 applyFlagLatest(artifactId);
             } else {
                 removeFlagLatest(artifactId);
+            }
+
+            // delete a draft - this will happen when an existing team member is
+            // not published to
+            switch (readType(artifactId)) {
+            case CONTAINER:
+                final InternalContainerModel containerModel = getContainerModel();
+                if (containerModel.doesExistDraft(artifactId)) {
+                    containerModel.deleteDraft(artifactId);
+                }
+                break;
+            case DOCUMENT:  // deliberate fall through
+            default:
+                Assert.assertUnreachable("Unexpected artifact type.");
             }
         } catch (final Throwable t) {
             throw translateError(t);

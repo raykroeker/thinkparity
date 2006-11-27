@@ -289,6 +289,13 @@ public interface XMPPSession {
             final Calendar extendedOn);
 
     /**
+     * Obtain the size of the event queue.
+     * 
+     * @return The size of the event queue.
+     */
+    public Integer getQueueSize();
+
+    /**
      * Determine if the user is logged in.
      * 
      * @return True if the user is logged in; false otherwise.

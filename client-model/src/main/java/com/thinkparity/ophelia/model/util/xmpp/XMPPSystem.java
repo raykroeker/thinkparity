@@ -17,6 +17,9 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     /** The event queue lock. */
     private final Object queueLock;
 
+    /** The event queue size. */
+    private Integer queueSize;
+
     /**
      * Create XMPPSystem.
      *
@@ -26,6 +29,16 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     XMPPSystem(final XMPPCore core) {
         super(core);
         this.queueLock = new Object();
+        this.queueSize = 0;
+    }
+
+    /**
+     * Obtain the size of the event queue.
+     * 
+     * @return The size of the event queue.
+     */
+    Integer getQueueSize() {
+        return queueSize;
     }
 
     /**
@@ -38,14 +51,18 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     void processEventQueue(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
+        logger.logVariable("queueSize", queueSize);
         synchronized (queueLock) {
             final XMPPMethod processOfflineQueue = new XMPPMethod("system:readqueueevents");
             processOfflineQueue.setParameter("userId", userId);
-            final List<XMPPEvent> events =
+            final List<XMPPEvent> queue =
                 execute(processOfflineQueue, Boolean.TRUE).readResultEvents("events");
-            for (final XMPPEvent event : events) {
-                xmppCore.handleEvent(event);
-                deleteQueueEvent(userId, event.getId());
+            queueSize = queue.size();
+            logger.logVariable("queueSize", queueSize);
+            for (final XMPPEvent queueEvent : queue) {
+                xmppCore.handleEvent(queueEvent);
+                deleteQueueEvent(userId, queueEvent.getId());
+                logger.logVariable("queueSize", --queueSize);
             }
         }
     }

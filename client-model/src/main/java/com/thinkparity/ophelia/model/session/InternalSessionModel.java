@@ -121,7 +121,14 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+    public void createArchiveStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            getImpl().createArchiveStream(userId, streamId, uniqueId, versionId);
+        }
+    }
+
+	/**
      * Send a creation packet to the parity server.
      * 
      * @param uniqueId
@@ -132,6 +139,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             getImpl().createArtifact(userId, uniqueId);
 		}
 	}
+
+    public void createBackupStream(final JabberId userId,
+            final String streamId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
+        }
+    }
 
 	/**
      * Create a draft for an artifact.
@@ -151,7 +165,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Initialize a stream.
      * 
      * @return A <code>StreamSession</code>.
@@ -162,7 +176,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Delete a contact.
      * 
      * @param userId
@@ -176,7 +190,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -229,6 +243,12 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    public Integer getQueueSize() {
+        synchronized (getImplLock()) {
+            return getImpl().getQueueSize();
+        }
+    }
+
     /**
      * Handle the remote session established event.
      *
@@ -262,17 +282,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    public void createArchiveStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
+    /**
+     * Process the remote event queue.
+     * 
+     */
+    public void processQueue() {
         synchronized (getImplLock()) {
-            getImpl().createArchiveStream(userId, streamId, uniqueId, versionId);
-        }
-    }
-
-    public void createBackupStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId) {
-        synchronized (getImplLock()) {
-            getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
+            getImpl().processQueue();
         }
     }
 

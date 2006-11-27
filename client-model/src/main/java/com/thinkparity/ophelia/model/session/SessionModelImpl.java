@@ -422,6 +422,18 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
+    Integer getQueueSize() {
+        logger.logApiId();
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.getQueueSize();
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Handle the session established remote event.
      *
@@ -493,7 +505,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
 	}
 
-	/**
+    /**
      * Establish a new xmpp session.
      * 
      * @param monitor
@@ -509,8 +521,8 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             throw translateError(t);
         }
     }
-    
-    /**
+
+	/**
      * Establish a new xmpp session.
      * 
      * @param monitor
@@ -550,6 +562,22 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 			throw translateError(t);
 		}
 	}
+    
+    /**
+     * Process the remote event queue.
+     * 
+     */
+    void processQueue() {
+        logger.logApiId();
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                xmppSession.processEventQueue(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     /**
      * Publish a container.

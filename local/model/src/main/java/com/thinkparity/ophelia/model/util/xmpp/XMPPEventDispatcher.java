@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.log4j.Log4JContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -31,6 +32,9 @@ final class XMPPEventDispatcher {
     /** An apache logger wrapper. */
     private final Log4JWrapper logger;
 
+    /** The <code>XMPPCore</code>. */
+    private final XMPPCore xmppCore;
+
     /**
      * Create XMPPEventDispatcher.
      * 
@@ -41,6 +45,7 @@ final class XMPPEventDispatcher {
         super();
         this.listeners = new HashMap<Class, List<? extends XMPPEventListener<? extends XMPPEvent>>>();
         this.logger = new Log4JWrapper(getClass());
+        this.xmppCore = xmppCore;
     }
 
     /**
@@ -80,11 +85,17 @@ final class XMPPEventDispatcher {
      *            An <code>XMPPEvent</code>.
      */
     <T extends XMPPEvent> void handleEvent(final T xmppEvent) {
+        logger.pushContext(new Log4JContext() {
+            public String getContext() {
+                return xmppCore.getUserId().getUsername();
+            }
+        });
         logger.logVariable("xmppEvent", xmppEvent);
         final List<XMPPEventListener<T>> listeners = getListeners(xmppEvent.getClass());
         for (final XMPPEventListener<T> listener : listeners) {
             listener.handleEvent(xmppEvent);
         }
+        logger.popContext();
     }
 
     /**

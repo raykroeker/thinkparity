@@ -229,7 +229,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         Assert.assertTrue(assertion, response.containsResult());
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#clearListeners()
      * 
      */
@@ -241,7 +241,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppEventDispatcher.clearListeners();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.List, java.util.UUID, java.lang.Long,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
@@ -293,7 +293,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(userId, team, uniqueId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createStream(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.stream.StreamSession)
      * 
@@ -303,7 +303,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppStream.create(userId, session);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createStreamSession(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -337,7 +337,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.delete(uniqueId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContact(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -377,7 +377,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppStream.delete(userId, session, streamId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteStreamSession(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.stream.StreamSession)
      * 
@@ -413,6 +413,14 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final Calendar extendedOn) {
 		xmppContact.extendInvitation(userId, extendedTo, extendedOn);
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#getQueueSize()
+     *
+     */
+    public Integer getQueueSize() {
+        return xmppSystem.getQueueSize();
+    }
 
 	/**
      * Obtain the connection's jabber id.

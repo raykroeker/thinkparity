@@ -4,11 +4,7 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.InputStream;
-import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
-
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
@@ -17,7 +13,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.InternalModel;
-import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.audit.event.AuditEvent;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -41,35 +36,41 @@ public class InternalDocumentModel extends DocumentModel implements
 		super(environment, workspace);
 	}
 
-    public void auditRecieveKey(final Long artifactId,
-            final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedFrom) throws ParityException {
-		synchronized(getImplLock()) {
-			getImpl().auditKeyRecieved(artifactId, createdBy, createdOn, receivedFrom);
-		}
-	}
-
-	/**
+    /**
      * Delete a document.
      * 
      * @param documentId
      *            A document id.
      */
     public void delete(final Long documentId) {
-        synchronized(getImplLock()) { getImpl().delete(documentId); }
+        synchronized (getImplLock()) {
+            getImpl().delete(documentId);
+        }
+    }
+
+	/**
+     * Delete the document draft.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    public void deleteDraft(final Long documentId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteDraft(documentId);
+        }
     }
 
     /**
-	 * Obtain a document with a specified id.
-	 * 
-	 * @param documentUniqueId
-	 *            The document unique id.
-	 * @return The document.
-	 * @throws ParityException
-	 */
-	public Document get(final UUID documentUniqueId) {
-		synchronized(getImplLock()) { return getImpl().read(documentUniqueId); }
-	}
+     * Determine whether or not a draft exists for a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    public Boolean doesExistDraft(final Long documentId) {
+        synchronized (getImplLock()) {
+            return getImpl().doesExistDraft(documentId);
+        }
+    }
 
     /**
      * Obtain a document name generator.
@@ -82,7 +83,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-    /**
+	/**
      * Handle the receipt of a document from the thinkParity network.
      * 
      * @param uniqueId
@@ -101,12 +102,12 @@ public class InternalDocumentModel extends DocumentModel implements
      */
     public DocumentVersion handleDocumentPublished(
             final ContainerArtifactPublishedEvent event) {
-        synchronized(getImplLock()) {
+        synchronized (getImplLock()) {
             return getImpl().handleDocumentPublished(event);
         }
     }
 
-	/**
+    /**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
@@ -116,7 +117,7 @@ public class InternalDocumentModel extends DocumentModel implements
      */
 	public InputStream openVersionStream(final Long documentId,
             final Long versionId) {
-	    synchronized(getImplLock()) {
+	    synchronized (getImplLock()) {
             return getImpl().openVersionStream(documentId, versionId);
         }
     }
@@ -129,7 +130,9 @@ public class InternalDocumentModel extends DocumentModel implements
      * @return A document.
      */
     public Document read(final Long documentId) {
-        synchronized(getImplLock()) { return getImpl().read(documentId); }
+        synchronized (getImplLock()) {
+            return getImpl().read(documentId);
+        }
     }
 
     /**
@@ -140,7 +143,7 @@ public class InternalDocumentModel extends DocumentModel implements
      * @return A list of audit events.
      */
 	public List<AuditEvent> readAuditEvents(final Long documentId) {
-	    synchronized(getImplLock()) {
+	    synchronized (getImplLock()) {
             return getImpl().readAuditEvents(documentId);
         }
     }

@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
 import com.thinkparity.ophelia.model.Constants.Encoding;
+import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
@@ -63,7 +64,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
+final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 
 	/** A document auditor. */
 	private final DocumentModelAuditor auditor;
@@ -173,7 +174,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         try {
-            assertDraftIsModified("Draft is not modified.", documentId);
+            assertDraftIsModified(documentId, "Draft has not been modified.");
             final LocalFile localFile = getLocalFile(read(documentId));
             final InputStream content = localFile.openStream();
             try {
@@ -203,6 +204,45 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
+     * Delete the draft for a document. This will delete the a file on the file
+     * system representing the draft.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    void deleteDraft(final Long documentId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        try {
+            assertDoesExistDraft(documentId, "Draft does not exist.");
+            final Document document = read(documentId);
+            final LocalFile draftFile = getLocalFile(document);
+            draftFile.delete();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+	/**
+     * Determine whether or not a draft exists.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return True if the draft exists.
+     */
+    Boolean doesExistDraft(final Long documentId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        try {
+            final Document document = read(documentId);
+            final LocalFile draftFile = getLocalFile(document);
+            return draftFile.exists();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Obtain a document name generator.
      * 
      * @return A <code>DocumentNameGenerator</code>.
@@ -216,7 +256,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-	/**
+    /**
      * Handle the publish of a document from the thinkParity network. The
      * implementation is identical to sending a document.
      * 
@@ -243,81 +283,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 event.getArtifactChecksum(), event.getArtifactStreamId());
     }
 
-    /**
-     * Handle the receipt of a document from the thinkParity network. If the
-     * document does not exist; it will be created; if the version does not
-     * exist it will be created.
-     * 
-     * @param sentBy
-     *            By whom the document was sent.
-     * @param sentOn
-     *            When the document was sent.
-     * @param uniqueId
-     *            The document unique id.
-     * @param versionId
-     *            The document version id.
-     * @param name
-     *            The document name.
-     * @param content
-     *            The document content.
-     */
-    private DocumentVersion handleDocumentSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final String streamId) {
-        logger.logApiId();
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentOn", sentOn);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("checksum", checksum);
-        logger.logVariable("streamId", streamId);
-        try {
-            final File streamFile = downloadStream(streamId);
-            final InternalArtifactModel artifactModel  = getInternalArtifactModel();
-            final Document document;
-            final DocumentVersion version;
-            if (artifactModel.doesExist(uniqueId)) {
-                logger.logWarning("Document {0} already exists.", uniqueId);
-                document = read(uniqueId);
-                if (artifactModel.doesVersionExist(document.getId(), versionId)) {
-                    logger.logWarning(
-                            "Document version {0}:{1} already exists.",
-                            uniqueId, versionId);
-                    version = readVersion(document.getId(), versionId);
-                }
-                else {
-                    final InputStream stream = new FileInputStream(streamFile);
-                    try {
-                        version = createVersion(document.getId(), versionId,
-                                stream, sentBy, sentOn);
-                    } finally {
-                        stream.close();
-                    }
-                }
-            }
-            else {
-                InputStream stream = new FileInputStream(streamFile);
-                try {
-                    document = create(uniqueId, name, stream, sentBy, sentOn);
-                } finally {
-                    stream.close();
-                }
-                stream = new FileInputStream(streamFile);
-                try {
-                    version = createVersion(document.getId(), versionId,
-                            stream, sentBy, sentOn);
-                } finally {
-                    stream.close();
-                }
-            }
-            return version;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
+	/**
      * Determine whether or not the draft of the document is different from the
      * latest version.
      * 
@@ -327,15 +293,16 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		logger.logApiId();
 		logger.logVariable("documentId", documentId);
         try {
-            final List<DocumentVersion> versions = listVersions(documentId);
-            if (0 == versions.size()) {
-                return Boolean.TRUE;
-            } else {
+            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            if (artifactModel.doesVersionExist(documentId, Versioning.START)) {
                 final Document document = read(documentId);
-                final LocalFile localFile = getLocalFile(document);
-                localFile.read();
-                final String draftChecksum = localFile.getFileChecksum();
-                return !versions.get(versions.size() - 1).getChecksum().equals(draftChecksum);
+                final LocalFile draftFile = getLocalFile(document);
+                draftFile.read();
+                final String draftChecksum = draftFile.getFileChecksum();
+                final DocumentVersion latestVersion = readLatestVersion(documentId);
+                return !latestVersion.getChecksum().equals(draftChecksum);
+            } else {
+                return Boolean.TRUE;
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -356,7 +323,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return list(defaultComparator);
 	}
 
-	/**
+    /**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -379,7 +346,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
-    /**
+	/**
      * Obtain a filtered and sorted list of documents.
      * 
      * @param comparator
@@ -522,7 +489,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
-	/**
+    /**
      * Open an input stream to read the document version. Note: It is a good
      * idea to buffer the input stream.
      * 
@@ -659,7 +626,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return readHistory(documentId, comparator, defaultHistoryFilter);
     }
 
-    /**
+	/**
      * Read the document history.
      * 
      * @param documentId
@@ -687,7 +654,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return history;
 	}
 
-	/**
+    /**
      * Read the document history.
      * 
      * @param documentId
@@ -829,77 +796,99 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
+     * Assert that the document's draft exists.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            An assertion message's arguments <code>Object...</code>.
+     */
+    private void assertDoesExistDraft(final Long documentId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(doesExistDraft(documentId), assertMessage,
+                assertArguments);
+    }
+
+    /**
      * Assert that the document's draft is modified.
      * 
-     * @param assertion
-     *            An assertion.
      * @param documentId
-     *            A document id.
-     * @see DocumentModelImpl#isDraftModified(Long)
+     *            A document id <code>Long</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            An assertion message's arguments <code>Object...</code>.
      */
-    private void assertDraftIsModified(final Object assertion, final Long documentId) {
-        Assert.assertTrue(assertion, isDraftModified(documentId));
+    private void assertDraftIsModified(final Long documentId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(isDraftModified(documentId), assertMessage,
+                assertArguments);
     }
 
     /**
-     * Audit the document's creation.
-     * 
-     * @param document
-     *            A document.
-     * @param createdBy
-     *            The created by user id <code>JabberId</code>.
-     * @param createdOn
-     *            The created on date <code>Calendar</code>.
-     */
-    private void auditDocumentCreated(final Document document,
-            final JabberId createdBy, final Calendar createdOn) {
-        auditor.create(document, createdBy, createdOn);
-    }
-
-    /**
-     * Create a document.
+     * Create a document. Simply create the document; the artifact remote info
+     * and stream the content to the draft file.
      * 
      * @param uniqueId
-     *            A unique id.
+     *            A unique id <code>UUID</code>.
      * @param name
-     *            A name.
+     *            A name <code>String</code>.
      * @param content
-     *            The content.
+     *            The draft content <code>InputStream</code>.
      * @param createdBy
-     *            The creator.
+     *            A created by user id <code>JabberId</code>.
      * @param createdOn
-     *            The creation date.
-     * @return A document.
+     *            A created on <code>Calendar</code>.
+     * @return A <code>Document</code>.
      */
     private Document create(final UUID uniqueId, final String name,
             final InputStream content, final JabberId createdBy,
             final Calendar createdOn) {
         try {
             // create document
-            final Document document = new Document();
-            document.setCreatedBy(createdBy);
-            document.setCreatedOn(createdOn);
-            document.setFlags(Collections.<ArtifactFlag>emptyList());
-            document.setUniqueId(uniqueId);
-            document.setName(name);
-            document.setUpdatedBy(document.getCreatedBy());
-            document.setUpdatedOn(document.getCreatedOn());
-            document.setState(ArtifactState.ACTIVE);
-            documentIO.create(document);
-            // create remote info
-            final InternalArtifactModel aModel = getInternalArtifactModel();
-            aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
+            final Document document = create(uniqueId, name, createdBy, createdOn);
             // create local file
             final LocalFile localFile = getLocalFile(document);
             localFile.write(StreamUtil.read(content));
-
-            final Document postCreation = read(document.getId());
-            // audit
-            this.auditDocumentCreated(postCreation, createdBy, createdOn);
-            return postCreation;
+            return read(document.getId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Create a document. Simply create the document and the artifact remote
+     * info object in the database.
+     * 
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     * @param name
+     *            A name <code>String</code>.
+     * @param createdBy
+     *            A created by user id <code>JabberId</code>.
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
+     * @return A <code>Document</code>.
+     */
+    private Document create(final UUID uniqueId, final String name,
+            final JabberId createdBy, final Calendar createdOn) {
+        // create document
+        final Document document = new Document();
+        document.setCreatedBy(createdBy);
+        document.setCreatedOn(createdOn);
+        document.setFlags(Collections.<ArtifactFlag>emptyList());
+        document.setUniqueId(uniqueId);
+        document.setName(name);
+        document.setUpdatedBy(document.getCreatedBy());
+        document.setUpdatedOn(document.getCreatedOn());
+        document.setState(ArtifactState.ACTIVE);
+        documentIO.create(document);
+        // create artifact remote info
+        final InternalArtifactModel aModel = getInternalArtifactModel();
+        aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
+        return read(document.getId());
     }
 
 	/**
@@ -1020,6 +1009,75 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	}
 
     /**
+     * Handle the receipt of a document from the thinkParity network. If the
+     * document does not exist; it will be created; if the version does not
+     * exist it will be created.
+     * 
+     * @param sentBy
+     *            By whom the document was sent.
+     * @param sentOn
+     *            When the document was sent.
+     * @param uniqueId
+     *            The document unique id.
+     * @param versionId
+     *            The document version id.
+     * @param name
+     *            The document name.
+     * @param content
+     *            The document content.
+     */
+    private DocumentVersion handleDocumentSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID uniqueId, final Long versionId,
+            final String name, final String checksum, final String streamId) {
+        logger.logApiId();
+        logger.logVariable("sentBy", sentBy);
+        logger.logVariable("sentOn", sentOn);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("checksum", checksum);
+        logger.logVariable("streamId", streamId);
+        try {
+            final File streamFile = downloadStream(streamId);
+            final InternalArtifactModel artifactModel  = getInternalArtifactModel();
+            final Document document;
+            final DocumentVersion version;
+            if (artifactModel.doesExist(uniqueId)) {
+                logger.logWarning("Document {0} already exists.", uniqueId);
+                document = read(uniqueId);
+                if (artifactModel.doesVersionExist(document.getId(), versionId)) {
+                    logger.logWarning(
+                            "Document version {0}:{1} already exists.",
+                            uniqueId, versionId);
+                    version = readVersion(document.getId(), versionId);
+                }
+                else {
+                    final InputStream stream = new FileInputStream(streamFile);
+                    try {
+                        version = createVersion(document.getId(), versionId,
+                                stream, sentBy, sentOn);
+                    } finally {
+                        stream.close();
+                    }
+                }
+            }
+            else {
+                document = create(uniqueId, name, sentBy, sentOn);
+                final InputStream stream = new FileInputStream(streamFile);
+                try {
+                    version = createVersion(document.getId(), versionId,
+                            stream, sentBy, sentOn);
+                } finally {
+                    stream.close();
+                }
+            }
+            return version;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1065,7 +1123,7 @@ class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
         logger.logVariable("versionId", versionId);
-        assertDraftIsModified("DRAFT IS NOT MODIFIED", documentId);
+        assertDraftIsModified(documentId, "Draft has not been modified.", documentId);
         try {
             final Document document = read(documentId);
             final LocalFile draftFile = getLocalFile(document);

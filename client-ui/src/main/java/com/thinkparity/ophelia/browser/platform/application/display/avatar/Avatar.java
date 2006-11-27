@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.platform.application.display.avatar;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import javax.swing.SwingUtilities;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -55,6 +58,12 @@ public abstract class Avatar extends AbstractJPanel {
 
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
+    
+    /** The scaled background image. */
+    private BufferedImage scaledBackgroundImage = null;
+    
+    /** The clipped background image. */
+    private BufferedImage clippedBackgroundImage = null;
     
     /**
      * Create Avatar.
@@ -131,6 +140,45 @@ public abstract class Avatar extends AbstractJPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
+        if (isAvatarBackgroundImage()) {
+            final Graphics g2 = g.create();
+            try {
+                final int extra = 5;
+                
+                // Scale the background image to the correct size or slightly larger.
+                // For performance reasons, don't use scaling to resize with every pixel change.
+                if ((null == scaledBackgroundImage)
+                        || (scaledBackgroundImage.getWidth() < getWidth())
+                        || (scaledBackgroundImage.getWidth() > (getWidth() + extra))
+                        || (scaledBackgroundImage.getHeight() < getHeight())
+                        || (scaledBackgroundImage.getHeight() > (getHeight() + extra))) {
+                    final Image image = Images.BrowserTitle.DIALOG_BACKGROUND.getScaledInstance(
+                            getWidth() + extra, getHeight() + extra, Image.SCALE_FAST);
+                    scaledBackgroundImage = new BufferedImage(getWidth() + extra, getHeight() + extra, BufferedImage.TYPE_INT_RGB);
+                    final Graphics gImage = scaledBackgroundImage.createGraphics();
+                    try {
+                        gImage.drawImage(image, 0, 0, null);
+                    }
+                    finally { gImage.dispose(); }
+                }
+                
+                // Clip the image to the exact size.
+                if (null != scaledBackgroundImage) {
+                    if ((null == clippedBackgroundImage)
+                            || (clippedBackgroundImage.getWidth() != getWidth())
+                            || (clippedBackgroundImage.getHeight() != getHeight())) {
+                        clippedBackgroundImage = scaledBackgroundImage.getSubimage(
+                                0, 0, getWidth(), getHeight());
+                    }
+                }
+                
+                // Draw the background image, clipping if required.
+                if (null != clippedBackgroundImage) {                
+                    g2.drawImage(clippedBackgroundImage, 0, 0, getWidth(), getHeight(), null);
+                }
+            }
+            finally { g2.dispose(); }
+        }
     }
 
     /**
@@ -142,6 +190,16 @@ public abstract class Avatar extends AbstractJPanel {
         }
 
         this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
+    }
+    
+    /**
+     * Determine if there is an avatar background image, used for dialogs.
+     * With few exceptions (eg. title, main, and status areas of browser)
+     * this should be true.
+     */
+    public Boolean isAvatarBackgroundImage() {
+        return Boolean.TRUE;
+        
     }
     
     /**

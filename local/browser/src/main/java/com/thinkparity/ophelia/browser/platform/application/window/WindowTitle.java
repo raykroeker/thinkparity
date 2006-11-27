@@ -6,7 +6,6 @@
 
 package com.thinkparity.ophelia.browser.platform.application.window;
 
-import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -30,15 +30,6 @@ public class WindowTitle extends javax.swing.JPanel {
     
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
-
-    /** The start colour of the gradient. */
-    private static final Color GRADIENT_PAINT_COLOUR_1 = Colors.Browser.Window.BG_GRAD_START;
-
-    /** The finish colour of the gradient. */
-    private static final Color GRADIENT_PAINT_COLOUR_2 = Colors.Browser.Window.BG_GRAD_FINISH;
-
-    /** The colour of the single line below the title deocration. */
-    private static final Color TITLE_BOTTOM_BORDER_COLOUR = Colors.Browser.Window.TITLE_BOTTOM_BORDER;
     
     /** Close label icon. */
     private static final Icon CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
@@ -71,20 +62,27 @@ public class WindowTitle extends javax.swing.JPanel {
     protected void paintComponent(final Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         try {
-            // vertical gradients
+            // vertical gradient
             final Paint gPaint =
-                new GradientPaint(0, 0, GRADIENT_PAINT_COLOUR_1, 0, getHeight(), GRADIENT_PAINT_COLOUR_2);
+                new GradientPaint(0, 0, Colors.Browser.Window.TITLE_GRADIENT_TOP,
+                                  0, getHeight(), Colors.Browser.Window.TITLE_GRADIENT_BOTTOM);
             g2.setPaint(gPaint);
-            g2.fillRect(0, 0, getWidth(), getHeight());            
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            // These images put borders on rounded corners.
+            g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT,
+                    0,
+                    0,
+                    Images.BrowserTitle.DIALOG_TOP_LEFT.getWidth(),
+                    Images.BrowserTitle.DIALOG_TOP_LEFT.getHeight(), this);
+            g2.drawImage(Images.BrowserTitle.DIALOG_TOP_RIGHT,
+                    getWidth() - Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
+                    0,
+                    Images.BrowserTitle.DIALOG_TOP_RIGHT.getWidth(),
+                    Images.BrowserTitle.DIALOG_TOP_RIGHT.getHeight(), this);
+            
         }
-        finally { g2.dispose(); }
-
-        g2 = (Graphics2D) g.create();
-        try {
-          g2.setColor(TITLE_BOTTOM_BORDER_COLOUR);
-          g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
-        }
-        finally { g2.dispose(); }        
+        finally { g2.dispose(); }    
     }
 
     /** This method is called from within the constructor to
@@ -101,20 +99,23 @@ public class WindowTitle extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        titleJLabel.setFont(new java.awt.Font("Times New Roman", 1, 14));
-        titleJLabel.setText("!Title!");
+        setMaximumSize(new java.awt.Dimension(2147483647, 20));
+        setMinimumSize(new java.awt.Dimension(57, 20));
+        setPreferredSize(new java.awt.Dimension(57, 20));
+        titleJLabel.setFont(new java.awt.Font("Arial", 1, 13));
+        titleJLabel.setText("New Package");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 6, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 9, 0, 0);
         add(titleJLabel, gridBagConstraints);
 
         closeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 1);
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 6);
         add(closeJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

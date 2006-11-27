@@ -60,7 +60,9 @@ public final class PublishContainerAvatar extends Avatar implements
         initComponents();
         namesJScrollPane.getViewport().setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
         namesJTable.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
-        namesJTable.getTableHeader().setDefaultRenderer(new PublishTableHeaderRenderer(namesJTable.getTableHeader()));
+        if (null != namesJTable.getTableHeader()) {
+            namesJTable.getTableHeader().setDefaultRenderer(new PublishTableHeaderRenderer(namesJTable.getTableHeader()));
+        }
         addMoveListener(explanationJLabel);
     }
 
@@ -488,7 +490,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addContainerGap()
                 .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)

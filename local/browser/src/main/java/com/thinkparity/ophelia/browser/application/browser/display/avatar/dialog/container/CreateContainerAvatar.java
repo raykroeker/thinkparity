@@ -79,6 +79,7 @@ public class CreateContainerAvatar extends Avatar {
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
 
+        explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
@@ -97,6 +98,7 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
+        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -135,7 +137,7 @@ public class CreateContainerAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
                     .add(okJButton))

@@ -247,7 +247,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                 scaledContainerBackgroundLeft[index] = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index];
             } else {
                 final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getScaledInstance(
-                        newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getHeight(), Image.SCALE_SMOOTH);
+                        newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getHeight(), Image.SCALE_FAST);
                 scaledContainerBackgroundLeft[index] = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
                 final Graphics g2 = scaledContainerBackgroundLeft[index].createGraphics();
                 try {
@@ -262,7 +262,7 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             scaledContainerBackgroundRight = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT;
         } else {
             final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getScaledInstance(
-                    newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getHeight(), Image.SCALE_SMOOTH);
+                    newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getHeight(), Image.SCALE_FAST);
             scaledContainerBackgroundRight = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
             final Graphics g2 = scaledContainerBackgroundRight.createGraphics();
             try {

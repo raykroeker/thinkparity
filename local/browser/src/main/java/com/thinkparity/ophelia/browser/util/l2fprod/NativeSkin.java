@@ -62,16 +62,28 @@ public final class NativeSkin {
     }
 
     /**
-	 * Apply rounded corners to the window.
+	 * Apply default rounded corners to the window.
 	 * 
 	 * @param window
 	 *            A <code>Window</code>.
 	 */
 	public void roundCorners(final Window window) {
-		if (isNativeSkin()) {
-			final Region region = NATIVE_SKIN.createRoundRectangleRegion(0, 0,
-					window.getWidth() + 1, window.getHeight() + 1, 9, 9);
-			NATIVE_SKIN.setWindowRegion(window, region, true);
-		}
+        roundCorners(window, 5);
 	}
+    
+    /**
+     * Apply rounded corners to the window.
+     * 
+     * @param window
+     *            A <code>Window</code>.
+     * @param size
+     *            A number affecting the size of the rounding (probably pixel diameter).                 
+     */            
+    public void roundCorners(final Window window, final int size) {
+        if (isNativeSkin()) {
+            final Region region = NATIVE_SKIN.createRoundRectangleRegion(0, 0,
+                    window.getWidth() + 1, window.getHeight() + 1, size, size);
+            NATIVE_SKIN.setWindowRegion(window, region, true);
+        }
+    }
 }

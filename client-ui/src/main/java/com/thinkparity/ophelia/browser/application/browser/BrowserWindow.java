@@ -179,7 +179,7 @@ public class BrowserWindow extends AbstractJFrame {
      * Make the corners round.
      */
     private void roundCorners() {
-    	new NativeSkin().roundCorners(this);
+    	new NativeSkin().roundCorners(this, Dimensions.BrowserWindow.CORNER_SIZE);
     }
 
 	/**

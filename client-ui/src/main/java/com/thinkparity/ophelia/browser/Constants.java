@@ -99,14 +99,13 @@ public final class Constants {
                 public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
             }
             public static final class Window {
-                public static final Color BG_GRAD_FINISH = new Color(173, 177, 185, 255);      // MainTitle.BG_GRAD_FINISH * 0.9
-                public static final Color BG_GRAD_START = new Color(221, 227, 236, 255);       // MainTitle.BG_GRAD_FINISH * 1.15
-                public static final Color BORDER_COLOR_INNER_AT_BOTTOM = new Color(134, 138, 144, 255); // MainTitle.BG_GRAD_FINISH * 0.7
-                public static final Color BORDER_COLOR_INNER_AT_TOP = new Color(154, 158, 164, 255);    // MainTitle.BG_GRAD_FINISH * 0.8
-                public static final Color BORDER_COLOR_MID_AT_BOTTOM = new Color(134, 138, 144, 255);   // MainTitle.BG_GRAD_FINISH * 0.7
-                public static final Color BORDER_COLOR_MID_AT_TOP = new Color(176, 181, 189, 255);      // Continues gradient exactly
-                public static final Color BORDER_COLOR_OUTER = new Color(110, 110, 130, 255);
-                public static final Color TITLE_BOTTOM_BORDER = new Color(154, 158, 164, 255);
+                public static final Color BORDER_TOP = new Color(242, 245, 248, 255);
+                public static final Color BORDER_LEFT_TOP = new Color(239, 242, 247, 255);
+                public static final Color BORDER_LEFT_BOTTOM = new Color(206, 215, 226, 255);
+                public static final Color BORDER_RIGHT_TOP = new Color(242, 245, 248, 255);
+                public static final Color BORDER_RIGHT_BOTTOM = new Color(212, 220, 229, 255);
+                public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
+                public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
             }
         }
         public static final class Swing {
@@ -134,6 +133,7 @@ public final class Constants {
             public static final Point DEFAULT_LOCATION = new Point(100, 100);
             public static final Dimension DEFAULT_SIZE = new Dimension(450, 587);
             public static final Dimension MIN_SIZE = new Dimension(400, 200);
+            public static final int CORNER_SIZE = 9;
             public static final class Display {
                 public static final Integer STATUS_HEIGHT = 34;
                 public static final Integer TITLE_HEIGHT = 48;
@@ -207,8 +207,7 @@ public final class Constants {
             public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
                 ImageIOUtil.read("BrowserBottomLeftInner.png");
             public static final BufferedImage BROWSER_BOTTOM_LEFT_OUTER =
-                ImageIOUtil.read("BrowserBottomLeftOuter.png");
-            
+                ImageIOUtil.read("BrowserBottomLeftOuter.png");            
             public static final BufferedImage BROWSER_BOTTOM_RIGHT_INNER =
                 ImageIOUtil.read("BrowserBottomRightInner.png");
             public static final BufferedImage BROWSER_BOTTOM_RIGHT_OUTER =
@@ -221,23 +220,12 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTopRightInner.png");
             public static final BufferedImage BROWSER_TOP_RIGHT_OUTER =
                 ImageIOUtil.read("BrowserTopRightOuter.png");
-            public static final BufferedImage DIALOG_BOTTOM_LEFT_INNER =
-                ImageIOUtil.read("DialogBottomLeftInner.png");
-            public static final BufferedImage DIALOG_BOTTOM_LEFT_OUTER =
-                ImageIOUtil.read("DialogBottomLeftOuter.png");
-            
-            public static final BufferedImage DIALOG_BOTTOM_RIGHT_INNER =
-                ImageIOUtil.read("DialogBottomRightInner.png");
-            public static final BufferedImage DIALOG_BOTTOM_RIGHT_OUTER =
-                ImageIOUtil.read("DialogBottomRightOuter.png");
-            public static final BufferedImage DIALOG_TOP_LEFT_INNER =
-                ImageIOUtil.read("DialogTopLeftInner.png");
-            public static final BufferedImage DIALOG_TOP_LEFT_OUTER =
-                ImageIOUtil.read("DialogTopLeftOuter.png");
-            public static final BufferedImage DIALOG_TOP_RIGHT_INNER =
-                ImageIOUtil.read("DialogTopRightInner.png");
-            public static final BufferedImage DIALOG_TOP_RIGHT_OUTER =
-                ImageIOUtil.read("DialogTopRightOuter.png");
+            public static final BufferedImage DIALOG_BACKGROUND =
+                ImageIOUtil.read("DialogBackground.png");
+            public static final BufferedImage DIALOG_TOP_LEFT =
+                ImageIOUtil.read("DialogTopLeft.png");
+            public static final BufferedImage DIALOG_TOP_RIGHT =
+                ImageIOUtil.read("DialogTopRight.png");            
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage SEARCH_BACKGROUND =

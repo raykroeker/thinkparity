@@ -39,6 +39,15 @@ public class MainContentAvatar extends Avatar {
     @Override
     public void setState(final State state) {}
     
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
+     */
+    @Override
+    public Boolean isAvatarBackgroundImage() {
+        // Default avatar background image is not required for this avatar.
+        return Boolean.FALSE;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

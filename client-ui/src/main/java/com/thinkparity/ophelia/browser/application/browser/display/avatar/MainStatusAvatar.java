@@ -136,6 +136,15 @@ public class MainStatusAvatar extends Avatar {
         }
         finally { g2.dispose(); }
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
+     */
+    @Override
+    public Boolean isAvatarBackgroundImage() {
+        // Default avatar background image is not required for this avatar.
+        return Boolean.FALSE;
+    }
 
     /**
      * Obtain the input connection.

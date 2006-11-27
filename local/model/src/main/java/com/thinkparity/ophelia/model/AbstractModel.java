@@ -34,7 +34,7 @@ public abstract class AbstractModel<T extends AbstractModelImpl> extends
      */
     protected AbstractModel(final T impl) {
         super(impl);
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(getClass());
     }
 
     /**

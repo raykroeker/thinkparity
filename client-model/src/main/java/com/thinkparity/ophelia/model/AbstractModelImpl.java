@@ -182,13 +182,12 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /**
      * Assert a draft doesn't exist for the container.
      * 
-     * @param assertion
-     *            An assertion.
      * @param containerId
      *            A container id.
      */
-    protected void assertContainerDraftDoesNotExist(final Object assertion, final Long containerId) {
-        Assert.assertIsNull(assertion, getContainerModel().readDraft(containerId));
+    protected void assertContainerDraftDoesNotExist(final Long containerId) {
+        Assert.assertIsNull(getContainerModel().readDraft(containerId),
+                "Draft for container {0} already exists.", containerId);
     }
 
     /**

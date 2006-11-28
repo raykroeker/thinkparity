@@ -37,6 +37,18 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
     /**
+     * Create a draft for a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    public void createDraft(final Long documentId) {
+        synchronized (getImplLock()) {
+            getImpl().createDraft(documentId);
+        }
+    }
+
+    /**
      * Delete a document.
      * 
      * @param documentId

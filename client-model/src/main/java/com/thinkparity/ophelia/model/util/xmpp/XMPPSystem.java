@@ -17,9 +17,6 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     /** The event queue lock. */
     private final Object queueLock;
 
-    /** The event queue size. */
-    private Integer queueSize;
-
     /**
      * Create XMPPSystem.
      *
@@ -29,7 +26,6 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     XMPPSystem(final XMPPCore core) {
         super(core);
         this.queueLock = new Object();
-        this.queueSize = 0;
     }
 
     /**
@@ -37,8 +33,10 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
      * 
      * @return The size of the event queue.
      */
-    Integer getQueueSize() {
-        return queueSize;
+    Integer readEventQueueSize(final JabberId userId) {
+        final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
+        readQueueEvents.setParameter("userId", userId);
+        return execute(readQueueEvents, Boolean.TRUE).readResultEvents("events").size();
     }
 
     /**
@@ -51,18 +49,14 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     void processEventQueue(final JabberId userId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        logger.logVariable("queueSize", queueSize);
         synchronized (queueLock) {
-            final XMPPMethod processOfflineQueue = new XMPPMethod("system:readqueueevents");
-            processOfflineQueue.setParameter("userId", userId);
+            final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
+            readQueueEvents.setParameter("userId", userId);
             final List<XMPPEvent> queue =
-                execute(processOfflineQueue, Boolean.TRUE).readResultEvents("events");
-            queueSize = queue.size();
-            logger.logVariable("queueSize", queueSize);
+                execute(readQueueEvents, Boolean.TRUE).readResultEvents("events");
             for (final XMPPEvent queueEvent : queue) {
                 xmppCore.handleEvent(queueEvent);
                 deleteQueueEvent(userId, queueEvent.getId());
-                logger.logVariable("queueSize", --queueSize);
             }
         }
     }

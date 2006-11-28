@@ -289,13 +289,6 @@ public interface XMPPSession {
             final Calendar extendedOn);
 
     /**
-     * Obtain the size of the event queue.
-     * 
-     * @return The size of the event queue.
-     */
-    public Integer getQueueSize();
-
-    /**
      * Determine if the user is logged in.
      * 
      * @return True if the user is logged in; false otherwise.
@@ -369,7 +362,7 @@ public interface XMPPSession {
      */
     public List<Container> readArchiveContainers(final JabberId userId);
 
-	/**
+    /**
      * Read the archived containers.
      * 
      * @param userId
@@ -381,7 +374,7 @@ public interface XMPPSession {
     public List<ContainerVersion> readArchiveContainerVersions(
             final JabberId userId, final UUID uniqueId);
 
-    /**
+	/**
      * Read the archived containers.
      * 
      * @param userId
@@ -487,7 +480,7 @@ public interface XMPPSession {
             final JabberId userId, final UUID uniqueId, final Long versionId,
             final UUID documentUniqueId);
 
-	/**
+    /**
      * Read the backup's team for a user.
      * 
      * @param userId
@@ -499,7 +492,7 @@ public interface XMPPSession {
     public List<JabberId> readBackupTeamIds(final JabberId userId,
             final UUID uniqueId);
 
-    /**
+	/**
      * Read a user's contact.
      * 
      * @param userId
@@ -518,6 +511,13 @@ public interface XMPPSession {
      * @return A list of contacts.
      */
     public List<Contact> readContacts(final JabberId userId);
+
+    /**
+     * Obtain the size of the event queue.
+     * 
+     * @return The size of the event queue.
+     */
+    public Integer readEventQueueSize(final JabberId userId);
 
     /**
      * Read the artifact key holder.

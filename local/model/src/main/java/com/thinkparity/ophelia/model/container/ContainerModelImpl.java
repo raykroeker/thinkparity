@@ -352,9 +352,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 final ContainerDraft draft = new ContainerDraft();
                 draft.setOwner(localTeamMember(containerId));
                 draft.setContainerId(containerId);
+                final InternalDocumentModel documentModel = getInternalDocumentModel();
                 for (final Document document : documents) {
                     draft.addDocument(document);
                     draft.putState(document, ContainerDraft.ArtifactState.NONE);
+                    documentModel.createDraft(document.getId());
+                    
                 }
                 containerIO.createDraft(draft);
                 artifactModel.applyFlagKey(container.getId());
@@ -988,11 +991,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             for(final Document draftDocument : draftDocuments) {
                 if(ContainerDraft.ArtifactState.REMOVED != draft
                         .getState(draftDocument)) {
-                    if(documentModel.isDraftModified(draftDocument.getId())) {
+                    if (documentModel.isDraftModified(draftDocument.getId())) {
                         draftDocumentLatestVersion =
                             documentModel.createVersion(draftDocument.getId());
-                    }
-                    else {
+                    } else {
                         draftDocumentLatestVersion =
                             documentModel.readLatestVersion(draftDocument.getId());
                     }

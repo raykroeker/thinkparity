@@ -422,12 +422,12 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 		}
 	}
 
-    Integer getQueueSize() {
+    Integer readQueueSize() {
         logger.logApiId();
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                return xmppSession.getQueueSize();
+                return xmppSession.readEventQueueSize(localUserId());
             }
         } catch (final Throwable t) {
             throw translateError(t);

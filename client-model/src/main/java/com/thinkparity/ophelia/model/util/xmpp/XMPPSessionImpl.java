@@ -418,8 +418,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#getQueueSize()
      *
      */
-    public Integer getQueueSize() {
-        return xmppSystem.getQueueSize();
+    public Integer readEventQueueSize(final JabberId userId) {
+        return xmppSystem.readEventQueueSize(userId);
     }
 
 	/**

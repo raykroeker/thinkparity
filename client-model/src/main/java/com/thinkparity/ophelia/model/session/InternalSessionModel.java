@@ -243,9 +243,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    public Integer getQueueSize() {
+    public Integer readQueueSize() {
         synchronized (getImplLock()) {
-            return getImpl().getQueueSize();
+            return getImpl().readQueueSize();
         }
     }
 

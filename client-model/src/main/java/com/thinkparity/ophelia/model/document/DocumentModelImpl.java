@@ -66,7 +66,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 
-	/** A document auditor. */
+    /** A document auditor. */
 	private final DocumentModelAuditor auditor;
 
 	/** The default document comparator. */
@@ -78,16 +78,16 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	/** The default history filter. */
     private final Filter<? super HistoryItem> defaultHistoryFilter;
 
-    /** The default document version comparator. */
+	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-	/** A document reader/writer. */
+    /** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
 
-    /** A document event generator for local events. */
+	/** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-	/**
+    /**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -106,7 +106,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.AbstractModelImpl#addListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -160,6 +160,33 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         // fire event
         notifyDocumentCreated(document, localEventGen);
         return document;
+    }
+
+    /**
+     * Create a draft for a document. Take the content of the latest version and
+     * copy it into a local file for the draft.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    void createDraft(final Long documentId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        try {
+            final Document document = read(documentId);
+            final DocumentVersion latestVersion = readLatestVersion(documentId);
+
+            final LocalFile draftFile = getLocalFile(document);
+            final InputStream versionStream = openVersionStream(
+                    document.getId(), latestVersion.getVersionId());
+            try {
+                draftFile.write(versionStream);
+            } finally {
+                versionStream.close();
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**

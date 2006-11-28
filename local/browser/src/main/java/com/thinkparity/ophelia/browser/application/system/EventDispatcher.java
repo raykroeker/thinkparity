@@ -94,16 +94,6 @@ class EventDispatcher {
 	private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
-            public void draftCreated(final ContainerEvent e) {
-                if (e.isRemote())
-                    systemApplication.fireContainerDraftCreated(e);
-            }
-            @Override
-            public void draftDeleted(final ContainerEvent e) {
-                if (e.isRemote())
-                    systemApplication.fireContainerDraftDeleted(e);
-            }
-            @Override
             public void draftPublished(final ContainerEvent e) {
                 if (e.isRemote())
                     systemApplication.fireContainerDraftPublished(e);

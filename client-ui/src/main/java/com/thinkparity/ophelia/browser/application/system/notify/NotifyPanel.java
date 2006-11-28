@@ -6,11 +6,13 @@ package com.thinkparity.ophelia.browser.application.system.notify;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -76,6 +78,11 @@ public final class NotifyPanel extends AbstractJPanel {
         this.notificationIndex = 0;
         this.notificationText = new StringBuffer();
         addMoveListener(notificationJLabel);
+        bindEscapeKey("Close", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                closeNotifyPanel();
+            }
+        });
     }
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)

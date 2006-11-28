@@ -33,10 +33,12 @@ public final class DocumentRenderer implements ObjectRenderer {
 			return Separator.Null.toString();
 		}
 		else {
-			final Document d = (Document) o;
-			return StringUtil.toString(Document.class,
-                    "getId()", d.getId(),
-                    "getName()", d.getName());
+			final Document o2 = (Document) o;
+			return StringUtil.toString(o2.getClass(),
+                    "getId()", o2.getId(),
+                    "getName()", o2.getName(),
+                    "getUniqueId()", o2.getUniqueId(),
+                    "hashCode()", Integer.toHexString(o2.hashCode()));
 		}
 	}
 }

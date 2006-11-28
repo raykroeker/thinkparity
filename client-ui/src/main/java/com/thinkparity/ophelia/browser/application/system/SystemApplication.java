@@ -5,12 +5,14 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -26,8 +28,8 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -259,28 +261,6 @@ public class SystemApplication extends AbstractApplication {
     void fireContactUpdated(final ContactEvent e) {
         fireNotification("Norification.ContactUpdatedMessage",
                 getName(e.getContact()));
-    }
-
-    /**
-     * Fire the container draft created event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    void fireContainerDraftCreated(final ContainerEvent e) {
-        fireNotification("Notification.ContainerDraftCreatedMessage",
-                getName(e.getDraft().getOwner()), e.getContainer().getName());
-    }
-
-    /**
-     * Fire the container draft created event.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    void fireContainerDraftDeleted(final ContainerEvent e) {
-        fireNotification("Notification.ContainerDraftDeletedMessage",
-                getName(e.getDraft().getOwner()), e.getContainer().getName());
     }
 
     /**

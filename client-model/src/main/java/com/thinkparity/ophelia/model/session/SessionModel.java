@@ -3,14 +3,10 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.ParityException;

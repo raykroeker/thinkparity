@@ -52,7 +52,7 @@ public class CreateVersionDraftUpdatedTest extends DocumentTestCase {
 		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final File inputFile = getInputFiles()[0];
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-        modifyDocument(OpheliaTestUser.JUNIT, document);
+        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
 		datum = new Fixture(document, documentModel);
         documentModel.addListener(datum);
     }

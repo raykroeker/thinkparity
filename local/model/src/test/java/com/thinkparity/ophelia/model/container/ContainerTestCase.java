@@ -120,7 +120,8 @@ abstract class ContainerTestCase extends ModelTestCase {
      * events are fired in the abstraction the test case will fail.
      * 
      */
-    protected abstract class Fixture implements ContainerListener {
+    protected abstract class Fixture extends ModelTestCase.Fixture implements
+            ContainerListener {
         public void containerArchived(ContainerEvent e) {
             fail(getName() + " - Container archived event was fired.");
         }

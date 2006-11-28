@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.Context;
 
 import com.thinkparity.ophelia.model.TestModel;
@@ -53,62 +54,63 @@ public class OpheliaTestModelFactory {
         return SINGLETON;
     }
 
-    private final Context testContext;
-
     private OpheliaTestModelFactory() {
         super();
-        this.testContext = TestModel.getTestContext();
+    }
+
+    private Context getContext(final OpheliaTestUser testUser) {
+        return TestModel.getTestContext();
     }
 
     public InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
-        return ArchiveModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ArchiveModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalArtifactModel getArtifactModel(final OpheliaTestUser testUser) {
-        return ArtifactModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ArtifactModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalContactModel getContactModel(final OpheliaTestUser testUser) {
-        return ContactModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ContactModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalContainerModel getContainerModel(final OpheliaTestUser testUser) {
-        return ContainerModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ContainerModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalDocumentModel getDocumentModel(final OpheliaTestUser testUser) {
-        return DocumentModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return DocumentModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalLibraryModel getLibraryModel(final OpheliaTestUser testUser) {
-        return LibraryModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return LibraryModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalProfileModel getProfileModel(final OpheliaTestUser testUser) {
-        return ProfileModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ProfileModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalReleaseModel getReleaseModel(final OpheliaTestUser testUser) {
-        return ReleaseModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ReleaseModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
-        return ScriptModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return ScriptModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalSessionModel getSessionModel(final OpheliaTestUser testUser) {
-        return SessionModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return SessionModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalSystemMessageModel getSystemMessageModel(final OpheliaTestUser testUser) {
-        return SystemMessageModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return SystemMessageModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalUserModel getUserModel(final OpheliaTestUser testUser) {
-        return UserModel.getInternalModel(testContext, testUser.getEnvironment(), testUser.getWorkspace());
+        return UserModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalWorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
-        return WorkspaceModel.getInternalModel(testContext, testUser.getEnvironment());
+        return WorkspaceModel.getInternalModel(getContext(testUser), testUser.getEnvironment());
     }
 }

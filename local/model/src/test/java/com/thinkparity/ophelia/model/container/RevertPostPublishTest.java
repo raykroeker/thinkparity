@@ -40,7 +40,7 @@ public class RevertPostPublishTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT);
         publishToContacts(OpheliaTestUser.JUNIT, container);
         createContainerDraft(OpheliaTestUser.JUNIT, container);
-        modifyDocument(OpheliaTestUser.JUNIT, document);
+        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         logout(OpheliaTestUser.JUNIT);
         datum = new Fixture(container, containerModel, document);
         datum.containerModel.addListener(datum);

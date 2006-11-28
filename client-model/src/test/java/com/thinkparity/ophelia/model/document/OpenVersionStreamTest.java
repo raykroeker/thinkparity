@@ -92,7 +92,7 @@ public class OpenVersionStreamTest extends DocumentTestCase {
 		final File inputFile = getInputFile("JUnitTestFramework.txt");
 		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-        final File modFile = modifyDocument(OpheliaTestUser.JUNIT, document);
+        final File modFile = modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         final DocumentVersion version = createDocumentVersion(OpheliaTestUser.JUNIT, document);
 
 		datum = new Fixture(documentModel, modFile, version);

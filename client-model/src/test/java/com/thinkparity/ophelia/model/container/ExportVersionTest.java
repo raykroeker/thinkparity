@@ -54,24 +54,24 @@ public class ExportVersionTest extends ContainerTestCase {
         final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container);
         publishToContacts(OpheliaTestUser.JUNIT, container);
 
-        createDraft(OpheliaTestUser.JUNIT, container);
+        createDraft(OpheliaTestUser.JUNIT, container.getId());
         // remove half of the documents
         for (int i = 0; i < documents.size(); i++) {
             if (1 == i % 2)
                 containerModel.removeDocument(container.getId(),
                         documents.get(i).getId());
         }
-        publishToTeam(OpheliaTestUser.JUNIT, container);
+        publishToTeam(OpheliaTestUser.JUNIT, container.getId());
 
         // re-add half of the documents
-        createDraft(OpheliaTestUser.JUNIT_X, container);
+        createDraft(OpheliaTestUser.JUNIT_X, container.getId());
         final File[] inputFiles = getInputFiles();
         for (int i = 0; i < inputFiles.length; i++) {
             if (1 == i % 2) {
                 addDocument(OpheliaTestUser.JUNIT, container, inputFiles[i]);
             }
         }
-        publishToTeam(OpheliaTestUser.JUNIT_X, container);
+        publishToTeam(OpheliaTestUser.JUNIT_X, container.getId());
 
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, getOutputDirectory(), version);

@@ -9,10 +9,11 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Create Draft Test<br>
@@ -23,40 +24,65 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
  */
 public class CreateDraftTest extends ContainerTestCase {
 
-    /** Test test name. */
-    private static final String NAME = "Container - Create Draft Test";
+    /** Test name. */
+    private static final String NAME = "Create Draft Test";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create CreateDraftTest. */
-    public CreateDraftTest() { super(NAME); }
+    /**
+     * Create CreateDraftTest.
+     * 
+     */
+    public CreateDraftTest() {
+        super(NAME);
+    }
 
     /**
-     * Test the container model create api.
-     *
+     * Test the container model create draft api.
+     * 
      */
     public void testCreateDraft() {
-        logTrace("{0} - Creating draft for container \"{1}\".", NAME, datum.container.getName());
-        final ContainerDraft draft =  datum.containerModel.createDraft(datum.container.getId());
+        final Container c = createContainer(datum.junit, NAME);
+        addDocuments(datum.junit, c.getId());
+        publishToContacts(OpheliaTestUser.JUNIT, c);
+        datum.waitForEvents();
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        final Container c_y = readContainer(datum.junit_x, c.getUniqueId());
+        ContainerDraft draftCreate = getContainerModel(datum.junit).createDraft(c.getId());
+        datum.waitForEvents();
 
-        assertNotNull(NAME, draft);
-        assertEquals(NAME + " [DRAFT ID DOES NOT MATCH EXPECTATION]",
-                datum.container.getId(), draft.getContainerId());
-        assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
+        ContainerDraft draftRead = readContainerDraft(datum.junit, c.getId());
+        assertNotNull("Draft for " + datum.junit.getSimpleUsername() + " is null.", draftRead);
+        ContainerDraft draft_x = readContainerDraft(datum.junit_x, c_x.getId());
+        assertNotNull("Draft for " + datum.junit_x.getSimpleUsername() + " is null.", draft_x);
+        ContainerDraft draft_y = readContainerDraft(datum.junit_y, c_y.getId());
+        assertNotNull("Draft for " + datum.junit_y.getSimpleUsername() + " is null.", draft_y);
+
+        assertEquals("Draft created does not match draft read.", draftCreate, draftRead);
+        assertTrue("Draft created event not fired.", datum.didNotify);
 
         final ContainerVersion latestVersion =
-                datum.containerModel.readLatestVersion(datum.container.getId());
+            getContainerModel(datum.junit).readLatestVersion(c.getId());
         final List<Document> latestVersionDocuments =
-                datum.containerModel.readDocuments(latestVersion.getArtifactId(), latestVersion.getVersionId());
+            getContainerModel(datum.junit).readDocuments(
+                    latestVersion.getArtifactId(),
+                    latestVersion.getVersionId());
         assertEquals(
                 "LATEST VERSION DOCUMENT LIST SIZE DOES NOT MATCH DRAFT DOCUMENT LIST SIZE",
-                latestVersionDocuments.size(), draft.getDocuments().size());
-        assertTrue(NAME + " [KEY FLAG IS NOT APPLIED]",
-                getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(datum.container.getId(), ArtifactFlag.KEY));
+                latestVersionDocuments.size(), draftRead.getDocuments().size());
+        assertTrue(NAME + " [KEY FLAG IS NOT APPLIED]", getArtifactModel(
+                OpheliaTestUser.JUNIT).isFlagApplied(c.getId(),
+                ArtifactFlag.KEY));
         assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
-                getSessionModel(OpheliaTestUser.JUNIT).readKeyHolder(datum.loginUser.getId(),
-                        datum.container.getUniqueId()).equals(datum.loginUser.getId()));
+                getSessionModel(datum.junit).readKeyHolder(datum.junit.getId(),
+                c.getUniqueId()).equals(datum.junit.getId()));
+        final InternalDocumentModel documentModel = getDocumentModel(datum.junit);
+        for (final Document d : draftRead.getDocuments()) {
+            assertTrue("Draft for document \"" + d.getName() + "\" for user \""
+                    + datum.junit.getSimpleUsername() + "\" does not exist.",
+                    documentModel.doesExistDraft(d.getId()));
+        }
     }
 
     /**
@@ -66,12 +92,11 @@ public class CreateDraftTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login(OpheliaTestUser.JUNIT);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
-        datum = new Fixture(container, containerModel, OpheliaTestUser.JUNIT);
-        containerModel.addListener(datum);
+        login(OpheliaTestUser.JUNIT_X);
+        login(OpheliaTestUser.JUNIT_Y);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        getContainerModel(OpheliaTestUser.JUNIT).addListener(datum);
     }
 
     /**
@@ -79,25 +104,31 @@ public class CreateDraftTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        logout(OpheliaTestUser.JUNIT);
-        datum.containerModel.removeListener(datum);
+        getContainerModel(OpheliaTestUser.JUNIT).removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final InternalContainerModel containerModel;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
         private Boolean didNotify;
-        private final User loginUser;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel, final User loginUser) {
-            this.containerModel = containerModel;
-            this.container = container;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
             this.didNotify = Boolean.FALSE;
-            this.loginUser = loginUser;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
+
         @Override
         public void draftCreated(ContainerEvent e) {
             didNotify = Boolean.TRUE;

@@ -52,7 +52,7 @@ public class OpenVersionTest extends DocumentTestCase {
 		final File inputFile = getInputFile("JUnitTestFramework.txt");
 		final DocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
 		final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-        modifyDocument(OpheliaTestUser.JUNIT, document);
+        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         final DocumentVersion version = createDocumentVersion(OpheliaTestUser.JUNIT, document);
 		datum = new Fixture(documentModel, inputFile, version);
 	}

@@ -46,7 +46,7 @@ public class PublishVersionTest extends ContainerTestCase {
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container);
-        publishToContacts(OpheliaTestUser.JUNIT, container, OpheliaTestUser.JUNIT_X.getName());
+        publishToContacts(OpheliaTestUser.JUNIT, container.getId(), OpheliaTestUser.JUNIT_X.getName());
         final List<Contact> contacts = readContacts(OpheliaTestUser.JUNIT);
         UserUtils.getInstance().remove(contacts, OpheliaTestUser.JUNIT_X);
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());

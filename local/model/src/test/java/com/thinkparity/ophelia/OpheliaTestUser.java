@@ -12,9 +12,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+import com.thinkparity.ophelia.model.session.LoginMonitor;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
@@ -72,11 +70,11 @@ public class OpheliaTestUser extends User {
 		this.credentials.setPassword(PASSWORD);
 		this.credentials.setUsername(username);
         this.environment = environment;
+        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
         this.workspace =
-            WorkspaceModel.getModel(environment).getWorkspace(
+            workspaceModel.getWorkspace(
                     new File(OpheliaTestCase.SESSION.getOutputDirectory(),
                             "TEST." + username));
-        this.workspace.getPreferences().setUsername(username);
         processOfflineQueue();
         initialize();
 	}
@@ -109,19 +107,20 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void initialize() {
-        SessionModel.getModel(environment, workspace).login(new DefaultLoginMonitor() {
-            @Override
-            public Boolean confirmSynchronize() {
-                return Boolean.TRUE;
-            }
-        }, credentials);
-        try {
-            ContactModel.getModel(environment, workspace).download();
-            setId(ProfileModel.getModel(environment, workspace).read().getId());
-        } finally {
-            SessionModel.getModel(environment, workspace).logout();
+        final WorkspaceModel workspaceModel = WorkspaceModel.getModel(environment);
+        if (!workspaceModel.isInitialized(workspace)) {
+            workspaceModel.initialize(workspace, new LoginMonitor() {
+                public Boolean confirmSynchronize() {
+                    return Boolean.TRUE;
+                }
+                public void notifyInvalidCredentials(
+                        final Credentials credentials) {
+                }
+            }, credentials);
         }
-        setId(JabberIdBuilder.parseUsername(credentials.getUsername()));
+        setId(JabberIdBuilder.build(
+                credentials.getUsername(), environment.getXMPPService()));
+        SessionModel.getModel(environment, workspace).logout();
     }
 
     /**

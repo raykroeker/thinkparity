@@ -8,17 +8,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -66,6 +69,9 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  * @version 1.1
  */
 public abstract class ModelTestCase extends OpheliaTestCase {
+
+    /** Number of files to use from the total test input set. */
+    private static final Integer NUMBER_OF_INPUT_FILES = 5;
 
     /**
 	 * Assert that the document list provided contains the document.
@@ -241,7 +247,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
     }
 
-	/**
+    /**
      * Assert that the expected version content matches the actual version
      * content.
      * 
@@ -280,7 +286,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
 	}
 
-    /**
+	/**
      * Assert that a list of versions is not null and all of the versions in the
      * list are not null.
      * 
@@ -505,16 +511,37 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param inputFile
      *            An input file.
      * @return A document.
-     * @throws IOException
      */
-    protected Document addDocument(final OpheliaTestUser testUser,
-            final Container container, final File inputFile) throws IOException {
-        logTrace("{0} - Creating document \"{1}\".", getName(), inputFile);
-        final Document document = createDocument(testUser, inputFile);
-        logTrace("{0} - Adding document \"{1}\" to container \"{2}\".", getName(),
-                inputFile, container.getName());
-        getContainerModel(testUser).addDocument(container.getId(), document.getId());
-        return document;
+    @Deprecated
+    protected Document addDocument(final OpheliaTestUser addAs,
+            final Container container, final File inputFile) {
+        return addDocument(addAs, container.getId(), inputFile.getName());
+    }
+
+    /**
+     * Add a document.
+     * 
+     * @param addAs
+     *            The user to add the document as.
+     * @param localContainerId
+     *            A local container id <code>Long</code> relative to addAs.
+     * @param filename
+     *            A filename <code>String</code>.
+     * @return A <code>Document</code>.
+     */
+    protected Document addDocument(final OpheliaTestUser addAs,
+            final Long localContainerId, final String filename) {
+        final File file = getInputFile(filename);
+        final Container c = getContainerModel(addAs).read(localContainerId);
+        logger.logInfo("Creating document from \"{0}\" for container \"{1}\" as \"{2}.\"",
+                file.getName(), c.getName(), addAs.getSimpleUsername());
+        final Document document = createDocument(addAs, file);
+        logger.logVariable("document", document);
+        logger.logInfo("Adding document \"{0}\" to container \"{1}\" as \"{2}.\"",
+                document.getName(), c.getName(),
+                addAs.getSimpleUsername());
+        getContainerModel(addAs).addDocument(c.getId(), document.getId());
+        return logger.logVariable("document", document);
     }
 
     /**
@@ -524,11 +551,30 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container.
      *            @return A list of documents.
      */
-    protected List<Document> addDocuments(final OpheliaTestUser testUser,
-            final Container container) throws IOException {
+    @Deprecated
+    protected List<Document> addDocuments(final OpheliaTestUser addAs,
+            final Container container) {
         final List<Document> documents = new ArrayList<Document>();
-        for(final File inputFile : getInputFiles()) {
-            documents.add(addDocument(testUser, container, inputFile));
+        for(final String inputFileName : getInputFileNames()) {
+            documents.add(addDocument(addAs, container.getId(), inputFileName));
+        }
+        return documents;
+    }
+
+    /**
+     * Add all of the input test files to the container as documents.
+     * 
+     * @param addAs
+     *            An <code>OpheliaTestUser</code> to add the container as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to addAs.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    protected List<Document> addDocuments(final OpheliaTestUser addAs,
+            final Long localContainerId) {
+        final List<Document> documents = new ArrayList<Document>();
+        for(final String inputFileName : getInputFileNames()) {
+            documents.add(addDocument(addAs, localContainerId, inputFileName));
         }
         return documents;
     }
@@ -549,17 +595,19 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /**
      * Create a container.
      * 
+     * @param createAs
+     * An <code>OpheliaTestUser</code> to create the container as.
      * @param name
      *            The container name.
      * @return The container.
      */
-    protected Container createContainer(final OpheliaTestUser testUser,
+    protected Container createContainer(final OpheliaTestUser createAs,
             final String name) {
-        final String containerName = MessageFormat.format(
-                "{0} - {1,date,yyyyMMdd.HHmm}", name,
-                currentDateTime().getTime());
-        logTrace("{0} - Creating container \"{2}\" for {1}.", getName(), testUser, containerName);
-        return getContainerModel(testUser).create(containerName);
+        final String actualName = new StringBuffer(name)
+            .append(" - ").append(toGMTISO()).toString();
+        logger.logInfo("Creating container \"{0}\" as \"{1}.\"", actualName,
+                createAs.getSimpleUsername());
+        return logger.logVariable("container", getContainerModel(createAs).create(actualName));
     }
 
     /**
@@ -596,9 +644,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @throws ParityException
      */
     protected Document createDocument(final OpheliaTestUser testUser,
-            final File inputFile) throws IOException {
-        return getDocumentModel(testUser).create(inputFile.getName(),
-                new FileInputStream(inputFile));
+            final File inputFile) {
+        try {
+            return getDocumentModel(testUser).create(inputFile.getName(),
+                    new FileInputStream(inputFile));
+        } catch (final IOException iox) {
+            throw new RuntimeException(iox);
+        }
     }
 
     /**
@@ -622,9 +674,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A <code>Container</code>.
      * @return A <code>ContainerDraft</code>.
      */
-    protected ContainerDraft createDraft(final OpheliaTestUser testUser,
-            final Container container) {
-        return getContainerModel(testUser).createDraft(container.getId());
+    protected ContainerDraft createDraft(final OpheliaTestUser createAs,
+            final Long localContainerId) {
+        final Container c = getContainerModel(createAs).read(localContainerId);
+        logger.logInfo("Creating draft for container \"{0}\" as \"{1}.\"",
+                c.getName(), createAs.getSimpleUsername());
+        return getContainerModel(createAs).createDraft(localContainerId);
     }
 
     /**
@@ -664,20 +719,35 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	 *            The file name.
 	 * @return The test file.
 	 */
-	protected File getInputFile(final String name) throws IOException {
-		for(final File file : getInputFiles()) {
-			if(file.getName().equals(name)) { return file; }
-		}
-		return null;
+	protected File getInputFile(final String name) {
+        try {
+            for(final File file : getInputFiles()) {
+                if(file.getName().equals(name)) { return file; }
+            }
+            return null;
+        } catch (final IOException iox) {
+            throw new RuntimeException(iox);
+        }
 	}
+
+    /**
+     * @see com.thinkparity.codebase.junitx.TestCase#getInputFileNames()
+     *
+     */
+    @Override
+    protected String[] getInputFileNames() {
+        final String[] inputFileNames = new String[NUMBER_OF_INPUT_FILES];
+        System.arraycopy(super.getInputFileNames(), 0, inputFileNames, 0, NUMBER_OF_INPUT_FILES);
+        return inputFileNames;
+    }
 
     /**
 	 * @see com.thinkparity.codebase.junitx.TestCase#getInputFiles()
 	 * 
 	 */
 	protected File[] getInputFiles() throws IOException {
-		final File[] inputFiles = new File[5];
-		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, 5);
+		final File[] inputFiles = new File[NUMBER_OF_INPUT_FILES];
+		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, NUMBER_OF_INPUT_FILES);
 		return inputFiles;
 	}
 
@@ -691,13 +761,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getSystemMessageModel(testUser);
     }
 
-	protected File[] getModFiles() throws IOException {
-        final File[] modFiles = new File[5];
-        System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
+    protected File[] getModFiles() throws IOException {
+        final File[] modFiles = new File[NUMBER_OF_INPUT_FILES];
+        System.arraycopy(super.getModFiles(), 0, modFiles, 0, NUMBER_OF_INPUT_FILES);
         return modFiles;
     }
 
-	protected InternalProfileModel getProfileModel(
+    protected InternalProfileModel getProfileModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getProfileModel(testUser);
     }
@@ -707,13 +777,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getReleaseModel(testUser);
     }
 
-    protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+	protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
         return modelFactory.getScriptModel(testUser);
     }
 
-    protected InternalSessionModel getSessionModel(
-            final OpheliaTestUser testUser) {
-        return modelFactory.getSessionModel(testUser);
+	protected InternalSessionModel getSessionModel(
+            final OpheliaTestUser user) {
+        return modelFactory.getSessionModel(user);
     }
 
     protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
@@ -769,12 +839,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * 
      */
     protected void login(final OpheliaTestUser testUser) {
-        logTrace("{0} - Logging in as {1}.", getName(), testUser);
-        if(isLoggedIn(testUser)) {
+        if (isLoggedIn(testUser)) {
             logWarning("{0} - User {1} already logged in.", testUser);
             logout(testUser);
         }
-    	getSessionModel(testUser).login(new DefaultLoginMonitor() {
+        logger.logInfo("Logging in user \"{0}.\"", testUser.getSimpleUsername());
+        getSessionModel(testUser).login(new DefaultLoginMonitor() {
             @Override
             public Boolean confirmSynchronize() {
                 return Boolean.TRUE;
@@ -787,9 +857,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *
      */
     protected void logout(final OpheliaTestUser testUser) {
-        logger.logTraceId();
+        logger.logInfo("Logging out user \"{0}.\"", testUser.getSimpleUsername());
         getSessionModel(testUser).logout();
-        logger.logTraceId();
     }
 
     /**
@@ -802,23 +871,30 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @see DocumentModel#updateDraft(Long, InputStream)
      * @return The file that contains the new content.
      */
-    protected File modifyDocument(final OpheliaTestUser testUser,
-            final Document document) throws FileNotFoundException, IOException {
-        final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
-        final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
-        final File tempFile = File.createTempFile(prefix, suffix);
-        tempFile.deleteOnExit();
-
-        FileUtil.writeBytes(tempFile,
-                ("jUnit Test MOD " +
-                DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
-        final InputStream content = new FileInputStream(tempFile);
+    protected File modifyDocument(final OpheliaTestUser modifyAs,
+            final Long localDocumentId) {
         try {
-            getDocumentModel(testUser).updateDraft(document.getId(), content);
-        } finally {
-            content.close();
+            final Document document = getDocumentModel(modifyAs).read(localDocumentId);
+            logger.logInfo("Modifying document \"{0}\" as \"{1}.\"",
+                    document.getName(), modifyAs.getSimpleUsername());
+            final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
+            final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
+            final File tempFile = File.createTempFile(prefix, suffix);
+            tempFile.deleteOnExit();
+    
+            FileUtil.writeBytes(tempFile,
+                    ("jUnit Test MOD " +
+                    DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
+            final InputStream content = new FileInputStream(tempFile);
+            try {
+                getDocumentModel(modifyAs).updateDraft(localDocumentId, content);
+            } finally {
+                content.close();
+            }
+            return tempFile;
+        } catch (final IOException iox) {
+            throw new RuntimeException(iox);
         }
-        return tempFile;
     }
 
     /**
@@ -833,7 +909,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final ContainerModel containerModel = getContainerModel(testUser);
         final ContainerDraft draft = containerModel.readDraft(container.getId());
         for(final Document document : draft.getDocuments()) {
-            modifyDocument(testUser, document);
+            modifyDocument(testUser, document.getId());
         }
     }
 
@@ -855,18 +931,30 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     /**
      * Publish the container to contacts.
      * 
-     * @param container
-     *            A <code>Container</code>.
+     * @param publisAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publishAs.
+     * @param contactNames
+     *            A list of contact names to publish to.
      */
-    protected void publishToContacts(final OpheliaTestUser testUser,
-            final Container container, final String... contactNames) {
-        final List<Contact> contacts = readContacts(testUser);
+    protected void publishToContacts(final OpheliaTestUser publishAs,
+            final Long localContainerId, final String... contactNames) {
+        final List<Contact> contacts = readContacts(publishAs);
         userUtils.filter(contacts, contactNames);
 
         final List<TeamMember> teamMembers = Collections.emptyList();
-        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
-                getName(), container.getName(), contacts, teamMembers);
-        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
+        final InternalContainerModel containerModel = getContainerModel(publishAs);
+        final Container c = containerModel.read(localContainerId);
+        final StringBuffer actualContactNames = new StringBuffer();
+        for (final Contact contact : contacts) {
+            if (0 < actualContactNames.length())
+                actualContactNames.append(Separator.SemiColon);
+            actualContactNames.append(contact.getSimpleUsername());
+        }
+        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\".",
+                c.getName(), publishAs.getSimpleUsername(), actualContactNames);
+        getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
     }
 
     /**
@@ -875,14 +963,51 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param container
      *            A <code>Container</code>.
      */
-    protected void publishToTeam(final OpheliaTestUser testUser,
-            final Container container) {
-        final List<TeamMember> teamMembers = getArtifactModel(testUser).readTeam2(container.getId());
-        remove(teamMembers, testUser);
+    protected void publishToTeam(final OpheliaTestUser publishAs,
+            final Long localContainerId) {
+        final List<TeamMember> teamMembers = getArtifactModel(publishAs).readTeam2(localContainerId);
+        remove(teamMembers, publishAs);
         final List<Contact> contacts = Collections.emptyList();
-        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
-                getName(), container.getName(), contacts, teamMembers);
-        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        final StringBuffer actualTeamMemberNames = new StringBuffer();
+        for (final TeamMember teamMember : teamMembers) {
+            if (0 < actualTeamMemberNames.length()) {
+                actualTeamMemberNames.append(Separator.SemiColon);
+            }
+            actualTeamMemberNames.append(teamMember.getName());
+        }
+        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to team members \"{2}\".",
+                c.getName(), publishAs.getSimpleUsername(), actualTeamMemberNames);
+        getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
+    }
+
+    /**
+     * Publish to a discrete set of team members.
+     * 
+     * @param publishAs
+     *            The <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publishAs.
+     * @param teamMemberNames
+     *            A <code>String</code> list of <code>TeamMember</code>
+     *            names.
+     */
+    protected void publishToTeamMembers(final OpheliaTestUser publishAs,
+            final Long localContainerId, final String... teamMemberNames) {
+        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
+        userUtils.filter(teamMembers, teamMemberNames);
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        final StringBuffer actualTeamMemberNames = new StringBuffer();
+        for (final TeamMember teamMember : teamMembers) {
+            if (0 < actualTeamMemberNames.length()) {
+                actualTeamMemberNames.append(Separator.SemiColon);
+            }
+            actualTeamMemberNames.append(teamMember.getName());
+        }
+        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to team members \"{2}\".",
+                c.getName(), publishAs.getSimpleUsername(), actualTeamMemberNames);
+        final List<Contact> contacts = Collections.emptyList();
+        getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
     }
 
     /**
@@ -905,6 +1030,58 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Read a container for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    protected Container readContainer(final OpheliaTestUser readAs,
+            final UUID uniqueId) {
+        final Long localId = getArtifactModel(readAs).readId(uniqueId);
+        if (null == localId) {
+            return null;
+        } else {
+            return getContainerModel(readAs).read(localId);
+        }
+    }
+
+    /**
+     * Read a container draft for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to readAs.
+     * @return A <code>Container</code>.
+     */
+    protected ContainerDraft readContainerDraft(final OpheliaTestUser readAs,
+            final Long localContainerId) {
+        return getContainerModel(readAs).readDraft(localContainerId);
+    }
+
+    /**
+     * Read a document for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @return A <code>Document</code>.
+     */
+    protected Document readDocument(final OpheliaTestUser readAs,
+            final UUID uniqueId) {
+        final Long localId = getArtifactModel(readAs).readId(uniqueId);
+        if (null == localId) {
+            return null;
+        } else {
+            return getDocumentModel(readAs).read(localId);
+        }
+    }
+
+    /**
      * Read an artifact's team.
      * 
      * @param artifact
@@ -919,6 +1096,21 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             team.add(user.getId());
         }
         return team;
+    }
+
+    /**
+     * Read a team for an artifact.
+     * 
+     * @param readAs
+     *            The <code>OpheliaTestUser</code> to read as.
+     * @param localArtifactId
+     *            The artifact id <code>Long</code> local to readAs.
+     * @return A <code>List</code> of <code>TeamMember</code>s.
+     */
+    protected List<TeamMember> readTeam(final OpheliaTestUser readAs,
+            final Long localArtifactId) {
+        final InternalArtifactModel artifactModel = getArtifactModel(readAs);
+        return artifactModel.readTeam2(localArtifactId);
     }
 
     /**
@@ -943,6 +1135,104 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             if (users.get(i).getId().equals(user.getId())) {
                 users.remove(i);
                 break;
+            }
+        }
+    }
+
+    /**
+     * <b>Title:</b>thinkParity Model Test Case Fixture<br>
+     * <b>Description:</b>Provides some helpful fixture functionality in terms
+     * of tracking remote events for a user.<br>
+     * 
+     * @author raymond@thinkparity.com
+     * @version 1.1.2.1
+     */
+    protected abstract class Fixture {
+        /** A <code>List</code> of <code>FixtureQueueHelper</code>s for users. */
+        private final Map<OpheliaTestUser, FixtureQueueHelper> queueHelpers;
+        /**
+         * Create Fixture.
+         *
+         */
+        protected Fixture() {
+            super();
+            this.queueHelpers = new HashMap<OpheliaTestUser, FixtureQueueHelper>();
+        }
+        /**
+         * Block until all queue events have been processed.
+         *
+         */
+        public void waitForEvents() {
+            logger.logInfo("Waiting for events.");
+            for (final OpheliaTestUser testuser : queueHelpers.keySet()) {
+                waitForEvents(testuser);
+            }
+        }
+        /**
+         * Block until all events for a user have been processed.
+         * 
+         * @param user
+         *            A <code>User</code>.
+         */
+        public void waitForEvents(final OpheliaTestUser testuser) {
+            queueHelpers.get(testuser).waitForEvents();
+        }
+        /**
+         * Add a queue event monitor for the test user.
+         * 
+         * @param testUser
+         *            An <code>OpheliaTestUser</code>.
+         */
+        protected void addQueueHelper(final OpheliaTestUser testUser) {
+            Assert.assertNotTrue(queueHelpers.containsKey(testUser),
+                    "Cannot add a second queue processor for user {0}.",
+                    testUser);
+            queueHelpers.put(testUser, new FixtureQueueHelper(testUser));
+        }
+    }
+
+    /**
+     * <b>Title:</b>thinkParity Model Test Case Fixture Queue Monitor<br>
+     * <b>Description:</b>A queue monitor for model test case fixtures. Has the
+     * ability to monitor the local queue of remote events and block until those
+     * events have been processed.<br>
+     * 
+     * @author raymond@thinkparity.com
+     * @version 1.1.2.1
+     */
+    private final class FixtureQueueHelper {
+        /** An <code>OpheliaTestUser</code>. */
+        private final OpheliaTestUser testUser;
+        /**
+         * Create FixtureQueueHelper.
+         * 
+         * @param testUser
+         *            An <code>OpheliaTestUser</code>.
+         */
+        private FixtureQueueHelper(final OpheliaTestUser testUser) {
+            this.testUser = testUser;
+        }
+        /**
+         * Block until all events for the monitor have been processed.
+         *
+         */
+        private void waitForEvents() {
+            final InternalSessionModel sessionModel = getSessionModel(testUser);
+            if (sessionModel.isLoggedIn()) {
+                while (0 < sessionModel.readQueueSize()) {
+                    logger.logTrace("Waiting for events for user \"{0}.\"", testUser.getSimpleUsername());
+                    synchronized (this) {
+                        try {
+                            wait(3 * 1000);
+                        } catch (final InterruptedException ix) {
+                            logger.logError(ix, "Could not wait.");
+                        }
+                    }
+                }
+                logger.logTrace("Processing queue for user \"{0}.\"", testUser.getSimpleUsername());
+                sessionModel.processQueue();
+            } else {
+                logger.logWarning("User \"{0}\" is not logged in.", testUser.getSimpleUsername());
             }
         }
     }

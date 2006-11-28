@@ -5,9 +5,9 @@
 package com.thinkparity.ophelia;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Properties;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -17,6 +17,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.session.Environment;
+
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @author raykroeker@gmail.com
@@ -35,9 +37,17 @@ public abstract class OpheliaTestCase extends TestCase {
             Environment.valueOf(
                     System.getProperty(
                             "thinkparity.environment", "TESTING_LOCALHOST"));
-        new Log4JWrapper().logInfo("Environment:  {0}", ENVIRONMENT);
         SESSION = TestCase.getTestSession();
-        new Log4JWrapper().logInfo("Session:  {0}", SESSION);
+        new Log4JWrapper("TEST_LOGGER").logInfo("Environment:  XMPP {0}:{1}, STREAM {2}:{3}",
+                ENVIRONMENT.getXMPPHost(), ENVIRONMENT.getXMPPPort(),
+                ENVIRONMENT.getStreamHost(), ENVIRONMENT.getStreamPort());
+        new Log4JWrapper("TEST_LOGGER").logInfo("Session:  {0}",
+                SESSION.getSessionId());
+        final Properties loggingRenderers = new Properties();
+        loggingRenderers.setProperty(
+                        "log4j.renderer.com.thinkparity.ophelia.OpheliaTestUser",
+                        "com.thinkparity.ophelia.model.util.logging.or.OpheliaTestUserRenderer");
+        PropertyConfigurator.configure(loggingRenderers);
 		// init install
 		initParityInstall();
         // reference the class to run the static initializer
@@ -118,14 +128,4 @@ public abstract class OpheliaTestCase extends TestCase {
     public File getOutputDirectory() {
         return SESSION.getOutputDirectory();
     }
-
-	/**
-	 * @see com.thinkparity.codebase.junitx.TestCase#getInputFiles()
-	 */
-	protected File[] getInputFiles() throws IOException {
-		final File[] inputFiles = new File[5];
-		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, 5);
-		return inputFiles;
-	
-	}
 }

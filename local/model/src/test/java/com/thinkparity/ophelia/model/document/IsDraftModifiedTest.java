@@ -41,7 +41,7 @@ public class IsDraftModifiedTest extends DocumentTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         final Document document = createDocument(OpheliaTestUser.JUNIT, getInputFiles()[0]);
-        modifyDocument(OpheliaTestUser.JUNIT, document);
+        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         datum = new Fixture(getDocumentModel(OpheliaTestUser.JUNIT), document.getId(), Boolean.TRUE);
     }
 

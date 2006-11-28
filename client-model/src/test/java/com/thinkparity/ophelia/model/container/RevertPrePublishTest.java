@@ -49,7 +49,7 @@ public class RevertPrePublishTest extends ContainerTestCase {
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         final Document document = addDocument(OpheliaTestUser.JUNIT, container, getInputFiles()[0]);
-        modifyDocument(OpheliaTestUser.JUNIT, document);
+        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         datum = new Fixture(container, containerModel, document);
         datum.containerModel.addListener(datum);
     }

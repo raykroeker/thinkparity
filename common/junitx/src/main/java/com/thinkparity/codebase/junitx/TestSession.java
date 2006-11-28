@@ -71,7 +71,7 @@ public class TestSession {
      */
     public File getOutputDirectory() {
         if (null == outputDirectory) {
-            outputDirectory = new File(sessionDirectory, JUnitX.getShortName() + " Output");
+            outputDirectory = new File(sessionDirectory, JUnitX.getShortName() + "Output");
             Assert.assertTrue(outputDirectory.mkdir());
         }
         return outputDirectory;
@@ -122,7 +122,7 @@ public class TestSession {
      * @return The session directory <code>File</code>.
      */
 	private File createSessionDirectory(final File parent) throws IOException {
-		final File sessionDirectory = new File(parent, JUnitX.getName());
+		final File sessionDirectory = new File(parent, JUnitX.getShortName());
         if (sessionDirectory.exists()) {
             final FileSystem fileSystem = new FileSystem(sessionDirectory);
             final String sessionFileName = JUnitX.getShortName() + ".session";

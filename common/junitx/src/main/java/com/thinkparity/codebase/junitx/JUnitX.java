@@ -8,23 +8,24 @@ package com.thinkparity.codebase.junitx;
  */
 public class JUnitX {
 
-	static final Object MESSAGE_INIT;
+	static final String MESSAGE_INIT;
 
 	static {
 		MESSAGE_INIT = new StringBuffer(getName())
 			.append(" - ")
 			.append(getVersion())
 			.append(" - ")
-			.append(getProvider());
+			.append(getProvider())
+            .toString();
 	}
 
 	public static String getName() { return "JUnit eXtensions"; }
 
 	public static String getProvider() { return "thinkParity Solutions Inc."; }
 
-	public static String getShortName() { return "jUnitX"; }
+	public static String getShortName() { return "JUnitX"; }
 
-	public static String getVersion() { return "2006.09"; }
+	public static String getVersion() { return "2006.11"; }
 
 	/**
 	 * Create a JUnitX [Singelton]

@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -32,6 +33,17 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
+    /**
+     * Return the current date and time as a GMT ISO string.
+     * 
+     * @return The date time <code>String</code>.
+     * @see DateUtil#toGMTISO(java.util.Calendar)
+     * @see DateUtil#getInstance()
+     */
+    protected static String toGMTISO() {
+        return DateUtil.toGMTISO(DateUtil.getInstance());
+    }
+
 	/** An apache logger wrapper. */
 	protected final Log4JWrapper logger;
 
@@ -47,7 +59,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected TestCase(final String name) {
 		super(name);
 		this.testCaseHelper = new TestCaseHelper(this);
-		this.logger = new Log4JWrapper("TEST_DEBUGGER");
+		this.logger = new Log4JWrapper("TEST_LOGGER");
 	}
 
 	/**
@@ -126,6 +138,15 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
+     * Obtain a list of input file names.
+     * 
+     * @return A <code>String[]</code>.
+     */
+    protected String[] getInputFileNames() {
+        return TestCaseHelper.getInputFileNames();
+    }
+
+    /**
 	 * Obtain a list of input test files.
 	 * 
 	 * @return A list of input test files.

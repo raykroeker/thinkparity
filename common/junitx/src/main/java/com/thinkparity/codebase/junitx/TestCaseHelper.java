@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -15,10 +16,8 @@ import java.util.Random;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 
 /**
@@ -26,11 +25,11 @@ import com.thinkparity.codebase.StringUtil;
  */
 public class TestCaseHelper {
 
-	/**
-	 * List of input files to use for testing.
-	 * 
-	 */
+	/** A <code>List</code> of input <code>File</code>s. */
 	private static List<File> inputFiles;
+
+    /** A <code>List</code> of input file name <code>String</code>s. */
+    private static List<String> inputFileNames;
 
 	/**
 	 * List of modified input files to use for testing.
@@ -80,9 +79,7 @@ public class TestCaseHelper {
 		} catch (final IOException iox) {
             throw new RuntimeException(iox);
 		}
-        System.out.println(JUnitX.MESSAGE_INIT);
-        System.err.println(JUnitX.MESSAGE_INIT);
-		Logger.getLogger(JUnitX.class).log(Level.INFO, JUnitX.MESSAGE_INIT);
+		new Log4JWrapper("TEST_LOGGER").logInfo(JUnitX.MESSAGE_INIT);
 	}
 
 	/**
@@ -96,22 +93,39 @@ public class TestCaseHelper {
 		return StringUtil.printStackTrace(t);
 	}
 
+    /**
+     * Obtain a list of the input file names.
+     * 
+     * @return A <code>String[]</code>.
+     */
+    static String[] getInputFileNames() {
+        if (null == inputFileNames) {
+            inputFileNames = new ArrayList<String>();
+            inputFileNames.add("JUnitTestFramework.doc");
+            inputFileNames.add("JUnitTestFramework.odt");
+            inputFileNames.add("JUnitTestFramework.pdf");
+            inputFileNames.add("JUnitTestFramework.png");
+            inputFileNames.add("JUnitTestFramework.txt");
+            inputFileNames.add("JUnitTestFramework.unknown");
+            inputFileNames.add("JUnitTestFramework1MB.txt");
+            inputFileNames.add("JUnitTestFramework2MB.txt");
+            inputFileNames.add("JUnitTestFramework4MB.txt");
+            inputFileNames.add("JUnitTestFramework8MB.txt");
+        }
+        return inputFileNames.toArray(new String[] {});
+    }
+
 	/**
-	 * Obtain a list of all of the input files.
-	 * @return The input files.
-	 */
+     * Obtain a list of all of the input files.
+     * 
+     * @return A <code>File[]</code>.
+     */
 	static File[] getInputFiles() throws IOException {
 		if(null == inputFiles) {
 			inputFiles = new LinkedList<File>();
-			inputFiles.add(copyInputFile("JUnitTestFramework.doc"));
-			inputFiles.add(copyInputFile("JUnitTestFramework.odt"));
-			inputFiles.add(copyInputFile("JUnitTestFramework.png"));
-			inputFiles.add(copyInputFile("JUnitTestFramework.txt"));
-			inputFiles.add(copyInputFile("JUnitTestFramework.unknown"));
-			inputFiles.add(copyInputFile("JUnitTestFramework1MB.txt"));
-			inputFiles.add(copyInputFile("JUnitTestFramework2MB.txt"));
-            inputFiles.add(copyInputFile("JUnitTestFramework4MB.txt"));
-            inputFiles.add(copyInputFile("JUnitTestFramework8MB.txt"));
+            for (final String inputFileName : getInputFileNames()) {
+                inputFiles.add(copyInputFile(inputFileName));
+            }
 		}
 		return inputFiles.toArray(new File[] {});
 	}
@@ -138,7 +152,7 @@ public class TestCaseHelper {
 	 */
 	static File getInputFilesDirectory() {
 		if(null == inputFilesDirectory) {
-			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + " Input");
+			inputFilesDirectory = new File(testSession.getSessionDirectory(), JUnitX.getShortName() + "Input");
 			Assert.assertTrue(inputFilesDirectory.mkdir());
 		}
 		return inputFilesDirectory;

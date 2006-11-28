@@ -72,20 +72,6 @@ public class SessionModel extends AbstractModel<SessionModelImpl> {
 	}
 
 	/**
-	 * Deny the presence visibility request from user to the currently logged
-	 * in user.
-	 * 
-	 * @param user
-	 *            The user who's presence request the currently logged in user
-	 *            will deny.
-	 * @see SessionModel#acceptPresence(User)
-	 * @throws ParityException
-	 */
-	public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-		synchronized(getImplLock()) { getImpl().declineInvitation(invitedAs, invitedBy); }
-	}
-
-	/**
 	 * Determine whether or not the parity session has been established.
 	 * @return Boolean
 	 */

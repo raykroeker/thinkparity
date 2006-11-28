@@ -128,7 +128,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Send a creation packet to the parity server.
      * 
      * @param uniqueId
@@ -140,14 +140,14 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		}
 	}
 
-    public void createBackupStream(final JabberId userId,
+	public void createBackupStream(final JabberId userId,
             final String streamId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
         }
     }
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -159,7 +159,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    public String createStream(final StreamSession session) {
+	public String createStream(final StreamSession session) {
         synchronized (getImplLock()) {
             return getImpl().createStream(session);
         }
@@ -174,6 +174,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized (getImplLock()) {
             return getImpl().createStreamSession();
         }
+    }
+
+    /**
+     * Deny the presence visibility request from user to the currently logged
+     * in user.
+     * 
+     * @param user
+     *            The user who's presence request the currently logged in user
+     *            will deny.
+     * @see SessionModel#acceptPresence(User)
+     * @throws ParityException
+     */
+    public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
+        synchronized(getImplLock()) { getImpl().declineInvitation(invitedAs, invitedBy); }
     }
 
 	/**
@@ -240,12 +254,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void extendInvitation(final EMail extendTo) {
         synchronized (getImplLock()) {
             getImpl().extendInvitation(extendTo);
-        }
-    }
-
-    public Integer readQueueSize() {
-        synchronized (getImplLock()) {
-            return getImpl().readQueueSize();
         }
     }
 
@@ -513,7 +521,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read the user's contact list.
      * 
      * @return A list of contacts.
@@ -523,7 +531,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readContacts(userId); }
     }
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -569,6 +577,12 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public String readProfileSecurityQuestion(final JabberId userId) {
         synchronized (getImplLock()) {
             return getImpl().readProfileSecurityQuestion(userId);
+        }
+    }
+
+    public Integer readQueueSize() {
+        synchronized (getImplLock()) {
+            return getImpl().readQueueSize();
         }
     }
 

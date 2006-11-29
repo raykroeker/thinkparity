@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +12,14 @@ import java.util.UUID;
 
 import javax.swing.DefaultListModel;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
 
@@ -25,29 +29,28 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
  */
 final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
 
-    /** A list of the archived containers. */
-    private final List<ArchiveArtifactCell> containerCells;
+    /** A list of the archived container panels. */
+    private final List<TabPanel> containerPanels;
 
-    /** A list of the archived container versions. */
-    private final Map<ArchiveCell, List<ArchiveArtifactVersionCell>> containerVersionCells;
+    /** A list of the archived container version panels. */
+    private final Map<TabPanel, TabPanel> containerVersionPanels;
 
-    /** A list of the archived container version documents. */
-    private final Map<ArchiveCell, List<ArchiveArtifactCell>> containerVersionDocumentCells;
+    private final List<TabPanel> expandedPanels;
 
-    /** The <code>ArchiveTabAvatar</code>'s <code>JList</code> model. */
+    /** The list model. */
     private final DefaultListModel listModel;
 
-    /** A list of all visible cells in the list. */
-    private final List<ArchiveCell> visibleCells;
+    /** A list of all visible panels. */
+    private final List<TabPanel> visiblePanels;
 
     /** Create ArchiveTabModel. */
     ArchiveTabModel(final TabPanelExtension extension) {
         super(extension);
-        this.containerCells = new ArrayList<ArchiveArtifactCell>();
-        this.containerVersionCells = new HashMap<ArchiveCell, List<ArchiveArtifactVersionCell>>();
-        this.containerVersionDocumentCells = new HashMap<ArchiveCell, List<ArchiveArtifactCell>>();
+        this.containerPanels = new ArrayList<TabPanel>();
+        this.containerVersionPanels = new HashMap<TabPanel, TabPanel>();
+        this.expandedPanels = new ArrayList<TabPanel>();
         this.listModel = new DefaultListModel();
-        this.visibleCells = new ArrayList<ArchiveCell>();
+        this.visiblePanels = new ArrayList<TabPanel>();
     }
 
     /**
@@ -55,6 +58,10 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     @Override
     protected void debug() {
+        logger.logDebug("{0} container panels.", containerPanels.size());
+        logger.logDebug("{0} container version panels.", containerVersionPanels.size());
+        logger.logDebug("{0} visible panels.", visiblePanels.size());
+        logger.logDebug("{0} model elements.", listModel.size());
     }
 
     /**
@@ -71,216 +78,153 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * 
      */
     protected void initialize() {
-        containerCells.clear();
-        containerCells.addAll(readContainers());
-        List<ArchiveArtifactVersionCell> containerVersionCells;
-        for (final ArchiveArtifactCell containerCell : containerCells) {
-            containerVersionCells = this.containerVersionCells.get(containerCell);
-            if (null == containerVersionCells) {
-                containerVersionCells = new ArrayList<ArchiveArtifactVersionCell>();
-            }
-            containerVersionCells.addAll(readContainerVersions(containerCell.getArtifactUniqueId()));
-            List<ArchiveArtifactCell> containerVersionDocumentCells;
-            for (final ArchiveArtifactVersionCell containerVersionCell : containerVersionCells) {
-                containerVersionDocumentCells =
-                    this.containerVersionDocumentCells.get(containerVersionCell);
-                if (null == containerVersionDocumentCells) {
-                    containerVersionDocumentCells = new ArrayList<ArchiveArtifactCell>();
-                }
-                containerVersionDocumentCells.addAll(readContainerVersionDocuments(
-                        containerCell.getArtifactUniqueId(),
-                        containerVersionCell.getArtifactVersionId()));
-                this.containerVersionDocumentCells.put(containerVersionCell, containerVersionDocumentCells);
-            }
-            this.containerVersionCells.put(containerCell, containerVersionCells);
+        debug();
+        clearPanels();
+        final List<Container> containers = readContainers();
+        for (final Container container : containers) {
+            addPanel(container);
         }
+        debug();
     }
 
     /**
-     * Synchronize the internal state of the model with the display.
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
+     *
      */
     @Override
     protected void synchronize() {
         debug();
-
-        // update all visible cells
-        visibleCells.clear();
-        for (final ArchiveCell containerCell : containerCells) {
-            visibleCells.add(containerCell);
-            if (containerCell.isExpanded()) {
-                if (containerVersionCells.containsKey(containerCell)) {
-                    for (final ArchiveCell containerVersionCell :
-                        containerVersionCells.get(containerCell)) {
-                        visibleCells.add(containerVersionCell);
-                        if (containerVersionCell.isExpanded()) {
-                            if (containerVersionDocumentCells.containsKey(containerVersionCell)) {
-                                for (final ArchiveCell containerVersionDocumentCell :
-                                    containerVersionDocumentCells.get(containerVersionCell)) {
-                                    visibleCells.add(containerVersionDocumentCell);
-                                }
-                            }
-                        }
-                    }
-                }
+        // add container panels and container version panels to the visiblity
+        // list
+        visiblePanels.clear();
+        for (final TabPanel containerPanel : containerPanels) {
+            visiblePanels.add(containerPanel);
+            if (isExpanded(containerPanel)) {
+                visiblePanels.add(containerVersionPanels.get(containerPanel));
             }
         }
-
-        // add visible cells not in the model; as well as update cell
-        // locations
-        for (final TabCell visibleCell : visibleCells) {
-            if (!listModel.contains(visibleCell)) {
-                listModel.add(visibleCells.indexOf(visibleCell), visibleCell);
+        // add newly visible panels to the model; and set updated panels
+        for (int i = 0; i < visiblePanels.size(); i++) {
+            if (listModel.contains(visiblePanels.get(i))) {
+                listModel.set(i, visiblePanels.get(i));
             } else {
-                // Always replace the element in the jList Model. The value of the
-                listModel.removeElement(visibleCell);
-                listModel.add(visibleCells.indexOf(visibleCell), visibleCell);
+                listModel.add(i, visiblePanels.get(i));
             }
         }
-
-        // prune cells
-        final TabCell[] tabCells = new TabCell[listModel.size()];
-        listModel.copyInto(tabCells);
-        for (final TabCell tabCell : tabCells) {
-            if (!visibleCells.contains(tabCell)) {
-                listModel.removeElement(tabCell);
+        // prune newly invisible panels from the model
+        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
+        listModel.copyInto(invisiblePanels);
+        for (int i = 0; i < invisiblePanels.length; i++) {
+            if (!visiblePanels.contains(invisiblePanels[i])) {
+                listModel.removeElement(invisiblePanels[i]);
             }
         }
         debug();
     }
 
-    void synchronizeContainer(final UUID uniqueId) {
-        synchronizeContainerInternal(uniqueId);
-        synchronize();
-    }
-
     /**
-     * Read the archived containers.
-     * 
-     * @return A <code>List&lt;ArchiveArtifactCell&gt;</code>.
-     */
-    private ArchiveArtifactCell readContainer(final UUID uniqueId) {
-        final Container container = ((ArchiveTabProvider) contentProvider).readContainer(uniqueId);
-        final ArchiveArtifactCell display = toDisplay(container);
-        return display;
-    }
-
-    /**
-     * Read the archived containers.
-     * 
-     * @return A <code>List&lt;ArchiveArtifactCell&gt;</code>.
-     */
-    private List<ArchiveArtifactCell> readContainers() {
-        final List<Container> containers = ((ArchiveTabProvider) contentProvider).readContainers();
-        final List<ArchiveArtifactCell> display = new ArrayList<ArchiveArtifactCell>(containers.size());
-        for(final Container container : containers) {
-            display.add(toDisplay(container));
-        }
-        return display;
-    }
-
-    /**
-     * Read the archived container version's documents.
-     * 
-     * @return A <code>List&lt;ArchiveArtifactCell&gt;</code>.
-     */
-    private List<ArchiveArtifactCell> readContainerVersionDocuments(
-            final UUID uniqueId, final Long versionId) {
-        final List<Document> documents = ((ArchiveTabProvider) contentProvider).readContainerVersionDocuments(uniqueId, versionId);
-        final List<ArchiveArtifactCell> display = new ArrayList<ArchiveArtifactCell>(documents.size());
-        for(final Document document : documents) {
-            display.add(toDisplay(document));
-        }
-        return display;
-    }
-
-    /**
-     * Read the archived container versions.
-     * 
-     * @return A <code>List&lt;ArchiveArtifactVersionCell&gt;</code>.
-     */
-    private List<ArchiveArtifactVersionCell> readContainerVersions(final UUID uniqueId) {
-        final List<ContainerVersion> versions =
-            ((ArchiveTabProvider) contentProvider).readContainerVersions(uniqueId);
-        final List<ArchiveArtifactVersionCell> display =
-            new ArrayList<ArchiveArtifactVersionCell>(versions.size());
-        for(final ContainerVersion version : versions) {
-            display.add(toDisplay(version));
-        }
-        return display;
-    }
-
-    /**
-     * Synchronize the model based upon the fact that the container represented
-     * by the unique id has changed.
+     * Synchronize a container.
      * 
      * @param uniqueId
-     *            A container unique id <code>UUID</code>.
+     *            A unique id <code>UUID</code>.
      */
-    private void synchronizeContainerInternal(final UUID uniqueId) {
-        final ArchiveArtifactCell containerCell = readContainer(uniqueId);
-
-        // if the container is null; we can assume the container has been
-        // restored 
-        if(null == containerCell.getArtifact()) {
-            for (int i = 0; i < containerCells.size(); i++) {
-                if (containerCells.get(i).getArtifactUniqueId().equals(uniqueId)) {
-                    containerCells.remove(i);
-                    break;
-                }
-            }
-        }
-        // the container is not null; therefore it is either new; or updated
-        else {
-            // the container is new
-            if(!containerCells.contains(containerCell)) {
-                containerCells.add(0, containerCell);
-            }
-            // the container has been updated
-            else {
-                final int index = containerCells.indexOf(containerCell);
-                containerCells.remove(index);
-                containerCells.add(0, containerCell);
-            }
-        }
+    void synchronizeContainer(final UUID uniqueId) {
     }
 
     /**
-     * Create a display cell for an archived container.
+     * Add a container panel.
      * 
      * @param container
      *            A <code>Container</code>.
-     * @return A <code>ArchiveContainerCell</code>.
      */
-    private ArchiveContainerCell toDisplay(final Container container) {
-        final ArchiveContainerCell display = new ArchiveContainerCell();
-        display.setContainer(container);
-        return display;
+    private void addPanel(final Container container) {
+        addPanel(containerPanels.isEmpty() ? 0 : containerPanels.size() - 1,
+                container);
     }
 
     /**
-     * Create a display cell for an archived container version.
+     * Add a container panel.
      * 
-     * @param containerVersion
+     * @param index
+     *            The index in the container list within which to add the
+     *            container.
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void addPanel(final int index, final Container container) {
+        final TabPanel containerPanel = toDisplay(container);
+        containerPanels.add(index, containerPanel);
+        final List<ContainerVersion> versions = Collections.emptyList();
+        final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
+            Collections.emptyMap();
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
+            Collections.emptyMap();
+        final Map<ContainerVersion, User> publishedBy = Collections.emptyMap();
+        containerVersionPanels.put(containerPanel,
+                toDisplay(container, versions, documentVersions, publishedTo,
+                        publishedBy));
+    }
+
+    /**
+     * Clear all container and container version panels.
+     *
+     */
+    private void clearPanels() {
+        containerPanels.clear();
+        containerVersionPanels.clear();
+    }
+
+    private boolean isExpanded(final TabPanel tabPanel) {
+        return expandedPanels.contains(tabPanel);
+    }
+
+    /**
+     * Read the archived containers.
+     * 
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    private List<Container> readContainers() {
+        return ((ArchiveTabProvider) contentProvider).readContainers();
+    }
+
+    /**
+     * Create a tab panel for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>TabPanel</code>.
+     */
+    private TabPanel toDisplay(final Container container) {
+        final ArchiveTabPanel panel = new ArchiveTabPanel();
+        panel.setExpanded(Boolean.FALSE);
+        panel.setPanelData(container, null, null);
+        return panel;
+    }
+
+    /**
+     * Create a tab panel for a container and its versions; the versions'
+     * documents, the versions' published to list; the versions' publisher.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
      *            A <code>ContainerVersion</code>.
-     * @return A <code>ArchiveContainerVersionCell</code>.
+     * @param documentVersions
+     *            A list of <code>DocumentVersion</code>s and their
+     *            <code>Delta</code>s.
+     * @param publishedTo
+     *            A list of <code>User</code>s and their
+     *            <code>ArtifactReceipt</code>s.
+     * @param publishedBy
+     *            The published by <code>User</code>.
+     * @return A <code>TabPanel</code>.
      */
-    private ArchiveContainerVersionCell toDisplay(final ContainerVersion containerVersion) {
-        final ArchiveContainerVersionCell display = new ArchiveContainerVersionCell();
-        display.setContainerVersion(containerVersion);
-        return display;
-    }
-
-    /**
-     * Create a display cell for an archived container version's document.
-     * 
-     * @param document
-     *            A <code>Document</code>.
-     * @return A <code>ArchiveDocumentCell</code>.
-     */
-    private ArchiveDocumentCell toDisplay(final Document document) {
-        final ArchiveDocumentCell display = new ArchiveDocumentCell();
-        display.setDocument(document);
-        return display;
+    private TabPanel toDisplay(
+            final Container container,
+            final List<ContainerVersion> versions,
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, User> publishedBy) {
+        return null;
     }
 }

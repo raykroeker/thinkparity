@@ -469,10 +469,12 @@ public final class ContainerModel extends TabPanelModel {
     public void triggerExpand(final TabPanel tabPanel) {
         if (isExpanded(tabPanel)) {
             expandedContainer = null;
+            ((ContainerPanel) tabPanel).setExpanded(Boolean.FALSE);
         } else if (tabPanel instanceof ContainerPanel) {
             // Flag the container as expanded.               
-            expandedContainer = ((ContainerPanel)tabPanel).getContainer();
-            
+            expandedContainer = ((ContainerPanel) tabPanel).getContainer();
+            ((ContainerPanel) tabPanel).setExpanded(Boolean.TRUE);
+
             // Flag the container as having been seen.
             // To prevent delay expanding during login, don't bother if offline.
             // TODO Maybe remove this.
@@ -752,6 +754,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ContainerPanel(this);
+        panel.setExpanded(Boolean.FALSE);
         panel.setPanelData(container, readDraft(container.getId()),
                 readLatestVersion(container.getId()));
         return panel;

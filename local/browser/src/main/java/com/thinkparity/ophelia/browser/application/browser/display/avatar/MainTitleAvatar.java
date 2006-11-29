@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
@@ -66,7 +65,6 @@ public class MainTitleAvatar extends Avatar {
     @Override
     public void reload() {
         reloadTab();
-        reloadProfile();
     }
 
     /**
@@ -125,19 +123,6 @@ public class MainTitleAvatar extends Avatar {
     public Boolean isAvatarBackgroundImage() {
         // Default avatar background image is not required for this avatar.
         return Boolean.FALSE;
-    }
-
-    /**
-     * Obtain the input profile.
-     * 
-     * @return The input profile.
-     */
-    private Profile getInputProfile() {
-        if(null == input) {
-            return null;
-        } else {
-            return (Profile) ((Data) input).get(DataKey.PROFILE);
-        }
     }
 
     /**
@@ -214,14 +199,6 @@ public class MainTitleAvatar extends Avatar {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, searchPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Reload the profile.
-     *
-     */
-    private void reloadProfile() {
-        tabPanel.setProfile(getInputProfile());
-    }
 
     /**
      * Reload the tab.

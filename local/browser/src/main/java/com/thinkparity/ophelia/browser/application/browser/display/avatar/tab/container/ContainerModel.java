@@ -752,11 +752,8 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ContainerPanel(this);
-        panel.setContainerAndDraft(container, readDraft(container.getId()));
-        final ContainerVersion version = readLatestVersion(container.getId());
-        if (null != version) {
-            panel.setLatestVersionDate(version.getCreatedOn());
-        }
+        panel.setPanelData(container, readDraft(container.getId()),
+                readLatestVersion(container.getId()));
         return panel;
     }
 
@@ -783,11 +780,7 @@ public final class ContainerModel extends TabPanelModel {
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerVersionsPanel panel = new ContainerVersionsPanel(this);
-        panel.setContainerAndDraft(container, draft);
-        for (final ContainerVersion version : versions) {
-            panel.add(version, documentVersions.get(version), users.get(version), publishedBy.get(version));
-        }
-        panel.selectFirstVersion();
+        panel.setPanelData(container, draft, versions, documentVersions, users, publishedBy);
         return panel;
     }
 }

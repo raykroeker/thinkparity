@@ -18,8 +18,6 @@ import java.util.ResourceBundle;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import com.thinkparity.codebase.model.profile.Profile;
-
 import com.thinkparity.ophelia.browser.Constants.Icons.BrowserTitle;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
@@ -58,9 +56,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
     /** A list of all plugin tabs. */
     private final Map<PluginExtension, Tab> pluginTabs;
-
-    /** A thinkParity user's profile. */
-    private Profile profile;
 
     /** The selected tab. */
     private Tab selectedTab;
@@ -143,16 +138,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      */
     void selectTab(final TabId tabId) {
         this.selectedTab = allTabs.get(tabId);
-        reloadDisplay();
-    }
-
-    /**
-     * Set localProfile.
-     *
-     * @param localProfile The Profile.
-     */
-    void setProfile(final Profile profile) {
-        this.profile = profile;
         reloadDisplay();
     }
 

@@ -10,13 +10,10 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractVersionCell;
 
 /**
@@ -25,12 +22,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  */
 final class VersionCellRenderer extends AbstractJPanel implements ListCellRenderer {
     
-    /** An image cache. */
-    private final MainPanelImageCache imageCache;
-    
-    /** Creates new form VersionCellRenderer */
+    /**
+     * Creates VersionCellRenderer.
+     * 
+     */
     VersionCellRenderer() {
-        this.imageCache = new MainPanelImageCache();
+        super();
         initComponents();
     }
 

@@ -34,8 +34,8 @@ public final class Constants {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
             public static final class List {
-                public static final String LIST_LACK_MOST_RECENT_VERSION_FG = "#646464";  // Dark gray
-                public static final String LIST_SECONDARY_TEXT_FG = "#646464";
+                public static final Color LIST_LACK_MOST_RECENT_VERSION_FG = new Color(100, 100, 100, 255);
+                public static final Color LIST_SECONDARY_TEXT_FG = new Color(100, 100, 100, 255);
                 public static final Color LIST_CONTAINERS_BORDER = new Color(212, 212, 212, 255);
                 public static final Color LIST_CONTAINERS_BACKGROUND = new Color(234, 234, 234, 255);
                 public static final Color LIST_CONTAINER_GRADIENT_TOP = new Color(254, 254, 254, 255);

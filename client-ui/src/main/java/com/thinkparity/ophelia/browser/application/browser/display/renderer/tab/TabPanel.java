@@ -16,14 +16,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 public interface TabPanel {
 
     /**
-     * Set the mouse over flag for the tab panel.
-     * 
-     * @param mouseOver
-     *            The mouse over flag.
-     */
-    public void setMouseOver(final Boolean mouseOver);
-
-    /**
 	 * Obtain a unique id for the panel.
 	 * 
 	 * @return An id unique per <code>TabPanelAvatar</code>.

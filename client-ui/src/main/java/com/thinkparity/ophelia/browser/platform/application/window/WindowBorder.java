@@ -4,8 +4,13 @@
  */
 package com.thinkparity.ophelia.browser.platform.application.window;
 
-import java.awt.*;
-import java.util.Stack;
+import java.awt.Component;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Rectangle;
 
 import javax.swing.border.AbstractBorder;
 
@@ -19,9 +24,6 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  */
 public class WindowBorder extends AbstractBorder {
     
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
     /** The border insets. */
     private static final Insets BORDER_INSETS;
 
@@ -29,8 +31,13 @@ public class WindowBorder extends AbstractBorder {
         BORDER_INSETS = new Insets(1, 1, 0, 1);    
     }
 
-    /** Create WindowBorder. */
-    public WindowBorder() { super(); }
+    /**
+     * Create WindowBorder.
+     * 
+     */
+    public WindowBorder() {
+        super();
+    }
 
     /**
      * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)

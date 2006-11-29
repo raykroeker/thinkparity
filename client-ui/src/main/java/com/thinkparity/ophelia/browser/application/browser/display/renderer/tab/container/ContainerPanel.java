@@ -3,30 +3,30 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Calendar;
 
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
-import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.MultiColourLineBorder;
+
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
@@ -35,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author raymond@thinkparity.com
@@ -46,84 +45,35 @@ public final class ContainerPanel extends DefaultTabPanel {
     /** The border for cells. */
     private static final Border BORDER_DEFAULT;
     
-    /** The border for even cells. */
-    private static final Border BORDER_EVEN;
-
-    /** The border for the first cell. */
-    private static final Border BORDER_FIRST;
-    
-    /** The border for the cell if it first and last. */
-    private static final Border BORDER_FIRST_AND_LAST;
-    
-    /** The border for the last cell. */
-    private static final Border BORDER_LAST_EVEN;
-    
-    private static final Border BORDER_LAST_ODD;
-    
-    /** The border for odd cells. */
-    private static final Border BORDER_ODD;
-
-    /** The border for a selected cell. */
-    private static final Border BORDER_SELECTED;
-    
-    /** Dimension of the cell. */
-    private static final Dimension DIMENSION;
-
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {
         BORDER_DEFAULT = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
-        BORDER_EVEN = new LineBorder(Colors.Browser.List.LIST_EVEN_BG);
-        BORDER_ODD = new LineBorder(Colors.Browser.List.LIST_ODD_BG);
-        BORDER_SELECTED = new LineBorder(Colors.Browser.List.LIST_SELECTION_BORDER);
-        BORDER_FIRST = new MultiColourLineBorder(
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG,
-                Colors.Browser.List.LIST_EVEN_BG, Colors.Browser.List.LIST_EVEN_BG);
-        BORDER_FIRST_AND_LAST = new MultiColourLineBorder(
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG,
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG);
-        BORDER_LAST_EVEN = new MultiColourLineBorder(
-                Colors.Browser.List.LIST_EVEN_BG, Colors.Browser.List.LIST_EVEN_BG,
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_EVEN_BG);
-        BORDER_LAST_ODD = new MultiColourLineBorder(
-                Colors.Browser.List.LIST_ODD_BG, Colors.Browser.List.LIST_ODD_BG,
-                Colours.MAIN_CELL_DEFAULT_BORDER, Colors.Browser.List.LIST_ODD_BG);
-        DIMENSION = new Dimension(50,25);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
     }
     
     /** An image cache. */
     protected final MainPanelImageCache imageCache;
     
+    /** The browser application. */
+    private final Browser browser;
+    
     /** A <code>Container</code>. */
-    private Container container = null;
+    private Container container;
     
     /** A <code>ContainerDraft</code>. */
-    private ContainerDraft draft = null;
-    
-    /** The date of the latest version. */
-    private Calendar latestVersionDate = null;
-    
+    private ContainerDraft draft;
+
     /** The focus manager. */
     private final FocusManager focusManager;
 
     /** The panel localization. */
     private final MainCellL18n localization;
-    
+
     /** The container panel's model. */
     private final ContainerModel model;
     
-    /** The browser application. */
-    private final Browser browser;
-    
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerNameJLabel;
-    private javax.swing.JLabel eastPaddingJLabel;
-    private javax.swing.JLabel iconJLabel;
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
-
     /**
      * Create ContainerPanel.
      * 
@@ -135,10 +85,9 @@ public final class ContainerPanel extends DefaultTabPanel {
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
         this.focusManager = new FocusManager();
+        focusManager.addFocusListener(this, model);
         initComponents();
         initBookmarks();
-        installMouseOverTracker();
-        focusManager.addFocusListener(this, model);
     }
 
     /**
@@ -149,68 +98,6 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     public void focusChanged(final FocusManager.FocusList focusList) {
         repaint();
-    }
-
-    /**
-     * Get the background color.
-     * 
-     * @return Background color.
-     */
-    public Color getBackgroundColor() {
-        final Color color = Colors.Browser.List.LIST_CONTAINERS_BACKGROUND;
-        return color;
-/*        final Color color;
-        final Integer containerIndex = model.indexOfContainerPanel(container);
-
-        if (0 == containerIndex % 2) {
-            color = Colors.Browser.List.LIST_EVEN_BG;
-        } else {
-            color = Colors.Browser.List.LIST_ODD_BG;            
-        }
-        
-        return color;*/
-    }
-    
-    /**
-     * Get the border for the package.
-     * 
-     * @param first
-     *          True if this is the first entity in the list.
-     * @param last
-     *          True if this is the last entity in the list.
-     * @return A border.
-     */
-    public Border getBorder(final Boolean first, final Boolean last) {
-        Border border;
-        final Integer containerIndex = model.indexOfContainerPanel(container);
- 
-        if (!isExpanded()) {
-            border = BORDER_DEFAULT;
-            
-/*            if (isSelectedContainer()) {
-                // This is to highlight a panel when there is a popup on that panel,
-                // or the user clicked on a container panel.
-                border = BORDER_SELECTED;
-            } else if (first && last) {
-                border = BORDER_FIRST_AND_LAST;
-            } else if (first) {
-                border = BORDER_FIRST;
-            } else if (last) {
-                if (0 == containerIndex % 2) {
-                    border = BORDER_LAST_EVEN;
-                } else {
-                    border = BORDER_LAST_ODD;
-                }
-            } else if (0 == containerIndex % 2) {
-                border = BORDER_EVEN;
-            } else {
-                border = BORDER_ODD;
-            } */
-        } else {
-            border = null;
-        }
-                
-        return border;
     }
     
     /**
@@ -228,14 +115,14 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Long getContainerId() {
         return container.getId();
     }
-    
+
     /**
      * Get the draft associated with this container panel.
      */
     public ContainerDraft getDraft() {
         return draft;
     }
-    
+
     /**
      * Obtain the id for the tab panel.  In this case it's a container id.
      *
@@ -245,21 +132,8 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Object getId() {
         return new StringBuffer(getClass().getName()).append("//")
             .append(container.getId()).toString();
-    }  
-
-    /**
-     * Get the preferred size.
-     * 
-     * @param first
-     *          True if this is the first entity in the list.
-     * @param last
-     *          True if this is the last entity in the list.
-     * @return The preferred size <code>Dimension</code>.
-     */   
-    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
-        return DIMENSION;
     }
-    
+
     /**
      * Determine whether or not the container has been seen.
      * 
@@ -268,79 +142,56 @@ public final class ContainerPanel extends DefaultTabPanel {
     public Boolean isSeen() {
         return container.contains(ArtifactFlag.SEEN);
     }
-    
+
     /**
-     * Prepare for repaint, for example, adjust colors.
-     */
-    public void prepareForRepaint() {       
-        initText();
-        
-        if (container.isBookmarked()) {
-            iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK));
-        } else {
-            iconJLabel.setIcon(imageCache.read(TabPanelIcon.CONTAINER));
-        }
-    }
-    
-    /**
-     * Set the container and its draft.
+     * Set the panel data.
      * 
      * @param container
      *            A <code>Container</code>.
      * @param draft
      *            A <code>ContainerDraft</code>.
+     * @param latestVersion
+     *            The latest <code>ContainerVersion</code>.
      */
-    public void setContainerAndDraft(final Container container,
-            final ContainerDraft draft) {
+    public void setPanelData(final Container container,
+            final ContainerDraft draft, final ContainerVersion latestVersion) {
         this.container = container;
         this.draft = draft;
-        
         setTransferHandler(new ImportTxHandler(browser, model, container));
-        initText();
-    }
-    
-    public void setLatestVersionDate(final Calendar latestVersionDate) {
-        this.latestVersionDate = latestVersionDate;
-    }
-    
-    /**
-     * Initialize the text that will be displayed.
-     */
-    private void initText() {
-        final StringBuffer text = new StringBuffer("<html>");
-        
-        // Show the container name.
-        // It is gray if the user doesn't have the latest.
-        // It is bold if not expanded and not seen.
-        if (!isExpanded() && !isSeen()) {
-            text.append("<B>");
-        }
-        if ((!container.isLocalDraft()) && (!container.isLatest())) {
-            text.append("<font color=\"").append(Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG).append("\">");
-        }
-        text.append(container.getName());
-        if ((!container.isLocalDraft()) && (!container.isLatest())) {
-            text.append("</font>");
-        }
-        if (!isExpanded() && !isSeen()) {
-            text.append("</B>");
-        }
-        
-        // If not expanded, the user sees the draft owner if he is up to date with versions.
-        // Otherwise show the publish date.
-        if (!isExpanded()) {
-            text.append("&nbsp&nbsp"); // 2 spaces
-            text.append("<font color=\"").append(Colors.Browser.List.LIST_SECONDARY_TEXT_FG).append("\">");
+        iconJLabel.setIcon(container.isBookmarked() ?
+                imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK) :
+                imageCache.read(TabPanelIcon.CONTAINER));
+        final StringBuffer text = new StringBuffer();
+        // if expanded display the container name
+        // if not expanded display the container name; if there exists a draft
+        // and the the latest version also display the draft owner; otherwise
+        // if there exists the latest version display the published on date
+        if (isExpanded()) {
+            text.append(container.getName());
+        } else {
+            text.append(container.getName())
+                .append(Separator.DoubleSpace);
             if (container.isDraft() && container.isLatest()) {
-                text.append(localization.getString("ContainerMessageDraftOwner", draft.getOwner().getName()));
-            } else if (null != latestVersionDate) {
-                text.append(localization.getString("ContainerMessagePublishDate", FUZZY_DATE_FORMAT.format(latestVersionDate)));
+                text.append(localization.getString("ContainerMessageDraftOwner",
+                        draft.getOwner().getName()));
+            } else if (null != latestVersion) {
+                text.append(localization.getString(
+                        "ContainerMessagePublishDate",
+                        FUZZY_DATE_FORMAT.format(latestVersion.getUpdatedOn())));
             }
-            
-            text.append("</font>");
         }
-        text.append("</html>");
         containerNameJLabel.setText(text.toString());
+        if (!isExpanded() && !isSeen()) {
+            containerNameJLabel.setFont(Fonts.DefaultFontBold);
+        }
+        if (!container.isLocalDraft() && !container.isLatest()) {
+            containerNameJLabel.setForeground(
+                    Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
+        }
+        // if not expanded display a border
+        if (!isExpanded()) {
+            setBorder(BORDER_DEFAULT);
+        }
     }
 
     /**
@@ -401,11 +252,9 @@ public final class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     protected void triggerSingleClick(final MouseEvent e) {
-        if (isSetMouseOver()) {
-            model.triggerExpand(this);
-            if (!isFocusOwner()) {
-                requestFocusInWindow();
-            }
+        model.triggerExpand(this);
+        if (!isFocusOwner()) {
+            requestFocusInWindow();
         }
     }
 
@@ -420,7 +269,6 @@ public final class ContainerPanel extends DefaultTabPanel {
             window.setCursor(cursor);
         }
     }
-
     /**
      * Initialize the bookmark label's mouse listeners.
      * 
@@ -437,18 +285,15 @@ public final class ContainerPanel extends DefaultTabPanel {
             }
             @Override
             public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);
                 final Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
                 changeCursor(cursor, ContainerPanel.this);
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                setMouseOver(Boolean.FALSE);
                 changeCursor(null, ContainerPanel.this);
             }           
         });
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -465,6 +310,7 @@ public final class ContainerPanel extends DefaultTabPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
+        setBackground(Colors.Browser.List.LIST_CONTAINERS_BACKGROUND);
         setMaximumSize(new java.awt.Dimension(32767, 23));
         setMinimumSize(new java.awt.Dimension(120, 23));
         setPreferredSize(new java.awt.Dimension(120, 23));
@@ -518,12 +364,10 @@ public final class ContainerPanel extends DefaultTabPanel {
         return model.isExpanded(this);
     }
 
-    /**
-     * Determine if the container is selected.
-     * 
-     * @return True if the container is selected; false otherwise.
-     */
-    private Boolean isSelectedContainer() {
-        return model.isSelectedContainer(container);
-    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel containerNameJLabel;
+    private javax.swing.JLabel eastPaddingJLabel;
+    private javax.swing.JLabel iconJLabel;
+    private javax.swing.JLabel westPaddingJLabel;
+    // End of variables declaration//GEN-END:variables
 }

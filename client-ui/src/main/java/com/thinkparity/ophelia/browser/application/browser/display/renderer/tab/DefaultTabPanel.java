@@ -3,12 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 
-import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
@@ -29,9 +26,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
 	/** A unique tab panel id. */
 	private final Object id;
 
-    /** A flag indicating whether or not the mouse is hovering over the panel. */
-    private Boolean mouseOver;
-
     /**
 	 * Create DefaultTabPanel.
 	 *
@@ -39,7 +33,6 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
 	public DefaultTabPanel() {
 		super();
 		this.id = JVMUniqueId.nextId();
-        this.mouseOver = Boolean.FALSE;
         initComponents();
 	}
 
@@ -58,84 +51,23 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
             return false;
         }
     }
-    
-    /**
-     * Get the background color.
-     * 
-     * @return Background color.
-     */
-    public Color getBackgroundColor() { 
-        return getBackground();
-    }
-
-    /**
-     * Get the border.
-     * 
-     * @param first
-     *          True if this is the first entity in the list.
-     * @param last
-     *          True if this is the last entity in the list.
-     * @return The border.
-     */
-    public Border getBorder(final Boolean first, final Boolean last) {
-        return getBorder();
-    }
 
     /**
 	 * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getId()
+     * 
 	 */
 	public Object getId() {
 		return id;
 	}
 
     /**
-     * Get the preferred size.
-     * 
-     * @param first
-     *          True if this is the first entity in the list.
-     * @param last
-     *          True if this is the last entity in the list.
-     * @return The preferred size <code>Dimension</code>.
-     */   
-    public Dimension getPreferredSize(final Boolean first, final Boolean last) {
-        return getPreferredSize();
-    }
-
-    /**
      * @see java.lang.Object#hashCode()
+     * 
      */
     @Override
     public int hashCode() {
         return getId().hashCode();
     }
-
-    /**
-     * Determine whether or not the mouse over flag is set.
-     * 
-     * @return The mouse over <code>Boolean</code>.
-     */
-    public Boolean isSetMouseOver() {
-        return mouseOver;
-    }
-
-    /**
-     * Prepare for repaint, for example, adjust colors.  
-     */
-    public void prepareForRepaint() {        
-    }
-
-    /**
-     * Prepare for repaint, after validate().
-     */
-    public void prepareForRepaintAfterValidate() {
-    }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#setMouseOver(java.lang.Boolean)
-     */
-    public void setMouseOver(final Boolean mouseOver) {
-        this.mouseOver = mouseOver;
-    }  
     
     /**
      * The panel's mouse clicked event handler.
@@ -192,37 +124,11 @@ public class DefaultTabPanel extends AbstractJPanel implements TabPanel {
         }
     }
 
-    /**
-     * Install a mouse over tracker which tracks the mouse and updates the
-     * underlying panel's "mouseOver" property.
-     */
-    protected final void installMouseOverTracker() {
-        final MouseInputListener mouseOverListener = new MouseInputAdapter() {
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                setMouseOver(Boolean.FALSE);
-            }
-        };
-        addMouseListener(mouseOverListener);     
-    }
-
     protected final void installMouseOverTracker(final Component component) {
         final MouseInputListener mouseOverListener = new MouseInputAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 formMouseClicked(e);
-            }
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-                setMouseOver(Boolean.TRUE);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                setMouseOver(Boolean.FALSE);
             }
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {

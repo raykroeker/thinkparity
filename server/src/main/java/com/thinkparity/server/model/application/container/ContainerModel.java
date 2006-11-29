@@ -182,11 +182,10 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readArchiveDocumentVersions(userId, uniqueId,
-                    versionId, documentUniqueId);
+                    versionId);
         }
     }
 
@@ -267,12 +266,10 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A document unique id <code>UUID</code>.
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
-    public List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+    public List<DocumentVersion> readBackupDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().readBackupDocumentVersions(userId, uniqueId,
-                    versionId, documentUniqueId);
+            return getImpl().readBackupDocumentVersions(userId, uniqueId, versionId);
         }
     }
 

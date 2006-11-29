@@ -30,7 +30,7 @@ public class ReadDocumentVersions extends AbstractHandler {
         logApiId();
         final List<DocumentVersion> versions = readArchiveDocumentVersions(
                 readJabberId("userId"), readUUID("uniqueId"),
-                readLong("versionId"), readUUID("documentUniqueId"));
+                readLong("versionId"));
         writeDocumentVersions("documentVersions", "documentVersion", versions);
     }
 
@@ -48,9 +48,8 @@ public class ReadDocumentVersions extends AbstractHandler {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     private List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         return getContainerModel().readArchiveDocumentVersions(userId,
-                uniqueId, versionId, documentUniqueId);
+                uniqueId, versionId);
     }
 }

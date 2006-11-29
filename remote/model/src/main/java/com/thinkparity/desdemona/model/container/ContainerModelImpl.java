@@ -261,17 +261,15 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
         try {
             assertIsAuthenticatedUser(userId);
             return getArchiveModel().getDocumentReader(userId, uniqueId, versionId)
-                    .readVersions(documentUniqueId);
+                    .readVersions(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -376,17 +374,15 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
-        logVariable("documentUniqueId", documentUniqueId);
         try {
             assertIsAuthenticatedUser(userId);
             return getBackupModel().getDocumentReader(userId, uniqueId, versionId)
-                    .readVersions(documentUniqueId);
+                    .readVersions(null);
         } catch (final Throwable t) {
             throw translateError(t);
         }

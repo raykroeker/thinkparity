@@ -79,8 +79,8 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
         if (null == containerId) {
             return Collections.emptyList();
         } else {
-            final Long documentId = readArtifactId(uniqueId);
-            return documentModel.readVersions(documentId);
+            return containerModel.readDocumentVersions(containerId,
+                    containerVersionId);
         }
     }
 }

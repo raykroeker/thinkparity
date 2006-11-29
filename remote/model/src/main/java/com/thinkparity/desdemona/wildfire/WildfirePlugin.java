@@ -15,6 +15,7 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.model.Version;
+import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 
 import org.apache.log4j.LogManager;
@@ -292,7 +293,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void startArchive() {
-//        ArchiveModel.getModel().start();
+        ArchiveModel.getModel().start();
     }
 
     /**
@@ -308,7 +309,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
      *
      */
     private void stopArchive() {
-//        ArchiveModel.getModel().stop();
+        ArchiveModel.getModel().stop();
     }
 
     /**

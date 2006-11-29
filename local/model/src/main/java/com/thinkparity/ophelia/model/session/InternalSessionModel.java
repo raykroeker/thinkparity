@@ -85,9 +85,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param jabberId
      *            A jabber id.
      */
-    public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+    public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
+            final JabberId jabberId) {
         synchronized(getImplLock()) {
-            getImpl().addTeamMember(uniqueId, jabberId);
+            getImpl().addTeamMember(uniqueId, team, jabberId);
         }
     }
 
@@ -392,11 +393,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readArchiveDocumentVersions(userId, uniqueId,
-                    versionId, documentUniqueId);
+                    versionId);
         }
     }
 
@@ -484,11 +484,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readBackupDocumentVersions(userId, uniqueId,
-                    versionId, documentUniqueId);
+                    versionId);
         }
     }
 
@@ -621,9 +620,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @param jabberId
      *            A jabber id.
      */
-    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        synchronized(getImplLock()) {
-            getImpl().removeTeamMember(uniqueId, jabberId);
+    public void removeTeamMember(final UUID uniqueId,
+            final List<JabberId> team, final JabberId jabberId) {
+        synchronized (getImplLock()) {
+            getImpl().removeTeamMember(uniqueId, team, jabberId);
         }
     }
 

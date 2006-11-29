@@ -542,10 +542,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
-        return xmppArchive.readDocumentVersions(userId, uniqueId, versionId,
-                documentUniqueId);
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        return xmppArchive.readDocumentVersions(userId, uniqueId, versionId);
     }
 
     /**
@@ -599,10 +597,8 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
     public List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
-        return xmppBackup.readDocumentVersions(userId, uniqueId, versionId,
-                documentUniqueId);
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        return xmppBackup.readDocumentVersions(userId, uniqueId, versionId);
     }
 
     /**

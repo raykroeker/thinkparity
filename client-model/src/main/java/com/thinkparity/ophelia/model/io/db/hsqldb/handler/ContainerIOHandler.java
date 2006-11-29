@@ -249,7 +249,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
             .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,D.DOCUMENT_ID,")
             .append("DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
-            .append("DV.CONTENT_ENCODING,DV.DOCUMENT_VERSION_ID,")
+            .append("DV.CONTENT_ENCODING,DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
             .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
@@ -1234,6 +1234,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         dv.setCreatedOn(session.getCalendar("CREATED_ON"));
         dv.setEncoding(session.getString("CONTENT_ENCODING"));
         dv.setName(session.getString("ARTIFACT_NAME"));
+        dv.setSize(session.getLong("CONTENT_SIZE"));
         dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
         dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));
         dv.setVersionId(session.getLong("DOCUMENT_VERSION_ID"));

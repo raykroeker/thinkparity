@@ -248,14 +248,22 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 
     Boolean doesExist(final Long artifactId) {
         logger.logApiId();
-        logger.logVariable("variable", artifactId);
-        return null != artifactIO.readUniqueId(artifactId);
+        logger.logVariable("artifactId", artifactId);
+        try {
+            return artifactIO.doesExist(artifactId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
 	Boolean doesExist(final UUID uniqueId) {
         logger.logApiId();
-        logger.logVariable("variable", uniqueId);
-        return null != artifactIO.readId(uniqueId);
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            return artifactIO.doesExist(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
 	Boolean doesVersionExist(final Long artifactId, final Long versionId) {
@@ -419,7 +427,8 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("event", event);
         try {
             final Long artifactId = readId(event.getUniqueId());
-            artifactIO.deleteTeamRel(artifactId);
+            final User user = getInternalUserModel().read(event.getJabberId());
+            artifactIO.deleteTeamRel(artifactId, user.getLocalId());
         } catch(final Throwable t) {
             throw translateError(t);
         }

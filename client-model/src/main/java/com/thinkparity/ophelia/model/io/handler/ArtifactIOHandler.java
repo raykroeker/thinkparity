@@ -81,6 +81,24 @@ public interface ArtifactIOHandler {
             throws HypersonicException;
 
 	/**
+     * Determine if the artifact exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if the artifact exists.
+     */
+    public Boolean doesExist(final Long artifactId);
+
+    /**
+     * Determine if the artifact exists.
+     * 
+     * @param artifactId
+     *            A unique id <code>UUID</code>.
+     * @return True if the artifact exists.
+     */
+    public Boolean doesExist(final UUID uniqueId);
+
+    /**
      * Determine if the artifact version exists.
      * 
      * @param artifactId

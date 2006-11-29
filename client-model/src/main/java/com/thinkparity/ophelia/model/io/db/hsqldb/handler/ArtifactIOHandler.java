@@ -169,6 +169,20 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
+    /** Sql to determine existance by id. */
+    private static final String SQL_DOES_EXIST_BY_ID =
+        new StringBuffer("select COUNT(ARTIFACT_ID) \"COUNT\" ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to determine existance by id. */
+    private static final String SQL_DOES_EXIST_BY_UNIQUE_ID =
+        new StringBuffer("select COUNT(ARTIFACT_UNIQUE_ID) \"COUNT\" ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
+        .toString();
+
 	/** Sql to determine if an artifact version exists. */
     private static final String SQL_DOES_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
@@ -409,7 +423,54 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    
 	/**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.lang.Long)
+     *
+     */
+    public Boolean doesExist(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_BY_ID);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            session.nextResult();
+            if (0 == session.getInteger("COUNT")) {
+                return Boolean.FALSE;
+            } else if (1 == session.getInteger("COUNT")) {
+                return Boolean.TRUE;
+            } else {
+                throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.util.UUID)
+     *
+     */
+    public Boolean doesExist(final UUID uniqueId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_BY_UNIQUE_ID);
+            session.setUniqueId(1, uniqueId);
+            session.executeQuery();
+            session.nextResult();
+            if (0 == session.getInteger("COUNT")) {
+                return Boolean.FALSE;
+            } else if (1 == session.getInteger("COUNT")) {
+                return Boolean.TRUE;
+            } else {
+                throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesVersionExist(java.lang.Long,
      *      java.lang.Long)
      * 

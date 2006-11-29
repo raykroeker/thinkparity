@@ -402,8 +402,7 @@ public interface XMPPSession {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId);
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**
      * Read the archive team for a user.
@@ -477,8 +476,7 @@ public interface XMPPSession {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId);
+            final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**
      * Read the backup's team for a user.

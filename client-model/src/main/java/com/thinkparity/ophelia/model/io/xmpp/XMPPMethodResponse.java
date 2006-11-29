@@ -73,6 +73,10 @@ public class XMPPMethodResponse extends IQ {
         return (List<ContainerVersion>) readResult(name);
     }
 
+    public Document readResultDocument(final String name) {
+        return (Document) readResult(name);
+    }
+
     public List<Document> readResultDocuments(final String name) {
         return (List<Document>) readResult(name);
     }

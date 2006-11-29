@@ -156,38 +156,33 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId) {
+            final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId);
+            return getImpl().readDocumentVersions(uniqueId, versionId);
         }
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator) {
+            final Long versionId, final Comparator<ArtifactVersion> comparator) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, comparator);
+                    comparator);
         }
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator,
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, comparator, filter);
+                    comparator, filter);
         }
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Filter<? super ArtifactVersion> filter) {
+            final Long versionId, final Filter<? super ArtifactVersion> filter) {
         synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, filter);
+            return getImpl().readDocumentVersions(uniqueId, versionId, filter);
         }
     }
 

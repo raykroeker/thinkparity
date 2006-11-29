@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.index.lucene.Searcher;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -17,13 +22,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hit;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.ophelia.model.InternalModelFactory;
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.index.lucene.Searcher;
-import com.thinkparity.ophelia.model.workspace.Workspace;
 
 
 /**
@@ -65,8 +63,7 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
     protected void delete(final Term term) throws IOException {
         final IndexReader indexReader = openIndexReader();
         try {
-            Assert.assertTrue("COULD NOT DELETE FROM INDEX",
-                    1 == indexReader.deleteDocuments(term));
+            indexReader.deleteDocuments(term);
         } finally {
             closeIndexReader(indexReader);
         }

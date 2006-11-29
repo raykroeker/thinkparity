@@ -784,28 +784,4 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             return getImpl().search(expression);
         }
     }
-
-    /**
-     * Subscribe to the container's team.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    public void subscribe(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().subscribe(containerId);
-        }
-    }
-
-    /**
-     * Unsubscribe from the container's team.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    public void unsubscribe(final Long containerId) {
-        synchronized (getImplLock()) {
-            getImpl().unsubscribe(containerId);
-        }
-    }
 }

@@ -304,10 +304,53 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final ContainerArtifactPublishedEvent event) {
         logger.logApiId();
         logger.logVariable("event", event);
-        return handleDocumentSent(event.getPublishedBy(),
-                event.getPublishedOn(), event.getArtifactUniqueId(),
-                event.getArtifactVersionId(), event.getArtifactName(),
-                event.getArtifactChecksum(), event.getArtifactStreamId());
+        try {
+            final File streamFile = downloadStream(event.getArtifactStreamId());
+            final InternalArtifactModel artifactModel  = getArtifactModel();
+            final Document document;
+            final DocumentVersion version;
+            if (artifactModel.doesExist(event.getArtifactUniqueId())) {
+                logger.logWarning("Document {0} already exists.",
+                        event.getArtifactUniqueId());
+                document = read(event.getArtifactUniqueId());
+                if (artifactModel.doesVersionExist(document.getId(),
+                        event.getArtifactVersionId())) {
+                    logger.logWarning(
+                            "Document version {0}:{1} already exists.",
+                            event.getArtifactUniqueId(), event.getArtifactVersionId());
+                    version = readVersion(document.getId(), event.getArtifactVersionId());
+                }
+                else {
+                    final InputStream stream = new FileInputStream(streamFile);
+                    try {
+                        version = createVersion(document.getId(),
+                                event.getArtifactVersionId(), stream,
+                                event.getPublishedBy(), event.getPublishedOn());
+                    } finally {
+                        stream.close();
+                    }
+                }
+            }
+            else {
+                document = create(event.getArtifactUniqueId(),
+                        event.getArtifactName(), event.getPublishedBy(),
+                        event.getPublishedOn());
+                final InputStream stream = new FileInputStream(streamFile);
+                try {
+                    version = createVersion(document.getId(),
+                            event.getArtifactVersionId(), stream,
+                            event.getPublishedBy(), event.getPublishedOn());
+                } finally {
+                    stream.close();
+                }
+                // index
+                final Long containerId = artifactModel.readId(event.getUniqueId());
+                getIndexModel().indexDocument(containerId, document.getId());
+            }
+            return version;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
 	/**
@@ -320,7 +363,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		logger.logApiId();
 		logger.logVariable("documentId", documentId);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             if (artifactModel.doesVersionExist(documentId, Versioning.START)) {
                 final Document document = read(documentId);
                 final LocalFile draftFile = getLocalFile(document);
@@ -913,7 +956,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         document.setState(ArtifactState.ACTIVE);
         documentIO.create(document);
         // create artifact remote info
-        final InternalArtifactModel aModel = getInternalArtifactModel();
+        final InternalArtifactModel aModel = getArtifactModel();
         aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
         return read(document.getId());
     }
@@ -1034,75 +1077,6 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 			final DocumentVersion version) {
 		return new LocalFile(workspace, document, version);
 	}
-
-    /**
-     * Handle the receipt of a document from the thinkParity network. If the
-     * document does not exist; it will be created; if the version does not
-     * exist it will be created.
-     * 
-     * @param sentBy
-     *            By whom the document was sent.
-     * @param sentOn
-     *            When the document was sent.
-     * @param uniqueId
-     *            The document unique id.
-     * @param versionId
-     *            The document version id.
-     * @param name
-     *            The document name.
-     * @param content
-     *            The document content.
-     */
-    private DocumentVersion handleDocumentSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final String checksum, final String streamId) {
-        logger.logApiId();
-        logger.logVariable("sentBy", sentBy);
-        logger.logVariable("sentOn", sentOn);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("name", name);
-        logger.logVariable("checksum", checksum);
-        logger.logVariable("streamId", streamId);
-        try {
-            final File streamFile = downloadStream(streamId);
-            final InternalArtifactModel artifactModel  = getInternalArtifactModel();
-            final Document document;
-            final DocumentVersion version;
-            if (artifactModel.doesExist(uniqueId)) {
-                logger.logWarning("Document {0} already exists.", uniqueId);
-                document = read(uniqueId);
-                if (artifactModel.doesVersionExist(document.getId(), versionId)) {
-                    logger.logWarning(
-                            "Document version {0}:{1} already exists.",
-                            uniqueId, versionId);
-                    version = readVersion(document.getId(), versionId);
-                }
-                else {
-                    final InputStream stream = new FileInputStream(streamFile);
-                    try {
-                        version = createVersion(document.getId(), versionId,
-                                stream, sentBy, sentOn);
-                    } finally {
-                        stream.close();
-                    }
-                }
-            }
-            else {
-                document = create(uniqueId, name, sentBy, sentOn);
-                final InputStream stream = new FileInputStream(streamFile);
-                try {
-                    version = createVersion(document.getId(), versionId,
-                            stream, sentBy, sentOn);
-                } finally {
-                    stream.close();
-                }
-            }
-            return version;
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     /**
 	 * Fire document created.

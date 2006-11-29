@@ -206,7 +206,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            getInternalArtifactModel().applyFlagBookmark(containerId);
+            getArtifactModel().applyFlagBookmark(containerId);
             notifyContainerUpdated(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -282,7 +282,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             containerIO.create(container);
     
             // local key
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             artifactModel.applyFlagKey(container.getId());
     
             // create remote info
@@ -337,7 +337,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
-                final InternalArtifactModel artifactModel = getInternalArtifactModel();
+                final InternalArtifactModel artifactModel = getArtifactModel();
 
                 assertOnline("The user is not online.");
                 final Container container = read(containerId);
@@ -389,9 +389,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Container container = read(containerId);
             if (isDistributed(container.getId())) {
                 final TeamMember localTeamMember = localTeamMember(container.getId());
-                deleteLocal(container.getId());
+                final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
+                team.remove(localUserId());
                 getSessionModel().removeTeamMember(
-                        container.getUniqueId(), localTeamMember.getId());
+                        container.getUniqueId(), team, localTeamMember.getId());
+                deleteLocal(container.getId());
             } else {
                 deleteLocal(container.getId());
             }
@@ -432,22 +434,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             notifyDraftDeleted(container, draft, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
-        }
-    }
-
-    /**
-     * Determine whether or not a local draft exists.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return True if a draft exists; and the draft owner is the current user.
-     */
-    private Boolean doesExistLocalDraft(final Long containerId) {
-        final ContainerDraft draft = readDraft(containerId);
-        if (null != draft) {
-            return draft.getOwner().getId().equals(localUserId());
-        } else {
-            return Boolean.FALSE;
         }
     }
 
@@ -583,7 +569,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("event", event);
         try {
             // determine the existance of the container and the version.
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             final Boolean doesExist = artifactModel.doesExist(event.getUniqueId());
             final Long containerId;
             final Container container;
@@ -616,15 +602,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 container.setUpdatedOn(container.getCreatedOn());
                 // create
                 containerIO.create(container);
-
                 // create version
                 version = createVersion(container.getId(), event.getVersionId(),
                         event.getPublishedBy(), event.getPublishedOn());
-    
                 // create remote info
                 artifactModel.createRemoteInfo(container.getId(),
                         event.getPublishedBy(), container.getCreatedOn());
-    
                 // index
                 getIndexModel().indexContainer(container.getId());
             }
@@ -738,7 +721,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
             // add to local team
             final InternalUserModel userModel = getInternalUserModel();
@@ -791,6 +774,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (null != event.getComment() && 0 < event.getComment().trim().length())
                 containerIO.updateComment(containerId, version.getVersionId(),
                         event.getComment());
+            // index
+            getIndexModel().indexContainer(containerId);
             // send confirmation
             getSessionModel().confirmArtifactReceipt(localUserId(),
                     event.getUniqueId(), event.getVersionId(), localUserId(),
@@ -837,7 +822,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            return getInternalArtifactModel().doesVersionExist(containerId, Versioning.START);
+            return getArtifactModel().doesVersionExist(containerId, Versioning.START);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -1026,7 +1011,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             containerIO.deleteDraft(containerId);
 
             // remove key
-            getInternalArtifactModel().removeFlagKey(container.getId());
+            getArtifactModel().removeFlagKey(container.getId());
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1059,7 +1044,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("contacts", contacts);
         try {
             // remove local key
-            getInternalArtifactModel().removeFlagKey(containerId);
+            getArtifactModel().removeFlagKey(containerId);
 
             final List<TeamMember> teamMembers = Collections.emptyList();
             doPublishVersion(PUBLISH_MONITOR, containerId, versionId, contacts,
@@ -1707,7 +1692,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     List<TeamMember> readTeam(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
-        return getInternalArtifactModel().readTeam(containerId,
+        return getArtifactModel().readTeam(containerId,
                 UserComparatorFactory.createName(Boolean.TRUE),
                 FilterManager.createDefault());
     }
@@ -1810,7 +1795,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            getInternalArtifactModel().removeFlagBookmark(containerId);
+            getArtifactModel().removeFlagBookmark(containerId);
             notifyContainerUpdated(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1898,10 +1883,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     return archiveModel.readDocuments(uniqueId, versionId);
                 }
                 public List<DocumentVersion> readDocumentVersions(
-                        final UUID uniqueId, final Long versionId,
-                        final UUID documentUniqueId) {
+                        final UUID uniqueId, final Long versionId) {
                     return archiveModel.readDocumentVersions(uniqueId,
-                            versionId, documentUniqueId);
+                            versionId);
                 }
                 public List<JabberId> readTeamIds(final UUID uniqueId) {
                     return archiveModel.readTeamIds(uniqueId);
@@ -1948,10 +1932,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         return backupModel.readDocuments(uniqueId, versionId);
                     }
                     public List<DocumentVersion> readDocumentVersions(
-                            final UUID uniqueId, final Long versionId,
-                            final UUID documentUniqueId) {
+                            final UUID uniqueId, final Long versionId) {
                         return backupModel.readDocumentVersions(uniqueId,
-                                versionId, documentUniqueId);
+                                versionId);
                     }
                     public List<JabberId> readTeamIds(final UUID uniqueId) {
                         return backupModel.readTeamIds(uniqueId);
@@ -2005,36 +1988,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
-    /**
-     * Subscribe to the container's team.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    void subscribe(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        assertNotTeamMember("USER A TEAM MEMBER", containerId, localUserId());
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
-        final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
-        artifactModel.removeTeamMember(containerId, localUserId());
-        getSessionModel().removeTeamMember(containerUniqueId, localUserId());
-    }
-
-    /**
-     * Unsubscribe from the container's team.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    void unsubscribe(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        assertTeamMember("USER NOT A TEAM MEMBER", containerId, localUserId());
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
-        final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
-        artifactModel.addTeamMember(containerId, localUserId());
-        getSessionModel().addTeamMember(containerUniqueId, localUserId());
+    private void assertDoesExistDraft(final Long containerId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertTrue(doesExistDraft(containerId), assertMessage,
+                assertArguments);
     }
 
     /**
@@ -2048,12 +2005,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private void assertDoesExistLocalDraft(final Object assertion,
             final Long containerId) {
         Assert.assertTrue(assertion, doesExistLocalDraft(containerId));
-    }
-
-    private void assertDoesExistDraft(final Long containerId,
-            final String assertMessage, final Object... assertArguments) {
-        Assert.assertTrue(doesExistDraft(containerId), assertMessage,
-                assertArguments);
     }
 
     /**
@@ -2344,10 +2295,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private TeamMember createTeam(final Long containerId) {
         final List<TeamMember> team =
-            getInternalArtifactModel().createTeam(containerId);
+            getArtifactModel().createTeam(containerId);
         return team.get(0);
     }
-
 
     /**
      * Create a new container version.
@@ -2372,6 +2322,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Calendar createdOn) {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
+
 
     /**
      * Create a new container version.
@@ -2426,7 +2377,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             containerIO.deleteDraft(containerId);
         }
         // delete the team
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final InternalArtifactModel artifactModel = getArtifactModel();
         artifactModel.deleteTeam(containerId);
         // delete the remote info
         artifactModel.deleteRemoteInfo(containerId);
@@ -2457,6 +2408,22 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     }
 
     /**
+     * Determine whether or not a local draft exists.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return True if a draft exists; and the draft owner is the current user.
+     */
+    private Boolean doesExistLocalDraft(final Long containerId) {
+        final ContainerDraft draft = readDraft(containerId);
+        if (null != draft) {
+            return draft.getOwner().getId().equals(localUserId());
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
      * Publish a container.
      * 
      * @param containerId
@@ -2472,7 +2439,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final ContainerVersion version = readVersion(containerId, versionId);
 
         // update local team
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final InternalArtifactModel artifactModel = getArtifactModel();
         for (final Contact contact : contacts)
             artifactModel.addTeamMember(container.getId(), contact.getId());
 
@@ -2493,7 +2460,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // update remote team
         final InternalSessionModel sessionModel = getSessionModel();
         for (final Contact contact : contacts)
-            sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
+            sessionModel.addTeamMember(container.getUniqueId(), artifactModel
+                    .readTeamIds(container.getId()), contact.getId());
 
         // create published to list
         containerIO.createPublishedTo(containerId,
@@ -2953,7 +2921,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
 
 	fireStageBegin(monitor, PublishStage.PublishContainer);
         getSessionModel().publish(version, documentVersionStreamIds,
-                getInternalArtifactModel().readTeamIds(version.getArtifactId()),
+                getArtifactModel().readTeamIds(version.getArtifactId()),
                 publishTo, publishedBy, publishedOn);
         fireStageEnd(monitor, PublishStage.PublishContainer);
     }
@@ -3032,6 +3000,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
         for (final ContainerVersion version : versions) {
+            logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
+                    version.getName(), version.getVersionId());
             userModel.readLazyCreate(version.getCreatedBy());
             userModel.readLazyCreate(version.getUpdatedBy());
 
@@ -3039,35 +3009,49 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             containerIO.createVersion(version);
             // restore version links
             documents = restoreModel.readDocuments(container.getUniqueId(), version.getVersionId());
+            documentVersions = restoreModel.readDocumentVersions(container.getUniqueId(), version.getVersionId());
             for (final Document document : documents) {
+                logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}.\"",
+                        version.getName(), version.getVersionId(),
+                        document.getName());
                 userModel.readLazyCreate(document.getCreatedBy());
                 userModel.readLazyCreate(document.getUpdatedBy());
-
-                documentIO.create(document);
-                artifactIO.createRemoteInfo(document.getId(),
-                        document.getUpdatedBy(), document.getUpdatedOn());
-                documentVersions = restoreModel.readDocumentVersions(container.getUniqueId(), version.getVersionId(), document.getUniqueId());
-                for (final DocumentVersion documentVersion : documentVersions) {
-                    userModel.readLazyCreate(documentVersion.getCreatedBy());
-                    userModel.readLazyCreate(documentVersion.getUpdatedBy());
-
-                    documentVersion.setArtifactId(document.getId());
-                    documentVersionStream =
-                        restoreModel.openDocumentVersion(
-                                document.getUniqueId(), documentVersion.getVersionId());
-                    try {
-                        documentIO.createVersion(documentVersion, documentVersionStream);
-                    } finally {
-                        documentVersionStream.close();
-                    }
-                    getIndexModel().indexDocument(container.getId(), document.getId());
-
-                    containerIO.addVersion(container.getId(),
-                            version.getVersionId(), document.getId(),
-                            documentVersion.getVersionId(),
-                            document.getType());
+                if (artifactIO.doesExist(document.getUniqueId())) {
+                    document.setId(artifactIO.readId(document.getUniqueId()));
+                    artifactIO.updateRemoteInfo(document.getId(), document
+                            .getUpdatedBy(), document.getUpdatedOn());
+                } else {
+                    documentIO.create(document);
+                    artifactIO.createRemoteInfo(document.getId(),
+                            document.getUpdatedBy(), document.getUpdatedOn());
                 }
+                for (final DocumentVersion documentVersion : documentVersions) {
+                    if (documentVersion.getArtifactUniqueId().equals(document.getUniqueId())) {
+                        logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}.\"",
+                                version.getName(), version.getVersionId(),
+                                documentVersion.getName(), documentVersion.getVersionId());
+                        userModel.readLazyCreate(documentVersion.getCreatedBy());
+                        userModel.readLazyCreate(documentVersion.getUpdatedBy());
+                        documentVersion.setArtifactId(document.getId());
+                        documentVersionStream =
+                            restoreModel.openDocumentVersion(
+                                    document.getUniqueId(), documentVersion.getVersionId());
+                        try {
+                            documentIO.createVersion(documentVersion, documentVersionStream);
+                        } finally {
+                            documentVersionStream.close();
+                        }
+                        getIndexModel().indexDocument(container.getId(), document.getId());
+                        containerIO.addVersion(container.getId(),
+                                version.getVersionId(), document.getId(),
+                                documentVersion.getVersionId(),
+                                document.getType());
+                        logger.logTrace("Document version has been restored.");
+                    }
+                }
+                logger.logTrace("Document has been restored.");
             }
+            logger.logTrace("Container version has been restored.");
         }
         getIndexModel().indexContainer(container.getId());
     }
@@ -3123,7 +3107,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
          * @return A <code>List&lt;DocumentVersion&gt;</code>.
          */
         public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-                final Long versionId, final UUID documentUniqueId);
+                final Long versionId);
 
         /**
          * Read the team for an artifact.

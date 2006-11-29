@@ -30,6 +30,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -344,7 +345,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A user id.
      */
     protected void assertNotTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
-        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
         final User user = getInternalUserModel().read(userId);
         if (null != user)
             Assert.assertNotTrue(assertion, contains(team, user));
@@ -413,7 +414,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A user id.
      */
     protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
-        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
         Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
     }
 
@@ -553,7 +554,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return True if a version exists; false otherwise.
      */
     protected Boolean doesExistVersion(final Long artifactId, final Long versionId) {
-        return getInternalArtifactModel().doesVersionExist(artifactId, versionId);
+        return getArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
     /**
@@ -617,13 +618,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Obtain the internal parity artifact interface.
+     * Obtain the internal thinkParity artifact model.
      * 
-     * @return The internal parity artifact interface.
+     * @return An <code>InternalArtifactModel</code>.
      */
-	protected InternalArtifactModel getInternalArtifactModel() {
-		return ArtifactModel.getInternalModel(getContext(), environment, workspace);
-	}
+    protected InternalArtifactModel getArtifactModel() {
+        return ArtifactModel.getInternalModel(getContext(), environment, workspace);
+    }
 
 	/**
      * Obtain the internal parity audit interface.
@@ -831,7 +832,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
         assertOnline("USER NOT ONLINE");
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final InternalArtifactModel artifactModel = getArtifactModel();
         return artifactModel.isFlagApplied(artifactId, ArtifactFlag.KEY) &&
             isRemoteKeyHolder(artifactModel.readUniqueId(artifactId));
     }
@@ -864,7 +865,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The team member.
      */
     protected TeamMember localTeamMember(final Long artifactId) {
-        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
         return get(team, localUser());
     }
 
@@ -921,7 +922,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The artifact unique id.
      */
     protected UUID readArtifactUniqueId(final Long artifactId) {
-        return getInternalArtifactModel().readUniqueId(artifactId);
+        return getArtifactModel().readUniqueId(artifactId);
     }
 
     /**
@@ -958,7 +959,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The next version id.
      */
     protected Long readNextVersionId(final Long artifactId) {
-        final Long latestVersionId = getInternalArtifactModel().readLatestVersionId(artifactId);
+        final Long latestVersionId = getArtifactModel().readLatestVersionId(artifactId);
         return null == latestVersionId ? Versioning.START : latestVersionId + Versioning.INCREMENT;
     }
 

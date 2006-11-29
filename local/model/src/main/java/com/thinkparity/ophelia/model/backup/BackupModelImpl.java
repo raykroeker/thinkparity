@@ -253,41 +253,36 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId) {
+            final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
+        return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, defaultVersionFilter);
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator) {
+            final Long versionId, final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("comparator", comparator);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
-                comparator, defaultVersionFilter);
+        return readDocumentVersions(uniqueId, versionId, comparator,
+                defaultVersionFilter);
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator,
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("comparator", comparator);
         try {
             assertBackupOnline();
             final List<DocumentVersion> versions =
                 getSessionModel().readBackupDocumentVersions(
-                        localUserId(), uniqueId, versionId, documentUniqueId);
+                        localUserId(), uniqueId, versionId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortDocumentVersions(versions, comparator);
             return versions;
@@ -297,14 +292,12 @@ final class BackupModelImpl extends AbstractModelImpl {
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Filter<? super ArtifactVersion> filter) {
+            final Long versionId, final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("filter", filter);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
+        return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, filter);
     }
 

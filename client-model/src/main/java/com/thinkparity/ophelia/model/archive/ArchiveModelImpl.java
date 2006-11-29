@@ -69,7 +69,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logger.logVariable("artifactId", artifactId);
         try {
             assertArchiveOnline();
-            final UUID uniqueId = getInternalArtifactModel().readUniqueId(artifactId);
+            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
             getSessionModel().archiveArtifact(localUserId(), uniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -103,7 +103,7 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertArchiveOnline();
             // HACK A quck'n'dirty check to see if the container exists locally
-            if (null != getInternalArtifactModel().readId(uniqueId)) {
+            if (null != getArtifactModel().readId(uniqueId)) {
                 return null;
             } else {
                 return getSessionModel().readArchiveContainer(
@@ -241,41 +241,36 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId) {
+            final Long versionId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
+        return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, defaultVersionFilter);
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator) {
+            final Long versionId, final Comparator<ArtifactVersion> comparator) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("comparator", comparator);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
-                comparator, defaultVersionFilter);
+        return readDocumentVersions(uniqueId, versionId, comparator,
+                defaultVersionFilter);
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Comparator<ArtifactVersion> comparator,
+            final Long versionId, final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("comparator", comparator);
         try {
             assertArchiveOnline();
             final List<DocumentVersion> versions =
                 getSessionModel().readArchiveDocumentVersions(
-                        localUserId(), uniqueId, versionId, documentUniqueId);
+                        localUserId(), uniqueId, versionId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortDocumentVersions(versions, comparator);
             return versions;
@@ -285,14 +280,12 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId,
-            final Filter<? super ArtifactVersion> filter) {
+            final Long versionId, final Filter<? super ArtifactVersion> filter) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         logger.logVariable("filter", filter);
-        return readDocumentVersions(uniqueId, versionId, documentUniqueId,
+        return readDocumentVersions(uniqueId, versionId,
                 defaultVersionComparator, filter);
     }
 

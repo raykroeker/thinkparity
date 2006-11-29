@@ -179,10 +179,9 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
     }
 
     public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
-            final Long versionId, final UUID documentUniqueId) {
+            final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId);
+            return getImpl().readDocumentVersions(uniqueId, versionId);
         }
     }
 
@@ -191,7 +190,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
             final Comparator<ArtifactVersion> comparator) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, comparator);
+                    comparator);
         }
     }
 
@@ -201,7 +200,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
             final Filter<? super ArtifactVersion> filter) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, comparator, filter);
+                    comparator, filter);
         }
     }
 
@@ -209,8 +208,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
             final Long versionId, final UUID documentUniqueId,
             final Filter<? super ArtifactVersion> filter) {
         synchronized (getImplLock()) {
-            return getImpl().readDocumentVersions(uniqueId, versionId,
-                    documentUniqueId, filter);
+            return getImpl().readDocumentVersions(uniqueId, versionId, filter);
         }
     }
 

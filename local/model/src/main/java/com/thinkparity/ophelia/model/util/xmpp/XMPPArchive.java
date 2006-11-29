@@ -103,18 +103,15 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
     }
 
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
-        readDocumentVersions.setParameter("documentUniqueId", documentUniqueId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
     }
 

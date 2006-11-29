@@ -118,14 +118,13 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param jabberId
      *            A jabber id.
      */
-    void addTeamMember(final UUID uniqueId, final JabberId teamMemberId) {
+    void addTeamMember(final UUID uniqueId, final List<JabberId> team,
+            final JabberId teamMemberId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("team", team);
         logger.logVariable("teamMemberId", teamMemberId);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Long artifactId = artifactModel.readId(uniqueId);
-            final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.addTeamMember(localUserId(), team, uniqueId,
@@ -176,7 +175,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             final Long artifactId = artifactModel.readId(uniqueId);
             final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -371,7 +370,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            final InternalArtifactModel artifactModel = getArtifactModel();
             final Long artifactId = artifactModel.readId(uniqueId);
             final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
@@ -717,18 +716,16 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readArchiveDocumentVersions(userId,
-                        uniqueId, versionId, documentUniqueId);
+                        uniqueId, versionId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -858,19 +855,17 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      *            A document unique id <code>UUID</code>.
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
-    List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+    List<DocumentVersion> readBackupDocumentVersions(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 return xmppSession.readBackupDocumentVersions(userId,
-                        uniqueId, versionId, documentUniqueId);
+                        uniqueId, versionId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1069,14 +1064,13 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    void removeTeamMember(final UUID uniqueId, final JabberId teamMemberId) {
+    void removeTeamMember(final UUID uniqueId, final List<JabberId> team,
+            final JabberId teamMemberId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("team", team);
         logger.logVariable("teamMemberId", teamMemberId);
         try {
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Long artifactId = artifactModel.readId(uniqueId);
-            final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
                 xmppSession.removeTeamMember(localUserId(), team, uniqueId,
@@ -1280,8 +1274,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                     } else {
                         // first login in this environment
                         if (monitor.confirmSynchronize()) {
-// NOCOMMIT Backup is crashing.
-// getContainerModel().restoreBackup();
+                            getContainerModel().restoreBackup();
                             createToken(xmppSession.createToken(localUserId()));
                         } else {
                             xmppSession.logout();
@@ -1301,8 +1294,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
                         // here we know the local environment is different from
                         // what was expected
                         if (monitor.confirmSynchronize()) {
-// NOCOMMIT Backup is crashing.
-// getContainerModel().restoreBackup();      
+                            getContainerModel().restoreBackup();      
                         } else {
                             xmppSession.logout();
                             return; /*

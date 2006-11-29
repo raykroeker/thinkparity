@@ -84,19 +84,26 @@ final class XMPPBackup extends AbstractXMPP<BackupListener> {
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
     }
 
+    Document readDocument(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("unqueId", uniqueId);
+        final XMPPMethod readDocument = new XMPPMethod("backup:readdocument");
+        readDocument.setParameter("userId", userId);
+        readDocument.setParameter("uniqueId", uniqueId);
+        return execute(readDocument, Boolean.TRUE).readResultDocument("document");
+    }
+
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
-            final UUID uniqueId, final Long versionId,
-            final UUID documentUniqueId) {
+            final UUID uniqueId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
-        logger.logVariable("documentUniqueId", documentUniqueId);
         final XMPPMethod readDocumentVersions = new XMPPMethod("backup:readdocumentversions");
         readDocumentVersions.setParameter("userId", userId);
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
-        readDocumentVersions.setParameter("documentUniqueId", documentUniqueId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
     }
 

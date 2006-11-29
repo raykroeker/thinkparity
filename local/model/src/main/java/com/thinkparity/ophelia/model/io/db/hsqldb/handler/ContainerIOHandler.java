@@ -993,7 +993,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
-    public void removeVersions(Long containerId, Long versionId) {
+    public void removeVersions(final Long containerId, final Long versionId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_REMOVE_VERSIONS_REL);
@@ -1005,8 +1005,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         catch(final HypersonicException hx) {
             session.rollback();
             throw hx;
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
 
     /**

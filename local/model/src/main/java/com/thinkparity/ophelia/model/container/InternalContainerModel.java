@@ -154,10 +154,13 @@ public class InternalContainerModel extends ContainerModel implements
     }
 
     /**
-     * Read a list of o
+     * Read a list of of documents for a container version.
+     * 
      * @param containerId
+     *            A container id <code>Long</code>.
      * @param versionId
-     * @return
+     *            A version id <code>Long</code>.
+     * @return A <code>List</code> of <code>Document</code>s.
      */
     public List<Document> readDocuments(final Long containerId, final Long versionId) {
         synchronized (getImplLock()) {

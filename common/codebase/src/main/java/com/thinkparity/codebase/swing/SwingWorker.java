@@ -96,31 +96,40 @@ public abstract class SwingWorker {
         }
     }
 
-
     /**
-     * Start a thread that will call the <code>construct</code> method
-     * and then exit.
+     * Create SwingWorker. Create a thread that will call the
+     * <code>construct</code> method and then exit.
      */
     public SwingWorker() {
+        this("thinkParity SwingWorker");
+    }
+
+    /**
+     * Create SwingWorker.
+     * 
+     * @param name
+     *            A worker name <code>String</code>.
+     */
+    public SwingWorker(final String name) {
         final Runnable doFinished = new Runnable() {
-           public void run() { finished(); }
-        };
+            public void run() { finished(); }
+         };
 
-        Runnable doConstruct = new Runnable() { 
-            public void run() {
-                try {
-                    setValue(construct());
-                }
-                finally {
-                    threadVar.clear();
-                }
+         Runnable doConstruct = new Runnable() { 
+             public void run() {
+                 try {
+                     setValue(construct());
+                 }
+                 finally {
+                     threadVar.clear();
+                 }
 
-                SwingUtilities.invokeLater(doFinished);
-            }
-        };
+                 SwingUtilities.invokeLater(doFinished);
+             }
+         };
 
-        Thread t = new Thread(doConstruct);
-        threadVar = new ThreadVar(t);
+         Thread t = new Thread(doConstruct, name);
+         threadVar = new ThreadVar(t);
     }
 
     /**

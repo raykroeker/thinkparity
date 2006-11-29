@@ -1156,7 +1156,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
-        return readDocuments(containerId, versionId, defaultDocumentComparator, defaultDocumentFilter);
+        return readDocuments(containerId, versionId, defaultDocumentComparator,
+                defaultDocumentFilter);
     }
 
     /**
@@ -2386,20 +2387,25 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete versions
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
+        final List<Document> allDocuments = new ArrayList<Document>();
         List<Document> documents;
         for (final ContainerVersion version : versions) {
-            documents = containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
-
+            documents =
+                containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
+            for (final Document document : documents) {
+                if (allDocuments.contains(document))
+                    allDocuments.add(document);
+            }
             // remove the version's artifact versions
             containerIO.removeVersions(containerId, version.getVersionId());
-
-            for(final Document document : documents) {
-                documentModel.delete(document.getId());
-            }
             // delete the version's deltas
             containerIO.deleteDeltas(containerId, version.getVersionId());
             // delete the version
             containerIO.deleteVersion(containerId, version.getVersionId());
+        }
+        // delete documents
+        for(final Document document : allDocuments) {
+            documentModel.delete(document.getId());
         }
         // delete the index
         getIndexModel().deleteContainer(containerId);
@@ -2980,7 +2986,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     private void restore(final Container container, final RestoreModel restoreModel)
             throws IOException {
         final InternalUserModel userModel = getInternalUserModel();
-
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
         containerIO.create(container);
@@ -2999,12 +3004,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         List<Document> documents;
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
+        ContainerVersion previous;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getName(), version.getVersionId());
             userModel.readLazyCreate(version.getCreatedBy());
             userModel.readLazyCreate(version.getUpdatedBy());
-
             version.setArtifactId(container.getId());
             containerIO.createVersion(version);
             // restore version links
@@ -3027,29 +3032,40 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 }
                 for (final DocumentVersion documentVersion : documentVersions) {
                     if (documentVersion.getArtifactUniqueId().equals(document.getUniqueId())) {
-                        logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}.\"",
-                                version.getName(), version.getVersionId(),
-                                documentVersion.getName(), documentVersion.getVersionId());
-                        userModel.readLazyCreate(documentVersion.getCreatedBy());
-                        userModel.readLazyCreate(documentVersion.getUpdatedBy());
-                        documentVersion.setArtifactId(document.getId());
-                        documentVersionStream =
-                            restoreModel.openDocumentVersion(
-                                    document.getUniqueId(), documentVersion.getVersionId());
-                        try {
-                            documentIO.createVersion(documentVersion, documentVersionStream);
-                        } finally {
-                            documentVersionStream.close();
+                        if (!artifactIO.doesVersionExist(document.getId(),
+                                documentVersion.getVersionId())) {
+                            logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}.\"",
+                                    version.getName(), version.getVersionId(),
+                                    documentVersion.getName(), documentVersion.getVersionId());
+                            userModel.readLazyCreate(documentVersion.getCreatedBy());
+                            userModel.readLazyCreate(documentVersion.getUpdatedBy());
+                            documentVersion.setArtifactId(document.getId());
+                            documentVersionStream =
+                                restoreModel.openDocumentVersion(
+                                        document.getUniqueId(), documentVersion.getVersionId());
+                            try {
+                                documentIO.createVersion(documentVersion, documentVersionStream);
+                            } finally {
+                                documentVersionStream.close();
+                            }
+                            containerIO.addVersion(container.getId(),
+                                    version.getVersionId(), document.getId(),
+                                    documentVersion.getVersionId(),
+                                    document.getType());
+                            getIndexModel().indexDocument(container.getId(), document.getId());
+                            logger.logTrace("Document version has been restored.");
+                            break;
                         }
-                        getIndexModel().indexDocument(container.getId(), document.getId());
-                        containerIO.addVersion(container.getId(),
-                                version.getVersionId(), document.getId(),
-                                documentVersion.getVersionId(),
-                                document.getType());
-                        logger.logTrace("Document version has been restored.");
                     }
                 }
                 logger.logTrace("Document has been restored.");
+                previous = readPreviousVersion(version.getArtifactId(), version.getVersionId());
+                if (null != previous) {
+                    containerIO.deleteDelta(version.getArtifactId(),
+                            version.getVersionId(), previous.getVersionId());
+                    containerIO.createDelta(calculateDelta(read(version.getArtifactId()),
+                            version, previous));
+                }
             }
             logger.logTrace("Container version has been restored.");
         }

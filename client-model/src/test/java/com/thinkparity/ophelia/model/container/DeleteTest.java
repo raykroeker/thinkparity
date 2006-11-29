@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -81,6 +82,41 @@ public final class DeleteTest extends ContainerTestCase {
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
         publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
                 "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        getContainerModel(datum.junit).addListener(datum);
+        logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
+                datum.junit.getSimpleUsername());
+        getContainerModel(datum.junit).delete(c.getId());
+        getContainerModel(datum.junit).removeListener(datum);
+        datum.waitForEvents();
+
+        final Container cRead = getContainerModel(datum.junit).read(c.getId());
+        assertNull("Container \"" + c.getName() + "\" was not deleted.",
+                cRead);
+        assertTrue("Container deleted event was not fired for container \""
+                + c.getName() + ".\"", datum.didNotify);
+    }
+
+    /**
+     * Test the delete api after multiple publishes.
+     *
+     */
+    public void testDeletePostMultiPublish() {
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d_doc = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        final Document d_odt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
+        final Document d_pdf = addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
+        final Document d_txt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
+        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
+                "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        modifyDocument(datum.junit, d_doc.getId());
+        modifyDocument(datum.junit, d_odt.getId());
+        modifyDocument(datum.junit, d_pdf.getId());
+        modifyDocument(datum.junit, d_txt.getId());
+        publishToTeam(datum.junit, c.getId());
         datum.waitForEvents();
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),

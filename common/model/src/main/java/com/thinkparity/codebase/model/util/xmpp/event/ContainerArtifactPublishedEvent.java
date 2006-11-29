@@ -162,9 +162,9 @@ public final class ContainerArtifactPublishedEvent extends XMPPEvent {
     }
 
     /**
-     * Obtain uniqueId.
-     *
-     * @return A UUID.
+     * Obtain the container unique id
+     * 
+     * @return A unique id <code>UUID</code>.
      */
     public UUID getUniqueId() {
         return uniqueId;

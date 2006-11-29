@@ -74,26 +74,26 @@ class ContainerPopup {
         
         // Publish, new draft, discard draft
         if (isOnline()) {
-            Boolean bNeedSep = Boolean.FALSE;
+            boolean needSeparator = false;
             if (isLocalDraft()) {
                 final Data publishData = new Data(1);
                 publishData.set(Publish.DataKey.CONTAINER_ID, getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_PUBLISH, publishData));
-                bNeedSep = Boolean.TRUE;
+                needSeparator = true;
             }
             if (!isDraft()) {
                 final Data createDraftData = new Data(1);
                 createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));  
-                bNeedSep = Boolean.TRUE;
+                needSeparator = true;
             }
             if (isLocalDraft()) {
                 final Data deleteDraftData = new Data(1);
                 deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, getId());
                 jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData));
-                bNeedSep = Boolean.TRUE;
+                needSeparator = true;
             }
-            if (bNeedSep) {
+            if (needSeparator) {
                 jPopupMenu.addSeparator();
             }
         }

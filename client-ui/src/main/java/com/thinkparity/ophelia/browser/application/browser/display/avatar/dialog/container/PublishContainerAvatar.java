@@ -63,7 +63,6 @@ public final class PublishContainerAvatar extends Avatar implements
         if (null != namesJTable.getTableHeader()) {
             namesJTable.getTableHeader().setDefaultRenderer(new PublishTableHeaderRenderer(namesJTable.getTableHeader()));
         }
-        addMoveListener(explanationJLabel);
     }
 
     /**

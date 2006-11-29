@@ -257,10 +257,12 @@ public class RenameDocumentAvatar extends Avatar {
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
+        explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("RenameDocumentDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
+        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         nameJLabel.setText(bundle.getString("RenameDocumentDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -269,6 +271,7 @@ public class RenameDocumentAvatar extends Avatar {
             }
         });
 
+        errorMessageJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         errorMessageJLabel.setText(bundle.getString("RenameDocumentDialog.ErrorNotUnique")); // NOI18N
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(32, 14));
 
@@ -293,7 +296,8 @@ public class RenameDocumentAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -301,8 +305,7 @@ public class RenameDocumentAvatar extends Avatar {
                     .add(layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE))
-                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 270, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 

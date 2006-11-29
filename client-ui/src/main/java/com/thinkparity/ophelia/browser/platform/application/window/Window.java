@@ -3,14 +3,20 @@
  */
 package com.thinkparity.ophelia.browser.platform.application.window;
 
+import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 
 import javax.swing.JDialog;
 
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.AbstractJFrame;
+import com.thinkparity.codebase.swing.border.MovableDropShadowBorder;
+
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
@@ -30,6 +36,9 @@ public abstract class Window extends AbstractJDialog {
 
 	/** A lookup for window sizes. */
 	private final WindowSize windowSize;
+    
+    /** The border. */
+    private MovableDropShadowBorder border = null;
 
     /** Resource bundle based localziation. */
     protected final JFrameLocalization localization;
@@ -71,7 +80,7 @@ public abstract class Window extends AbstractJDialog {
         initComponents(avatar);
         debugGeometry();
         debugLookAndFeel();
-        getRootPane().setBorder(new WindowBorder());
+        getRootPane().setBorder(getBorder());
         if(windowSize.isSetSize(avatar.getId()))
             setSize(windowSize.get(avatar.getId()));
         else
@@ -160,4 +169,52 @@ public abstract class Window extends AbstractJDialog {
     private void roundCorners() {
     	new NativeSkin().roundCorners(this);
     }
+    
+    /**
+     * Get the border.
+     */
+    private MovableDropShadowBorder getBorder() {
+        if (null == border) {
+            try {
+                border = new MovableDropShadowBorder(this,
+                        Colors.Browser.Window.BORDER_TOP, Colors.Browser.Window.BORDER_BOTTOM,
+                        Colors.Browser.Window.BORDER_TOP_LEFT, Colors.Browser.Window.BORDER_BOTTOM_LEFT,
+                        Colors.Browser.Window.BORDER_TOP_RIGHT, Colors.Browser.Window.BORDER_BOTTOM_RIGHT);
+            } catch (final AWTException awtx) {
+                throw new BrowserException("Cannot instantiate window border.", awtx);
+            }
+        } else {
+            return border;
+        }
+        return border;
+    }
+
+    /**
+     * @see java.awt.Component#setLocation(int, int)
+     */
+    @Override
+    public void setLocation(final int x, final int y) {
+        getBorder().settingLocation(x, y);
+        super.setLocation(x, y);
+    }
+
+    /**
+     * @see java.awt.Component#setBounds(java.awt.Rectangle)
+     */
+    @Override
+    public void setBounds(final Rectangle r) {
+        getBorder().settingBounds(r);
+        super.setBounds(r);
+    }
+
+    /**
+     * @see java.awt.Component#setSize(int, int)
+     */
+    @Override
+    public void setSize(int width, int height) {
+        getBorder().settingSize(width, height);
+        super.setSize(width, height);
+    }
+    
+    
 }

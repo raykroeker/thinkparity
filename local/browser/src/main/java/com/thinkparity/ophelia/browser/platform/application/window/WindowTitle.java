@@ -17,6 +17,8 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.swing.AbstractJPanel;
+
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -26,7 +28,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  *
  * @author  Administrator
  */
-public class WindowTitle extends javax.swing.JPanel {
+public class WindowTitle extends AbstractJPanel {
     
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
@@ -40,7 +42,8 @@ public class WindowTitle extends javax.swing.JPanel {
     /** Creates new form WindowTitle */
     public WindowTitle(final String title) {
         initComponents();
-        new Resizer(null, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
+        addMoveListener(this);
+        new Resizer(null, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
         titleJLabel.setText(title);
         closeJLabel.addMouseListener(new MouseAdapter() {
             @Override

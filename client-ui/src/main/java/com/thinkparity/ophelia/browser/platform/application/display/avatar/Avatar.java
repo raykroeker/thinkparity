@@ -112,6 +112,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
+        addMoveListener(this);
 	}
 
 	/**
@@ -132,6 +133,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
+        addMoveListener(this);
 	}
     
     /**
@@ -365,7 +367,7 @@ public abstract class Avatar extends AbstractJPanel {
      * Override this method if you don't want the avatar to support movement.
      */
     protected Boolean isSupportMouseMove() {
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
 	/**

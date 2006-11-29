@@ -100,10 +100,11 @@ public final class Constants {
             }
             public static final class Window {
                 public static final Color BORDER_TOP = new Color(242, 245, 248, 255);
-                public static final Color BORDER_LEFT_TOP = new Color(239, 242, 247, 255);
-                public static final Color BORDER_LEFT_BOTTOM = new Color(206, 215, 226, 255);
-                public static final Color BORDER_RIGHT_TOP = new Color(242, 245, 248, 255);
-                public static final Color BORDER_RIGHT_BOTTOM = new Color(212, 220, 229, 255);
+                public static final Color BORDER_BOTTOM = new Color(206, 215, 226, 255); 
+                public static final Color BORDER_TOP_LEFT = new Color(239, 242, 247, 255);
+                public static final Color BORDER_BOTTOM_LEFT = new Color(206, 215, 226, 255);
+                public static final Color BORDER_TOP_RIGHT = new Color(242, 245, 248, 255);
+                public static final Color BORDER_BOTTOM_RIGHT= new Color(212, 220, 229, 255);
                 public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
                 public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
             }

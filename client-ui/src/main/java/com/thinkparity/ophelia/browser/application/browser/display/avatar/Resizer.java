@@ -169,7 +169,11 @@ public class Resizer {
             resizeDirection = ResizeDirection.NONE;
         }
         
-        resizeDirection = filterAllowedDirections(resizeDirection);
+        // Don't allow resize in certain directions for components.
+        // The borders should always allow resize in all directions.
+        if (!(component instanceof JDialog) && !(component instanceof BrowserWindow)) {
+            resizeDirection = filterAllowedDirections(resizeDirection);
+        }
         
         adjustCursor(resizeDirection, component);
     }

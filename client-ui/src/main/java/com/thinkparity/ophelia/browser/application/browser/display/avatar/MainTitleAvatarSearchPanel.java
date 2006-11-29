@@ -36,7 +36,8 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     public MainTitleAvatarSearchPanel() {
         super();
         initComponents();
-        new Resizer(getBrowser(), this, Boolean.TRUE, Resizer.ResizeEdges.RIGHT);
+        addMoveListener(this);
+        new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);       
     }
 
     /**

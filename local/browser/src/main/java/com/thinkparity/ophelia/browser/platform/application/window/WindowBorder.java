@@ -4,13 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.application.window;
 
-import java.awt.Component;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Paint;
-import java.awt.Rectangle;
+import java.awt.*;
 
 import javax.swing.border.AbstractBorder;
 
@@ -28,7 +22,7 @@ public class WindowBorder extends AbstractBorder {
     private static final Insets BORDER_INSETS;
 
     static {
-        BORDER_INSETS = new Insets(1, 1, 0, 1);    
+        BORDER_INSETS = new Insets(1, 1, 0, 0);    
     }
 
     /**
@@ -87,21 +81,14 @@ public class WindowBorder extends AbstractBorder {
         try {
             // Top line
             g2.setColor(Colors.Browser.Window.BORDER_TOP);
-            g2.drawLine(0, 0, width - 1, 0);
+            g2.drawLine(2, 0, width - 3, 0);
             
             // Gradient line on left
             final Paint gPaintLeft =
-                new GradientPaint(0, 0, Colors.Browser.Window.BORDER_LEFT_TOP,
-                                  0, height - 1, Colors.Browser.Window.BORDER_LEFT_BOTTOM);
+                new GradientPaint(0, 0, Colors.Browser.Window.BORDER_TOP_LEFT,
+                                  0, height - 1, Colors.Browser.Window.BORDER_BOTTOM_LEFT);
             g2.setPaint(gPaintLeft);
-            g2.fillRect(0, 0, 1, height - 1);
-            
-            // Gradient line on right
-            final Paint gPaintRight =
-                new GradientPaint(0, 0, Colors.Browser.Window.BORDER_RIGHT_TOP,
-                                  0, height - 1, Colors.Browser.Window.BORDER_RIGHT_BOTTOM);
-            g2.setPaint(gPaintRight);
-            g2.fillRect(width - 1, 0, width - 1, height - 1);
+            g2.fillRect(0, 2, 1, height - 3);
         }
         finally { g2.dispose(); }
     }

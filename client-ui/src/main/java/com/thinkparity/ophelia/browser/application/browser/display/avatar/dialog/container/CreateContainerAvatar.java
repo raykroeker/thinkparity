@@ -31,7 +31,6 @@ public class CreateContainerAvatar extends Avatar {
         super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initNameJTextField();
-        addMoveListener(explanationJLabel);
     }
     
     public AvatarId getId() {

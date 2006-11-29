@@ -528,7 +528,7 @@ public abstract class StringUtil {
 		/**
 		 * Double quote
 		 */
-		public static final Separator DblQuote = new Separator("\"");
+		public static final Separator DoubleQuote = new Separator("\"");
 
 		/**
 		 * Empty String

@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
@@ -48,7 +49,8 @@ public class RevertPrePublishTest extends ContainerTestCase {
         super.setUp();
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final Document document = addDocument(OpheliaTestUser.JUNIT, container, getInputFiles()[0]);
+        final Document document = addDocument(OpheliaTestUser.JUNIT,
+                container.getId(), getInputFileNames()[0]);
         modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         datum = new Fixture(container, containerModel, document);
         datum.containerModel.addListener(datum);

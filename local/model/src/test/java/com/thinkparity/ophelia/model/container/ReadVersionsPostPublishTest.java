@@ -39,7 +39,7 @@ public class ReadVersionsPostPublishTest extends ContainerTestCase {
         super.setUp();
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
+        addDocuments(OpheliaTestUser.JUNIT, container.getId());
         login(OpheliaTestUser.JUNIT);
         publishToContacts(OpheliaTestUser.JUNIT, container);
         logout(OpheliaTestUser.JUNIT);

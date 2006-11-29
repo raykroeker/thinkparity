@@ -40,7 +40,7 @@ public class DeleteDraftTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
+        addDocuments(OpheliaTestUser.JUNIT, container.getId());
         publishToContacts(OpheliaTestUser.JUNIT, container);
         createContainerDraft(OpheliaTestUser.JUNIT, container);
         datum = new Fixture(container, containerModel);

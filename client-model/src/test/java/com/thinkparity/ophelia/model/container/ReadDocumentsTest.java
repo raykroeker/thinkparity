@@ -55,7 +55,7 @@ public class ReadDocumentsTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container);
+        final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container.getId());
         publishToContacts(OpheliaTestUser.JUNIT, container);
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, documents, version);

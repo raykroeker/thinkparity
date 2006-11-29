@@ -144,7 +144,7 @@ public class ArchiveRestoreArchiveTest extends ContainerTestCase {
         final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT_Z);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
         final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
-        addDocuments(OpheliaTestUser.JUNIT_Z, container);
+        addDocuments(OpheliaTestUser.JUNIT_Z, container.getId());
         publishToContacts(OpheliaTestUser.JUNIT_Z, container);
         containerModel.archive(container.getId());
         containerModel.restore(container.getUniqueId());

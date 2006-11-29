@@ -504,21 +504,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	}
 
     /**
-     * Add a document to a container.
-     * 
-     * @param container
-     *            A container.
-     * @param inputFile
-     *            An input file.
-     * @return A document.
-     */
-    @Deprecated
-    protected Document addDocument(final OpheliaTestUser addAs,
-            final Container container, final File inputFile) {
-        return addDocument(addAs, container.getId(), inputFile.getName());
-    }
-
-    /**
      * Add a document.
      * 
      * @param addAs
@@ -542,23 +527,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 addAs.getSimpleUsername());
         getContainerModel(addAs).addDocument(c.getId(), document.getId());
         return logger.logVariable("document", document);
-    }
-
-    /**
-     * Add all of the input test files to the container as documents.
-     * 
-     * @param container
-     *            A container.
-     *            @return A list of documents.
-     */
-    @Deprecated
-    protected List<Document> addDocuments(final OpheliaTestUser addAs,
-            final Container container) {
-        final List<Document> documents = new ArrayList<Document>();
-        for(final String inputFileName : getInputFileNames()) {
-            documents.add(addDocument(addAs, container.getId(), inputFileName));
-        }
-        return documents;
     }
 
     /**

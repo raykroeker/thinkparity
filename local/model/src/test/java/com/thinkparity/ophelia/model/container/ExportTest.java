@@ -48,7 +48,7 @@ public class ExportTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT_X);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container);
+        final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container.getId());
         publishToContacts(OpheliaTestUser.JUNIT, container);
 
         createDraft(OpheliaTestUser.JUNIT, container.getId());
@@ -62,10 +62,10 @@ public class ExportTest extends ContainerTestCase {
 
         // re-add half of the documents
         createDraft(OpheliaTestUser.JUNIT_X, container.getId());
-        final File[] inputFiles = getInputFiles();
-        for (int i = 0; i < inputFiles.length; i++) {
+        final String[] inputFileNames = getInputFileNames();
+        for (int i = 0; i < inputFileNames.length; i++) {
             if (1 == i % 2) {
-                addDocument(OpheliaTestUser.JUNIT, container, inputFiles[i]);
+                addDocument(OpheliaTestUser.JUNIT, container.getId(), inputFileNames[i]);
             }
         }
         publishToTeam(OpheliaTestUser.JUNIT_X, container.getId());

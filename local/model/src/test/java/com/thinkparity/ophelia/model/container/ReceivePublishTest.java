@@ -45,7 +45,7 @@ public class ReceivePublishTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT_X);
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
+        addDocuments(OpheliaTestUser.JUNIT, container.getId());
         final List<Contact> contacts = new ArrayList<Contact>(1);
         contacts.add(readContact(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X));
         datum = new Fixture(contacts, container, containerModel);

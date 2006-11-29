@@ -59,7 +59,7 @@ public class PublishWithCommentTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT);
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container);
+        addDocuments(OpheliaTestUser.JUNIT, container.getId());
         final List<Contact> contacts = readContacts(OpheliaTestUser.JUNIT);
         datum = new Fixture(NAME, contacts, container, containerModel);
         containerModel.addListener(datum);

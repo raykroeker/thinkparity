@@ -157,7 +157,7 @@ public class ArchiveTest extends ContainerTestCase {
         final InternalArchiveModel archiveModel = getArchiveModel(OpheliaTestUser.JUNIT_Z);
         final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
         final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
-        addDocuments(OpheliaTestUser.JUNIT_Z, container);
+        addDocuments(OpheliaTestUser.JUNIT_Z, container.getId());
         publishToContacts(OpheliaTestUser.JUNIT_Z, container);
         datum = new Fixture(archiveModel, container, containerModel, getDocumentModel(OpheliaTestUser.JUNIT));
         datum.containerModel.addListener(datum);

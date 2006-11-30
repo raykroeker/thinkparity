@@ -98,7 +98,6 @@ public class ThinkParityScrollBarUI extends BasicScrollBarUI {
         THUMB_VERT[1][1] = ImageIOUtil.read("ScrollVertThumbPressedHash.png");
         THUMB_VERT[1][2] = ImageIOUtil.read("ScrollVertThumbPressedBottom.png");
         THUMB_VERT[1][3] = ImageIOUtil.read("ScrollVertThumbPressed.png");
-
         TRACK_HORIZ = new BufferedImage[] {
                 ImageIOUtil.read("ScrollHorizTrack.png") };
         TRACK_VERT = new BufferedImage[] {

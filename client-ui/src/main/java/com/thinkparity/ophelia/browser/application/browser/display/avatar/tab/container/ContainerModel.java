@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,8 +16,10 @@ import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -26,6 +31,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar.SortColumn;
@@ -35,6 +41,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.util.DocumentUtil;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -124,7 +131,7 @@ public final class ContainerModel extends TabPanelModel {
             synchronize();
         }
     }
-    
+
     /**
      * Debug the container avatar.
      * 
@@ -144,7 +151,7 @@ public final class ContainerModel extends TabPanelModel {
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
     }
-    
+
     /**
      * Deselect the selected container, leaving no container selected.
      * 
@@ -166,40 +173,7 @@ public final class ContainerModel extends TabPanelModel {
     public TabPanel getContainerPanel(final Container container) {
         return containerPanels.get(indexOfContainerPanel(container));
     }
-
-    /**
-     * Get the list of draft documents.
-     * 
-     * @param container
-     *              The container
-     * @return A list of documents.
-     */
-    public List<Document> getDraftDocuments(final Container container) {
-        if (container.isLocalDraft()) {
-            final ContainerDraft draft = readDraft(container.getId());
-            if (null != draft) {
-                return draft.getDocuments();
-            }
-        }
-        return new ArrayList<Document>();
-    }
-
-    /**
-     * Get the list of latest version documents.
-     * 
-     * @param container
-     *              The container
-     * @return A list of version documents.
-     */
-    public List<DocumentVersion> getLatestVersionDocuments(final Container container) {
-        final ContainerVersion version = readLatestVersion(container.getId());
-        if (null != version) {
-            return readDocumentVersions(container.getId(), version.getArtifactId());
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
@@ -258,13 +232,13 @@ public final class ContainerModel extends TabPanelModel {
      * @return True if the panel is expanded; false otherwise.
      */
     public Boolean isExpanded(final TabPanel tabPanel) {
-        if (tabPanel instanceof ContainerPanel) {
+        if (isContainerPanel(tabPanel)) {
             return isExpandedContainer(((ContainerPanel)tabPanel).getContainer());
         } else {
             return Boolean.TRUE;
         }
     }
-    
+
     /**
      * Determine if the container is expanded.
      * 
@@ -279,7 +253,7 @@ public final class ContainerModel extends TabPanelModel {
             return Boolean.FALSE;
         }
     }
-    
+
     /**
      * Determine whether or not the user is online.
      * 
@@ -288,7 +262,7 @@ public final class ContainerModel extends TabPanelModel {
     public Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
-    
+
     /**
      * Determine if the container is selected.
      * 
@@ -337,7 +311,7 @@ public final class ContainerModel extends TabPanelModel {
             synchronize();
         }
     }
-
+    
     /**
      * Trigger a sort.
      * 
@@ -351,7 +325,7 @@ public final class ContainerModel extends TabPanelModel {
         sortContainers();
         synchronize();
     }
-
+    
     /**
      * Synchronize the container in the display.
      * 
@@ -470,16 +444,18 @@ public final class ContainerModel extends TabPanelModel {
         if (isExpanded(tabPanel)) {
             expandedContainer = null;
             ((ContainerPanel) tabPanel).setExpanded(Boolean.FALSE);
-        } else if (tabPanel instanceof ContainerPanel) {
-            // Flag the container as expanded.               
-            expandedContainer = ((ContainerPanel) tabPanel).getContainer();
-            ((ContainerPanel) tabPanel).setExpanded(Boolean.TRUE);
-
-            // Flag the container as having been seen.
-            // To prevent delay expanding during login, don't bother if offline.
-            // TODO Maybe remove this.
-            if (isOnline()) {
-                browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
+        } else {
+            if (isContainerPanel(tabPanel)) {
+                // Flag the container as expanded.               
+                expandedContainer = ((ContainerPanel) tabPanel).getContainer();
+                ((ContainerPanel) tabPanel).setExpanded(Boolean.TRUE);
+    
+                // Flag the container as having been seen.
+                // To prevent delay expanding during login, don't bother if offline.
+                // TODO Maybe remove this.
+                if (isOnline()) {
+                    browser.runApplyContainerFlagSeen(((ContainerPanel)tabPanel).getContainerId());
+                }
             }
         }
         
@@ -489,6 +465,37 @@ public final class ContainerModel extends TabPanelModel {
         synchronize();
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.DataFlavor[])
+     *
+     */
+    @Override
+    protected boolean canImportData(final TabPanel tabPanel,
+            final DataFlavor[] transferFlavors) {
+        if (TxUtils.containsJavaFileList(transferFlavors)) {
+            if (isContainerPanel(tabPanel)) {
+                return canImportData(((ContainerPanel) tabPanel).getContainer());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
+     *
+     */
+    @Override
+    protected void importData(final TabPanel tabPanel,
+            final Transferable transferable) {
+        Assert.assertTrue(canImportData(tabPanel, transferable
+                .getTransferDataFlavors()), "Cannot import data {0} onto {1}.",
+                transferable, tabPanel);
+        if (isContainerPanel(tabPanel)) {
+            importData(((ContainerPanel) tabPanel).getContainer(), transferable);
+        }
+    }
+
+    
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -574,7 +581,26 @@ public final class ContainerModel extends TabPanelModel {
     private void addContainerPanel(final Integer index, final Container container) {
         addContainerPanel(index, Boolean.FALSE, container);
     }
-    
+
+    /**
+     * Determine if an import can be performed on a container. The user needs to
+     * have the draft, or alternatively if nobody has the draft then he needs to
+     * be online in order to create a new draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @return True if an import can be performed.
+     */
+    private boolean canImportData(final Container container) {
+        if (container.isLocalDraft()) {
+            return true;                
+        } else if (!container.isDraft() && isOnline()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Clear all panels.
      *
@@ -583,7 +609,7 @@ public final class ContainerModel extends TabPanelModel {
         containerPanels.clear();
         versionsPanels.clear();
     }
-    
+
     /**
      * Determine if the container panel exists.
      * 
@@ -595,6 +621,117 @@ public final class ContainerModel extends TabPanelModel {
         return -1 != indexOfContainerPanel(container);
     }
     
+    /**
+     * Import data into a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param transferable
+     *            Import data <code>Transferable</code>.
+     */
+    private void importData(final Container container,
+            final Transferable transferable) {
+        final File[] files;
+        try {
+            files = TxUtils.extractFiles(transferable);
+        } catch (final Exception x) {
+            throw new BrowserException("Cannot extract files from transferrable.", x);
+        }
+
+        // Get the list of documents in this package.
+        final List <String> existingDocuments = new ArrayList<String>();
+        List<Document> draftDocuments = null;
+        if (container.isLocalDraft()) {
+            draftDocuments = readDraftDocuments(container.getId());
+            for (final Document document : draftDocuments) {
+                existingDocuments.add(document.getName());
+            }
+        }
+
+        // Determine the list of files to add and/or update. Check if the user
+        // is trying to drag folders. Create two lists, one for adding and one
+        // for updating, depending on whether there is a document of the same
+        // name found in the package.
+        final List<File> addFileList = new ArrayList<File>();
+        final List<File> updateFileList = new ArrayList<File>();
+        Boolean foundFolders = Boolean.FALSE;
+        Boolean foundFilesToAdd = Boolean.FALSE;
+        Boolean foundFilesToUpdate = Boolean.FALSE;
+        for (final File file : files) {
+            if (file.isDirectory()) {
+                foundFolders = Boolean.TRUE;
+            } else {
+                if (existingDocuments.contains(file.getName())) {
+                    foundFilesToUpdate = Boolean.TRUE;
+                    updateFileList.add(file);
+                }
+                else {
+                    foundFilesToAdd = Boolean.TRUE;
+                    addFileList.add(file);
+                }
+            }
+        }
+
+        // Report an error if the user tries to drag folders.
+        if (foundFolders) {
+            browser.displayErrorDialog("ErrorAddDocumentIsFolder");
+            return;
+        }
+
+        // If the draft is required, attempt to get it. This should succeed
+        // unless somebody managed to get the draft, or the system went offline,
+        // since the call to canImport() above.
+        if (foundFilesToUpdate || foundFilesToAdd) {
+            if (!container.isLocalDraft() && !container.isDraft() &&
+                    (Connection.ONLINE == browser.getConnection())) {
+                browser.runCreateContainerDraft(container.getId());
+            }
+            
+            if (!container.isLocalDraft()) {
+                browser.displayErrorDialog("ErrorAddDocumentLackDraft",
+                        new Object[] { container.getName() });
+                return;
+            }
+            draftDocuments = readDraftDocuments(container.getId());
+        }
+
+        // Add one or more documents.
+        if (foundFilesToAdd) {
+            browser.runAddContainerDocuments(container.getId(), addFileList
+                    .toArray(new File[] {}));
+        }
+
+        // Update one or more documents.
+        final DocumentUtil documentUtil = DocumentUtil.getInstance();
+        if ((foundFilesToUpdate) && (null != draftDocuments)) {
+            for (final File file : updateFileList) {
+                if (documentUtil.contains(draftDocuments, file)) {
+                    final Document document =
+                        draftDocuments.get(documentUtil.indexOf(draftDocuments, file));
+                    if (isDraftDocumentModified(document.getId())) {
+                        if (browser.confirm("ConfirmOverwriteWorking",
+                        new Object[] { file.getName() })) {
+                            browser.runUpdateDocumentDraft(document.getId(), file);
+                        }
+                    } else {
+                        browser.runUpdateDocumentDraft(document.getId(), file);
+                    } 
+                }
+            }
+        }
+    }
+
+    /**
+     * Determine if the tab panel is a container tab panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if it is a container tab panel.
+     */
+    private boolean isContainerPanel(final TabPanel tabPanel) {
+        return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
+    }
+
     /**
      * Read the container from the provider.
      * 
@@ -622,20 +759,6 @@ public final class ContainerModel extends TabPanelModel {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A list of DocumentVersion.
-     */
-    private List<DocumentVersion> readDocumentVersions(final Long containerId, final Long versionId) {
-        return ((ContainerProvider) contentProvider).readDocumentVersions(
-                containerId, versionId);
-    }
-
-    /**
-     * Read the documents from the provider.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
      * @return A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
      */
     private Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(final Long containerId,
@@ -643,7 +766,7 @@ public final class ContainerModel extends TabPanelModel {
         return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
-
+    
     /**
      * Read the draft for a container.
      *
@@ -654,7 +777,23 @@ public final class ContainerModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-    
+
+    /**
+     * Read the draft's document list.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    private List<Document> readDraftDocuments(final Long containerId) {
+        final ContainerDraft draft = readDraft(containerId);
+        if (null == draft) {
+            return Collections.emptyList();
+        } else {
+            return draft.getDocuments();
+        }
+    }
+
     /**
      * Read the latest version for a container.
      * 

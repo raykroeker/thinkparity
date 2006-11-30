@@ -3,14 +3,17 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 
 
 /**
@@ -36,7 +39,10 @@ public abstract class TabModel {
      */
     private Boolean initialized;
 
-    /** Create TabModel. */
+    /**
+     * Create TabModel.
+     * 
+     */
     protected TabModel() {
         super();
         this.applicationRegistry = new ApplicationRegistry();
@@ -44,18 +50,32 @@ public abstract class TabModel {
     }
 
     /**
-     * @see Avatar#setContentProvider(ContentProvider)
+     * Set the content provider.
+     * 
+     * @param contentProvider
+     *            A <code>ContentProvider</code>.
      */
     public final void setContentProvider(final ContentProvider contentProvider) {
         this.contentProvider = contentProvider;
     }
 
     /**
-     * @see Avatar#setInput(Object)
+     * Set input.
+     * 
+     * @param input
+     *            An input <code>Object</code>.
      */
     public final void setInput(final Object input) {
         this.input = input;
     }
+
+    /**
+     * Apply an ordering to the tab.
+     * 
+     * @param ordering
+     *            The ordering selected by the user.
+     */
+    protected void applyOrdering(final TabOrdering ordering) {}
 
     /**
      * Apply a search to the tab.
@@ -64,6 +84,33 @@ public abstract class TabModel {
      *            A search expression <code>String</code>.
      */
     protected void applySearch(final String searchExpression) {}
+
+    /**
+     * Determine whether an import is possible.
+     * 
+     * @param transferFlavors
+     *            The import <code>DataFlavor</code>s.
+     * @return True if the model accepts import for this panel; for these data
+     *         flavors.
+     */
+    protected boolean canImportData(final DataFlavor[] transferFlavors) {
+        return false;
+    }
+
+    /**
+     * Determine whether an import on a panel is possible.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @param transferFlavors
+     *            The import <code>DataFlavor</code>s.
+     * @return True if the model accepts import for this panel; for these data
+     *         flavors.
+     */
+    protected boolean canImportData(final TabPanel tabPanel,
+            final DataFlavor[] transferFlavors) {
+        return false;
+    }
 
     /**
      * Debug the model.
@@ -86,6 +133,24 @@ public abstract class TabModel {
      * @return A <code>ListModel</code>.
      */
     protected abstract DefaultListModel getListModel();
+
+    /**
+     * Import transferrable data onto a panel.
+     * 
+     * @param transferable
+     *            The import data.
+     */
+    protected void importData(final TabPanel tabPanel,
+            final Transferable transferable) {
+    }
+
+    /**
+     * Import transferrable data.
+     * 
+     * @param transferable
+     *            The import data.
+     */
+    protected void importData(final Transferable transferable) {}
 
     /**
      * Initialize the tab model.
@@ -117,6 +182,12 @@ public abstract class TabModel {
             }
         }
     }
+
+    /**
+     * Remove any ordering.
+     *
+     */
+    protected void removeOrdering() {}
 
     /**
      * Remove any search.

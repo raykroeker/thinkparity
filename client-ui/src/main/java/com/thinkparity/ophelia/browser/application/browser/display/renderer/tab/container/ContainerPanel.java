@@ -15,7 +15,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
-import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
@@ -97,7 +96,6 @@ public final class ContainerPanel extends AbstractContainerPanel {
     public void setPanelData(final Container container,
             final ContainerDraft draft, final ContainerVersion latestVersion) {
         super.setPanelData(container, draft, latestVersion);
-        setTransferHandler(new ImportTxHandler(browser, model, container));
     }
 
     /**

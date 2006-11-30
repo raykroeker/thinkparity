@@ -8,15 +8,11 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
-import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
 /**
  * @author raymond@thinkparity.com
@@ -30,8 +26,6 @@ public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
      */
     public ContainerAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerModel());
-        final Browser browser = ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER));
-        setTransferHandler(new ImportTxHandler(browser, model, null));
     }
 
     /**

@@ -54,10 +54,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private final GridBagConstraints panelConstraints;
 
     /**
-     * A <code>TransferHandler</code> which dispatches all import export
+     * A <code>TransferHandler</code> which dispatches all panel import export
      * requests to the model.
      */
-    private final TransferHandler transferHandler;
+    private final TransferHandler panelTransferHandler;
 
     /**
      * Creates TabPanelAvatar.
@@ -74,7 +74,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.panelConstraints = new GridBagConstraints();
         this.panelConstraints.fill = GridBagConstraints.BOTH;
         this.panelConstraints.gridx = 0;
-        this.transferHandler = new TransferHandler() {
+        this.panelTransferHandler = new TransferHandler() {
             @Override
             public boolean canImport(final JComponent comp,
                     final DataFlavor[] transferFlavors) {
@@ -102,6 +102,31 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     	installDataListener();
         initComponents();
         installResizer();
+        setTransferHandler(new TransferHandler() {
+            @Override
+            public boolean canImport(final JComponent comp,
+                    final DataFlavor[] transferFlavors) {
+                logger.logApiId();
+                logger.logVariable("comp", comp);
+                logger.logVariable("transferFlavors", transferFlavors);
+                return model.canImportData(transferFlavors);
+            }
+            @Override
+            public boolean importData(final JComponent comp,
+                    final Transferable transferable) {
+                logger.logApiId();
+                logger.logVariable("comp", comp);
+                logger.logVariable("transferable", transferable);
+                try {
+                    model.importData(transferable);
+                    return true;
+                } catch (final Throwable t) {
+                    logger.logError(t, "Could not import data {0}.",
+                            transferable);
+                    return false;
+                }
+            }
+        });
     }
 
     /**
@@ -167,7 +192,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
      */
     private void addPanel(final int index, final TabPanel panel) {
         // setup a transfer handler for each panel added
-        ((JComponent) panel).setTransferHandler(transferHandler);
+        ((JComponent) panel).setTransferHandler(panelTransferHandler);
         panelConstraints.gridy = index;
         tabJPanel.add((Component) panel, panelConstraints.clone(), index);
     }

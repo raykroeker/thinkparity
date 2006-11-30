@@ -173,7 +173,7 @@ public final class ContainerModel extends TabPanelModel {
     public TabPanel getContainerPanel(final Container container) {
         return containerPanels.get(indexOfContainerPanel(container));
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
@@ -194,7 +194,7 @@ public final class ContainerModel extends TabPanelModel {
         final TabPanel containerPanel = getContainerPanel(container);
         return versionsPanels.get(containerPanel);
     }
-
+    
     /**
      * Obtain the index of the container panel.
      * 
@@ -311,7 +311,7 @@ public final class ContainerModel extends TabPanelModel {
             synchronize();
         }
     }
-    
+
     /**
      * Trigger a sort.
      * 
@@ -325,7 +325,7 @@ public final class ContainerModel extends TabPanelModel {
         sortContainers();
         synchronize();
     }
-    
+
     /**
      * Synchronize the container in the display.
      * 
@@ -376,7 +376,7 @@ public final class ContainerModel extends TabPanelModel {
     public void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
-
+    
     /**
      * Create the final list of container cells; container draft cells; draft
      * document cells; container version cells and container version document
@@ -421,7 +421,7 @@ public final class ContainerModel extends TabPanelModel {
         
         debug();
     }
-
+    
     /**
      * Toggle the expansion of a panel on and off.
      * 
@@ -466,6 +466,15 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
+     * 
+     */
+    @Override
+    protected boolean canImportData(final DataFlavor[] transferFlavors) {
+        return TxUtils.containsJavaFileList(transferFlavors);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.DataFlavor[])
      *
      */
@@ -491,9 +500,9 @@ public final class ContainerModel extends TabPanelModel {
     @Override
     protected void importData(final TabPanel tabPanel,
             final Transferable transferable) {
-        Assert.assertTrue(canImportData(tabPanel, transferable
-                .getTransferDataFlavors()), "Cannot import data {0} onto {1}.",
-                transferable, tabPanel);
+        Assert.assertTrue(canImportData(tabPanel,
+                transferable.getTransferDataFlavors()),
+                "Cannot import data {0} onto {1}.", transferable, tabPanel);
         if (isContainerPanel(tabPanel)) {
             importData(((ContainerPanel) tabPanel).getContainer(), transferable);
         } else if (isContainerVersionsPanel(tabPanel)) {
@@ -503,7 +512,37 @@ public final class ContainerModel extends TabPanelModel {
         }
     }
 
-    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(java.awt.datatransfer.Transferable)
+     * 
+     */
+    @Override
+    protected void importData(final Transferable transferable) {
+        Assert.assertTrue(canImportData(transferable.getTransferDataFlavors()),
+                "Cannot import data {0}.", transferable);
+        final File[] transferableFiles = extractFiles(transferable);
+        // Determine the list of files to add to a new package. Check if the user
+        // is trying to drag folders.
+        final List<File> importFiles = new ArrayList<File>();
+        Boolean foundFolders = Boolean.FALSE;
+        Boolean foundFiles = Boolean.FALSE;
+        for (final File transferableFile : transferableFiles) {
+            if (transferableFile.isDirectory()) {
+                foundFolders = Boolean.TRUE;
+            } else {
+                foundFiles = Boolean.TRUE;
+                importFiles.add(transferableFile);
+            }
+        }
+        // Report an error if the user tries to drag folders. Otherwise
+        // create a package and add documents.
+        if (foundFolders) {
+            browser.displayErrorDialog("ErrorCreatePackageIsFolder");
+        } else if (foundFiles) {
+            browser.runCreateContainer(importFiles);
+        }
+    }
+
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -520,7 +559,7 @@ public final class ContainerModel extends TabPanelModel {
         sortContainers();
         debug();
     }
-    
+
     /**
      * Add a container panel. This will read the container's versions and add
      * the appropriate version panel as well.
@@ -532,7 +571,7 @@ public final class ContainerModel extends TabPanelModel {
         addContainerPanel(containerPanels.size() == 0 ? 0 : containerPanels
                 .size() - 1, container);
     }
-
+    
     /**
      * Add a container panel. This will read the container's versions and add the
      * appropriate version panel as well.
@@ -628,6 +667,21 @@ public final class ContainerModel extends TabPanelModel {
     private Boolean containsContainerPanel(final Container container) {
         return -1 != indexOfContainerPanel(container);
     }
+
+    /**
+     * Extract a list of files from a transferable.
+     * 
+     * @param transferable
+     *            A <code>Transferable</code>.
+     * @return A <code>List</code> of <code>File</code>s.
+     */
+    private File[] extractFiles(final Transferable transferable) {
+        try {
+            return TxUtils.extractFiles(transferable);
+        } catch (final Exception x) {
+            throw new BrowserException("Cannot extract files from transferrable.", x);
+        }
+    }
     
     /**
      * Import data into a container.
@@ -639,13 +693,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private void importData(final Container container,
             final Transferable transferable) {
-        final File[] files;
-        try {
-            files = TxUtils.extractFiles(transferable);
-        } catch (final Exception x) {
-            throw new BrowserException("Cannot extract files from transferrable.", x);
-        }
-
+        final File[] transferableFiles = extractFiles(transferable);
         // Get the list of documents in this package.
         final List <String> existingDocuments = new ArrayList<String>();
         List<Document> draftDocuments = null;
@@ -655,7 +703,6 @@ public final class ContainerModel extends TabPanelModel {
                 existingDocuments.add(document.getName());
             }
         }
-
         // Determine the list of files to add and/or update. Check if the user
         // is trying to drag folders. Create two lists, one for adding and one
         // for updating, depending on whether there is a document of the same
@@ -665,27 +712,25 @@ public final class ContainerModel extends TabPanelModel {
         Boolean foundFolders = Boolean.FALSE;
         Boolean foundFilesToAdd = Boolean.FALSE;
         Boolean foundFilesToUpdate = Boolean.FALSE;
-        for (final File file : files) {
-            if (file.isDirectory()) {
+        for (final File transferableFile : transferableFiles) {
+            if (transferableFile.isDirectory()) {
                 foundFolders = Boolean.TRUE;
             } else {
-                if (existingDocuments.contains(file.getName())) {
+                if (existingDocuments.contains(transferableFile.getName())) {
                     foundFilesToUpdate = Boolean.TRUE;
-                    updateFileList.add(file);
+                    updateFileList.add(transferableFile);
                 }
                 else {
                     foundFilesToAdd = Boolean.TRUE;
-                    addFileList.add(file);
+                    addFileList.add(transferableFile);
                 }
             }
         }
-
         // Report an error if the user tries to drag folders.
         if (foundFolders) {
             browser.displayErrorDialog("ErrorAddDocumentIsFolder");
             return;
         }
-
         // If the draft is required, attempt to get it. This should succeed
         // unless somebody managed to get the draft, or the system went offline,
         // since the call to canImport() above.
@@ -702,13 +747,11 @@ public final class ContainerModel extends TabPanelModel {
             }
             draftDocuments = readDraftDocuments(container.getId());
         }
-
         // Add one or more documents.
         if (foundFilesToAdd) {
             browser.runAddContainerDocuments(container.getId(), addFileList
                     .toArray(new File[] {}));
         }
-
         // Update one or more documents.
         final DocumentUtil documentUtil = DocumentUtil.getInstance();
         if ((foundFilesToUpdate) && (null != draftDocuments)) {

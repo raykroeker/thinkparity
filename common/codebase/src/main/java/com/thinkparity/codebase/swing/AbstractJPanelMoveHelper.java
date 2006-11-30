@@ -4,6 +4,7 @@
 package com.thinkparity.codebase.swing;
 
 import java.awt.Dimension;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
@@ -36,14 +37,17 @@ final class AbstractJPanelMoveHelper {
     /** An apache logger wrapper. */
     private final Log4JWrapper logger;
 
-    /** The location of the mouse pressed event. */
-    private Point mousePressed;
-
     /** The offset x and y coordinates the mouse was dragged. */
     private int offsetX, offsetY;
 
     /** The number of pixels from the edge of a screen to interpret as sticky. */
     private final int stickyPixels;
+    
+    /** The original mouse position when start a move. */
+    private static Point moveMouseOrigin;
+    
+    /** The original component position when start a move. */
+    private static Point moveComponentOrigin;
 
     /**
      * Create AbstractJPanelMoveHelper.
@@ -58,7 +62,7 @@ final class AbstractJPanelMoveHelper {
     }
 
     /**
-     * Add a move listener to the compent.
+     * Add a move listener to the component.
      * 
      * @param jComponent
      *            A <code>JComponent</code>.
@@ -89,7 +93,8 @@ final class AbstractJPanelMoveHelper {
      *
      */
     void debug() {
-        logger.logVariable("mousePressed", mousePressed);
+        logger.logVariable("moveMouseOrigin", moveMouseOrigin);
+        logger.logVariable("moveComponentOrigin", moveComponentOrigin); 
         logger.logVariable("offsetX", offsetX);
         logger.logVariable("offsetY", offsetY);
     }
@@ -117,9 +122,11 @@ final class AbstractJPanelMoveHelper {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    private void jComponentMouseDragged(final MouseEvent e) {
-        offsetX = e.getX() - mousePressed.x;
-        offsetY = e.getY() - mousePressed.y;
+    private void jComponentMouseDragged(final MouseEvent e) {        
+        final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+        final Point componentLocation = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
+        offsetX = (mouseLocation.x-moveMouseOrigin.x) - (componentLocation.x-moveComponentOrigin.x);
+        offsetY = (mouseLocation.y-moveMouseOrigin.y) - (componentLocation.y-moveComponentOrigin.y);
         moveWindow(e);
     }
 
@@ -130,7 +137,8 @@ final class AbstractJPanelMoveHelper {
      *            A <code>MouseEvent</code>.
      */
     private void jComponentMousePressed(final MouseEvent e) {
-        mousePressed = e.getPoint();
+        moveMouseOrigin = MouseInfo.getPointerInfo().getLocation();
+        moveComponentOrigin = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
     }
 
     /**

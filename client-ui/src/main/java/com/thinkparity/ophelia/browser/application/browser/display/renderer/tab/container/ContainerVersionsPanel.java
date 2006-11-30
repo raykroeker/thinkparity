@@ -7,16 +7,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
@@ -29,10 +25,7 @@ import java.util.Map.Entry;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JList;
-import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
@@ -60,7 +53,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerModel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.dnd.ImportTxHandler;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
@@ -124,9 +116,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
     /** The scaled up background image on the right. */
     private BufferedImage scaledContainerBackgroundRight;
     
-    /** A transparent JPanel to assist with drag and drop. */
-    private final TransparentJPanel transparentJPanel;
-
     /** The version's content list model. */
     private final DefaultListModel versionsContentModel;
 
@@ -150,7 +139,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         this.logger = new Log4JWrapper();
         this.localization = new MainCellL18n("ContainerVersionsPanel");
         this.focusManager = new FocusManager();
-        this.transparentJPanel = new TransparentJPanel(this);
         initComponents();
         initMouseOverTrackers();
         initBackgroundImages();
@@ -213,9 +201,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
                     .get(version), publishedTo.get(version), publishedBy
                     .get(version)));
         }
-        // set up drag and drop
-        transparentJPanel.setTransferHandler(new ImportTxHandler(browser,
-                model, container));
         // If necessary, add filler rows to the versions list
         // so the backgrounds will paint in alternating colours
         if (versionsJList.getModel().getSize() <
@@ -226,8 +211,6 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
             }
         }
         selectFirstVersion();
-        // initialize the transparentJPanel
-        transparentJPanel.initialize(this);
     }
 
     /**
@@ -1236,92 +1219,10 @@ public final class ContainerVersionsPanel extends DefaultTabPanel {
         protected void showPopupMenu(final Component invoker, final MouseEvent e) {
         }       
     }
+
     private enum ClientProperty { SAVE_SELECTION }
 
     private enum ListType { CONTENT, VERSION }
-    /**
-     * Transparent JPanel class.
-     * 
-     * This transparent panel exists to catch drag and drop events for
-     * the containerVersionsPanel. An alternate approach might have been to call
-     * setTransferHandler() on ContainerVersionsPanel and on the two JLists inside it.
-     * This behaves poorly because the selection on the JList changes while dragging.
-     */
-    private class TransparentJPanel extends javax.swing.JPanel {
-        
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-        
-        /** Initialized flag. */
-        private Boolean initialized = Boolean.FALSE;
-        
-        /** JFrame ancestor */
-        private JFrame jFrameAncestor = null;
-        
-        public TransparentJPanel(final ContainerVersionsPanel containerVersionsPanel) {
-            super();
-            setBorder(null);
-            setOpaque(false);
-        }
-        
-        /**
-         * Initialize method, called after the containerVersionsPanel has been added
-         * to its parent.
-         * 
-         * @param containerVersionsPanel
-         *          The panel.
-         */
-        public void initialize(final ContainerVersionsPanel containerVersionsPanel) {
-            if (!initialized && (null != containerVersionsPanel.getParent())) {                
-                initialized = Boolean.TRUE;
-                
-                final Window window = SwingUtilities.getWindowAncestor(containerVersionsPanel);
-                if (window instanceof JFrame) {
-                    this.jFrameAncestor = (JFrame) window;
-                }
-                
-                jFrameAncestor.getLayeredPane().add(TransparentJPanel.this, JLayeredPane.PALETTE_LAYER);
-                reposition(containerVersionsPanel);
-                
-                containerVersionsPanel.getParent().addContainerListener(new ContainerListener() {
-                    public void componentAdded(final ContainerEvent e) { 
-                        if (e.getChild().equals(containerVersionsPanel)) {
-                            if (null != jFrameAncestor) {
-                                jFrameAncestor.getLayeredPane().add(TransparentJPanel.this, JLayeredPane.PALETTE_LAYER);
-                            }
-                        }
-                    }
-                    public void componentRemoved(final ContainerEvent e) {  
-                        if (e.getChild().equals(containerVersionsPanel)) {
-                            if (null != jFrameAncestor) {
-                                jFrameAncestor.getLayeredPane().remove(TransparentJPanel.this);
-                            }
-                        }
-                    }                
-                });
-                
-                containerVersionsPanel.addComponentListener(new ComponentAdapter() {
-                    @Override
-                    public void componentMoved(final ComponentEvent e) {
-                        reposition(containerVersionsPanel);
-                    }
-                    @Override
-                    public void componentResized(final ComponentEvent e) {
-                        reposition(containerVersionsPanel);
-                    }                
-                });
-            }
-        }
-
-        private void reposition(final ContainerVersionsPanel containerVersionsPanel) {
-            if (null != jFrameAncestor) {
-                final Point location = SwingUtilities.convertPoint(containerVersionsPanel.getParent(),
-                        containerVersionsPanel.getLocation(), jFrameAncestor);
-                setSize(containerVersionsPanel.getSize());
-                setLocation(location.x-1, location.y-1);
-            }
-        }
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList versionsContentJList;

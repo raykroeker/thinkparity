@@ -475,6 +475,10 @@ public final class ContainerModel extends TabPanelModel {
         if (TxUtils.containsJavaFileList(transferFlavors)) {
             if (isContainerPanel(tabPanel)) {
                 return canImportData(((ContainerPanel) tabPanel).getContainer());
+            } else if (isContainerVersionsPanel(tabPanel)) {
+                return canImportData(((ContainerVersionsPanel) tabPanel).getContainer());
+            } else {
+                throw Assert.createUnreachable("Unknown panel instance.");
             }
         }
         return false;
@@ -492,6 +496,10 @@ public final class ContainerModel extends TabPanelModel {
                 transferable, tabPanel);
         if (isContainerPanel(tabPanel)) {
             importData(((ContainerPanel) tabPanel).getContainer(), transferable);
+        } else if (isContainerVersionsPanel(tabPanel)) {
+            importData(((ContainerVersionsPanel) tabPanel).getContainer(), transferable);
+        } else {
+            throw Assert.createUnreachable("Unknown panel instance.");
         }
     }
 
@@ -730,6 +738,17 @@ public final class ContainerModel extends TabPanelModel {
      */
     private boolean isContainerPanel(final TabPanel tabPanel) {
         return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
+    }
+
+    /**
+     * Determine if the tab panel is a container versions tab panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if it is a container versions tab panel.
+     */
+    private boolean isContainerVersionsPanel(final TabPanel tabPanel) {
+        return ContainerVersionsPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**

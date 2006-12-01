@@ -181,16 +181,13 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         containerJLabel = createTab(TabId.CONTAINER, Boolean.TRUE).jLabel;
         contactJLabel = createTab(TabId.CONTACT, Boolean.FALSE).jLabel;
 
-        nameJLabel = new javax.swing.JLabel();
-        fillJLabel = new javax.swing.JLabel();
+        fillTopJLabel = new javax.swing.JLabel();
+        fillRightJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
         containerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_LeftmostTabSelected.png")));
-        containerJLabel.setMaximumSize(new java.awt.Dimension(76, 25));
-        containerJLabel.setMinimumSize(new java.awt.Dimension(76, 25));
-        containerJLabel.setPreferredSize(new java.awt.Dimension(76, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -198,9 +195,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(containerJLabel, gridBagConstraints);
 
         contactJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
-        contactJLabel.setMaximumSize(new java.awt.Dimension(76, 25));
-        contactJLabel.setMinimumSize(new java.awt.Dimension(76, 25));
-        contactJLabel.setPreferredSize(new java.awt.Dimension(76, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -208,7 +202,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
         add(contactJLabel, gridBagConstraints);
 
-        nameJLabel.setFont(Fonts.DefaultFontBold);
+        fillTopJLabel.setFont(Fonts.DefaultFontBold);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -217,46 +211,26 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 2, 0);
-        add(nameJLabel, gridBagConstraints);
+        add(fillTopJLabel, gridBagConstraints);
 
-        fillJLabel.setFont(Fonts.DefaultFontBold);
-        fillJLabel.setMaximumSize(new java.awt.Dimension(100, 18));
-        fillJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
-        fillJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
+        fillRightJLabel.setFont(Fonts.DefaultFontBold);
+        fillRightJLabel.setMaximumSize(new java.awt.Dimension(100, 18));
+        fillRightJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
+        fillRightJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.weightx = 1.0;
-        add(fillJLabel, gridBagConstraints);
+        add(fillRightJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+    
     /**
-     * Reload the display.  This will examine the current tab; then call the
-     * controller to display the correct avatar; as well as update the images
-     * representing the tabs.
-     *
+     * Reload the display.
      */
     private void reloadDisplay() {
-        reloadDisplayTab();
-        reloadDisplayName();
-    }
-    /**
-     * Reload the name label.
-     * 
-     */
-    private void reloadDisplayName() {
-        nameJLabel.setText("");
-/*        if(null != profile) {
-            nameJLabel.setText(profile.getName());
-        }*/
-    }
-    /**
-     * Reload the tab images.
-     * 
-     */
-    private void reloadDisplayTab() {
         for (final Tab tab : pluginTabs.values()) {
             tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE));
         }
@@ -266,7 +240,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         selectedTab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.TRUE, Boolean.FALSE));
     }
     
-
     /**
      * Get the appropriate tab icon.
      */
@@ -289,8 +262,8 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel contactJLabel;
     private javax.swing.JLabel containerJLabel;
-    private javax.swing.JLabel fillJLabel;
-    private javax.swing.JLabel nameJLabel;
+    private javax.swing.JLabel fillRightJLabel;
+    private javax.swing.JLabel fillTopJLabel;
     // End of variables declaration//GEN-END:variables
 
     /** A tab definition. */

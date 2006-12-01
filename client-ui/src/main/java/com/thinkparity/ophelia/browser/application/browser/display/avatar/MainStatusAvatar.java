@@ -273,14 +273,19 @@ public class MainStatusAvatar extends Avatar {
         switch(getInputConnection()) {
         case ONLINE:
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
-            if (null == profile)
-                connectionText = getString(Connection.ONLINE);
-            else
+            if (isDebugMode() && (null != profile)) {
                 connectionText = profile.getName();
+            } else {
+                connectionText = getString(Connection.ONLINE);
+            }
             break;
         case OFFLINE:
             connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
-            connectionText = getString(Connection.OFFLINE);
+            if (isDebugMode() && (null != profile)) {
+                connectionText = new StringBuffer(profile.getName()).append(": ").append(getString(Connection.OFFLINE)).toString();
+            } else {
+                connectionText = getString(Connection.OFFLINE);
+            }
             break;
         default:
             throw Assert.createUnreachable("UNKNOWN CONNECTION");

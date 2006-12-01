@@ -60,6 +60,11 @@ public class DisplayInfoAvatar extends Avatar {
         return Boolean.FALSE;
     }
 
+    @Override
+    public void installResizer() {
+        // Don't install the resizer on the about dialog.
+    }
+
     private void initVersionJLabel() {
         versionJLabel.setText(getString("Version", new Object[] { Version.getVersion() }));
     }

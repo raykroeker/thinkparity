@@ -3,12 +3,16 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -100,9 +104,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         setOpaque(false);
         rightJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchRight.png")));
         rightJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        rightJLabel.setMaximumSize(new java.awt.Dimension(25, 19));
-        rightJLabel.setMinimumSize(new java.awt.Dimension(25, 19));
-        rightJLabel.setPreferredSize(new java.awt.Dimension(25, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -127,20 +128,28 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
                 searchJTextFieldFocusLost(evt);
             }
         });
+        searchJTextField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMouseExited(evt);
+            }
+        });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.ipadx = 92;
+        gridBagConstraints.ipadx = 109;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.insets = new java.awt.Insets(11, 0, 4, 0);
         add(searchJTextField, gridBagConstraints);
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
         leftJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        leftJLabel.setMaximumSize(new java.awt.Dimension(25, 19));
-        leftJLabel.setMinimumSize(new java.awt.Dimension(25, 19));
-        leftJLabel.setPreferredSize(new java.awt.Dimension(25, 19));
+        leftJLabel.setMaximumSize(new java.awt.Dimension(8, 19));
+        leftJLabel.setMinimumSize(new java.awt.Dimension(8, 19));
+        leftJLabel.setPreferredSize(new java.awt.Dimension(8, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -151,14 +160,30 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void searchJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
+    private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
+        ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (null!=window) {
+            window.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }// GEN-LAST:event_searchJTextFieldMouseExited
+
+    private void searchJTextFieldMouseEntered(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseEntered
+        ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (null!=window) {
+            window.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        }
+    }// GEN-LAST:event_searchJTextFieldMouseEntered
+
+    private void searchJTextFieldFocusLost(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
         if (null != getParent()) {
             // Note repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
             getParent().repaint();
         }
     }//GEN-LAST:event_searchJTextFieldFocusLost
 
-    private void searchJTextFieldFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
+    private void searchJTextFieldFocusGained(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
         repaint();
     }//GEN-LAST:event_searchJTextFieldFocusGained
     

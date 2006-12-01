@@ -4,12 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
@@ -54,6 +49,12 @@ public class Resizer {
     
     /** Flag to indicate if the resizer is enabled or not. */
     private Boolean enabled = Boolean.TRUE;
+    
+    /** The original mouse position when start a move. */
+    private static Point moveMouseOrigin;
+    
+    /** The original component position when start a move. */
+    private static Point moveComponentOrigin;
 
     /** Resize mode. */
     private ResizeDirection resizeDirection = ResizeDirection.NONE;
@@ -272,14 +273,17 @@ public class Resizer {
     }
     
     private void formMouseDraggedMove(final java.awt.event.MouseEvent evt, final Component component) {
-        final Component componentToMove;
-        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
-            componentToMove = component;
-        } else {
-            componentToMove = SwingUtilities.getWindowAncestor(component);
-        }
+        final Component componentToMove = getComponentAncestor(component);
+        final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+        final Point componentLocation = componentToMove.getLocation();
         
-        Point moveOffset = new Point(evt.getPoint().x-resizeOffsetX, evt.getPoint().y-resizeOffsetY);
+        final Point moveOffset = new Point(
+                (mouseLocation.x-moveMouseOrigin.x) - (componentLocation.x-moveComponentOrigin.x),
+                (mouseLocation.y-moveMouseOrigin.y) - (componentLocation.y-moveComponentOrigin.y));
+        
+        // The following line would almost work, but it creates jittery behavior.
+        // final Point moveOffset = new Point(evt.getPoint().x-resizeOffsetX, evt.getPoint().y-resizeOffsetY);
+        
         move(componentToMove, moveOffset);
     }
     
@@ -526,6 +530,8 @@ public class Resizer {
             resizeOffsetY = evt.getPoint().y;
             if ((resizeDirection == ResizeDirection.NONE) && (supportMouseMove)) {
                 moveDragging = Boolean.TRUE;
+                moveMouseOrigin = MouseInfo.getPointerInfo().getLocation();
+                moveComponentOrigin = getComponentAncestor(component).getLocation();
             } else if (resizeDirection != ResizeDirection.NONE) {
                 resizeDragging = Boolean.TRUE;
             }
@@ -612,6 +618,16 @@ public class Resizer {
 
             initialized = Boolean.TRUE;
         }
+    }
+    
+    private Component getComponentAncestor(final Component component) {
+        final Component ancestor;
+        if ((component instanceof JDialog) || (component instanceof BrowserWindow)) {
+            ancestor = component;
+        } else {
+            ancestor = SwingUtilities.getWindowAncestor(component);
+        }
+        return ancestor;
     }
       
     private enum ResizeDirection { E, N, NE, NONE, NW, S, SE, SW, W }

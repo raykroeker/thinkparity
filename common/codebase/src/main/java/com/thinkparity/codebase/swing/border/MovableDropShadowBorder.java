@@ -11,8 +11,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 
-import com.thinkparity.ophelia.browser.Constants.Images;
-
 /**
  * This is a very specific border suited to dialogs.
  * 
@@ -44,9 +42,6 @@ public class MovableDropShadowBorder extends AbstractBorder {
         SHADOW_BOTTOM = 6;
         SHADOW_RIGHT = 6;
     }
-    
-    /** The scaled up background image on the right. */
-    private BufferedImage scaledShadowImageTop = null;
     
     /** A screen capture of behind the component <code>BufferedImage</code>.*/
     private BufferedImage screenCapture = null;
@@ -136,8 +131,6 @@ public class MovableDropShadowBorder extends AbstractBorder {
             }
             finally { gMainImage.dispose(); }
         }
-        
-        //prepareShadowImages(component.getWidth(), component.getHeight());
     }
     
     /**
@@ -251,32 +244,6 @@ public class MovableDropShadowBorder extends AbstractBorder {
             gMainImage.drawImage(screenCapture, point.x, point.y, null);
         }
         finally { gMainImage.dispose(); }     
-    }
-    
-    /**
-     * Prepare shadow images.
-     * 
-     * @param width
-     *          Width of component
-     * @param height
-     *          Height of component
-     */
-    private void prepareShadowImages(final int width, final int height) {
-        if ((null == scaledShadowImageTop) || scaledShadowImageTop.getWidth() < width) {
-            if (width <= Images.BrowserTitle.DIALOG_SHADOW_TOP.getWidth()) {
-                scaledShadowImageTop = Images.BrowserTitle.DIALOG_SHADOW_TOP;
-            } else {
-                final int imageHeight = Images.BrowserTitle.DIALOG_SHADOW_TOP.getHeight();
-                final Image image = Images.BrowserTitle.DIALOG_SHADOW_TOP.getScaledInstance(
-                        width, imageHeight, Image.SCALE_FAST);
-                scaledShadowImageTop = new BufferedImage(width, imageHeight, BufferedImage.TYPE_INT_RGB);
-                final Graphics g2 = scaledShadowImageTop.createGraphics();
-                try {
-                    g2.drawImage(image, 0, 0, null);
-                }
-                finally { g2.dispose(); }
-            }
-        }
     }
 
     /**
@@ -480,53 +447,7 @@ public class MovableDropShadowBorder extends AbstractBorder {
             g2.draw(new Line2D.Double(x+1, y+1, x+1, y+1));
             g2.draw(new Line2D.Double(x+width-SHADOW_RIGHT, y+SHADOW_TOP-1, x+width-SHADOW_RIGHT+4, y+SHADOW_TOP+3));
             g2.draw(new Line2D.Double(x+SHADOW_LEFT-1, y+height-SHADOW_BOTTOM, x+SHADOW_LEFT+3, y+height-SHADOW_BOTTOM+4));
-            
-            
-            
-/*            g2.setComposite(makeComposite(0.05f));
-            g2.draw(new Line2D.Double(x, y, x + width, y));
-            g2.draw(new Line2D.Double(x, y, x, y + height));
-            
-            g2.setComposite(makeComposite(0.1f));
-            g2.draw(new Line2D.Double(x, y+1, x + width, y+1));
-            g2.draw(new Line2D.Double(x+1, y, x+1, y + height));
-            
-            g2.setComposite(makeComposite(0.15f));
-            g2.draw(new Line2D.Double(x, y+2, x + width, y+2));
-            g2.draw(new Line2D.Double(x+2, y, x+2, y + height));*/
-            
-            // Draw the shadow, four lines, from inner to outer.
-/*            g2.setColor(new Color(0, 0, 0, 255));
-            
-            g2.setComposite(makeComposite(0.6f));
-            g2.draw(new Line2D.Double(x + width - 4, y + 7, x + width - 4, y + height - 5));   // right
-            g2.draw(new Line2D.Double(x + 7, y + height - 4, x + width - 5, y + height - 4));  // bottom
-            
-            g2.setComposite(makeComposite(0.4f));
-            g2.draw(new Line2D.Double(x + width - 3, y + 7, x + width - 3, y + height - 4));   // right
-            g2.draw(new Line2D.Double(x + width - 4, y + 6, x + width - 4, y + 6));            // soften top right
-            g2.draw(new Line2D.Double(x + 7, y + height - 3, x + width - 4, y + height - 3));  // bottom
-            g2.draw(new Line2D.Double(x + 6, y + height - 4, x + 6, y + height - 4 ));         // soften bottom left
-            
-            g2.setComposite(makeComposite(0.2f));
-            g2.draw(new Line2D.Double(x + width - 2, y + 7, x + width - 2, y + height - 3));   // right
-            g2.draw(new Line2D.Double(x + width - 4, y + 5, x + width - 3, y + 6));            // soften top right
-            g2.draw(new Line2D.Double(x + 7, y + height - 2, x + width - 3, y + height - 2));  // bottom
-            g2.draw(new Line2D.Double(x + 5, y + height - 4, x + 6, y + height - 3 ));         // soften bottom left 
-            
-            g2.setComposite(makeComposite(0.1f));
-            g2.draw(new Line2D.Double(x + width - 1, y + 7, x + width - 1, y + height - 2));   // right
-            g2.draw(new Line2D.Double(x + width - 4, y + 4, x + width - 2, y + 6));            // soften top right
-            g2.draw(new Line2D.Double(x + 7, y + height - 1, x + width - 2, y + height - 1));  // bottom
-            g2.draw(new Line2D.Double(x + 4, y + height - 4, x + 6, y + height - 2 ));         // soften bottom left
-            
-            // Soften the shadow at the bottom right corner
-            g2.setComposite(makeComposite(0.5f));
-            g2.draw(new Line2D.Double(x + width - 4, y + height - 4, x + width - 4, y + height - 4));
-            g2.setComposite(makeComposite(0.3f));
-            g2.draw(new Line2D.Double(x + width - 3, y + height - 3, x + width - 3, y + height - 3));
-            g2.setComposite(makeComposite(0.15f));
-            g2.draw(new Line2D.Double(x + width - 2, y + height - 2, x + width - 2, y + height - 2));*/
+
         } finally {
             g2.dispose();
         }

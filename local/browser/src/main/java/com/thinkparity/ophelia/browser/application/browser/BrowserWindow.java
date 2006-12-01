@@ -187,6 +187,7 @@ public class BrowserWindow extends AbstractJFrame {
      */
     private void initMenu(final Boolean maximized) {
         final JMenuBar menuBar = new BrowserMenuBar(browser, maximized);
+        addMoveListener(menuBar);
         setJMenuBar(menuBar);
     }
     

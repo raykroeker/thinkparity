@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
@@ -44,6 +45,37 @@ public abstract class AbstractJFrame extends JFrame {
 		this.containerTools = new ContainerTools(this);
         this.logger = Logger.getLogger(getClass());
 	}
+
+    /**
+     * Add a move listener to the component for the panel. A move listener will
+     * allow the user will be able to click on and drag the component in order
+     * to move the underlying window ancestor.
+     * 
+     * @param jComponent
+     *            A <code>JComponent</code>.
+     */
+    protected final void addMoveListener(final JComponent jComponent) {
+        if (null == moveHelper) {
+            moveHelper = new AbstractJPanelMoveHelper(this);
+        }
+        moveHelper.addListener(jComponent);
+    }
+
+    /**
+     * Remove a move listener from a component for the panel.
+     * 
+     * @param jComponent
+     *            A <code>JPanel</code>.
+     * @see AbstractJPanel#addMoveListener(JComponent)
+     */
+    protected final void removeMoveListener(final JComponent jComponent) {
+        if (null == moveHelper)
+            return;
+        moveHelper.removeListener(jComponent);
+    }
+
+    /** A helper class dedicated to encapsulation of a move visitor. */
+    private AbstractJPanelMoveHelper moveHelper;
 
 	/**
 	 * Determine whether the user input for the frame is valid.

@@ -138,7 +138,7 @@ public class BrowserMenuBar extends JMenuBar {
         this.browser = browser;
         this.localization = new JFrameLocalization("BrowserWindow.Menu");   
         this.popupItemFactory = PopupItemFactory.getInstance();
-        new Resizer(browser, this, Boolean.TRUE, Resizer.ResizeEdges.TOP);
+        new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
         
         // Double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {

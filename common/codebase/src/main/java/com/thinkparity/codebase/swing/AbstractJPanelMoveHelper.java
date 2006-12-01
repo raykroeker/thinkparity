@@ -10,7 +10,6 @@ import java.awt.Window;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
@@ -20,6 +19,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * TODO Rename this.  It's not longer specific to the jpanel abstraction.
  */
 final class AbstractJPanelMoveHelper {
 
@@ -51,14 +51,32 @@ final class AbstractJPanelMoveHelper {
 
     /**
      * Create AbstractJPanelMoveHelper.
-     * 
-     * @param jPanel
-     *            A <code>JPanel</code>.
+     *
      */
-    AbstractJPanelMoveHelper(final JPanel jPanel, final int stickyPixels) {
+    private AbstractJPanelMoveHelper() {
         super();
         this.logger = new Log4JWrapper();
-        this.stickyPixels = stickyPixels;
+        this.stickyPixels = 25;
+    }
+
+    /**
+     * Create AbstractJPanelMoveHelper.
+     * 
+     * @param jPanel
+     *            An <code>AbstractJPanel</code>.
+     */
+    AbstractJPanelMoveHelper(final AbstractJPanel jPanel) {
+        this();
+    }
+
+    /**
+     * Create AbstractJPanelMoveHelper.
+     * 
+     * @param jFrame
+     *            An <code>AbstractJFrame</code>.
+     */
+    AbstractJPanelMoveHelper(final AbstractJFrame jFrame) {
+        this();
     }
 
     /**

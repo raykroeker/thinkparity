@@ -9,7 +9,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -124,7 +130,7 @@ public class AbstractJPanel extends JPanel {
      */
     protected final void addMoveListener(final JComponent jComponent) {
         if (null == moveHelper) {
-            moveHelper = new AbstractJPanelMoveHelper(this, 25);
+            moveHelper = new AbstractJPanelMoveHelper(this);
         }
         moveHelper.addListener(jComponent);
     }

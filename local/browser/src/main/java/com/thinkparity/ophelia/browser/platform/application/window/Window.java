@@ -88,6 +88,7 @@ public abstract class Window extends AbstractJDialog {
         setLocation(calculateLocation());
         roundCorners();
         invalidate();
+        initBorder();
         setVisible(true);
 	}
 
@@ -183,10 +184,16 @@ public abstract class Window extends AbstractJDialog {
             } catch (final AWTException awtx) {
                 throw new BrowserException("Cannot instantiate window border.", awtx);
             }
-        } else {
-            return border;
         }
         return border;
+    }
+        
+    /**
+     * Initialize the border. This should be done just
+     * before the dialog is made visible.
+     */
+    private void initBorder() {
+        getBorder().initialize();
     }
 
     /**
@@ -194,7 +201,7 @@ public abstract class Window extends AbstractJDialog {
      */
     @Override
     public void setLocation(final int x, final int y) {
-        getBorder().settingLocation(x, y);
+        getBorder().settingLocation(x, y);    
         super.setLocation(x, y);
     }
 
@@ -215,6 +222,4 @@ public abstract class Window extends AbstractJDialog {
         getBorder().settingSize(width, height);
         super.setSize(width, height);
     }
-    
-    
 }

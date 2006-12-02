@@ -2,6 +2,9 @@
 
 <Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+      <Connection code="Colors.Browser.List.LIST_CONTAINERS_BACKGROUND" type="code"/>
+    </Property>
     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[32767, 23]"/>
     </Property>
@@ -58,6 +61,9 @@
           <Dimension value="[16, 16]"/>
         </Property>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="iconJLabel.addMouseListener(new MouseAdapter() {&#xa;    @Override&#xa;    public void mouseClicked(final MouseEvent e) {&#xa;        if (container.isBookmarked()) {&#xa;            final Data data = new Data(1);&#xa;            data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());&#xa;            REMOVE_BOOKMARK.invoke(data);&#xa;        } else {&#xa;            final Data data = new Data(1);&#xa;            data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());&#xa;            ADD_BOOKMARK.invoke(data);&#xa;        }&#xa;    }&#xa;    @Override&#xa;    public void mouseEntered(final MouseEvent e) {&#xa;        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));&#xa;    }&#xa;    @Override&#xa;    public void mouseExited(final MouseEvent e) {&#xa;        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));&#xa;    }           &#xa;});"/>
+      </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="1" gridY="0" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="6" anchor="10" weightX="0.0" weightY="0.0"/>

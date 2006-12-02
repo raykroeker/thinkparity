@@ -151,6 +151,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_PUBLISH_VERSION:
             action = new com.thinkparity.ophelia.browser.platform.action.container.PublishVersion(browser);
             break;
+        case CONTAINER_READ_VERSION:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ReadVersion(browser);
+            break;
         case CONTAINER_REMOVE_BOOKMARK:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark(browser);
             break;
@@ -175,7 +178,8 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_UNSUBSCRIBE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Unsubscribe(browser);
             break;
-		case DOCUMENT_OPEN:
+
+        case DOCUMENT_OPEN:
             action = new com.thinkparity.ophelia.browser.platform.action.document.Open(browser);
             break;
 		case DOCUMENT_OPEN_VERSION:
@@ -228,7 +232,7 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_VERIFY_EMAIL:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail(browser);
             break;
-            
+
         default:
 			throw Assert.createUnreachable("UNKNOWN ACTION ID");
 		}

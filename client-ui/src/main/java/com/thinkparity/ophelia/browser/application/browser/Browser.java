@@ -69,6 +69,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.Export;
 import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.Publish;
 import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
@@ -1325,7 +1326,23 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-    
+
+    /**
+     * Run the read container version action.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    public void runReadContainerVersion(final Long containerId,
+            final Long versionId) {
+        final Data data = new Data(2);
+        data.set(ReadVersion.DataKey.CONTAINER_ID, containerId);
+        data.set(ReadVersion.DataKey.VERSION_ID, versionId);
+        invoke(ActionId.CONTAINER_READ_VERSION, data);
+    }
+
 	/**
      * Run the remove bookmark action.
      * 

@@ -17,6 +17,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
@@ -33,6 +35,23 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @version 1.1.2.1
  */
 public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
+
+    /**
+     * A client property key <code>String</code> mapping to the panels'
+     * mouse listeners.
+     */
+    private static final String CPK_PANEL_MOUSE_LISTENER;
+
+    /**
+     * A client property key <code>String</code> mapping to the panels'
+     * transfer handlers.
+     */
+    private static final String CPK_PANEL_TRANSFER_HANDLER;
+
+    static {
+        CPK_PANEL_MOUSE_LISTENER = "TabPanelAvatar#panelMouseListener";
+        CPK_PANEL_TRANSFER_HANDLER = "TabPanelAvatar#panelTransferHandler";
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel columnHeaderJPanel;
@@ -61,6 +80,12 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private final TransferHandler panelTransferHandler;
 
     /**
+     * A <code>MouseInputListener</code> which dispatches all mouse events to
+     * the model.
+     */
+    private final MouseInputListener panelMouseListener;
+
+    /**
      * Creates TabPanelAvatar.
      * 
      */
@@ -75,6 +100,22 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.panelConstraints = new GridBagConstraints();
         this.panelConstraints.fill = GridBagConstraints.BOTH;
         this.panelConstraints.gridx = 0;
+        this.panelMouseListener = new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                model.toggleSelection((TabPanel) e.getSource(), e);
+            }
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                if (e.isPopupTrigger())
+                    model.showPopupMenu((TabPanel) e.getSource(), e);
+            }
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                if (e.isPopupTrigger())
+                    model.showPopupMenu((TabPanel) e.getSource(), e);
+            }
+        };
         this.panelTransferHandler = new TransferHandler() {
             @Override
             public boolean canImport(final JComponent comp,
@@ -170,7 +211,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
      * @param sortDirection
      *          The direction of the sort.
      */
-    protected void triggerSort(final SortColumn sortColumn, final SortDirection sortDirection) {       
+    protected void triggerSort(final SortColumn sortColumn,
+            final SortDirection sortDirection) {       
     }
     
     /**
@@ -192,12 +234,27 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
      *            A <code>TabPanel</code>.
      */
     private void addPanel(final int index, final TabPanel panel) {
-        // setup a transfer handler for each panel added
-        ((JComponent) panel).setTransferHandler(panelTransferHandler);
+        final JComponent jComponent = (JComponent) panel;
+        // property to protect against adding it twice
+        final MouseInputListener mouseInputListener =
+            (MouseInputListener) jComponent.getClientProperty(CPK_PANEL_MOUSE_LISTENER);
+        if (null == mouseInputListener) {
+            // setup a mouse listener for each panel added
+            jComponent.addMouseListener(panelMouseListener);
+            jComponent.putClientProperty(CPK_PANEL_MOUSE_LISTENER, panelMouseListener);
+        }
+        // property to protect against adding it twice
+        final TransferHandler transferHandler =
+            (TransferHandler) jComponent.getClientProperty(CPK_PANEL_TRANSFER_HANDLER);
+        if (null == transferHandler) {
+            // setup a transfer handler for each panel added
+            jComponent.setTransferHandler(panelTransferHandler);
+            jComponent.putClientProperty(CPK_PANEL_TRANSFER_HANDLER, panelTransferHandler);
+        }
         panelConstraints.gridy = index;
         tabJPanel.add((Component) panel, panelConstraints.clone(), index);
     }
-    
+
     private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMousePressed
     }// GEN-LAST:event_headerJLabelMousePressed
     
@@ -333,10 +390,12 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
              */
             public void contentsChanged(final ListDataEvent e) {
                 debug();
+                removeFill();
                 for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
                     removePanel(i);
                     addPanel(i, (TabPanel) listModel.get(i));
                 }
+                addFill(listModel.size());
                 reloadPanels();
             }
             /**
@@ -346,11 +405,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             public void intervalAdded(final ListDataEvent e) {
                 debug();
                 removeFill();
-                int startIndex = e.getIndex0();
-                if (startIndex > 0) {
-                    startIndex--;
-                }
-                for (int i = startIndex; i < listModel.size(); i++) {
+                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
                     addPanel(i, (TabPanel) listModel.get(i));
                 }
                 addFill(listModel.size());
@@ -363,13 +418,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             public void intervalRemoved(final ListDataEvent e) {
                 debug();
                 removeFill();
-                int startIndex = e.getIndex0();
-                if (startIndex > 0) {
-                    startIndex--;
-                }
-                removePanel(e.getIndex0());
-                for (int i = startIndex; i < listModel.size(); i++) {
-                    addPanel(i, (TabPanel) listModel.get(i));
+                for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                    removePanel(i);
                 }
                 addFill(listModel.size());
                 reloadPanels();
@@ -406,6 +456,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private void removePanel(final int index) {
         tabJPanel.remove(index);
     }
+
     private void sortJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_sortJLabelMousePressed
         Point location = sortJLabel.getLocation();
         location.y += sortJLabel.getHeight();
@@ -413,13 +464,17 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             new SortPopup(sortJLabel.getWidth()).show(this, location);
         }
     }//GEN-LAST:event_sortJLabelMousePressed
+
     private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
         if (e.isPopupTrigger()) {
             triggerPopup(tabJPanel, e);
         }
     }// GEN-LAST:event_tabJPanelMouseReleased
+
     public enum SortColumn { BOOKMARK, CONTAINER_DATE, CONTAINER_NAME, DRAFT_OWNER, NONE }
+
     public enum SortDirection { DOWN, NONE, UP }
+
     private class SortPopup {
         
         /** A <code>PopupItemFactory</code>. */

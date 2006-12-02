@@ -5,8 +5,11 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
+
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -22,13 +25,16 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
  */
 public abstract class TabModel {
 
-    /** The tab model's content provider. */
+    /** The model's <code>ContentProvider</code>. */
     protected ContentProvider contentProvider;
 
-    /** The tab model's input. */
+    /** The model's input <code>Object</code>. */
     protected Object input;
 
-    /** The thinkParity application registry. */
+    /** An apache logger wrapper. */
+    protected final Log4JWrapper logger;
+
+    /** The thinkParity <code>ApplicationRegistry</code>. */
     private final ApplicationRegistry applicationRegistry;
 
     /**
@@ -47,6 +53,7 @@ public abstract class TabModel {
         super();
         this.applicationRegistry = new ApplicationRegistry();
         this.initialized = Boolean.FALSE;
+        this.logger = new Log4JWrapper(getClass());
     }
 
     /**
@@ -196,10 +203,30 @@ public abstract class TabModel {
     protected void removeSearch() {}
 
     /**
+     * Show a popup (context) menu for a panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void showPopupMenu(final TabPanel tabPanel, final MouseEvent e) {}
+
+    /**
      * Synchronize the internal state of the model with the display.
      *
      */
     protected abstract void synchronize();
+
+    /**
+     * Toggle selection of a panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void toggleSelection(final TabPanel tabPanel, final MouseEvent e) {}
 
     /**
      * Obtain the input search expression.

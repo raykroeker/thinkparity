@@ -238,9 +238,6 @@ public class PopupItemFactory extends AbstractFactory {
      */
     private class ActionWrapper extends javax.swing.AbstractAction {
 
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-
         /** A thinkParity action. */
         private final AbstractAction action;
 

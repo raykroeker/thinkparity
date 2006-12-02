@@ -110,15 +110,15 @@ public final class Constants {
             }
         }
         public static final class Swing {
-            public static final Color DEFAULT_LIST_SELECTION_BG = new Color(207, 221, 241, 255);
+            public static final Color DEFAULT_LIST_SELECTION_BG = new Color(201, 208, 218, 255);
             public static final Color DEFAULT_LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_BG = new Color(245, 246, 247, 255);
+            public static final Color MENU_BG = new Color(230, 236, 241, 255);
             public static final Color MENU_FG = Color.BLACK;
-            public static final Color MENU_ITEM_BG = new Color(245, 246, 247, 255);
+            public static final Color MENU_ITEM_BG = new Color(230, 236, 241, 255);
             public static final Color MENU_ITEM_FG = Color.BLACK;
-            public static final Color MENU_ITEM_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_ITEM_SELECTION_BG = new Color(201, 208, 218, 255);
             public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_SELECTION_BG = new Color(187, 183, 199, 255);
+            public static final Color MENU_SELECTION_BG = new Color(201, 208, 218, 255);
             public static final Color MENU_SELECTION_FG = Color.BLACK;
         }
     }
@@ -238,14 +238,16 @@ public final class Constants {
                 ImageIOUtil.read("ContainerBackgroundLeft_1Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_2Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundLeft_3Selected.png"),
-                ImageIOUtil.read("ContainerBackgroundLeft_4Selected.png")
+                ImageIOUtil.read("ContainerBackgroundLeft_4Selected.png"),
+                ImageIOUtil.read("ContainerBackgroundLeft_5Selected.png")
             };
             public static final BufferedImage[] CONTAINER_BACKGROUND_MID = new BufferedImage[] {
                 ImageIOUtil.read("ContainerBackgroundMid_0Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_1Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_2Selected.png"),
                 ImageIOUtil.read("ContainerBackgroundMid_3Selected.png"),
-                ImageIOUtil.read("ContainerBackgroundMid_4Selected.png")
+                ImageIOUtil.read("ContainerBackgroundMid_4Selected.png"),
+                ImageIOUtil.read("ContainerBackgroundMid_5Selected.png")
             };
             public static final BufferedImage CONTAINER_BACKGROUND_RIGHT =
                 ImageIOUtil.read("ContainerBackgroundRight.png");

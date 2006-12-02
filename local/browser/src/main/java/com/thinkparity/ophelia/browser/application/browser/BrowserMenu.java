@@ -40,8 +40,7 @@ public class BrowserMenu extends JMenu {
         setBackground(new Color(255, 255, 255, 0));
         
         // Set up the shadow border on the popup menu
-        final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
-        dropShadowBorder = new DropShadowBorder(colors, 3);
+        dropShadowBorder = new DropShadowBorder();
         getPopupMenu().setBorder(dropShadowBorder);
         
         getPopupMenu().addPopupMenuListener(new PopupMenuListener() {

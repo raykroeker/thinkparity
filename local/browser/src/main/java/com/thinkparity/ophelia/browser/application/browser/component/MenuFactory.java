@@ -151,8 +151,7 @@ public class MenuFactory {
         
         public ShadowPopupMenu() throws AWTException {
             super();
-            final Color[] colors = {Colors.Browser.Menu.MENU_BORDER, Colors.Swing.MENU_BG, Colors.Swing.MENU_BG};
-            dropShadowBorder = new DropShadowBorder(colors, 3);
+            dropShadowBorder = new DropShadowBorder();
             setBorder(dropShadowBorder);
         }
 

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -194,10 +196,12 @@ public class BrowserMenuBar extends JMenuBar {
         signUpJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
             }
             @Override
-            public void mouseExited(final MouseEvent e) { 
+            public void mouseExited(final MouseEvent e) {
+                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ICON);
             }
             @Override

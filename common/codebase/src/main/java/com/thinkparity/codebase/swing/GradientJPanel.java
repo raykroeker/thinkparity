@@ -9,18 +9,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JPanel;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class GradientJPanel extends JPanel {
-
-	/**
-	 * @see java.io.Serializable
-	 */
-	private static final long serialVersionUID = 1;
+public class GradientJPanel extends AbstractJPanel {
 
 	/**
 	 * The gradient image buffer to paint on the panel.

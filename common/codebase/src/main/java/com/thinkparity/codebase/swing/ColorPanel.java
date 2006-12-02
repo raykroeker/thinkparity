@@ -6,18 +6,11 @@ package com.thinkparity.codebase.swing;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.JPanel;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ColorPanel extends JPanel {
-
-	/**
-	 * @see java.io.Serializable
-	 */
-	private static final long serialVersionUID = 1;
+public class ColorPanel extends AbstractJPanel {
 
 	/**
 	 * The background color of the panel.

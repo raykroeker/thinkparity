@@ -56,7 +56,7 @@ public abstract class AbstractJFrame extends JFrame {
      */
     protected final void addMoveListener(final JComponent jComponent) {
         if (null == moveHelper) {
-            moveHelper = new AbstractJPanelMoveHelper(this);
+            moveHelper = new JComponentMoveHelper(this);
         }
         moveHelper.addListener(jComponent);
     }
@@ -75,7 +75,7 @@ public abstract class AbstractJFrame extends JFrame {
     }
 
     /** A helper class dedicated to encapsulation of a move visitor. */
-    private AbstractJPanelMoveHelper moveHelper;
+    private JComponentMoveHelper moveHelper;
 
 	/**
 	 * Determine whether the user input for the frame is valid.

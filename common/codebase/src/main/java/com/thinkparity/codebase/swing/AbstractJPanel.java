@@ -77,7 +77,7 @@ public class AbstractJPanel extends JPanel {
 	};
 
 	/** A helper class dedicated to encapsulation of a move visitor. */
-    private AbstractJPanelMoveHelper moveHelper;
+    private JComponentMoveHelper moveHelper;
 
 	/**
 	 * Create a AbstractJPanel.
@@ -130,7 +130,7 @@ public class AbstractJPanel extends JPanel {
      */
     protected final void addMoveListener(final JComponent jComponent) {
         if (null == moveHelper) {
-            moveHelper = new AbstractJPanelMoveHelper(this);
+            moveHelper = new JComponentMoveHelper(this);
         }
         moveHelper.addListener(jComponent);
     }

@@ -64,6 +64,16 @@ public class SwingUtil {
 	}
 
     /**
+     * Obtain the primary desktop bounds.
+     * 
+     * @return The primary desktop bounds <code>Rectangle</code>.
+     */
+    public static Rectangle getPrimaryDesktopBounds() {
+        return GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getMaximumWindowBounds();
+    }
+
+    /**
      * Determine whether or not the region contains the point.
      * 
      * @param region

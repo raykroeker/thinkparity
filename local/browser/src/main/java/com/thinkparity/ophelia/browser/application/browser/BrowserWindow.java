@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -13,9 +20,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.swing.AbstractJFrame;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
@@ -26,6 +32,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -123,8 +131,7 @@ public class BrowserWindow extends AbstractJFrame {
         final Dimension size = persistence.get("size", getMainWindowSize());
         mainWindowSize.setSize(size);
         if (maximized) {
-            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            setMaximizedBounds(env.getMaximumWindowBounds());
+            setMaximizedBounds(SwingUtil.getPrimaryDesktopBounds());
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         }        
         setResizable(true);

@@ -16,24 +16,37 @@ import javax.swing.border.AbstractBorder;
  * @version $Revision$
  */
 public class DropShadowBorder extends AbstractBorder {
+    
+    /** Dimensions of the shadow border. */
+    private static int SHADOW_TOP;
+    private static int SHADOW_LEFT;
+    private static int SHADOW_BOTTOM;
+    private static int SHADOW_RIGHT;
+    
+    static {
+        SHADOW_TOP = 1;
+        SHADOW_LEFT = 1;
+        SHADOW_BOTTOM = 4;
+        SHADOW_RIGHT = 4;
+    }
 
     /** The bottom border <code>Color[]</code>. */
     private final Color[] bottomColors;
 
     /** The bottom border thickness <code>Integer</code>. */
-    private Integer bottomThickness = 1;
+    private Integer bottomThickness;
 
     /** The left border <code>Color[]</code>. */
     private final Color[] leftColors;
 
     /** The left border thickness <code>Integer</code>. */
-    private Integer leftThickness = 1;
+    private Integer leftThickness;
     
     /** The right border <code>Color[]</code>. */
     private final Color[] rightColors;
 
     /** The right border thickness <code>Integer</code>. */
-    private Integer rightThickness = 1;
+    private Integer rightThickness;
 
     /** The swing <code>Robot</code>. */
     private final Robot robot;
@@ -41,14 +54,36 @@ public class DropShadowBorder extends AbstractBorder {
     /** A screen capture <code>BufferedImage</code> of the bottom side of the menu.*/
     private BufferedImage screenCaptureBottom = null;
     
+    /** A screen capture <code>BufferedImage</code> of the left side of the menu.*/
+    private BufferedImage screenCaptureLeft = null;
+    
     /** A screen capture <code>BufferedImage</code> of the right side of the menu.*/
     private BufferedImage screenCaptureRight = null;
+    
+    /** A screen capture <code>BufferedImage</code> of the top side of the menu.*/
+    private BufferedImage screenCaptureTop = null;
     
     /** The top border <code>Color[]</code>. */
     private final Color[] topColors;
 
     /** The top border thickness <code>Integer</code>. */
-    private Integer topThickness = 1;
+    private Integer topThickness;
+    
+    /**
+     * Create DropShadowBorder.
+     */
+    public DropShadowBorder() throws AWTException {
+        super();
+        this.topThickness = 0;
+        this.leftThickness = 0;
+        this.bottomThickness = 0;
+        this.rightThickness = 0;
+        this.robot = new Robot();
+        this.topColors = null;
+        this.leftColors = null;
+        this.bottomColors = null;
+        this.rightColors = null;
+    }
 
     /**
      * Create DropShadowBorder.
@@ -77,10 +112,10 @@ public class DropShadowBorder extends AbstractBorder {
     /**
      * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
      * 
-     */
+     */    
     public Insets getBorderInsets(final Component c) {
-        final int borderAdjust = 4;
-        return new Insets(topThickness, leftThickness, bottomThickness + borderAdjust, rightThickness + borderAdjust);
+        return new Insets(topThickness + SHADOW_TOP, leftThickness + SHADOW_LEFT,
+                bottomThickness + SHADOW_BOTTOM, rightThickness + SHADOW_RIGHT);
     }
 
     /**
@@ -89,11 +124,10 @@ public class DropShadowBorder extends AbstractBorder {
      * 
      */
     public Insets getBorderInsets(final Component c, Insets insets) {
-        final int borderAdjust = 4;
-        insets.top = topThickness;
-        insets.left = leftThickness;
-        insets.bottom = bottomThickness + borderAdjust;
-        insets.right = rightThickness + borderAdjust;
+        insets.top = topThickness + SHADOW_TOP;
+        insets.left = leftThickness + SHADOW_LEFT;
+        insets.bottom = bottomThickness + SHADOW_BOTTOM;
+        insets.right = rightThickness + SHADOW_RIGHT;
         
         return insets;
     }
@@ -122,64 +156,74 @@ public class DropShadowBorder extends AbstractBorder {
     public void paintBorder(final Component c, final Graphics g, final int x, final int y, final int width, final int height) {               
         final Graphics2D g2 = (Graphics2D) g.create();
         try {            
-            final int borderAdjust = 4;
-            final int innerWidth = width - borderAdjust;
-            final int innerHeight = height - borderAdjust;
+            final int innerWidth = width - SHADOW_LEFT - SHADOW_RIGHT;
+            final int innerHeight = height - SHADOW_TOP - SHADOW_BOTTOM;
            
             // Left
-            g2.setColor(leftColors[0]);
-            g2.drawLine(x, y, x, y + innerHeight - 1);
-            for (Integer i = 1; i < leftThickness; i++) {
+            for (Integer i = 0; i < leftThickness; i++) {
                 g2.setColor(leftColors[i]);
-                g2.drawLine(x + i, y, x + i, y + innerHeight - 1);
+                g2.drawLine(x + SHADOW_LEFT + i, y + SHADOW_TOP + i,
+                            x + SHADOW_LEFT + i, y + SHADOW_TOP + innerHeight - 1 - i);
             }
             
             // Right
-            g2.setColor(rightColors[0]);
-            g2.drawLine(x + innerWidth - 1, y, x + innerWidth - 1, y + innerHeight - 1);
-            for (Integer i = 1; i < rightThickness; i++) {
+            for (Integer i = 0; i < rightThickness; i++) {
                 g2.setColor(rightColors[i]);
-                g2.drawLine(x + innerWidth - 1 - i, y, x + innerWidth - 1 - i, y + innerHeight - 1);
+                g2.drawLine(x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + i,
+                            x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + innerHeight - 1 - i);
             }
             
             // Top
-            g2.setColor(topColors[0]);
-            g2.drawLine(x, y, x + innerWidth - 1, y);
-            for (Integer i = 1; i < topThickness; i++) {
+            for (Integer i = 0; i < topThickness; i++) {
                 g2.setColor(topColors[i]);
-                g2.drawLine(x + i, y + i, x + innerWidth - 1 - i, y + i);
+                g2.drawLine(x + SHADOW_LEFT + i, y + SHADOW_TOP + i,
+                            x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + i);
             }
     
             // Bottom
-            g2.setColor(bottomColors[0]);
-            g2.drawLine(x, y + innerHeight - 1, x + innerWidth - 1, y + innerHeight - 1);
-            for (Integer i = 1; i < bottomThickness; i++) {
+            for (Integer i = 0; i < bottomThickness; i++) {
                 g2.setColor(bottomColors[i]);
-                g2.drawLine(x + i, y + innerHeight - 1 - i, x + innerWidth - 1 - i, y + innerHeight - 1 - i);
+                g2.drawLine(x + SHADOW_LEFT + i, y + SHADOW_TOP + innerHeight - 1 - i,
+                            x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + innerHeight - 1 - i);
             }
             
-            // Grab the screen to the right of the menu. Make sure to do this only
+            // Perform screen captures on the sides of the component. Do this only
             // the first time, the second time it would capture shadow which is bad.
             if (null == screenCaptureRight) {
-                final Point point = new Point(x + width - 4, y);
+                final Point point = new Point(x + width - SHADOW_RIGHT, y);
                 SwingUtilities.convertPointToScreen(point, c);
                 screenCaptureRight = robot.createScreenCapture(
-                        new Rectangle(point.x, point.y, 4, height));
+                        new Rectangle(point.x, point.y, SHADOW_RIGHT, height));
             }
             
-            // Grab the screen to the bottom of the menu.
+            if (null == screenCaptureLeft) {
+                final Point point = new Point(x, y);
+                SwingUtilities.convertPointToScreen(point, c);
+                screenCaptureLeft = robot.createScreenCapture(
+                        new Rectangle(point.x, point.y, SHADOW_LEFT, height));
+            }
+            
             if (null == screenCaptureBottom) {
-                final Point point = new Point(x, y + height - 4);
+                final Point point = new Point(x + SHADOW_LEFT, y + height - SHADOW_BOTTOM);
                 SwingUtilities.convertPointToScreen(point, c);
                 screenCaptureBottom = robot.createScreenCapture(
-                        new Rectangle(point.x, point.y, width - 4, 4));
+                        new Rectangle(point.x, point.y, width - SHADOW_LEFT - SHADOW_RIGHT, SHADOW_BOTTOM));
+            }
+            
+            if (null == screenCaptureTop) {
+                final Point point = new Point(x + SHADOW_LEFT, y);
+                SwingUtilities.convertPointToScreen(point, c);
+                screenCaptureTop = robot.createScreenCapture(
+                        new Rectangle(point.x, point.y, width - SHADOW_LEFT - SHADOW_RIGHT, SHADOW_TOP));
             }
             
             // Draw the background images to the border.
-            g2.drawImage(screenCaptureRight, null, x + width - 4, y);
-            g2.drawImage(screenCaptureBottom, null, x, y + height - 4);
+            g2.drawImage(screenCaptureRight, null, x + width - SHADOW_RIGHT, y);
+            g2.drawImage(screenCaptureLeft, null, x, y);
+            g2.drawImage(screenCaptureBottom, null, x + SHADOW_LEFT, y + height - SHADOW_BOTTOM);
+            g2.drawImage(screenCaptureTop, null, x + SHADOW_LEFT, y);
             
-            // Draw the shadow, four lines, from inner to outer.
+            // Draw the shadow.
             g2.setColor(new Color(0, 0, 0, 255));
             
             g2.setComposite(makeComposite(0.6f));
@@ -203,6 +247,14 @@ public class DropShadowBorder extends AbstractBorder {
             g2.draw(new Line2D.Double(x + width - 4, y + 4, x + width - 2, y + 6));            // soften top right
             g2.draw(new Line2D.Double(x + 7, y + height - 1, x + width - 2, y + height - 1));  // bottom
             g2.draw(new Line2D.Double(x + 4, y + height - 4, x + 6, y + height - 2 ));         // soften bottom left
+            
+            // Shadow on left
+            g2.draw(new Line2D.Double(x, y, x, y + height - 4));
+            g2.draw(new Line2D.Double(x + 1, y + height - 4, x + 3, y + height - 4));
+            
+            // Shadow on top
+            g2.draw(new Line2D.Double(x + 1, y, x + width - 4, y));
+            g2.draw(new Line2D.Double(x + width - 4, y + 1, x + width - 4, y + 3));
             
             // Soften the shadow at the bottom right corner
             g2.setComposite(makeComposite(0.5f));

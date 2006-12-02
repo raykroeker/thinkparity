@@ -69,8 +69,10 @@ insert into jiveID (idType,id) values (1002, 1);
 
 create table PARITY_EVENT_QUEUE (
   USERNAME varchar(32) not null,
-  EVENT_XML varchar not null,
+  EVENT_ID varchar(32) not null,
   EVENT_DATE timestamp default current_timestamp not null,
+  EVENT_XML varchar not null,
+  primary key (EVENT_ID),
   foreign key (USERNAME) references jiveUser(USERNAME)
 );
 

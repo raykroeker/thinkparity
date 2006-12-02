@@ -161,7 +161,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
-        ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         Window window = SwingUtilities.getWindowAncestor(this);
         if (null!=window) {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -169,7 +168,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// GEN-LAST:event_searchJTextFieldMouseExited
 
     private void searchJTextFieldMouseEntered(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseEntered
-        ((Component) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         Window window = SwingUtilities.getWindowAncestor(this);
         if (null!=window) {
             window.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));

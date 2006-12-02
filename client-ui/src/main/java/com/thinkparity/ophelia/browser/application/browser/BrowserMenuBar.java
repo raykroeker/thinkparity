@@ -7,6 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -15,6 +16,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.GradientPainter;
 
@@ -195,12 +197,18 @@ public class BrowserMenuBar extends JMenuBar {
         signUpJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                Window window = SwingUtilities.getWindowAncestor(BrowserMenuBar.this);
+                if (null!=window) {
+                    window.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                Window window = SwingUtilities.getWindowAncestor(BrowserMenuBar.this);
+                if (null!=window) {
+                    window.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ICON);
             }
             @Override

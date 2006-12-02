@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -408,7 +409,9 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private void sortJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_sortJLabelMousePressed
         Point location = sortJLabel.getLocation();
         location.y += sortJLabel.getHeight();
-        new SortPopup().show(this, location);
+        if (!MenuFactory.isPopupMenu()) {
+            new SortPopup(sortJLabel.getWidth()).show(this, location);
+        }
     }//GEN-LAST:event_sortJLabelMousePressed
     private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
         if (e.isPopupTrigger()) {
@@ -422,12 +425,16 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         /** A <code>PopupItemFactory</code>. */
         private final PopupItemFactory popupItemFactory;
         
+        /** The width of the popup. */
+        final int width;
+        
         /**
          * Create SortPopup.
          */
-        SortPopup() {
+        SortPopup(final int width) {
             super();
             this.popupItemFactory = PopupItemFactory.getInstance();
+            this.width = width;
         }
         
         /**
@@ -443,6 +450,10 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
+            
+            Dimension dimension = jPopupMenu.getPreferredSize();
+            dimension.width = width + 4;
+            jPopupMenu.setPreferredSize(dimension);
             
             jPopupMenu.show(invoker, (int)location.getX()+3, (int)location.getY()+4);
         }

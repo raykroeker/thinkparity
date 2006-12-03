@@ -24,9 +24,9 @@ import com.thinkparity.codebase.swing.JFileChooserUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;

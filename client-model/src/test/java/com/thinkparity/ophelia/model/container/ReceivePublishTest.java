@@ -10,9 +10,10 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.user.TeamMember;
+
 import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * @author raymond@thinkparity.com

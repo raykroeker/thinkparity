@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -34,7 +35,6 @@ import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 

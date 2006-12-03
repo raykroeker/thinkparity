@@ -6,9 +6,9 @@ package com.thinkparity.ophelia.model.container;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 
 /**

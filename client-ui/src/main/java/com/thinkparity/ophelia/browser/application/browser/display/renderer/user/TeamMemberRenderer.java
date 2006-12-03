@@ -9,7 +9,8 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 
-import com.thinkparity.ophelia.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.TeamMember;
+
 
 /**
  * @author raymond@thinkparity.com

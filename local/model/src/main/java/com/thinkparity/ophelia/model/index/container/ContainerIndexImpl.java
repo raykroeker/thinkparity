@@ -11,12 +11,12 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.index.AbstractIndexImpl;
 import com.thinkparity.ophelia.model.index.lucene.DocumentBuilder;
 import com.thinkparity.ophelia.model.index.lucene.FieldBuilder;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**

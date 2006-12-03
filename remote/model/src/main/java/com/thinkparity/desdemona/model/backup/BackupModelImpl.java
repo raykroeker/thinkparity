@@ -17,10 +17,10 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamWriter;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;

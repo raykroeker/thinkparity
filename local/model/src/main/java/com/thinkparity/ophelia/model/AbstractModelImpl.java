@@ -44,6 +44,7 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamWriter;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 
@@ -79,7 +80,6 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.util.Base64;
 import com.thinkparity.ophelia.model.util.MD5Util;

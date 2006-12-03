@@ -27,6 +27,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.TableSorter;
@@ -39,7 +40,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * <b>Title:</b><br>

@@ -1,9 +1,8 @@
 /*
  * Created On: Aug 3, 2006 11:13:04 AM
  */
-package com.thinkparity.ophelia.model.user;
+package com.thinkparity.codebase.model.user;
 
-import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Team Member<br>

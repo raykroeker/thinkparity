@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -23,7 +24,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEve
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 

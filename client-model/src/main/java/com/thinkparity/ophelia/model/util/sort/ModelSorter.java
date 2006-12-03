@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -21,7 +22,6 @@ import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 import com.thinkparity.ophelia.model.message.SystemMessage;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * Utility convenience class for sorting lists.

@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -21,7 +22,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 

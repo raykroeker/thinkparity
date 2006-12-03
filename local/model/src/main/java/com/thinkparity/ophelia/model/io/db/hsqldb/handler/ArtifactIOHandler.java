@@ -21,12 +21,12 @@ import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * @author raykroeker@gmail.com

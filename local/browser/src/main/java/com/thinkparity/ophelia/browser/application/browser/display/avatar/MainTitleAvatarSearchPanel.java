@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;

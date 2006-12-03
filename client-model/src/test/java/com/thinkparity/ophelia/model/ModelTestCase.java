@@ -33,6 +33,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
@@ -54,7 +55,6 @@ import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 

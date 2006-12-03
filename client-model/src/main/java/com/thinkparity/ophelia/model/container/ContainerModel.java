@@ -21,12 +21,12 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.user.TeamMember;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 

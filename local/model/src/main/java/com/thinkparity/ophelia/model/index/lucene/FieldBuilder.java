@@ -13,9 +13,9 @@ import org.apache.lucene.document.Field;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * @author raykroeker@gmail.com

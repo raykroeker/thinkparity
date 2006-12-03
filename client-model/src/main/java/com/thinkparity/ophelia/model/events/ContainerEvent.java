@@ -6,9 +6,9 @@ package com.thinkparity.ophelia.model.events;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.user.TeamMember;
 
 /**
  * @author raymond@thinkparity.com

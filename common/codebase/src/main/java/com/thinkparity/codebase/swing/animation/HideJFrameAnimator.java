@@ -1,7 +1,7 @@
 /*
  * Jan 4, 2006
  */
-package com.thinkparity.browser.javax.swing.animation;
+package com.thinkparity.codebase.swing.animation;
 
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
@@ -35,7 +35,7 @@ public class HideJFrameAnimator extends AbstractJFrameAnimator {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.JFrameAnimator#animate()
+	 * @see com.thinkparity.codebase.swing.animation.JFrameAnimator#animate()
 	 * 
 	 */
 	public void animate() {

@@ -62,19 +62,19 @@ public class AbstractJPanel extends JPanel {
 	private final ContainerTools containerTools;
 
     /**
-	 * The debug mouse adapter for a jpanel. This mouse adapter will print the
-	 * geometry and component composition to the logger.
-	 * 
-	 */
-	private final MouseAdapter debugMouseAdapter = new MouseAdapter() {
-		public void mouseClicked(final MouseEvent e) {
-			if (2 == e.getClickCount()) {
-				if (e.isShiftDown()) {
-					debug();
-				}
-			}
-		}
-	};
+     * The debug mouse adapter for a jpanel. This mouse adapter will print the
+     * geometry and component composition to the logger.
+     * 
+     */
+    private final MouseAdapter debugMouseAdapter = new MouseAdapter() {
+        public void mouseClicked(final MouseEvent e) {
+            if (2 == e.getClickCount()) {
+                if (e.isShiftDown()) {
+                    debug();
+                }
+            }
+        }
+    };
 
 	/** A helper class dedicated to encapsulation of a move visitor. */
     private JComponentMoveHelper moveHelper;
@@ -111,7 +111,9 @@ public class AbstractJPanel extends JPanel {
 	 * recursive if the component is an AbstractJPanel implementation.
 	 * 
 	 */
-	public void debug() { containerTools.debug(); }
+	public void debug() {
+        containerTools.debug();
+	}
 
 	/**
 	 * Determine whether the user input for the frame is valid.

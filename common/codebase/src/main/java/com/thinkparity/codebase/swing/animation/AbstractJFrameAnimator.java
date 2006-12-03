@@ -1,7 +1,7 @@
 /*
  * Jan 5, 2006
  */
-package com.thinkparity.browser.javax.swing.animation;
+package com.thinkparity.codebase.swing.animation;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -81,7 +81,7 @@ public abstract class AbstractJFrameAnimator extends AbstractAnimator {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#isRunning()
+	 * @see com.thinkparity.codebase.swing.animation.IAnimator#isRunning()
 	 * 
 	 */
 	public boolean isRunning() { return timer.isRunning(); }
@@ -100,7 +100,7 @@ public abstract class AbstractJFrameAnimator extends AbstractAnimator {
 	 * then installs a glass pane to intercept the mouse input during the
 	 * animation and finally start the swing timer.
 	 * 
-	 * @see com.thinkparity.browser.javax.swing.animation.JFrameAnimator#start()
+	 * @see com.thinkparity.codebase.swing.animation.JFrameAnimator#start()
 	 */
 	public void start() {
 		if(null != getCurrentAnimator()) { getCurrentAnimator().stop(); }
@@ -113,7 +113,7 @@ public abstract class AbstractJFrameAnimator extends AbstractAnimator {
 	 * Stop the jFrame animation. This will remove the intercept glass pane; and
 	 * unset the current animation.
 	 * 
-	 * @see com.thinkparity.browser.javax.swing.animation.JFrameAnimator#stop()
+	 * @see com.thinkparity.codebase.swing.animation.JFrameAnimator#stop()
 	 */
 	public void stop() {
 		stopTimer();

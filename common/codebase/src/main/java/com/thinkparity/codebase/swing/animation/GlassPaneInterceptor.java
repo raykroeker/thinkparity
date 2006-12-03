@@ -1,4 +1,4 @@
-package com.thinkparity.browser.javax.swing.animation.util;
+package com.thinkparity.codebase.swing.animation;
 
 import java.awt.Color;
 import java.awt.Graphics;

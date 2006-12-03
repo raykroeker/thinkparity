@@ -1,7 +1,7 @@
 /*
  * Jan 16, 2006
  */
-package com.thinkparity.browser.javax.swing.animation;
+package com.thinkparity.codebase.swing.animation;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -102,7 +102,7 @@ public class CollapseToolTipAnimation extends AbstractJPanelAnimation {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#isRunning()
+	 * @see com.thinkparity.codebase.swing.animation.IAnimator#isRunning()
 	 * 
 	 */
 	public boolean isRunning() { return timer.isRunning(); }

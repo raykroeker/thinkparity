@@ -1,7 +1,7 @@
 /*
  * Jan 16, 2006
  */
-package com.thinkparity.browser.javax.swing.animation;
+package com.thinkparity.codebase.swing.animation;
 
 /**
  * 

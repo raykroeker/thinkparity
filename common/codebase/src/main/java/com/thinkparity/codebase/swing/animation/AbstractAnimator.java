@@ -1,7 +1,7 @@
 /*
  * Jan 17, 2006
  */
-package com.thinkparity.browser.javax.swing.animation;
+package com.thinkparity.codebase.swing.animation;
 
 import java.awt.Component;
 import java.util.Collection;
@@ -9,7 +9,6 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
-import com.thinkparity.browser.javax.swing.animation.util.GlassPaneInterceptor;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -53,7 +52,7 @@ public abstract class AbstractAnimator implements IAnimator {
 	protected AbstractAnimator() { super(); }
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#addCompletionListener(com.thinkparity.browser.javax.swing.animation.CompletionListener)
+	 * @see com.thinkparity.codebase.swing.animation.IAnimator#addCompletionListener(com.thinkparity.codebase.swing.animation.CompletionListener)
 	 * 
 	 */
 	public void addCompletionListener(final CompletionListener listener) {
@@ -65,7 +64,7 @@ public abstract class AbstractAnimator implements IAnimator {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#removeCompletionListener(com.thinkparity.browser.javax.swing.animation.CompletionListener)
+	 * @see com.thinkparity.codebase.swing.animation.IAnimator#removeCompletionListener(com.thinkparity.codebase.swing.animation.CompletionListener)
 	 * 
 	 */
 	public void removeCompletionListener(final CompletionListener listener) {

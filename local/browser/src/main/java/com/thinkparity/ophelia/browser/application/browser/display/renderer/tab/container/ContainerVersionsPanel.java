@@ -291,14 +291,15 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
 
     /**
      * Initialize the background scaling and clipping images.
+     * Note that index 0 in the arrays corresponds to "none selected".
      *
      */
     private void initBackgroundImages() {
         if (null == scaledContainerBackgroundLeft) {
-            scaledContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS];
+            scaledContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS + 1];
         }
         if (null == clippedContainerBackgroundLeft) {
-            clippedContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS];
+            clippedContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS + 1];
         }
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         initBackgroundImages((int)screenSize.getWidth());
@@ -311,8 +312,9 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
      *      New dimension.
      */
     private void initBackgroundImages(final int newWidth) {
-        // Set up and if necessary scale the left background images
-        for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
+        // Set up and if necessary scale the left background images.
+        // Note that index 0 corresponds to "none selected".
+        for (int index = 0; index <= NUMBER_VISIBLE_ROWS; index++) {
             if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getWidth()) {
                 scaledContainerBackgroundLeft[index] = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index];
             } else {

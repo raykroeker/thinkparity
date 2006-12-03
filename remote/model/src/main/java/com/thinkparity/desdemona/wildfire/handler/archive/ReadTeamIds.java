@@ -42,6 +42,6 @@ public class ReadTeamIds extends AbstractHandler {
      */
     private List<JabberId> readTeamIds(final JabberId userId,
             final UUID uniqueId) {
-        return getArchiveModel().readTeam(userId, uniqueId);
+        return getArchiveModel().readTeamIds(userId, uniqueId);
     }
 }

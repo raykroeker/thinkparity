@@ -88,7 +88,8 @@ public class DocumentReader extends BackupReader<Document, DocumentVersion> {
     }
 
     @Override
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
         return Collections.emptyMap();
     }
 }

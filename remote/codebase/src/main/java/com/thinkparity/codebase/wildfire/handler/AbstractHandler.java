@@ -13,7 +13,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;

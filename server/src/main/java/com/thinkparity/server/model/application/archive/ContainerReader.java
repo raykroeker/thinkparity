@@ -70,7 +70,7 @@ public class ContainerReader extends ArchiveReader<Container, ContainerVersion> 
         if (null == containerId) {
             return Collections.emptyMap();
         } else {
-            return containerModel.readPublishedTo(uniqueId, versionId);
+            return containerModel.readPublishedTo(containerId, versionId);
         }
     }
 }

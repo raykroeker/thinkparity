@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -49,7 +50,8 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
                 return Collections.emptyList();
             }
             @Override
-            protected Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
+            public Map<User, ArtifactReceipt> readPublishedTo(
+                    final UUID uniqueId, final Long versionId) {
                 return Collections.emptyMap();
             }
         };
@@ -104,6 +106,19 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
     public abstract T read(final UUID uniqueId);
 
     /**
+     * Read the published to users.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return A list of <code>User</code>s and their
+     *         <code>ArtifactReceipt</code>s.
+     */
+    public abstract Map<User, ArtifactReceipt> readPublishedTo(
+            final UUID uniqueId, final Long versionId);
+
+    /**
      * Read a list of archived artifact versions.
      * 
      * @param uniqueId
@@ -156,8 +171,4 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
     protected Long readArtifactId(final UUID uniqueId) {
         return artifactModel.readId(uniqueId);
     }
-
-    protected abstract User readPublishedBy(final UUID uniqueId, final Long versionId);
-
-    protected abstract Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId);
 }

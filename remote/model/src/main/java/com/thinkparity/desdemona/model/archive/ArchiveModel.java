@@ -9,10 +9,10 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
-
 
 /**
  * <b>Title:</b>thinkParity Archive Model<br>

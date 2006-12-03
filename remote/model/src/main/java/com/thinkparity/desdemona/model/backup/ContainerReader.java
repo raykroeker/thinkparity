@@ -13,8 +13,9 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+
+import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 
 /**
  * @author raymond@thinkparity.com
@@ -53,6 +54,22 @@ public class ContainerReader extends BackupReader<Container, ContainerVersion> {
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.BackupReader#readPublishedTo(java.util.UUID,
+     *      java.lang.Long)
+     * 
+     */
+    @Override
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        final Long containerId = this.readBackupArtifactId(uniqueId);
+        if (null == containerId) {
+            return Collections.emptyMap();
+        } else {
+            return containerModel.readPublishedTo(containerId, versionId);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersions(java.util.UUID)
      */
     @Override
@@ -62,16 +79,6 @@ public class ContainerReader extends BackupReader<Container, ContainerVersion> {
             return Collections.emptyList();
         } else {
             return containerModel.readVersions(containerId);
-        }
-    }
-
-    @Override
-    public User readPublishedBy(final UUID uniqueId, final Long versionId) {
-        final Long containerId = readBackupArtifactId(uniqueId);
-        if (null == containerId) {
-            return null;
-        } else {
-            return containerModel.readPublishedBy(containerId, versionId);
         }
     }
 }

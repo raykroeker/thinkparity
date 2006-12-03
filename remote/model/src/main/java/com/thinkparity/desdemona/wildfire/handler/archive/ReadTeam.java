@@ -12,13 +12,19 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b>thinkParity Archive Read Team Handler<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadTeam extends AbstractHandler {
+public final class ReadTeam extends AbstractHandler {
 
-    /** Create ReadTeam. */
-    public ReadTeamIds() {
+    /**
+     * Create ReadTeam.
+     * 
+     */
+    public ReadTeam() {
         super("archive:readteam");
     }
 

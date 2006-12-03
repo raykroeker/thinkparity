@@ -9,16 +9,18 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+
+import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 
 /**
  * @author raymond@thinkparity.com
@@ -48,12 +50,13 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
                 return null;
             }
             @Override
-            public List<U> readVersions(final UUID uniqueId) {
-                return Collections.emptyList();
+            public Map<User, ArtifactReceipt> readPublishedTo(
+                    final UUID uniqueId, final Long versionId) {
+                return Collections.emptyMap();
             }
             @Override
-            protected Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
-                return Collections.emptyMap();
+            public List<U> readVersions(final UUID uniqueId) {
+                return Collections.emptyList();
             }
         };
     }
@@ -105,6 +108,19 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
      * @return A <code>T</code>.
      */
     public abstract T read(final UUID uniqueId);
+
+    /**
+     * Read the published to users.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return A list of <code>User</code>s and their
+     *         <code>ArtifactReceipt</code>s.
+     */
+    public abstract Map<User, ArtifactReceipt> readPublishedTo(
+            final UUID uniqueId, final Long versionId);
 
     /**
      * Read a list of backup artifact versions.
@@ -159,8 +175,4 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
             return artifactId;
         }
     }
-
-    protected abstract User readPublishedBy(final UUID uniqueId, final Long versionId);
-
-    protected abstract Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId);
 }

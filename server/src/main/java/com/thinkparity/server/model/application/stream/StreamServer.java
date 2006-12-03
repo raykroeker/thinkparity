@@ -10,12 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -66,12 +64,8 @@ final class StreamServer {
         super();
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
-        final String host;
-        host = "0.0.0.0";//NetworkUtil.getIp();
-        //try {
-        //} catch (final UnknownHostException uhx) {
-        //    throw new StreamException(uhx);
-        //}
+        // TODO figure out how to do this generically
+        final String host = "0.0.0.0";
         final int port = environment.getStreamPort();
         if (environment.isStreamTLSEnabled()) {
             logger.logInfo("Stream Server - {0}:{1} - Secure", host, port);

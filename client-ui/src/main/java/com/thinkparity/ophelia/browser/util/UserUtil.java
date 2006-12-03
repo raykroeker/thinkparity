@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.util;
 
 import java.util.List;
 
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.User;
 
 
@@ -26,6 +27,14 @@ public class UserUtil {
     public static Boolean contains(final List<? extends User> list,
             final User user) {
         return 0 < indexOf(list, user);
+    }
+
+    public static int indexOf(final List<? extends User> list,
+            final JabberId userId) {
+        for (int i = 0; i < list.size(); i++)
+            if (list.get(i).getId().equals(userId))
+                return i;
+        return -1;
     }
 
     /**

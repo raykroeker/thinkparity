@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtensionModelContentProvider;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
@@ -78,5 +79,9 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
      */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         return archiveModel.readContainerVersions(uniqueId);
+    }
+
+    public List<TeamMember> readTeam(final UUID uniqueId) {
+        return archiveModel.readTeam(uniqueId);
     }
 }

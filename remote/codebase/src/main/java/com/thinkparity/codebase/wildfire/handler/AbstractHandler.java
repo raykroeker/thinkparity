@@ -13,12 +13,15 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.apache.log4j.Logger;
@@ -214,6 +217,10 @@ public abstract class AbstractHandler extends
         iqWriter.writeContainer(name, value);
     }
 
+    protected final void writeUser(final String name, final User value) {
+        iqWriter.writeUser(name, value);
+    }
+
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);
@@ -322,6 +329,10 @@ public abstract class AbstractHandler extends
     protected final void writeStrings(final String parentName,
             final String name, final List<String> values) {
         iqWriter.writeStrings(parentName, name, values);
+    }
+
+    protected final void writeTeam(final String name, final String childName, final List<TeamMember> values) {
+        iqWriter.writeTeam(name, childName, values);
     }
 
     protected final void writeToken(final String name, final Token value) {

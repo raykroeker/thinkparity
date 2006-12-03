@@ -12,12 +12,15 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -79,6 +82,12 @@ public abstract class IQWriter {
 
     public final void writeContainer(final String name, final Container value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    public final void writeUser(final String name, final User value) {
+        final Element valueElement = ElementBuilder.addElement(
+            iq.getChildElement(), name, value.getClass());
+        XSTREAM_UTIL.marshal(value, new Dom4JWriter(valueElement));
     }
 
     public final void writeContainers(final String parentName,
@@ -230,6 +239,22 @@ public abstract class IQWriter {
     public final void writeStrings(final String parentName, final String name,
             final List<String> values) {
         ElementBuilder.addStringElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeTeam(final String name, final String childName, final List<TeamMember> values) {
+        final Element parent = iq.getChildElement();
+        logger.logVariable("parent", parent.asXML());
+        if (values.size() < 1) {
+            ElementBuilder.addNullElement(parent, name, List.class);
+        } else {
+            final Element element = ElementBuilder.addElement(parent, name, List.class);
+            for (final TeamMember value : values) {
+                final Element childElement = ElementBuilder.addElement(element, childName, value.getClass());
+                final Dom4JWriter writer = new Dom4JWriter(childElement);
+                XSTREAM_UTIL.marshal(value, writer);
+            }
+        }
+        logger.logVariable("parent", parent.asXML());
     }
 
     public final void writeToken(final String name, final Token value) {

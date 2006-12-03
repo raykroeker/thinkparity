@@ -5,12 +5,15 @@ package com.thinkparity.desdemona.model.backup;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -47,6 +50,10 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
             @Override
             public List<U> readVersions(final UUID uniqueId) {
                 return Collections.emptyList();
+            }
+            @Override
+            protected Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
+                return Collections.emptyMap();
             }
         };
     }
@@ -152,4 +159,8 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
             return artifactId;
         }
     }
+
+    protected abstract User readPublishedBy(final UUID uniqueId, final Long versionId);
+
+    protected abstract Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId);
 }

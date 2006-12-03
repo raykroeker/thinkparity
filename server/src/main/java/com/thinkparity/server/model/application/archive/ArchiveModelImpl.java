@@ -210,7 +210,31 @@ class ArchiveModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
+    List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                return Collections.emptyList();
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                if (null == artifactId) {
+                    return Collections.emptyList();
+                } else {
+                    return artifactModel.readTeam2(artifactId);
+                }
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
         logApiId();
         logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);

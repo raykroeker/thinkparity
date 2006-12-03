@@ -100,9 +100,15 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
         }
     }
 
-    public List<JabberId> readTeam(final JabberId userId, final UUID uniqueId) {
+    public List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(userId, uniqueId);
+        }
+    }
+
+    public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readTeamIds(userId, uniqueId);
         }
     }
 

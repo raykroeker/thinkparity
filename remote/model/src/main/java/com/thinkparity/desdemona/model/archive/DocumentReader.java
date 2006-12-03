@@ -5,10 +5,13 @@ package com.thinkparity.desdemona.model.archive;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -82,5 +85,10 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
             return containerModel.readDocumentVersions(containerId,
                     containerVersionId);
         }
+    }
+
+    @Override
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
+        return Collections.emptyMap();
     }
 }

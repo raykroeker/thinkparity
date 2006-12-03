@@ -5,15 +5,18 @@ package com.thinkparity.desdemona.model.container;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
@@ -203,6 +206,12 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readArchiveVersions(userId, uniqueId);
+        }
+    }
+
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
         }
     }
 

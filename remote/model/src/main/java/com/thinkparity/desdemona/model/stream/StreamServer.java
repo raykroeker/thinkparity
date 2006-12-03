@@ -67,11 +67,11 @@ final class StreamServer {
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
         final String host;
-        try {
-            host = NetworkUtil.getMachine();
-        } catch (final UnknownHostException uhx) {
-            throw new StreamException(uhx);
-        }
+        host = "0.0.0.0";//NetworkUtil.getIp();
+        //try {
+        //} catch (final UnknownHostException uhx) {
+        //    throw new StreamException(uhx);
+        //}
         final int port = environment.getStreamPort();
         if (environment.isStreamTLSEnabled()) {
             logger.logInfo("Stream Server - {0}:{1} - Secure", host, port);

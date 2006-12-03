@@ -6,6 +6,8 @@ package com.thinkparity.codebase.model.util.xstream;
 import java.io.Reader;
 import java.io.Writer;
 
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thoughtworks.xstream.XStream;
@@ -55,6 +57,31 @@ public class XStreamUtil {
      */
     public XMPPEvent eventFromXML(final Reader xml, final XMPPEvent root) {
         return (XMPPEvent) xstream.fromXML(xml, root);
+    }
+
+    /**
+     * Marshal a team member to an xstream writer.
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @param writer
+     *            A <code>HierarchicalStreamWriter</code>.
+     */
+    public void marshal(final TeamMember teamMember,
+            final HierarchicalStreamWriter writer) {
+        xstream.marshal(teamMember, writer);
+    }
+
+    /**
+     * Marshal a user to an xstream writer.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param writer
+     *            A <code>HierarchicalStreamWriter</code>.
+     */
+    public void marshal(final User user, final HierarchicalStreamWriter writer) {
+        xstream.marshal(user, writer);
     }
 
     /**

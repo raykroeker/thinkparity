@@ -9,6 +9,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.text.MessageFormat;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -293,17 +294,21 @@ final class ContainerTabPopupFactory implements VersionsPopupFactory {
                     systemClipboard.setContents(stringSelection, null);
                 }
             };
-            final JMenuItem idJMenuItem = new JMenuItem("Id - " + container.getId());
+            final JMenuItem idJMenuItem = new JMenuItem(MessageFormat.format("getId():{0,number,#}", container.getId()));
             idJMenuItem.putClientProperty("COPY_ME", container.getId());
             idJMenuItem.addActionListener(debugActionListener);
 
-            final JMenuItem uidJMenuItem = new JMenuItem("Unique id - " + container.getUniqueId());
+            final JMenuItem uidJMenuItem = new JMenuItem(MessageFormat.format("getUniqueId():{0}", container.getUniqueId()));
             uidJMenuItem.putClientProperty("COPY_ME", container.getUniqueId());
             uidJMenuItem.addActionListener(debugActionListener);
 
             jPopupMenu.addSeparator();
             jPopupMenu.add(idJMenuItem);
             jPopupMenu.add(uidJMenuItem);
+            jPopupMenu.add(MessageFormat.format("isBookmarked:{0}", container.isBookmarked()));
+            jPopupMenu.add(MessageFormat.format("isDraft:{0}", container.isDraft()));
+            jPopupMenu.add(MessageFormat.format("isLatest:{0}", container.isLatest()));
+            jPopupMenu.add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
         }
         return jPopupMenu;
     }

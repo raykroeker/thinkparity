@@ -5,6 +5,8 @@
 package com.thinkparity.ophelia.browser.platform.application.dialog;
 
 
+import java.text.MessageFormat;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -235,17 +237,19 @@ public class ConfirmDialog extends Avatar {
      *
      */
     private void reloadConfirmMessage() {
-        confirmJLabel.setText(getString("ConfirmMessage.Empty"));
-        if(null != input) {
+        final String text;
+        if(null == input) {
+            text = getString("ConfirmMessage.Empty");    
+        } else {
             final String localizedMessage = getLocalizedConfirmMessage();
             if (null == localizedMessage) {
-                confirmJLabel.setText(getString(
-                        getConfirmMessageKey(),
-                        getConfirmMessageArguments()));
+                text = getString(getConfirmMessageKey(),
+                        getConfirmMessageArguments());
             } else {
-                confirmJLabel.setText(localizedMessage);
+                text = localizedMessage;
             }
         }
+        confirmJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
     }
 
     /**

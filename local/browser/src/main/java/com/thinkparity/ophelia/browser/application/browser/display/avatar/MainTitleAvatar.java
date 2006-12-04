@@ -107,11 +107,6 @@ public class MainTitleAvatar extends Avatar {
                     (getHeight() - Images.BrowserTitle.LOGO.getHeight()) / 2 - 15,
                     Images.BrowserTitle.LOGO.getWidth(),
                     Images.BrowserTitle.LOGO.getHeight(), MainTitleAvatar.this);
-            
-            // Draw a bottom line. Not a border because we want the selected tab
-            // to draw on top of it.
-            g2.setColor(Browser.MainTitle.BOTTOM_BORDER);
-            g2.drawLine(0, getSize().height - 1, getSize().width - 1, getSize().height - 1 );
         }
         finally { g2.dispose(); }
     }

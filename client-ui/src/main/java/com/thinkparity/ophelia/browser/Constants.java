@@ -63,7 +63,6 @@ public final class Constants {
             public static final class MainTitle {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
                 public static final Color BG_GRAD_START = new Color(239, 241, 242, 255);
-                public static final Color BOTTOM_BORDER = new Color(167, 167, 167, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
             }
@@ -188,10 +187,6 @@ public final class Constants {
     /** thinkParity icons. */
     public static final class Icons {
         public static final class BrowserTitle {
-            public static final Icon LEFTMOST_TAB =
-                ImageIOUtil.readIcon("BrowserTitle_LeftmostTab.png");
-            public static final Icon LEFTMOST_TAB_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_LeftmostTabRollover.png");
             public static final Icon LEFTMOST_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelected.png");
             public static final Icon TAB =

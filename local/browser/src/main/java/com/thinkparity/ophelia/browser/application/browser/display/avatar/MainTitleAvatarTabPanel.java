@@ -188,6 +188,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
         setOpaque(false);
         containerJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_LeftmostTabSelected.png")));
+        containerJLabel.setMaximumSize(new java.awt.Dimension(77, 25));
+        containerJLabel.setMinimumSize(new java.awt.Dimension(77, 25));
+        containerJLabel.setPreferredSize(new java.awt.Dimension(77, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -195,6 +198,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(containerJLabel, gridBagConstraints);
 
         contactJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
+        contactJLabel.setMaximumSize(new java.awt.Dimension(77, 25));
+        contactJLabel.setMinimumSize(new java.awt.Dimension(77, 25));
+        contactJLabel.setPreferredSize(new java.awt.Dimension(77, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;

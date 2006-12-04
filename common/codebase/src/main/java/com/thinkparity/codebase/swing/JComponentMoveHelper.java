@@ -147,8 +147,8 @@ final class JComponentMoveHelper {
     private void jComponentMouseDragged(final MouseEvent e) {        
         final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
         final Point jComponentLocation = SwingUtilities.getWindowAncestor(((JComponent) e.getSource())).getLocation();
-        offsetX = mouseLocation.x - mouseOrigin.x - jComponentLocation.x - jComponentOrigin.x;
-        offsetY = mouseLocation.y - mouseOrigin.y - jComponentLocation.y - jComponentOrigin.y;
+        offsetX = mouseLocation.x - mouseOrigin.x - jComponentLocation.x + jComponentOrigin.x;
+        offsetY = mouseLocation.y - mouseOrigin.y - jComponentLocation.y + jComponentOrigin.y;
         moveWindow(e);
     }
 

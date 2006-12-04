@@ -121,7 +121,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	 */
 	private void bootstrapLog4J(final Mode mode) {
         final Properties logging = bootstrapLog4JConfig(mode);
-        final File loggingRoot = bootstrapLog4JRoot(mode);
+        final File loggingRoot = bootstrapLog4JRoot();
         // console appender
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout", "org.apache.log4j.PatternLayout");
@@ -217,11 +217,9 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	/**
      * Bootstrap the log4j root directory based upon the operating mode.
      * 
-     * @param mode
-     *            A thinkParity operating <code>Mode</code>.
      * @return A log4j root directory.
      */
-    private File bootstrapLog4JRoot(final Mode mode) {
+    private File bootstrapLog4JRoot() {
         final File loggingRoot = new File(JiveGlobals.getHomeDirectory(), "logs");
         System.setProperty("thinkparity.logging.root", loggingRoot.getAbsolutePath());
         return loggingRoot;

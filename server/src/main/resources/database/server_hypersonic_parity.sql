@@ -49,24 +49,6 @@ create index parityArtifactSubscription_artifactId_index on parityArtifactSubscr
 create index parityArtifactSubscription_username_index on parityArtifactSubscription(username);
 insert into jiveID (idType,id) values (1001, 1);
 
-create table parityQueue (
-  queueId integer not null,
-  username varchar(32) not null,
-  queueMessageSize integer not null,
-  queueMessage varchar not null,
-  createdBy varchar(32) not null,
-  createdOn timestamp default current_timestamp not null,
-  updatedBy varchar(32) not null,
-  updatedOn timestamp not null,
-  primary key (queueId),
-  foreign key (username) references jiveUser(username),
-  foreign key (createdBy) references jiveUser(username),
-  foreign key (updatedBy) references jiveUser(username)
-);
-create index parityQueue_username_index on parityQueue(username);
-create index parityQueue_createdOn_index on parityQueue(createdOn);
-insert into jiveID (idType,id) values (1002, 1);
-
 create table PARITY_EVENT_QUEUE (
   USERNAME varchar(32) not null,
   EVENT_ID varchar(32) not null,

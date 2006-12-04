@@ -22,7 +22,7 @@ public class WindowBorder extends AbstractBorder {
     private static final Insets BORDER_INSETS;
 
     static {
-        BORDER_INSETS = new Insets(1, 1, 0, 0);    
+        BORDER_INSETS = new Insets(1, 1, 0, 1);    
     }
 
     /**
@@ -89,6 +89,13 @@ public class WindowBorder extends AbstractBorder {
                                   0, height - 1, Colors.Browser.Window.BORDER_BOTTOM_LEFT);
             g2.setPaint(gPaintLeft);
             g2.fillRect(0, 2, 1, height - 3);
+            
+            // Gradient line on right
+            final Paint gPaintRight =
+                new GradientPaint(width - 1, 0, Colors.Browser.Window.BORDER_TOP_RIGHT,
+                                  width - 1, height - 1, Colors.Browser.Window.BORDER_BOTTOM_RIGHT);
+            g2.setPaint(gPaintRight);
+            g2.fillRect(width - 1, 2, width - 1, height - 3);
         }
         finally { g2.dispose(); }
     }

@@ -108,7 +108,7 @@ public class Log4JWrapper {
      */
     public final void logApiId() {
         if (logger.isInfoEnabled()) {
-            logStackId(Level.INFO, "{0}.{1}({2}:{3})", StackUtil.getFrame(LOG4J_STACK_FILTER));
+            logStackId(Level.INFO, "{0}.{1}({2}:{3,number,#})", StackUtil.getFrame(LOG4J_STACK_FILTER));
         }
     }
 
@@ -124,7 +124,7 @@ public class Log4JWrapper {
             final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>();
             filters.add(LOG4J_STACK_FILTER);
             filters.add(filter);
-            logStackId(Level.INFO, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(filters));
+            logStackId(Level.INFO, "{0}.{1}({2}:{3,number,#}) (filtered)", StackUtil.getFrame(filters));
         }
     }
 
@@ -262,9 +262,9 @@ public class Log4JWrapper {
             final StackTraceElement[] frames = StackUtil.getFrames(LOG4J_STACK_FILTER);
             for (int i = 0; i < frameCount && i < frames.length; i++) {
                 if (0 == i)
-                    logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
+                    logStackId(Level.TRACE, "{0}.{1}({2}:{3,number,#})", frames[i]);
                 else
-                    logStackId(Level.TRACE, "{0} - {1}.{2}({3}:{4})", i, frames[i]);
+                    logStackId(Level.TRACE, "{0} - {1}.{2}({3}:{4,number,#})", i, frames[i]);
             }
         }
     }
@@ -281,7 +281,7 @@ public class Log4JWrapper {
             final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>();
             filters.add(LOG4J_STACK_FILTER);
             filters.add(filter);
-            logStackId(Level.TRACE, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
+            logStackId(Level.TRACE, "{0}.{1}({2}:{3,number,#}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
         }
     }
 

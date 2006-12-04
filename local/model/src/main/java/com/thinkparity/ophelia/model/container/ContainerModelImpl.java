@@ -3025,6 +3025,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             userModel.readLazyCreate(version.getUpdatedBy());
             version.setArtifactId(container.getId());
             containerIO.createVersion(version);
+            artifactIO.updateFlags(container.getId(), container.getFlags());
             publishedTo = restoreModel.readPublishedTo(version
                     .getArtifactUniqueId(), version.getVersionId());
             containerIO.createPublishedTo(container.getId(), version

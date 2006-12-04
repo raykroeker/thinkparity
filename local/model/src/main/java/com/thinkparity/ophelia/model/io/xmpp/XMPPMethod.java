@@ -509,12 +509,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return artifactReceipt;
-                } else if (XMPPEvent.class.isAssignableFrom(javaType)) {
-                    XMPPEvent event = null;
-                    event = xstreamUtil.unmarshalEvent(new SmackXppReader(parser), event);
+                } else if (javaType.equals(Container.class)) {
+                    Container container = null;
+                    container = xstreamUtil.unmarshalContainer(new SmackXppReader(parser), container);
                     parser.next();
                     parser.next();
-                    return event;
+                    return container;
                 } else if (javaType.equals(TeamMember.class)) {
                     TeamMember teamMember = null;
                     teamMember = xstreamUtil.unmarshalTeamMember(new SmackXppReader(parser), teamMember);
@@ -527,6 +527,12 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return user;
+                } else if (XMPPEvent.class.isAssignableFrom(javaType)) {
+                    XMPPEvent xmppEvent = null;
+                    xmppEvent= xstreamUtil.unmarshalEvent(new SmackXppReader(parser), xmppEvent);
+                    parser.next();
+                    parser.next();
+                    return xmppEvent;
                 } else {
                     parser.next();  // move to element text
                     final Object javaValue;
@@ -558,19 +564,6 @@ public class XMPPMethod extends IQ {
                     } else if (javaType.equals(Calendar.class)) {
                         javaValue = calendarValueOf(parser.getText());
                         parser.next();
-                    } else if (javaType.equals(Container.class)) {
-                        javaValue = new Container();
-                        ((Container) javaValue).setCreatedBy((JabberId) parseJavaValue(parser, JabberId.class));
-                        ((Container) javaValue).setCreatedOn((Calendar) parseJavaValue(parser, Calendar.class));
-                        ((Container) javaValue).setDraft((Boolean) parseJavaValue(parser, Boolean.class));
-                        ((Container) javaValue).setLocalDraft((Boolean) parseJavaValue(parser, Boolean.class));
-                        ((Container) javaValue).setName((String) parseJavaValue(parser, String.class));
-                        ((Container) javaValue).setRemoteInfo((ArtifactRemoteInfo) parseJavaValue(parser, ArtifactRemoteInfo.class));
-                        ((Container) javaValue).setState((ArtifactState) parseJavaValue(parser, ArtifactState.class));
-                        ((Container) javaValue).setType((ArtifactType) parseJavaValue(parser, ArtifactType.class));
-                        ((Container) javaValue).setUniqueId((UUID) parseJavaValue(parser, UUID.class));
-                        ((Container) javaValue).setUpdatedBy((JabberId) parseJavaValue(parser, JabberId.class));
-                        ((Container) javaValue).setUpdatedOn((Calendar) parseJavaValue(parser, Calendar.class));
                     } else if (javaType.equals(ContainerVersion.class)) {
                         javaValue = new ContainerVersion();
                         ((ContainerVersion) javaValue).setArtifactType((ArtifactType) parseJavaValue(parser, ArtifactType.class));

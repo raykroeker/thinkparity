@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -73,6 +74,11 @@ public class XStreamUtil {
         xstream.marshal(artifactReceipt, writer);
     }
 
+    public void marshal(final Container container,
+            final HierarchicalStreamWriter writer) {
+        xstream.marshal(container, writer);
+    }
+
     /**
      * Marshal a team member to an xstream writer.
      * 
@@ -126,6 +132,11 @@ public class XStreamUtil {
     public ArtifactReceipt unmarshalArtifactReceipt(
             final HierarchicalStreamReader xml, final ArtifactReceipt root) {
         return (ArtifactReceipt) xstream.unmarshal(xml, root);
+    }
+
+    public Container unmarshalContainer(final HierarchicalStreamReader xml,
+            final Container root) {
+        return (Container) xstream.unmarshal(xml, root);
     }
 
     /**

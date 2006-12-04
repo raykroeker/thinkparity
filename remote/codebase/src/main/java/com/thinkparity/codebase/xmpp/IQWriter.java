@@ -83,12 +83,12 @@ public abstract class IQWriter {
     }
 
     public final void writeContainer(final String name, final Container value) {
-        ElementBuilder.addElement(iq.getChildElement(), name, value);
+        ElementBuilder.addElement(XSTREAM_UTIL, iq.getChildElement(), name, value);
     }
 
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
-        ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);
+        ElementBuilder.addContainerElements(XSTREAM_UTIL, iq.getChildElement(), parentName, name, values);
     }
 
     public final void writeContainerVersions(final String parentName,

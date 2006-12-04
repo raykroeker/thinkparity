@@ -66,7 +66,8 @@ public class ElementBuilder {
         DOCUMENT_FACTORY = DocumentFactory.getInstance();
     }
 
-    public static final Element addContainerElements(final Element parent,
+    public static final Element addContainerElements(
+            final XStreamUtil xstreamUtil, final Element parent,
             final String parentName, final String name,
             final List<Container> values) {
         if (values.size() < 1) {
@@ -74,7 +75,7 @@ public class ElementBuilder {
         } else {
             final Element element = addElement(parent, parentName, List.class);
             for (final Container value : values) {
-                addElement(element, name, value);
+                addElement(xstreamUtil, element, name, value);
             }
             return element;
         }
@@ -207,23 +208,14 @@ public class ElementBuilder {
         return element;
     }
 
-    public static final Element addElement(final Element parent,
-            final String name, final Container value) {
+    public static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final Container value) {
         if (null == value) {
             return addNullElement(parent, name, Container.class);
         } else {
-            final Element element = addElement(parent, name, Container.class);
-            addElement(element, "createdBy", value.getCreatedBy());
-            addElement(element, "createdOn", value.getCreatedOn());
-            addElement(element, "draft", value.isDraft());
-            addElement(element, "localDraft", value.isLocalDraft());
-            addElement(element, "name", value.getName());
-            addElement(element, "remoteInfo", value.getRemoteInfo());
-            addElement(element, "state", value.getState());
-            addElement(element, "type", value.getType());
-            addElement(element, "uniqueId", value.getUniqueId());
-            addElement(element, "updatedBy", value.getUpdatedBy());
-            addElement(element, "updatedOn", value.getUpdatedOn());
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
             return element;
         }
     }
@@ -810,11 +802,6 @@ public class ElementBuilder {
 
     private static final Element addElement(final Element parent,
             final String name, final ArtifactState value) {
-        return addElement(parent, name, value.getClass(), value.toString());
-    }
-
-    private static final Element addElement(final Element parent,
-            final String name, final Boolean value) {
         return addElement(parent, name, value.getClass(), value.toString());
     }
 

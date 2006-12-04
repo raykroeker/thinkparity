@@ -166,8 +166,8 @@ public abstract class Artifact {
 	 * 
 	 * @return The current object state.
 	 */
-	public Collection<ArtifactFlag> getFlags() {
-		return Collections.unmodifiableCollection(flags);
+	public List<ArtifactFlag> getFlags() {
+		return Collections.unmodifiableList(flags);
 	}
 
     /**

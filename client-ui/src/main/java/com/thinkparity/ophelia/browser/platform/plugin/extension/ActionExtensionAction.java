@@ -3,10 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.plugin.extension;
 
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginModelFactory;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginServices;
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -17,6 +13,11 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginModelFactory;
+import com.thinkparity.ophelia.browser.platform.plugin.PluginServices;
 
 /**
  * @author raymond@thinkparity.com
@@ -60,9 +61,7 @@ public abstract class ActionExtensionAction extends AbstractAction {
      */
     protected final Boolean confirm(final String patternKey,
             final Object... patternArguments) {
-        // HACK The localization for the confirm dialog should be passed to it
-        // as opposed to being hard-coded
-        return getBrowserApplication().confirm(
+        return getBrowserApplication().confirmLocalized(
                 getLocalizedFormattedString(patternKey, patternArguments));
     }
 

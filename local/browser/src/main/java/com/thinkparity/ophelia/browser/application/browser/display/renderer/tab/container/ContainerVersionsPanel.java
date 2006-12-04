@@ -104,7 +104,7 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
     private BufferedImage clippedContainerBackgroundRight;
 
     /** The <code>Container</code>. */
-    private Container container;
+    protected Container container;
 
     /** A file icon reader. */
     private final FileIconReader fileIconReader;
@@ -915,7 +915,8 @@ public class ContainerVersionsPanel extends DefaultTabPanel {
             return ((version.isSetComment()) && (version.getComment().length()>0));
         }
         private void initText(final ContainerVersion version, final User publishedBy) {
-            setText(localization.getString("Version", FUZZY_DATE_FORMAT.format(version.getCreatedOn()), publishedBy.getName()));
+            setText(localization.getString("Version", FUZZY_DATE_FORMAT
+                    .format(version.getCreatedOn()), publishedBy.getName()));
         }
     }
 }

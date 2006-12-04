@@ -53,7 +53,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class PopupFactory implements VersionsPopupFactory {
+final class ContainerTabPopupFactory implements VersionsPopupFactory {
 
     /** A <code>ContainerModel</code>. */
     private final ContainerModel model;
@@ -62,12 +62,12 @@ final class PopupFactory implements VersionsPopupFactory {
     private final PopupItemFactory popupItemFactory;
 
     /**
-     * Create PopupFactory.
+     * Create ContainerTabPopupFactory.
      * 
      * @param model
      *            The <code>ContainerModel</code>.
      */
-    PopupFactory(final ContainerModel model) {
+    ContainerTabPopupFactory(final ContainerModel model) {
         super();
         this.model = model;
         this.popupItemFactory = PopupItemFactory.getInstance();
@@ -173,7 +173,7 @@ final class PopupFactory implements VersionsPopupFactory {
         return jPopupMenu;
     }
 
-    public JPopupMenu createVersionDocumentPopup(DocumentVersion version, Delta delta) {
+    public JPopupMenu createVersionDocumentPopup(final DocumentVersion version, final Delta delta) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         final PopupItemFactory popupItemFactory = PopupItemFactory.getInstance();
         
@@ -277,6 +277,11 @@ final class PopupFactory implements VersionsPopupFactory {
         
         jPopupMenu.addSeparator();
 
+        // Export
+        final Data exportData = new Data(1);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, exportData));
+
         // include the container's id and unique id in the menu
         if(model.isDevelopmentMode()) {
             final Clipboard systemClipboard =
@@ -300,13 +305,6 @@ final class PopupFactory implements VersionsPopupFactory {
             jPopupMenu.add(idJMenuItem);
             jPopupMenu.add(uidJMenuItem);
         }
-
-        // Export
-        final Data exportData = new Data(1);
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_EXPORT, exportData));
         return jPopupMenu;
     }
-
-
 }

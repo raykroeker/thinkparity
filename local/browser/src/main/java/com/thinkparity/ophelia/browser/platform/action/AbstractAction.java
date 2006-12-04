@@ -9,19 +9,11 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -31,6 +23,16 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
+import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -430,6 +432,5 @@ public abstract class AbstractAction {
             logger.error(internalErrorId, t);
             return new BrowserException(internalErrorId, t);
         }
-
     }
 }

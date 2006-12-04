@@ -64,6 +64,32 @@ public abstract class ArtifactVersion {
 	}
 
 	/**
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final ArtifactVersion other = (ArtifactVersion) obj;
+        if (uniqueId == null) {
+            if (other.uniqueId != null)
+                return false;
+        } else if (!uniqueId.equals(other.uniqueId))
+            return false;
+        if (versionId == null) {
+            if (other.versionId != null)
+                return false;
+        } else if (!versionId.equals(other.versionId))
+            return false;
+        return true;
+    }
+
+	/**
 	 * Obtain the artifact unique id.
 	 * 
 	 * @return The artifact unique id.
@@ -99,7 +125,7 @@ public abstract class ArtifactVersion {
         return comment;
     }
 
-	/**
+    /**
 	 * Obtain the aritfact creator.
 	 * 
 	 * @return The aritfact creator.
@@ -133,7 +159,7 @@ public abstract class ArtifactVersion {
 		return metaData.getProperty(key);
 	}
 
-    /**
+	/**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -176,6 +202,19 @@ public abstract class ArtifactVersion {
 	public Long getVersionId() {
         return versionId;
 	}
+
+    /**
+     * @see java.lang.Object#hashCode()
+     *
+	 */
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((uniqueId == null) ? 0 : uniqueId.hashCode());
+        result = PRIME * result + ((versionId == null) ? 0 : versionId.hashCode());
+        return result;
+    }
 
     /**
      * Determine whether or not the comment is set for the version.

@@ -4,15 +4,21 @@
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.archive.ArchiveModel;
 
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtensionModelContentProvider;
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -70,6 +76,28 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
         return archiveModel.readDocuments(uniqueId, versionId);
     }
 
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final UUID uniqueId, final Long compareVersionId) {
+        return archiveModel.readDocumentVersionDeltas(uniqueId,
+                compareVersionId);
+    }
+
+    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final UUID uniqueId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        return archiveModel.readDocumentVersionDeltas(uniqueId,
+                compareVersionId, compareToVersionId);
+    }
+
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        return archiveModel.readPublishedTo(uniqueId, versionId);
+    }
+
+    public List<TeamMember> readTeam(final UUID uniqueId) {
+        return archiveModel.readTeam(uniqueId);
+    }
+
     /**
      * Read a list of container versions from the archive.
      * 
@@ -77,11 +105,7 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
+    public List<ContainerVersion> readVersions(final UUID uniqueId) {
         return archiveModel.readContainerVersions(uniqueId);
-    }
-
-    public List<TeamMember> readTeam(final UUID uniqueId) {
-        return archiveModel.readTeam(uniqueId);
     }
 }

@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -46,13 +47,22 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
                 return null;
             }
             @Override
-            public List<U> readVersions(final UUID uniqueId) {
-                return Collections.emptyList();
-            }
-            @Override
             public Map<User, ArtifactReceipt> readPublishedTo(
                     final UUID uniqueId, final Long versionId) {
                 return Collections.emptyMap();
+            }
+            @Override
+            public Map<U, Delta> readVersionDeltas(final UUID uniqueId) {
+                return Collections.emptyMap();
+            }
+            @Override
+            public Map<U, Delta> readVersionDeltas(final UUID uniqueId,
+                    final Long compareToVersionId) {
+                return Collections.emptyMap();
+            }
+            @Override
+            public List<U> readVersions(final UUID uniqueId) {
+                return Collections.emptyList();
             }
         };
     }
@@ -123,7 +133,26 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
      * 
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
-     * @return A <code>List&lt;U&gt;</code>.
+     * @return A list of <code>U</code> and it's <code>Delta</code>.
+     */
+    public abstract Map<U, Delta> readVersionDeltas(final UUID uniqueId);
+
+    /**
+     * Read a list of archived artifact versions.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of <code>U</code> and it's <code>Delta</code>.
+     */
+    public abstract Map<U, Delta> readVersionDeltas(final UUID uniqueId,
+            final Long compareToVersionId);
+
+    /**
+     * Read a list of archived artifact versions.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return A list of <code>U</code> and it's <code>Delta</code>.
      */
     public abstract List<U> readVersions(final UUID uniqueId);
 

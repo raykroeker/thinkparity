@@ -11,15 +11,18 @@ import java.util.UUID;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -388,6 +391,11 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId, final Long compareVersionId);
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId);
     /**
      * Read the archived document versions.
      * 
@@ -403,7 +411,10 @@ public interface XMPPSession {
      */
     public List<DocumentVersion> readArchiveDocumentVersions(
             final JabberId userId, final UUID uniqueId, final Long versionId);
-
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
+            final UUID uniqueId);
     /**
      * Read the archive team for a user.
      * 
@@ -476,6 +487,9 @@ public interface XMPPSession {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readBackupDocumentVersions(
+            final JabberId userId, final UUID uniqueId, final Long versionId);
+
+    public Map<User, ArtifactReceipt> readBackupPublishedTo(
             final JabberId userId, final UUID uniqueId, final Long versionId);
 
     /**

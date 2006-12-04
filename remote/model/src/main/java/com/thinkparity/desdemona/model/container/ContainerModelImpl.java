@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -276,6 +277,36 @@ class ContainerModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+    Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId, final Long compareVersionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("compareVersionId", compareVersionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId,
+                    compareVersionId).readVersionDeltas(null);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+    Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("compareVersionId", compareVersionId);
+        logVariable("compareToVersionId", compareToVersionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId, compareVersionId)
+                    .readVersionDeltas(null, compareToVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     Map<User, ArtifactReceipt> readArchivePublishedTo(final JabberId userId, final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -285,6 +316,21 @@ class ContainerModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             return getArchiveModel().getContainerReader(userId)
+                    .readPublishedTo(uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    Map<User, ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getBackupModel().getContainerReader(userId)
                     .readPublishedTo(uniqueId, versionId);
         } catch (final Throwable t) {
             throw translateError(t);

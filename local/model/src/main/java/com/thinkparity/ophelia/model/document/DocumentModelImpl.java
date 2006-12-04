@@ -31,6 +31,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
@@ -305,7 +307,13 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            final File streamFile = downloadStream(event.getArtifactStreamId());
+            final File streamFile = downloadStream(new StreamMonitor() {
+                public void chunkReceived(final int chunkSize) {}
+                public void chunkSent(final int chunkSize) {}
+                public void headerReceived(final String header) {}
+                public void headerSent(final String header) {}
+                public void streamError(final StreamException error) {}
+            }, event.getArtifactStreamId());
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
             final DocumentVersion version;

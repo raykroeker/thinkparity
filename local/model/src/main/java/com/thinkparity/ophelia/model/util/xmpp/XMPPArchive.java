@@ -4,14 +4,19 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.util.xmpp.event.ArchiveListener;
@@ -102,6 +107,49 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
     }
 
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversiondeltas");
+        readDocumentVersions.setParameter("userId", userId);
+        readDocumentVersions.setParameter("uniqueId", uniqueId);
+        readDocumentVersions.setParameter("compareVersionId", compareVersionId);
+        return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersionDeltas("versionDeltas");
+    }
+
+    Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readpublishedto");
+        readDocumentVersions.setParameter("userId", userId);
+        readDocumentVersions.setParameter("uniqueId", uniqueId);
+        readDocumentVersions.setParameter("versionId", versionId);
+        return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
+    }
+
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        logger.logVariable("compareToVersionId", compareToVersionId);
+        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readdocumentversiondeltas");
+        readDocumentVersions.setParameter("userId", userId);
+        readDocumentVersions.setParameter("uniqueId", uniqueId);
+        readDocumentVersions.setParameter("compareVersionId", compareVersionId);
+        readDocumentVersions.setParameter("compareToVersionId", compareToVersionId);
+        return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersionDeltas("versionDeltas");
+    }
+
     List<DocumentVersion> readDocumentVersions(final JabberId userId,
             final UUID uniqueId, final Long versionId) {
         logger.logApiId();
@@ -113,6 +161,16 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
+    }
+
+    List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        final XMPPMethod readTeam = new XMPPMethod("archive:readteam");
+        readTeam.setParameter("userId", userId);
+        readTeam.setParameter("uniqueId", uniqueId);
+        return execute(readTeam, Boolean.TRUE).readResultTeamMembers("team");
     }
 
     List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {

@@ -5,6 +5,7 @@ package com.thinkparity.codebase.wildfire.handler;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
@@ -13,8 +14,10 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -216,35 +219,35 @@ public abstract class AbstractHandler extends
         iqWriter.writeContainer(name, value);
     }
 
-    protected final void writeUser(final String name, final User value) {
-        iqWriter.writeUser(name, value);
-    }
-
     protected final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         iqWriter.writeContainers(parentName, name, values);
-    }
-
-    protected final void writeEvents(final String name, final String childName,
-            final List<XMPPEvent> values) {
-        iqWriter.writeEvents(name, childName, values);
     }
 
     protected final void writeContainerVersions(final String parentName,
             final String name, final List<ContainerVersion> values) {
         iqWriter.writeContainerVersions(parentName, name, values);
     }
+
     protected final void writeDocuments(final String parentName,
             final String name, final List<Document> values) {
         iqWriter.writeDocuments(parentName, name, values);
+    }
+
+    protected final void writeDocumentVersionDeltas(final String name,
+            final Map<DocumentVersion, Delta> values) {
+        iqWriter.writeDocumentVersionDeltas(name, values);
+    }
+
+    protected final void writeUserReceipts(final String name,
+            final Map<User, ArtifactReceipt> values) {
+        iqWriter.writeUserReceipts(name, values);
     }
 
     protected final void writeDocumentVersions(final String parentName,
             final String name, final List<DocumentVersion> values) {
         iqWriter.writeDocumentVersions(parentName, name, values);
     }
-
-
     /**
      * Write a list of e-mail values to the response query.
      * 
@@ -259,6 +262,12 @@ public abstract class AbstractHandler extends
             final String name, final List<EMail> values) {
         iqWriter.writeEMails(parentName, name, values);
     }
+
+    protected final void writeEvents(final String name, final String childName,
+            final List<XMPPEvent> values) {
+        iqWriter.writeEvents(name, childName, values);
+    }
+
 
     /**
      * Write a jabber id value to the response query.
@@ -336,6 +345,10 @@ public abstract class AbstractHandler extends
 
     protected final void writeToken(final String name, final Token value) {
         iqWriter.writeToken(name, value);
+    }
+
+    protected final void writeUser(final String name, final User value) {
+        iqWriter.writeUser(name, value);
     }
 
     /**

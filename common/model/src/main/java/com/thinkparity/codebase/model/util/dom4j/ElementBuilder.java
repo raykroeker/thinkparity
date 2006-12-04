@@ -7,24 +7,29 @@ import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -39,9 +44,12 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationExtendedE
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+
+import com.thoughtworks.xstream.io.xml.Dom4JWriter;
 
 /**
  * <b>Title:</b>thinkParity Remote Element Builder <br>
@@ -95,6 +103,23 @@ public class ElementBuilder {
             final Element element = addElement(parent, parentName, List.class);
             for (final Document value : values) {
                 addElement(element, name, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addDocumentVersionDeltaElements(
+            final Element parent, final String name,
+            final Map<DocumentVersion, Delta> values) {
+        if (values.size() < 1) {
+            return addNullMapElement(parent, name);
+        } else {
+            final Element element = addMapElement(parent, name);
+            Element entryElement;
+            for (final Entry<DocumentVersion, Delta> entry : values.entrySet()) {
+                entryElement = addMapEntryElement(element);
+                addElement(entryElement, "key", entry.getKey());
+                addElement(entryElement, "value", entry.getValue());
             }
             return element;
         }
@@ -164,6 +189,22 @@ public class ElementBuilder {
         } else {
             return addElement(parent, name, Charset.class, value.name());
         }
+    }
+
+    /**
+     * Add a typed element to the parent.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @return The element.
+     */
+    public static final Element addElement(final Element parent,
+            final String name, final Class type) {
+        final Element element = parent.addElement(name);
+        applyCoreAttributes(element, type);
+        return element;
     }
 
     public static final Element addElement(final Element parent,
@@ -487,6 +528,24 @@ public class ElementBuilder {
         }
     }
 
+    public static final Element addMapElement(final Element parent,
+            final String name) {
+        return addElement(parent, name, Map.class);
+    }
+
+    public static final Element addNullElement(final Element parent,
+            final String name, final Class type) {
+        final Element element = parent.addElement(name);
+        applyCoreAttributes(element, type);
+        return element;
+    }
+
+    public static final Element addNullMapElement(final Element parent,
+            final String name) {
+        final Element element = parent.addElement(name);
+        applyCoreAttributes(element, Map.class);
+        return element;
+    }
 
     public static final Element addProfileEMailElements(final Element parent,
             final String parentName, final String name,
@@ -501,6 +560,7 @@ public class ElementBuilder {
             return element;
         }
     }
+
 
     /**
      * Add a list of string values.
@@ -524,6 +584,23 @@ public class ElementBuilder {
             final Element element = addElement(parent, parentName, List.class);
             for (final String value : values) {
                 addElement(element, name, value);
+            }
+            return element;
+        }
+    }
+
+    public static final Element addUserReceiptElements(
+            final XStreamUtil xstreamUtil, final Element parent,
+            final String name, final Map<User, ArtifactReceipt> values) {
+        if (values.size() < 1) {
+            return addNullMapElement(parent, name);
+        } else {
+            final Element element = addMapElement(parent, name);
+            Element entryElement;
+            for (final Entry<User, ArtifactReceipt> entry : values.entrySet()) {
+                entryElement = addMapEntryElement(element);
+                addElement(xstreamUtil, entryElement, "key", entry.getKey());
+                addElement(xstreamUtil, entryElement, "value", entry.getValue());
             }
             return element;
         }
@@ -742,22 +819,6 @@ public class ElementBuilder {
     }
 
     /**
-     * Add a typed element to the parent.
-     * 
-     * @param parent
-     *            The parent element.
-     * @param name
-     *            The element name.
-     * @return The element.
-     */
-    public static final Element addElement(final Element parent,
-            final String name, final Class type) {
-        final Element element = parent.addElement(name);
-        applyCoreAttributes(element, type);
-        return element;
-    }
-
-    /**
      * Add a typed element to the dom.
      * 
      * @param parent
@@ -801,6 +862,30 @@ public class ElementBuilder {
         }
     }
 
+    private static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final ArtifactReceipt value) {
+        if (null == value) {
+            return addNullElement(parent, name, ArtifactReceipt.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
+    private static final Element addElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final User value) {
+        if (null == value) {
+            return addNullElement(parent, name, User.class);
+        } else {
+            final Element element = addElement(parent, name, value.getClass());
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
+            return element;
+        }
+    }
+
     private static final Element addJabberIdElements(final Element parent,
             final String name, final List<JabberId> values) {
         if (values.size() < 1) {
@@ -815,11 +900,8 @@ public class ElementBuilder {
         }
     }
 
-    public static final Element addNullElement(final Element parent,
-            final String name, final Class type) {
-        final Element element = parent.addElement(name);
-        applyCoreAttributes(element, type);
-        return element;
+    private static final Element addMapEntryElement(final Element parent) {
+        return addElement(parent, "entry", Map.Entry.class);
     }
 
     private static void applyCoreAttributes(final Element element,

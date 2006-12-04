@@ -6,6 +6,7 @@ package com.thinkparity.codebase.model.util.xstream;
 import java.io.Reader;
 import java.io.Writer;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -60,6 +61,19 @@ public class XStreamUtil {
     }
 
     /**
+     * Marshal an artifact receipt to an xstream writer.
+     * 
+     * @param artifactReceipt
+     *            An <code>ArtifactReceipt</code>.
+     * @param writer
+     *            A <code>HierarchicalStreamWriter</code>.
+     */
+    public void marshal(final ArtifactReceipt artifactReceipt,
+            final HierarchicalStreamWriter writer) {
+        xstream.marshal(artifactReceipt, writer);
+    }
+
+    /**
      * Marshal a team member to an xstream writer.
      * 
      * @param teamMember
@@ -109,15 +123,49 @@ public class XStreamUtil {
         xstream.toXML(event, writer);
     }
 
+    public ArtifactReceipt unmarshalArtifactReceipt(
+            final HierarchicalStreamReader xml, final ArtifactReceipt root) {
+        return (ArtifactReceipt) xstream.unmarshal(xml, root);
+    }
+
     /**
      * Unmarshal an xmpp event from an xtream reader.
      * 
      * @param xml
-     *            An <code>HierarchicalStreamReader</code>.
+     *            A <code>HierarchicalStreamReader</code>.
+     * @param root
+     *            An <code>XMPPevent</code>.
      * @return An <code>XMPPevent</code>.
      */
     public XMPPEvent unmarshalEvent(final HierarchicalStreamReader xml,
             final XMPPEvent root) {
         return (XMPPEvent) xstream.unmarshal(xml, root);
+    }
+
+    /**
+     * Unmarshal a team member from an xstream reader.
+     * 
+     * @param xml
+     *            A <code>HierarchicalStreamReader</code>.
+     * @param root
+     *            A <code>TeamMember</code>.
+     * @return A <code>TeamMember</code>.
+     */
+    public TeamMember unmarshalTeamMember(final HierarchicalStreamReader xml,
+            final TeamMember root) {
+        return (TeamMember) xstream.unmarshal(xml, root);
+    }
+
+    /**
+     * Unmarshal a user from an xstream reader.
+     * 
+     * @param xml
+     *            A <code>HierarchicalStreamReader</code>.
+     * @param root
+     *            A <code>User</code>.
+     * @return A <code>User</code>.
+     */
+    public User unmarshalUser(final HierarchicalStreamReader xml, final User root) {
+        return (User) xstream.unmarshal(xml, root);
     }
 }

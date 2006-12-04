@@ -10,10 +10,11 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -191,6 +192,22 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
                     versionId);
         }
     }
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId);
+        }
+    }
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId, compareToVersionId);
+        }
+    }
 
 
     /**
@@ -209,9 +226,17 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
-    public Map<User, ArtifactReceipt> readArchivePublishedTo(final JabberId userId, final UUID uniqueId, final Long versionId) {
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
+        }
+    }
+
+    public Map<User, ArtifactReceipt> readBackupPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
         }
     }
 

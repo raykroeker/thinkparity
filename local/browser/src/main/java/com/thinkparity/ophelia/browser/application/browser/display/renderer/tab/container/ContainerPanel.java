@@ -75,16 +75,16 @@ public class ContainerPanel extends DefaultTabPanel {
     protected final MainPanelImageCache imageCache;
 
     /** A <code>Container</code>. */
-    private Container container;
+    protected Container container;
 
     /** A <code>ContainerDraft</code>. */
-    private ContainerDraft draft;
+    protected ContainerDraft draft;
 
     /** The expanded <code>Boolean</code> state. */
-    private Boolean expanded;
+    protected Boolean expanded;
 
     /** The latest version <code>ContainerVersion</code>. */
-    private ContainerVersion latestVersion;
+    protected ContainerVersion latestVersion;
 
     /** The panel localization. */
     private final MainCellL18n localization;

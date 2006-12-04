@@ -12,9 +12,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -22,6 +24,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModel;
@@ -379,6 +382,24 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId);
+        }
+    }
+
+    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final JabberId userId, final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersionDeltas(userId, uniqueId,
+                    compareVersionId, compareToVersionId);
+        }
+    }
+
     /**
      * Read the archived document versions.
      * 
@@ -397,6 +418,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized (getImplLock()) {
             return getImpl().readArchiveDocumentVersions(userId, uniqueId,
                     versionId);
+        }
+    }
+
+    public Map<User, ArtifactReceipt> readArchivePublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchivePublishedTo(userId, uniqueId, versionId);
+        }
+    }
+
+    public List<TeamMember> readArchiveTeam(final JabberId userId,
+            final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveTeam(userId, uniqueId);
         }
     }
 
@@ -488,6 +523,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized (getImplLock()) {
             return getImpl().readBackupDocumentVersions(userId, uniqueId,
                     versionId);
+        }
+    }
+
+    public Map<User, ArtifactReceipt> readBackupPublishedTo(
+            final JabberId userId, final UUID uniqueId, final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readBackupPublishedTo(userId, uniqueId, versionId);
         }
     }
 

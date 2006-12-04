@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -72,6 +73,44 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
         }
     }
 
+    @Override
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersionDeltas(java.util.UUID)
+     *
+     */
+    @Override
+    public Map<DocumentVersion, Delta> readVersionDeltas(final UUID uniqueId) {
+        // bit of a wierd workflow to ensure the container is archived
+        final Long containerId = readArchivedArtifactId(containerUniqueId);
+        if (null == containerId) {
+            return Collections.emptyMap();
+        } else {
+            return containerModel.readDocumentVersionDeltas(containerId,
+                    containerVersionId);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersionDeltas(java.util.UUID, java.lang.Long)
+     *
+     */
+    @Override
+    public Map<DocumentVersion, Delta> readVersionDeltas(final UUID uniqueId,
+            final Long compareToVersionId) {
+        // bit of a wierd workflow to ensure the container is archived
+        final Long containerId = readArchivedArtifactId(containerUniqueId);
+        if (null == containerId) {
+            return Collections.emptyMap();
+        } else {
+            return containerModel.readDocumentVersionDeltas(containerId,
+                    containerVersionId, compareToVersionId);
+        }
+    }
+
     /**
      * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersions(java.util.UUID)
      */
@@ -85,10 +124,5 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
             return containerModel.readDocumentVersions(containerId,
                     containerVersionId);
         }
-    }
-
-    @Override
-    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
-        return Collections.emptyMap();
     }
 }

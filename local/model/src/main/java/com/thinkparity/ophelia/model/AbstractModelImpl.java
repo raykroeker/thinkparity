@@ -564,12 +564,12 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A stream id <code>String</code>.
      * @return A stream <code>File</code>.
      */
-    protected final File downloadStream(final String streamId)
-            throws IOException {
-        final File streamFile = workspace.createTempFile(streamId);
+    protected final File downloadStream(final StreamMonitor streamMonitor,
+            final String streamId) throws IOException {
+        final File streamFile = buildStreamFile(streamId);
         final FileOutputStream stream = new FileOutputStream(streamFile);
         final StreamSession session = getSessionModel().createStreamSession();
-        final StreamReader reader = new StreamReader(session);
+        final StreamReader reader = new StreamReader(streamMonitor, session);
         try {
             reader.open();
             reader.read(streamId, stream);
@@ -599,6 +599,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), environment, workspace);
     }
+    /**
+     * Obtain the internal thinkParity artifact model.
+     * 
+     * @return An <code>InternalArtifactModel</code>.
+     */
+    protected InternalArtifactModel getArtifactModel() {
+        return ArtifactModel.getInternalModel(getContext(), environment, workspace);
+    }
 
     protected InternalBackupModel getBackupModel() {
         return BackupModel.getInternalModel(getContext(), environment, workspace);
@@ -618,15 +626,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Obtain the internal thinkParity artifact model.
-     * 
-     * @return An <code>InternalArtifactModel</code>.
-     */
-    protected InternalArtifactModel getArtifactModel() {
-        return ArtifactModel.getInternalModel(getContext(), environment, workspace);
-    }
-
-	/**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -651,9 +650,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
-	};
+	}
 
-	/**
+    /**
      * Obtain the internal parity download interface.
      *
      * @return The internal parity download interface.
@@ -669,7 +668,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalLibraryModel getInternalLibraryModel() {
         return LibraryModel.getInternalModel(getContext(), environment, workspace);
-    }
+    };
 
 	/**
      * Obtain the thinkParity internal message interface.
@@ -680,7 +679,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getInternalSystemMessageModel();
     }
 
-    /**
+	/**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -689,7 +688,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ReleaseModel.getInternalModel(getContext(), environment, workspace);
     }
 
-    /**
+	/**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.
@@ -857,6 +856,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return getSessionModel().isLoggedIn();
     }
 
+    protected final Boolean isStreamDownloadComplete(final String streamId,
+            final Long versionSize) throws IOException {
+        final File streamFile = buildStreamFile(streamId);
+        return streamFile.exists()
+                && streamFile.length() == versionSize.longValue();
+    }
+
     /**
      * Obtain the team member for the local user.
      * 
@@ -896,6 +902,11 @@ public abstract class AbstractModelImpl<T extends EventListener>
         }
         return localUserId;
 	}
+
+    protected final File locateStreamFile(final String streamId)
+            throws IOException {
+        return buildStreamFile(streamId);
+    }
 
     /**
      * Notify all event listeners.
@@ -1055,7 +1066,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A <code>Iterable</code> series of <code>InputStream</code>.
      * @throws IOException
      */
-    protected String uploadStream(final StreamMonitor monitor,
+    protected final String uploadStream(final StreamMonitor monitor,
             final StreamSession session, final InputStream stream,
             final Long streamSize) throws IOException {
         final InternalSessionModel sessionModel = getSessionModel();
@@ -1068,6 +1079,10 @@ public abstract class AbstractModelImpl<T extends EventListener>
         } finally {
             writer.close();
         }
+    }
+
+    private File buildStreamFile(final String streamId) throws IOException {
+        return workspace.createTempFile(streamId);
     }
 
     /**

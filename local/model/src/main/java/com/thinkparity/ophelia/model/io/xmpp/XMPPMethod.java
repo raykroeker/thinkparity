@@ -11,8 +11,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
 
@@ -25,11 +27,13 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
@@ -37,7 +41,9 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -465,10 +471,31 @@ public class XMPPMethod extends IQ {
                     Class listJavaType;
                     while (XmlPullParser.END_TAG != parser.getEventType()) {
                         listJavaType = parseJavaType(parser);
-                        ((ArrayList) javaValue).add(
-                                parseJavaValue(parser, listJavaType));
+                        javaValue.add(parseJavaValue(parser, listJavaType));
                     }
                     parser.next();  // move past end of list
+                    return javaValue;
+                }
+            } else if (javaType.equals(Map.class)) {
+                if (parser.isEmptyElementTag()) {
+                    parser.next();
+                    parser.next();
+                    return Collections.emptyMap();
+                } else {
+                    parser.next();
+                    final Map javaValue = new HashMap();
+                    Class mapKeyJavaType, mapValueJavaType;
+                    Object mapKeyJavaValue, mapValueJavaValue;
+                    while (XmlPullParser.END_TAG != parser.getEventType()) {
+                        parser.next();  // TAG-BEGIN:entry
+                        mapKeyJavaType = parseJavaType(parser);
+                        mapKeyJavaValue = parseJavaValue(parser, mapKeyJavaType);
+                        mapValueJavaType = parseJavaType(parser);
+                        mapValueJavaValue = parseJavaValue(parser, mapValueJavaType);
+                        parser.next();  // TAG-END:entry
+                        javaValue.put(mapKeyJavaValue, mapValueJavaValue);
+                    }
+                    parser.next();
                     return javaValue;
                 }
             } else {
@@ -476,12 +503,30 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return null;
+                } else if (javaType.equals(ArtifactReceipt.class)) {
+                    ArtifactReceipt artifactReceipt = null;
+                    artifactReceipt = xstreamUtil.unmarshalArtifactReceipt(new SmackXppReader(parser), artifactReceipt);
+                    parser.next();
+                    parser.next();
+                    return artifactReceipt;
                 } else if (XMPPEvent.class.isAssignableFrom(javaType)) {
                     XMPPEvent event = null;
                     event = xstreamUtil.unmarshalEvent(new SmackXppReader(parser), event);
                     parser.next();
                     parser.next();
                     return event;
+                } else if (javaType.equals(TeamMember.class)) {
+                    TeamMember teamMember = null;
+                    teamMember = xstreamUtil.unmarshalTeamMember(new SmackXppReader(parser), teamMember);
+                    parser.next();
+                    parser.next();
+                    return teamMember;
+                } else if (javaType.equals(User.class)) {
+                    User user = null;
+                    user = xstreamUtil.unmarshalUser(new SmackXppReader(parser), user);
+                    parser.next();
+                    parser.next();
+                    return user;
                 } else {
                     parser.next();  // move to element text
                     final Object javaValue;
@@ -500,6 +545,9 @@ public class XMPPMethod extends IQ {
                         parser.next();
                     } else if (javaType.equals(Charset.class)) {
                         javaValue = Charset.forName(parser.getText());
+                        parser.next();
+                    } else if (javaType.equals(Delta.class)) {
+                        javaValue = Delta.valueOf(parser.getText());
                         parser.next();
                     } else if (javaType.equals(ArtifactType.class)) {
                         javaValue = ArtifactType.valueOf(parser.getText());

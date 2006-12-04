@@ -4,6 +4,8 @@
  */
 package com.thinkparity.codebase.model.container;
 
+import com.thinkparity.codebase.StringUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 /**
@@ -15,33 +17,23 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
  */
 public class ContainerVersion extends ArtifactVersion {
 
-	/** Create Container. */
-	public ContainerVersion() { super(); }
-
-    /** @see java.lang.Object#equals(java.lang.Object) */
-    @Override
-    public boolean equals(final Object obj) {
-        if(null != obj && obj instanceof ContainerVersion) {
-            return ((ContainerVersion) obj).getArtifactId().equals(getArtifactId()) &&
-                    ((ContainerVersion) obj).getVersionId().equals(getVersionId());
-        }
-        return false;
-    }
-
-    /** @see java.lang.Object#hashCode() */
-    @Override
-    public int hashCode() {
-        return getArtifactId().hashCode() & getVersionId().hashCode();
-    }
+	/**
+     * Create Container.
+     * 
+     */
+	public ContainerVersion() {
+        super();
+	}
 
     /**
      * @see java.lang.Object#toString()
+     *
      */
     @Override
     public String toString() {
-        return new StringBuffer(getClass().getName()).append("//")
-            .append(getArtifactId())
-            .append("/").append(getVersionId())
-            .toString();
+        return StringUtil.toString(getClass(),
+                "getArtifactUniqueId()", getArtifactUniqueId(),
+                "getArtifactId()", getArtifactId(),
+                "getVersionId()", getVersionId());
     }
 }

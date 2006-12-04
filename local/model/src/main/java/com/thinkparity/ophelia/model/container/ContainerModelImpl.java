@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
+import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.ZipUtil;
@@ -1888,6 +1889,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     return archiveModel.readDocumentVersions(uniqueId,
                             versionId);
                 }
+                public Map<User, ArtifactReceipt> readPublishedTo(
+                        final UUID uniqueId, final Long versionId) {
+                    return archiveModel.readPublishedTo(uniqueId, versionId);
+                }
                 public List<JabberId> readTeamIds(final UUID uniqueId) {
                     return archiveModel.readTeamIds(uniqueId);
                 }
@@ -1936,6 +1941,10 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             final UUID uniqueId, final Long versionId) {
                         return backupModel.readDocumentVersions(uniqueId,
                                 versionId);
+                    }
+                    public Map<User, ArtifactReceipt> readPublishedTo(
+                            final UUID uniqueId, final Long versionId) {
+                        return backupModel.readPublishedTo(uniqueId, versionId);
                     }
                     public List<JabberId> readTeamIds(final UUID uniqueId) {
                         return backupModel.readTeamIds(uniqueId);
@@ -2212,13 +2221,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         for (final ArtifactVersion compareToDocument : compareToDocuments) {
             artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
             artifactVersionDelta.setArtifactId(compareToDocument.getArtifactId());
-            artifactVersionDelta.setArtifactVersionId(compareToDocument.getVersionId());
+//            artifactVersionDelta.setArtifactVersionId(compareToDocument.getVersionId());
             // walk through compare version's documents
             didHit = false;
             for (final ArtifactVersion versionDocument : compareDocuments) {
                 // the artifact exists in this version; and in the compare version
                 // therefore it must be the same or modified
                 if (versionDocument.getArtifactId().equals(compareToDocument.getArtifactId())) {
+                    artifactVersionDelta.setArtifactVersionId(versionDocument.getVersionId());
                     // the version numbers are the same; no change
                     if (versionDocument.getVersionId().equals(compareToDocument.getVersionId())) {
                         artifactVersionDelta.setDelta(Delta.NONE);
@@ -3001,10 +3011,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // restore version info
         final List<ContainerVersion> versions =
             restoreModel.readContainerVersions(container.getUniqueId());
+        // we want to restore in from first to last chronologically
+        ModelSorter.sortContainerVersions(versions, new ComparatorBuilder().createVersionById(Boolean.TRUE));
         List<Document> documents;
         List<DocumentVersion> documentVersions;
         InputStream documentVersionStream;
         ContainerVersion previous;
+        Map<User, ArtifactReceipt> publishedTo;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getName(), version.getVersionId());
@@ -3012,6 +3025,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             userModel.readLazyCreate(version.getUpdatedBy());
             version.setArtifactId(container.getId());
             containerIO.createVersion(version);
+            publishedTo = restoreModel.readPublishedTo(version
+                    .getArtifactUniqueId(), version.getVersionId());
+            containerIO.createPublishedTo(container.getId(), version
+                    .getVersionId(), CollectionsUtil
+                    .proxy(publishedTo.keySet()));
+            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                if (entry.getValue().isSetReceivedOn()) {
+                    containerIO.updatePublishedTo(container.getId(), version
+                            .getVersionId(), entry.getValue().getUserId(),
+                            entry.getValue().getReceivedOn());
+                }
+            }
             // restore version links
             documents = restoreModel.readDocuments(container.getUniqueId(), version.getVersionId());
             documentVersions = restoreModel.readDocumentVersions(container.getUniqueId(), version.getVersionId());
@@ -3123,6 +3148,20 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
          * @return A <code>List&lt;DocumentVersion&gt;</code>.
          */
         public List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
+                final Long versionId);
+
+        /**
+         * Read a list of users the version has been published to and the
+         * receipt information.
+         * 
+         * @param uniqueId
+         *            A unique id <code>UUID</code>.
+         * @param versionId
+         *            A version id <code>Long</code>.
+         * @return A list of <code>User</code>s and the corresponding
+         *         <code>ArtifactReceipt</code>.
+         */
+        public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
                 final Long versionId);
 
         /**

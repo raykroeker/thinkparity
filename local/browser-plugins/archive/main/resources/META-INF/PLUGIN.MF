@@ -3,7 +3,7 @@ Plugin-Class:com.thinkparity.ophelia.browser.plugin.archive.ArchivePlugin
 Plugin-Id:com.thinkparity.archive
 Plugin-Name:Archive
 Plugin-Version:1.0
-Platform-Extensions:ArchiveTab,ArchiveAction,RestoreAction
+Platform-Extensions:ArchiveTab,ArchiveAction,OpenDocumentVersionAction,RestoreAction
 Platform-MaximumVersion:1.0.0-RC14
 Platform-MinimumVersion:1.0.0-RC14
 
@@ -15,3 +15,6 @@ ArchiveAction-Class:com.thinkparity.ophelia.browser.plugin.archive.action.Archiv
 
 RestoreAction-Name:RestoreAction
 RestoreAction-Class:com.thinkparity.ophelia.browser.plugin.archive.action.RestoreAction
+
+OpenDocumentVersionAction-Name:OpenDocumentVersionAction
+OpenDocumentVersionAction-Class:com.thinkparity.ophelia.browser.plugin.archive.action.OpenDocumentVersionAction

@@ -208,6 +208,19 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
     }
+
+    /**
+     * Open a confirm dialog using an already localized message.
+     * 
+     * @param localizedMessage
+     *            A localized message.
+     * @return True if the user confirmed in the affirmative.
+     */
+    public Boolean confirmLocalized(final String localizedMessage) {
+        final Data input = new Data(1);
+        input.set(ConfirmDialog.DataKey.LOCALIZED_MESSAGE, localizedMessage);
+        return confirm(input);
+    }
     
     /**
      * Display the invite dialogue.
@@ -1845,15 +1858,22 @@ public class Browser extends AbstractApplication {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
+    /**
+     * Open a window.
+     * 
+     * @param windowId
+     *            A <code>WindowId</code>.
+     * @param avatarId
+     *            An <code>AvatarId</code>.
+     * @param input
+     *            Input <code>Data</code>.
+     */
 	private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
-
         final Avatar avatar = getAvatar(avatarId);
         avatar.setInput(input);
-        
         setUpSemiTransparentLayer(window);
-
         window.open(avatar);
     }
 

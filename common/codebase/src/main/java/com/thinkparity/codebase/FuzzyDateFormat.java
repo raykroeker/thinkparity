@@ -100,4 +100,20 @@ public class FuzzyDateFormat {
         }
         return new SimpleDateFormat(pattern).format(target.getTime());
     }
+
+    /**
+     * Format a <code>Calendar</code> using named pattern.
+     * 
+     * @param patternName
+     *            The name of a format pattern, can be one of "Default",
+     *            "SameDay", "SameMonth", "SameYear", "Verbose" or "WithinWeek".
+     * @param target
+     *            A target calendar.
+     * @return A fuzzy date/time format.
+     * @see SimpleDateFormat#format(java.util.Date)
+     */
+    public String format(final Calendar target, final String patternName) {
+        return new SimpleDateFormat(BUNDLE.getString(patternName))
+                .format(target.getTime());
+    }
 }

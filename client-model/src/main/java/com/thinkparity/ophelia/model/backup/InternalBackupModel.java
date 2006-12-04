@@ -6,18 +6,21 @@ package com.thinkparity.ophelia.model.backup;
 import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -218,6 +221,80 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
     public List<JabberId> readTeamIds(UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeamIds(uniqueId);
+        }
+    }
+
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(uniqueId, versionId);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(uniqueId, versionId, comparator);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(uniqueId, versionId, comparator, filter);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(uniqueId, versionId, filter);
         }
     }
 }

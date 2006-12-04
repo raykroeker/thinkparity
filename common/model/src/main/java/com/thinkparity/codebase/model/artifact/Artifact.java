@@ -16,7 +16,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.note.Note;
 
-
 /**
  * The parity object is the quintessential parity model object. It represents
  * the main object stored in the parity model's meta data store. Additional
@@ -126,16 +125,27 @@ public abstract class Artifact {
 	}
 
     /**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object obj) {
-		if(null != obj && obj instanceof Artifact) {
-			return id.equals(((Artifact) obj).id);
-		}
-		return false;
-	}
+     * @see java.lang.Object#equals(java.lang.Object)
+     *
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Artifact other = (Artifact) obj;
+        if (uniqueId == null) {
+            if (other.uniqueId != null)
+                return false;
+        } else if (!uniqueId.equals(other.uniqueId))
+            return false;
+        return true;
+    }
 
-    /**
+	/**
      * Obtain the created by user id.
      * 
      * @return The created by user id <code>JabberId</code>.
@@ -160,14 +170,14 @@ public abstract class Artifact {
 		return Collections.unmodifiableCollection(flags);
 	}
 
-	/**
+    /**
 	 * Obtain the artifact id.
 	 * 
 	 * @return The artifact id.
 	 */
 	public Long getId() { return id; }
 
-    /**
+	/**
 	 * Obtain the name of the object.
 	 * 
 	 * @return The name of the object.
@@ -227,12 +237,19 @@ public abstract class Artifact {
 	 */
 	public Calendar getUpdatedOn() { return updatedOn;}
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() { return uniqueId.hashCode(); }
+    /**
+     * @see java.lang.Object#hashCode()
+     *
+     */
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + ((uniqueId == null) ? 0 : uniqueId.hashCode());
+        return result;
+    }
 
-	/**
+    /**
      * Determine whether or not the object has been bookmarked.
      * 
      * @return True if it has been bookmarked.

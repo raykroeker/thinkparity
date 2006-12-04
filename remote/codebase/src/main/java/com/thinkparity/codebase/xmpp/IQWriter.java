@@ -6,14 +6,17 @@ package com.thinkparity.codebase.xmpp;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -83,12 +86,6 @@ public abstract class IQWriter {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
-    public final void writeUser(final String name, final User value) {
-        final Element valueElement = ElementBuilder.addElement(
-            iq.getChildElement(), name, value.getClass());
-        XSTREAM_UTIL.marshal(value, new Dom4JWriter(valueElement));
-    }
-
     public final void writeContainers(final String parentName,
             final String name, final List<Container> values) {
         ElementBuilder.addContainerElements(iq.getChildElement(), parentName, name, values);
@@ -102,6 +99,11 @@ public abstract class IQWriter {
     public final void writeDocuments(final String parentName,
             final String name, final List<Document> values) {
         ElementBuilder.addDocumentElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    public final void writeDocumentVersionDeltas(final String name, final Map<DocumentVersion, Delta> values) {
+        ElementBuilder.addDocumentVersionDeltaElements(iq.getChildElement(),
+                name, values);
     }
 
     public final void writeDocumentVersions(final String parentName,
@@ -270,5 +272,16 @@ public abstract class IQWriter {
      */
     public final void writeUniqueId(final String name, final UUID value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    public final void writeUser(final String name, final User value) {
+        final Element valueElement = ElementBuilder.addElement(
+            iq.getChildElement(), name, value.getClass());
+        XSTREAM_UTIL.marshal(value, new Dom4JWriter(valueElement));
+    }
+
+    public final void writeUserReceipts(final String name,
+            final Map<User, ArtifactReceipt> values) {
+        ElementBuilder.addUserReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 }

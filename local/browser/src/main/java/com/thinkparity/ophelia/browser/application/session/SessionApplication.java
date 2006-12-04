@@ -6,40 +6,41 @@ package com.thinkparity.ophelia.browser.application.session;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+
 import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.util.State;
-import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
+
+import org.apache.log4j.Logger;
 
 /**
  * The session application is responsible for creating and maintaining the
  * user's session.
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.6
  */
 public class SessionApplication extends AbstractApplication {
 
-    /** Thread name for the connect timer. */
+    /** The connect timer name <code>String</code>. */
     private static final String CONNECT_TIMER_NAME = new StringBuffer()
-            .append(Application.OPHELIA)
-            .append(" - ").append("Connect Timer")
+            .append(Application.OPHELIA).append(" - ").append("Connect Timer")
             .toString();
 
-    /** The thinkParity connection. */
+    /** The thinkParity <code>Connection</code>. */
     private Connection connection;
 
-    /** A timer to reconnect after a set duration. */
+    /** The connect <code>Timer</code>. */
     private Timer connectTimer;
 
-    /** The session application event dispatcher. */
+    /** The application's <code>EventDispatcher</code>. */
     private EventDispatcher ed;
 
     /**
@@ -47,9 +48,11 @@ public class SessionApplication extends AbstractApplication {
      * localization.
      * 
      * @param platform
-     *            A thinkParity platform.
+     *            A thinkParity <code>Platform</code>.
      */
-    public SessionApplication(final Platform platform) { super(platform, null); }
+    public SessionApplication(final Platform platform) {
+        super(platform, null);
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
@@ -65,63 +68,97 @@ public class SessionApplication extends AbstractApplication {
         // needs to be cancelled.
         debugVariable("isConnected()", isConnected());
         debugVariable("connectTimer", connectTimer);
-        if(isConnected()) { disconnect(); }
-        else {
-            connectTimer.cancel();
-            connectTimer = null;
+        if (isConnected()) {
+            disconnect();
+        } else {
+            // we can be not connected; and not attempting to connect
+            if (null != connectTimer) {
+                connectTimer.cancel();
+                connectTimer = null;
+            }
         }
 
         notifyEnd();
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection() */
-    public Connection getConnection() { return connection; }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
+     * 
+     */
+    public Connection getConnection() {
+        return connection;
+    }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#getId() */
-    public ApplicationId getId() { return ApplicationId.SESSION; }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getId()
+     * 
+     */
+    public ApplicationId getId() {
+        return ApplicationId.SESSION;
+    }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#getLogger(java.lang.Class) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#getLogger(java.lang.Class)
+     * 
+     */
     public Logger getLogger(final Class clasz) {
         return getPlatform().getLogger(clasz);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform)
+     * 
+     */
     public void hibernate(final Platform platform) {
-        Assert.assertUnreachable("SessionApplication#hibernate");
+        Assert.assertUnreachable("The session application does not support hibernation.");
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode()
+     * 
+     */
     public Boolean isDevelopmentMode() {
         return getPlatform().isDevelopmentMode();
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
+     * 
+     */
     public void restore(final Platform platform) {
-        Assert.assertUnreachable("SessionApplication#restore");
+        Assert.assertUnreachable("The session application does not support hibernation.");
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Saveable#restoreState(com.thinkparity.ophelia.browser.platform.util.State)
+     * 
+     */
     public void restoreState(final State state) {
-        throw Assert.createNotYetImplemented("SessionApplication#restoreState");
+        throw Assert.createNotYetImplemented("The session application does not support state.");
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Saveable#saveState(com.thinkparity.ophelia.browser.platform.util.State)
+     * 
+     */
     public void saveState(final State state) {
-        throw Assert.createNotYetImplemented("SessionApplication#saveState");
+        throw Assert.createNotYetImplemented("The session application does not support state.");
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.Application#start(com.thinkparity.ophelia.browser.platform.Platform) */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.Application#start(com.thinkparity.ophelia.browser.platform.Platform)
+     * 
+     */
     public void start(final Platform platform) {
         logApiId();
-
+        // start the event dispatcher
         ed = new EventDispatcher(this);
         ed.start();
-
-        logVariable("isConnected()", isConnected());
-        if(!isConnected()) {
+        // connect
+        if (!isConnected()) {
             connectLater(0L);
         }
-
+        // fire application started event
         notifyStart();
     }
 
@@ -164,10 +201,11 @@ public class SessionApplication extends AbstractApplication {
     }
 
     /**
-     * Schedule a task to connect until we are back online.
+     * Establish a connection after a delay.
      * 
      * @param delay
-     *            The time to delay before the initial run of the task.
+     *            A number of milliseconds <code>Long</code> to delay before
+     *            connecting.
      */
     private void connectLater(final Long delay) {
         logApiId();
@@ -192,14 +230,18 @@ public class SessionApplication extends AbstractApplication {
      * Disconnect from the thinkParity server.
      *
      */
-    private void disconnect() { getSessionModel().logout(); }
+    private void disconnect() {
+        getSessionModel().logout();
+    }
 
     /**
-     * Determine if the user is connected.
+     * Determine if the connection is established.
      * 
-     * @return True if the user is connected.
+     * @return True if the connected is established.
      */
-    private Boolean isConnected() { return getSessionModel().isLoggedIn(); }
+    private Boolean isConnected() {
+        return getSessionModel().isLoggedIn();
+    }
 
     /**
      * Determine if the platform is online.

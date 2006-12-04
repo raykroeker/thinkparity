@@ -109,19 +109,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-     * Read the documents.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>List&lt;DocumentVersion&gt;</code>.
-     */
-    public List<DocumentVersion> readDocumentVersions(final Long containerId, final Long versionId) {
-        return containerModel.readDocumentVersions(containerId, versionId);
-    }
-
-    /**
 	 * Read the documents and associated delta.
 	 * 
 	 * @param containerId

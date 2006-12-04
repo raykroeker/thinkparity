@@ -12,15 +12,19 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import org.jivesoftware.smack.packet.IQ;
@@ -79,6 +83,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<Document> readResultDocuments(final String name) {
         return (List<Document>) readResult(name);
+    }
+
+    public Map<DocumentVersion, Delta> readResultDocumentVersionDeltas(final String name) {
+        return (Map<DocumentVersion, Delta>) readResult(name);
     }
 
     public List<DocumentVersion> readResultDocumentVersions(final String name) {
@@ -184,8 +192,16 @@ public class XMPPMethodResponse extends IQ {
         return (List<String>) readResult(name);
     }
 
+    public List<TeamMember> readResultTeamMembers(final String name) {
+        return (List<TeamMember>) readResult(name);
+    }
+
     public Token readResultToken(final String name) {
         return (Token) readResult(name);
+    }
+
+    public Map<User, ArtifactReceipt> readResultUserArtifactReceipts(final String name) {
+        return (Map<User, ArtifactReceipt>) readResult(name);
     }
 
     public byte[] readSmallBytes(final String name) {

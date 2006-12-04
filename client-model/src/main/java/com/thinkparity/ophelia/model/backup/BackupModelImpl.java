@@ -5,9 +5,13 @@ package com.thinkparity.ophelia.model.backup;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
@@ -15,18 +19,23 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
+import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -43,6 +52,12 @@ final class BackupModelImpl extends AbstractModelImpl {
 
     /** A default artifact filter. */
     private final Filter<? super Artifact> defaultFilter;
+
+    /** A default user comparator. */
+    private final Comparator<User> defaultUserComparator;
+
+    /** A default user filter. */
+    private final Filter<? super User> defaultUserFilter;
 
     /** A default artifact version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
@@ -62,12 +77,20 @@ final class BackupModelImpl extends AbstractModelImpl {
         super(environment, workspace);
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
+        this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
+        this.defaultUserFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.archive.ArchiveReader#openDocumentVersion(java.util.UUID, java.lang.Long)
+     * Open a document version from the backup.
+     * 
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
      */
     InputStream openDocumentVersion(final UUID uniqueId,
             final Long versionId) {
@@ -82,7 +105,13 @@ final class BackupModelImpl extends AbstractModelImpl {
             sessionModel.createBackupStream(localUserId(), streamId, uniqueId,
                     versionId);
             try {
-                return new FileInputStream(downloadStream(streamId));
+                return new FileInputStream(downloadStream(new StreamMonitor() {
+                    public void chunkReceived(final int chunkSize) {}
+                    public void chunkSent(final int chunkSize) {}
+                    public void headerReceived(final String header) {}
+                    public void headerSent(final String header) {}
+                    public void streamError(final StreamException error) {}
+                }, streamId));
             } finally {
                 sessionModel.deleteStreamSession(session);
             }
@@ -301,6 +330,101 @@ final class BackupModelImpl extends AbstractModelImpl {
                 defaultVersionComparator, filter);
     }
 
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        return readPublishedTo(uniqueId, versionId, comparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        final Map<User, ArtifactReceipt> publishedTo =
+            getSessionModel().readBackupPublishedTo(localUserId(), uniqueId, versionId);
+        final List<User> users = new ArrayList<User>(publishedTo.size());
+        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+            users.add(entry.getKey());
+        }
+        FilterManager.filter(users, filter);
+        final Map<User, ArtifactReceipt> sortedFilteredPublishedTo =
+            new TreeMap<User, ArtifactReceipt>(comparator);
+        sortedFilteredPublishedTo.putAll(publishedTo);
+        return sortedFilteredPublishedTo;
+    }
+
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
+        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
+                filter); 
+    }
+
     List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
@@ -312,6 +436,7 @@ final class BackupModelImpl extends AbstractModelImpl {
             throw translateError(t);
         }
     }
+
 
     /**
      * Assert that the backup server is online.

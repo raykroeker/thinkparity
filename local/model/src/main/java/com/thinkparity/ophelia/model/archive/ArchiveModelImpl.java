@@ -3,30 +3,46 @@
  */
 package com.thinkparity.ophelia.model.archive;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
+import java.util.Map.Entry;
 
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.archive.monitor.OpenMonitor;
+import com.thinkparity.ophelia.model.archive.monitor.OpenStage;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
+import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -38,11 +54,19 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 class ArchiveModelImpl extends AbstractModelImpl {
 
+    private static final int STEP_SIZE = 1024;
+
     /** A default artifact comparator. */
     private final Comparator<Artifact> defaultComparator;
 
     /** A default artifact filter. */
     private final Filter<? super Artifact> defaultFilter;
+
+    /** A default user comparator. */
+    private final Comparator<User> defaultUserComparator;
+
+    /** A default user filter. */
+    private final Filter<? super User> defaultUserFilter;
 
     /** A default artifact version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
@@ -60,7 +84,9 @@ class ArchiveModelImpl extends AbstractModelImpl {
         super(environment, workspace);
         this.defaultComparator = new ComparatorBuilder().createByName();
         this.defaultFilter = FilterManager.createDefault();
-        this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
+        this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
+        this.defaultUserFilter = FilterManager.createDefault();
+        this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = FilterManager.createDefault();
     }
 
@@ -71,6 +97,60 @@ class ArchiveModelImpl extends AbstractModelImpl {
             assertArchiveOnline();
             final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
             getSessionModel().archiveArtifact(localUserId(), uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    void openDocumentVersion(final OpenMonitor monitor, final UUID uniqueId,
+            final Long versionId, final String versionName,
+            final long versionSize, final Opener opener) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        try {
+            assertArchiveOnline();
+            final InternalSessionModel sessionModel = getSessionModel();
+            final StreamSession session = sessionModel.createStreamSession();
+            final String streamId = sessionModel.createStream(session);
+            final File streamFile;
+            if (isStreamDownloadComplete(streamId, versionSize)) {
+                streamFile = locateStreamFile(streamId);
+                final File archiveFile = new File(streamFile.getParent(),
+                        streamFile.getName() +
+                        FileUtil.getExtension(versionName));
+                if (!archiveFile.exists())
+                    Assert.assertTrue(streamFile.renameTo(archiveFile),
+                            "Could not open document version.");
+                opener.open(archiveFile);
+            } else {
+                sessionModel.createArchiveStream(localUserId(), streamId,
+                        uniqueId, versionId);
+                try {
+                    streamFile = downloadStream(new StreamMonitor() {
+                        long totalChunks = versionSize;
+                        public void chunkReceived(final int chunkSize) {
+                            totalChunks += chunkSize;
+                            if (totalChunks >= STEP_SIZE) {
+                                totalChunks -= STEP_SIZE;
+                                fireStageEnd(monitor, OpenStage.DownloadStream);
+                            }
+                        }
+                        public void chunkSent(final int chunkSize) {}
+                        public void headerReceived(final String header) {}
+                        public void headerSent(final String header) {}
+                        public void streamError(final StreamException error) {}
+                    }, streamId);
+                    final File archiveFile = new File(streamFile.getParent(),
+                            streamFile.getName() +
+                            FileUtil.getExtension(versionName));
+                    Assert.assertTrue(streamFile.renameTo(archiveFile),
+                            "Could not open document version.");
+                    opener.open(archiveFile);
+                } finally {
+                    sessionModel.deleteStreamSession(session);
+                }
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -88,7 +168,13 @@ class ArchiveModelImpl extends AbstractModelImpl {
             sessionModel.createArchiveStream(localUserId(), streamId, uniqueId,
                     versionId);
             try {
-                return new FileInputStream(downloadStream(streamId));
+                return new FileInputStream(downloadStream(new StreamMonitor() {
+                    public void chunkReceived(final int chunkSize) {}
+                    public void chunkSent(final int chunkSize) {}
+                    public void headerReceived(final String header) {}
+                    public void headerSent(final String header) {}
+                    public void streamError(final StreamException error) {}
+                }, streamId));
             } finally {
                 sessionModel.deleteStreamSession(session);
             }
@@ -240,6 +326,43 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return readDocuments(uniqueId, versionId, defaultComparator, filter);
     }
 
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
+            final Long compareVersionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        try {
+            assertArchiveOnline();
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            deltas.putAll(getSessionModel().readArchiveDocumentVersionDeltas(
+                        localUserId(), uniqueId, compareVersionId));
+            return deltas;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("compareVersionId", compareVersionId);
+        logger.logVariable("compareToVersionId", compareToVersionId);
+        try {
+            assertArchiveOnline();
+            final Map<DocumentVersion, Delta> deltas = new TreeMap<DocumentVersion, Delta>(
+                    new ComparatorBuilder().createVersionByName());
+            deltas.putAll(getSessionModel().readArchiveDocumentVersionDeltas(
+                    localUserId(), uniqueId, compareVersionId,
+                    compareToVersionId));
+            return deltas;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+
     List<DocumentVersion> readDocumentVersions(final UUID uniqueId,
             final Long versionId) {
         logger.logApiId();
@@ -289,6 +412,110 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 defaultVersionComparator, filter);
     }
 
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        return readPublishedTo(uniqueId, versionId, comparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        final Map<User, ArtifactReceipt> publishedTo =
+            getSessionModel().readArchivePublishedTo(localUserId(), uniqueId, versionId);
+        final List<User> users = new ArrayList<User>(publishedTo.size());
+        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+            users.add(entry.getKey());
+        }
+        FilterManager.filter(users, filter);
+        final Map<User, ArtifactReceipt> sortedFilteredPublishedTo =
+            new TreeMap<User, ArtifactReceipt>(comparator);
+        sortedFilteredPublishedTo.putAll(publishedTo);
+        return sortedFilteredPublishedTo;
+    }
+
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId, final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("filter", filter);
+        return readPublishedTo(uniqueId, versionId, defaultUserComparator,
+                filter); 
+    }
+
+    List<TeamMember> readTeam(final UUID uniqueId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        try {
+            return getSessionModel().readArchiveTeam(localUserId(), uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
     List<JabberId> readTeamIds(final UUID uniqueId) {
         logger.logApiId();
@@ -315,6 +542,10 @@ class ArchiveModelImpl extends AbstractModelImpl {
 
     private void assertArchiveOnline() {
         Assert.assertTrue(isArchiveOnline(), "Archive is not online.");
+    }
+
+    private void fireStageEnd(final OpenMonitor monitor, final OpenStage stage) {
+        monitor.stageEnd(stage);
     }
 
     private Boolean isArchiveOnline() {

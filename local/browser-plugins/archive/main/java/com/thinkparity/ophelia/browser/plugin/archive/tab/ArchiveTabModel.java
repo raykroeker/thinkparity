@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +15,9 @@ import java.util.UUID;
 import javax.swing.DefaultListModel;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,18 +27,22 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsPopupFactory;
+import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
 import com.thinkparity.ophelia.browser.util.UserUtil;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.6
  */
 final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
 
@@ -49,10 +56,13 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     private final DefaultListModel listModel;
 
     /**
-     * A lookup for panel id <code>IntegeR</code>s from container id
+     * A lookup for panel id <code>Integer</code>s from container id
      * <code>Long</code>s.
      */
     private final Map<UUID, Integer> panelIndexLookup;
+
+    /** An <code>ArchiveTabPopupFactory</code>. */
+    private final ArchiveTabPopupFactory popupFactory;
 
     /** A user search expression <code>String</code>. */
     private String searchExpression;
@@ -73,6 +83,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
         this.panelIndexLookup = new HashMap<UUID, Integer>();
+        this.popupFactory = new ArchiveTabPopupFactory(this);
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
@@ -151,6 +162,25 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#showPopupMenu(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
+     *
+     */
+    @Override
+    protected void showPopupMenu(final TabPanel tabPanel, final MouseEvent e) {
+        final JPopupMenu jPopupMenu;
+        if (isContainerPanel(tabPanel)) {
+            jPopupMenu = popupFactory.createContainerPopup(
+                    ((ContainerPanel) tabPanel).getContainer());
+        } else if (isContainerVersionsPanel(tabPanel)) {
+            jPopupMenu = null;
+        } else {
+            throw Assert.createUnreachable("Unknown panel instance.");
+        }
+        if (null != jPopupMenu && 0 < jPopupMenu.getComponentCount())
+            jPopupMenu.show((Component) tabPanel, e.getX(), e.getY());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
      *
      */
@@ -204,6 +234,15 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    Boolean isOnline() {
+        return Connection.ONLINE == super.getBrowser().getConnection();
+    }
+
+    /**
      * Synchronize a container.
      * 
      * @param uniqueId
@@ -250,16 +289,34 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     private void addContainerPanel(final int index, final Container container) {
         final TabPanel containerPanel = toDisplay(container);
         containerPanels.add(index, containerPanel);
+        panelIndexLookup.put(container.getUniqueId(), index);
         final ContainerDraft draft = null;
-        final List<ContainerVersion> versions = readVersions(container.getUniqueId());
-        final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
-            Collections.emptyMap();
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
-            Collections.emptyMap();
-        final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+
         final List<TeamMember> team = readTeam(container.getUniqueId());
-        for (final ContainerVersion version : versions) {
+        final List<ContainerVersion> versions = readVersions(container.getUniqueId());
+
+        final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
+            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, User> publishedBy =
+            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
+            new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
+        ContainerVersion version, previousVersion;
+        for (int i = 0; i < versions.size(); i++) {
+            version = versions.get(i);
+            if (versions.size() - 1 == i) {
+                /* reading the last version in the list which is the first
+                 * version chronologically */
+                documentVersions.put(version, readDocumentVersionDeltas(
+                        container.getUniqueId(), versions.get(i).getVersionId()));
+            } else {
+                previousVersion = versions.get(i + 1);
+                documentVersions.put(version, readDocumentVersionDeltas(
+                        container.getUniqueId(), version.getVersionId(),
+                        previousVersion.getVersionId()));
+            }
             publishedBy.put(version, find(team, version.getUpdatedBy()));
+            publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
         versionsPanels.put(containerPanel, toDisplay(container, draft,
                 versions, documentVersions, publishedTo, publishedBy));
@@ -288,6 +345,17 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private boolean isContainerPanel(final TabPanel tabPanel) {
         return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
+    }
+
+    /**
+     * Determine if the tab panel is a container tab panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if it is a container tab panel.
+     */
+    private boolean isContainerVersionsPanel(final TabPanel tabPanel) {
+        return ContainerVersionsPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**
@@ -340,6 +408,25 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         return ((ArchiveTabProvider) contentProvider).readContainers();
     }
 
+    private Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final UUID uniqueId, final Long compareVersionId) {
+        return ((ArchiveTabProvider) contentProvider).readDocumentVersionDeltas(
+                uniqueId, compareVersionId);
+    }
+
+    private Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final UUID uniqueId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        return ((ArchiveTabProvider) contentProvider).readDocumentVersionDeltas(
+                uniqueId, compareVersionId, compareToVersionId);
+    }
+
+    private Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+            final Long versionId) {
+        return ((ArchiveTabProvider) contentProvider).readPublishedTo(uniqueId,
+                versionId);
+    }
+
     /**
      * Read search results.
      * 
@@ -363,8 +450,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * @return A <code>List</code> of <code>ContainerVersion</code>s.
      */
     private List<ContainerVersion> readVersions(final UUID uniqueId) {
-        return ((ArchiveTabProvider) contentProvider)
-                .readContainerVersions(uniqueId);
+        return ((ArchiveTabProvider) contentProvider).readVersions(uniqueId);
     }
 
     /**
@@ -374,7 +460,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      *            A container unique id <code>UUID</code>.
      */
     private void removeContainerPanel(final UUID uniqueId) {
-        final int panelIndex = lookupIndex(uniqueId);
+        final int panelIndex = panelIndexLookup.remove(uniqueId).intValue();
         containerPanels.remove(panelIndex);
         versionsPanels.remove(panelIndex);
     }
@@ -387,7 +473,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * @return A <code>TabPanel</code>.
      */
     private TabPanel toDisplay(final Container container) {
-        final ContainerPanel panel = new ContainerPanel();
+        final ContainerPanel panel = new ArchiveTabContainerPanel();
         panel.setPanelData(container, null, null);
         panel.setExpanded(isExpanded(panel));
         return panel;
@@ -415,10 +501,11 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
-        final ContainerVersionsPanel panel = new ContainerVersionsPanel();
+        final ContainerVersionsPanel panel = new ArchiveTabContainerVersionsPanel();
         panel.setPanelData(container, draft, versions, documentVersions, users, publishedBy);
         panel.setPopupFactory(new VersionsPopupFactory() {
-            public JPopupMenu createDraftDocumentPopup(final ContainerDraft draft, final Document document) {
+            public JPopupMenu createDraftDocumentPopup(
+                    final ContainerDraft draft, final Document document) {
                 return null;
             }
             public JPopupMenu createDraftPopup(final Container container,
@@ -433,7 +520,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             }
             public JPopupMenu createVersionDocumentPopup(
                     final DocumentVersion version, final Delta delta) {
-                return null;
+                return popupFactory.createVersionDocumentPopup(version, delta);
             }
             public JPopupMenu createVersionPopup(final ContainerVersion version) {
                 return null;

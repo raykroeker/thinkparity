@@ -71,8 +71,8 @@ public final class ContainerModel extends TabPanelModel {
      */
     private final Map<Long, Integer> panelIndexLookup;
 
-    /** A <code>PopupFactory</code>. */
-    private final PopupFactory popupFactory;
+    /** A <code>ContainerTabPopupFactory</code>. */
+    private final ContainerTabPopupFactory popupFactory;
 
     /**
      * The user input search expression.
@@ -107,7 +107,7 @@ public final class ContainerModel extends TabPanelModel {
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
         this.panelIndexLookup = new HashMap<Long, Integer>();
-        this.popupFactory = new PopupFactory(this);
+        this.popupFactory = new ContainerTabPopupFactory(this);
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
@@ -206,14 +206,14 @@ public final class ContainerModel extends TabPanelModel {
         final Container container = read(containerId);
         // remove the container from the panel list
         if (null == container) {
-            removeContainerPanel(container);
+            removeContainerPanel(containerId);
         } else {
             final int panelIndex = lookupIndex(container.getId());
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                removeContainerPanel(container);
+                removeContainerPanel(containerId);
                 if (remote) {
                     addContainerPanel(0, container);
                 } else {
@@ -363,7 +363,7 @@ public final class ContainerModel extends TabPanelModel {
         visiblePanels.clear();
         for (final TabPanel containerPanel : containerPanels) {
             visiblePanels.add(containerPanel);
-            if (isExpanded((ContainerPanel) containerPanel)) {
+            if (isExpanded(containerPanel)) {
                 visiblePanels.add(versionsPanels.get(containerPanel));
             }
         }
@@ -455,7 +455,7 @@ public final class ContainerModel extends TabPanelModel {
 
         Map<DocumentVersion, Delta> versionDocumentVersions;
         for (final ContainerVersion version : versions) {
-            versionDocumentVersions = readDocumentVersionsWithDelta(version.getArtifactId(), version.getVersionId());
+            versionDocumentVersions = readDocumentVersionDeltas(version.getArtifactId(), version.getVersionId());
             for (final Entry<DocumentVersion, Delta> entry : versionDocumentVersions.entrySet()) {
                 containerIdLookup.put(entry.getKey().getArtifactId(), container.getId());
             }
@@ -680,8 +680,8 @@ public final class ContainerModel extends TabPanelModel {
      *            A version id <code>Long</code>.
      * @return A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
      */
-    private Map<DocumentVersion, Delta> readDocumentVersionsWithDelta(final Long containerId,
-            final Long versionId) {
+    private Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long versionId) {
         return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
@@ -787,16 +787,16 @@ public final class ContainerModel extends TabPanelModel {
      * @param container
      *            A <code>Container</code>.
      */
-    private void removeContainerPanel(final Container container) {
-        Long containerId;
+    private void removeContainerPanel(final Long containerId) {
+        Long lookupContainerId;
         for (final Iterator<Long> iLookupValues =
             containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
-            containerId = iLookupValues.next();
-            if (containerId.equals(container.getId())) {
+            lookupContainerId = iLookupValues.next();
+            if (lookupContainerId.equals(containerId)) {
                 iLookupValues.remove();
             }
         }
-        final int panelIndex = panelIndexLookup.remove(container.getId()).intValue();
+        final int panelIndex = panelIndexLookup.remove(containerId).intValue();
         containerPanels.remove(panelIndex);
         versionsPanels.remove(panelIndex);
     }

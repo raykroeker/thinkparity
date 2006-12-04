@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -106,7 +106,7 @@ public class AvatarFactory {
 		    break;
 
         case TAB_CONTAINER:
-            avatar = new ContainerAvatar();
+            avatar = new ContainerTabAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));            
             break;
         case TAB_CONTACT:

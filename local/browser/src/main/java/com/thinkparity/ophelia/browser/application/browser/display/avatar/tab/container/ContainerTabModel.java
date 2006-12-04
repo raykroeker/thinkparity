@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
-import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -39,8 +37,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsPopupFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 
@@ -48,10 +45,13 @@ import com.thinkparity.ophelia.browser.util.DocumentUtil;
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public final class ContainerModel extends TabPanelModel {
+public final class ContainerTabModel extends TabPanelModel {
 
     /** An application. */
     public final Browser browser;
+
+    /** A <code>ContainerTabActionDelegate</code>. */
+    private final ContainerTabActionDelegate actionDelegate;
 
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
@@ -65,14 +65,8 @@ public final class ContainerModel extends TabPanelModel {
     /** A list model. */
     private final DefaultListModel listModel;
 
-    /**
-     * A lookup for panel id <code>Integer</code> s from container id
-     * <code>Long</code>s.
-     */
-    private final Map<Long, Integer> panelIndexLookup;
-
-    /** A <code>ContainerTabPopupFactory</code>. */
-    private final ContainerTabPopupFactory popupFactory;
+    /** A <code>ContainerTabPopupDelegate</code>. */
+    private final ContainerTabPopupDelegate popupDelegate;
 
     /**
      * The user input search expression.
@@ -99,15 +93,15 @@ public final class ContainerModel extends TabPanelModel {
      * Create ContainerModel.
      * 
      */
-    ContainerModel() {
+    ContainerTabModel() {
         super();
+        this.actionDelegate = new ContainerTabActionDelegate();
         this.browser = getBrowser();
         this.containerIdLookup = new HashMap<Long, Long>();
         this.containerPanels = new ArrayList<TabPanel>();
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
-        this.panelIndexLookup = new HashMap<Long, Integer>();
-        this.popupFactory = new ContainerTabPopupFactory(this);
+        this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
@@ -153,7 +147,7 @@ public final class ContainerModel extends TabPanelModel {
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
@@ -162,7 +156,7 @@ public final class ContainerModel extends TabPanelModel {
         debug();
         return listModel;
     }
-    
+
     /**
      * Determine whether or not the user is online.
      * 
@@ -206,14 +200,14 @@ public final class ContainerModel extends TabPanelModel {
         final Container container = read(containerId);
         // remove the container from the panel list
         if (null == container) {
-            removeContainerPanel(containerId);
+            removeContainerPanel(containerId, true);
         } else {
             final int panelIndex = lookupIndex(container.getId());
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                removeContainerPanel(containerId);
+                removeContainerPanel(containerId, false);
                 if (remote) {
                     addContainerPanel(0, container);
                 } else {
@@ -247,7 +241,7 @@ public final class ContainerModel extends TabPanelModel {
     protected boolean canImportData(final DataFlavor[] transferFlavors) {
         return TxUtils.containsJavaFileList(transferFlavors);
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.DataFlavor[])
      *
@@ -256,10 +250,10 @@ public final class ContainerModel extends TabPanelModel {
     protected boolean canImportData(final TabPanel tabPanel,
             final DataFlavor[] transferFlavors) {
         if (TxUtils.containsJavaFileList(transferFlavors)) {
-            if (isContainerPanel(tabPanel)) {
+            if (isContainerPanel(tabPanel).booleanValue()) {
                 return canImportData(((ContainerPanel) tabPanel).getContainer());
             } else if (isContainerVersionsPanel(tabPanel)) {
-                return canImportData(((ContainerVersionsPanel) tabPanel).getContainer());
+                return canImportData(((ContainerVersionPanel) tabPanel).getContainer());
             } else {
                 throw Assert.createUnreachable("Unknown panel instance.");
             }
@@ -277,15 +271,15 @@ public final class ContainerModel extends TabPanelModel {
         Assert.assertTrue(canImportData(tabPanel,
                 transferable.getTransferDataFlavors()),
                 "Cannot import data {0} onto {1}.", transferable, tabPanel);
-        if (isContainerPanel(tabPanel)) {
+        if (isContainerPanel(tabPanel).booleanValue()) {
             importData(((ContainerPanel) tabPanel).getContainer(), transferable);
         } else if (isContainerVersionsPanel(tabPanel)) {
-            importData(((ContainerVersionsPanel) tabPanel).getContainer(), transferable);
+            importData(((ContainerVersionPanel) tabPanel).getContainer(), transferable);
         } else {
             throw Assert.createUnreachable("Unknown panel instance.");
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(java.awt.datatransfer.Transferable)
      * 
@@ -331,22 +325,6 @@ public final class ContainerModel extends TabPanelModel {
             addContainerPanel(container);
         }
         debug();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#showPopupMenu(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
-     *
-     */
-    @Override
-    protected void showPopupMenu(final TabPanel tabPanel, final MouseEvent e) {
-        if (isContainerPanel(tabPanel)) {
-            popupFactory.createContainerPopup(
-                    ((ContainerPanel) tabPanel).getContainer()).show(
-                    (Component) tabPanel, e.getX(), e.getY());
-        } else if (isContainerVersionsPanel(tabPanel)) {
-        } else {
-            Assert.assertUnreachable("Unknown panel instance.");
-        }
     }
 
     /**
@@ -406,6 +384,17 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
+     * Determine if the tab panel is a container tab panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if it is a container tab panel.
+     */
+    Boolean isContainerPanel(final TabPanel tabPanel) {
+        return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
+    }
+
+    /**
      * Determine whether or not thinkParity is running in development mode.
      * 
      * @return True if thinkParity is running in development mode.
@@ -439,7 +428,6 @@ public final class ContainerModel extends TabPanelModel {
             final Container container) {
         final TabPanel containerPanel = toDisplay(container);
         containerPanels.add(index, containerPanel);
-        panelIndexLookup.put(container.getId(), index);
         final ContainerDraft draft = readDraft(container.getId());
         if ((null != draft) && container.isLocalDraft()) {
             for (final Document document : draft.getDocuments()) {
@@ -600,17 +588,6 @@ public final class ContainerModel extends TabPanelModel {
     }
 
     /**
-     * Determine if the tab panel is a container tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container tab panel.
-     */
-    private boolean isContainerPanel(final TabPanel tabPanel) {
-        return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
-    }
-
-    /**
      * Determine if the tab panel is a container versions tab panel.
      * 
      * @param tabPanel
@@ -618,7 +595,7 @@ public final class ContainerModel extends TabPanelModel {
      * @return True if it is a container versions tab panel.
      */
     private boolean isContainerVersionsPanel(final TabPanel tabPanel) {
-        return ContainerVersionsPanel.class.isAssignableFrom(tabPanel.getClass());
+        return ContainerVersionPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**
@@ -637,7 +614,7 @@ public final class ContainerModel extends TabPanelModel {
             return isExpanded(tabPanel);
         }
     }
-
+    
     /**
      * Lookup the index of the container's corresponding panel.
      * 
@@ -647,8 +624,11 @@ public final class ContainerModel extends TabPanelModel {
      *         exist in the panel list.
      */
     private int lookupIndex(final Long containerId) {
-        return panelIndexLookup.containsKey(containerId)
-            ? panelIndexLookup.get(containerId).intValue() : -1;
+        for (int i = 0; i < containerPanels.size(); i++)
+            if (((ContainerPanel) containerPanels.get(i)).getContainer()
+                    .getId().equals(containerId))
+                return i;
+        return -1;
     }
     
     /**
@@ -670,7 +650,7 @@ public final class ContainerModel extends TabPanelModel {
     private List<Container> readContainers() {
         return ((ContainerProvider) contentProvider).read();
     }
-    
+
     /**
      * Read the documents from the provider.
      * 
@@ -787,7 +767,8 @@ public final class ContainerModel extends TabPanelModel {
      * @param container
      *            A <code>Container</code>.
      */
-    private void removeContainerPanel(final Long containerId) {
+    private void removeContainerPanel(final Long containerId,
+            final boolean removeExpandedState) {
         Long lookupContainerId;
         for (final Iterator<Long> iLookupValues =
             containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
@@ -796,9 +777,16 @@ public final class ContainerModel extends TabPanelModel {
                 iLookupValues.remove();
             }
         }
-        final int panelIndex = panelIndexLookup.remove(containerId).intValue();
-        containerPanels.remove(panelIndex);
-        versionsPanels.remove(panelIndex);
+        final int panelIndex = lookupIndex(containerId);
+        if (removeExpandedState) {
+            final TabPanel containerPanel = containerPanels.remove(panelIndex);
+            final TabPanel versionsPanel = versionsPanels.remove(panelIndex);
+            expandedState.remove(containerPanel);
+            expandedState.remove(versionsPanel);
+        } else {
+            containerPanels.remove(panelIndex);
+            versionsPanels.remove(panelIndex);
+        }
     }
 
     /**
@@ -810,8 +798,10 @@ public final class ContainerModel extends TabPanelModel {
      */
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ContainerPanel();
+        panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, readDraft(container.getId()),
                 readLatestVersion(container.getId()));
+        panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         return panel;
     }
@@ -838,30 +828,10 @@ public final class ContainerModel extends TabPanelModel {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
-        final ContainerVersionsPanel panel = new ContainerVersionsPanel();
+        final ContainerVersionPanel panel = new ContainerVersionPanel();
+        panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, draft, versions, documentVersions, users, publishedBy);
-        panel.setPopupFactory(new VersionsPopupFactory() {
-            public JPopupMenu createDraftDocumentPopup(final ContainerDraft draft, final Document document) {
-                return popupFactory.createDraftDocumentPopup(draft, document);
-            }
-            public JPopupMenu createDraftPopup(final Container container,
-                    final ContainerDraft draft) {
-                return popupFactory.createDraftPopup(container, draft);
-            }
-            public JPopupMenu createPublishedByPopup(final User user) {
-                return popupFactory.createPublishedByPopup(user);
-            }
-            public JPopupMenu createPublishedToPopup(final User user, final ArtifactReceipt receipt) {
-                return popupFactory.createPublishedToPopup(user, receipt);
-            }
-            public JPopupMenu createVersionDocumentPopup(
-                    final DocumentVersion version, final Delta delta) {
-                return popupFactory.createVersionDocumentPopup(version, delta);
-            }
-            public JPopupMenu createVersionPopup(final ContainerVersion version) {
-                return popupFactory.createVersionPopup(version);
-            }
-        });
+        panel.setPopupDelegate(popupDelegate);
         return panel;
     }
 
@@ -874,7 +844,7 @@ public final class ContainerModel extends TabPanelModel {
      */
     private void toggleExpand(final TabPanel tabPanel) {
         final Boolean expanded;
-        if (isContainerPanel(tabPanel)) {
+        if (isContainerPanel(tabPanel).booleanValue()) {
             final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
             if (isExpanded(containerPanel)) {
                 expanded = Boolean.FALSE;

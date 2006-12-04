@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionPanel;
 
 /**
  * <b>Title:</b><br>
@@ -11,13 +11,13 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ArchiveTabContainerVersionsPanel extends ContainerVersionsPanel {
+public class ArchiveTabContainerVersionPanel extends ContainerVersionPanel {
 
     /**
      * Create ArchiveTabPanel.
      *
      */
-    public ArchiveTabContainerVersionsPanel() {
+    public ArchiveTabContainerVersionPanel() {
         super();
     }
 

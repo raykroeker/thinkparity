@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Color;
-import java.awt.Component;
-
 import javax.swing.Icon;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.ophelia.browser.Constants.Colors;
 
 /**
  * <b>Title:</b><br>
@@ -18,19 +11,19 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DefaultVersionsCell implements VersionsCell {
+public class DefaultVersionCell implements VersionCell {
 
+    /** The cell <code>Icon</code>. */
     private Icon icon;
 
+    /** The cell text <code>String</code>. */
     private String text;
-
-    private Color textForeground;
 
     /**
      * Create DefaultVersionsCell.
      *
      */
-    public DefaultVersionsCell() {
+    public DefaultVersionCell() {
         super();
     }
 
@@ -51,32 +44,35 @@ public class DefaultVersionsCell implements VersionsCell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#getTextForeground()
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#invokeAction()
+     * 
      */
-    public Color getTextForeground() {
-        return null == textForeground ? Colors.Browser.List.LIST_FG
-                : textForeground;
-    }
+    public void invokeAction() {}
 
+    /**
+     * Set the cell icon.
+     * 
+     * @param icon
+     *            An <code>Icon</code>.
+     */
     public void setIcon(final Icon icon) {
         this.icon = icon;
     }
 
+    /**
+     * Set the cell text.
+     * 
+     * @param text
+     *            The text <code>String</code>.
+     */
     public void setText(final String text) {
         this.text = text;
     }
 
-    public void setTextForeground(final Color textForeground) {
-        this.textForeground = textForeground;
-    }
-
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#showPopup(java.awt.Component, int, int)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#showPopup()
+     * 
      */
-    public void showPopup(Component invoker, int x, int y) {
-        // TODO Auto-generated method stub
-        throw Assert.createNotYetImplemented("");
+    public void showPopup() {
     }
 }

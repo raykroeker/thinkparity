@@ -203,16 +203,6 @@ public abstract class TabModel {
     protected void removeSearch() {}
 
     /**
-     * Show a popup (context) menu for a panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void showPopupMenu(final TabPanel tabPanel, final MouseEvent e) {}
-
-    /**
      * Synchronize the internal state of the model with the display.
      *
      */

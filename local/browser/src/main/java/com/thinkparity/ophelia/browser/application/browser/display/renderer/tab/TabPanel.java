@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
 
+
 /**
  * <b>Title:</b>thinkParity Tab Panel<br>
  * <b>Description:</b>A tab panel is the display interface for the tab panel
@@ -21,4 +22,11 @@ public interface TabPanel {
 	 * @return An id unique per <code>TabPanelAvatar</code>.
 	 */
 	public Object getId();
+
+    /**
+     * Obtain the popup delegate for the panel.
+     * 
+     * @return A <code>TabPanelPopupDelegate</code>.
+     */
+    public TabPanelPopupDelegate getPanelPopupDelegate();
 }

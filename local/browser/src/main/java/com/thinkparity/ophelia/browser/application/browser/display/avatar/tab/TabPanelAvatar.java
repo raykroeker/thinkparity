@@ -26,6 +26,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
@@ -107,13 +108,21 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             }
             @Override
             public void mouseReleased(final MouseEvent e) {
-                if (e.isPopupTrigger())
-                    model.showPopupMenu((TabPanel) e.getSource(), e);
+                if (e.isPopupTrigger()) {
+                    final TabPanel tabPanel = (TabPanel) e.getSource();
+                    final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
+                    popupDelegate.initialize((Component) tabPanel, e.getX(), e.getY());
+                    popupDelegate.showForPanel(tabPanel);
+                }
             }
             @Override
             public void mousePressed(final MouseEvent e) {
-                if (e.isPopupTrigger())
-                    model.showPopupMenu((TabPanel) e.getSource(), e);
+                if (e.isPopupTrigger()) {
+                    final TabPanel tabPanel = (TabPanel) e.getSource();
+                    final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
+                    popupDelegate.initialize((Component) tabPanel, e.getX(), e.getY());
+                    popupDelegate.showForPanel(tabPanel);
+                }
             }
         };
         this.panelTransferHandler = new TransferHandler() {

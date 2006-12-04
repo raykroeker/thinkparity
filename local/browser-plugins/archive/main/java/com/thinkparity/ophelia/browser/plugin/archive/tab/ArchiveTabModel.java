@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,16 +12,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -31,8 +27,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsPopupFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
@@ -45,6 +40,9 @@ import com.thinkparity.ophelia.browser.util.UserUtil;
  * @version 1.1.2.6
  */
 final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
+
+    /** The <code>ArchiveTabActionDelegate</code>. */
+    private final ArchiveTabActionDelegate actionDelegate;
 
     /** A list of the archived container panels. */
     private final List<TabPanel> containerPanels;
@@ -61,8 +59,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private final Map<UUID, Integer> panelIndexLookup;
 
-    /** An <code>ArchiveTabPopupFactory</code>. */
-    private final ArchiveTabPopupFactory popupFactory;
+    /** The <code>ArchiveTabPopupDelegate</code>. */
+    private final ArchiveTabPopupDelegate popupDelegate;
 
     /** A user search expression <code>String</code>. */
     private String searchExpression;
@@ -79,11 +77,12 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     /** Create ArchiveTabModel. */
     ArchiveTabModel(final TabPanelExtension extension) {
         super(extension);
+        this.actionDelegate = new ArchiveTabActionDelegate(this);
         this.containerPanels = new ArrayList<TabPanel>();
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
         this.panelIndexLookup = new HashMap<UUID, Integer>();
-        this.popupFactory = new ArchiveTabPopupFactory(this);
+        this.popupDelegate = new ArchiveTabPopupDelegate(this);
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
@@ -162,25 +161,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#showPopupMenu(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
-     *
-     */
-    @Override
-    protected void showPopupMenu(final TabPanel tabPanel, final MouseEvent e) {
-        final JPopupMenu jPopupMenu;
-        if (isContainerPanel(tabPanel)) {
-            jPopupMenu = popupFactory.createContainerPopup(
-                    ((ContainerPanel) tabPanel).getContainer());
-        } else if (isContainerVersionsPanel(tabPanel)) {
-            jPopupMenu = null;
-        } else {
-            throw Assert.createUnreachable("Unknown panel instance.");
-        }
-        if (null != jPopupMenu && 0 < jPopupMenu.getComponentCount())
-            jPopupMenu.show((Component) tabPanel, e.getX(), e.getY());
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
      *
      */
@@ -231,6 +211,17 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     protected void toggleSelection(final TabPanel tabPanel, final MouseEvent e) {
         toggleExpand(tabPanel);
         synchronize();
+    }
+
+    /**
+     * Determine if the tab panel is a container tab panel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return True if it is a container tab panel.
+     */
+    Boolean isContainerPanel(final TabPanel tabPanel) {
+        return ArchiveTabContainerPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**
@@ -334,28 +325,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     private <T extends User> T find(final List<T> users,
             final JabberId userId) {
         return users.get(UserUtil.indexOf(users, userId));
-    }
-
-    /**
-     * Determine if the tab panel is a container tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container tab panel.
-     */
-    private boolean isContainerPanel(final TabPanel tabPanel) {
-        return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
-    }
-
-    /**
-     * Determine if the tab panel is a container tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container tab panel.
-     */
-    private boolean isContainerVersionsPanel(final TabPanel tabPanel) {
-        return ContainerVersionsPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**
@@ -474,8 +443,10 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private TabPanel toDisplay(final Container container) {
         final ContainerPanel panel = new ArchiveTabContainerPanel();
+        panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, null, null);
         panel.setExpanded(isExpanded(panel));
+        panel.setPopupDelegate(popupDelegate);
         return panel;
     }
 
@@ -501,31 +472,10 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
             final Map<ContainerVersion, User> publishedBy) {
-        final ContainerVersionsPanel panel = new ArchiveTabContainerVersionsPanel();
+        final ContainerVersionPanel panel = new ArchiveTabContainerVersionPanel();
+        panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, draft, versions, documentVersions, users, publishedBy);
-        panel.setPopupFactory(new VersionsPopupFactory() {
-            public JPopupMenu createDraftDocumentPopup(
-                    final ContainerDraft draft, final Document document) {
-                return null;
-            }
-            public JPopupMenu createDraftPopup(final Container container,
-                    final ContainerDraft draft) {
-                return null;
-            }
-            public JPopupMenu createPublishedByPopup(final User user) {
-                return null;
-            }
-            public JPopupMenu createPublishedToPopup(final User user, final ArtifactReceipt receipt) {
-                return null;
-            }
-            public JPopupMenu createVersionDocumentPopup(
-                    final DocumentVersion version, final Delta delta) {
-                return popupFactory.createVersionDocumentPopup(version, delta);
-            }
-            public JPopupMenu createVersionPopup(final ContainerVersion version) {
-                return null;
-            }
-        });
+        panel.setPopupDelegate(popupDelegate);
         return panel;
     }
 
@@ -538,7 +488,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private void toggleExpand(final TabPanel tabPanel) {
         final Boolean expanded;
-        if (isContainerPanel(tabPanel)) {
+        if (isContainerPanel(tabPanel).booleanValue()) {
             final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
             if (isExpanded(containerPanel)) {
                 expanded = Boolean.FALSE;

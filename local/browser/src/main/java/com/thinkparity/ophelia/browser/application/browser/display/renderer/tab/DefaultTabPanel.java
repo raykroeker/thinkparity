@@ -6,11 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
-
 /**
  * <b>Title:</b>thinkParity Default Tab Panel<br>
  * <b>Description:</b>A default implementation of a tab panel.<br>
@@ -19,20 +14,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
  * @version 1.1.2.1
  */
 public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel {
-
-    private static final ActionRegistry ACTION_REGISTRY;
-
-    static {
-        ACTION_REGISTRY = new ActionRegistry();
-    }
-
-    protected static AbstractAction getInstance(final ActionId actionId) {
-        if (ACTION_REGISTRY.contains(actionId)) {
-            return ACTION_REGISTRY.get(actionId);
-        } else {
-            return ActionFactory.create(actionId);
-        }
-    }
 
 	/** A panel's <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;

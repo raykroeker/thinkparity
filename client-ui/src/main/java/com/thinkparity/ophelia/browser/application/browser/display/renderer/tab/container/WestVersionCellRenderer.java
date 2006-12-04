@@ -1,5 +1,5 @@
 /*
- * Created On:  October 7, 2006, 1:34 PM
+ * Created On: October 7, 2006, 1:34 PM
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
@@ -7,21 +7,18 @@ import java.awt.Component;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
-import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionsPanel.AbstractContentCell;
-
 /**
- * <b>Title:</b>thinkParity Version Content Cell Renderer<br>
- * <b>Description:</b>A cell renderer for the eastern list within the versions
- * panel.<br>
- * 
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class VersionContentCellRenderer extends AbstractJPanel implements
+final class WestVersionCellRenderer extends AbstractJPanel implements
         ListCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -30,32 +27,38 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Create VersionContentCellRenderer.
-     *
+     * Creates VersionCellRenderer.
+     * 
      */
-    public VersionContentCellRenderer() {
+    WestVersionCellRenderer() {
+        super();
         initComponents();
     }
 
     /**
-     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
-     *      java.lang.Object, int, boolean, boolean)
+     * Return a component that has been configured to display the specified
+     * value. That component's <code>paint</code> method is then called to
+     * "render" the cell.  If it is necessary to compute the dimensions
+     * of a list because the list cells do not have a fixed size, this method
+     * is called to generate a component on which <code>getPreferredSize</code>
+     * can be invoked.
+     * 
+     * @param list The JList we're painting.
+     * @param value The value returned by list.getModel().getElementAt(index).
+     * @param index The cells index.
+     * @param isSelected True if the specified cell was selected.
+     * @param cellHasFocus True if the specified cell has the focus.
+     * @return A component whose paint() method will render the specified value.
+     * @see JList
+     * @see ListSelectionModel
+     * @see ListModel
      */
     public Component getListCellRendererComponent(final JList list,
             final Object value, final int index, final boolean isSelected,
             final boolean cellHasFocus) {
-        final AbstractContentCell cell = (AbstractContentCell) value;
+        final VersionCell cell = (VersionCell) value;
         iconJLabel.setIcon(cell.getIcon());
-        // underline text if it is selected and it has focus
-        if (isSelected) {
-            final StringBuffer text = new StringBuffer()
-                .append("<html><u>").append(cell.getText())
-                .append("</u><html>");
-            textJLabel.setText(text.toString());
-        } else {
-            textJLabel.setText(cell.getText()); 
-        }
-        textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        textJLabel.setText(cell.getText());
         return this;
     }
 
@@ -74,19 +77,22 @@ public class VersionContentCellRenderer extends AbstractJPanel implements
         setMinimumSize(new java.awt.Dimension(20, 24));
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(20, 24));
-        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconFileDefault.png")));
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
         add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!VersionContent!");
+        textJLabel.setText("!Version Cell!");
         textJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         textJLabel.setMaximumSize(new java.awt.Dimension(20, 16));
         textJLabel.setMinimumSize(new java.awt.Dimension(20, 16));
         textJLabel.setPreferredSize(new java.awt.Dimension(20, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;

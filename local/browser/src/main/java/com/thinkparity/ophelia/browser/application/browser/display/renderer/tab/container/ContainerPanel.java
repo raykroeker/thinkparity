@@ -30,11 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
@@ -45,49 +41,47 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContainerPanel extends DefaultTabPanel {
     
-    /** An add bookmark <code>AbstractAction</code>. */
-    private static final AbstractAction ADD_BOOKMARK;
-    
     /** The border for cells. */
     private static final Border BORDER_DEFAULT;
 
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
-    
-    /** A remove bookmark <code>AbstractAction</code>. */
-    private static final AbstractAction REMOVE_BOOKMARK;
-    
+
     static {
-        ADD_BOOKMARK = ActionFactory.create(ActionId.CONTAINER_ADD_BOOKMARK);
         BORDER_DEFAULT = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
-        REMOVE_BOOKMARK = getInstance(ActionId.CONTAINER_REMOVE_BOOKMARK);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerNameJLabel;
-    private javax.swing.JLabel eastPaddingJLabel;
-    private javax.swing.JLabel iconJLabel;
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
     
-    /** An image cache. */
-    protected final MainPanelImageCache imageCache;
-
     /** A <code>Container</code>. */
     protected Container container;
-
+    
     /** A <code>ContainerDraft</code>. */
     protected ContainerDraft draft;
-
     /** The expanded <code>Boolean</code> state. */
     protected Boolean expanded;
-
+    /** An image cache. */
+    protected final MainPanelImageCache imageCache;
     /** The latest version <code>ContainerVersion</code>. */
     protected ContainerVersion latestVersion;
 
+    /** The container tab's <code>DefaultActionDelegate</code>. */
+    private ActionDelegate actionDelegate;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel containerNameJLabel;
+
+    private javax.swing.JLabel eastPaddingJLabel;
+
+    private javax.swing.JLabel iconJLabel;
+
     /** The panel localization. */
     private final MainCellL18n localization;
+
+    /** The container tab's <code>PopupDelegate</code>. */
+    private PopupDelegate popupDelegate;
+
+    private javax.swing.JLabel westPaddingJLabel;
+    // End of variables declaration//GEN-END:variables
 
     /**
      * Create ContainerPanel.
@@ -99,6 +93,15 @@ public class ContainerPanel extends DefaultTabPanel {
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
         initComponents();
+    }
+
+    /**
+     * Obtain actionDelegate.
+     *
+     * @return A ContainerTabActionDelegate.
+     */
+    public ActionDelegate getActionDelegate() {
+        return actionDelegate;
     }
 
     /**
@@ -140,12 +143,39 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPanelPopupDelegate()
+     *
+     */
+    public TabPanelPopupDelegate getPanelPopupDelegate() {
+        return popupDelegate;
+    }
+
+    /**
+     * Obtain popupDelegate.
+     *
+     * @return A ContainerTabPopupDelegate.
+     */
+    public PopupDelegate getPopupDelegate() {
+        return popupDelegate;
+    }
+
+    /**
      * Determine the expanded state.
      * 
      * @return A <code>Boolean</code> expanded state.
      */
     public Boolean isExpanded() {
         return expanded;
+    }
+
+    /**
+     * Set actionDelegate.
+     *
+     * @param actionDelegate
+     *		A ContainerTabActionDelegate.
+     */
+    public void setActionDelegate(final ActionDelegate actionDelegate) {
+        this.actionDelegate = actionDelegate;
     }
 
     /**
@@ -180,6 +210,16 @@ public class ContainerPanel extends DefaultTabPanel {
                 imageCache.read(TabPanelIcon.CONTAINER));
         reloadBorder();
         reloadText();
+    }
+
+    /**
+     * Set popupDelegate.
+     *
+     * @param popupDelegate
+     *		A ContainerTabPopupDelegate.
+     */
+    public void setPopupDelegate(final PopupDelegate popupDelegate) {
+        this.popupDelegate = popupDelegate;
     }
 
     /**
@@ -237,15 +277,7 @@ public class ContainerPanel extends DefaultTabPanel {
         iconJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
-                if (container.isBookmarked()) {
-                    final Data data = new Data(1);
-                    data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-                    REMOVE_BOOKMARK.invoke(data);
-                } else {
-                    final Data data = new Data(1);
-                    data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-                    ADD_BOOKMARK.invoke(data);
-                }
+                actionDelegate.invokeForContainer(container);
             }
             @Override
             public void mouseEntered(final MouseEvent e) {

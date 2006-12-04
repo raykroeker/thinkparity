@@ -18,14 +18,14 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ContainerAvatar extends TabPanelAvatar<ContainerModel> {
+public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
 
     /**
      * Create ContainerAvatar.
      * 
      */
-    public ContainerAvatar() {
-        super(AvatarId.TAB_CONTAINER, new ContainerModel());
+    public ContainerTabAvatar() {
+        super(AvatarId.TAB_CONTAINER, new ContainerTabModel());
     }
 
     /**

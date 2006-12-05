@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.user.User;
 
 
@@ -17,10 +18,19 @@ import com.thinkparity.codebase.model.user.User;
  */
 public class Contact extends User {
 
-	/** The contact's e-mails. */
+    /** The contact's e-mails. */
     private final List<EMail> emails;
 
-    /** Create Contact. */
+    /** A mobile phone <code>String</code>. */
+    private String mobilePhone;
+
+    /** An organziation address <code>String</code>. */
+    private String organizationAddress;
+
+    /** A phone <code>String</code>. */
+    private String phone;
+
+	/** Create Contact. */
 	public Contact() {
         super();
         this.emails = new ArrayList<EMail>();
@@ -71,6 +81,60 @@ public class Contact extends User {
     }
 
     /**
+     * Obtain the mobile phone number.
+     * 
+     * @return A mobile phone <code>String</code>.
+     */
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    /**
+     * Obtain the organization address.
+     * 
+     * @return An organization address <code>String</code>.
+     */
+    public String getOrganizationAddress() {
+        return organizationAddress;
+    }
+
+    /**
+     * Obtain the phone number.
+     * 
+     * @return A phone number <code>String</code>.
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * Determine if the moblie phone number is set.
+     * 
+     * @return True if the phone number is set.
+     */
+    public boolean isSetMobilePhone() {
+        return false;
+    }
+
+    /**
+     * Determine if the organization address is set.
+     * 
+     * @return True if the address is set.
+     */
+    public boolean isSetOrganizationAddress() {
+        return false;
+    }
+
+    /**
+     * Determine if the phone number is set.
+     * 
+     * @return True if the phone number is set.
+     */
+    public boolean isSetPhone() {
+        return false;
+    }
+
+    /**
      * Remove all e-mails.
      * 
      * @param emails
@@ -90,5 +154,35 @@ public class Contact extends User {
      */
     public boolean removeEmail(final EMail email) {
         return emails.remove(email);
+    }
+
+    /**
+     * Set the mobile phone.
+     * 
+     * @param mobilePhone
+     *            A mobile phone <code>String</code>.
+     */
+    public void setMobilePhone(final String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+    }
+
+    /**
+     * Set the organization address.
+     * 
+     * @param organizationAddress
+     *            An organization address <code>String</code>.
+     */
+    public void setOrganizationAddress(final String organizationAddress) {
+        this.organizationAddress = organizationAddress;
+    }
+
+    /**
+     * Set the phone.
+     * 
+     * @param phone
+     *            A phone <code>String</code>.
+     */
+    public void setPhone(final String phone) {
+        this.phone = phone;
     }
 }

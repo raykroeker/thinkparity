@@ -4,17 +4,15 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -22,6 +20,12 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
+import com.thinkparity.ophelia.model.document.DocumentModel;
 
 /**
  * Publish a document.  This will send a given document version to
@@ -53,8 +57,33 @@ public class Publish extends AbstractAction {
         final List<User> contactsIn = getDataUsers(data, DataKey.CONTACTS);
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
         final String comment = (String) data.get(DataKey.COMMENT);
+        final ContainerModel containerModel = getContainerModel();
+        final DocumentModel documentModel = getDocumentModel();
         
-        if ((null == contactsIn || contactsIn.isEmpty()) &&
+        // Check there are documents with changes to publish.
+        Boolean changes = Boolean.FALSE;
+        List<Document> documents = Collections.emptyList();
+        final Container container = containerModel.read(containerId);
+        if (container.isLocalDraft()) {
+            final ContainerDraft draft = containerModel.readDraft(containerId);
+            if (null != draft) {
+                documents = draft.getDocuments();
+                for (final Document document : documents) {
+                    if (documentModel.isDraftModified(document.getId())) {
+                        changes = Boolean.TRUE;
+                        break;
+                    }
+                }
+            }
+        }       
+        
+        if (documents.isEmpty()) {
+            browser.displayErrorDialog("ErrorNoDocumentToPublish",
+                    new Object[] {container.getName()});
+        } else if (!changes) {
+            browser.displayErrorDialog("ErrorNoChangedDocumentToPublish",
+                    new Object[] {container.getName()});
+        } else if ((null == contactsIn || contactsIn.isEmpty()) &&
             (null == teamMembersIn || teamMembersIn.isEmpty())) {
             // TODO raymond@thinkparity.com - Adjust such that the list input is never null 
             // Launch publish dialog

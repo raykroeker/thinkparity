@@ -174,7 +174,7 @@ public abstract class Avatar extends AbstractJPanel {
                     }
                 }
                 
-                // Draw the background image, clipping if required.
+                // Draw the background image.
                 if (null != clippedBackgroundImage) {                
                     g2.drawImage(clippedBackgroundImage, 0, 0, getWidth(), getHeight(), null);
                 }

@@ -18,8 +18,10 @@ import javax.swing.event.PopupMenuListener;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.PopupMenuInfo;
 import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupMenu;
 
 /**
  * @author raykroeker@gmail.com
@@ -115,7 +117,7 @@ public class MenuFactory {
 	 */
 	private JPopupMenu doCreatePopup() {
         try {
-            JPopupMenu jPopupMenu = new ShadowPopupMenu();
+            JPopupMenu jPopupMenu = new BrowserPopupMenu();
             jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
                 public void popupMenuCanceled(PopupMenuEvent e) {
                 }
@@ -138,36 +140,4 @@ public class MenuFactory {
             throw new BrowserException("Cannot instantiate shadow popop menu.", awtx);
         }
 	}
-
-    /**
-     * A popup menu that has a shadow.
-     */
-    private class ShadowPopupMenu extends JPopupMenu {
-        
-        /** A drop shadow border. */
-        private final DropShadowBorder dropShadowBorder;
-        
-        /**
-         * Create ShadowPopupMenu.
-         *
-         * @throws AWTException
-         */
-        private ShadowPopupMenu() throws AWTException {
-            super();
-            dropShadowBorder = new DropShadowBorder();
-            setBorder(dropShadowBorder);
-        }
-
-        /**
-         * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-         * 
-         */
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            final Dimension preferredSize = getPreferredSize();
-            dropShadowBorder.paintUnderneathBorder(invoker, x, y,
-                    preferredSize.width, preferredSize.height);
-            super.show(invoker, x, y);
-        }
-    }
 }

@@ -26,6 +26,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtensionAction;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
  * <b>Title:</b>thinkParity Popup Item Factory<br>
@@ -145,7 +146,7 @@ public class PopupItemFactory extends AbstractFactory {
                 final Data data = new Data(1);
                 data.set(ActionExtensionAction.DataKey.SELECTION, selection);
                 wrapper.setData(data);
-                jPopupMenu.add(new JMenuItem(wrapper));
+                jPopupMenu.add(new ThinkParityMenuItem(wrapper));
             }
         }
     }
@@ -183,7 +184,7 @@ public class PopupItemFactory extends AbstractFactory {
         // Adjust the action so it is suited to main menu or context popup menu
         actionWrapper.adjustForMenuType(mainMenu);
         
-        return new JMenuItem(actionWrapper);
+        return new ThinkParityMenuItem(actionWrapper);
     }
 
     /**

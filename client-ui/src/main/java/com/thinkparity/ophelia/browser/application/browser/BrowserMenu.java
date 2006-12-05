@@ -10,8 +10,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -19,6 +22,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
  * @author rob_masako@shaw.ca
@@ -29,18 +33,22 @@ public class BrowserMenu extends JMenu {
     /** A drop shadow border. */
     final DropShadowBorder dropShadowBorder;
     
+    /** List of menu items in this JMenu. */
+    final List<ThinkParityMenuItem> thinkParityMenuItems;
+    
     /**
      * @param text
      *          Menu text.
      */
     public BrowserMenu(final String text) throws AWTException {
-        super(text);
+        super(text);       
+        this.thinkParityMenuItems = new ArrayList<ThinkParityMenuItem>();
         
         // Make it transparent. The override on paintComponent will paint a gradient.
         setBackground(new Color(255, 255, 255, 0));
         
         // Set up the shadow border on the popup menu
-        dropShadowBorder = new DropShadowBorder();
+        dropShadowBorder = new DropShadowBorder(Colors.Swing.MENU_BG);
         getPopupMenu().setBorder(dropShadowBorder);
         
         getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
@@ -69,5 +77,31 @@ public class BrowserMenu extends JMenu {
         }
         finally { g2.dispose(); }
         super.paintComponent(g);        
-    }   
+    }
+
+    /**
+     * @see javax.swing.JMenu#add(javax.swing.JMenuItem)
+     */
+    @Override
+    public JMenuItem add(JMenuItem menuItem) {
+        for (final ThinkParityMenuItem earlierMenuItem : thinkParityMenuItems) {
+            earlierMenuItem.setLast(Boolean.FALSE);            
+        }
+        if (menuItem instanceof ThinkParityMenuItem) {
+            ((ThinkParityMenuItem)menuItem).setLast(Boolean.TRUE);
+            thinkParityMenuItems.add((ThinkParityMenuItem)menuItem);
+        }
+        return super.add(menuItem);
+    }
+    
+    /**
+     * @see javax.swing.JPopupMenu#addSeparator()
+     */
+    @Override
+    public void addSeparator() {
+        if (thinkParityMenuItems.size() > 0) {
+            thinkParityMenuItems.get(thinkParityMenuItems.size()-1).setSeparatorNext(Boolean.TRUE);
+        }
+        super.addSeparator();
+    }    
 }

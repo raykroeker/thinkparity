@@ -15,6 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItemUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityProgressBarUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityScrollBarUI;
 
@@ -67,6 +68,7 @@ public class Swing {
         defaults = UIManager.getDefaults();
         defaults.put("ProgressBarUI", ThinkParityProgressBarUI.class.getName());
         defaults.put("ScrollBarUI", ThinkParityScrollBarUI.class.getName());
+        defaults.put("MenuItemUI", ThinkParityMenuItemUI.class.getName());
     }
 
     /**

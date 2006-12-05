@@ -24,7 +24,7 @@ public class DropShadowBorder extends AbstractBorder {
     private static int SHADOW_RIGHT;
     
     static {
-        SHADOW_TOP = 1;
+        SHADOW_TOP = 0;
         SHADOW_LEFT = 1;
         SHADOW_BOTTOM = 4;
         SHADOW_RIGHT = 4;
@@ -60,8 +60,11 @@ public class DropShadowBorder extends AbstractBorder {
     /** A screen capture <code>BufferedImage</code> of the right side of the menu.*/
     private BufferedImage screenCaptureRight = null;
     
-    /** A screen capture <code>BufferedImage</code> of the top side of the menu.*/
-    private BufferedImage screenCaptureTop = null;
+    /** A screen capture <code>BufferedImage</code> of the top left of the menu.*/
+    private BufferedImage screenCaptureTopLeft = null;
+    
+    /** A screen capture <code>BufferedImage</code> of the top right of the menu.*/
+    private BufferedImage screenCaptureTopRight = null;
     
     /** The top border <code>Color[]</code>. */
     private final Color[] topColors;
@@ -80,6 +83,23 @@ public class DropShadowBorder extends AbstractBorder {
         this.rightThickness = 0;
         this.robot = new Robot();
         this.topColors = null;
+        this.leftColors = null;
+        this.bottomColors = null;
+        this.rightColors = null;
+    }
+    
+    /**
+     * Create DropShadowBorder.
+     */
+    public DropShadowBorder(final Color topColor) throws AWTException {
+        super();
+        this.topThickness = 1;
+        this.leftThickness = 0;
+        this.bottomThickness = 0;
+        this.rightThickness = 0;
+        this.robot = new Robot();
+        this.topColors = new Color[1];
+        this.topColors[0] = topColor;
         this.leftColors = null;
         this.bottomColors = null;
         this.rightColors = null;
@@ -173,11 +193,11 @@ public class DropShadowBorder extends AbstractBorder {
                             x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + innerHeight - 1 - i);
             }
             
-            // Top
+            // Top. 1 pixel on each edge are part of the rounded corner.
             for (Integer i = 0; i < topThickness; i++) {
                 g2.setColor(topColors[i]);
-                g2.drawLine(x + SHADOW_LEFT + i, y + SHADOW_TOP + i,
-                            x + SHADOW_LEFT + innerWidth - 1 - i, y + SHADOW_TOP + i);
+                g2.drawLine(x + SHADOW_LEFT + i + 1, y + SHADOW_TOP + i,
+                            x + SHADOW_LEFT + innerWidth - 2 - i, y + SHADOW_TOP + i);
             }
     
             // Bottom
@@ -210,18 +230,24 @@ public class DropShadowBorder extends AbstractBorder {
                         new Rectangle(point.x, point.y, width - SHADOW_LEFT - SHADOW_RIGHT, SHADOW_BOTTOM));
             }
             
-            if (null == screenCaptureTop) {
+            if (null == screenCaptureTopLeft) {
                 final Point point = new Point(x + SHADOW_LEFT, y);
                 SwingUtilities.convertPointToScreen(point, c);
-                screenCaptureTop = robot.createScreenCapture(
-                        new Rectangle(point.x, point.y, width - SHADOW_LEFT - SHADOW_RIGHT, SHADOW_TOP));
+                screenCaptureTopLeft = robot.createScreenCapture(new Rectangle(point.x, point.y, 1, 1));
+            }
+            
+            if (null == screenCaptureTopRight) {
+                final Point point = new Point(x + width - SHADOW_RIGHT - 1, y);
+                SwingUtilities.convertPointToScreen(point, c);
+                screenCaptureTopRight = robot.createScreenCapture(new Rectangle(point.x, point.y, 1, 1));
             }
             
             // Draw the background images to the border.
             g2.drawImage(screenCaptureRight, null, x + width - SHADOW_RIGHT, y);
             g2.drawImage(screenCaptureLeft, null, x, y);
             g2.drawImage(screenCaptureBottom, null, x + SHADOW_LEFT, y + height - SHADOW_BOTTOM);
-            g2.drawImage(screenCaptureTop, null, x + SHADOW_LEFT, y);
+            g2.drawImage(screenCaptureTopLeft, null, x + SHADOW_LEFT, y);
+            g2.drawImage(screenCaptureTopRight, null, x + width - SHADOW_RIGHT - 1, y);
             
             // Draw the shadow.
             g2.setColor(new Color(0, 0, 0, 255));
@@ -248,13 +274,12 @@ public class DropShadowBorder extends AbstractBorder {
             g2.draw(new Line2D.Double(x + 7, y + height - 1, x + width - 2, y + height - 1));  // bottom
             g2.draw(new Line2D.Double(x + 4, y + height - 4, x + 6, y + height - 2 ));         // soften bottom left
             
-            // Shadow on left
-            g2.draw(new Line2D.Double(x, y, x, y + height - 4));
+            // Shadow on left. 2 pixels at the top are part of the rounded corner.
+            g2.draw(new Line2D.Double(x, y + 2, x, y + height - 4));
             g2.draw(new Line2D.Double(x + 1, y + height - 4, x + 3, y + height - 4));
             
-            // Shadow on top
-            g2.draw(new Line2D.Double(x + 1, y, x + width - 4, y));
-            g2.draw(new Line2D.Double(x + width - 4, y + 1, x + width - 4, y + 3));
+            // Shadow on top right. 2 pixels at the top are part of the rounded corner.
+            g2.draw(new Line2D.Double(x + width - 4, y + 2, x + width - 4, y + 3));
             
             // Soften the shadow at the bottom right corner
             g2.setComposite(makeComposite(0.5f));
@@ -284,39 +309,44 @@ public class DropShadowBorder extends AbstractBorder {
             deepestComponent = parent;
             parent = parent.getParent();
         }
-        final int deepestComponentWidth = deepestComponent.getWidth();
-        final int deepestComponentHeight = deepestComponent.getHeight();
         final Point point = SwingUtilities.convertPoint(c, x, y, deepestComponent);
         final Rectangle rect = new Rectangle();
         
-        // If needed paint the dirty region under the vertical border.
-        rect.x = point.x + width - 4;
+        // If needed paint the dirty region under the right border.
+        // Go one extra pixel wide to grab the rounded corner pixel top right.
+        rect.x = point.x + width - SHADOW_RIGHT - 1;
         rect.y = point.y;
-        rect.width = 4;
-        rect.height = height;
-        if ((rect.x + rect.width) > deepestComponentWidth) {
-            rect.width = deepestComponentWidth - rect.x;
-        }
-        if ((rect.y + rect.height) > deepestComponentHeight) {
-            rect.height = deepestComponentHeight - rect.y;
-        }        
+        rect.width = SHADOW_RIGHT + 1;
+        rect.height = height;       
         paintUnderneathRectangle(deepestComponent, rect);
         
-        // If needed paint the dirty region under the horizontal border.
+        // If needed paint the dirty region under the left border.
+        // Go one extra pixel wide to grab the rounded corner pixel top left.
         rect.x = point.x;
-        rect.y = point.y + height - 4;
-        rect.width = width - 4;
-        rect.height = 4;  
-        if ((rect.x + rect.width) > deepestComponentWidth) {
-            rect.width = deepestComponentWidth - rect.x;
-        }
-        if ((rect.y + rect.height) > deepestComponentHeight) {
-            rect.height = deepestComponentHeight - rect.y;
-        }        
+        rect.y = point.y;
+        rect.width = SHADOW_LEFT + 1;
+        rect.height = height;       
+        paintUnderneathRectangle(deepestComponent, rect);
+        
+        // If needed paint the dirty region under the bottom border.
+        rect.x = point.x + SHADOW_LEFT;
+        rect.y = point.y + height - SHADOW_BOTTOM;
+        rect.width = width - SHADOW_LEFT - SHADOW_RIGHT;
+        rect.height = SHADOW_BOTTOM;       
         paintUnderneathRectangle(deepestComponent, rect);
     }
     
     private void paintUnderneathRectangle(final Component component, final Rectangle rect) {
+        final int deepestComponentWidth = component.getWidth();
+        final int deepestComponentHeight = component.getHeight();
+        
+        if ((rect.x + rect.width) > deepestComponentWidth) {
+            rect.width = deepestComponentWidth - rect.x;
+        }
+        if ((rect.y + rect.height) > deepestComponentHeight) {
+            rect.height = deepestComponentHeight - rect.y;
+        }   
+        
         if (!rect.isEmpty()) {
             final Graphics2D g2 = (Graphics2D)component.getGraphics();
             try { 

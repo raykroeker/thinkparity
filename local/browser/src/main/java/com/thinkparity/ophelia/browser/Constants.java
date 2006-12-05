@@ -119,6 +119,7 @@ public final class Constants {
             public static final Color MENU_ITEM_SELECTION_FG = Color.BLACK;
             public static final Color MENU_SELECTION_BG = new Color(201, 208, 218, 255);
             public static final Color MENU_SELECTION_FG = Color.BLACK;
+            public static final Color MENU_BETWEEN_ITEMS_BG = Color.white;
         }
     }
 

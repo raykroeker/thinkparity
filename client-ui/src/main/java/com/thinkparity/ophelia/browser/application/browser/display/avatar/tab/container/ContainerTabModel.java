@@ -94,7 +94,7 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     ContainerTabModel() {
         super();
-        this.actionDelegate = new ContainerTabActionDelegate();
+        this.actionDelegate = new ContainerTabActionDelegate(this);
         this.browser = getBrowser();
         this.containerIdLookup = new HashMap<Long, Long>();
         this.containerPanels = new ArrayList<TabPanel>();

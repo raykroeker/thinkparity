@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 
 /**
  * <b>Title:</b><br>
@@ -33,6 +34,9 @@ import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
  */
 final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         ActionDelegate {
+    
+    /** A <code>ContainerModel</code>. */
+    private final ContainerTabModel model;
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final AbstractAction containerAddBookmark;
@@ -45,6 +49,9 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
 
     /** The document version <code>AbstractAction</code>. */
     private final AbstractAction documentOpenVersion;
+    
+    /** The profile update <code>AbstractAction</code>. */
+    private final AbstractAction profileUpdate;
 
     /** The user <code>AbstractAction</code>. */
     private final AbstractAction userRead;
@@ -56,12 +63,14 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
      * Create ContainerTabActionDelegate.
      *
      */
-    ContainerTabActionDelegate() {
+    ContainerTabActionDelegate(final ContainerTabModel model) {
         super();
+        this.model = model;
         this.containerAddBookmark = ActionFactory.create(ActionId.CONTAINER_ADD_BOOKMARK);
         this.containerRemoveBookmark = ActionFactory.create(ActionId.CONTAINER_REMOVE_BOOKMARK);
         this.documentOpenDraft = getInstance(ActionId.DOCUMENT_OPEN);
         this.documentOpenVersion = getInstance(ActionId.DOCUMENT_OPEN_VERSION);
+        this.profileUpdate = getInstance(ActionId.PROFILE_UPDATE);
         this.userRead = getInstance(ActionId.CONTACT_READ);
         this.versionRead = getInstance(ActionId.CONTAINER_READ_VERSION);
     }
@@ -109,10 +118,16 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabActionDelegate#invokeForUser(com.thinkparity.codebase.model.user.User)
      * 
      */
-    public void invokeForUser(final User user) {
-        final Data data = new Data(1);
-        data.set(Read.DataKey.CONTACT_ID, user.getId());
-        invoke(userRead, data);
+    public void invokeForUser(final User user) {        
+        if (isLocalUser(user)) {
+            final Data data = new Data(1);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            invoke(profileUpdate, data);
+        } else {
+            final Data data = new Data(1);
+            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            invoke(userRead, data);
+        }
     }
 
     /**
@@ -126,5 +141,16 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());
             invoke(versionRead, data);
         }
+    }
+    
+    /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    private boolean isLocalUser(final User user) {
+        return model.isLocalUser(user).booleanValue();
     }
 }

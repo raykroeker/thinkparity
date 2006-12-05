@@ -82,4 +82,13 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 	 */
 	@Override
 	public final void setState(final State state) {}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
+     */
+    @Override
+    public Boolean isAvatarBackgroundImage() {
+        // Default avatar background image is not required for tab avatars.
+        return Boolean.FALSE;
+    }
 }

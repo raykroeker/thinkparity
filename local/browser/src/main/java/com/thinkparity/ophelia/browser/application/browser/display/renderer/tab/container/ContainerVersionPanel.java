@@ -51,12 +51,6 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContainerVersionPanel extends DefaultTabPanel {
 
-    /**
-     * A client property key <code>String</code> for the is popup trigger
-     * property.
-     */
-    private static final String CPK_IS_POPUP_TRIGGER;
-
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
@@ -64,7 +58,6 @@ public class ContainerVersionPanel extends DefaultTabPanel {
     static final Integer NUMBER_VISIBLE_ROWS;
 
     static {
-        CPK_IS_POPUP_TRIGGER = ContainerVersionPanel.class.getName() + "#isPopupTrigger";
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         NUMBER_VISIBLE_ROWS = 5;
     }
@@ -545,10 +538,11 @@ public class ContainerVersionPanel extends DefaultTabPanel {
             final java.awt.event.MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger())
-            jList.putClientProperty(CPK_IS_POPUP_TRIGGER, Boolean.TRUE);
-        else
-            jList.putClientProperty(CPK_IS_POPUP_TRIGGER, Boolean.FALSE);
+        if (e.isPopupTrigger()) {
+            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            ((DefaultVersionCell) jList.getSelectedValue()).showPopup();
+        }
     }
     
     /**
@@ -566,8 +560,7 @@ public class ContainerVersionPanel extends DefaultTabPanel {
             final java.awt.event.MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
-        final Boolean isPopupTrigger = (Boolean) jList.getClientProperty(CPK_IS_POPUP_TRIGGER);
-        if (null != isPopupTrigger && isPopupTrigger.booleanValue()) {
+        if (e.isPopupTrigger()) {
             jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
             popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
             ((DefaultVersionCell) jList.getSelectedValue()).showPopup();

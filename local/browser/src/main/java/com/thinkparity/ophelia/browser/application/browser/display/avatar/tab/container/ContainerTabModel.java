@@ -19,17 +19,15 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.dnd.TxUtils;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -40,6 +38,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -155,6 +154,18 @@ public final class ContainerTabModel extends TabPanelModel {
     public DefaultListModel getListModel() {
         debug();
         return listModel;
+    }
+    
+    /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    public Boolean isLocalUser(final User user) {
+        final Profile profile = readProfile();
+        return (user.getId().equals(profile.getId()));
     }
 
     /**
@@ -713,6 +724,15 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private ContainerVersion readLatestVersion(final Long containerId) {
         return ((ContainerProvider) contentProvider).readLatestVersion(containerId);
+    }
+    
+    /**
+     * Read the profile.
+     * 
+     * @return A <code>Profile</code>.   
+     */
+    private Profile readProfile() {
+        return ((ContainerProvider) contentProvider).readProfile();
     }
 
     /**

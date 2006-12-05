@@ -148,7 +148,16 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      */
     public ContainerVersion readLatestVersion(final Long containerId) {
         return containerModel.readLatestVersion(containerId);
-    }  
+    }
+    
+    /**
+     * Read the profile.
+     * 
+     * @return A <code>Profile</code>.  
+     */
+    public Profile readProfile() {
+        return profile;
+    }
 
     /**
      * Read the published to user list.

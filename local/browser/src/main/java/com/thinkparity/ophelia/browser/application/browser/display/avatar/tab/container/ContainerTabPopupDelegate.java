@@ -33,6 +33,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
@@ -180,10 +181,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForUser(final User user) {
-        final Data data = new Data(1);
-        data.set(Read.DataKey.CONTACT_ID, user.getId());
-        add(ActionId.CONTACT_READ, data);
-        show();
+        if (isLocalUser(user)) {
+            final Data data = new Data(1);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.PROFILE_UPDATE, data);
+            show();
+        } else {
+            final Data data = new Data(1);
+            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            add(ActionId.CONTACT_READ, data);
+            show();
+        }
     }
 
     /**
@@ -237,6 +245,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean isOnline() {
         return model.isOnline().booleanValue();
+    }
+    
+    /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    private boolean isLocalUser(final User user) {
+        return model.isLocalUser(user).booleanValue();
     }
 
     /**

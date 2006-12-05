@@ -93,6 +93,20 @@
   		<pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
     </path>
+    <!-- run classpath -->
+    <path id="project.run-classpath">
+        <path refid="project.classpath"/>
+
+        <pathelement location="${basedir}/vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
+        <pathelement location="${basedir}/vendor/fop/0.20.5/batik.jar"/>
+        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
+    </path>
+    <!-- run library path -->
+    <path id="project.run-librarypath">
+        <pathelement location="${basedir}/vendor/i686/${platform}/jdic/0.9.1"/>
+        <pathelement location="${basedir}/vendor/i686/${platform}/jdic_icon/0.1.1"/>
+        <pathelement location="${basedir}/vendor/i686/${platform}/nativeskin/6.7"/>
+    </path>
 
     <!-- release -->
     <target name="release">
@@ -283,6 +297,15 @@
                 destdir="${target.classes.dir}" debug="${compile.innerDebug}">
             <classpath refid="project.classpath"/>
         </javac>
+    </target>
+
+    <!-- run -->
+    <target name="run" depends="init">
+        <pathconvert property="librarypath" refid="project.run-librarypath"/>
+        <java classname="com.thinkparity.ophelia.browser.Browser"
+            classpathref="project.run-classpath" fork="true">
+            <jvmarg line="-Djava.library.path=&quot;${librarypath}&quot; -Dthinkparity.install=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
+        </java>
     </target>
 
     <!-- compile -->

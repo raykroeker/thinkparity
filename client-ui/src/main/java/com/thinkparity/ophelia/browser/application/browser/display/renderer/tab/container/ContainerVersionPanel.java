@@ -4,12 +4,8 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +30,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
-import com.thinkparity.ophelia.browser.Constants.Images;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
@@ -43,8 +39,13 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
- * <b>Title:</b>thinkParity Container Versions Panel<br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Container Version Panel<br>
+ * <b>Description:</b>The version panel is responsible for displaying all
+ * information for a container's draft, its version and their documents. It also
+ * includes published to information.<br>
+ * There is a tight coupling between the visual display of this panel and the
+ * container panel as both are visually seen as a single entity.
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -60,7 +61,7 @@ public class ContainerVersionPanel extends DefaultTabPanel {
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     /** Number of rows visible in the expanded package lists. */
-    private static final Integer NUMBER_VISIBLE_ROWS;
+    static final Integer NUMBER_VISIBLE_ROWS;
 
     static {
         CPK_IS_POPUP_TRIGGER = ContainerVersionPanel.class.getName() + "#isPopupTrigger";
@@ -79,12 +80,6 @@ public class ContainerVersionPanel extends DefaultTabPanel {
     /** A container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The clipped down background images on the left. */
-    private BufferedImage[] clippedContainerBackgroundLeft;
-
-    /** The clipped down background image on the right. */
-    private BufferedImage clippedContainerBackgroundRight;
-
     /** A file icon reader. */
     private final FileIconReader fileIconReader;
 
@@ -100,12 +95,9 @@ public class ContainerVersionPanel extends DefaultTabPanel {
     /** A container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
-    /** The scaled up background images on the left. */
-    private BufferedImage[] scaledContainerBackgroundLeft;
+    /** A <code>BackgroundRenderer</code>. */
+    private final BackgroundRenderer renderer;
     
-    /** The scaled up background image on the right. */
-    private BufferedImage scaledContainerBackgroundRight;
-
     /** The version's content list model. */
     private final DefaultListModel versionsContentModel;
 
@@ -124,7 +116,7 @@ public class ContainerVersionPanel extends DefaultTabPanel {
         this.fileIconReader = new FileIconReader();
         this.logger = new Log4JWrapper();
         this.localization = new MainCellL18n("ContainerVersionsPanel");
-        initBackgroundImages();
+        this.renderer = new BackgroundRenderer();
         initComponents();
     }
 
@@ -219,50 +211,15 @@ public class ContainerVersionPanel extends DefaultTabPanel {
      *
      */
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        final int rightWidth = getWidth() / 2;
-        final int leftWidth = getWidth() - rightWidth - 5;
-        final int selectedIndex = westJList.getSelectedIndex() - westJList.getFirstVisibleIndex();        
-        final int imageIndex;
-        if (westJList.getSelectedIndex() < 0 ) {
-            imageIndex = 0;
-        } else if ((selectedIndex < 0 ) || (selectedIndex >= NUMBER_VISIBLE_ROWS)) {
-            imageIndex = 0;
-        } else {
-            imageIndex = selectedIndex + 1;
+        renderer.paintBackground(g, this);
+        if (!westJList.isSelectionEmpty()) {
+            final int selectionIndex = westJList.getSelectedIndex();
+            renderer.paintBackgroundWest(g, this, selectionIndex);
+            renderer.paintBackgroundCenter(g, this, selectionIndex);
         }
-        
-        // Prepare the right side.        
-        //  - Resize the scaled background image if it is not large enough. This operation is a bit slow
-        // so we only use it to make the image larger. This covers the unlikely scenario that the width
-        // becomes larger than the screen size.
-        //  - Then clip the background image if it is too large. This operation is quicker than scaling.
-        if ((null == scaledContainerBackgroundRight) || scaledContainerBackgroundRight.getWidth() < rightWidth) {
-            initBackgroundImages(rightWidth);
-        }
-        if ((null == clippedContainerBackgroundRight) || (clippedContainerBackgroundRight.getWidth() != rightWidth)) {
-            clippedContainerBackgroundRight = scaledContainerBackgroundRight.getSubimage(
-                    0, 0, rightWidth, getHeight());
-        }
-        
-        // Prepare the left side.
-        if ((null == scaledContainerBackgroundLeft[imageIndex]) || scaledContainerBackgroundLeft[imageIndex].getWidth() < leftWidth) {
-            initBackgroundImages(getWidth());
-        }
-        if ((null == clippedContainerBackgroundLeft[imageIndex]) || (clippedContainerBackgroundLeft[imageIndex].getWidth() != leftWidth)) {
-            clippedContainerBackgroundLeft[imageIndex] = scaledContainerBackgroundLeft[imageIndex].getSubimage(
-                    0, 0, leftWidth, getHeight());
-        }
-                
-        // Paint
-        final Graphics g2 = g.create();
-        try {
-            g2.drawImage(clippedContainerBackgroundLeft[imageIndex], 0, 0, leftWidth, getHeight(), null);
-            g2.drawImage(Images.BrowserTitle.CONTAINER_BACKGROUND_MID[imageIndex], leftWidth, 0, 5, getHeight(), null);
-            g2.drawImage(clippedContainerBackgroundRight, getWidth()-rightWidth, 0, rightWidth, getHeight(), null);
-        }
-        finally { g2.dispose(); }
+        renderer.paintBackgroundEast(g, this);
     }
 
     private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
@@ -302,61 +259,6 @@ public class ContainerVersionPanel extends DefaultTabPanel {
     private ImageIcon getDocumentIcon(final DocumentVersion documentVersion) {
         return fileIconReader.getIcon(documentVersion);
     }
-
-    /**
-     * Initialize the background scaling and clipping images.
-     * Note that index 0 in the arrays corresponds to "none selected".
-     *
-     */
-    private void initBackgroundImages() {
-        if (null == scaledContainerBackgroundLeft) {
-            scaledContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS + 1];
-        }
-        if (null == clippedContainerBackgroundLeft) {
-            clippedContainerBackgroundLeft = new BufferedImage[NUMBER_VISIBLE_ROWS + 1];
-        }
-        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        initBackgroundImages((int)screenSize.getWidth());
-    }
-    
-    /**
-     * Initialize background images to the specified size (or larger).
-     * 
-     * @param newDimension
-     *      New dimension.
-     */
-    private void initBackgroundImages(final int newWidth) {
-        // Set up and if necessary scale the left background images.
-        // Note that index 0 corresponds to "none selected".
-        for (int index = 0; index <= NUMBER_VISIBLE_ROWS; index++) {
-            if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getWidth()) {
-                scaledContainerBackgroundLeft[index] = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index];
-            } else {
-                final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getScaledInstance(
-                        newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_LEFT[index].getHeight(), Image.SCALE_FAST);
-                scaledContainerBackgroundLeft[index] = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
-                final Graphics g2 = scaledContainerBackgroundLeft[index].createGraphics();
-                try {
-                    g2.drawImage(image, 0, 0, null);
-                }
-                finally { g2.dispose(); }
-            }
-        }
-
-        // Set up and if necessary scale the right background image
-        if (newWidth <= Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getWidth()) {
-            scaledContainerBackgroundRight = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT;
-        } else {
-            final Image image = Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getScaledInstance(
-                    newWidth, Images.BrowserTitle.CONTAINER_BACKGROUND_RIGHT.getHeight(), Image.SCALE_FAST);
-            scaledContainerBackgroundRight = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            final Graphics g2 = scaledContainerBackgroundRight.createGraphics();
-            try {
-                g2.drawImage(image, 0, 0, null);
-            }
-            finally { g2.dispose(); }
-        }
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -365,23 +267,42 @@ public class ContainerVersionPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JLabel eastCountJLabel;
+        javax.swing.JLabel eastFirstJLabel;
+        javax.swing.JLabel eastLastJLabel;
+        javax.swing.JLabel eastNextJLabel;
+        javax.swing.JPanel eastPagingJPanel;
+        javax.swing.JLabel eastPreviousJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
+        javax.swing.JLabel westCountJLabel;
+        javax.swing.JLabel westFirstJLabel;
+        javax.swing.JLabel westLastJLabel;
+        javax.swing.JLabel westNextJLabel;
+        javax.swing.JPanel westPagingJPanel;
+        javax.swing.JLabel westPreviousJLabel;
 
-        final javax.swing.JSplitPane jSplitPane = new javax.swing.JSplitPane();
         final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
         final javax.swing.JScrollPane westJScrollPane = new javax.swing.JScrollPane();
         westJScrollPane.getViewport().setOpaque(false);
+        westPagingJPanel = new javax.swing.JPanel();
+        westFirstJLabel = new javax.swing.JLabel();
+        westPreviousJLabel = new javax.swing.JLabel();
+        westCountJLabel = new javax.swing.JLabel();
+        westNextJLabel = new javax.swing.JLabel();
+        westLastJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
         final javax.swing.JScrollPane eastJScrollPane = new javax.swing.JScrollPane();
         eastJScrollPane.getViewport().setOpaque(false);
+        eastPagingJPanel = new javax.swing.JPanel();
+        eastFirstJLabel = new javax.swing.JLabel();
+        eastPreviousJLabel = new javax.swing.JLabel();
+        eastCountJLabel = new javax.swing.JLabel();
+        eastNextJLabel = new javax.swing.JLabel();
+        eastLastJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        jSplitPane.setBorder(null);
-        jSplitPane.setDividerSize(0);
-        jSplitPane.setResizeWeight(0.5);
-        jSplitPane.setMinimumSize(new java.awt.Dimension(55, 75));
-        jSplitPane.setOpaque(false);
+        setBorder(ContainerPanel.BORDER);
         westJPanel.setLayout(new java.awt.GridBagLayout());
 
         westJPanel.setOpaque(false);
@@ -421,11 +342,61 @@ public class ContainerVersionPanel extends DefaultTabPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 2;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         westJPanel.add(westJScrollPane, gridBagConstraints);
 
-        jSplitPane.setLeftComponent(westJPanel);
+        westPagingJPanel.setLayout(new java.awt.GridBagLayout());
+
+        westPagingJPanel.setOpaque(false);
+        westFirstJLabel.setFont(Fonts.SmallFont);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        westFirstJLabel.setText(bundle.getString("ContainerVersionPanel.firstJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        westPagingJPanel.add(westFirstJLabel, gridBagConstraints);
+
+        westPreviousJLabel.setFont(Fonts.SmallFont);
+        westPreviousJLabel.setText(bundle.getString("ContainerVersionPanel.previousJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        westPagingJPanel.add(westPreviousJLabel, gridBagConstraints);
+
+        westCountJLabel.setFont(Fonts.SmallFont);
+        westCountJLabel.setText(bundle.getString("ContainerVersionPanel.countJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        westPagingJPanel.add(westCountJLabel, gridBagConstraints);
+
+        westNextJLabel.setFont(Fonts.SmallFont);
+        westNextJLabel.setText(bundle.getString("ContainerVersionPanel.nextJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        westPagingJPanel.add(westNextJLabel, gridBagConstraints);
+
+        westLastJLabel.setFont(Fonts.SmallFont);
+        westLastJLabel.setText(bundle.getString("ContainerVersionPanel.lastJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        westPagingJPanel.add(westLastJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.weightx = 1.0;
+        westJPanel.add(westPagingJPanel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 3, 0);
+        add(westJPanel, gridBagConstraints);
 
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -461,18 +432,60 @@ public class ContainerVersionPanel extends DefaultTabPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 2;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         eastJPanel.add(eastJScrollPane, gridBagConstraints);
 
-        jSplitPane.setRightComponent(eastJPanel);
+        eastPagingJPanel.setLayout(new java.awt.GridBagLayout());
+
+        eastPagingJPanel.setOpaque(false);
+        eastFirstJLabel.setFont(Fonts.SmallFont);
+        eastFirstJLabel.setText(bundle.getString("ContainerVersionPanel.firstJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        eastPagingJPanel.add(eastFirstJLabel, gridBagConstraints);
+
+        eastPreviousJLabel.setFont(Fonts.SmallFont);
+        eastPreviousJLabel.setText(bundle.getString("ContainerVersionPanel.previousJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        eastPagingJPanel.add(eastPreviousJLabel, gridBagConstraints);
+
+        eastCountJLabel.setFont(Fonts.SmallFont);
+        eastCountJLabel.setText(bundle.getString("ContainerVersionPanel.countJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        eastPagingJPanel.add(eastCountJLabel, gridBagConstraints);
+
+        eastNextJLabel.setFont(Fonts.SmallFont);
+        eastNextJLabel.setText(bundle.getString("ContainerVersionPanel.nextJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        eastPagingJPanel.add(eastNextJLabel, gridBagConstraints);
+
+        eastLastJLabel.setFont(Fonts.SmallFont);
+        eastLastJLabel.setText(bundle.getString("ContainerVersionPanel.lastJLabel")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
+        eastPagingJPanel.add(eastLastJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.weightx = 1.0;
+        eastJPanel.add(eastPagingJPanel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 34, 0, 0);
-        add(jSplitPane, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 3, 0);
+        add(eastJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 

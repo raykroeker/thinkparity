@@ -16,12 +16,12 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="namesJScrollPane" alignment="0" pref="362" max="32767" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="0" pref="362" max="32767" attributes="0"/>
-                  <Component id="commentJLabel" alignment="0" pref="362" max="32767" attributes="0"/>
-                  <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
+                  <Component id="namesJScrollPane" alignment="0" pref="493" max="32767" attributes="0"/>
+                  <Component id="explanationJLabel" alignment="0" pref="493" max="32767" attributes="0"/>
+                  <Component id="commentJLabel" alignment="0" pref="493" max="32767" attributes="0"/>
                   <Component id="buttonBarJPanel" alignment="1" max="32767" attributes="0"/>
                   <Component id="progressBarJPanel" alignment="1" max="32767" attributes="0"/>
+                  <Component id="commentJScrollPane" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -30,19 +30,19 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="explanationJLabel" min="-2" pref="14" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="namesJScrollPane" pref="117" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Component id="namesJScrollPane" pref="171" max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="commentJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="commentJScrollPane" min="-2" pref="50" max="-2" attributes="0"/>
+              <Component id="commentJScrollPane" pref="106" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="buttonBarJPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="progressBarJPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -127,12 +127,12 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="jLabel1" alignment="0" pref="281" max="32767" attributes="1"/>
-                      <Component id="jLabel2" alignment="0" pref="281" max="32767" attributes="0"/>
-                      <Component id="publishJButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel2" alignment="0" pref="389" max="32767" attributes="0"/>
+                      <Component id="jLabel1" alignment="0" pref="389" max="32767" attributes="1"/>
+                      <Component id="cancelJButton" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="publishJButton" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -143,12 +143,12 @@
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="publishJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <EmptySpace max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="publishJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -202,15 +202,14 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="1" pref="362" max="32767" attributes="0"/>
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                   <Component id="documentJLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
-                  <Component id="documentNameJLabel" pref="255" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+                  <Component id="documentNameJLabel" pref="262" max="32767" attributes="0"/>
               </Group>
-              <Component id="titleJLabel" alignment="0" pref="362" max="32767" attributes="0"/>
+              <Component id="titleJLabel" alignment="0" pref="376" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="1" pref="376" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

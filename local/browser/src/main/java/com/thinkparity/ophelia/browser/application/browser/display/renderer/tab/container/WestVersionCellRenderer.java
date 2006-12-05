@@ -79,24 +79,14 @@ final class WestVersionCellRenderer extends AbstractJPanel implements
         setPreferredSize(new java.awt.Dimension(20, 24));
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        gridBagConstraints.insets = new java.awt.Insets(0, 32, 0, 4);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Version Cell!");
-        textJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        textJLabel.setMaximumSize(new java.awt.Dimension(20, 16));
-        textJLabel.setMinimumSize(new java.awt.Dimension(20, 16));
-        textJLabel.setPreferredSize(new java.awt.Dimension(20, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         add(textJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

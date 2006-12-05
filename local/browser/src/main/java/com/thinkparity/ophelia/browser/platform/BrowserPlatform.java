@@ -516,6 +516,4 @@ public class BrowserPlatform implements Platform {
     private void startPlugins() {
         pluginHelper.start();
     }
-
-
 }

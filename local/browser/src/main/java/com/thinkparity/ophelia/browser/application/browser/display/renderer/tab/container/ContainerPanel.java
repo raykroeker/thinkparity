@@ -16,7 +16,6 @@ import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -42,37 +41,38 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 public class ContainerPanel extends DefaultTabPanel {
     
     /** The border for cells. */
-    private static final Border BORDER_DEFAULT;
+    static final Border BORDER;
 
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {
-        BORDER_DEFAULT = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
+        BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
     }
-    
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
+
     /** A <code>Container</code>. */
     protected Container container;
-    
+
     /** A <code>ContainerDraft</code>. */
     protected ContainerDraft draft;
+
     /** The expanded <code>Boolean</code> state. */
     protected Boolean expanded;
+
     /** An image cache. */
     protected final MainPanelImageCache imageCache;
+
     /** The latest version <code>ContainerVersion</code>. */
     protected ContainerVersion latestVersion;
 
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel containerNameJLabel;
-
-    private javax.swing.JLabel eastPaddingJLabel;
-
-    private javax.swing.JLabel iconJLabel;
 
     /** The panel localization. */
     private final MainCellL18n localization;
@@ -80,8 +80,8 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
-    private javax.swing.JLabel westPaddingJLabel;
-    // End of variables declaration//GEN-END:variables
+    /** A <code>BackgroundRenderer</code>. */
+    private final BackgroundRenderer renderer;
 
     /**
      * Create ContainerPanel.
@@ -92,6 +92,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.expanded = Boolean.FALSE;
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
+        this.renderer = new BackgroundRenderer();
         initComponents();
     }
 
@@ -230,14 +231,9 @@ public class ContainerPanel extends DefaultTabPanel {
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         if (expanded.booleanValue()) {
-            final Graphics g2 = g.create();
-            try {
-                GradientPainter.paintVertical(g2, getSize(),
-                        Colors.Browser.List.LIST_CONTAINER_GRADIENT_TOP,
-                        Colors.Browser.List.LIST_CONTAINER_GRADIENT_BOTTOM);
-            } finally {
-                g2.dispose();
-            }
+            renderer.paintExpandedBackground(g, this);
+        } else {
+            renderer.paintBackground(g, this);
         }
     }
 
@@ -250,30 +246,11 @@ public class ContainerPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        westPaddingJLabel = new javax.swing.JLabel();
-        iconJLabel = new javax.swing.JLabel();
-        containerNameJLabel = new javax.swing.JLabel();
-        eastPaddingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel paddingJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
-        setBackground(Colors.Browser.List.LIST_CONTAINERS_BACKGROUND);
-        setMaximumSize(new java.awt.Dimension(32767, 23));
-        setMinimumSize(new java.awt.Dimension(120, 23));
-        setPreferredSize(new java.awt.Dimension(120, 23));
-        westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(12, 20));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(12, 20));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(12, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        add(westPaddingJLabel, gridBagConstraints);
-
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
-        iconJLabel.setMaximumSize(new java.awt.Dimension(16, 16));
-        iconJLabel.setMinimumSize(new java.awt.Dimension(16, 16));
-        iconJLabel.setPreferredSize(new java.awt.Dimension(16, 16));
         iconJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
@@ -289,28 +266,23 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 4);
         add(iconJLabel, gridBagConstraints);
 
-        containerNameJLabel.setText("!Package!");
-        containerNameJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        containerNameJLabel.setMaximumSize(new java.awt.Dimension(500, 24));
-        containerNameJLabel.setMinimumSize(new java.awt.Dimension(100, 24));
-        containerNameJLabel.setPreferredSize(new java.awt.Dimension(100, 24));
+        nameJLabel.setText("!Package!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        add(containerNameJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        add(nameJLabel, gridBagConstraints);
 
-        eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
-        add(eastPaddingJLabel, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 12, 0);
+        add(paddingJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -323,7 +295,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (expanded.booleanValue()) {
             setBorder(BorderFactory.createEmptyBorder());
         } else {
-            setBorder(BORDER_DEFAULT);
+            setBorder(BORDER);
         }        
     }
 
@@ -361,15 +333,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     private void setText(final String text) {
-        containerNameJLabel.setText(text);
+        nameJLabel.setText(text);
     }
 
     private void setTextFont(final Font font) {
-        containerNameJLabel.setFont(font);
+        nameJLabel.setFont(font);
     }
 
     private void setTextForeground(final Color foreground) {
-        containerNameJLabel.setForeground(foreground);
+        nameJLabel.setForeground(foreground);
     }
 
     private void setTextIcon(final ImageIcon icon) {

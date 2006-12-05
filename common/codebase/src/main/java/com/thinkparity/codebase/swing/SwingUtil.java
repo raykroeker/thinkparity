@@ -9,8 +9,11 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -29,6 +32,20 @@ public class SwingUtil {
 	private static final SwingUtil SINGLETON;
 
     static { SINGLETON = new SwingUtil(); }
+
+    public static BufferedImage createImage(final int width, final int height) {
+        initScreenDevices();
+        return screenDevices[0].getDefaultConfiguration()
+                .createCompatibleImage(width, height);
+    }
+
+    public static void insertWrappable(final JLabel jLabel, final String text) {
+        SINGLETON.doInsertWrappable(jLabel, text);
+    }
+
+    private void doInsertWrappable(final JLabel jLabel, final String text) {
+        jLabel.setText(MessageFormat.format("<html>{0}</html>", text));
+    }
 
     /**
      * Extract the value of a checkbox.
@@ -97,11 +114,7 @@ public class SwingUtil {
     }
 
     static GraphicsDevice getScreen(final Point p) {
-        if (null == screenDevices) {
-            final GraphicsEnvironment graphicsEnvironment =
-                GraphicsEnvironment.getLocalGraphicsEnvironment();
-            screenDevices = graphicsEnvironment.getScreenDevices();
-        }
+        initScreenDevices();
         for (final GraphicsDevice screenDevice : screenDevices) {
             if (regionContains(screenDevice.getDefaultConfiguration().getBounds(), p))
                     return screenDevice;
@@ -111,6 +124,12 @@ public class SwingUtil {
 
     static Rectangle getScreenBounds(final GraphicsDevice screenDevice) {
         return screenDevice.getDefaultConfiguration().getBounds();
+    }
+
+    private static void initScreenDevices() {
+        final GraphicsEnvironment graphicsEnvironment =
+            GraphicsEnvironment.getLocalGraphicsEnvironment();
+        screenDevices = graphicsEnvironment.getScreenDevices();
     }
 
     /** Create SwingUtil. */

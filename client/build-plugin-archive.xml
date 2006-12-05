@@ -8,6 +8,8 @@
     <tstamp>
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
+    <!-- local configuration  -->
+    <property file="local.properties"/>
 
     <!-- release configuration -->
     <property name="release.name" value="thinkParity Archive"/>
@@ -36,6 +38,7 @@
 		<pathelement location="${basedir}/target/classes"/>
 		<pathelement location="${target.classes.dir}"/>
 
+        <pathelement location="${basedir}/vendor/jdic/0.9.1/${platform}/jdic.jar"/>
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
 	</path>
     <!-- test classpath -->

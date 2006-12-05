@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ExportProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
@@ -117,6 +118,9 @@ public class ProviderFactory {
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profile, containerModel, documentModel, userModel);
+            break;
+        case DIALOG_CONTAINER_CREATE:
+            provider = new CreateContainerProvider(profile, containerModel);
             break;
         case DIALOG_CONTAINER_EXPORT:
             provider = new ExportProvider(profile, containerModel);

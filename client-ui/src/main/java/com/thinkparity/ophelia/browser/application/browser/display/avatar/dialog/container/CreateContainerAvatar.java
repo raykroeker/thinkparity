@@ -3,16 +3,22 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -26,11 +32,15 @@ public class CreateContainerAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
+    /** List of containers. */
+    private List<Container> containers = null;
+       
     /** Creates new form NewContainerDialogue */
     public CreateContainerAvatar() {
         super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
-        initNameJTextField();
+        initDocumentHandler();
+        bindEscapeKey();
     }
     
     public AvatarId getId() {
@@ -44,26 +54,100 @@ public class CreateContainerAvatar extends Avatar {
         return null;
     }
     
+    public void reload() {
+        // If input is null then this call to reload() is too early,
+        // the input isn't set up yet.
+        if (input!=null) {
+            readContainers();
+            reloadExplanation();
+            reloadErrorMessage();
+            nameJTextField.setText("");
+            okJButton.setEnabled(Boolean.FALSE);
+            nameJTextField.requestFocusInWindow();
+        }
+    }
+    
     /**
-     * Determine whether the user input for the frame is valid.
+     * Reload the error message.
+     */
+    private void reloadErrorMessage() {
+        if (isInputValid() && !isInputNameUnique()) {
+            errorMessageJLabel.setText(getString("ErrorNotUnique"));
+        } else {
+            errorMessageJLabel.setText("");
+        }       
+    }
+    
+    /**
+     * Extract the name from the control.
+     *
+     * @return The name.
+     */
+    private String extractName() {
+        String name = SwingUtil.extract(nameJTextField);
+        if (null!=name) {
+            return name.trim();
+        } else {
+            return name;
+        }
+    }
+    
+    /**
+     * Determine whether the user input is valid.
+     * This method should return false whenever we want the
+     * OK button to be disabled.
      * 
      * @return True if the input is valid; false otherwise.
      */
     public Boolean isInputValid() {
-        final String name = nameJTextField.getText();
-        if(null != name && 0 < name.length()) { return Boolean.TRUE; }
-        else { return Boolean.FALSE; }
+        final String name = extractName();
+        if (null != name && (0 < name.length())) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
     
-    public void reload() {
-        // Adjust the embedded assistance if a list of documents is provided.
-        prepareExplanationText();
+    /**
+     * Check if the name is unique.
+     */
+    private Boolean isInputNameUnique() {
+        if (isInputValid()) {
+            Boolean unique = Boolean.TRUE;
+            final String newName = extractName();
+            for (final Container container : containers) {
+                if (container.getName().equalsIgnoreCase(newName)) {
+                    unique = Boolean.FALSE;
+                    break;
+                }
+            }
+            return unique;
+        }
         
-        // Clear controls and set focus, and disable the OK button.
-        nameJTextField.setText("");
-        okJButton.setEnabled(Boolean.FALSE);
-        nameJTextField.requestFocusInWindow();
+        return Boolean.TRUE;
     }
+    
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            /** @see java.io.Serializable */
+            private static final long serialVersionUID = 1;
+
+            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+    
+    /**
+     * Read containers.
+     */
+    private void readContainers() {
+        containers = ((CreateContainerProvider) contentProvider).readContainers();
+    }  
        
     /** This method is called from within the constructor to
      * initialize the form.
@@ -72,16 +156,33 @@ public class CreateContainerAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JButton cancelJButton;
+        javax.swing.JLabel nameJLabel;
+
         explanationJLabel = new javax.swing.JLabel();
-        okJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
+        errorMessageJLabel = new javax.swing.JLabel();
+        okJButton = new javax.swing.JButton();
+        cancelJButton = new javax.swing.JButton();
 
         explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
+
+        nameJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameJTextFieldActionPerformed(evt);
+            }
+        });
+
+        errorMessageJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        errorMessageJLabel.setText(bundle.getString("NewContainerDialog.ErrorNotUnique")); // NOI18N
+        errorMessageJLabel.setMinimumSize(new java.awt.Dimension(290, 15));
 
         okJButton.setText(bundle.getString("NewContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -97,15 +198,6 @@ public class CreateContainerAvatar extends Avatar {
             }
         });
 
-        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
-        nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
-
-        nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameJTextFieldActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -113,11 +205,12 @@ public class CreateContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -136,6 +229,8 @@ public class CreateContainerAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
@@ -145,10 +240,7 @@ public class CreateContainerAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void nameJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nameJTextFieldActionPerformed
-        if (isInputValid()) {
-            createContainer();
-            disposeWindow();
-        }
+        okJButtonActionPerformed(evt);
     }// GEN-LAST:event_nameJTextFieldActionPerformed
 
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
@@ -162,7 +254,7 @@ public class CreateContainerAvatar extends Avatar {
         disposeWindow();
     }                                             
         
-    private void initNameJTextField() {
+    private void initDocumentHandler() {
         Document document = nameJTextField.getDocument();
         document.addDocumentListener( new DocumentHandler() );        
     }
@@ -172,7 +264,6 @@ public class CreateContainerAvatar extends Avatar {
     //    - TextChanged message is received after user presses letter but before extractName() will see it.
     //    - The correct way to enable and disable the OK control is with the document interface.    
     class DocumentHandler implements DocumentListener {
-        // Handle insertions into the text field
         public void insertUpdate( DocumentEvent event ) {
             if ( isInputValid() ) {
                 okJButton.setEnabled(Boolean.TRUE);
@@ -180,24 +271,23 @@ public class CreateContainerAvatar extends Avatar {
             else {
                 okJButton.setEnabled(Boolean.FALSE);
             }
+            reloadErrorMessage();
         }
         
-        // Handle deletions from the text field
         public void removeUpdate( DocumentEvent event ) {
             // Do the same check as insertUpdate()
             insertUpdate( event );
         }
         
-        // Handle changes to the text field
         public void changedUpdate( DocumentEvent event ) {
             // Nothing to do here
         }
     }
     
     /**
-     * Prepare explanation text.
+     * Reload explanation text.
      */
-    private void prepareExplanationText() {
+    private void reloadExplanation() {
         // Adjust the embedded assistance if a list of documents is provided.
         explanationJLabel.setText(getString("Explanation"));          
         if(null != input) {
@@ -259,9 +349,8 @@ public class CreateContainerAvatar extends Avatar {
     }    
       
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cancelJButton;
+    private javax.swing.JLabel errorMessageJLabel;
     private javax.swing.JLabel explanationJLabel;
-    private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables

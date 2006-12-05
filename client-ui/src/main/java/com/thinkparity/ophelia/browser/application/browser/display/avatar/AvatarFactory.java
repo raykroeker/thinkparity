@@ -131,6 +131,7 @@ public class AvatarFactory {
 
         case DIALOG_CONTAINER_CREATE:
             avatar = new CreateContainerAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_CONTAINER_EXPORT:
             avatar = new ExportAvatar();

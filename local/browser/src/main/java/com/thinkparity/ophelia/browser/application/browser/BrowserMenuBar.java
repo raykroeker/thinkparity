@@ -19,6 +19,7 @@ import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -197,18 +198,12 @@ public class BrowserMenuBar extends JMenuBar {
         signUpJLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                Window window = SwingUtilities.getWindowAncestor(BrowserMenuBar.this);
-                if (null!=window) {
-                    window.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                }
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.HAND_CURSOR);
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                Window window = SwingUtilities.getWindowAncestor(BrowserMenuBar.this);
-                if (null!=window) {
-                    window.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                }
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.DEFAULT_CURSOR);
                 ((JLabel) e.getSource()).setIcon(SIGNUP_ICON);
             }
             @Override

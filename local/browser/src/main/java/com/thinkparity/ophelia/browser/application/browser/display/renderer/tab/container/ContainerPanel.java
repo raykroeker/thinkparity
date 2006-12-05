@@ -17,6 +17,7 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
@@ -258,11 +259,11 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             @Override
             public void mouseEntered(final MouseEvent e) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.HAND_CURSOR);
             }
             @Override
             public void mouseExited(final MouseEvent e) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.DEFAULT_CURSOR);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();

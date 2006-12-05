@@ -21,6 +21,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -1548,7 +1549,7 @@ public class Browser extends AbstractApplication {
      *          The cursor to use.
      */
     public void setCursor(Cursor cursor) {
-        mainWindow.getContentPane().setCursor(cursor);
+        SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
     }
 
     /**

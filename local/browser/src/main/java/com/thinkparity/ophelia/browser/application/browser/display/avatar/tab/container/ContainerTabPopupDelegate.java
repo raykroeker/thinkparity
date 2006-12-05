@@ -15,15 +15,12 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
@@ -33,20 +30,11 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -102,10 +90,10 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         case NONE:
             break;
         case REMOVED:
-            final Data removeData = new Data(2);
-            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, removeData);
+            final Data undeleteData = new Data(2);
+            undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
             break;
         default:
             throw Assert.createUnreachable("UNKNOWN ARTIFACT STATE");

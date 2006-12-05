@@ -4,9 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -33,6 +30,10 @@ public class UndeleteDocument extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("Undelete Document");     
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+        getContainerModel().revertDocument(containerId, documentId);   
     }
+    
+    public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
 }

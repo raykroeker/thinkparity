@@ -237,6 +237,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     private boolean isContainerPanel(final TabPanel tabPanel) {
         return model.isContainerPanel(tabPanel).booleanValue();
     }
+    
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has been distributed; false otherwise.
+     */
+    private boolean isDistributed(final Long containerId) {
+        return model.readIsDistributed(containerId);
+    }
 
     /**
      * Determine if online.
@@ -298,7 +309,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
         addSeparator();
 
-        // TODO rename
+        // Rename container
+        if (container.isLocalDraft() && !isDistributed(container.getId())) {
+            final Data renameData = new Data(1);
+            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_RENAME, renameData);
+        }
 
         // archive
         add(PluginId.ARCHIVE, "ArchiveAction", container);

@@ -128,6 +128,9 @@ public class ProviderFactory {
         case DIALOG_CONTAINER_PUBLISH:
             provider = new PublishContainerProvider(profile, containerModel, userModel, contactModel);
             break;
+        case DIALOG_CONTAINER_RENAME:
+            provider = new CreateContainerProvider(profile, containerModel);
+            break;   
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
             provider = new RenameDocumentProvider(profile, containerModel);
             break;     

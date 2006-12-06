@@ -4,7 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
-import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -17,6 +17,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class Rename  extends AbstractAction {
     
+    /** The browser application. */
+    private final Browser browser;
+    
     /**
      * Create Unsubscribe.
      * 
@@ -25,6 +28,7 @@ public class Rename  extends AbstractAction {
      */
     public Rename(final Browser browser) {
         super(ActionId.CONTAINER_RENAME);
+        this.browser = browser;
     }
 
     /**
@@ -32,7 +36,18 @@ public class Rename  extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("Rename");     
-    }
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final String containerName = (String) data.get(DataKey.CONTAINER_NAME);
 
+        if (null == containerName) {
+            final Container container = getContainerModel().read(containerId);
+            browser.displayRenameContainerDialog(containerId, container.getName());
+        }
+        else {
+            getContainerModel().rename(containerId, containerName);
+            browser.fireContainerUpdated(containerId, Boolean.FALSE);
+        }    
+    }
+    
+    public enum DataKey { CONTAINER_ID, CONTAINER_NAME }
 }

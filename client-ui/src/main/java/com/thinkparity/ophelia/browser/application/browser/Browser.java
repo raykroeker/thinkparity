@@ -17,17 +17,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -41,6 +40,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ExportAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
@@ -62,17 +62,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Export;
-import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -92,8 +82,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -420,6 +409,23 @@ public class Browser extends AbstractApplication {
         input.set(ReadContactAvatar.DataKey.CONTACT_ID, contactId);
         setInput(AvatarId.DIALOG_CONTACT_READ, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_READ);        
+    }
+    
+    /**
+     * Display a container rename dialog.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param containerName
+     *            A container name.
+     */
+    public void displayRenameContainerDialog(final Long containerId,
+            final String containerName) {
+        final Data input = new Data(2);
+        input.set(RenameContainerAvatar.DataKey.CONTAINER_ID, containerId);
+        input.set(RenameContainerAvatar.DataKey.CONTAINER_NAME, containerName);
+        setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME);
     }
 
     /**
@@ -1377,6 +1383,22 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
         invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
+    }
+    
+    /**
+     * Run the container rename action.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param containerName
+     *            A container name.
+     */
+    public void runRenameContainer(final Long containerId,
+            final String containerName) {
+        final Data data = new Data(2);
+        data.set(Rename.DataKey.CONTAINER_ID, containerId);
+        data.set(Rename.DataKey.CONTAINER_NAME, containerName);
+        invoke(ActionId.CONTAINER_RENAME, data);
     }
 
     /**

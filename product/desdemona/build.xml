@@ -8,10 +8,12 @@
     <tstamp>
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
+    <!-- local configuration  -->
+    <property file="local.properties"/>
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC19"/>
+    <property name="release.version" value="1.0.0-RC20"/>
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>

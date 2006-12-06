@@ -3,9 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +60,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     /** The <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
 
-    /** A user search expression <code>String</code>. */
-    private String searchExpression;
-
-    /** A list of search results matching containers. */
-    private List<UUID> searchResults;
-
     /** A list of the archived container version panels. */
     private final Map<TabPanel, TabPanel> versionsPanels;
 
@@ -85,21 +77,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         this.popupDelegate = new ArchiveTabPopupDelegate(this);
         this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
-     */
-    @Override
-    protected void applySearch(final String searchExpression) {
-        debug();
-        if (searchExpression.equals(this.searchExpression)) {
-            return;
-        } else {
-            this.searchExpression = searchExpression;
-            this.searchResults = readSearchResults();
-            synchronize();
-        }
     }
 
     /**
@@ -142,22 +119,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             addContainerPanel(container);
         }
         debug();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#removeSearch()
-     * 
-     */
-    @Override
-    protected void removeSearch() {
-        debug();
-        if (null == searchExpression) {
-            return;
-        } else {
-            searchExpression = null;
-            searchResults = null;
-            synchronize();
-        }
     }
 
     /**
@@ -208,7 +169,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleSelection(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
      */
     @Override
-    protected void toggleSelection(final TabPanel tabPanel, final MouseEvent e) {
+    protected void toggleSelection(final TabPanel tabPanel) {
         toggleExpand(tabPanel);
         synchronize();
     }
@@ -394,16 +355,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final Long versionId) {
         return ((ArchiveTabProvider) contentProvider).readPublishedTo(uniqueId,
                 versionId);
-    }
-
-    /**
-     * Read search results.
-     * 
-     * @return A <code>List</code> of matching container unique id
-     *         <code>UUID</code>s.
-     */
-    private List<UUID> readSearchResults() {
-        return Collections.emptyList();
     }
 
     private List<TeamMember> readTeam(final UUID uniqueId) {

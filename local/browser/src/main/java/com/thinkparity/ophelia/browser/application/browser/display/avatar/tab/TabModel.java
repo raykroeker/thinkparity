@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
 
@@ -216,7 +215,7 @@ public abstract class TabModel {
      * @param e
      *            A <code>MouseEvent</code>.
      */
-    protected void toggleSelection(final TabPanel tabPanel, final MouseEvent e) {}
+    protected void toggleSelection(final TabPanel tabPanel) {}
 
     /**
      * Obtain the input search expression.

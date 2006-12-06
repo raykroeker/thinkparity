@@ -14,9 +14,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;

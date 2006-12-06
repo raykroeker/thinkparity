@@ -104,7 +104,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.panelMouseListener = new MouseInputAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
-                model.toggleSelection((TabPanel) e.getSource(), e);
+                model.toggleSelection((TabPanel) e.getSource());
             }
             @Override
             public void mouseReleased(final MouseEvent e) {

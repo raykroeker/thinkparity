@@ -4,8 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.AWTException;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,10 +13,7 @@ import javax.swing.Timer;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import com.thinkparity.codebase.swing.border.DropShadowBorder;
-
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.PopupMenuInfo;
 import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
 import com.thinkparity.ophelia.browser.application.browser.BrowserPopupMenu;

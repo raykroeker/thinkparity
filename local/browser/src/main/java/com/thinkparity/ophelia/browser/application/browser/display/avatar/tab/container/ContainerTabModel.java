@@ -56,32 +56,26 @@ public final class ContainerTabModel extends TabPanelModel {
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
 
-    /** A list of all container panels. */
-    private final List<TabPanel> containerPanels;
-
     /** A list of the container's expanded state. */
     private final Map<TabPanel, Boolean> expandedState;
+
+    /** A list of panels passing through all filters. */
+    private final List<TabPanel> filteredPanels;
 
     /** A list model. */
     private final DefaultListModel listModel;
 
+    /** A list of all panels. */
+    private final List<TabPanel> panels;
+
     /** A <code>ContainerTabPopupDelegate</code>. */
     private final ContainerTabPopupDelegate popupDelegate;
 
-    /**
-     * The user input search expression.
-     * 
-     * @see #applySearch(String)
-     */
+    /** A user search expression <code>String</code>. */
     private String searchExpression;
 
-    /**
-     * A list of contact ids matching the search criteria.
-     * 
-     * @see #applySearch(List)
-     * @see #removeSearch()
-     */
-    private List<Long> searchResults;
+    /** A list search result container ids <code>Long</code>. */
+    private final List<Long> searchResults;
 
     /** A <code>BrowserSession</code>. */
     private BrowserSession session;
@@ -98,10 +92,12 @@ public final class ContainerTabModel extends TabPanelModel {
         this.actionDelegate = new ContainerTabActionDelegate(this);
         this.browser = getBrowser();
         this.containerIdLookup = new HashMap<Long, Long>();
-        this.containerPanels = new ArrayList<TabPanel>();
+        this.filteredPanels = new ArrayList<TabPanel>();
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
+        this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
+        this.searchResults = new ArrayList<Long>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
 
@@ -111,9 +107,6 @@ public final class ContainerTabModel extends TabPanelModel {
      * @param searchExpression
      *            A search expression <code>String</code>.
      * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #removeSearch()
      */
     @Override
     public void applySearch(final String searchExpression) {
@@ -122,7 +115,7 @@ public final class ContainerTabModel extends TabPanelModel {
             return;
         } else {
             this.searchExpression = searchExpression;
-            this.searchResults = readSearchResults();
+            applySearchResults();
             synchronize();
         }
     }
@@ -133,7 +126,7 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     @Override
     public void debug() {
-        logger.logDebug("{0} container panels.", containerPanels.size());
+        logger.logDebug("{0} container panels.", panels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
         for (final TabPanel visiblePanel : visiblePanels) {
             logger.logVariable("visiblePanel.getId()", visiblePanel.getId());
@@ -190,9 +183,6 @@ public final class ContainerTabModel extends TabPanelModel {
     /**
      * Remove the search.
      * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #applySearch(String)
      */
     @Override
     public void removeSearch() {
@@ -203,7 +193,7 @@ public final class ContainerTabModel extends TabPanelModel {
             return;
         } else {
             searchExpression = null;
-            searchResults = null;
+            searchResults.clear();
             synchronize();
         }
     }
@@ -345,11 +335,11 @@ public final class ContainerTabModel extends TabPanelModel {
     @Override
     protected void synchronize() {
         debug();
-        /* add container panels and container version panels to the visibility
-           list */
+        applyFilters();
+        /* add the filtered panels the visibility list */
         visiblePanels.clear();
-        for (final TabPanel containerPanel : containerPanels) {
-            visiblePanels.add(containerPanel);
+        for (final TabPanel panel : filteredPanels) {
+            visiblePanels.add(panel);
         }
         // add newly visible panels to the model; and set other panels
         int listModelIndex;
@@ -416,8 +406,7 @@ public final class ContainerTabModel extends TabPanelModel {
      *            A <code>container</code>.
      */
     private void addContainerPanel(final Container container) {
-        addContainerPanel(containerPanels.size() == 0 ? 0 : containerPanels
-                .size() - 1, container);
+        addContainerPanel(panels.size() == 0 ? 0 : panels.size() - 1, container);
     }
 
     /**
@@ -454,8 +443,33 @@ public final class ContainerTabModel extends TabPanelModel {
             publishedTo.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
-        containerPanels.add(index, toDisplay(container, draft, latestVersion,
+        panels.add(index, toDisplay(container, draft, latestVersion,
                 versions, documentVersions, publishedTo, publishedBy));
+    }
+
+    /**
+     * Apply a series of filters on the panels.
+     * 
+     */
+    private void applyFilters() {
+        filteredPanels.clear();
+        if (isSearchApplied()) {
+            for (final Long searchResult : searchResults) {
+                filteredPanels.add(lookupPanel(searchResult));
+            }
+        } else {
+            // no filter is applied
+            filteredPanels.addAll(panels);
+        }
+    }
+
+    /**
+     * Apply the search results.
+     *
+     */
+    private void applySearchResults() {
+        this.searchResults.clear();
+        this.searchResults.addAll(readSearchResults());
     }
 
     /**
@@ -482,7 +496,7 @@ public final class ContainerTabModel extends TabPanelModel {
      *
      */
     private void clearPanels() {
-        containerPanels.clear();
+        panels.clear();
     }
 
     /**
@@ -607,6 +621,15 @@ public final class ContainerTabModel extends TabPanelModel {
     }
     
     /**
+     * Determine if a search is applied by checking the search expression.
+     * 
+     * @return True if the search expression is not null.
+     */
+    private boolean isSearchApplied() {
+        return null != searchExpression;
+    }
+    
+    /**
      * Lookup the index of the container's corresponding panel.
      * 
      * @param containerId
@@ -615,13 +638,28 @@ public final class ContainerTabModel extends TabPanelModel {
      *         exist in the panel list.
      */
     private int lookupIndex(final Long containerId) {
-        for (int i = 0; i < containerPanels.size(); i++)
-            if (((ContainerPanel) containerPanels.get(i)).getContainer()
+        for (int i = 0; i < panels.size(); i++)
+            if (((ContainerPanel) panels.get(i)).getContainer()
                     .getId().equals(containerId))
                 return i;
         return -1;
     }
-    
+
+    /**
+     * Lookup the panel for the corresponding container id.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>TabPanel</code>.
+     */
+    private TabPanel lookupPanel(final Long containerId) {
+        final int panelIndex = lookupIndex(containerId); 
+        if (-1 == panelIndex)
+            return null;
+        else
+            return panels.get(panelIndex);
+    }
+
     /**
      * Read the container from the provider.
      * 
@@ -656,7 +694,7 @@ public final class ContainerTabModel extends TabPanelModel {
         return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
-
+    
     /**
      * Read the draft for a container.
      *
@@ -667,7 +705,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-    
+
     /**
      * Read the draft's document list.
      * 
@@ -694,7 +732,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
-
+    
     /**
      * Read the latest version for a container.
      * 
@@ -705,7 +743,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerVersion readLatestVersion(final Long containerId) {
         return ((ContainerProvider) contentProvider).readLatestVersion(containerId);
     }
-    
+
     /**
      * Read the profile.
      * 
@@ -779,10 +817,10 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         final int panelIndex = lookupIndex(containerId);
         if (removeExpandedState) {
-            final TabPanel containerPanel = containerPanels.remove(panelIndex);
+            final TabPanel containerPanel = panels.remove(panelIndex);
             expandedState.remove(containerPanel);
         } else {
-            containerPanels.remove(panelIndex);
+            panels.remove(panelIndex);
         }
     }
 

@@ -5,8 +5,6 @@ package com.thinkparity.ophelia.browser.util.localization;
 
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-
 
 /**
  * @author raykroeker@gmail.com
@@ -43,14 +41,14 @@ public class MainCellL18n {
 	}
 
 	/**
-	 * Obtain the localised string for an artifact type.
-	 * 
-	 * @param artifactType
-	 *            The parity artifact type.
-	 * @return The localised text.
-	 */
-	public String getString(final ArtifactType artifactType) {
-		return getString(artifactType.toString());
+     * Obtain the localised string for an enumerated type.
+     * 
+     * @param type
+     *            An enumerated type.
+     * @return The localised text.
+     */
+	public String getString(final Enum<?> type) {
+		return getString(type.toString());
 	}
 
 	/**

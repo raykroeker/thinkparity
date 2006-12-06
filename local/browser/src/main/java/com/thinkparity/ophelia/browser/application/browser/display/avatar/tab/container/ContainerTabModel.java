@@ -703,6 +703,17 @@ public final class ContainerTabModel extends TabPanelModel {
             return draft.getDocuments();
         }
     }
+    
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has been distributed; false otherwise.
+     */
+    public boolean readIsDistributed(final Long containerId) {
+        return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
+    }
 
     /**
      * Determine if the draft document has been modified.

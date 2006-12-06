@@ -76,6 +76,17 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	public Object[] getElements(Integer index, Object input) {
 		throw Assert.createNotYetImplemented("ContainerProvider#getElements");
 	}
+    
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has been distributed; false otherwise.
+     */
+    public Boolean isDistributed(final Long containerId) {
+        return containerModel.isDistributed(containerId);
+    }
 
 	/**
      * Determine if the draft document has been modified.
@@ -87,7 +98,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Boolean isDraftDocumentModified(final Long documentId) {
         return documentModel.isDraftModified(documentId);
     }
-
+    
     /**
 	 * Read a list of containers.
 	 * 

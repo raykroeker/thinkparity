@@ -37,7 +37,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerVersionPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 
@@ -83,9 +82,6 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private List<Long> searchResults;
 
-    /** A map of the container panel to its versions panel. */
-    private final Map<TabPanel, TabPanel> versionsPanels;
-
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
 
@@ -102,7 +98,6 @@ public final class ContainerTabModel extends TabPanelModel {
         this.expandedState = new HashMap<TabPanel, Boolean>();
         this.listModel = new DefaultListModel();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
-        this.versionsPanels = new HashMap<TabPanel, TabPanel>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
 
@@ -135,7 +130,6 @@ public final class ContainerTabModel extends TabPanelModel {
     @Override
     public void debug() {
         logger.logDebug("{0} container panels.", containerPanels.size());
-        logger.logDebug("{0} version panels.", versionsPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
         for (final TabPanel visiblePanel : visiblePanels) {
             logger.logVariable("visiblePanel.getId()", visiblePanel.getId());
@@ -176,6 +170,17 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     public Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
+    }
+
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has been distributed; false otherwise.
+     */
+    public boolean readIsDistributed(final Long containerId) {
+        return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
     }
 
     /**
@@ -244,7 +249,7 @@ public final class ContainerTabModel extends TabPanelModel {
     public void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
      * 
@@ -262,17 +267,11 @@ public final class ContainerTabModel extends TabPanelModel {
     protected boolean canImportData(final TabPanel tabPanel,
             final DataFlavor[] transferFlavors) {
         if (TxUtils.containsJavaFileList(transferFlavors)) {
-            if (isContainerPanel(tabPanel).booleanValue()) {
-                return canImportData(((ContainerPanel) tabPanel).getContainer());
-            } else if (isContainerVersionsPanel(tabPanel)) {
-                return canImportData(((ContainerVersionPanel) tabPanel).getContainer());
-            } else {
-                throw Assert.createUnreachable("Unknown panel instance.");
-            }
+            return canImportData(((ContainerPanel) tabPanel).getContainer());
         }
         return false;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
      *
@@ -283,13 +282,7 @@ public final class ContainerTabModel extends TabPanelModel {
         Assert.assertTrue(canImportData(tabPanel,
                 transferable.getTransferDataFlavors()),
                 "Cannot import data {0} onto {1}.", transferable, tabPanel);
-        if (isContainerPanel(tabPanel).booleanValue()) {
-            importData(((ContainerPanel) tabPanel).getContainer(), transferable);
-        } else if (isContainerVersionsPanel(tabPanel)) {
-            importData(((ContainerVersionPanel) tabPanel).getContainer(), transferable);
-        } else {
-            throw Assert.createUnreachable("Unknown panel instance.");
-        }
+        importData(((ContainerPanel) tabPanel).getContainer(), transferable);
     }
 
     /**
@@ -353,9 +346,6 @@ public final class ContainerTabModel extends TabPanelModel {
         visiblePanels.clear();
         for (final TabPanel containerPanel : containerPanels) {
             visiblePanels.add(containerPanel);
-            if (isExpanded(containerPanel)) {
-                visiblePanels.add(versionsPanels.get(containerPanel));
-            }
         }
         // add newly visible panels to the model; and set other panels
         int listModelIndex;
@@ -438,9 +428,8 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private void addContainerPanel(final int index,
             final Container container) {
-        final TabPanel containerPanel = toDisplay(container);
-        containerPanels.add(index, containerPanel);
         final ContainerDraft draft = readDraft(container.getId());
+        final ContainerVersion latestVersion = readLatestVersion(container.getId());
         if ((null != draft) && container.isLocalDraft()) {
             for (final Document document : draft.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
@@ -449,10 +438,9 @@ public final class ContainerTabModel extends TabPanelModel {
         final List<ContainerVersion> versions = readVersions(container.getId());
         final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
             new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, Map<User, ArtifactReceipt>> users =
+        final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
             new HashMap<ContainerVersion, Map<User, ArtifactReceipt>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy = new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-
         Map<DocumentVersion, Delta> versionDocumentVersions;
         for (final ContainerVersion version : versions) {
             versionDocumentVersions = readDocumentVersionDeltas(version.getArtifactId(), version.getVersionId());
@@ -460,11 +448,11 @@ public final class ContainerTabModel extends TabPanelModel {
                 containerIdLookup.put(entry.getKey().getArtifactId(), container.getId());
             }
             documentVersions.put(version, versionDocumentVersions);
-            users.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
+            publishedTo.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
-        versionsPanels.put(containerPanel,
-                toDisplay(container, draft, versions, documentVersions, users, publishedBy));
+        containerPanels.add(index, toDisplay(container, draft, latestVersion,
+                versions, documentVersions, publishedTo, publishedBy));
     }
 
     /**
@@ -492,7 +480,6 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private void clearPanels() {
         containerPanels.clear();
-        versionsPanels.clear();
     }
 
     /**
@@ -600,17 +587,6 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /**
-     * Determine if the tab panel is a container versions tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container versions tab panel.
-     */
-    private boolean isContainerVersionsPanel(final TabPanel tabPanel) {
-        return ContainerVersionPanel.class.isAssignableFrom(tabPanel.getClass());
-    }
-
-    /**
      * Determine if a panel is expanded.
      * 
      * @param tabPanel
@@ -653,7 +629,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-    
+
     /**
      * Read the containers from the provider.
      * 
@@ -688,7 +664,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-
+    
     /**
      * Read the draft's document list.
      * 
@@ -703,17 +679,6 @@ public final class ContainerTabModel extends TabPanelModel {
         } else {
             return draft.getDocuments();
         }
-    }
-    
-    /**
-     * Determine if the container has been distributed.
-     * 
-     * @param containerId
-     *            A <code>Long</code>.
-     * @return True if this container has been distributed; false otherwise.
-     */
-    public boolean readIsDistributed(final Long containerId) {
-        return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
     }
 
     /**
@@ -812,12 +777,9 @@ public final class ContainerTabModel extends TabPanelModel {
         final int panelIndex = lookupIndex(containerId);
         if (removeExpandedState) {
             final TabPanel containerPanel = containerPanels.remove(panelIndex);
-            final TabPanel versionsPanel = versionsPanels.remove(panelIndex);
             expandedState.remove(containerPanel);
-            expandedState.remove(versionsPanel);
         } else {
             containerPanels.remove(panelIndex);
-            versionsPanels.remove(panelIndex);
         }
     }
 
@@ -828,42 +790,20 @@ public final class ContainerTabModel extends TabPanelModel {
      *            A <code>Container</code>.
      * @return A <code>TabPanel</code>.
      */
-    private TabPanel toDisplay(final Container container) {
+    private TabPanel toDisplay(
+            final Container container,
+            final ContainerDraft draft,
+            final ContainerVersion latestVersion,
+            final List<ContainerVersion> versions,
+            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+            final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
+            final Map<ContainerVersion, User> publishedBy) {
         final ContainerPanel panel = new ContainerPanel();
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, readDraft(container.getId()),
-                readLatestVersion(container.getId()));
+        panel.setPanelData(container, draft, latestVersion, versions,
+                documentVersions, publishedTo, publishedBy);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
-        return panel;
-    }
-
-    /**
-     * Create a tab panel for a container; its draft and its versions..
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     * @param versions
-     *            A list of <code>ContainerVersion</code>.         
-     * @param documentVersions
-     *            The document versions.
-     * @param users
-     *            The users.
-     * @param publishedBy
-     *            Publisher.
-     * @return A <code>TabPanel</code>.
-     */
-    private TabPanel toDisplay(final Container container,
-            final ContainerDraft draft, final List<ContainerVersion> versions,
-            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
-            final Map<ContainerVersion, Map<User, ArtifactReceipt>> users,
-            final Map<ContainerVersion, User> publishedBy) {
-        final ContainerVersionPanel panel = new ContainerVersionPanel();
-        panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, draft, versions, documentVersions, users, publishedBy);
-        panel.setPopupDelegate(popupDelegate);
         return panel;
     }
 

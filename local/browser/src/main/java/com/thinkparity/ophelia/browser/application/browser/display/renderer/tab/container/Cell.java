@@ -12,7 +12,7 @@ import javax.swing.Icon;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface VersionCell {
+public interface Cell {
 
     /**
      * Obtain the icon for the cell.

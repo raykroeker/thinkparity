@@ -11,7 +11,7 @@ import javax.swing.Icon;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DefaultVersionCell implements VersionCell {
+public class DefaultCell implements Cell {
 
     /** The cell <code>Icon</code>. */
     private Icon icon;
@@ -23,7 +23,7 @@ public class DefaultVersionCell implements VersionCell {
      * Create DefaultVersionsCell.
      *
      */
-    public DefaultVersionCell() {
+    public DefaultCell() {
         super();
     }
 

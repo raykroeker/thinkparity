@@ -48,9 +48,6 @@ final class BackgroundRenderer {
     /** The container version panel's western backgroudn <code>BufferedImage</code>s. */
     private static final Image[] VERSION_IMAGES_WEST;
 
-    /** The container version panel's background <code>BufferedImage</code>. */ 
-    private static BufferedImage versionImage;
-
     /** The container version panel's east background <code>BufferedImage</code>. */ 
     private static BufferedImage versionImageEast;
 
@@ -170,93 +167,6 @@ final class BackgroundRenderer {
     }
 
     /**
-     * Paint the background for the container version panel.
-     * 
-     * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
-     */
-    void paintBackground(final Graphics g, final ContainerVersionPanel panel) {
-        /*
-         * paint the entire background with a top-to-bottom gradient that starts
-         * in the container panel and extends to the bottom of the version
-         * panel.
-         * 
-         * the number 23 is derived by taking the height of the container panel
-         */
-        if (isDirty(versionImage, panel.getWidth(), panel.getHeight())) {
-            versionImage = clipImage(BACKGROUND, 0, 23, panel.getWidth(),
-                    panel.getHeight(), panel);
-        }
-        g.drawImage(versionImage, 0, 0, panel);
-    }
-
-    /**
-     * Paint the background for the container version panel.
-     * 
-     * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
-     */
-    void paintBackgroundCenter(final Graphics g,
-            final ContainerVersionPanel panel, final int selectionIndex) {
-        /*
-         * paint a vertial bar in the center of the panel based upon selection
-         * 
-         * the bar is not scaled
-         */
-        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], panel.getWidth() / 2
-                - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1, 0, panel);
-    }
-
-    /**
-     * Paint the background for the container version panel.
-     * 
-     * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
-     */
-    void paintBackgroundEast(final Graphics g, final ContainerVersionPanel panel) {
-        // paint a solid gradient image on the eastern side of the version panel
-        if (isDirty(versionImageEast, panel.getWidth() / 2, panel.getHeight() / 2)) {
-            versionImageEast = clipImage(BACKGROUND_EAST, 0, 0, panel
-                    .getWidth() / 2, panel.getHeight(), panel);
-        }
-        g.drawImage(versionImageEast, panel.getWidth() / 2 + 1, 0, panel);
-    }
-
-    /**
-     * Paint the background for the container version panel.
-     * 
-     * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
-     * @param selectionIndex
-     *            The selection index for the indices.
-     */
-    void paintBackgroundWest(final Graphics g,
-            final ContainerVersionPanel panel, final int selectionIndex) {
-        /*
-         * from the finite set of selection images grab the one matching the
-         * selection index; and paint it
-         *
-         * the number 26 is the height of the each selected row image
-         * 
-         * the number 24 is the offset at which to draw each selected row
-         */
-        if (isDirty(versionImagesWest[selectionIndex], panel.getWidth() / 2, panel.getHeight())) {
-            versionImagesWest[selectionIndex] = clipImage(
-                    VERSION_IMAGES_WEST[selectionIndex], 0, 0,
-                    panel.getWidth() / 2, 26, panel);
-        }
-        g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24, panel);
-    }
-
-    /**
      * Paint the expanded background for the container panel.
      * 
      * @param g
@@ -274,5 +184,69 @@ final class BackgroundRenderer {
                     panel.getHeight(), panel);
         }
         g.drawImage(containerImageExpanded, 0, 0, panel);
+    }
+
+    /**
+     * Paint the background for the container version panel.
+     * 
+     * @param g
+     *            The panel <code>Graphics</code>.
+     * @param panel
+     *            A <code>ContainerVersionPanel</code>.
+     */
+    void paintExpandedBackgroundCenter(final Graphics g,
+            final ContainerPanel panel, final int selectionIndex) {
+        /*
+         * paint a vertial bar in the center of the panel based upon selection
+         * 
+         * the bar is not scaled
+         */
+        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], panel.getWidth() / 2
+                - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1, 24, panel);
+    }
+
+    /**
+     * Paint the background for the container version panel.
+     * 
+     * @param g
+     *            The panel <code>Graphics</code>.
+     * @param panel
+     *            A <code>ContainerVersionPanel</code>.
+     */
+    void paintExpandedBackgroundEast(final Graphics g, final ContainerPanel panel) {
+        // paint a solid gradient image on the eastern side of the version panel
+        if (isDirty(versionImageEast, panel.getWidth() / 2, panel.getHeight() / 2)) {
+            versionImageEast = clipImage(BACKGROUND_EAST, 0, 0, panel
+                    .getWidth() / 2, panel.getHeight(), panel);
+        }
+        g.drawImage(versionImageEast, panel.getWidth() / 2 + 1, 24, panel);
+    }
+
+    /**
+     * Paint the background for the container version panel.
+     * 
+     * @param g
+     *            The panel <code>Graphics</code>.
+     * @param panel
+     *            A <code>ContainerVersionPanel</code>.
+     * @param selectionIndex
+     *            The selection index for the indices.
+     */
+    void paintExpandedBackgroundWest(final Graphics g,
+            final ContainerPanel panel, final int selectionIndex) {
+        /*
+         * from the finite set of selection images grab the one matching the
+         * selection index; and paint it
+         *
+         * the number 26 is the height of the each selected row image
+         * 
+         * the number 24 is the offset at which to draw each selected row
+         */
+        if (isDirty(versionImagesWest[selectionIndex], panel.getWidth() / 2, panel.getHeight())) {
+            versionImagesWest[selectionIndex] = clipImage(
+                    VERSION_IMAGES_WEST[selectionIndex], 0, 0,
+                    panel.getWidth() / 2, 26, panel);
+        }
+        g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24 + 24, panel);
     }
 }

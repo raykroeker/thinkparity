@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 
 /**
@@ -13,24 +12,8 @@ import java.awt.Font;
  */
 public final class BrowserConstants {
 
-    public static final Cursor DefaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-
 	/** The default dialogue background colour. */
     public static final Color DIALOGUE_BACKGROUND = new Color(225, 228, 231, 255);  // A colour within the browser gradient
-        // new Color(224, 223, 227, 255);   // XP "silver" dialog background
-        // new Color(236, 233, 216, 255);   // Default XP gray
-        // new Color(236, 238, 240, 255);   // Light colour from browser gradient
-
-	public static final Cursor HandCursor = new Cursor(Cursor.HAND_CURSOR);
-	
-	public static final Float PHI = 1.618033988F;
-
-    // COLOR WHITE
-	public static final Color TitleForeground = Color.WHITE;
-
-    public static final Integer TitlePaneCurvature = 15;
-
-    public static final Integer TitlePaneHeight = 30;
 
     /** Browser Colours */
     public static final class Colours {
@@ -48,6 +31,9 @@ public final class BrowserConstants {
     /** Browser Fonts */
     public static final class Fonts {
 
+        /** The dialog font family name. */
+        private static final String DIALOG_NAME = "Arial";
+
         /** The font family name. */
         private static final String FONT_NAME = "Tahoma";
 
@@ -58,6 +44,18 @@ public final class BrowserConstants {
         /** The default bold font. */
         public static final Font DefaultFontBold =
             new Font(FONT_NAME, Font.BOLD, 11);
+
+        /** The dialog font. */
+        public static final Font DialogFont =
+            new Font(DIALOG_NAME, Font.PLAIN, 11);
+
+        /** The dialog font. */
+        public static final Font DialogFontBold =
+            new Font(DIALOG_NAME, Font.BOLD, 11);
+
+        /** The dialog font. */
+        public static final Font DialogTitle =
+            new Font(DIALOG_NAME, Font.PLAIN, 12);
 
         /** The small font. */
         public static final Font SmallFont =

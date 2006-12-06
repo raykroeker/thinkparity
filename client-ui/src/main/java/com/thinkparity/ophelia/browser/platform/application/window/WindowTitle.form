@@ -26,12 +26,10 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="titleJLabel">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.editors2.FontEditor">
-          <FontInfo relative="false">
-            <Font name="Arial" size="13" style="1"/>
-          </FontInfo>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogTitle" type="code"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="New Package"/>
+        <Property name="text" type="java.lang.String" value="!Dialog Title!"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">

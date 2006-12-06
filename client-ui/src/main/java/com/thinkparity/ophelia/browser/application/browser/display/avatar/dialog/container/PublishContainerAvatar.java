@@ -24,16 +24,18 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.TableSorter;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.TableSorter;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -378,7 +380,7 @@ public final class PublishContainerAvatar extends Avatar implements
         commentJLabel.setFocusable(false);
 
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        commentJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        commentJTextArea.setFont(Fonts.DialogFont);
         commentJTextArea.setLineWrap(true);
         commentJTextArea.setWrapStyleWord(true);
         commentJScrollPane.setViewportView(commentJTextArea);
@@ -446,9 +448,9 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(24, 24, 24)
                 .add(documentJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE))
-            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE))
+            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 493, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 493, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

@@ -14,8 +14,10 @@ import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ExportProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -25,9 +27,10 @@ import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 
 /**
- *
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author robert@thinkparity.com
- * @version 1.1.2.5
+ * @version 1.1.2.8
  */
 public class ExportAvatar extends Avatar {
        
@@ -39,7 +42,12 @@ public class ExportAvatar extends Avatar {
         super("ExportDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         this.persistence = PersistenceFactory.getPersistence(getClass());
         initComponents();
-        bindEscapeKey();
+        bindEscapeKey("Cancel", new AbstractAction() {
+            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
     }
 
     public void setState(final State state) {
@@ -62,21 +70,6 @@ public class ExportAvatar extends Avatar {
             okJButton.setEnabled(isInputValid());
         }
         directoryJButton.requestFocusInWindow();
-    }
-    
-    /**
-     * Make the escape key behave like cancel.
-     */
-    private void bindEscapeKey() {
-        bindEscapeKey("Cancel", new AbstractAction() {
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
     }
     
     /**
@@ -228,33 +221,33 @@ public class ExportAvatar extends Avatar {
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        explanationJLabel.setFont(Fonts.DialogFont);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("ExportDialog.ExplanationVersion")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         explanationJLabel.setFocusable(false);
 
         directoryJTextField.setEditable(false);
-        directoryJTextField.setText(bundle.getString("ExportDialog.ExampleText")); // NOI18N
+        directoryJTextField.setText(Directories.USER_DATA.getAbsolutePath());
 
         directoryJButton.setText(bundle.getString("ExportDialog.DirectoryButton")); // NOI18N
         directoryJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                directoryJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                directoryJButtonActionPerformed(e);
             }
         });
 
         okJButton.setText(bundle.getString("ExportDialog.OK")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setText(bundle.getString("ExportDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -265,9 +258,9 @@ public class ExportAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(directoryJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                        .add(directoryJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
@@ -288,7 +281,7 @@ public class ExportAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(directoryJButton)
                     .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(okJButton)
                     .add(cancelJButton))

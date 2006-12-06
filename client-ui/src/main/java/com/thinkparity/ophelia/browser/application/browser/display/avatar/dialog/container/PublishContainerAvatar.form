@@ -105,10 +105,8 @@
       <SubComponents>
         <Component class="javax.swing.JTextArea" name="commentJTextArea">
           <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.editors2.FontEditor">
-              <FontInfo relative="false">
-                <Font name="Tahoma" size="11" style="0"/>
-              </FontInfo>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="Fonts.DialogFont" type="code"/>
             </Property>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
@@ -206,10 +204,10 @@
                   <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                   <Component id="documentJLabel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="documentNameJLabel" pref="262" max="32767" attributes="0"/>
+                  <Component id="documentNameJLabel" pref="379" max="32767" attributes="0"/>
               </Group>
-              <Component id="titleJLabel" alignment="0" pref="376" max="32767" attributes="0"/>
-              <Component id="publishJProgressBar" alignment="1" pref="376" max="32767" attributes="0"/>
+              <Component id="titleJLabel" alignment="0" pref="493" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="1" pref="493" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

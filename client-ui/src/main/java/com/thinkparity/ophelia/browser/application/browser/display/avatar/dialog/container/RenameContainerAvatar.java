@@ -19,6 +19,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -211,36 +212,36 @@ public class RenameContainerAvatar extends Avatar {
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        explanationJLabel.setFont(Fonts.DialogFont);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("RenameContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(bundle.getString("RenameContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                nameJTextFieldActionPerformed(e);
             }
         });
 
-        errorMessageJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText(bundle.getString("RenameContainerDialog.ErrorNotUnique")); // NOI18N
         errorMessageJLabel.setMinimumSize(new java.awt.Dimension(260, 15));
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(32, 14));
 
         okJButton.setText(bundle.getString("RenameContainerDialog.OK")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setText(bundle.getString("RenameContainerDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -251,8 +252,8 @@ public class RenameContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)

@@ -16,9 +16,9 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="explanationJLabel" alignment="0" pref="373" max="32767" attributes="0"/>
+                  <Component id="explanationJLabel" alignment="0" pref="384" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="directoryJTextField" pref="341" max="32767" attributes="0"/>
+                      <Component id="directoryJTextField" pref="352" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="directoryJButton" min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
@@ -42,7 +42,7 @@
                   <Component id="directoryJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="12" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -55,10 +55,8 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="explanationJLabel">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.editors2.FontEditor">
-          <FontInfo relative="false">
-            <Font name="Arial" size="12" style="0"/>
-          </FontInfo>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/JPanel_Messages.properties" key="ExportDialog.ExplanationVersion" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
@@ -70,8 +68,8 @@
     <Component class="javax.swing.JTextField" name="directoryJTextField">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/JPanel_Messages.properties" key="ExportDialog.ExampleText" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Directories.USER_DATA.getAbsolutePath()" type="code"/>
         </Property>
       </Properties>
     </Component>

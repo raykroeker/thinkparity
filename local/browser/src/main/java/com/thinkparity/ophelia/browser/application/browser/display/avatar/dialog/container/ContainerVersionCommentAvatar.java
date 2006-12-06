@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -109,8 +110,8 @@ public class ContainerVersionCommentAvatar extends Avatar {
         okJButton.setMinimumSize(new java.awt.Dimension(65, 23));
         okJButton.setPreferredSize(new java.awt.Dimension(65, 23));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 
@@ -120,7 +121,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
         commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         commentJTextArea.setColumns(20);
         commentJTextArea.setEditable(false);
-        commentJTextArea.setFont(new java.awt.Font("Arial", 0, 11));
+        commentJTextArea.setFont(Fonts.DialogFont);
         commentJTextArea.setLineWrap(true);
         commentJTextArea.setWrapStyleWord(true);
         commentJTextArea.setFocusable(false);

@@ -21,6 +21,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -105,8 +106,8 @@ public class WindowTitle extends AbstractJPanel {
         setMaximumSize(new java.awt.Dimension(2147483647, 20));
         setMinimumSize(new java.awt.Dimension(57, 20));
         setPreferredSize(new java.awt.Dimension(57, 20));
-        titleJLabel.setFont(new java.awt.Font("Arial", 1, 13));
-        titleJLabel.setText("New Package");
+        titleJLabel.setFont(Fonts.DialogTitle);
+        titleJLabel.setText("!Dialog Title!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;

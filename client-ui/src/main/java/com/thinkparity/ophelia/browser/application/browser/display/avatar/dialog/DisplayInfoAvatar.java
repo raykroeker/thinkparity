@@ -16,6 +16,7 @@ import com.thinkparity.codebase.http.LinkFactory;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -128,7 +129,7 @@ public class DisplayInfoAvatar extends Avatar {
         gridBagConstraints.insets = new java.awt.Insets(20, 0, 20, 0);
         add(logoJLabel, gridBagConstraints);
 
-        versionJLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
+        versionJLabel.setFont(Fonts.DialogFontBold);
         versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         versionJLabel.setText(bundle.getString("DisplayInfoAvatar.Version")); // NOI18N
@@ -176,14 +177,14 @@ public class DisplayInfoAvatar extends Avatar {
         webPageJLabel.setFocusable(false);
         webPageJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                webPageJLabelMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                webPageJLabelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                webPageJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                webPageJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                webPageJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                webPageJLabelMouseExited(e);
             }
         });
 
@@ -204,8 +205,8 @@ public class DisplayInfoAvatar extends Avatar {
         okJButton.setText("OK");
         okJButton.setPreferredSize(new java.awt.Dimension(65, 23));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 

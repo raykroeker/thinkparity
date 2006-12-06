@@ -771,11 +771,40 @@ public class ContainerPanel extends DefaultTabPanel {
         saveSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, (javax.swing.JList) e.getSource());
         eastListModel.clear();
         for (final Object selectedValue : westJList.getSelectedValues()) {
-            for (final DefaultCell contentCell : ((WestCell) selectedValue).eastCells) {
-                eastListModel.addElement(contentCell);
+            for (final Cell cell : ((WestCell) selectedValue).eastCells) {
+                eastListModel.addElement(cell);
             }
         }
     }//GEN-LAST:event_westJListValueChanged
+
+    
+    /** An east list cell. */
+    private abstract class AbstractEastCell extends DefaultCell implements
+            EastCell {
+        /** The additional text <code>String</code>. */
+        private String additionalText;
+        /**
+         * Set the east cell's additional text.
+         * 
+         * @param additionalText
+         *            The additional text <code>String</code>.
+         */
+        protected void setAdditionalText(final String additionalText) {
+            this.additionalText = additionalText;
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.EastCell#isSetAdditionalText()
+         */
+        public Boolean isSetAdditionalText() {
+            return null != additionalText;
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.EastCell#getAdditionalText()
+         */
+        public String getAdditionalText() {
+            return additionalText;
+        }
+    }
 
     /** A draft cell. */
     private final class DraftCell extends WestCell {
@@ -802,29 +831,24 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /** A draft document cell. */
-    private final class DraftDocumentCell extends EastCell {
+    private final class DraftDocumentCell extends AbstractEastCell {
         private final Document document;
         private DraftDocumentCell(final Document document) {
             super();
             this.document = document;
             setIcon(fileIconReader.getIcon(document));
-            final String textPattern;
             switch (draft.getState(document)) {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                // TODO remove colour from within html
-                textPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
+                setAdditionalText(localization.getString(draft.getState(document)));
                 break;
             case NONE:
-                textPattern = "{0}";
                 break;
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            // TODO localize document state
-            setText(MessageFormat.format(textPattern,
-                    document.getName(), draft.getState(document).toString().toLowerCase()));
+            setText(document.getName());
         }
         @Override
         public void invokeAction() {
@@ -835,9 +859,6 @@ public class ContainerPanel extends DefaultTabPanel {
             popupDelegate.showForDocument(draft, document);
         }
     }
-
-    /** An east list cell. */
-    private abstract class EastCell extends DefaultCell {}
 
     /** A version cell. */
     private final class VersionCell extends WestCell {
@@ -872,7 +893,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /** A version document cell. */
-    private final class VersionDocumentCell extends EastCell {
+    private final class VersionDocumentCell extends AbstractEastCell {
         /** A <code>Delta</code>. */
         private final Delta delta;
         /** A <code>DocumentVersion</code>. */
@@ -885,32 +906,24 @@ public class ContainerPanel extends DefaultTabPanel {
          * @param delta
          *            A <code>Delta</code>.
          */
-        private VersionDocumentCell(final DocumentVersion version, final Delta delta) {
+        private VersionDocumentCell(final DocumentVersion version,
+                final Delta delta) {
             super();
             this.delta = delta;
             this.version = version;
             setIcon(fileIconReader.getIcon(version));
-            final String formatPattern;
-            Delta finalDelta = delta;
-            if (null == finalDelta) {
-                finalDelta = Delta.ADDED;
-            }            
             switch (delta) {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                // TODO remove colour from within html
-                formatPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
+                setAdditionalText(localization.getString(delta));
                 break;
             case NONE:
-                formatPattern = "{0}";
                 break;
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            // TODO localize delta
-            setText(MessageFormat.format(formatPattern, version.getName(),
-                    delta.toString().toLowerCase()));
+            setText(version.getName());
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#invokeAction()
@@ -929,7 +942,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /** A user cell. */
-    private final class VersionUserCell extends EastCell {
+    private final class VersionUserCell extends AbstractEastCell {
         /** A <code>User</code>. */
         private final User user;
         /**
@@ -942,13 +955,8 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             this.user = user;
             setIcon(imageCache.read(TabPanelIcon.USER));
-            // TODO remove colour from within html
-            final StringBuffer text = new StringBuffer("<html>")
-                .append(user.getName()).append(" ")
-                .append("<font color=\"#646464\">")
-                .append(localization.getString("UserPublished"))
-                .append("</font></html>");
-            setText(text.toString());
+            setText(user.getName());
+            setAdditionalText(localization.getString("UserPublished"));
         }
         /**
          * Create VersionUserCell.
@@ -962,16 +970,11 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             this.user = user;
             setIcon(imageCache.read(TabPanelIcon.USER_NOT_RECEIVED));
-            // TODO remove colour from within html
-            final StringBuffer text = new StringBuffer("<html>").append(user.getName()).append(" ");
-            text.append("<font color=\"#646464\">");
-            if (receipt.isSetReceivedOn()) {
-                text.append(localization.getString("UserReceived",
-                        FUZZY_DATE_FORMAT.format(receipt.getReceivedOn())));
-            } else {
-                text.append(localization.getString("UserDidNotReceive"));
-            }
-            setText(text.append("</font></html>").toString());
+            setText(user.getName());
+            setAdditionalText(receipt.isSetReceivedOn()
+                    ? localization.getString("UserReceived", FUZZY_DATE_FORMAT.format(receipt.getReceivedOn()))
+                    : localization.getString("UserDidNotReceive"));
+                    
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#invokeAction()
@@ -990,7 +993,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /** A west list cell. */
-    private abstract class WestCell extends DefaultCell {
+    private class WestCell extends DefaultCell {
         protected final List<EastCell> eastCells = new ArrayList<EastCell>();
     }
 }

@@ -13,10 +13,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.container.Container;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.CreateContainerProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -24,6 +26,10 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
+ * <b>Title:</b>thinkParity Create Container Avatar<br>
+ * <b>Description:</b>This avatar is used to create containers within a
+ * dialogue.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -40,7 +46,11 @@ public class CreateContainerAvatar extends Avatar {
         super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initDocumentHandler();
-        bindEscapeKey();
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
     }
     
     public AvatarId getId() {
@@ -128,21 +138,6 @@ public class CreateContainerAvatar extends Avatar {
     }
     
     /**
-     * Make the escape key behave like cancel.
-     */
-    private void bindEscapeKey() {
-        bindEscapeKey("Cancel", new AbstractAction() {
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
-    }
-    
-    /**
      * Read containers.
      */
     private void readContainers() {
@@ -166,35 +161,35 @@ public class CreateContainerAvatar extends Avatar {
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        explanationJLabel.setFont(Fonts.DialogFont);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
         explanationJLabel.setText(bundle.getString("NewContainerDialog.Explanation")); // NOI18N
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        nameJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        nameJLabel.setFont(Fonts.DialogFont);
         nameJLabel.setText(bundle.getString("NewContainerDialog.Name")); // NOI18N
 
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                nameJTextFieldActionPerformed(e);
             }
         });
 
-        errorMessageJLabel.setFont(new java.awt.Font("Arial", 0, 12));
+        errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setText(bundle.getString("NewContainerDialog.ErrorNotUnique")); // NOI18N
         errorMessageJLabel.setMinimumSize(new java.awt.Dimension(290, 15));
 
         okJButton.setText(bundle.getString("NewContainerDialog.Ok")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setText(bundle.getString("NewContainerDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -205,12 +200,12 @@ public class CreateContainerAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 92, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE))
+                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(okJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)

@@ -390,17 +390,6 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /**
-     * Determine if the tab panel is a container tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container tab panel.
-     */
-    Boolean isContainerPanel(final TabPanel tabPanel) {
-        return ContainerPanel.class.isAssignableFrom(tabPanel.getClass());
-    }
-
-    /**
      * Determine whether or not thinkParity is running in development mode.
      * 
      * @return True if thinkParity is running in development mode.
@@ -829,28 +818,24 @@ public final class ContainerTabModel extends TabPanelModel {
      *            A <code>TabPanel</code>.
      */
     private void toggleExpand(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
         final Boolean expanded;
-        if (isContainerPanel(tabPanel).booleanValue()) {
-            final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-            if (isExpanded(containerPanel)) {
-                expanded = Boolean.FALSE;
-            } else {
-                // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
-                for (final TabPanel visiblePanel : visiblePanels) {
-                    if (isExpanded(visiblePanel)) {
-                        toggleExpand(visiblePanel);
-                    }
-                }
-                // NOTE-END:multi-expand
-
-                expanded = Boolean.TRUE;
-                browser.runApplyContainerFlagSeen(
-                        containerPanel.getContainer().getId());
-            }
-            containerPanel.setExpanded(expanded);
-        } else {
+        if (isExpanded(containerPanel)) {
             expanded = Boolean.FALSE;
+        } else {
+            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            for (final TabPanel visiblePanel : visiblePanels) {
+                if (isExpanded(visiblePanel)) {
+                    toggleExpand(visiblePanel);
+                }
+            }
+            // NOTE-END:multi-expand
+
+            expanded = Boolean.TRUE;
+            browser.runApplyContainerFlagSeen(
+                    containerPanel.getContainer().getId());
         }
+        containerPanel.setExpanded(expanded);
         expandedState.put(tabPanel, expanded);
     }
 }

@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * There are twelve separate images used to create the background. A primary
  * background provides backdrop on top of which all other images are drawn.
  * Another larger image provides the eastern half of the panel; and two sets of
- * 5 smaller images provide the selection paradigm.<br>
+ * smaller images (one for each visible row) provide the selection paradigm.<br>
  * The images are initially all scaled to the width of the primary desktop space
  * then clipped as needed to provide a "cached" (correct size for display)
  * image. This image is then displayed every time there is a request to paint a
@@ -34,27 +34,26 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 final class BackgroundRenderer {
 
     /** The underlying background <code>Image</code>. */
-    private static final Image BACKGROUND;
+    private static Image BACKGROUND;
 
     /** The east background <code>Image</code>. */
-    private static final Image BACKGROUND_EAST;
-
-    /** The container panel's expanded background <code>BufferedImage</code>. */ 
-    private static BufferedImage containerImageExpanded;
+    private static Image BACKGROUND_EAST;
 
     /** The container version panel's center background <code>BufferedImage</code>. */ 
-    private static final BufferedImage[] VERSION_IMAGES_CENTER;
+    private static BufferedImage[] VERSION_IMAGES_CENTER;
 
     /** The container version panel's western backgroudn <code>BufferedImage</code>s. */
-    private static final Image[] VERSION_IMAGES_WEST;
-
-    /** The container version panel's east background <code>BufferedImage</code>. */ 
-    private static BufferedImage versionImageEast;
+    private static Image[] VERSION_IMAGES_WEST;
 
     /** The container version panel's west background <code>BufferedImage</code>s. */
-    private static final BufferedImage[] versionImagesWest;
+    private static BufferedImage[] versionImagesWest;
 
-    static {
+    /**
+     * Initialize the background renderer. This will load the appropriate images
+     * the first time.
+     * 
+     */
+    static void initialize() {
         Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
         BufferedImage buffer = ImageIOUtil.read("PanelBackground.png");
         BACKGROUND = buffer.getScaledInstance(bounds.width, buffer.getHeight(),
@@ -153,37 +152,35 @@ final class BackgroundRenderer {
      * Paint the background for the container panel.
      * 
      * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerPanel</code>.
+     *            A <code>Graphics</code> context.
+     * @param width
+     *            A width <code>int</code>.
+     * @param height
+     *            A height <code>int</code>.
      */
-    void paintBackground(final Graphics g, final ContainerPanel panel) {
+    void paintBackground(final Graphics g, final int width, final int height) {
         /*
          * paint a background for a non-selected container panel - a simple
          * color fill
          */
         g.setColor(Colors.Browser.List.LIST_CONTAINERS_BACKGROUND);
-        g.fillRect(0, 0, panel.getWidth(), panel.getHeight());
+        g.fillRect(0, 0, width, height);
     }
 
     /**
      * Paint the expanded background for the container panel.
      * 
      * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            The <code>ContainerPanel</code>.
+     *            A <code>Graphics</code> context.
+     * @param observer
+     *            An <code>ImageObserver</code>.
      */
-    void paintExpandedBackground(final Graphics g, final ContainerPanel panel) {
+    void paintExpandedBackground(final Graphics g, final ImageObserver observer) {
         /*
          * paint the background for an expanded container - this involves simply
-         * clipping the main background image at the top
+         * painting the main background image at the top
          */
-        if (isDirty(containerImageExpanded, panel.getWidth(), panel.getHeight())) {
-            containerImageExpanded = clipImage(BACKGROUND, 0, 0, panel.getWidth(),
-                    panel.getHeight(), panel);
-        }
-        g.drawImage(containerImageExpanded, 0, 0, panel);
+        g.drawImage(BACKGROUND, 0, 0, observer);
     }
 
     /**
@@ -194,15 +191,17 @@ final class BackgroundRenderer {
      * @param panel
      *            A <code>ContainerVersionPanel</code>.
      */
-    void paintExpandedBackgroundCenter(final Graphics g,
-            final ContainerPanel panel, final int selectionIndex) {
+    void paintExpandedBackgroundCenter(final Graphics g, final int width,
+            final int height, final int selectionIndex,
+            final ImageObserver observer) {
         /*
          * paint a vertial bar in the center of the panel based upon selection
          * 
          * the bar is not scaled
          */
-        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], panel.getWidth() / 2
-                - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1, 24, panel);
+        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex],
+                width / 2 - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1,
+                24, observer);
     }
 
     /**
@@ -213,13 +212,10 @@ final class BackgroundRenderer {
      * @param panel
      *            A <code>ContainerVersionPanel</code>.
      */
-    void paintExpandedBackgroundEast(final Graphics g, final ContainerPanel panel) {
+    void paintExpandedBackgroundEast(final Graphics g, final int width,
+            final int height, final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
-        if (isDirty(versionImageEast, panel.getWidth() / 2, panel.getHeight() / 2)) {
-            versionImageEast = clipImage(BACKGROUND_EAST, 0, 0, panel
-                    .getWidth() / 2, panel.getHeight(), panel);
-        }
-        g.drawImage(versionImageEast, panel.getWidth() / 2 + 1, 24, panel);
+        g.drawImage(BACKGROUND_EAST, width / 2 + 1, 24, observer);
     }
 
     /**
@@ -232,8 +228,9 @@ final class BackgroundRenderer {
      * @param selectionIndex
      *            The selection index for the indices.
      */
-    void paintExpandedBackgroundWest(final Graphics g,
-            final ContainerPanel panel, final int selectionIndex) {
+    void paintExpandedBackgroundWest(final Graphics g, final int width,
+            final int height, final int selectionIndex,
+            final ImageObserver observer) {
         /*
          * from the finite set of selection images grab the one matching the
          * selection index; and paint it
@@ -242,11 +239,11 @@ final class BackgroundRenderer {
          * 
          * the number 24 is the offset at which to draw each selected row
          */
-        if (isDirty(versionImagesWest[selectionIndex], panel.getWidth() / 2, panel.getHeight())) {
+        if (isDirty(versionImagesWest[selectionIndex], width / 2, height)) {
             versionImagesWest[selectionIndex] = clipImage(
-                    VERSION_IMAGES_WEST[selectionIndex], 0, 0,
-                    panel.getWidth() / 2, 26, panel);
+                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width / 2, 26,
+                    observer);
         }
-        g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24 + 24, panel);
+        g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24 + 24, observer);
     }
 }

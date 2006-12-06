@@ -50,10 +50,11 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContainerPanel extends DefaultTabPanel {
     
-    /** The border for cells. */
-    static final Border BORDER;
+    /** The panel <code>Border</code>. */
+    private static final Border BORDER;
 
-    static final Integer NUMBER_VISIBLE_ROWS;
+    /** The number of rows in the version panel. */
+    private static final int NUMBER_VISIBLE_ROWS;
 
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
@@ -65,6 +66,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private static final String SK_WEST_LIST_SELECTED_INDEX_PATTERN;
 
     static {
+        BackgroundRenderer.initialize();
         BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         NUMBER_VISIBLE_ROWS = 5;
@@ -74,6 +76,24 @@ public class ContainerPanel extends DefaultTabPanel {
             "ContainerPanel#westJList.getSelectedIndex({0})";
     }
 
+    /** A <code>Container</code>. */
+    protected Container container;
+
+    /** A <code>ContainerDraft</code>. */
+    protected ContainerDraft draft;
+
+    /** The expanded <code>Boolean</code> state. */
+    protected boolean expanded;
+
+    /** An image cache. */
+    protected final MainPanelImageCache imageCache;
+
+    /** The container tab's <code>DefaultActionDelegate</code>. */
+    private ActionDelegate actionDelegate;
+
+    /** A <code>Animator</code> used by expand and collapse. */
+    private Animator animator;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
@@ -82,7 +102,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel versionJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westFirstJLabel = new javax.swing.JLabel();
@@ -91,21 +111,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
-
-    /** A <code>Container</code>. */
-    protected Container container;
-
-    /** A <code>ContainerDraft</code>. */
-    protected ContainerDraft draft;
-
-    /** The expanded <code>Boolean</code> state. */
-    protected Boolean expanded;
-
-    /** An image cache. */
-    protected final MainPanelImageCache imageCache;
-
-    /** The container tab's <code>DefaultActionDelegate</code>. */
-    private ActionDelegate actionDelegate;
 
     /** The east list <code>DefaultListModel</code>. */
     private final DefaultListModel eastListModel;
@@ -146,8 +151,9 @@ public class ContainerPanel extends DefaultTabPanel {
         this.session = session;
         this.westListModel = new DefaultListModel();
         initComponents();
+        this.animator = new Animator(this, 12);
     }
-
+    
     /**
      * Obtain actionDelegate.
      *
@@ -165,7 +171,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public Container getContainer() {
         return container;
     }
-    
+
     /**
      * Obtain the container draft.
      * 
@@ -185,7 +191,7 @@ public class ContainerPanel extends DefaultTabPanel {
         return new StringBuffer(getClass().getName()).append("//")
             .append(container.getId()).toString();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPanelPopupDelegate()
      *
@@ -209,7 +215,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Boolean</code> expanded state.
      */
     public Boolean isExpanded() {
-        return expanded;
+        return Boolean.valueOf(expanded);
     }
 
     /**
@@ -229,9 +235,14 @@ public class ContainerPanel extends DefaultTabPanel {
      *            A <code>Boolean</code> expanded state.
      */
     public void setExpanded(final Boolean expanded) {
-        this.expanded = expanded;
-        reloadText();
-        versionJPanel.setVisible(expanded);
+        this.expanded = expanded.booleanValue();
+        versionJPanel.setVisible(this.expanded);
+        if (this.expanded) {
+            animator.expand(20, 165);
+        } else {
+            animator.reset();
+        }
+        reload();
     }
 
     /**
@@ -271,8 +282,8 @@ public class ContainerPanel extends DefaultTabPanel {
                 ? imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : imageCache.read(TabPanelIcon.CONTAINER));
         reloadText();
-        restoreSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, eastJList);
-        restoreSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, westJList);
+        restoreSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, eastListModel, eastJList);
+        restoreSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, westListModel, westJList);
     }
 
     /**
@@ -292,21 +303,17 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (expanded.booleanValue()) {
+        if (expanded) {
             renderer.paintExpandedBackground(g, this);
             if (!westJList.isSelectionEmpty()) {
                 final int selectionIndex = westJList.getSelectedIndex();
-                renderer.paintExpandedBackgroundWest(g, this, selectionIndex);
-                renderer.paintExpandedBackgroundCenter(g, this, selectionIndex);
+                renderer.paintExpandedBackgroundWest(g, getWidth(), getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundCenter(g, getWidth(), getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundEast(g, getWidth(), getHeight(), this);
             }
-            renderer.paintExpandedBackgroundEast(g, this);
-            
         } else {
-            renderer.paintBackground(g, this);
+            renderer.paintBackground(g, getWidth(), getHeight());
         }
-        
-        
-        
     }
 
     private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
@@ -386,14 +393,14 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 32, 0, 4);
         add(iconJLabel, gridBagConstraints);
 
-        nameJLabel.setText("!Package!");
+        textJLabel.setText("!Package!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
-        add(nameJLabel, gridBagConstraints);
+        add(textJLabel, gridBagConstraints);
 
         versionJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -653,6 +660,16 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Reload the container panel based upon internal criteria; more
+     * specifically whether or not the panel is expanded controls the text to
+     * display; the icons and fonts to use.
+     * 
+     */
+    private void reload() {
+        reloadText();
+    }
+
+    /**
      * Reload the text on the panel.
      *
      */
@@ -662,7 +679,7 @@ public class ContainerPanel extends DefaultTabPanel {
         // if not expanded display the container name; if there exists a draft
         // and the the latest version also display the draft owner; otherwise
         // if there exists the latest version display the published on date
-        if (expanded.booleanValue()) {
+        if (expanded) {
             text.append(container.getName());
         } else {
             text.append(container.getName())
@@ -676,29 +693,37 @@ public class ContainerPanel extends DefaultTabPanel {
                         FUZZY_DATE_FORMAT.format(latestVersion.getUpdatedOn())));
             }
         }
-        nameJLabel.setText(text.toString());
+        textJLabel.setText(text.toString());
         if (!expanded && !container.contains(ArtifactFlag.SEEN)) {
-            nameJLabel.setFont(Fonts.DefaultFontBold);
+            textJLabel.setFont(Fonts.DefaultFontBold);
         }
         if (!container.isLocalDraft() && !container.isLatest()) {
-            nameJLabel.setForeground(Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
+            textJLabel.setForeground(
+                    Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
         }
     }
 
     /**
-     * Restore the selection.
+     * Restore the saved selection for the list. If there is no saved selection
+     * then the first index is used.
      * 
      * @param keyPattern
      *            A session attribute key pattern.
+     * @param listModel
+     *            A <code>DefaultListModel</code>.
      * @param jList
      *            The <code>JList</code>.
      */
     private void restoreSelection(final String keyPattern,
-            final javax.swing.JList jList) {
+            final DefaultListModel listModel, final javax.swing.JList jList) {
         final Integer selectedIndex = (Integer) session.getAttribute(
                 MessageFormat.format(keyPattern, container.getId()));
         if (null == selectedIndex) {
-            return;
+            if (listModel.isEmpty()) {
+                return;
+            } else {
+                jList.setSelectedIndex(0);
+            }
         } else {
             jList.setSelectedIndex(selectedIndex.intValue());
         }
@@ -788,7 +813,7 @@ public class ContainerPanel extends DefaultTabPanel {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                // TODO remove text colour from within html
+                // TODO remove colour from within html
                 textPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
                 break;
             case NONE:
@@ -797,6 +822,7 @@ public class ContainerPanel extends DefaultTabPanel {
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
+            // TODO localize document state
             setText(MessageFormat.format(textPattern,
                     document.getName(), draft.getState(document).toString().toLowerCase()));
         }
@@ -873,7 +899,7 @@ public class ContainerPanel extends DefaultTabPanel {
             case ADDED:
             case MODIFIED:
             case REMOVED:
-                // TODO remove text colour from within html
+                // TODO remove colour from within html
                 formatPattern = "<html>{0} <font color=\"#646464\">({1})</font></html>";
                 break;
             case NONE:
@@ -882,7 +908,7 @@ public class ContainerPanel extends DefaultTabPanel {
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
-            // TODO extract the delta to localization files
+            // TODO localize delta
             setText(MessageFormat.format(formatPattern, version.getName(),
                     delta.toString().toLowerCase()));
         }
@@ -916,7 +942,7 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             this.user = user;
             setIcon(imageCache.read(TabPanelIcon.USER));
-            // TODO remove text colour from within html
+            // TODO remove colour from within html
             final StringBuffer text = new StringBuffer("<html>")
                 .append(user.getName()).append(" ")
                 .append("<font color=\"#646464\">")
@@ -936,7 +962,7 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             this.user = user;
             setIcon(imageCache.read(TabPanelIcon.USER_NOT_RECEIVED));
-            // TODO remove text colour from within html
+            // TODO remove colour from within html
             final StringBuffer text = new StringBuffer("<html>").append(user.getName()).append(" ");
             text.append("<font color=\"#646464\">");
             if (receipt.isSetReceivedOn()) {

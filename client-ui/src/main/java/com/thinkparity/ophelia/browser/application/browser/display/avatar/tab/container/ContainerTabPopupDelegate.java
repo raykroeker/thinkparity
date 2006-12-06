@@ -15,12 +15,15 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
@@ -30,12 +33,23 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Delete;
+import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
+import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -171,9 +185,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        if (isContainerPanel(tabPanel)) {
-            showForContainerPanel((ContainerPanel) tabPanel);
-        }
+        showForContainerPanel((ContainerPanel) tabPanel);
     }
 
     /**
@@ -225,17 +237,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         add(ActionId.CONTAINER_PRINT_VERSION, printData);
 
         show();
-    }
-
-    /**
-     * Determine whether or not a panel is a container panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container panel.
-     */
-    private boolean isContainerPanel(final TabPanel tabPanel) {
-        return model.isContainerPanel(tabPanel).booleanValue();
     }
     
     /**

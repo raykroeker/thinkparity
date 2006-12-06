@@ -60,4 +60,5 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     public int hashCode() {
         return getId().hashCode();
     }
+
 }

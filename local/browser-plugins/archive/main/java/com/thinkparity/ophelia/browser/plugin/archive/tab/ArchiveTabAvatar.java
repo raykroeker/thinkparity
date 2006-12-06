@@ -14,9 +14,13 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
  */
 public final class ArchiveTabAvatar extends TabPanelExtensionAvatar<ArchiveTabModel> {
 
-    /** Create ArchiveTabAvatar. */
+    /**
+     * Create ArchiveTabAvatar.
+     * 
+     */
     ArchiveTabAvatar(final TabPanelExtension extension) {
         super(extension, new ArchiveTabModel(extension));
+        model.setSession(getSession());
     }
 
     /**

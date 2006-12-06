@@ -17,16 +17,17 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -62,7 +63,18 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Export;
+import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -82,7 +94,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -125,8 +138,8 @@ public class Browser extends AbstractApplication {
 	/** A persistence for browser settings. */
     private final Persistence persistence;
     
-    /** Contains the browser's session information. */
-	private final BrowserSession session;
+    /** The browser's session implementation. */
+	private final BrowserSessionImpl sessionImpl;
 
 	/**
 	 * Create Browser.
@@ -138,7 +151,7 @@ public class Browser extends AbstractApplication {
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
         this.displayHelper = new BrowserDisplayHelper(this);
         this.persistence = PersistenceFactory.getPersistence(getClass());
-		this.session= new BrowserSession(this);
+		this.sessionImpl = new BrowserSessionImpl();
 	}
 
     /**
@@ -211,7 +224,7 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.LOCALIZED_MESSAGE, localizedMessage);
         return confirm(input);
     }
-    
+
     /**
      * Display the invite dialogue.
      *
@@ -235,7 +248,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_VERSION_COMMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_VERSION_COMMENT);
     }
-        
+    
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -249,7 +262,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -268,7 +281,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+        
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -278,7 +291,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-
+    
     /**
      * Display an error dialog.
      *
@@ -339,8 +352,8 @@ public class Browser extends AbstractApplication {
         input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
         setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
-    } 
-    
+    }
+
     /**
      * Display an export dialog for a version.
      * 
@@ -363,8 +376,8 @@ public class Browser extends AbstractApplication {
      */
     public void displayInfoDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
-    }
-
+    } 
+    
     /**
      * Display the "publish container" dialog.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
@@ -397,7 +410,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-    
+
     /**
      * Display the contact info dialogue.
      *
@@ -427,7 +440,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME);
     }
-
+    
     /**
      * Display a document rename dialog.
      * 
@@ -447,7 +460,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
-
+    
     /**
      * Display the update profile dialog.
      *
@@ -455,7 +468,7 @@ public class Browser extends AbstractApplication {
     public void displayResetProfilePasswordDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_RESET_PASSWORD);
     }
-    
+
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayTab(AvatarId.TAB_CONTACT);
@@ -465,7 +478,7 @@ public class Browser extends AbstractApplication {
     public void displayTabContainerAvatar() {
         displayTab(AvatarId.TAB_CONTAINER);
     }
-
+    
     /** Display a tab list extension. */
     public void displayTabExtension(final TabListExtension tabListExtension) {
         displayTab(tabListExtension);
@@ -617,7 +630,7 @@ public class Browser extends AbstractApplication {
         setStatus("DocumentDeleted");
         syncContainerTabContainer(containerId, remote);
     }
-    
+
     /**
      * Notify the application that the draft has been added.
      * 
@@ -646,7 +659,7 @@ public class Browser extends AbstractApplication {
         setStatus("ContainerDraftDeleted");
         syncContainerTabContainer(containerId, remote);
     }
-
+    
     /**
      * Notify the application that a container has been received (ie. package published)
      *
@@ -662,7 +675,7 @@ public class Browser extends AbstractApplication {
 
         syncContainerTabContainer(containerId, Boolean.TRUE);
     }
-    
+
     /**
      * Notify the application a team member has been added to the container.
      *
@@ -711,7 +724,7 @@ public class Browser extends AbstractApplication {
         setStatus("DocumentUpdated");
         syncDocumentTabContainer(documentId, Boolean.FALSE);
     }
-
+    
     /**
      * Notify the application that a document has in some way been updated.
      *
@@ -851,13 +864,13 @@ public class Browser extends AbstractApplication {
      */
     public Connection getConnection() { return connection; }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#getId()
 	 * 
 	 */
 	public ApplicationId getId() { return ApplicationId.BROWSER; }
 
-	/**
+    /**
      * Obtain a logger for the class from the applilcation.
      *
      *
@@ -876,25 +889,37 @@ public class Browser extends AbstractApplication {
 	public Platform getPlatform() { return super.getPlatform(); }
 
 	/**
-     * Obtain the selected contact id from the session.
-     * 
-     * @return A contact id.
-     */
-    public JabberId getSelectedContactId() { return session.getSelectedContactId(); }
-
-	/**
-	 * Obtain the selected document id from the session.
-	 * 
-	 * @return A document id.
-	 */
-	public Long getSelectedContainerId() { return session.getSelectedContainerId(); }
-
-	/**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
 	 */
 	public Object getSelectedSystemMessage() { return null; }
+
+	/**
+     * Obtain a session for an avatar type; and if one does not already exist
+     * for the type create one.
+     * 
+     * @param avatarId
+     *            An <code>AvatarId</code>.
+     * @return A <code>BrowserSession</code>.
+     */
+    public BrowserSession getSession(final AvatarId avatarId) {
+        return sessionImpl.getSession(new BrowserContext(avatarId), Boolean.TRUE);
+    }
+
+	/**
+     * Obtain a session for an avatar type.
+     * 
+     * @param avatarId
+     *            An <code>AvatarId</code>.
+     * @param create
+     *            Whether or not to create the session if it does not already
+     *            exist.
+     * @return A <code>BrowserSession</code>.
+     */
+    public BrowserSession getSession(final AvatarId avatarId, final Boolean create) {
+        return sessionImpl.getSession(new BrowserContext(avatarId), create);
+    }
 
 	/**
 	 * Close the main window.
@@ -1534,36 +1559,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void saveState(final State state) {}
 
-    /**
-     * Select a contact.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void selectContact(final JabberId contactId) {
-        final JabberId oldSelection = session.getSelectedContactId();
-        session.setSelectedContactId(contactId);
-
-        if(null != oldSelection && !oldSelection.equals(contactId)) {
-            clearStatus();
-        }
-    }
-
-    /**
-     * Select a container.
-     * 
-     * @param containerId
-     *             The container id.
-     */
-    public void selectContainer(final Long containerId) {
-        final Long oldSelection = session.getSelectedContainerId();
-        session.setSelectedContainerId(containerId);
-
-        if(null != oldSelection && !oldSelection.equals(containerId)) {
-            clearStatus();
-        }        
-    }
-    
 	/**
      * Set the cursor.
      * 
@@ -1666,22 +1661,6 @@ public class Browser extends AbstractApplication {
 	Object getAvatarInput(final AvatarId id) {
 		return avatarInputMap.get(id);
 	}
-
-    /**
-     * Clear any status messages.
-     * 
-     * @param area
-     *            The status area.
-     */
-    private void clearStatus() {
-        Data input = (Data) getMainStatusAvatar().getInput();
-        if (null == input) {
-            input = new Data(3);
-        }
-        input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE);
-        input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
-        getMainStatusAvatar().setInput((Data) input.clone());
-    }
 
     /**
      * Open a confirmation dialogue.

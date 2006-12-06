@@ -23,6 +23,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
+import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -52,6 +53,9 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
 
     /** The <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
+
+    /** A <code>BrowserSession</code>. */
+    private BrowserSession session;
 
     /** A list of all visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -176,6 +180,16 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     Boolean isOnline() {
         return Connection.ONLINE == super.getBrowser().getConnection();
+    }
+
+    /**
+     * Set the session.
+     * 
+     * @param session
+     *            A <code>BrowserSession</code>.
+     */
+    void setSession(final BrowserSession session) {
+        this.session = session;
     }
 
     /**
@@ -385,7 +399,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy) {
-        final ContainerPanel panel = new ArchiveTabContainerPanel();
+        final ContainerPanel panel = new ArchiveTabContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, draft, latestVersion, versions,
                 documentVersions, publishedTo, publishedBy);

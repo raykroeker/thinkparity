@@ -19,6 +19,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -50,21 +51,21 @@ public abstract class Avatar extends AbstractJPanel {
 	/** The thinkParity <code>PluginRegistry</code>. */
     protected final PluginRegistry pluginRegistry;
 
-    /** The thinkparity application registry. */
-    private final ApplicationRegistry applicationRegistry;
-
-	/** The Resizer */
+    /** The Resizer */
     protected Resizer resizer = null;
 
-    /** The avatar's scrolling policy. */
-	private final ScrollPolicy scrollPolicy;
+	/** The thinkparity application registry. */
+    private final ApplicationRegistry applicationRegistry;
+
+    /** The clipped background image. */
+    private BufferedImage clippedBackgroundImage = null;
     
     /** The scaled background image. */
     private BufferedImage scaledBackgroundImage = null;
     
-    /** The clipped background image. */
-    private BufferedImage clippedBackgroundImage = null;
-    
+    /** The avatar's scrolling policy. */
+	private final ScrollPolicy scrollPolicy;
+
     /**
      * Create Avatar.
      * 
@@ -137,6 +138,263 @@ public abstract class Avatar extends AbstractJPanel {
 	}
     
     /**
+	 * Set an error for display.
+	 * 
+	 * @param error
+	 *            The error.
+	 */
+	public void addError(final Throwable error) { errors.add(error); }
+
+    /**
+	 * Clear all display errors.
+	 *
+	 */
+	public void clearErrors() { errors.clear(); }
+    
+    /**
+	 * Determine whether or not the error has been set.
+	 * 
+	 * @return True if error has been set; false otherwise.
+	 */
+	public Boolean containsErrors() { return 0 < errors.size(); }
+    
+    /**
+     * Get the avatar title, used for dialogs.
+     * 
+     * @return the avatar title
+     */
+    public String getAvatarTitle() {
+        return getString("Title");
+    }
+
+	/**
+	 * Obtain the content provider.
+	 * 
+	 * @return The content provider.
+	 */
+	public ContentProvider getContentProvider() { return contentProvider; }
+
+    /**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
+	public Browser getController() {
+	    return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
+	}
+
+	/**
+	 * Obtain the error.
+	 * 
+	 * @return The error.
+	 */
+	public List<Throwable> getErrors() { return errors; }
+
+	/**
+	 * Obtain the avatar id.
+	 * 
+	 * @return The avatar id.
+	 */
+	public abstract AvatarId getId();
+
+	/**
+	 * Obtain the avatar's input.
+	 * 
+	 * @return The input.
+	 */
+	public Object getInput() { return input; }
+
+    /**
+	 * Obtain the scroll policy for the avatar.
+	 * 
+	 * @return The scroll policy for the avatar.
+	 */
+	public ScrollPolicy getScrollPolicy() { return scrollPolicy; }
+
+    /**
+	 * Obtain the avatar's state information.
+	 * 
+	 * @return The avatar's state information.
+	 */
+	public abstract State getState();
+
+    /**
+     * Install the resizer.
+     */
+    public void installResizer() {
+        if (null!=this.resizer) {
+            resizer.removeAllListeners();
+        }
+
+        this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
+    }
+
+	/**
+     * Determine if there is an avatar background image, used for dialogs.
+     * With few exceptions (eg. title, main, and status areas of browser)
+     * this should be true.
+     */
+    public Boolean isAvatarBackgroundImage() {
+        return Boolean.TRUE;
+        
+    }
+
+	/**
+     * Determine if there is an avatar title, used for dialogs.
+     * With few exceptions (eg. help-about) this should be true.
+     */
+    public Boolean isAvatarTitle() {
+        return Boolean.TRUE;
+    }
+
+	/**
+	 * Reload the avatar. This event is called when either the content provider
+	 * or the input has changed; or as a manual reload of the avatar.
+	 * 
+	 */
+	public void reload() {}
+
+	/**
+	 * Set the content provider.
+	 * 
+	 * @param contentProvider
+	 *            The content provider.
+	 */
+	public void setContentProvider(final ContentProvider contentProvider) {
+		Assert.assertNotNull(
+				"Cannot set a null content provider:  " + getId(), contentProvider);
+		if(this.contentProvider == contentProvider
+				|| contentProvider.equals(this.contentProvider)) { return; }
+		
+		this.contentProvider = contentProvider;
+		reload();
+	}
+
+	/**
+	 * Set the avatar's input.
+	 * 
+	 * @param input
+	 *            The avatar input.
+	 */
+	public void setInput(final Object input) {
+		Assert.assertNotNull("Cannot set null input:  " + getId(), input);
+		if(this.input == input || input.equals(this.input)) { return; }
+		
+		this.input = input;
+		reload();
+	}
+
+	/**
+	 * Set the avatar state.
+	 * 
+	 * @param state
+	 *            The avatar's state information.
+	 */
+	public abstract void setState(final State state);
+    
+	/**
+     * Obtain the pluginRegistry
+     *
+     * @return The PluginRegistry.
+     */
+    protected PluginRegistry getPluginRegistry() {
+        return pluginRegistry;
+    }
+
+	/**
+     * Get the resize edges. Override this method if you don't want
+     * resize support for the avatar, or if only some of the avatar
+     * edges support resize. Default is BOTTOM which is suited to
+     * avatars on dialogs, because the top is the window title.
+     */
+    protected Resizer.ResizeEdges getResizeEdges() {
+        return Resizer.ResizeEdges.BOTTOM;
+    }
+
+	/**
+     * Obtain a browser session.
+     * 
+     * @return A <code>BrowserSession</code>.
+     */
+    protected BrowserSession getSession() {
+        return getController().getSession(getId());
+    }
+
+    /**
+     * Obtain a browser session.
+     * 
+     * @return A <code>BrowserSession</code>.
+     */
+    protected BrowserSession getSession(final Boolean create) {
+        return getController().getSession(getId(), create);
+    }
+    
+    /**
+     * @see JPanelLocalization#getString(String)
+     * 
+     */
+    protected String getString(final String localKey) {
+    	return localization.getString(localKey);
+    }
+    
+    /**
+     * @see JPanelLocalization#getString(String, Object[])
+     * 
+     */
+    protected String getString(final String localKey, final Object[] arguments) {
+    	return localization.getString(localKey, arguments);
+    }
+
+	/**
+     * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
+     * dispatching thread.
+     * 
+     * @param doRun
+     *            The runnable to execute.
+     * @see SwingUtilities#invokeLater(java.lang.Runnable)
+     */
+	protected void invokeLater(final Runnable doRun) {
+        SwingUtilities.invokeLater(doRun);
+    }
+
+	/**
+	 * Determine whether or not the platform is running in test mode.
+	 * 
+	 * @return True if the platform is in test mode; false otherwise.
+	 */
+	protected final Boolean isDebugMode() {
+		return getController().getPlatform().isDevelopmentMode();
+	}
+
+    /**
+     * These get and set methods are used by classes that intend to do their
+     * own mouse dragging. (For example, the bottom right resize control.)
+     */
+    protected Boolean isResizeDragging() {
+        if (null==resizer) {
+            return Boolean.FALSE;
+        } else {
+            return resizer.isResizeDragging();
+        }
+    }
+    
+    /**
+     * Flag to indicate if dragging the centre of the control will cause moving.
+     * Override this method if you don't want the avatar to support movement.
+     */
+    protected Boolean isSupportMouseMove() {
+        return Boolean.FALSE;
+    }
+    
+    /**
+	 * Determine whether or not the platform is running in test mode.
+	 * 
+	 * @return True if the platform is in test mode; false otherwise.
+	 */
+	protected final Boolean isTestMode() {
+		return getController().getPlatform().isTestingMode();
+	}
+    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -184,165 +442,6 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
-     * Install the resizer.
-     */
-    public void installResizer() {
-        if (null!=this.resizer) {
-            resizer.removeAllListeners();
-        }
-
-        this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
-    }
-    
-    /**
-     * Determine if there is an avatar background image, used for dialogs.
-     * With few exceptions (eg. title, main, and status areas of browser)
-     * this should be true.
-     */
-    public Boolean isAvatarBackgroundImage() {
-        return Boolean.TRUE;
-        
-    }
-    
-    /**
-     * Determine if there is an avatar title, used for dialogs.
-     * With few exceptions (eg. help-about) this should be true.
-     */
-    public Boolean isAvatarTitle() {
-        return Boolean.TRUE;
-    }
-
-	/**
-     * Get the avatar title, used for dialogs.
-     * 
-     * @return the avatar title
-     */
-    public String getAvatarTitle() {
-        return getString("Title");
-    }
-
-    /**
-	 * Set an error for display.
-	 * 
-	 * @param error
-	 *            The error.
-	 */
-	public void addError(final Throwable error) { errors.add(error); }
-
-	/**
-	 * Clear all display errors.
-	 *
-	 */
-	public void clearErrors() { errors.clear(); }
-
-	/**
-	 * Determine whether or not the error has been set.
-	 * 
-	 * @return True if error has been set; false otherwise.
-	 */
-	public Boolean containsErrors() { return 0 < errors.size(); }
-
-	/**
-	 * Obtain the content provider.
-	 * 
-	 * @return The content provider.
-	 */
-	public ContentProvider getContentProvider() { return contentProvider; }
-
-    /**
-     * Obtain the browser application.
-     * 
-     * @return The browser application.
-     */
-	public Browser getController() {
-	    return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
-	}
-
-	/**
-	 * Obtain the error.
-	 * 
-	 * @return The error.
-	 */
-	public List<Throwable> getErrors() { return errors; }
-
-	/**
-	 * Obtain the avatar id.
-	 * 
-	 * @return The avatar id.
-	 */
-	public abstract AvatarId getId();
-
-	/**
-	 * Obtain the avatar's input.
-	 * 
-	 * @return The input.
-	 */
-	public Object getInput() { return input; }
-
-	/**
-	 * Obtain the scroll policy for the avatar.
-	 * 
-	 * @return The scroll policy for the avatar.
-	 */
-	public ScrollPolicy getScrollPolicy() { return scrollPolicy; }
-
-	/**
-	 * Obtain the avatar's state information.
-	 * 
-	 * @return The avatar's state information.
-	 */
-	public abstract State getState();
-
-	/**
-     * These get and set methods are used by classes that intend to do their
-     * own mouse dragging. (For example, the bottom right resize control.)
-     */
-    protected Boolean isResizeDragging() {
-        if (null==resizer) {
-            return Boolean.FALSE;
-        } else {
-            return resizer.isResizeDragging();
-        }
-    }
-    
-	/**
-	 * Reload the avatar. This event is called when either the content provider
-	 * or the input has changed; or as a manual reload of the avatar.
-	 * 
-	 */
-	public void reload() {}
-
-	/**
-	 * Set the content provider.
-	 * 
-	 * @param contentProvider
-	 *            The content provider.
-	 */
-	public void setContentProvider(final ContentProvider contentProvider) {
-		Assert.assertNotNull(
-				"Cannot set a null content provider:  " + getId(), contentProvider);
-		if(this.contentProvider == contentProvider
-				|| contentProvider.equals(this.contentProvider)) { return; }
-		
-		this.contentProvider = contentProvider;
-		reload();
-	}
-
-	/**
-	 * Set the avatar's input.
-	 * 
-	 * @param input
-	 *            The avatar input.
-	 */
-	public void setInput(final Object input) {
-		Assert.assertNotNull("Cannot set null input:  " + getId(), input);
-		if(this.input == input || input.equals(this.input)) { return; }
-		
-		this.input = input;
-		reload();
-	}
-
-    /**
      * These get and set methods are used by classes that intend to do their
      * own mouse dragging. (For example, the bottom right resize control.)
      */
@@ -351,86 +450,6 @@ public abstract class Avatar extends AbstractJPanel {
             resizer.setResizeDragging(resizerDragging);
         }
     }
-    
-    /**
-     * Get the resize edges. Override this method if you don't want
-     * resize support for the avatar, or if only some of the avatar
-     * edges support resize. Default is BOTTOM which is suited to
-     * avatars on dialogs, because the top is the window title.
-     */
-    protected Resizer.ResizeEdges getResizeEdges() {
-        return Resizer.ResizeEdges.BOTTOM;
-    }
-    
-    /**
-     * Flag to indicate if dragging the centre of the control will cause moving.
-     * Override this method if you don't want the avatar to support movement.
-     */
-    protected Boolean isSupportMouseMove() {
-        return Boolean.FALSE;
-    }
-
-	/**
-	 * Set the avatar state.
-	 * 
-	 * @param state
-	 *            The avatar's state information.
-	 */
-	public abstract void setState(final State state);
-
-	/**
-     * Obtain the pluginRegistry
-     *
-     * @return The PluginRegistry.
-     */
-    protected PluginRegistry getPluginRegistry() {
-        return pluginRegistry;
-    }
-
-    /**
-     * @see JPanelLocalization#getString(String)
-     * 
-     */
-    protected String getString(final String localKey) {
-    	return localization.getString(localKey);
-    }
-    
-    /**
-     * @see JPanelLocalization#getString(String, Object[])
-     * 
-     */
-    protected String getString(final String localKey, final Object[] arguments) {
-    	return localization.getString(localKey, arguments);
-    }
-    
-    /**
-     * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
-     * dispatching thread.
-     * 
-     * @param doRun
-     *            The runnable to execute.
-     * @see SwingUtilities#invokeLater(java.lang.Runnable)
-     */
-	protected void invokeLater(final Runnable doRun) {
-        SwingUtilities.invokeLater(doRun);
-    }
-    /**
-	 * Determine whether or not the platform is running in test mode.
-	 * 
-	 * @return True if the platform is in test mode; false otherwise.
-	 */
-	protected final Boolean isDebugMode() {
-		return getController().getPlatform().isDevelopmentMode();
-	}
-
-    /**
-	 * Determine whether or not the platform is running in test mode.
-	 * 
-	 * @return True if the platform is in test mode; false otherwise.
-	 */
-	protected final Boolean isTestMode() {
-		return getController().getPlatform().isTestingMode();
-	}
 
     /**
 	 * Provide a visual cue to the user that work is being done.

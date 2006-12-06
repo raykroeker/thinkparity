@@ -33,6 +33,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
@@ -81,6 +82,9 @@ public final class ContainerTabModel extends TabPanelModel {
      * @see #removeSearch()
      */
     private List<Long> searchResults;
+
+    /** A <code>BrowserSession</code>. */
+    private BrowserSession session;
 
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -141,7 +145,7 @@ public final class ContainerTabModel extends TabPanelModel {
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
      */
@@ -162,7 +166,7 @@ public final class ContainerTabModel extends TabPanelModel {
         final Profile profile = readProfile();
         return (user.getId().equals(profile.getId()));
     }
-
+    
     /**
      * Determine whether or not the user is online.
      * 
@@ -249,7 +253,7 @@ public final class ContainerTabModel extends TabPanelModel {
     public void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
      * 
@@ -271,7 +275,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         return false;
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
      *
@@ -403,6 +407,16 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     boolean isDevelopmentMode() {
         return browser.isDevelopmentMode();
+    }
+
+    /**
+     * Set the session.
+     * 
+     * @param session
+     *            A <code>BrowserSession</code>.
+     */
+    void setSession(final BrowserSession session) {
+        this.session = session;
     }
 
     /**
@@ -798,7 +812,7 @@ public final class ContainerTabModel extends TabPanelModel {
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy) {
-        final ContainerPanel panel = new ContainerPanel();
+        final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, draft, latestVersion, versions,
                 documentVersions, publishedTo, publishedBy);

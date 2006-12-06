@@ -26,6 +26,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     public ContainerTabAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerTabModel());
+        model.setSession(getSession());
     }
 
     /**

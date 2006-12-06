@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,7 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -33,6 +33,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
@@ -57,10 +58,20 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
+    /** A session key pattern for the east list's selected index. */
+    private static final String SK_EAST_LIST_SELECTED_INDEX_PATTERN;
+
+    /** A session key pattern for the west list's selected index. */
+    private static final String SK_WEST_LIST_SELECTED_INDEX_PATTERN;
+
     static {
         BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         NUMBER_VISIBLE_ROWS = 5;
+        SK_EAST_LIST_SELECTED_INDEX_PATTERN =
+            "ContainerPanel#eastJList.getSelectedIndex({0})";
+        SK_WEST_LIST_SELECTED_INDEX_PATTERN =
+            "ContainerPanel#westJList.getSelectedIndex({0})";
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -70,6 +81,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel eastLastJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel versionJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
@@ -97,7 +109,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** The east list <code>DefaultListModel</code>. */
     private final DefaultListModel eastListModel;
-    
+
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
 
@@ -113,6 +125,9 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>BackgroundRenderer</code>. */
     private final BackgroundRenderer renderer;
 
+    /** A <code>BrowserSession</code>. */
+    private final BrowserSession session;
+
     /** The west list <code>DefaultListModel</code>. */
     private final DefaultListModel westListModel;
 
@@ -120,7 +135,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * Create ContainerPanel.
      * 
      */
-    public ContainerPanel() {
+    public ContainerPanel(final BrowserSession session) {
         super();
         this.eastListModel = new DefaultListModel();
         this.expanded = Boolean.FALSE;
@@ -128,94 +143,9 @@ public class ContainerPanel extends DefaultTabPanel {
         this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
         this.renderer = new BackgroundRenderer();
+        this.session = session;
         this.westListModel = new DefaultListModel();
         initComponents();
-    }
-
-
-    /**
-     * Handle the focus gained event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     */
-    private void jListFocusGained(final JList jList, final java.awt.event.FocusEvent e) {
-        eastJList.repaint();
-        westJList.repaint();
-    }
-    
-    /**
-     * Handle the focus lost event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     */
-    private void jListFocusLost(final JList jList, final java.awt.event.FocusEvent e) {
-        eastJList.repaint();
-        westJList.repaint();
-    }
-    
-    /**
-     * Handle the click event for the given list. All we do is check for a
-     * double-click event to run a specific action.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMouseClicked(final JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        // a click count of 2, 4, 6, etc. triggers double click event
-        if (e.getClickCount() % 2 == 0) {
-            ((DefaultCell) jList.getSelectedValue()).invokeAction();
-        }
-    }
-
-    /**
-     * Handle the mouse pressed event for the given list. The isPopupTrigger
-     * property of the mouse event is only set within the pressed event so here
-     * we save that value within the list; and check it within
-     * {@link #jListMouseRelease(JList, MouseEvent)}.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMousePressed(final JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((DefaultCell) jList.getSelectedValue()).showPopup();
-        }
-    }
-    
-    /**
-     * Handle the mouse released event for the given list. Check the list's
-     * client property for the is popup trigger boolean property set within
-     * {@link #jListMousePressed(JList, MouseEvent)} and if true; first select
-     * the underlying cell; then display its popup.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMouseReleased(final JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((DefaultCell) jList.getSelectedValue()).showPopup();
-        }
     }
 
     /**
@@ -226,7 +156,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public ActionDelegate getActionDelegate() {
         return actionDelegate;
     }
-
+    
     /**
      * Obtain the container.
      * 
@@ -235,18 +165,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public Container getContainer() {
         return container;
     }
-
-
-    /**
-     * Select the first version cell.
-     *
-     */
-    private void selectFirstVersion() {
-        if (!westListModel.isEmpty()) {
-            westJList.setSelectedIndex(0);
-        }
-    }
-
+    
     /**
      * Obtain the container draft.
      * 
@@ -266,7 +185,7 @@ public class ContainerPanel extends DefaultTabPanel {
         return new StringBuffer(getClass().getName()).append("//")
             .append(container.getId()).toString();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPanelPopupDelegate()
      *
@@ -348,11 +267,12 @@ public class ContainerPanel extends DefaultTabPanel {
                     .get(version), publishedTo.get(version), publishedBy
                     .get(version)));
         }
-        nameJLabel.setIcon(container.isBookmarked()
+        iconJLabel.setIcon(container.isBookmarked()
                 ? imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : imageCache.read(TabPanelIcon.CONTAINER));
         reloadText();
-        selectFirstVersion();
+        restoreSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, eastJList);
+        restoreSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, westJList);
     }
 
     /**
@@ -389,6 +309,46 @@ public class ContainerPanel extends DefaultTabPanel {
         
     }
 
+    private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
+        jListFocusGained((JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListFocusGained
+
+    private void eastJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusLost
+        jListFocusLost((JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListFocusLost
+
+    private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
+        jListMouseClicked((JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMouseClicked
+
+    private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
+        jListMousePressed((JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMousePressed
+
+    private void eastJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseReleased
+        jListMouseReleased((JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMouseReleased
+
+    private void eastJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_eastJListValueChanged
+        if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
+            repaint();
+            return;
+        }
+        saveSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, (javax.swing.JList) e.getSource());
+    }//GEN-LAST:event_eastJListValueChanged
+
+    private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
+        actionDelegate.invokeForContainer(container);
+    }//GEN-LAST:event_iconJLabelMouseClicked
+
+    private void iconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_iconJLabelMouseEntered
+
+    private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_iconJLabelMouseExited
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -406,14 +366,33 @@ public class ContainerPanel extends DefaultTabPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setBorder(BORDER);
-        nameJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
-        nameJLabel.setText("!Package!");
+        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
+        iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                iconJLabelMouseClicked(e);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                iconJLabelMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                iconJLabelMouseExited(e);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 32, 0, 4);
+        add(iconJLabel, gridBagConstraints);
+
+        nameJLabel.setText("!Package!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 32, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         add(nameJLabel, gridBagConstraints);
 
         versionJPanel.setLayout(new java.awt.GridBagLayout());
@@ -475,6 +454,11 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             public void focusLost(java.awt.event.FocusEvent e) {
                 eastJListFocusLost(e);
+            }
+        });
+        eastJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                eastJListValueChanged(e);
             }
         });
         eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -575,6 +559,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -582,59 +567,90 @@ public class ContainerPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void westJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_westJListValueChanged
-        if (e.getValueIsAdjusting() || westJList.isSelectionEmpty()) {
-            repaint();
-            return;
+    /**
+     * Handle the focus gained event on the list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>FocusEvent</code>.
+     */
+    private void jListFocusGained(final javax.swing.JList jList,
+            final java.awt.event.FocusEvent e) {
+        eastJList.repaint();
+        westJList.repaint();
+    }
+
+    /**
+     * Handle the focus lost event on the list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>FocusEvent</code>.
+     */
+    private void jListFocusLost(final javax.swing.JList jList,
+            final java.awt.event.FocusEvent e) {
+        eastJList.repaint();
+        westJList.repaint();
+    }
+
+    /**
+     * Handle the click event for the given list. All we do is check for a
+     * double-click event to run a specific action.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jListMouseClicked(final javax.swing.JList jList,
+            final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        // a click count of 2, 4, 6, etc. triggers double click event
+        if (e.getClickCount() % 2 == 0) {
+            ((DefaultCell) jList.getSelectedValue()).invokeAction();
         }
+    }
 
-        eastListModel.clear();
-        for (final Object selectedValue : westJList.getSelectedValues()) {
-            for (final DefaultCell contentCell : ((WestCell) selectedValue).eastCells) {
-                eastListModel.addElement(contentCell);
-            }
+    /**
+     * Handle the mouse pressed event for the given list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jListMousePressed(final javax.swing.JList jList,
+            final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            ((DefaultCell) jList.getSelectedValue()).showPopup();
         }
-    }//GEN-LAST:event_westJListValueChanged
+    }
 
-    private void eastJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseReleased
-
-    private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMousePressed
-
-    private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseClicked
-
-    private void eastJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusLost
-
-    private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusGained
-
-    private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseReleased
-
-    private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMousePressed
-
-    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseClicked
-
-    private void westJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusLost
-
-    private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusGained
+    /**
+     * Handle the mouse released event for the given list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jListMouseReleased(final javax.swing.JList jList,
+            final java.awt.event.MouseEvent e) {
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            ((DefaultCell) jList.getSelectedValue()).showPopup();
+        }
+    }
 
     /**
      * Reload the text on the panel.
@@ -668,6 +684,73 @@ public class ContainerPanel extends DefaultTabPanel {
             nameJLabel.setForeground(Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
         }
     }
+
+    /**
+     * Restore the selection.
+     * 
+     * @param keyPattern
+     *            A session attribute key pattern.
+     * @param jList
+     *            The <code>JList</code>.
+     */
+    private void restoreSelection(final String keyPattern,
+            final javax.swing.JList jList) {
+        final Integer selectedIndex = (Integer) session.getAttribute(
+                MessageFormat.format(keyPattern, container.getId()));
+        if (null == selectedIndex) {
+            return;
+        } else {
+            jList.setSelectedIndex(selectedIndex.intValue());
+        }
+    }
+
+    /**
+     * Save the current selection.
+     * 
+     * @param keyPattern
+     *            A session attribute key pattern.
+     * @param jList
+     *            The <code>JList</code>.
+     */
+    private void saveSelection(final String keyPattern, final javax.swing.JList jList) {
+        session.setAttribute(MessageFormat.format(
+                keyPattern, container.getId()),
+                Integer.valueOf(jList.getSelectedIndex()));
+    }
+
+    private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
+        jListFocusGained((JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListFocusGained
+
+    private void westJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusLost
+        jListFocusLost((JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListFocusLost
+
+    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
+        jListMouseClicked((JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMouseClicked
+
+    private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
+        jListMousePressed((JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMousePressed
+
+    private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
+        jListMouseReleased((JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMouseReleased
+
+    private void westJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_westJListValueChanged
+        if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
+            repaint();
+            return;
+        }
+        saveSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, (javax.swing.JList) e.getSource());
+        eastListModel.clear();
+        for (final Object selectedValue : westJList.getSelectedValues()) {
+            for (final DefaultCell contentCell : ((WestCell) selectedValue).eastCells) {
+                eastListModel.addElement(contentCell);
+            }
+        }
+    }//GEN-LAST:event_westJListValueChanged
 
     /** A draft cell. */
     private final class DraftCell extends WestCell {

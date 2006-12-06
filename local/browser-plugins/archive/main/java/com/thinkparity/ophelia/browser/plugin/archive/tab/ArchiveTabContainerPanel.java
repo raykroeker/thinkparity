@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 
 /**
@@ -15,10 +16,12 @@ public class ArchiveTabContainerPanel extends ContainerPanel {
 
     /**
      * Create ArchiveTabPanel.
-     *
+     * 
+     * @param session
+     *            A <code>BrowserSession</code>.
      */
-    public ArchiveTabContainerPanel() {
-        super();
+    public ArchiveTabContainerPanel(final BrowserSession session) {
+        super(session);
     }
 
     /**

@@ -1,66 +1,55 @@
 /*
- * Mar 21, 2006
+ * Created On:  6-Dec-06 8:28:54 AM
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-class BrowserSession {
+public interface BrowserSession {
 
-	/**
-	 * The currently selected container id and contact id.
-	 * 
-	 */
-    private Long selectedContainerId;
-    private JabberId selectedContactId;
+    /**
+     * Obtain a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @return An attribute value <code>Object</code>.
+     */
+    public Object getAttribute(final String name);
 
-	/**
-	 * Create a BrowserSession.
-	 * 
-	 */
-	BrowserSession(final Browser browser) { super(); }
-    
     /**
-     * Obtain the selected container id.
+     * Obtain the attribute names.
      * 
-     * @return The selected container id.
+     * @return An attibute name <code>Iterable</code>.
      */
-    public Long getSelectedContainerId() { return selectedContainerId; }
-    
-    /**
-     * Obtain the selected contact id.
-     * 
-     * @return The selected contact id.
-     */
-    public JabberId getSelectedContactId() { return selectedContactId; }
+    public Iterable<String> getAttributeNames();
 
-	/**
-	 * Set the selected container id.
-	 * 
-	 * @param selectedContainerId
-	 *            The container id to select.
-	 * @return The previously selected container id.
-	 */
-	public Long setSelectedContainerId(final Long selectedContainerId) {
-		final Long prevSelectedContainerId = this.selectedContainerId;
-		this.selectedContainerId = selectedContainerId;
-		return prevSelectedContainerId;
-	}
-    
     /**
-     * Set the selected contact id.
+     * Obtain the session's time of inception.
      * 
-     * @param selectedContactId
-     *            The contact id to select.
-     * @return The previously selected contact id.
+     * @return A <code>Long</code> representing the number of milliseconds
+     *         since the session's creation.
      */
-    public JabberId setSelectedContactId(final JabberId selectedContactId) {
-        final JabberId prevSelectedContactId = this.selectedContactId;
-        this.selectedContactId = selectedContactId;
-        return prevSelectedContactId;
-    }
+    public Long getInception();
+
+    /**
+     * Remove an attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     */
+    public void removeAttribute(final String name);
+
+    /**
+     * Set a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @param value
+     *            An attribute value <code>Object</code>.
+     */
+    public void setAttribute(final String name, final Object value);
 }

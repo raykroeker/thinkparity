@@ -9,7 +9,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.DisplayInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ErrorAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ExportAvatar;
@@ -126,7 +126,7 @@ public class AvatarFactory {
             avatar = new CreateInvitationAvatar();
             break;
         case DIALOG_CONTACT_READ:
-            avatar = new ReadContactAvatar();
+            avatar = new UserInfoAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 

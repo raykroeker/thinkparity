@@ -8,9 +8,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.profile.Profile;
 
-
 import com.thinkparity.ophelia.browser.application.browser.display.provider.SingleContentProvider;
-import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.user.UserModel;
 
 /**
  * @author rob_masako@shaw.ca
@@ -18,14 +17,14 @@ import com.thinkparity.ophelia.model.contact.ContactModel;
  */
 public class ReadContactProvider extends SingleContentProvider {
     
-    /** A thinkParity contact interface. */
-    private final ContactModel contactModel;
+    /** A thinkParity user interface. */
+    private final UserModel userModel;
     
     /** Create ReadContactProvider. */
     public ReadContactProvider(final Profile profile,
-            final ContactModel contactModel) {
+            final UserModel userModel) {
         super(profile);
-        this.contactModel = contactModel;
+        this.userModel = userModel;
     }
 
     /**
@@ -35,6 +34,6 @@ public class ReadContactProvider extends SingleContentProvider {
     public Object getElement(final Object input) {
         Assert.assertNotNull("NULL INPUT", input);
         Assert.assertOfType("INPUT TYPE INCORRECT", JabberId.class, input);
-        return contactModel.read((JabberId)input);
+        return userModel.read((JabberId)input);
     }
 }

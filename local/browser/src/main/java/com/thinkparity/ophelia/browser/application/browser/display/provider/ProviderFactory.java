@@ -111,7 +111,7 @@ public class ProviderFactory {
         final ContentProvider provider;
         switch(avatarId) {
         case DIALOG_CONTACT_READ:
-            provider = new ReadContactProvider(profile, contactModel);
+            provider = new ReadContactProvider(profile, userModel);
             break;
         case TAB_CONTACT:
             provider = new ContactProvider(profile, contactModel, userModel);

@@ -240,7 +240,7 @@ public class ContainerPanel extends DefaultTabPanel {
         if (this.expanded) {
             animator.expand(20, 165);
         } else {
-            animator.reset();
+            animator.collapse(20, 25);
         }
         reload();
     }

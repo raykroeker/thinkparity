@@ -45,6 +45,19 @@ final class Animator {
         this.timerDelay = adjustmentRate / 1000;
     }
 
+    void collapse(final int heightDecrement, final int heightBound) {
+        if (null != animator && animator.isRunning()) {
+            reset();
+        }
+        animator = new Timer(timerDelay, new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                decrementHeight(heightDecrement, heightBound);
+                jPanel.revalidate();
+            }
+        });
+        animator.start();
+    }
+
     /**
      * Expand the panel's height via a timer.
      *
@@ -79,6 +92,26 @@ final class Animator {
             animator = null;
         }
         setHeight(jPanelOriginalHeight);
+    }
+
+    /**
+     * Decrement the height of the panel to a minimum amount. This api is
+     * intended to be used only by the animator's animate event as it will stop
+     * the timer when the bound is hit.
+     * 
+     * @param increment
+     *            The increment <code>int</code>.
+     * @param bound
+     *            The upper bound <code>int</code>.
+     */
+    private void decrementHeight(final int decrement, final int bound) {
+        final Dimension size = jPanel.getPreferredSize();
+        size.height -= decrement;
+        if (bound >= size.height) {
+            size.height = bound;
+            animator.stop();
+        }
+        setHeight(size.height);
     }
 
     /**

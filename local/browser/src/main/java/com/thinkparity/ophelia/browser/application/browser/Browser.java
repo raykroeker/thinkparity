@@ -17,17 +17,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -63,22 +62,12 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Export;
-import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
+import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.ResetPassword;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
@@ -94,8 +83,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -488,9 +476,17 @@ public class Browser extends AbstractApplication {
     public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
         displayTab(tabPanelExtension);
     }
+    
+    /**
+     * Display the edit profile dialog.
+     *
+     */
+    public void displayEditProfileDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_EDIT);
+    }
 
     /**
-     * Display the reset profile password dialog.
+     * Display the update profile dialog.
      *
      */
     public void displayUpdateProfileDialog() {
@@ -1485,6 +1481,68 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
+    
+    /**
+     * Update the user's profile.
+     * 
+     * @param name
+     *            The user's name <code>String</code>.
+     * @param organization
+     *            The user's organization <code>String</code>.
+     * @param title
+     *            The user's title <code>String</code>.
+     * @param address
+     *            The user's address <code>String</code>.
+     * @param office phone
+     *            The user's office phone <code>String</code>.    
+     * @param mobile phone
+     *            The user's mobile phone <code>String</code>.                        
+     */
+    public void runUpdateProfile(final String name, final String organization,
+            final String title, final String address,
+            final String officePhone, final String mobilePhone) {
+        final Data data = new Data(7);
+        data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(Edit.DataKey.NAME, name);
+        if (null != organization) {
+            data.set(Edit.DataKey.ORGANIZATION, organization);
+        }
+        if (null != title) {
+            data.set(Edit.DataKey.TITLE, title);
+        }
+        if (null != address) {
+            data.set(Edit.DataKey.ADDRESS, address);
+        }
+        if (null != officePhone) {
+            data.set(Edit.DataKey.OFFICE_PHONE, officePhone);
+        }
+        if (null != mobilePhone) {
+            data.set(Edit.DataKey.MOBILE_PHONE, mobilePhone);
+        }
+        invoke(ActionId.PROFILE_EDIT, data);
+    }
+    
+    /**
+     * Update the user's profile.
+     * 
+     * @param oldPassword
+     *            The user's password <code>String</code>.
+     * @param newPassword
+     *            The user's updated password <code>String</code>.
+     * @param confirmNewPassword
+     *            The user's updated password again <code>String</code>.
+     */
+    public void runUpdateProfile(final String oldPassword, final String newPassword,
+            final String confirmNewPassword) {     
+        if (null != oldPassword) {
+            final Data data = new Data(4); 
+            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(Edit.DataKey.PASSWORD, oldPassword);
+            data.set(Edit.DataKey.NEW_PASSWORD, newPassword);
+            data.set(Edit.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
+            invoke(ActionId.PROFILE_EDIT, data);
+        }
+    }
   
     /**
      * Update the user's profile.
@@ -1502,7 +1560,7 @@ public class Browser extends AbstractApplication {
      * @param newPasswordConfirm
      *            The user's updated password again <code>String</code>.
      */
-    public void runUpdateProfile(final String name, final String organization,
+    public void runUpdateProfileOld(final String name, final String organization,
             final String title, final String password,
             final String newPassword, final String newPasswordConfirm) {
         final Data data = new Data(4);

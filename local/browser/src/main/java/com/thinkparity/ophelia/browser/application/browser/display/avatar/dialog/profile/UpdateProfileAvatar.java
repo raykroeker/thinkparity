@@ -498,7 +498,7 @@ public class UpdateProfileAvatar extends Avatar {
             final String password = extractPassword();
             final String newPassword = extractNewPassword();
             final String newPasswordConfirm = extractNewPasswordConfirm();
-            getController().runUpdateProfile(name, organization, title,
+            getController().runUpdateProfileOld(name, organization, title,
                     password, newPassword, newPasswordConfirm);
             disposeWindow();
         }

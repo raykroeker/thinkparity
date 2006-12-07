@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFa
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
@@ -169,9 +170,13 @@ public class BrowserMenuBar extends JMenuBar {
         newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
 
         // Create the Profile menu
-        final Data updateProfileData = new Data(1);
+/*        final Data updateProfileData = new Data(1);
         updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
+        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));*/
+
+        final Data editProfileData = new Data(1);
+        editProfileData.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_EDIT, editProfileData));
         
         // Create the OpenHelp menu
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));

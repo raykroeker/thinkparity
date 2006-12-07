@@ -4,36 +4,35 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
-import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- *
+ * <b>Title:</b>thinkParity Tab Panel Avatar<br>
+ * <b>Description:</b>An abstraction of a tab avatar. A tab avatar is the
+ * visual representation of the avatar. It requires a model of a specific type
+ * to feed it data and generally maintain it via a DefaultList model
+ * intermediary.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * @param <T> The model type.
  */
 public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
@@ -55,14 +54,8 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel columnHeaderJPanel;
-    private javax.swing.JLabel eastPaddingJLabel;
-    private javax.swing.JLabel fillJLabel;
-    private javax.swing.JLabel headerJLabel;
-    private javax.swing.JLabel sortJLabel;
-    private javax.swing.JPanel tabJPanel;
-    private javax.swing.JScrollPane tabJScrollPane;
-    private javax.swing.JLabel westPaddingJLabel;
+    private final javax.swing.JLabel fillJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel tabJPanel = new javax.swing.JPanel();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -75,16 +68,19 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private final GridBagConstraints panelConstraints;
 
     /**
+     * A <code>MouseInputListener</code> which dispatches all mouse events to
+     * the model.
+     */
+    private final MouseInputListener panelMouseListener;
+
+    /**
      * A <code>TransferHandler</code> which dispatches all panel import export
      * requests to the model.
      */
     private final TransferHandler panelTransferHandler;
 
-    /**
-     * A <code>MouseInputListener</code> which dispatches all mouse events to
-     * the model.
-     */
-    private final MouseInputListener panelMouseListener;
+    /** A popup delegate for the tab. */
+    private TabAvatarPopupDelegate popupDelegate;
 
     /**
      * Creates TabPanelAvatar.
@@ -107,7 +103,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 model.toggleSelection((TabPanel) e.getSource());
             }
             @Override
-            public void mouseReleased(final MouseEvent e) {
+            public void mousePressed(final MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     final TabPanel tabPanel = (TabPanel) e.getSource();
                     final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
@@ -116,7 +112,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
                 }
             }
             @Override
-            public void mousePressed(final MouseEvent e) {
+            public void mouseReleased(final MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     final TabPanel tabPanel = (TabPanel) e.getSource();
                     final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
@@ -182,6 +178,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     /**
      * @see com.thinkparity.codebase.swing.AbstractJPanel#debug()
+     * 
      */
     @Override
     public void debug() {
@@ -199,7 +196,17 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
 
     /**
+     * Obtain the popup delegate.
+     * 
+     * @return A <code>TabAvatarPopupDelegate</code>.
+     */
+    protected TabAvatarPopupDelegate getPopupDelegate() {
+        return popupDelegate;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
+     * 
      */
     @Override
     protected ResizeEdges getResizeEdges() {
@@ -207,23 +214,15 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
 
     /**
-     * Trigger a popup for the tab avatar.
-     *
-     */
-    protected void triggerPopup(final Component invoker, final MouseEvent e) {}
-
-    /**
-     * Trigger a sort.
+     * Set the popup delegate.
      * 
-     * @param sortColumn
-     *          What the containers will be sorted by.
-     * @param sortDirection
-     *          The direction of the sort.
+     * @param popupDelegate
+     *            A <code>TabAvatarPopupDelegate</code>.
      */
-    protected void triggerSort(final SortColumn sortColumn,
-            final SortDirection sortDirection) {       
+    protected void setPopupDelegate(final TabAvatarPopupDelegate popupDelegate) {
+        this.popupDelegate = popupDelegate;
     }
-    
+
     /**
      * Add the fill component.
      * 
@@ -264,15 +263,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         tabJPanel.add((Component) panel, panelConstraints.clone(), index);
     }
 
-    private void headerJLabelMousePressed(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMousePressed
-    }// GEN-LAST:event_headerJLabelMousePressed
-    
-    private void headerJLabelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_headerJLabelMouseReleased
-        if (e.isPopupTrigger()) {
-            triggerPopup(tabJPanel, e);
-        }
-    }// GEN-LAST:event_headerJLabelMouseReleased
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -282,95 +272,55 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        headerJLabel = new javax.swing.JLabel();
-        columnHeaderJPanel = new javax.swing.JPanel();
-        westPaddingJLabel = new javax.swing.JLabel();
-        sortJLabel = new javax.swing.JLabel();
-        eastPaddingJLabel = new javax.swing.JLabel();
-        tabJScrollPane = new javax.swing.JScrollPane();
-        tabJPanel = new javax.swing.JPanel();
-        fillJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel headerJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel paddingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel orderByJLabel = new javax.swing.JLabel();
+        final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
 
         setLayout(new java.awt.GridBagLayout());
 
-        headerJLabel.setMaximumSize(new java.awt.Dimension(3, 3));
-        headerJLabel.setMinimumSize(new java.awt.Dimension(3, 3));
-        headerJLabel.setPreferredSize(new java.awt.Dimension(3, 3));
-        headerJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                headerJLabelMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                headerJLabelMouseReleased(evt);
-            }
-        });
+        headerJPanel.setLayout(new java.awt.GridBagLayout());
 
+        headerJPanel.setMaximumSize(new java.awt.Dimension(5000, 19));
+        headerJPanel.setMinimumSize(new java.awt.Dimension(128, 19));
+        headerJPanel.setOpaque(false);
+        headerJPanel.setPreferredSize(new java.awt.Dimension(128, 19));
+        paddingJLabel.setFocusable(false);
+        paddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
+        paddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
+        paddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        add(headerJLabel, gridBagConstraints);
-
-        columnHeaderJPanel.setLayout(new java.awt.GridBagLayout());
-
-        columnHeaderJPanel.setMaximumSize(new java.awt.Dimension(5000, 19));
-        columnHeaderJPanel.setMinimumSize(new java.awt.Dimension(128, 19));
-        columnHeaderJPanel.setOpaque(false);
-        columnHeaderJPanel.setPreferredSize(new java.awt.Dimension(128, 19));
-        westPaddingJLabel.setFocusable(false);
-        westPaddingJLabel.setMaximumSize(new java.awt.Dimension(4, 20));
-        westPaddingJLabel.setMinimumSize(new java.awt.Dimension(4, 20));
-        westPaddingJLabel.setPreferredSize(new java.awt.Dimension(4, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        columnHeaderJPanel.add(westPaddingJLabel, gridBagConstraints);
+        headerJPanel.add(paddingJLabel, gridBagConstraints);
 
-        sortJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortButton.png")));
-        sortJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                sortJLabelMousePressed(evt);
+        orderByJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortButton.png")));
+        orderByJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                orderByJLabelMouseClicked(e);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        columnHeaderJPanel.add(sortJLabel, gridBagConstraints);
-
-        eastPaddingJLabel.setFocusable(false);
-        eastPaddingJLabel.setMaximumSize(new java.awt.Dimension(1, 20));
-        eastPaddingJLabel.setMinimumSize(new java.awt.Dimension(1, 20));
-        eastPaddingJLabel.setPreferredSize(new java.awt.Dimension(1, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        columnHeaderJPanel.add(eastPaddingJLabel, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        headerJPanel.add(orderByJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        add(columnHeaderJPanel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(3, 0, 3, 4);
+        add(headerJPanel, gridBagConstraints);
 
         tabJScrollPane.setBorder(null);
         tabJScrollPane.setPreferredSize(new java.awt.Dimension(256, 128));
         tabJPanel.setLayout(new java.awt.GridBagLayout());
 
         tabJPanel.setBackground(new java.awt.Color(255, 255, 255));
-        tabJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                tabJPanelMouseReleased(evt);
-            }
-        });
-
         tabJPanel.add(fillJLabel, new java.awt.GridBagConstraints());
 
         tabJScrollPane.setViewportView(tabJPanel);
@@ -380,10 +330,16 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
+        final javax.swing.JLabel jLabel = (javax.swing.JLabel) e.getSource();
+        popupDelegate.initialize(this, jLabel.getX(), jLabel.getY()
+                + jLabel.getHeight(), jLabel.getWidth());
+        popupDelegate.showForSort();
+    }//GEN-LAST:event_orderByJLabelMouseClicked
 
     /**
      * Install the a data listener on the list model. This will translate the
@@ -437,17 +393,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     }
 
     /**
-     * Reload the panels display. The root JPanel is revalidated and repainted
-     * as well as the scroll pane and this avatar.
+     * Reload the panels display. The jpanel is revalidated.
      * 
      */
     private void reloadPanels() {
         tabJPanel.revalidate();
-        tabJPanel.repaint();
-        tabJScrollPane.revalidate();
-        tabJScrollPane.repaint();
-        validate();
-        repaint();
     }
     /**
      * Remove the fill component.
@@ -456,6 +406,7 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private void removeFill() {
         tabJPanel.remove(fillJLabel);
     }
+
     /**
      * Remove a panel at an index.
      * 
@@ -464,62 +415,5 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
      */
     private void removePanel(final int index) {
         tabJPanel.remove(index);
-    }
-
-    private void sortJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_sortJLabelMousePressed
-        Point location = sortJLabel.getLocation();
-        location.y += sortJLabel.getHeight();
-        if (!MenuFactory.isPopupMenu()) {
-            new SortPopup(sortJLabel.getWidth()).show(this, location);
-        }
-    }//GEN-LAST:event_sortJLabelMousePressed
-
-    private void tabJPanelMouseReleased(java.awt.event.MouseEvent e) {// GEN-FIRST:event_tabJPanelMouseReleased
-        if (e.isPopupTrigger()) {
-            triggerPopup(tabJPanel, e);
-        }
-    }// GEN-LAST:event_tabJPanelMouseReleased
-
-    public enum SortColumn { BOOKMARK, CONTAINER_DATE, CONTAINER_NAME, DRAFT_OWNER, NONE }
-
-    public enum SortDirection { DOWN, NONE, UP }
-
-    private class SortPopup {
-        
-        /** A <code>PopupItemFactory</code>. */
-        private final PopupItemFactory popupItemFactory;
-        
-        /** The width of the popup. */
-        final int width;
-        
-        /**
-         * Create SortPopup.
-         */
-        SortPopup(final int width) {
-            super();
-            this.popupItemFactory = PopupItemFactory.getInstance();
-            this.width = width;
-        }
-        
-        /**
-         * Show a sort popup menu on an invoker at the specified location.
-         * 
-         * @param invoker
-         *            An invoker <code>Component</code>.
-         * @param location
-         *            A location <code>Point</code>.
-         */
-        void show(final Component invoker, final Point location) {
-            final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-            
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, Data.emptyData()));
-            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
-            
-            Dimension dimension = jPopupMenu.getPreferredSize();
-            dimension.width = width + 4;
-            jPopupMenu.setPreferredSize(dimension);
-            
-            jPopupMenu.show(invoker, (int)location.getX()+3, (int)location.getY()+4);
-        }
     }
 }

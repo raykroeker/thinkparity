@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
@@ -25,6 +26,8 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabModel.Ordering;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -58,7 +61,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
  * @version 1.1.2.1
  */
 final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
-        TabPanelPopupDelegate, PopupDelegate {
+        TabAvatarPopupDelegate, TabPanelPopupDelegate, PopupDelegate {
 
     /** A <code>ContainerModel</code>. */
     private final ContainerTabModel model;
@@ -189,6 +192,17 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate#showForSort()
+     *
+     */
+    public void showForSort() {
+        for (final Ordering ordering : Ordering.values()) {
+            add(ordering);
+        }
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
      * 
      */
@@ -238,7 +252,30 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         show();
     }
-    
+
+    /**
+     * Create a sort by menu item.
+     * 
+     * @param ordering
+     *            The model tab <code>Ordering</code>.
+     * @return A <code>JMenuItem</code>.
+     */
+    private void add(final Ordering ordering) {
+        // TODO localize ordering
+        final JCheckBoxMenuItem item = new JCheckBoxMenuItem(ordering.toString());
+        item.setSelected(isSortApplied(ordering));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                final JMenuItem menuItem = (JMenuItem) e.getSource();
+                if (menuItem.isSelected())
+                    model.applySort(ordering);
+                else
+                    model.removeSort(ordering);
+            }
+        });
+        add(item);
+    }
+
     /**
      * Determine if the container has been distributed.
      * 
@@ -251,15 +288,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * Determine if online.
-     * 
-     * @return True if online; false otherwise.
-     */
-    private boolean isOnline() {
-        return model.isOnline().booleanValue();
-    }
-    
-    /**
      * Determine if the specified user is the local user.
      * 
      * @param user
@@ -267,7 +295,27 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * @return True if this is the local user; false otherwise.
      */
     private boolean isLocalUser(final User user) {
-        return model.isLocalUser(user).booleanValue();
+        return model.readIsLocalUser(user).booleanValue();
+    }
+
+    /**
+     * Determine if online.
+     * 
+     * @return True if online; false otherwise.
+     */
+    private boolean isOnline() {
+        return model.isOnline().booleanValue();
+    }
+
+    /**
+     * Determine whether or not an order is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if the ordering is applied.
+     */
+    private boolean isSortApplied(final Ordering ordering) {
+        return model.isSortApplied(ordering).booleanValue();
     }
 
     /**

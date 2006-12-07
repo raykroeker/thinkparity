@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.platform.action;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -37,6 +38,9 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** The popup location coordinate <code>int</code>s. */
     private int x, y;
 
+    /** The popup size width <code>int</code>. */
+    private int width;
+
     /**
      * Create DefaultPopupDelegate.
      *
@@ -45,38 +49,6 @@ public class DefaultPopupDelegate implements PopupDelegate {
         super();
         this.logger = new Log4JWrapper(getClass());
         this.itemFactory = PopupItemFactory.getInstance();
-    }
-
-    /**
-     * Initialize the popup delegate.
-     * 
-     * @param invoker
-     *            A <code>Component</code> invoker.
-     * @param x
-     *            The popup x location.
-     * @param y
-     *            The popup y location.
-     */
-    public void initialize(final Component invoker, final int x, final int y) {
-        this.invoker = invoker;
-        this.x = x;
-        this.y = y;
-        this.jPopupMenu = MenuFactory.createPopup();
-    }
-
-    /**
-     * Show the popup. Note that if the menu is null; or contains no elements;
-     * nothing is done.
-     * 
-     */
-    public void show() {
-        logger.logApiId();
-        logger.logVariable("invoker", invoker);
-        logger.logVariable("x", x);
-        logger.logVariable("y", y);
-        jPopupMenu.show(invoker, x, y);
-        invoker = jPopupMenu = null;
-        x = y = -1;
     }
 
     /**
@@ -132,5 +104,48 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void addSeparator() {
         jPopupMenu.addSeparator();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component,
+     *      int, int)
+     * 
+     */
+    public void initialize(final Component invoker, final int x, final int y) {
+        this.invoker = invoker;
+        this.x = x;
+        this.y = y;
+        this.jPopupMenu = MenuFactory.createPopup();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component,
+     *      int, int, int, int)
+     * 
+     */
+    public void initialize(final Component invoker, final int x, final int y,
+            final int width) {
+        initialize(invoker, x, y);
+        this.width = width;
+    }
+
+    /**
+     * Show the popup. Note that if the menu is null; or contains no elements;
+     * nothing is done.
+     * 
+     */
+    public void show() {
+        logger.logApiId();
+        logger.logVariable("invoker", invoker);
+        logger.logVariable("x", x);
+        logger.logVariable("y", y);
+        logger.logVariable("width", width);
+        final Dimension size = jPopupMenu.getSize();
+        logger.logVariable("size", size);
+        size.width = width;
+        jPopupMenu.setSize(size);
+        jPopupMenu.show(invoker, x, y);
+        invoker = jPopupMenu = null;
+        x = y = -1;
     }
 }

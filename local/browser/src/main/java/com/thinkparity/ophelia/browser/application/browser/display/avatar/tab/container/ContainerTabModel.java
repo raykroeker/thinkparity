@@ -8,16 +8,19 @@ import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -80,6 +83,9 @@ public final class ContainerTabModel extends TabPanelModel {
     /** A <code>BrowserSession</code>. */
     private BrowserSession session;
 
+    /** The current ordering. */
+    private final Stack<Ordering> sortedBy;
+
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
 
@@ -98,150 +104,24 @@ public final class ContainerTabModel extends TabPanelModel {
         this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.searchResults = new ArrayList<Long>();
+        this.sortedBy = new Stack<Ordering>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
 
     /**
-     * Apply the user's search to the container list.
-     * 
-     * @param searchExpression
-     *            A search expression <code>String</code>.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
      * 
      */
     @Override
-    public void applySearch(final String searchExpression) {
+    protected void applySearch(final String searchExpression) {
         debug();
         if (searchExpression.equals(this.searchExpression)) {
             return;
         } else {
             this.searchExpression = searchExpression;
-            applySearchResults();
+            applySearch();
             synchronize();
         }
-    }
-
-    /**
-     * Debug the container avatar.
-     * 
-     */
-    @Override
-    public void debug() {
-        logger.logDebug("{0} container panels.", panels.size());
-        logger.logDebug("{0} visible panels.", visiblePanels.size());
-        for (final TabPanel visiblePanel : visiblePanels) {
-            logger.logVariable("visiblePanel.getId()", visiblePanel.getId());
-        }
-        logger.logDebug("{0} model elements.", listModel.size());
-        final TabPanel[] listModelPanels = new TabPanel[listModel.size()];
-        listModel.copyInto(listModelPanels);
-        for (final TabPanel listModelPanel : listModelPanels) {
-            logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
-     */
-    @Override
-    public DefaultListModel getListModel() {
-        debug();
-        return listModel;
-    }
-    
-    /**
-     * Determine if the specified user is the local user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if this is the local user; false otherwise.
-     */
-    public Boolean isLocalUser(final User user) {
-        final Profile profile = readProfile();
-        return (user.getId().equals(profile.getId()));
-    }
-    
-    /**
-     * Determine whether or not the user is online.
-     * 
-     * @return True if the user is online.
-     */
-    public Boolean isOnline() {
-        return browser.getConnection() == Connection.ONLINE;
-    }
-
-    /**
-     * Determine if the container has been distributed.
-     * 
-     * @param containerId
-     *            A <code>Long</code>.
-     * @return True if this container has been distributed; false otherwise.
-     */
-    public boolean readIsDistributed(final Long containerId) {
-        return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
-    }
-
-    /**
-     * Remove the search.
-     * 
-     */
-    @Override
-    public void removeSearch() {
-        debug();
-        // if the member search expression is already null; then there is no
-        // search applied -> do nothing
-        if (null == searchExpression) {
-            return;
-        } else {
-            searchExpression = null;
-            searchResults.clear();
-            synchronize();
-        }
-    }
-
-    /**
-     * Synchronize the container in the display.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
-     */
-    public void syncContainer(final Long containerId, final Boolean remote) {
-        debug();
-        final Container container = read(containerId);
-        // remove the container from the panel list
-        if (null == container) {
-            removeContainerPanel(containerId, true);
-        } else {
-            final int panelIndex = lookupIndex(container.getId());
-            if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
-                removeContainerPanel(containerId, false);
-                if (remote) {
-                    addContainerPanel(0, container);
-                } else {
-                    addContainerPanel(panelIndex, container);
-                }
-            } else {
-                addContainerPanel(0, container);
-            }
-        }
-        synchronize();
-        debug();
-    }
-
-    /**
-     * Synchronize a document.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
-     */
-    public void syncDocument(final Long documentId, final Boolean remote) {
-        syncContainer(containerIdLookup.get(documentId), remote);
     }
 
     /**
@@ -266,6 +146,33 @@ public final class ContainerTabModel extends TabPanelModel {
         return false;
     }
     
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
+     * 
+     */
+    @Override
+    protected void debug() {
+        logger.logDebug("{0} container panels.", panels.size());
+        logger.logDebug("{0} visible panels.", visiblePanels.size());
+        for (final TabPanel visiblePanel : visiblePanels) {
+            logger.logVariable("visiblePanel.getId()", visiblePanel.getId());
+        }
+        logger.logDebug("{0} model elements.", listModel.size());
+        final TabPanel[] listModelPanels = new TabPanel[listModel.size()];
+        listModel.copyInto(listModelPanels);
+        for (final TabPanel listModelPanel : listModelPanels) {
+            logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
+     */
+    @Override
+    protected DefaultListModel getListModel() {
+        return listModel;
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#importData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.Transferable)
      *
@@ -327,6 +234,24 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#removeSearch()
+     * 
+     */
+    @Override
+    protected void removeSearch() {
+        debug();
+        // if the member search expression is already null; then there is no
+        // search applied -> do nothing
+        if (null == searchExpression) {
+            return;
+        } else {
+            searchExpression = null;
+            searchResults.clear();
+            synchronize();
+        }
+    }
+    
+    /**
      * Create the final list of container cells; container draft cells; draft
      * document cells; container version cells and container version document
      * cells. The search filter is also applied here.
@@ -336,6 +261,7 @@ public final class ContainerTabModel extends TabPanelModel {
     protected void synchronize() {
         debug();
         applyFilters();
+        applySort();
         /* add the filtered panels the visibility list */
         visiblePanels.clear();
         for (final TabPanel panel : filteredPanels) {
@@ -368,7 +294,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         debug();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleSelection(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
      *
@@ -377,6 +303,32 @@ public final class ContainerTabModel extends TabPanelModel {
     protected void toggleSelection(final TabPanel tabPanel) {
         toggleExpand(tabPanel);
         synchronize();
+    }
+
+    /**
+     * Apply an ordering to the panels.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void applySort(final Ordering ordering) {
+        debug();
+        // if the sorted by stack already contains the ordering do nothing
+        if (sortedBy.contains(ordering)) {
+            return;
+        } else {
+            sortedBy.push(ordering);
+            synchronize();
+        }
+    }
+    
+    /**
+     * Obtain the popup delegate.
+     * 
+     * @return A <code>ContainerTabPopupDelegate</code>.
+     */
+    ContainerTabPopupDelegate getPopupDelegate() {
+        return popupDelegate;
     }
 
     /**
@@ -389,6 +341,81 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /**
+     * Determine whether or not the user is online.
+     * 
+     * @return True if the user is online.
+     */
+    Boolean isOnline() {
+        return browser.getConnection() == Connection.ONLINE;
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    Boolean isSortApplied(final Ordering ordering) {
+        debug();
+        return sortedBy.contains(ordering);
+    }
+    /**
+     * Determine if the container has been distributed.
+     * 
+     * @param containerId
+     *            A <code>Long</code>.
+     * @return True if this container has been distributed; false otherwise.
+     */
+    Boolean readIsDistributed(final Long containerId) {
+        return ((ContainerProvider) contentProvider).isDistributed(containerId).booleanValue();
+    }
+
+    /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if this is the local user; false otherwise.
+     */
+    Boolean readIsLocalUser(final User user) {
+        final Profile profile = readProfile();
+        return (user.getId().equals(profile.getId()));
+    }
+
+    /**
+     * Remove all orderings.
+     *
+     */
+    void removeSort() {
+        debug();
+        // if the sorted by stack is empty; then there is no
+        // sort applied -> do nothing
+        if (sortedBy.isEmpty()) {
+            return;
+        } else {
+            sortedBy.clear();
+            synchronize();
+        }
+    }
+
+    /**
+     * Remove an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void removeSort(final Ordering ordering) {
+        debug();
+        if (sortedBy.contains(ordering)) {
+            sortedBy.remove(ordering);
+            synchronize();
+        } else {
+            return;
+        }
+    }
+
+    /**
      * Set the session.
      * 
      * @param session
@@ -396,6 +423,52 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     void setSession(final BrowserSession session) {
         this.session = session;
+    }
+
+    /**
+     * Synchronize the container in the display.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    void syncContainer(final Long containerId, final Boolean remote) {
+        debug();
+        final Container container = read(containerId);
+        // remove the container from the panel list
+        if (null == container) {
+            removeContainerPanel(containerId, true);
+        } else {
+            final int panelIndex = lookupIndex(container.getId());
+            if (-1 < panelIndex) {
+                // if the reload is the result of a remote event add the container
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                removeContainerPanel(containerId, false);
+                if (remote) {
+                    addContainerPanel(0, container);
+                } else {
+                    addContainerPanel(panelIndex, container);
+                }
+            } else {
+                addContainerPanel(0, container);
+            }
+        }
+        synchronize();
+        debug();
+    }
+
+    /**
+     * Synchronize a document.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
+     */
+    void syncDocument(final Long documentId, final Boolean remote) {
+        syncContainer(containerIdLookup.get(documentId), remote);
     }
 
     /**
@@ -467,9 +540,21 @@ public final class ContainerTabModel extends TabPanelModel {
      * Apply the search results.
      *
      */
-    private void applySearchResults() {
+    private void applySearch() {
         this.searchResults.clear();
         this.searchResults.addAll(readSearchResults());
+    }
+
+    /**
+     * Apply the sort to the filtered list of panels.
+     *
+     */
+    private void applySort() {
+        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
+        for (final Ordering ordering : sortedBy) {
+            comparator.add(ordering);
+        }
+        Collections.sort(filteredPanels, comparator);
     }
 
     /**
@@ -513,7 +598,7 @@ public final class ContainerTabModel extends TabPanelModel {
             throw new BrowserException("Cannot extract files from transferrable.", x);
         }
     }
-
+    
     /**
      * Import data into a container.
      * 
@@ -602,7 +687,7 @@ public final class ContainerTabModel extends TabPanelModel {
             }
         }
     }
-
+    
     /**
      * Determine if a panel is expanded.
      * 
@@ -619,7 +704,7 @@ public final class ContainerTabModel extends TabPanelModel {
             return isExpanded(tabPanel);
         }
     }
-    
+
     /**
      * Determine if a search is applied by checking the search expression.
      * 
@@ -628,7 +713,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private boolean isSearchApplied() {
         return null != searchExpression;
     }
-    
+
     /**
      * Lookup the index of the container's corresponding panel.
      * 
@@ -670,7 +755,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-
+    
     /**
      * Read the containers from the provider.
      * 
@@ -694,7 +779,7 @@ public final class ContainerTabModel extends TabPanelModel {
         return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
-    
+
     /**
      * Read the draft for a container.
      *
@@ -705,7 +790,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-
+    
     /**
      * Read the draft's document list.
      * 
@@ -732,7 +817,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
-    
+
     /**
      * Read the latest version for a container.
      * 
@@ -875,5 +960,67 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         containerPanel.setExpanded(expanded);
         expandedState.put(tabPanel, expanded);
+    }
+
+    /** An enumerated type defining the tab panel ordering. */
+    enum Ordering implements Comparator<TabPanel> {
+
+        BOOKMARK_ASC, BOOKMARK_DESC, DATE_ASC, DATE_DESC, NAME_ASC, NAME_DESC,
+        OWNER_ASC, OWNER_DESC;
+
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         * 
+         */
+        public int compare(final TabPanel o1, final TabPanel o2) {
+            final ContainerPanel p1 = (ContainerPanel) o1;
+            final ContainerPanel p2 = (ContainerPanel) o2;
+            switch (this) {
+            case BOOKMARK_ASC:
+                return p1.getContainer().isBookmarked().compareTo(
+                        p2.getContainer().isBookmarked());
+            case BOOKMARK_DESC:
+                return -1 * p1.getContainer().isBookmarked().compareTo(
+                        p2.getContainer().isBookmarked());
+            case DATE_ASC:
+                return p1.getContainer().getUpdatedOn().compareTo(
+                        p2.getContainer().getUpdatedOn());
+            case DATE_DESC:
+                return -1 * p1.getContainer().getUpdatedOn().compareTo(
+                        p2.getContainer().getUpdatedOn());
+            case NAME_ASC:
+                return p1.getContainer().getName().compareTo(
+                        p2.getContainer().getName());
+            case NAME_DESC:
+                return -1 * p1.getContainer().getName().compareTo(
+                        p2.getContainer().getName());
+            case OWNER_ASC:
+                if (p1.getContainer().isDraft())
+                    if(p2.getContainer().isDraft())
+                        return p1.getDraft().getOwner().getName().compareTo(
+                                p2.getDraft().getOwner().getName());
+                    else
+                        return -1;
+                else
+                    if (p2.getContainer().isDraft())
+                        return 1;
+                    else
+                        return 0;
+            case OWNER_DESC:
+                if (p1.getContainer().isDraft())
+                    if(p2.getContainer().isDraft())
+                        return -1 * p1.getDraft().getOwner().getName().compareTo(
+                                p2.getDraft().getOwner().getName());
+                    else
+                        return 1;
+                else
+                    if (p2.getContainer().isDraft())
+                        return -1;
+                    else
+                        return 0;
+            default:
+                return 0;
+            }
+        }
     }
 }

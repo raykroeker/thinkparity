@@ -14,10 +14,10 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
@@ -34,7 +34,7 @@ import com.thinkparity.ophelia.browser.platform.action.profile.Update;
  */
 final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         ActionDelegate {
-    
+
     /** A <code>ContainerModel</code>. */
     private final ContainerTabModel model;
 
@@ -49,7 +49,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
 
     /** The document version <code>AbstractAction</code>. */
     private final AbstractAction documentOpenVersion;
-    
+
     /** The profile update <code>AbstractAction</code>. */
     private final AbstractAction profileUpdate;
 
@@ -142,7 +142,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
             invoke(versionRead, data);
         }
     }
-    
+
     /**
      * Determine if the specified user is the local user.
      * 
@@ -151,6 +151,6 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
      * @return True if this is the local user; false otherwise.
      */
     private boolean isLocalUser(final User user) {
-        return model.isLocalUser(user).booleanValue();
+        return model.readIsLocalUser(user).booleanValue();
     }
 }

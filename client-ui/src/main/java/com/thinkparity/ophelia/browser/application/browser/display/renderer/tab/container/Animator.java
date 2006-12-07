@@ -45,6 +45,11 @@ final class Animator {
         this.timerDelay = adjustmentRate / 1000;
     }
 
+    /**
+     * Collapse the panel's height via a timer.
+     * @param heightDecrement The <code>int</code> amount by which to decrement the height.
+     * @param heightBound The lower bound <code>int</code> of the 
+     */
     void collapse(final int heightDecrement, final int heightBound) {
         if (null != animator && animator.isRunning()) {
             reset();

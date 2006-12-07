@@ -236,11 +236,12 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public void setExpanded(final Boolean expanded) {
         this.expanded = expanded.booleanValue();
-        versionJPanel.setVisible(this.expanded);
         if (this.expanded) {
+            versionJPanel.setVisible(true);
             animator.expand(20, 165);
         } else {
             animator.collapse(20, 25);
+            versionJPanel.setVisible(false);
         }
         reload();
     }

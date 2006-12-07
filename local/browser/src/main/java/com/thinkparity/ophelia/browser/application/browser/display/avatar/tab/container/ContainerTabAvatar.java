@@ -3,18 +3,15 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JPopupMenu;
-
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
+ * <b>Title:</b>thinkParity Container Tab Avatar<br>
+ * <b>Description:</b>The container tab avatar borrows heavily from the tab
+ * avatar and uses a separate model to populate the the tab as well as a set of
+ * display renderers to provide the main display.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -27,6 +24,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public ContainerTabAvatar() {
         super(AvatarId.TAB_CONTAINER, new ContainerTabModel());
         model.setSession(getSession());
+        setPopupDelegate(model.getPopupDelegate());
     }
 
     /**
@@ -52,15 +50,4 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void syncDocument(final Long documentId, final Boolean remote) {
         model.syncDocument(documentId, remote);
     }
-    
-    /**
-     * Trigger a popup when clicking in a blank area.
-     * 
-     */
-    @Override
-    protected void triggerPopup(final Component invoker, final MouseEvent e) {       
-        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(menuItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, Data.emptyData()));
-        jPopupMenu.show(invoker, e.getX(), e.getY());
-    } 
 }

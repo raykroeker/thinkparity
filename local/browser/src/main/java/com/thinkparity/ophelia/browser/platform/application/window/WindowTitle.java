@@ -108,12 +108,15 @@ public class WindowTitle extends AbstractJPanel {
         setPreferredSize(new java.awt.Dimension(57, 20));
         titleJLabel.setFont(Fonts.DialogTitle);
         titleJLabel.setText("!Dialog Title!");
+        titleJLabel.setMaximumSize(new java.awt.Dimension(60, 16));
+        titleJLabel.setMinimumSize(new java.awt.Dimension(60, 16));
+        titleJLabel.setPreferredSize(new java.awt.Dimension(60, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 9, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 9, 0, 0);
         add(titleJLabel, gridBagConstraints);
 
         closeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));

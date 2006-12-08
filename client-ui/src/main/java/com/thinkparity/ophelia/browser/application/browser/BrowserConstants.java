@@ -32,7 +32,7 @@ public final class BrowserConstants {
     public static final class Fonts {
 
         /** The dialog font family name. */
-        private static final String DIALOG_NAME = "Arial";
+        private static final String DIALOG_NAME = "Tahoma";
 
         /** The font family name. */
         private static final String FONT_NAME = "Tahoma";
@@ -55,7 +55,7 @@ public final class BrowserConstants {
 
         /** The dialog font. */
         public static final Font DialogTitle =
-            new Font(DIALOG_NAME, Font.PLAIN, 12);
+            new Font(DIALOG_NAME, Font.BOLD, 13);
 
         /** The small font. */
         public static final Font SmallFont =

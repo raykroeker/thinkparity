@@ -26,7 +26,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resize
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
-import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 import com.thinkparity.ophelia.browser.util.localization.JFrameLocalization;
 

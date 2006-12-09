@@ -3,20 +3,17 @@
  */
 package com.thinkparity.ophelia.model.util.sort.contact;
 
-import java.util.Comparator;
-
+import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
-import com.thinkparity.ophelia.model.util.sort.AbstractComparator;
 
 /**
  * @author raymond@thinkparity.com
  * @version
  */
-public class NameComparator extends AbstractComparator<Contact> implements
-        Comparator<Contact> {
+public class NameComparator extends DefaultComparator<Contact> {
 
     /** A general purpose string comparator. */
     private final StringComparator comparator;
@@ -28,7 +25,7 @@ public class NameComparator extends AbstractComparator<Contact> implements
      *            Compare in ascending order.
      */
     public NameComparator(final Boolean doCompareAscending) {
-        super(doCompareAscending);
+        super();
         this.comparator = new StringComparator(doCompareAscending);
     }
 

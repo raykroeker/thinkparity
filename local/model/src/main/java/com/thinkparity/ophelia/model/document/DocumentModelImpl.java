@@ -1058,8 +1058,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         getIndexModel().deleteDocument(documentId);
         // delete document
         final LocalFile localFile = getLocalFile(document);
-		localFile.delete();
-		localFile.deleteParent();
+		localFile.deleteParentTree();
 		documentIO.delete(documentId);
     }
 

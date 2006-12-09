@@ -115,10 +115,10 @@ class LocalFile {
 	 * Delete the local file's parent.
 	 * 
 	 */
-	void deleteParent() {
+	void deleteParentTree() {
 		final File parent = file.getParentFile();
 		if(parent.exists())
-			Assert.assertTrue("deleteParent()", parent.delete());
+            FileUtil.deleteTree(parent);
 	}
 
 	/**

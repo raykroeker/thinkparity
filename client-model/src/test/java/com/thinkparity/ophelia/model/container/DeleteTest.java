@@ -3,8 +3,13 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -40,11 +45,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).delete(c.getId());
         getContainerModel(datum.junit).removeListener(datum);
 
-        final Container cRead = getContainerModel(datum.junit).read(c.getId());
-        assertNull("Container \"" + c.getName() + "\" was not deleted.",
-                cRead);
-        assertTrue("Container deleted event was not fired for container \""
-                + c.getName() + ".\"", datum.didNotify);
+        assertDeleted(datum.junit, c);
     }
 
     /**
@@ -57,44 +58,15 @@ public final class DeleteTest extends ContainerTestCase {
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
+        final ContainerDraft cd = readContainerDraft(datum.junit, c.getId());
+        final List<Document> d = cd.getDocuments();
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit_x.getSimpleUsername());
         getContainerModel(datum.junit).delete(c.getId());
         getContainerModel(datum.junit).removeListener(datum);
 
-        final Container cRead = getContainerModel(datum.junit).read(c.getId());
-        assertNull("Container \"" + c.getName() + "\" was not deleted.",
-                cRead);
-        assertTrue("Container deleted event was not fired for container \""
-                + c.getName() + ".\"", datum.didNotify);
-    }
-
-    /**
-     * Test the delete api after adding a document.
-     *
-     */
-    public void testDeletePostPublish() {
-        final Container c = createContainer(datum.junit, NAME);
-        addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
-        addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
-        addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
-        addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
-                "JUnit.Y thinkParity");
-        datum.waitForEvents();
-        getContainerModel(datum.junit).addListener(datum);
-        logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
-                datum.junit.getSimpleUsername());
-        getContainerModel(datum.junit).delete(c.getId());
-        getContainerModel(datum.junit).removeListener(datum);
-        datum.waitForEvents();
-
-        final Container cRead = getContainerModel(datum.junit).read(c.getId());
-        assertNull("Container \"" + c.getName() + "\" was not deleted.",
-                cRead);
-        assertTrue("Container deleted event was not fired for container \""
-                + c.getName() + ".\"", datum.didNotify);
+        assertDeleted(datum.junit, c, d);
     }
 
     /**
@@ -110,6 +82,8 @@ public final class DeleteTest extends ContainerTestCase {
         publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
                 "JUnit.Y thinkParity");
         datum.waitForEvents();
+        ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
         createDraft(datum.junit, c.getId());
         datum.waitForEvents();
         modifyDocument(datum.junit, d_doc.getId());
@@ -118,6 +92,8 @@ public final class DeleteTest extends ContainerTestCase {
         modifyDocument(datum.junit, d_txt.getId());
         publishToTeam(datum.junit, c.getId());
         datum.waitForEvents();
+        cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        d.addAll(readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId()));
         getContainerModel(datum.junit).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
                 datum.junit.getSimpleUsername());
@@ -125,11 +101,74 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit).removeListener(datum);
         datum.waitForEvents();
 
-        final Container cRead = getContainerModel(datum.junit).read(c.getId());
-        assertNull("Container \"" + c.getName() + "\" was not deleted.",
-                cRead);
-        assertTrue("Container deleted event was not fired for container \""
-                + c.getName() + ".\"", datum.didNotify);
+        assertDeleted(datum.junit, c, d);
+    }
+
+    /**
+     * Test the delete api after multiple publishes.
+     *
+     */
+    public void testDeletePostMultiPublishWithOpen() {
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d_doc = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        final Document d_odt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
+        final Document d_pdf = addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
+        final Document d_txt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
+        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
+                "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
+        final List<DocumentVersion> dv = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        modifyDocument(datum.junit, d_doc.getId());
+        modifyDocument(datum.junit, d_odt.getId());
+        modifyDocument(datum.junit, d_pdf.getId());
+        modifyDocument(datum.junit, d_txt.getId());
+        publishToTeam(datum.junit, c.getId());
+        datum.waitForEvents();
+        cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        d.addAll(readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId()));
+        dv.addAll(readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId()));
+        getContainerModel(datum.junit).addListener(datum);
+        for (final Document document : d)
+            openDocument(datum.junit, document.getId());
+        for (final DocumentVersion documentVersion : dv)
+            openDocumentVersion(datum.junit, documentVersion.getArtifactId(),
+                    documentVersion.getVersionId());
+        logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
+                datum.junit.getSimpleUsername());
+        getContainerModel(datum.junit).delete(c.getId());
+        getContainerModel(datum.junit).removeListener(datum);
+        datum.waitForEvents();
+
+        assertDeleted(datum.junit, c, d);
+    }
+
+    /**
+     * Test the delete api after adding a document.
+     *
+     */
+    public void testDeletePostPublish() {
+        final Container c = createContainer(datum.junit, NAME);
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
+        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
+                "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
+        getContainerModel(datum.junit).addListener(datum);
+        logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c.getName(),
+                datum.junit.getSimpleUsername());
+        getContainerModel(datum.junit).delete(c.getId());
+        getContainerModel(datum.junit).removeListener(datum);
+        datum.waitForEvents();
+
+        assertDeleted(datum.junit, c, d);
     }
 
     /**
@@ -146,6 +185,8 @@ public final class DeleteTest extends ContainerTestCase {
                 "JUnit.Y thinkParity");
         datum.waitForEvents();
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        final ContainerVersion cv_x_latest = readContainerLatestVersion(datum.junit_x, c_x.getId());
+        final List<Document> d_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_x_latest.getVersionId());
         getContainerModel(datum.junit_x).addListener(datum);
         logger.logInfo("Deleting container \"{0}\" as \"{1}.\"", c_x.getName(),
                 datum.junit_x.getSimpleUsername());
@@ -153,11 +194,7 @@ public final class DeleteTest extends ContainerTestCase {
         getContainerModel(datum.junit_x).removeListener(datum);
         datum.waitForEvents();
 
-        final Container cRead = getContainerModel(datum.junit_x).read(c_x.getId());
-        assertNull("Container \"" + c_x.getName() + "\" was not deleted.",
-                cRead);
-        assertTrue("Container deleted event was not fired for container \""
-                + c_x.getName() + ".\"", datum.didNotify);
+        assertDeleted(datum.junit_x, c_x, d_x);
     }
 
     /**
@@ -183,6 +220,47 @@ public final class DeleteTest extends ContainerTestCase {
         logout(datum.junit_y);
         datum = null;
         super.tearDown();
+    }
+
+    /**
+     * Assert that the container has been deleted. Also assert the datum's
+     * didNotify flag.
+     * 
+     * @param assertAs
+     *            The user to check/assert for.
+     * @param container
+     *            The container.
+     */
+    private void assertDeleted(final OpheliaTestUser assertAs,
+            final Container container) {
+        final List<Document> documents = Collections.emptyList();
+        assertDeleted(assertAs, container, documents);
+    }
+
+    /**
+     * Assert that the container and the documents have been deleted. Also
+     * assert the datum's did notify flag.
+     * 
+     * @param assertAs
+     *            The user to check/assert for.
+     * @param container
+     *            The container.
+     * @param documents
+     *            The documents.
+     */
+    private void assertDeleted(final OpheliaTestUser assertAs,
+            final Container container, final List<Document> documents) {
+        final Container cRead = getContainerModel(assertAs).read(container.getId());
+        assertNull("Container \"" + container.getName() + "\" was not deleted.",
+                cRead);
+        assertTrue("Container deleted event was not fired for container \""
+                + container.getName() + ".\"", datum.didNotify);
+        Document dRead;
+        for (final Document document : documents) {
+            dRead = getDocumentModel(assertAs).read(document.getId());
+            assertNull("Document \"" + document.getName() + "\" was not deleted.",
+                    dRead);
+        }
     }
 
     /** Test data definition. */

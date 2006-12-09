@@ -6,9 +6,10 @@ package com.thinkparity.ophelia.model.util.sort.user;
 
 import java.util.Comparator;
 
+import com.thinkparity.codebase.sort.DefaultComparator;
+
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.util.sort.AbstractComparator;
 
 /**
  * @author raymond@thinkparity.com
@@ -29,7 +30,7 @@ public class UserComparatorFactory {
 
     public static Comparator<User> createOrganizationAndName(
             final Boolean ascending) {
-        final AbstractComparator<User> comparator = new NameComparator(ascending);
+        final DefaultComparator<User> comparator = new NameComparator(ascending);
         comparator.add(new OrganizationComparator(ascending));
         return comparator;
     }

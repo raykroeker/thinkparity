@@ -4,20 +4,17 @@
  */
 package com.thinkparity.ophelia.model.util.sort.user;
 
-import java.util.Comparator;
-
+import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.util.sort.AbstractComparator;
 
 /**
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class OrganizationComparator extends AbstractComparator<User> implements
-        Comparator<User> {
+public class OrganizationComparator extends DefaultComparator<User> {
 
     /** A general purpose string comparator. */
     private final StringComparator comparator;
@@ -28,9 +25,9 @@ public class OrganizationComparator extends AbstractComparator<User> implements
      * @param doCompareAscending
      *            Compare in ascending order.
      */
-    OrganizationComparator(final Boolean doCompareAscending) {
-        super(doCompareAscending);
-        this.comparator = new StringComparator(doCompareAscending);
+    OrganizationComparator(final Boolean ascending) {
+        super();
+        this.comparator = new StringComparator(ascending);
     }
 
     /**

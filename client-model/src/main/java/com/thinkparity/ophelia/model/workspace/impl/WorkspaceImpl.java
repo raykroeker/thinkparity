@@ -363,9 +363,12 @@ public class WorkspaceImpl implements Workspace {
      */
     private void bootstrapLog4J() {
         /* HACK if the logging root is set; we know we are being run within the
-         * thinkParity server and need not reset the configuration. */
+         * thinkParity server and need not reset the configuration as well we
+         * know that setting the root logger is incorrect - the side effect of
+         * this is that the common code under com.thinkparity.codebase will log
+         * to the server's output even if called from the archive client */
         final String loggingRootProperty = System.getProperty("thinkparity.logging.root");
-        final boolean isDesktop = null == loggingRootProperty;
+        final boolean desktop = null == loggingRootProperty;
 
         final Properties logging = bootstrapLog4JConfig(mode);
         final File loggingRoot = bootstrapLog4JRoot(mode);
@@ -398,29 +401,41 @@ public class WorkspaceImpl implements Workspace {
         switch (mode) {
         case DEMO:
         case PRODUCTION:
-            logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
+            if (desktop)
+                logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
+
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
         case DEVELOPMENT:
-            logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
+            if (desktop)
+                logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
+
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
         case TESTING:
-            logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
+            if (desktop)
+                logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
+
             logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
             logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
             logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
@@ -428,6 +443,9 @@ public class WorkspaceImpl implements Workspace {
             throw Assert.createUnreachable("Unknown operating mode.");
         }
         // renderers
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.jabber.JabberId",
+                "com.thinkparity.codebase.log4j.or.JabberIdRenderer");
         logging.setProperty(
                 "log4j.renderer.java.util.Calendar",
                 "com.thinkparity.codebase.log4j.or.CalendarRenderer");
@@ -449,7 +467,7 @@ public class WorkspaceImpl implements Workspace {
         logging.setProperty(
                 "log4j.renderer.org.jivesoftware.smack.packet.Packet",
                 "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
-        if (isDesktop)
+        if (desktop)
             LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
         new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", "1.0");

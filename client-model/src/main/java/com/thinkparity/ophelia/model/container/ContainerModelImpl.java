@@ -2380,10 +2380,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private void deleteLocal(final Long containerId) {
         // delete the draft
+        final List<Document> allDocuments = new ArrayList<Document>();
         final ContainerDraft draft = readDraft(containerId);
         if (null != draft) {
-            for(final Artifact artifact : draft.getArtifacts()) {
-                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            for(final Document document : draft.getDocuments()) {
+                containerIO.deleteDraftArtifactRel(containerId, document.getId());
+                if (!allDocuments.contains(document))
+                    allDocuments.add(document);
             }
             containerIO.deleteDraft(containerId);
         }
@@ -2397,13 +2400,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         // delete versions
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
-        final List<Document> allDocuments = new ArrayList<Document>();
         List<Document> documents;
         for (final ContainerVersion version : versions) {
             documents =
                 containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
             for (final Document document : documents) {
-                if (allDocuments.contains(document))
+                if (!allDocuments.contains(document))
                     allDocuments.add(document);
             }
             // remove the version's artifact versions

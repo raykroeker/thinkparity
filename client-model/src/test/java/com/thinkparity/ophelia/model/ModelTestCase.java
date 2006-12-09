@@ -56,6 +56,7 @@ import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
+import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.ophelia.OpheliaTestCase;
@@ -740,7 +741,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getProfileModel(testUser);
     }
 
-	protected InternalReleaseModel getReleaseModel(
+    protected InternalReleaseModel getReleaseModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getReleaseModel(testUser);
     }
@@ -754,7 +755,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getSessionModel(user);
     }
 
-    protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
+	protected InternalUserModel getUserModel(final OpheliaTestUser testUser) {
         return modelFactory.getUserModel(testUser);
     }
 
@@ -1031,6 +1032,60 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Read the latest container version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to readAs.
+     * @return A <code>ContainerVersion</code>.
+     */
+    protected ContainerVersion readContainerLatestVersion(
+            final OpheliaTestUser readAs, final Long localContainerId) {
+        return getContainerModel(readAs).readLatestVersion(localContainerId);
+    }
+
+    /**
+     * Read the documents for a version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to readAs.
+     * @param versionId
+     *            A container version id.
+     * @return A <code>List</code> of <code>Document</code>s.
+     */
+    protected List<Document> readContainerVersionDocuments(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long versionId) {
+        final List<Document> documents = new ArrayList<Document>();
+        documents.addAll(getContainerModel(readAs).readDocuments(
+                localContainerId, versionId));
+        return documents;
+    }
+
+    /**
+     * Read the document versions for a version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to readAs.
+     * @param versionId
+     *            A container version id.
+     * @return A <code>List</code> of <code>DocumentVersion</code>s.
+     */
+    protected List<DocumentVersion> readContainerVersionDocumentVersions(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long versionId) {
+        final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
+        versions.addAll(getContainerModel(readAs).readDocumentVersions(
+                localContainerId, versionId));
+        return versions;
+    }
+
+    /**
      * Read a document for a user.
      * 
      * @param readAs
@@ -1047,6 +1102,47 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } else {
             return getDocumentModel(readAs).read(localId);
         }
+    }
+
+    /**
+     * Open a document for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A document id <code>Long</code> local to openAs.
+     */
+    protected void openDocument(final OpheliaTestUser openAs,
+            final Long localDocumentId) {
+        getDocumentModel(openAs).open(localDocumentId, new Opener() {
+            public void open(final File file) {
+                assertNotNull("File to open is null", file);
+                assertTrue("File to open does not exist.", file.exists());
+                assertTrue("File to open cannot be read.", file.canRead());
+            }
+        });
+    }
+
+    /**
+     * Open a document version for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A document id <code>Long</code> local to openAs.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    protected void openDocumentVersion(final OpheliaTestUser openAs,
+            final Long localDocumentId, final Long versionId) {
+        getDocumentModel(openAs).openVersion(localDocumentId, versionId,
+                new Opener() {
+                    public void open(final File file) {
+                        assertNotNull("File to open is null", file);
+                        assertTrue("File to open does not exist.", file.exists());
+                        assertTrue("File to open cannot be read.", file.canRead());
+                    }
+        });
     }
 
     /**

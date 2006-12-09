@@ -93,7 +93,11 @@ final class XMPPEventDispatcher {
         logger.logVariable("xmppEvent", xmppEvent);
         final List<XMPPEventListener<T>> listeners = getListeners(xmppEvent.getClass());
         for (final XMPPEventListener<T> listener : listeners) {
-            listener.handleEvent(xmppEvent);
+            try {
+                listener.handleEvent(xmppEvent);
+            } catch (final Throwable t) {
+                logger.logFatal(t, "Could not handle xmpp event {0}.", xmppEvent);
+            }
         }
         logger.popContext();
     }

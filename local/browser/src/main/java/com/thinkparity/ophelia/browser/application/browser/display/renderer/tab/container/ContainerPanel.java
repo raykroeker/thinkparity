@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.border.Border;
 
@@ -284,10 +285,10 @@ public class ContainerPanel extends DefaultTabPanel {
         this.container = container;
         this.draft = draft;
         this.latestVersion = latestVersion;
+        westListModel.addElement(new ContainerCell());
         // if a draft exists and the user is the creator of the draft or the
         // user has the latest version of the container display a draft element
-        if ((container.isDraft() && container.isLatest())
-                || container.isLocalDraft()) {
+        if (container.isLocalDraft()) {
             westListModel.addElement(new DraftCell());
         }
         // display all version elements
@@ -468,7 +469,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 7);
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 4);
         westJPanel.add(expansionJLabel, gridBagConstraints);
 
         westJList.setModel(westListModel);
@@ -865,7 +866,6 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }//GEN-LAST:event_westJListValueChanged
 
-    
     /** An east list cell. */
     private abstract class AbstractEastCell extends DefaultCell implements
             EastCell {
@@ -891,6 +891,22 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         public String getAdditionalText() {
             return additionalText;
+        }
+    }
+
+    /** A container cell. */
+    private final class ContainerCell extends WestCell {
+        @Override
+        public Icon getIcon() {
+            return imageCache.read(TabPanelIcon.CONTAINER);
+        }
+        @Override
+        public String getText() {
+            return container.getName();
+        }
+        @Override
+        public void showPopup() {
+            popupDelegate.showForContainer(container);
         }
     }
 

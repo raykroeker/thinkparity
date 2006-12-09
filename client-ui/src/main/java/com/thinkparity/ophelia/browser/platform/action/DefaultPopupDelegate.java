@@ -5,7 +5,10 @@ package com.thinkparity.ophelia.browser.platform.action;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -32,14 +35,17 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** A <code>PopupItemFactory</code>. */
     private final PopupItemFactory itemFactory;
 
+    /** A map of menu name <code>String</code> to existing <code>JMenu</code>s. */
+    private final Map<String, JMenu> jMenus;
+
     /** A <code>MenuFactory</code>. */
     private JPopupMenu jPopupMenu;
 
-    /** The popup location coordinate <code>int</code>s. */
-    private int x, y;
-
     /** The popup size width <code>int</code>. */
     private int width;
+
+    /** The popup location coordinate <code>int</code>s. */
+    private int x, y;
 
     /**
      * Create DefaultPopupDelegate.
@@ -48,6 +54,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
     public DefaultPopupDelegate() {
         super();
         this.logger = new Log4JWrapper(getClass());
+        this.jMenus = new HashMap<String, JMenu>();
         this.itemFactory = PopupItemFactory.getInstance();
     }
 
@@ -61,6 +68,20 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void add(final ActionId actionId, final Data data) {
         jPopupMenu.add(itemFactory.createPopupItem(actionId, data));
+    }
+
+    /**
+     * Add an action to a menu.
+     * 
+     * @param jMenu
+     *            A <code>JMenu</code>.
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    public void add(final JMenu jMenu, final ActionId actionId, final Data data) {
+        jMenu.add(itemFactory.createPopupItem(actionId, data));
     }
 
     /**
@@ -96,6 +117,29 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void add(final String s) {
         jPopupMenu.add(s);
+    }
+
+    /**
+     * Add an action to a menu. If the menu for the given text does not exist it
+     * will be created.
+     * 
+     * @param text
+     *            The menu texxt <code>String</code>.
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    public void add(final String text, final ActionId actionId, final Data data) {
+        final JMenu jMenu;
+        if (jMenus.containsKey(text)) {
+            jMenu = jMenus.get(text);
+        } else {
+            jMenu = MenuFactory.create(text);
+            jPopupMenu.add(jMenu);
+            jMenus.put(text,  jMenu);
+        }
+        jMenu.add(itemFactory.createPopupItem(actionId, data));
     }
 
     /**
@@ -146,6 +190,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
         jPopupMenu.setSize(size);
         jPopupMenu.show(invoker, x, y);
         invoker = jPopupMenu = null;
+        jMenus.clear();
         x = y = -1;
     }
 }

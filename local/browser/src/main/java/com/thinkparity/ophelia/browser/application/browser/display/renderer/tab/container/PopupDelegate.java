@@ -24,6 +24,14 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 public interface PopupDelegate extends TabPanelPopupDelegate {
 
     /**
+     * Display a popup menu for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void showForContainer(final Container container);
+
+    /**
      * Display a popup menu for the version's document version.
      * 
      * @param version

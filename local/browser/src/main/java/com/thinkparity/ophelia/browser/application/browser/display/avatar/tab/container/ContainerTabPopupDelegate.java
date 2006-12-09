@@ -79,6 +79,95 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void showForContainer(final Container container) {
+        if (isOnline()) {
+            boolean needSeparator = false;
+            if (container.isLocalDraft()) {
+                final Data publishData = new Data(1);
+                publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
+                add(ActionId.CONTAINER_PUBLISH, publishData);
+                needSeparator = true;
+            }
+            if (!container.isDraft()) {
+                final Data createDraftData = new Data(1);
+                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
+                add(ActionId.CONTAINER_CREATE_DRAFT, createDraftData);  
+                needSeparator = true;
+            }
+            if (container.isLocalDraft()) {
+                final Data deleteDraftData = new Data(1);
+                deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
+                add(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData);
+                needSeparator = true;
+            }
+            if (needSeparator) {
+                addSeparator();
+            }
+        }
+
+        // Add document
+        final Data addDocumentData = new Data(1);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+        addSeparator();
+
+        // Rename container
+        if (container.isLocalDraft() && !isDistributed(container.getId())) {
+            final Data renameData = new Data(1);
+            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_RENAME, renameData);
+        }
+
+        // archive
+        if (isOnline() && isDistributed(container.getId()) && !container.isDraft())
+            add(PluginId.ARCHIVE, "ArchiveAction", container);
+
+        // delete
+        final Data deleteData = new Data(1);
+        deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
+        add(ActionId.CONTAINER_DELETE, deleteData);  
+        addSeparator();
+
+        // export
+        final Data exportData = new Data(1);
+        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
+        add(ActionId.CONTAINER_EXPORT, exportData);
+
+        // include the container's id and unique id in the menu
+        if(model.isDevelopmentMode()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", container.getId()));
+            idJMenuItem.putClientProperty("COPY_ME", container.getId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", container.getUniqueId()));
+            uidJMenuItem.putClientProperty("COPY_ME", container.getUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            addSeparator();
+            add(idJMenuItem);
+            add(uidJMenuItem);
+            add(MessageFormat.format("isBookmarked:{0}", container.isBookmarked()));
+            add(MessageFormat.format("isDraft:{0}", container.isDraft()));
+            add(MessageFormat.format("isLatest:{0}", container.isLatest()));
+            add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
+        }
+        show();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion,
      *      com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta)
      * 
@@ -171,89 +260,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        final Container container = ((ContainerPanel) tabPanel).getContainer();
-        if (isOnline()) {
-            boolean needSeparator = false;
-            if (container.isLocalDraft()) {
-                final Data publishData = new Data(1);
-                publishData.set(Publish.DataKey.CONTAINER_ID, container.getId());
-                add(ActionId.CONTAINER_PUBLISH, publishData);
-                needSeparator = true;
-            }
-            if (!container.isDraft()) {
-                final Data createDraftData = new Data(1);
-                createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
-                add(ActionId.CONTAINER_CREATE_DRAFT, createDraftData);  
-                needSeparator = true;
-            }
-            if (container.isLocalDraft()) {
-                final Data deleteDraftData = new Data(1);
-                deleteDraftData.set(DeleteDraft.DataKey.CONTAINER_ID, container.getId());
-                add(ActionId.CONTAINER_DELETE_DRAFT, deleteDraftData);
-                needSeparator = true;
-            }
-            if (needSeparator) {
-                addSeparator();
-            }
-        }
-
-        // Add document
-        final Data addDocumentData = new Data(1);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
-        addSeparator();
-
-        // Rename container
-        if (container.isLocalDraft() && !isDistributed(container.getId())) {
-            final Data renameData = new Data(1);
-            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_RENAME, renameData);
-        }
-
-        // archive
-        if (isOnline() && isDistributed(container.getId()) && !container.isDraft())
-            add(PluginId.ARCHIVE, "ArchiveAction", container);
-
-        // delete
-        final Data deleteData = new Data(1);
-        deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-        add(ActionId.CONTAINER_DELETE, deleteData);  
-        addSeparator();
-
-        // export
-        final Data exportData = new Data(1);
-        exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
-        add(ActionId.CONTAINER_EXPORT, exportData);
-
-        // include the container's id and unique id in the menu
-        if(model.isDevelopmentMode()) {
-            final Clipboard systemClipboard =
-                Toolkit.getDefaultToolkit().getSystemClipboard();
-            final ActionListener debugActionListener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    final StringSelection stringSelection =
-                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
-                    systemClipboard.setContents(stringSelection, null);
-                }
-            };
-            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", container.getId()));
-            idJMenuItem.putClientProperty("COPY_ME", container.getId());
-            idJMenuItem.addActionListener(debugActionListener);
-
-            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", container.getUniqueId()));
-            uidJMenuItem.putClientProperty("COPY_ME", container.getUniqueId());
-            uidJMenuItem.addActionListener(debugActionListener);
-
-            addSeparator();
-            add(idJMenuItem);
-            add(uidJMenuItem);
-            add(MessageFormat.format("isBookmarked:{0}", container.isBookmarked()));
-            add(MessageFormat.format("isDraft:{0}", container.isDraft()));
-            add(MessageFormat.format("isLatest:{0}", container.isLatest()));
-            add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
-        }
-        show();
+        showForContainer(((ContainerPanel) tabPanel).getContainer());
     }
 
     /**

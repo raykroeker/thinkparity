@@ -95,6 +95,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private Animator animator;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel containerJPanel;
     private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
     private final javax.swing.JList eastJList = new javax.swing.JList();
@@ -151,7 +152,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.session = session;
         this.westListModel = new DefaultListModel();
         initComponents();
-        this.animator = new Animator(this, 12);
+        this.animator = new Animator(this, 1);
     }
     
     /**
@@ -238,10 +239,9 @@ public class ContainerPanel extends DefaultTabPanel {
         this.expanded = expanded.booleanValue();
         if (this.expanded) {
             versionJPanel.setVisible(true);
-            animator.expand(20, 165);
+            animator.expand(10, 165);
         } else {
-            animator.collapse(20, 25);
-            versionJPanel.setVisible(false);
+            animator.collapse(10, 25);
         }
         reload();
     }
@@ -366,6 +366,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        containerJPanel = new javax.swing.JPanel();
         final javax.swing.JScrollPane westJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JScrollPane eastJScrollPane = new javax.swing.JScrollPane();
         final javax.swing.JPanel westPagingJPanel = new javax.swing.JPanel();
@@ -374,16 +375,19 @@ public class ContainerPanel extends DefaultTabPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setBorder(BORDER);
+        containerJPanel.setLayout(new java.awt.GridBagLayout());
+
+        containerJPanel.setOpaque(false);
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                iconJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseClicked(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                iconJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                iconJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseExited(evt);
             }
         });
 
@@ -392,7 +396,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 32, 0, 4);
-        add(iconJLabel, gridBagConstraints);
+        containerJPanel.add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Package!");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -400,8 +404,15 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
-        add(textJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(5, 4, 4, 0);
+        containerJPanel.add(textJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        add(containerJPanel, gridBagConstraints);
 
         versionJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -409,6 +420,7 @@ public class ContainerPanel extends DefaultTabPanel {
         versionJPanel.setVisible(false);
         westJScrollPane.getViewport().setOpaque(false);
         westJScrollPane.setBorder(null);
+        westJScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         westJScrollPane.setOpaque(false);
         westJList.setModel(westListModel);
         westJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -416,27 +428,27 @@ public class ContainerPanel extends DefaultTabPanel {
         westJList.setOpaque(false);
         westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
         westJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                westJListFocusGained(e);
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                westJListFocusGained(evt);
             }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                westJListFocusLost(e);
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                westJListFocusLost(evt);
             }
         });
         westJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                westJListValueChanged(e);
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                westJListValueChanged(evt);
             }
         });
         westJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                westJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                westJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                westJListMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                westJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                westJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                westJListMouseReleased(evt);
             }
         });
 
@@ -450,6 +462,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         eastJScrollPane.getViewport().setOpaque(false);
         eastJScrollPane.setBorder(null);
+        eastJScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         eastJScrollPane.setOpaque(false);
         eastJList.setModel(eastListModel);
         eastJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -457,27 +470,27 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJList.setOpaque(false);
         eastJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
         eastJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                eastJListFocusGained(e);
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                eastJListFocusGained(evt);
             }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                eastJListFocusLost(e);
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                eastJListFocusLost(evt);
             }
         });
         eastJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                eastJListValueChanged(e);
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                eastJListValueChanged(evt);
             }
         });
         eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                eastJListMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                eastJListMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                eastJListMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                eastJListMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                eastJListMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                eastJListMouseReleased(evt);
             }
         });
 
@@ -567,8 +580,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(versionJPanel, gridBagConstraints);

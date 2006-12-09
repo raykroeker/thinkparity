@@ -1,7 +1,7 @@
 /*
  * Created On:  4-Dec-06 5:18:04 PM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -31,7 +31,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class BackgroundRenderer {
+public final class BackgroundRenderer {
 
     /** The underlying background <code>Image</code>. */
     private static Image BACKGROUND;
@@ -48,45 +48,8 @@ final class BackgroundRenderer {
     /** The container version panel's west background <code>BufferedImage</code>s. */
     private static BufferedImage[] versionImagesWest;
 
-    /**
-     * Initialize the background renderer. This will load the appropriate images
-     * the first time.
-     * 
-     */
-    static void initialize() {
-        Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
-        BufferedImage buffer = ImageIOUtil.read("PanelBackground.png");
-        BACKGROUND = buffer.getScaledInstance(bounds.width, buffer.getHeight(),
-                Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundEast.png");
-        BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
-                buffer.getHeight(), Image.SCALE_SMOOTH);
-        VERSION_IMAGES_CENTER = new BufferedImage[] {
-                ImageIOUtil.read("PanelBackgroundCenter0.png"),
-                ImageIOUtil.read("PanelBackgroundCenter1.png"),
-                ImageIOUtil.read("PanelBackgroundCenter2.png"),
-                ImageIOUtil.read("PanelBackgroundCenter3.png"),
-                ImageIOUtil.read("PanelBackgroundCenter4.png")
-        };
-        VERSION_IMAGES_WEST = new Image[VERSION_IMAGES_CENTER.length];
-        buffer = ImageIOUtil.read("PanelBackgroundWest0.png");
-        VERSION_IMAGES_WEST[0] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest1.png");
-        VERSION_IMAGES_WEST[1] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest2.png");
-        VERSION_IMAGES_WEST[2] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest3.png");
-        VERSION_IMAGES_WEST[3] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest4.png");
-        VERSION_IMAGES_WEST[4] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
-        versionImagesWest = new BufferedImage[VERSION_IMAGES_WEST.length];
-        buffer = null;
-        bounds = null;
+    static {
+        initialize();
     }
 
     /**
@@ -124,6 +87,47 @@ final class BackgroundRenderer {
     }
 
     /**
+     * Initialize the background renderer. This will load the appropriate images
+     * the first time.
+     * 
+     */
+    private static void initialize() {
+        Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
+        BufferedImage buffer = ImageIOUtil.read("PanelBackground.png");
+        BACKGROUND = buffer.getScaledInstance(bounds.width, buffer.getHeight(),
+                Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundEast.png");
+        BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
+                buffer.getHeight(), Image.SCALE_SMOOTH);
+        VERSION_IMAGES_CENTER = new BufferedImage[] {
+                ImageIOUtil.read("PanelBackgroundCenter0.png"),
+                ImageIOUtil.read("PanelBackgroundCenter1.png"),
+                ImageIOUtil.read("PanelBackgroundCenter2.png"),
+                ImageIOUtil.read("PanelBackgroundCenter3.png"),
+                ImageIOUtil.read("PanelBackgroundCenter4.png")
+        };
+        VERSION_IMAGES_WEST = new Image[VERSION_IMAGES_CENTER.length];
+        buffer = ImageIOUtil.read("PanelBackgroundWest0.png");
+        VERSION_IMAGES_WEST[0] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundWest1.png");
+        VERSION_IMAGES_WEST[1] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundWest2.png");
+        VERSION_IMAGES_WEST[2] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundWest3.png");
+        VERSION_IMAGES_WEST[3] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundWest4.png");
+        VERSION_IMAGES_WEST[4] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        versionImagesWest = new BufferedImage[VERSION_IMAGES_WEST.length];
+        buffer = null;
+        bounds = null;
+    }
+
+    /**
      * Determine if the image destined for the component is dirty; ie needs to
      * be clipped before drawing.
      * 
@@ -144,7 +148,7 @@ final class BackgroundRenderer {
      * Create BackgroundRenderer.
      *
      */
-    BackgroundRenderer() {
+    public BackgroundRenderer() {
         super();
     }
 
@@ -158,7 +162,7 @@ final class BackgroundRenderer {
      * @param height
      *            A height <code>int</code>.
      */
-    void paintBackground(final Graphics g, final int width, final int height) {
+    public void paintBackground(final Graphics g, final int width, final int height) {
         /*
          * paint a background for a non-selected container panel - a simple
          * color fill
@@ -175,7 +179,7 @@ final class BackgroundRenderer {
      * @param observer
      *            An <code>ImageObserver</code>.
      */
-    void paintExpandedBackground(final Graphics g, final ImageObserver observer) {
+    public void paintExpandedBackground(final Graphics g, final ImageObserver observer) {
         /*
          * paint the background for an expanded container - this involves simply
          * painting the main background image at the top
@@ -191,8 +195,8 @@ final class BackgroundRenderer {
      * @param panel
      *            A <code>ContainerVersionPanel</code>.
      */
-    void paintExpandedBackgroundCenter(final Graphics g, final int width,
-            final int height, final int selectionIndex,
+    public void paintExpandedBackgroundCenter(final Graphics g,
+            final int width, final int height, final int selectionIndex,
             final ImageObserver observer) {
         /*
          * paint a vertial bar in the center of the panel based upon selection
@@ -208,7 +212,7 @@ final class BackgroundRenderer {
      * Paint the background for the container version panel.
      * 
      */
-    void paintExpandedBackgroundEast(final Graphics g, final int x,
+    public void paintExpandedBackgroundEast(final Graphics g, final int x,
             final int height, final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
         g.drawImage(BACKGROUND_EAST, x, 24, observer);
@@ -224,7 +228,7 @@ final class BackgroundRenderer {
      * @param selectionIndex
      *            The selection index for the indices.
      */
-    void paintExpandedBackgroundWest(final Graphics g, final int width,
+    public void paintExpandedBackgroundWest(final Graphics g, final int width,
             final int height, final int selectionIndex,
             final ImageObserver observer) {
         /*
@@ -240,6 +244,7 @@ final class BackgroundRenderer {
                     VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, 26,
                     observer);
         }
-        g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24 + 24, observer);
+        g.drawImage(versionImagesWest[selectionIndex], 0,
+                selectionIndex * 24 + 24, observer);
     }
 }

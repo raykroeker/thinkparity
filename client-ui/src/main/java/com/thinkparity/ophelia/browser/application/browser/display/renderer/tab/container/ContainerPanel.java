@@ -41,6 +41,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.F
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.BackgroundRenderer;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
@@ -69,7 +70,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private static final String SK_WEST_LIST_SELECTED_INDEX_PATTERN;
 
     static {
-        BackgroundRenderer.initialize();
         BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         NUMBER_VISIBLE_ROWS = 5;

@@ -258,13 +258,22 @@ public abstract class Artifact {
         return flags.contains(ArtifactFlag.BOOKMARK);
     }
 
-	/**
+    /**
      * Determine whether or not the artifact is the latest.
      * 
      * @return True if it is the latest.
      */
     public Boolean isLatest() {
         return flags.contains(ArtifactFlag.LATEST);
+    }
+
+	/**
+     * Determine whether or not the object has been seen.
+     * 
+     * @return True if it has been seen.
+     */
+    public Boolean isSeen() {
+        return flags.contains(ArtifactFlag.SEEN);
     }
 
 	/**

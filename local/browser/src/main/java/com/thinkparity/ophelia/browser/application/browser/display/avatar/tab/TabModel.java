@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class TabModel {
+public abstract class TabModel implements TabDelegate {
 
     /** The model's <code>ContentProvider</code>. */
     protected ContentProvider contentProvider;
@@ -74,6 +74,12 @@ public abstract class TabModel {
     public final void setInput(final Object input) {
         this.input = input;
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#toggleExpand(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * 
+     */
+    public void toggleExpansion(final TabPanel tabPanel) {}
 
     /**
      * Apply an ordering to the tab.
@@ -206,16 +212,6 @@ public abstract class TabModel {
      *
      */
     protected abstract void synchronize();
-
-    /**
-     * Toggle selection of a panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void toggleSelection(final TabPanel tabPanel) {}
 
     /**
      * Obtain the input search expression.

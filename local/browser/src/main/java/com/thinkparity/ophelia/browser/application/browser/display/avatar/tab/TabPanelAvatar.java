@@ -7,21 +7,17 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 
 /**
  * <b>Title:</b>thinkParity Tab Panel Avatar<br>
@@ -38,18 +34,11 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     /**
      * A client property key <code>String</code> mapping to the panels'
-     * mouse listeners.
-     */
-    private static final String CPK_PANEL_MOUSE_LISTENER;
-
-    /**
-     * A client property key <code>String</code> mapping to the panels'
      * transfer handlers.
      */
     private static final String CPK_PANEL_TRANSFER_HANDLER;
 
     static {
-        CPK_PANEL_MOUSE_LISTENER = "TabPanelAvatar#panelMouseListener";
         CPK_PANEL_TRANSFER_HANDLER = "TabPanelAvatar#panelTransferHandler";
     }
 
@@ -66,12 +55,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     /** The set of <code>GridBagConstraints</code> used when adding a panel. */
     private final GridBagConstraints panelConstraints;
-
-    /**
-     * A <code>MouseInputListener</code> which dispatches all mouse events to
-     * the model.
-     */
-    private final MouseInputListener panelMouseListener;
 
     /**
      * A <code>TransferHandler</code> which dispatches all panel import export
@@ -97,30 +80,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
         this.panelConstraints = new GridBagConstraints();
         this.panelConstraints.fill = GridBagConstraints.BOTH;
         this.panelConstraints.gridx = 0;
-        this.panelMouseListener = new MouseInputAdapter() {
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                model.toggleSelection((TabPanel) e.getSource());
-            }
-            @Override
-            public void mousePressed(final MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    final TabPanel tabPanel = (TabPanel) e.getSource();
-                    final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
-                    popupDelegate.initialize((Component) tabPanel, e.getX(), e.getY());
-                    popupDelegate.showForPanel(tabPanel);
-                }
-            }
-            @Override
-            public void mouseReleased(final MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    final TabPanel tabPanel = (TabPanel) e.getSource();
-                    final TabPanelPopupDelegate popupDelegate = tabPanel.getPanelPopupDelegate();
-                    popupDelegate.initialize((Component) tabPanel, e.getX(), e.getY());
-                    popupDelegate.showForPanel(tabPanel);
-                }
-            }
-        };
         this.panelTransferHandler = new TransferHandler() {
             @Override
             public boolean canImport(final JComponent comp,
@@ -244,14 +203,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
     private void addPanel(final int index, final TabPanel panel) {
         final JComponent jComponent = (JComponent) panel;
         // property to protect against adding it twice
-        final MouseInputListener mouseInputListener =
-            (MouseInputListener) jComponent.getClientProperty(CPK_PANEL_MOUSE_LISTENER);
-        if (null == mouseInputListener) {
-            // setup a mouse listener for each panel added
-            jComponent.addMouseListener(panelMouseListener);
-            jComponent.putClientProperty(CPK_PANEL_MOUSE_LISTENER, panelMouseListener);
-        }
-        // property to protect against adding it twice
         final TransferHandler transferHandler =
             (TransferHandler) jComponent.getClientProperty(CPK_PANEL_TRANSFER_HANDLER);
         if (null == transferHandler) {
@@ -334,13 +285,6 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
-        final javax.swing.JLabel jLabel = (javax.swing.JLabel) e.getSource();
-        popupDelegate.initialize(this, jLabel.getX(), jLabel.getY()
-                + jLabel.getHeight(), jLabel.getWidth());
-        popupDelegate.showForSort();
-    }//GEN-LAST:event_orderByJLabelMouseClicked
-
     /**
      * Install the a data listener on the list model. This will translate the
      * model's data events into UI component events.
@@ -391,6 +335,13 @@ public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
             } 
         });
     }
+
+    private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
+        final javax.swing.JLabel jLabel = (javax.swing.JLabel) e.getSource();
+        popupDelegate.initialize(this, jLabel.getX(), jLabel.getY()
+                + jLabel.getHeight(), jLabel.getWidth());
+        popupDelegate.showForSort();
+    }//GEN-LAST:event_orderByJLabelMouseClicked
 
     /**
      * Reload the panels display. The jpanel is revalidated.

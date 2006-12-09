@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-
-
 /**
  * <b>Title:</b>thinkParity Tab Panel<br>
  * <b>Description:</b>A tab panel is the display interface for the tab panel

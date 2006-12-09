@@ -10,8 +10,11 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
+ * @param <T>
  */
 public abstract class TabAvatar<T extends TabModel> extends Avatar {
     

@@ -199,23 +199,19 @@ final class BackgroundRenderer {
          * 
          * the bar is not scaled
          */
-        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex],
-                width / 2 - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1,
-                24, observer);
+        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], width
+                - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1, 24,
+                observer);
     }
 
     /**
      * Paint the background for the container version panel.
      * 
-     * @param g
-     *            The panel <code>Graphics</code>.
-     * @param panel
-     *            A <code>ContainerVersionPanel</code>.
      */
-    void paintExpandedBackgroundEast(final Graphics g, final int width,
+    void paintExpandedBackgroundEast(final Graphics g, final int x,
             final int height, final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
-        g.drawImage(BACKGROUND_EAST, width / 2 + 1, 24, observer);
+        g.drawImage(BACKGROUND_EAST, x, 24, observer);
     }
 
     /**
@@ -239,9 +235,9 @@ final class BackgroundRenderer {
          * 
          * the number 24 is the offset at which to draw each selected row
          */
-        if (isDirty(versionImagesWest[selectionIndex], width / 2, height)) {
+        if (isDirty(versionImagesWest[selectionIndex], width, height)) {
             versionImagesWest[selectionIndex] = clipImage(
-                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width / 2, 26,
+                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, 26,
                     observer);
         }
         g.drawImage(versionImagesWest[selectionIndex], 0, selectionIndex * 24 + 24, observer);

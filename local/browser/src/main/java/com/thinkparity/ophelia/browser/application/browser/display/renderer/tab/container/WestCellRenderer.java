@@ -24,7 +24,6 @@ final class WestCellRenderer extends AbstractJPanel implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    javax.swing.JLabel westIconJLabel;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -72,22 +71,15 @@ final class WestCellRenderer extends AbstractJPanel implements
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        westIconJLabel = new javax.swing.JLabel();
-
         setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(32767, 24));
         setMinimumSize(new java.awt.Dimension(20, 24));
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(20, 24));
-        westIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 0);
-        add(westIconJLabel, gridBagConstraints);
-
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Version Cell!");

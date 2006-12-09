@@ -43,7 +43,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
             return false;
         }
     }
-
     /**
 	 * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getId()
      * 
@@ -60,5 +59,4 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     public int hashCode() {
         return getId().hashCode();
     }
-
 }

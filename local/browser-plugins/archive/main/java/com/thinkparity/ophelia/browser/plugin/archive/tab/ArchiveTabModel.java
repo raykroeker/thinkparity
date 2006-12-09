@@ -72,6 +72,16 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     *
+     */
+    @Override
+    public void toggleExpansion(final TabPanel tabPanel) {
+        doToggleExpansion(tabPanel);
+        synchronize();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      * 
      */
@@ -151,26 +161,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             }
         }
         debug();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleSelection(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.event.MouseEvent)
-     */
-    @Override
-    protected void toggleSelection(final TabPanel tabPanel) {
-        toggleExpand(tabPanel);
-        synchronize();
-    }
-
-    /**
-     * Determine if the tab panel is a container tab panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is a container tab panel.
-     */
-    Boolean isContainerPanel(final TabPanel tabPanel) {
-        return ArchiveTabContainerPanel.class.isAssignableFrom(tabPanel.getClass());
     }
 
     /**
@@ -273,6 +263,33 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private void clearPanels() {
         containerPanels.clear();
+    }
+
+    /**
+     * Toggle the expansion of a panel on and off. At the moment only
+     * single-panel expansion is enabled as well as containers only.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    private void doToggleExpansion(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
+        final Boolean expanded;
+        if (isExpanded(containerPanel)) {
+            expanded = Boolean.FALSE;
+        } else {
+            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            for (final TabPanel visiblePanel : visiblePanels) {
+                if (isExpanded(visiblePanel)) {
+                    doToggleExpansion(visiblePanel);
+                }
+            }
+            // NOTE-END:multi-expand
+
+            expanded = Boolean.TRUE;
+        }
+        containerPanel.setExpanded(expanded);
+        expandedState.put(tabPanel, expanded);
     }
 
     private <T extends User> T find(final List<T> users,
@@ -405,36 +422,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
                 documentVersions, publishedTo, publishedBy);
         panel.setExpanded(isExpanded(panel));
         panel.setPopupDelegate(popupDelegate);
+        panel.setTabDelegate(this);
         return panel;
-    }
-
-    /**
-     * Toggle the expansion of a panel on and off. At the moment only
-     * single-panel expansion is enabled as well as containers only.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void toggleExpand(final TabPanel tabPanel) {
-        final Boolean expanded;
-        if (isContainerPanel(tabPanel).booleanValue()) {
-            final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-            if (isExpanded(containerPanel)) {
-                expanded = Boolean.FALSE;
-            } else {
-                // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
-                for (final TabPanel visiblePanel : visiblePanels) {
-                    if (isExpanded(visiblePanel)) {
-                        toggleExpand(visiblePanel);
-                    }
-                }
-                // NOTE-END:multi-expand
-                expanded = Boolean.TRUE;
-            }
-            containerPanel.setExpanded(expanded);
-        } else {
-            expanded = Boolean.FALSE;
-        }
-        expandedState.put(tabPanel, expanded);
     }
 }

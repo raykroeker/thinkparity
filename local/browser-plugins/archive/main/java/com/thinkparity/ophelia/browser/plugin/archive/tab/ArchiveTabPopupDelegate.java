@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.plugin.archive.tab;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
@@ -43,11 +42,14 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.document.Document)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForContainer(com.thinkparity.codebase.model.container.Container)
      *
      */
-    public void showForDocument(final ContainerDraft draft,
-            final Document document) {
+    public void showForContainer(final Container container) {
+        if (isOnline()) {
+            add(PluginId.ARCHIVE, "RestoreAction", container);
+            show();
+        }
     }
 
     /**
@@ -55,10 +57,6 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForDocument(final DocumentVersion version, final Delta delta) {
-        if (isOnline()) {
-            add(PluginId.ARCHIVE, "OpenDocumentVersionAction", version);
-            show();
-        }
     }
 
     /**
@@ -74,9 +72,7 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
      *
      */
     public void showForPanel(final TabPanel tabPanel) {
-        if (isContainerPanel(tabPanel)) {
-            showForContainerPanel((ArchiveTabContainerPanel) tabPanel);
-        }
+        showForContainer(((ArchiveTabContainerPanel) tabPanel).getContainer());
     }
 
     /**
@@ -94,36 +90,11 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * Determine if the panel is an archive tab container panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if it is an archive tab container panel.
-     */
-    private boolean isContainerPanel(final TabPanel tabPanel) {
-        return model.isContainerPanel(tabPanel).booleanValue();
-    }
-
-    /**
      * Determine if the model is online.
      * 
      * @return True if the model is online.
      */
     private boolean isOnline() {
         return model.isOnline().booleanValue();
-    }
-
-    /**
-     * Show the archive tab container panel popup menu.
-     * 
-     * @param containerPanel
-     *            A <code>ArchiveTabContainerPanel</code>.
-     */
-    private void showForContainerPanel(final ArchiveTabContainerPanel containerPanel) {
-        if (isOnline()) {
-            add(PluginId.ARCHIVE, "RestoreAction", containerPanel
-                    .getContainer());
-            show();
-        }
     }
 }

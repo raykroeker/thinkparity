@@ -405,8 +405,11 @@ public class ContainerPanel extends DefaultTabPanel {
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                collapsedJPanelMouseClicked(e);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                collapsedJPanelMousePressed(e);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                collapsedJPanelMouseReleased(e);
             }
         });
 
@@ -647,6 +650,28 @@ public class ContainerPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            tabDelegate.toggleExpansion(this);
+            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        } else {
+            tabDelegate.toggleExpansion(this);
+        }
+    }//GEN-LAST:event_collapsedJPanelMouseReleased
+
+    private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            tabDelegate.toggleExpansion(this);
+            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        }
+    }//GEN-LAST:event_collapsedJPanelMousePressed
+
     private void expansionJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_expansionJLabelMouseExited
@@ -658,10 +683,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private void expansionJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseClicked
         tabDelegate.toggleExpansion(this);
     }//GEN-LAST:event_expansionJLabelMouseClicked
-
-    private void collapsedJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseClicked
-        tabDelegate.toggleExpansion(this);
-    }//GEN-LAST:event_collapsedJPanelMouseClicked
 
     /**
      * Handle the focus gained event on the list.

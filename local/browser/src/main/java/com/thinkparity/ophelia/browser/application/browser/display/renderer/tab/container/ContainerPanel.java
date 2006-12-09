@@ -23,7 +23,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -804,7 +803,7 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         textJLabel.setText(text.toString());
-        if (!expanded && !container.contains(ArtifactFlag.SEEN)) {
+        if (!expanded && !container.isSeen().booleanValue()) {
             textJLabel.setFont(Fonts.DefaultFontBold);
         }
         if (!container.isLocalDraft() && !container.isLatest()) {

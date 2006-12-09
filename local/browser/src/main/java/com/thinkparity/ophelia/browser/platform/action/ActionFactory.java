@@ -92,6 +92,9 @@ public class ActionFactory extends AbstractFactory {
         case ARTIFACT_APPLY_FLAG_SEEN:
             action = new com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen(browser);
             break;
+        case ARTIFACT_REMOVE_FLAG_SEEN:
+            action = new com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen(browser);
+            break;
 
         case CONTACT_ACCEPT_INCOMING_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation(browser);

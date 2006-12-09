@@ -17,16 +17,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -57,12 +56,24 @@ import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
+import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Export;
+import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -83,7 +94,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -271,6 +283,14 @@ public class Browser extends AbstractApplication {
     }
         
     /**
+     * Display the edit profile dialog.
+     *
+     */
+    public void displayEditProfileDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_EDIT);
+    }
+    
+    /**
      * Handle a user error (show an error dialog).
      * 
      * @param messageKey
@@ -292,7 +312,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-    
+
     /**
      * Display an error dialog
      * 
@@ -314,7 +334,7 @@ public class Browser extends AbstractApplication {
             input.set(ErrorAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
     }
-
+    
     /**
      * Display an error dialog.
      * 
@@ -327,7 +347,7 @@ public class Browser extends AbstractApplication {
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
     }
-    
+
     /**
      * Display an export dialog for a container, ie. export all versions.
      * 
@@ -341,7 +361,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
     }
-
+    
     /**
      * Display an export dialog for a version.
      * 
@@ -357,14 +377,14 @@ public class Browser extends AbstractApplication {
         input.set(ExportAvatar.DataKey.VERSION_ID, versionId);
         setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
-    }
+    } 
     
     /**
      * Display the info (or Help About) dialog.
      */
     public void displayInfoDialog() {
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PLATFORM_DISPLAY_INFO);
-    } 
+    }
     
     /**
      * Display the "publish container" dialog.
@@ -380,7 +400,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-    
+
     /**
      * Display the "publish container" dialog for a version.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
@@ -398,7 +418,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-
+    
     /**
      * Display the contact info dialogue.
      *
@@ -448,7 +468,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
     }
-    
+
     /**
      * Display the update profile dialog.
      *
@@ -461,28 +481,20 @@ public class Browser extends AbstractApplication {
     public void displayTabContactAvatar() {
         displayTab(AvatarId.TAB_CONTACT);
     }
-
+    
     /** Display the container avatar tab. */
     public void displayTabContainerAvatar() {
         displayTab(AvatarId.TAB_CONTAINER);
     }
-    
+
     /** Display a tab list extension. */
     public void displayTabExtension(final TabListExtension tabListExtension) {
         displayTab(tabListExtension);
     }
-
+    
     /** Display a tab panel extension. */
     public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
         displayTab(tabPanelExtension);
-    }
-    
-    /**
-     * Display the edit profile dialog.
-     *
-     */
-    public void displayEditProfileDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_EDIT);
     }
 
     /**
@@ -580,6 +592,8 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerCreated");
+        if (remote)
+            runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -639,6 +653,8 @@ public class Browser extends AbstractApplication {
     public void fireContainerDraftCreated(final Long containerId,
             final Boolean remote) {
         setStatus("ContainerDraftCreated");
+        if (remote)
+            runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -654,22 +670,6 @@ public class Browser extends AbstractApplication {
     public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftDeleted");
         syncContainerTabContainer(containerId, remote);
-    }
-    
-    /**
-     * Notify the application that a container has been received (ie. package published)
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerReceived(final Long containerId) {
-        setStatus("ContainerReceived");
-
-        // flag it as not having been seen
-        final ArtifactModel aModel = getArtifactModel();
-        aModel.removeFlagSeen(containerId);
-
-        syncContainerTabContainer(containerId, Boolean.TRUE);
     }
 
     /**
@@ -707,6 +707,8 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerUpdated(final Long containerId, final Boolean remote) {
         setStatus("ContainerUpdated");
+        if (remote)
+            runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -1152,7 +1154,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-    
+
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -1163,7 +1165,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-
+    
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1173,7 +1175,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-    
+
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -1191,7 +1193,7 @@ public class Browser extends AbstractApplication {
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
-
+    
     /**
      * Create a draft for the container.
      * 
@@ -1228,7 +1230,7 @@ public class Browser extends AbstractApplication {
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
     }
-    
+
     /**
      * Run the export action.
      * 
@@ -1367,7 +1369,7 @@ public class Browser extends AbstractApplication {
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
     }
-
+    
     /**
      * Run the read container version action.
      * 
@@ -1384,7 +1386,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_READ_VERSION, data);
     }
 
-	/**
+    /**
      * Run the remove bookmark action.
      * 
      * @param containerId
@@ -1394,6 +1396,19 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
+    }
+
+	/**
+     * Run the remove flag seen action.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    public void runRemoveContainerFlagSeen(final Long containerId) {
+        final Data data = new Data(2);
+        data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
+        data.set(RemoveFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.CONTAINER);
+        invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
 
     /**
@@ -1485,6 +1500,28 @@ public class Browser extends AbstractApplication {
     /**
      * Update the user's profile.
      * 
+     * @param oldPassword
+     *            The user's password <code>String</code>.
+     * @param newPassword
+     *            The user's updated password <code>String</code>.
+     * @param confirmNewPassword
+     *            The user's updated password again <code>String</code>.
+     */
+    public void runUpdateProfile(final String oldPassword, final String newPassword,
+            final String confirmNewPassword) {     
+        if (null != oldPassword) {
+            final Data data = new Data(4); 
+            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(Edit.DataKey.PASSWORD, oldPassword);
+            data.set(Edit.DataKey.NEW_PASSWORD, newPassword);
+            data.set(Edit.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
+            invoke(ActionId.PROFILE_EDIT, data);
+        }
+    }
+    
+    /**
+     * Update the user's profile.
+     * 
      * @param name
      *            The user's name <code>String</code>.
      * @param organization
@@ -1520,28 +1557,6 @@ public class Browser extends AbstractApplication {
             data.set(Edit.DataKey.MOBILE_PHONE, mobilePhone);
         }
         invoke(ActionId.PROFILE_EDIT, data);
-    }
-    
-    /**
-     * Update the user's profile.
-     * 
-     * @param oldPassword
-     *            The user's password <code>String</code>.
-     * @param newPassword
-     *            The user's updated password <code>String</code>.
-     * @param confirmNewPassword
-     *            The user's updated password again <code>String</code>.
-     */
-    public void runUpdateProfile(final String oldPassword, final String newPassword,
-            final String confirmNewPassword) {     
-        if (null != oldPassword) {
-            final Data data = new Data(4); 
-            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-            data.set(Edit.DataKey.PASSWORD, oldPassword);
-            data.set(Edit.DataKey.NEW_PASSWORD, newPassword);
-            data.set(Edit.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
-            invoke(ActionId.PROFILE_EDIT, data);
-        }
     }
   
     /**

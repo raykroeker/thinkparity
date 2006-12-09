@@ -163,6 +163,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             add(MessageFormat.format("isDraft:{0}", container.isDraft()));
             add(MessageFormat.format("isLatest:{0}", container.isLatest()));
             add(MessageFormat.format("isLocalDraft:{0}", container.isLocalDraft()));
+            add(MessageFormat.format("isSeen:{0}", container.isSeen()));
         }
         show();
     }

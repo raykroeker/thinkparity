@@ -122,7 +122,8 @@ class EventDispatcher {
             }
             @Override
             public void containerCreated(final ContainerEvent e) {
-                browser.fireContainerCreated(e.getContainer().getId(), e.isRemote());
+                browser.fireContainerCreated(e.getContainer().getId(), e
+                        .isRemote());
             }
             @Override
             public void containerDeleted(final ContainerEvent e) {

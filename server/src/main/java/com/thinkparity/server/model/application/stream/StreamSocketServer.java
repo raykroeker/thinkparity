@@ -88,7 +88,7 @@ class StreamSocketServer implements Runnable {
             final ServerSocketFactory factory) {
         super();
         this.executorService = Executors.newSingleThreadExecutor();
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(getClass());
         this.serverSocketAddress = new InetSocketAddress(host, port);
         this.serverSocketBacklog = 75;
         this.serverSocketFactory = factory;
@@ -109,7 +109,6 @@ class StreamSocketServer implements Runnable {
                 synchronized (this) {
                     notifyAll();
                 }
-
                 final Socket clientSocket = serverSocket.accept();
                 logger.logTrace("Socket connected.");
                 try {
@@ -164,6 +163,15 @@ class StreamSocketServer implements Runnable {
      *            A stream id <code>String</code>.
      */
     void initialize(final StreamSession streamSession, final String streamId) {
+    }
+
+    /**
+     * Log some statistics.
+     *
+     */
+    void logStatistics() {
+        logger.logInfo("Streaming socket server socket address:{0}", serverSocketAddress.getAddress());
+        logger.logInfo("Streaming socket server socket backlog:{0}", serverSocketBacklog);
     }
 
     void start() {

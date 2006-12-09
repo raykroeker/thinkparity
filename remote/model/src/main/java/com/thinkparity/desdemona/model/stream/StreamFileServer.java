@@ -35,7 +35,7 @@ final class StreamFileServer {
      */
     StreamFileServer(final StreamServer streamServer, final File root) {
         super();
-        this.logger = new Log4JWrapper();
+        this.logger = new Log4JWrapper(getClass());
         this.fileSystem = new FileSystem(root);
     }
 
@@ -108,6 +108,15 @@ final class StreamFileServer {
         } else {
             logger.logTrace("Stream {0} initialized.  Resume supported.", streamId);
         }
+    }
+
+    /**
+     * Log statistics regarding the stream file server.
+     *
+     */
+    void logStatistics() {
+        logger.logInfo("Streaming file server root:{0}", fileSystem.getRoot());
+        logger.logInfo("Streaming file server file count:{0}", fileSystem.listFiles("/").length);
     }
 
     /**

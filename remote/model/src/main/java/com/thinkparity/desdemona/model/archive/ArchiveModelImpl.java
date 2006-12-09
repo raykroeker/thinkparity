@@ -305,7 +305,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
             for (final User user : users) {
                 archiveId = readArchiveId(user.getId());
                 if (null != archiveId) {
-                    start(archiveId, readArchiveCredentials(archiveId));
+                    logger.logInfo("Starting archive {0} for user {1}.",
+                            archiveId, user.getId());
+                    try {
+                        start(archiveId, readArchiveCredentials(archiveId));
+                    } catch (final Throwable t) {
+                        logger.logFatal(t, "Failed to start archive {0}.", archiveId);
+                        throw translateError(t);
+                    }
+                    logger.logInfo("Archive {0} is online.", archiveId);
                 }
             }
         } catch (final Throwable t) {

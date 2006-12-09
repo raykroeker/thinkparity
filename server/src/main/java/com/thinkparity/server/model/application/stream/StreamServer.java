@@ -68,10 +68,8 @@ final class StreamServer {
         final String host = "0.0.0.0";
         final int port = environment.getStreamPort();
         if (environment.isStreamTLSEnabled()) {
-            logger.logInfo("Stream Server - {0}:{1} - Secure", host, port);
             this.socketServer = new SecureStreamSocketServer(this, host, port);
         } else {
-            logger.logInfo("Stream Server - {0}:{1}", host, port);
             this.socketServer = new StreamSocketServer(this, host, port);
         }
     }
@@ -225,7 +223,12 @@ final class StreamServer {
      */
     void start() {
         fileServer.start();
+        logger.logInfo("Streaming file server has been started.");
+        fileServer.logStatistics();
+
         socketServer.start();
+        logger.logInfo("Streaming socket server has been started.");
+        socketServer.logStatistics();
     }
 
     /**

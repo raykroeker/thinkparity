@@ -93,9 +93,6 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         startArchive();
         final String message = getStartupMessage();
         new Log4JWrapper(getClass()).logInfo(message);
-        new Log4JWrapper("DESDEMONA_DEFAULT").logInfo(message);
-        new Log4JWrapper("DESDEMONA_SQL_DEBUGGER").logInfo(message);
-        new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER").logInfo(message);
         System.out.println(message);
 	}
 
@@ -181,14 +178,33 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
             throw Assert.createUnreachable("Unknown operating mode.");
         }
         // renderers
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact", "com.thinkparity.desdemona.util.logging.or.ArtifactRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.profile.Profile", "com.thinkparity.desdemona.util.logging.or.ProfileObjectRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.codebase.model.user.User", "com.thinkparity.desdemona.util.logging.or.UserRenderer");
-        logging.setProperty("log4j.renderer.com.thinkparity.desdemona.model.artifact.ArtifactSubscription", "com.thinkparity.desdemona.util.logging.or.ArtifactSubscriptionRenderer");
-        logging.setProperty("log4j.renderer.org.dom4j.Element", "com.thinkparity.desdemona.util.logging.or.ElementRenderer");
-        logging.setProperty("log4j.renderer.org.jivesoftware.wildfire.IQHandlerInfo", "com.thinkparity.desdemona.util.logging.or.IQHandlerInfoRenderer");
-        logging.setProperty("log4j.renderer.org.xmpp.packet.IQ", "com.thinkparity.codebase.xmpp.IQRenderer");
-        logging.setProperty("log4j.renderer.org.xmpp.packet.JID", "com.thinkparity.desdemona.util.logging.or.JIDRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.jabber.JabberId",
+                "com.thinkparity.codebase.log4j.or.JabberIdRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact",
+                "com.thinkparity.desdemona.util.logging.or.ArtifactRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.profile.Profile",
+                "com.thinkparity.desdemona.util.logging.or.ProfileObjectRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.user.User",
+                "com.thinkparity.desdemona.util.logging.or.UserRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.desdemona.model.artifact.ArtifactSubscription",
+                "com.thinkparity.desdemona.util.logging.or.ArtifactSubscriptionRenderer");
+        logging.setProperty(
+                "log4j.renderer.org.dom4j.Element",
+                "com.thinkparity.desdemona.util.logging.or.ElementRenderer");
+        logging.setProperty(
+                "log4j.renderer.org.jivesoftware.wildfire.IQHandlerInfo",
+                "com.thinkparity.desdemona.util.logging.or.IQHandlerInfoRenderer");
+        logging.setProperty(
+                "log4j.renderer.org.xmpp.packet.IQ",
+                "com.thinkparity.codebase.xmpp.IQRenderer");
+        logging.setProperty(
+            "log4j.renderer.org.xmpp.packet.JID",
+            "com.thinkparity.desdemona.util.logging.or.JIDRenderer");
 
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
@@ -245,7 +261,7 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	private void destroyLogging() { LogManager.shutdown(); }
 
 	private String getStartupMessage() {
-        return MessageFormat.format("{0} - {1} - {2}",
+        return MessageFormat.format("{0} - {1} - {2} is online.",
                 Version.getName(), Version.getMode(), Version.getBuildId());
     }
 
@@ -266,7 +282,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
         handlers.add((IQHandler) Class.forName(handlerName).newInstance());
         final IQHandler controller = handlers.get(handlers.size() - 1);
         router.addHandler(controller);
-        logger.logInfo("{0}", controller.getInfo().getNamespace());
+        logger.logInfo("{0} has been initialized.",
+                controller.getInfo().getNamespace());
     }
 
     /**

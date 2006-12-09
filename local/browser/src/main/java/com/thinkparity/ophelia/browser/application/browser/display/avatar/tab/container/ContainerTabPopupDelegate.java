@@ -79,61 +79,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForDocument(com.thinkparity.ophelia.model.container.ContainerDraft,
-     *      com.thinkparity.codebase.model.document.Document)
-     * 
-     */
-    public void showForDocument(final ContainerDraft draft,
-            final Document document) {
-        final ContainerDraft.ArtifactState state = draft.getState(document);
-
-        final Data openData = new Data(1);
-        openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
-        add(ActionId.DOCUMENT_OPEN, openData);
-
-        addSeparator();
-        final Data renameData = new Data(2);
-        renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-        renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
-        add(ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
-        
-        switch (state) {
-        case ADDED:
-            break;
-        case MODIFIED:
-            final Data revertData = new Data(2);
-            revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_REVERT_DOCUMENT, revertData);
-            break;
-        case NONE:
-            break;
-        case REMOVED:
-            final Data undeleteData = new Data(2);
-            undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
-            break;
-        default:
-            throw Assert.createUnreachable("UNKNOWN ARTIFACT STATE");
-        }
-        
-        if (ContainerDraft.ArtifactState.REMOVED != state) {
-            final Data removeData = new Data(2);
-            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
-        }
-        
-        addSeparator();
-        final Data printData = new Data(1);
-        printData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, document.getId());
-        add(ActionId.DOCUMENT_PRINT_DRAFT, printData);
-
-        show();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion,
      *      com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta)
      * 
@@ -159,29 +104,66 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForDraft(final Container container, final ContainerDraft draft) {
-        if (container.isLocalDraft()) {
-            if(isOnline()) {
-                final Data publishData = new Data(1);
-                publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
-                add(ActionId.CONTAINER_PUBLISH, publishData);
-    
-                final Data deleteData = new Data(1);
-                deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-                add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
-                addSeparator();
-            }
-            final Data addDocumentData = new Data(2);
-            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
-            
-            addSeparator();
-            final Data printData = new Data(1);
-            printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_PRINT_DRAFT, printData);
+        if(isOnline()) {
+            final Data publishData = new Data(1);
+            publishData.set(Publish.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_PUBLISH, publishData);
 
-            show();
+            final Data deleteData = new Data(1);
+            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
+            addSeparator();
         }
+        final Data addDocumentData = new Data(2);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+
+        final Data printData = new Data(1);
+        printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+        add(ActionId.CONTAINER_PRINT_DRAFT, printData);
+
+        for (final Document document : draft.getDocuments()) {
+            final ContainerDraft.ArtifactState state = draft.getState(document);
+            final Data openData = new Data(1);
+            openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
+            add(document.getName(), ActionId.DOCUMENT_OPEN, openData);
+    
+            addSeparator();
+            final Data renameData = new Data(2);
+            renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(document.getName(), ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
+            
+            switch (state) {
+            case ADDED:
+                break;
+            case MODIFIED:
+                final Data revertData = new Data(2);
+                revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+                revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
+                add(document.getName(), ActionId.CONTAINER_REVERT_DOCUMENT, revertData);
+                break;
+            case NONE:
+                break;
+            case REMOVED:
+                final Data undeleteData = new Data(2);
+                undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+                undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
+                add(document.getName(), ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN ARTIFACT STATE");
+            }
+            
+            if (ContainerDraft.ArtifactState.REMOVED != state) {
+                final Data removeData = new Data(2);
+                removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+                removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
+                add(document.getName(), ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
+            }
+        }
+        show();
     }
 
     /**

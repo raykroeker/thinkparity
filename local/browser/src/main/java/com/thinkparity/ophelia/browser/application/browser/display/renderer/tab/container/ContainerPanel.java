@@ -944,7 +944,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForDocument(draft, document);
+            popupDelegate.showForDraft(container, draft);
         }
     }
 

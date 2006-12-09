@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
@@ -23,17 +22,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @version 1.1.2.1
  */
 public interface PopupDelegate extends TabPanelPopupDelegate {
-
-    /**
-     * Display a popup menu for a draft document.
-     * 
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     * @param document
-     *            A draft <code>Document</code>.
-     */
-    public void showForDocument(final ContainerDraft draft,
-            final Document document);
 
     /**
      * Display a popup menu for the version's document version.

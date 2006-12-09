@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.browser.application.system.tray;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Icon;
-
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
@@ -16,9 +14,9 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.Version;
+import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
-import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 
 /**
@@ -26,13 +24,6 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @version 1.1
  */
 public final class Tray {
-
-    /**
-	 * Read the system tray icon.
-	 * 
-	 * @return The image icon.
-	 */
-	private static Icon readTrayIcon() { return ImageIOUtil.readIcon("SystemTray.png"); }
 
 	/** Indicates whether or not the system tray is installed. */
 	private Boolean isInstalled;
@@ -75,7 +66,7 @@ public final class Tray {
      * 
      */
 	public void install() {
-		systemTrayIcon = new TrayIcon(readTrayIcon());
+		systemTrayIcon = new TrayIcon(Icons.Tray.TRAY_ICON_OFFLINE);
         systemTrayIcon.addBalloonActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
                 if(systemApplication.isBrowserRunning())
@@ -114,10 +105,12 @@ public final class Tray {
         case OFFLINE:
             updateMenuOffline();
             setCaption();
+            setIcon();
             break;
         case ONLINE:
             updateMenuOnline();
             setCaption();
+            setIcon();
             break;
         default:
             Assert.assertUnreachable("[UNKNOWN CONNECTION]");
@@ -179,6 +172,22 @@ public final class Tray {
      */
     private void setCaption() {
         systemTrayIcon.setCaption(createCaption().toString());
+    }
+    
+    /**
+     * Set the system tray icon.
+     * 
+     */
+    private void setIcon() {
+        switch(systemApplication.getConnection()) {
+        case OFFLINE:
+            systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_OFFLINE);
+            break;
+        case ONLINE:
+            systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_ONLINE);
+        default:
+            throw Assert.createUnreachable("[UNKNOWN CONNECTION]");
+        }
     }
 
     /** Update the offline menu. */

@@ -182,9 +182,10 @@ public class BrowserMenuBar extends JMenuBar {
         helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, Data.emptyData()));
         
         // Create the Sign-Up button
+        // TODO Add this button back when the user is a guest
         this.add(Box.createHorizontalGlue());
-        this.add(getSignUpButton());
-        this.add(Box.createRigidArea(new Dimension(2,0)));
+/*        this.add(getSignUpButton());
+        this.add(Box.createRigidArea(new Dimension(2,0)));*/
         
         // Add minimize, maximize and close buttons
         this.add(getMinimizeButton());

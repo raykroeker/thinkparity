@@ -37,12 +37,12 @@ public final class BackgroundRenderer {
     private static Image BACKGROUND;
 
     /** The east background <code>Image</code>. */
-    private static Image BACKGROUND_EAST;
+    private static Image[] BACKGROUND_IMAGES_EAST;
 
     /** The container version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
 
-    /** The container version panel's western backgroudn <code>BufferedImage</code>s. */
+    /** The container version panel's western background <code>BufferedImage</code>s. */
     private static Image[] VERSION_IMAGES_WEST;
 
     /** The container version panel's west background <code>BufferedImage</code>s. */
@@ -96,15 +96,20 @@ public final class BackgroundRenderer {
         BufferedImage buffer = ImageIOUtil.read("PanelBackground.png");
         BACKGROUND = buffer.getScaledInstance(bounds.width, buffer.getHeight(),
                 Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundEast.png");
-        BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
+        BACKGROUND_IMAGES_EAST = new Image[2];
+        buffer = ImageIOUtil.read("PanelBackgroundEast0.png");
+        BACKGROUND_IMAGES_EAST[0] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);        
+        buffer = ImageIOUtil.read("PanelBackgroundEast1.png");
+        BACKGROUND_IMAGES_EAST[1] = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
         VERSION_IMAGES_CENTER = new BufferedImage[] {
                 ImageIOUtil.read("PanelBackgroundCenter0.png"),
                 ImageIOUtil.read("PanelBackgroundCenter1.png"),
                 ImageIOUtil.read("PanelBackgroundCenter2.png"),
                 ImageIOUtil.read("PanelBackgroundCenter3.png"),
-                ImageIOUtil.read("PanelBackgroundCenter4.png")
+                ImageIOUtil.read("PanelBackgroundCenter4.png"),
+                ImageIOUtil.read("PanelBackgroundCenter5.png")
         };
         VERSION_IMAGES_WEST = new Image[VERSION_IMAGES_CENTER.length];
         buffer = ImageIOUtil.read("PanelBackgroundWest0.png");
@@ -121,6 +126,9 @@ public final class BackgroundRenderer {
                 .getHeight(), Image.SCALE_SMOOTH);
         buffer = ImageIOUtil.read("PanelBackgroundWest4.png");
         VERSION_IMAGES_WEST[4] = buffer.getScaledInstance(bounds.width, buffer
+                .getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundWest5.png");
+        VERSION_IMAGES_WEST[5] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
         versionImagesWest = new BufferedImage[VERSION_IMAGES_WEST.length];
         buffer = null;
@@ -204,7 +212,7 @@ public final class BackgroundRenderer {
          * the bar is not scaled
          */
         g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], width
-                - VERSION_IMAGES_CENTER[selectionIndex].getWidth() + 1, 24,
+                - VERSION_IMAGES_CENTER[selectionIndex].getWidth(), 23,
                 observer);
     }
 
@@ -213,9 +221,14 @@ public final class BackgroundRenderer {
      * 
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
-            final int height, final ImageObserver observer) {
+            final int height, final int selectionIndex, final ImageObserver observer) {
+        // if the first row is selected then draw the topmost east image
+        if (selectionIndex == 0) {
+            g.drawImage(BACKGROUND_IMAGES_EAST[0], x, 0, observer);
+        }
+        
         // paint a solid gradient image on the eastern side of the version panel
-        g.drawImage(BACKGROUND_EAST, x, 24, observer);
+        g.drawImage(BACKGROUND_IMAGES_EAST[1], x, 23, observer);
     }
 
     /**
@@ -235,16 +248,25 @@ public final class BackgroundRenderer {
          * from the finite set of selection images grab the one matching the
          * selection index; and paint it
          *
-         * the number 26 is the height of the each selected row image
+         * the number 26 is the height of the each selected row image (ie. row
+         * height of 24 plus 2 extra pixels), except the first row which is 25 pixels.
          * 
          * the number 24 is the offset at which to draw each selected row
          */
+        final int rowHeight;
+        final int rowOffset;
+        if (selectionIndex == 0) {
+            rowHeight = 25;
+            rowOffset = 0;
+        } else {
+            rowHeight = 26;
+            rowOffset = selectionIndex * 24 - 1;
+        }
         if (isDirty(versionImagesWest[selectionIndex], width, height)) {
             versionImagesWest[selectionIndex] = clipImage(
-                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, 26,
+                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, rowHeight,
                     observer);
         }
-        g.drawImage(versionImagesWest[selectionIndex], 0,
-                selectionIndex * 24 + 24, observer);
+        g.drawImage(versionImagesWest[selectionIndex], 0, rowOffset, observer);
     }
 }

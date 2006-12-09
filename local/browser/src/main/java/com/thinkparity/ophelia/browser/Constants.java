@@ -187,6 +187,12 @@ public final class Constants {
     }
     /** thinkParity icons. */
     public static final class Icons {
+        public static final class Tray {
+            public static final Icon TRAY_ICON_OFFLINE =
+                ImageIOUtil.readIcon("SystemTrayOffline.png");
+            public static final Icon TRAY_ICON_ONLINE =
+                ImageIOUtil.readIcon("SystemTray.png");
+        }
         public static final class BrowserTitle {
             public static final Icon LEFTMOST_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelected.png");

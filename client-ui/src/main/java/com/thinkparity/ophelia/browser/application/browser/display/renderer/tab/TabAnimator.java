@@ -1,7 +1,7 @@
 /*
  * Created On:  6-Dec-06 10:46:22 AM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -39,7 +39,7 @@ public final class TabAnimator {
      *            The number of adjustments that are made per second.
      */
     public TabAnimator(final JPanel jPanel, final int adjustmentRate) {
-        super(/);
+        super();
         this.jPanel = jPanel;
         this.jPanelOriginalHeight = jPanel.getPreferredSize().height;
         this.timerDelay = adjustmentRate / 1000;
@@ -47,8 +47,12 @@ public final class TabAnimator {
 
     /**
      * Collapse the panel's height via a timer.
-     * @param heightDecrement The <code>int</code> amount by which to decrement the height.
-     * @param heightBound The lower bound <code>int</code> of the 
+     * 
+     * @param heightDecrement
+     *            The <code>int</code> amount by which to decrement the
+     *            height.
+     * @param heightBound
+     *            The lower bound <code>int</code> of the
      */
     public void collapse(final int heightDecrement, final int heightBound) {
         if (null != animator && animator.isRunning()) {

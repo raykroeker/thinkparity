@@ -18,25 +18,24 @@ import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Contact Tab Model<br>
+ * <b>Description:</b>The tab model for a contact<br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactTabModel extends TabListModel {
+public final class ContactTabModel extends TabPanelModel {
 
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;
@@ -383,6 +382,7 @@ public final class ContactTabModel extends TabListModel {
         this.searchResults.addAll(readSearchResults());
     }
 
+    
     /**
      * Apply the sort to the filtered list of panels.
      *
@@ -461,11 +461,15 @@ public final class ContactTabModel extends TabListModel {
     }
 
     private int lookupIndex(final Long invitationId) {
-        ContactInvitation invitation;
+        ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
-            invitation = ((ContactTabPanel) panels.get(i)).getInvitation();
-            if (null != invitation && invitation.getId().equals(invitationId))
-                return i;
+            panel = ((ContactTabPanel) panels.get(i));
+            if (panel.isSetIncoming())
+                if (panel.getIncoming().getId().equals(invitationId))
+                    return i;
+            if (panel.isSetOutgoing())
+                if (panel.getOutgoing().getId().equals(invitationId))
+                    return i;
         }
         return -1;
     }

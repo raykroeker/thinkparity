@@ -14,6 +14,12 @@ import javax.swing.Icon;
  */
 public class DefaultCell implements Cell {
 
+    /** The cell additional text <code>String</code>. */
+    private String additionalText;
+
+    /** The cell enabled <code>Boolean</code> flag. */
+    private Boolean enabled;
+
     /** The cell <code>Icon</code>. */
     private Icon icon;
 
@@ -26,6 +32,14 @@ public class DefaultCell implements Cell {
      */
     public DefaultCell() {
         super();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getAdditionalText()
+     *
+     */
+    public String getAdditionalText() {
+        return additionalText;
     }
 
     /**
@@ -51,6 +65,42 @@ public class DefaultCell implements Cell {
     public void invokeAction() {}
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
+     * 
+     */
+    public Boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isSetAdditionalText()
+     * 
+     */
+    public Boolean isSetAdditionalText() {
+        return null != additionalText;
+    }
+
+    /**
+     * Set the addtional text.
+     * 
+     * @param additionalText
+     *            The additional text <code>String</code>.
+     */
+    public void setAdditionalText(final String additionalText) {
+        this.additionalText = additionalText;
+    }
+
+    /**
+     * Set the cell's enabled flag.
+     * 
+     * @param enabled
+     *            True if the cell is enabled.
+     */
+    public void setEnabled(final Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
      * Set the cell icon.
      * 
      * @param icon
@@ -74,6 +124,5 @@ public class DefaultCell implements Cell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#showPopup()
      * 
      */
-    public void showPopup() {
-    }
+    public void showPopup() {}
 }

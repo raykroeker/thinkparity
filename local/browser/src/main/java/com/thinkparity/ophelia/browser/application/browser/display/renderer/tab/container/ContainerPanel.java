@@ -12,7 +12,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JList;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -47,9 +46,10 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  * @version 1.1.2.1
  */
 public class ContainerPanel extends DefaultTabPanel {
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel collapsedJPanel;
+    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
     private final javax.swing.JList eastJList = new javax.swing.JList();
@@ -69,6 +69,9 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
+
+    /** The container tab's <code>PopupDelegate</code>. */
+    public PopupDelegate popupDelegate;
 
     /** A <code>Container</code>. */
     protected Container container;
@@ -93,9 +96,6 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** The panel localization. */
     private final MainCellL18n localization;
-
-    /** The container tab's <code>PopupDelegate</code>. */
-    public PopupDelegate popupDelegate;
 
     /** The west list <code>DefaultListModel</code>. */
     private final DefaultListModel westListModel;
@@ -272,6 +272,38 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
+     *
+     */
+    @Override
+    protected void repaintLists() {
+        eastJList.repaint();
+        westJList.repaint();
+    }
+
+    private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            tabDelegate.toggleExpansion(this);
+            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        }
+    }//GEN-LAST:event_collapsedJPanelMousePressed
+
+    private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if (e.isPopupTrigger()) {
+            tabDelegate.toggleExpansion(this);
+            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
+            popupDelegate.showForContainer(container);
+        } else {
+            tabDelegate.toggleExpansion(this);
+        }
+    }//GEN-LAST:event_collapsedJPanelMouseReleased
+
     private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
         jListFocusGained((JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListFocusGained
@@ -283,6 +315,20 @@ public class ContainerPanel extends DefaultTabPanel {
     private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
         jListMouseClicked((JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListMouseClicked
+
+    private void eastJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseEntered
+        jListMouseEntered(eastListModel, (javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMouseEntered
+
+    private void eastJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseExited
+        jListMouseExited((javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMouseExited
+
+    private void eastJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseMoved
+        jListMouseMoved(
+                (DefaultListModel) ((javax.swing.JList) e.getSource()).getModel(),
+                (javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_eastJListMouseMoved
 
     private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
         jListMousePressed((JList) e.getSource(), e);
@@ -299,6 +345,18 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         saveSelection("eastJList", (javax.swing.JList) e.getSource());
     }//GEN-LAST:event_eastJListValueChanged
+
+    private void expansionJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseClicked
+        tabDelegate.toggleExpansion(this);
+    }//GEN-LAST:event_expansionJLabelMouseClicked
+
+    private void expansionJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseEntered
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_expansionJLabelMouseEntered
+
+    private void expansionJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseExited
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_expansionJLabelMouseExited
 
     private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
         actionDelegate.invokeForContainer(container);
@@ -320,8 +378,6 @@ public class ContainerPanel extends DefaultTabPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-
-        collapsedJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -357,14 +413,22 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
         collapsedJPanel.add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Package!");
+        textJLabel.setText("!Package Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(textJLabel, gridBagConstraints);
+
+        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        additionalTextJLabel.setText("!Package Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        collapsedJPanel.add(additionalTextJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -404,6 +468,11 @@ public class ContainerPanel extends DefaultTabPanel {
         westJList.setCellRenderer(new WestCellRenderer());
         westJList.setOpaque(false);
         westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
+        westJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                westJListMouseMoved(e);
+            }
+        });
         westJList.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 westJListFocusGained(e);
@@ -420,6 +489,12 @@ public class ContainerPanel extends DefaultTabPanel {
         westJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 westJListMouseClicked(e);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                westJListMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                westJListMouseExited(e);
             }
             public void mousePressed(java.awt.event.MouseEvent e) {
                 westJListMousePressed(e);
@@ -490,6 +565,11 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJList.setCellRenderer(new EastCellRenderer());
         eastJList.setOpaque(false);
         eastJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
+        eastJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                eastJListMouseMoved(e);
+            }
+        });
         eastJList.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 eastJListFocusGained(e);
@@ -506,6 +586,12 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 eastJListMouseClicked(e);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                eastJListMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                eastJListMouseExited(e);
             }
             public void mousePressed(java.awt.event.MouseEvent e) {
                 eastJListMousePressed(e);
@@ -575,40 +661,6 @@ public class ContainerPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            popupDelegate.showForContainer(container);
-        } else {
-            tabDelegate.toggleExpansion(this);
-        }
-    }//GEN-LAST:event_collapsedJPanelMouseReleased
-
-    private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            popupDelegate.showForContainer(container);
-        }
-    }//GEN-LAST:event_collapsedJPanelMousePressed
-
-    private void expansionJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseExited
-
-    private void expansionJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseEntered
-
-    private void expansionJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseClicked
-        tabDelegate.toggleExpansion(this);
-    }//GEN-LAST:event_expansionJLabelMouseClicked
-
     /**
      * Reload the container panel based upon internal criteria; more
      * specifically whether or not the panel is expanded controls the text to
@@ -624,43 +676,43 @@ public class ContainerPanel extends DefaultTabPanel {
      *
      */
     private void reloadText() {
-        final StringBuffer text = new StringBuffer();
         // if expanded display the container name
         // if not expanded display the container name; if there exists a draft
         // and the the latest version also display the draft owner; otherwise
         // if there exists the latest version display the published on date
         if (expanded) {
-            text.append(container.getName());
+            textJLabel.setText(container.getName());
         } else {
-            text.append(container.getName())
-                .append(Separator.DoubleSpace);
+            textJLabel.setText(container.getName());
             if (container.isDraft() && container.isLatest()) {
-                text.append(localization.getString("ContainerMessageDraftOwner",
+                additionalTextJLabel.setText(localization.getString(
+                        "ContainerMessageDraftOwner",
                         draft.getOwner().getName()));
             } else if (null != latestVersion) {
-                text.append(localization.getString(
+                additionalTextJLabel.setText(localization.getString(
                         "ContainerMessagePublishDate",
                         formatFuzzy(latestVersion.getUpdatedOn())));
+            } else {
+                additionalTextJLabel.setText("");
             }
         }
-        textJLabel.setText(text.toString());
         if (!expanded && !container.isSeen().booleanValue()) {
             textJLabel.setFont(Fonts.DefaultFontBold);
+            additionalTextJLabel.setFont(Fonts.DefaultFontBold);
         }
-        if (!container.isLocalDraft() && !container.isLatest()) {
+        if (!isLatest()) {
             textJLabel.setForeground(
                     Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
-     *
+     * Determine if there is a latest version or not.
+     * 
+     * @return True if the version is the latest.
      */
-    @Override
-    protected void repaintLists() {
-        eastJList.repaint();
-        westJList.repaint();
+    private boolean isLatest() {
+        return container.isLocalDraft() || container.isLatest();
     }
 
     private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
@@ -672,8 +724,16 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_westJListFocusLost
 
     private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseClicked
+
+    private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
+    }//GEN-LAST:event_westJListMouseEntered
+
+    private void westJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseExited
+    }//GEN-LAST:event_westJListMouseExited
+
+    private void westJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseMoved
+    }//GEN-LAST:event_westJListMouseMoved
 
     private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
         jListMousePressed((JList) e.getSource(), e);
@@ -700,33 +760,26 @@ public class ContainerPanel extends DefaultTabPanel {
     /** An east list cell. */
     private abstract class AbstractEastCell extends DefaultCell implements
             EastCell {
-        /** The additional text <code>String</code>. */
-        private String additionalText;
         /**
-         * Set the east cell's additional text.
-         * 
-         * @param additionalText
-         *            The additional text <code>String</code>.
+         * Create AbstractEastCell.
+         *
          */
-        protected void setAdditionalText(final String additionalText) {
-            this.additionalText = additionalText;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#isSetAdditionalText()
-         */
-        public Boolean isSetAdditionalText() {
-            return null != additionalText;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#getAdditionalText()
-         */
-        public String getAdditionalText() {
-            return additionalText;
+        private AbstractEastCell() {
+            super();
+            setEnabled(isLatest());
         }
     }
 
     /** A container cell. */
     private final class ContainerCell extends WestCell {
+        /**
+         * Create ContainerCell.
+         * 
+         */
+        private ContainerCell() {
+            super();
+            setEnabled(container.isLatest());
+        }
         @Override
         public Icon getIcon() {
             return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
@@ -743,8 +796,13 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A draft cell. */
     private final class DraftCell extends WestCell {
+        /**
+         * Create DraftCell.
+         *
+         */
         private DraftCell() {
             super();
+            setEnabled(container.isLatest());
             for (final Document document : draft.getDocuments()) {
                 add(new DraftDocumentCell(document));
             }
@@ -800,13 +858,29 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A version cell. */
     private final class VersionCell extends WestCell {
-        private final ContainerVersion version;
+        /** A published to <code>User</code>. */
         private final User publishedBy;
+        /** A <code>ContainerVersion</code>. */
+        private final ContainerVersion version;
+        /**
+         * Create VersionCell.
+         * 
+         * @param version
+         *            A <code>ContainerVersion</code>.
+         * @param documentVersions
+         *            A <code>List</code> of <code>DocumentVersion</code>s.
+         * @param users
+         *            A <code>List</code> of published to
+         *            <code>ArtifactReceipt</code>s and <code>User</code>.
+         * @param publishedBy
+         *            A published by <code>User</code>.
+         */
         private VersionCell(final ContainerVersion version,
                 final Map<DocumentVersion, Delta> documentVersions,
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             this.version = version;
             this.publishedBy = publishedBy;
+            setEnabled(container.isLatest());
             for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
                 add(new VersionDocumentCell(entry.getKey(), entry.getValue()));
             }

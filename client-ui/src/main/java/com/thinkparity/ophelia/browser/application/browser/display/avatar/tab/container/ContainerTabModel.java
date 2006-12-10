@@ -113,11 +113,8 @@ public final class ContainerTabModel extends TabPanelModel {
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {
-        logger.logTraceId();
         doToggleExpansion(tabPanel);
-        logger.logTraceId();
         synchronize();
-        logger.logTraceId();
     }
 
     /**

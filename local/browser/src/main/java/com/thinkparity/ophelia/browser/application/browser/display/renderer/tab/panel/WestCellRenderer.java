@@ -12,6 +12,8 @@ import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
+
 
 /**
  * <b>Title:</b>thinkParity Tab Panel West Cell Renderer<br>
@@ -24,6 +26,7 @@ public final class WestCellRenderer extends AbstractJPanel implements
         ListCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
@@ -60,8 +63,18 @@ public final class WestCellRenderer extends AbstractJPanel implements
             final boolean cellHasFocus) {
         final Cell cell = (Cell) value;
         iconJLabel.setIcon(cell.getIcon());
-        textJLabel.setText(cell.getText());
+        textJLabel.setText(cell.getText()); 
+        if (cell.isSetAdditionalText())
+            additionalTextJLabel.setText(cell.getAdditionalText());
+        else
+            additionalTextJLabel.setText("");
+        if (cell.isEnabled()) {
+            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        } else {
+            textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        }
         return this;
+
     }
 
     /**
@@ -84,12 +97,20 @@ public final class WestCellRenderer extends AbstractJPanel implements
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Version Cell!");
+        textJLabel.setText("!West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
+
+        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        additionalTextJLabel.setText("!West Cell Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(additionalTextJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 }

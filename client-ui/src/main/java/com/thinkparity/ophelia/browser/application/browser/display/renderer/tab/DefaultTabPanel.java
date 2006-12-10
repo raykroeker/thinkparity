@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
@@ -14,6 +15,7 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -69,6 +71,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     /** The tab panel's <code.TabAnimator</code>. */
     protected final TabAnimator animator;
 
+    /**
+     * The collapsed and expanded
+     * <code>JPanel</code> <code>GridBagConstraints</code>.
+     */
+    protected final GridBagConstraints constraints;
+
     /** The tab panel's <code>TabRenderer</code>. */
     protected final TabRenderer renderer;
 
@@ -80,12 +88,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
 
     /** A <code>BrowserSession</code>. */
     private final BrowserSession session;
-
-    /**
-     * The collapsed and expanded
-     * <code>JPanel</code> <code>GridBagConstraints</code>.
-     */
-    protected final GridBagConstraints constraints;
 
     /**
 	 * Create DefaultTabPanel.
@@ -191,10 +193,55 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     protected void jListMouseClicked(final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
         logger.logApiId();
         logger.logVariable("e", e);
-        // a click count of 2, 4, 6, etc. triggers double click event
-        if (e.getClickCount() % 2 == 0) {
+        if (jList.isSelectionEmpty()) {
+            return;
+        } else {
+            /* we are using a single-click paradigm similar to clicking on links to
+             * invoke actions */
             ((Cell) jList.getSelectedValue()).invokeAction();
         }
+    }
+
+    /**
+     * Handle the mouse entered event for the given list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void jListMouseEntered(final DefaultListModel listModel,
+            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
+        jListSetCursor(listModel, jList, e);
+    }
+
+    /**
+     * Handle the mouse exited event of the given list. All we do is update the
+     * cursor.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void jListMouseExited(final javax.swing.JList jList,
+            final java.awt.event.MouseEvent e) {
+        SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    /**
+     * Handle the mouse moved event for the given list.
+     * 
+     * @param listModel
+     *            A <code>DefaultListModel</code>.
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void jListMouseMoved(final DefaultListModel listModel,
+            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
+        jListSetCursor(listModel, jList, e);
     }
 
     /**
@@ -280,5 +327,32 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
         session.setAttribute(MessageFormat.format(
                 SK_LIST_SELECTED_INDEX_PATTERN, getId(), listKey),
                 Integer.valueOf(jList.getSelectedIndex()));
+    }
+
+    /**
+     * Set the cursor for the given list.
+     * 
+     * @param listModel
+     *            A <code>DefaultListModel</code>.
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jListSetCursor(final DefaultListModel listModel,
+            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
+        if (listModel.isEmpty()) {
+            SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+        } else {
+            /* if the mouse lies within any row's bounds; update the
+             * cursor to a hand */
+            final Rectangle bounds =
+                jList.getCellBounds(jList.getFirstVisibleIndex(), jList.getLastVisibleIndex());
+            if (SwingUtil.regionContains(bounds, e.getPoint())) {
+                SwingUtil.setCursor(jList, java.awt.Cursor.HAND_CURSOR);
+            } else {
+                SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+            }
+        }
     }
 }

@@ -16,7 +16,6 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.contact.ContactInvitation;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
@@ -62,7 +61,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private boolean expanded;
 
     /** The <code>IncomingInvitation</code>. */
-    private IncomingInvitation incomingInvitation;
+    private IncomingInvitation incoming;
 
     /** The invitation invited by <code>User</code>. */
     private User invitedBy;
@@ -71,7 +70,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private final MainCellL18n localization;
 
     /** The <code>OutgoingInvitation</code>. */
-    private OutgoingInvitation outgoingInvitation;
+    private OutgoingInvitation outgoing;
 
     /** A contact tab <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
@@ -102,15 +101,48 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Obtain the invitation.
+     * Obtain the incoming invitation.
      * 
-     * @return A <code>ContactInvitation</code>.
+     * @return An <code>IncomingInvitation</code>.
      */
-    public ContactInvitation getInvitation() {
-        if (null == incomingInvitation)
-            return outgoingInvitation;
-        else
-            return incomingInvitation;
+    public IncomingInvitation getIncoming() {
+        return incoming;
+    }
+
+    /**
+     * Obtain the outgoing invitation.
+     * 
+     * @return An <code>OutgoingInvitation</code>.
+     */
+    public OutgoingInvitation getOutgoing() {
+        return outgoing;
+    }
+
+    /**
+     * Determine if the contact is set.
+     * 
+     * @return True if the contact is set.
+     */
+    public Boolean isSetContact() {
+        return null != contact;
+    }
+
+    /**
+     * Determine if the incoming invitation is set.
+     * 
+     * @return True if the invitation is set.
+     */
+    public Boolean isSetIncoming() {
+        return null != incoming;
+    }
+
+    /**
+     * Determine if the outgoing invitation is set.
+     * 
+     * @return True if the invitation is set.
+     */
+    public Boolean isSetOutgoing() {
+        return null != outgoing;
     }
 
     /**
@@ -185,9 +217,9 @@ public class ContactTabPanel extends DefaultTabPanel {
      * @param invitedBy
      *            The invited by <code>User</code>.
      */
-    public void setPanelData(final IncomingInvitation incomingInvitation,
+    public void setPanelData(final IncomingInvitation incoming,
             final User invitedBy) {
-        this.incomingInvitation = incomingInvitation;
+        this.incoming = incoming;
         this.invitedBy = invitedBy;
         westListModel.addElement(new IncomingCell());
         iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
@@ -203,11 +235,11 @@ public class ContactTabPanel extends DefaultTabPanel {
      * @param contact
      *            A <code>Contact</code>.
      */
-    public void setPanelData(final OutgoingInvitation outgoingInvitation) {
-        this.outgoingInvitation = outgoingInvitation;
+    public void setPanelData(final OutgoingInvitation outgoing) {
+        this.outgoing = outgoing;
         westListModel.addElement(new OutgoingCell());
         iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        textJLabel.setText(outgoingInvitation.getEmail().toString());
+        textJLabel.setText(outgoing.getEmail().toString());
         restoreSelection("eastJList", eastListModel, eastJList);
         restoreSelection("westJList", westListModel, westJList);
     }
@@ -258,12 +290,12 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (e.isPopupTrigger()) {
             tabDelegate.toggleExpansion(this);
             popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            if (null != contact)
+            if (isSetContact().booleanValue())
                 popupDelegate.showForContact(contact);
-            if (null != incomingInvitation)
-                popupDelegate.showForInvitation(incomingInvitation);
-            if (null != outgoingInvitation)
-                popupDelegate.showForInvitation(outgoingInvitation);
+            if (isSetIncoming().booleanValue())
+                popupDelegate.showForInvitation(incoming);
+            if (isSetOutgoing().booleanValue())
+                popupDelegate.showForInvitation(outgoing);
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
@@ -273,12 +305,12 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (e.isPopupTrigger()) {
             tabDelegate.toggleExpansion(this);
             popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            if (null != contact)
+            if (isSetContact().booleanValue())
                 popupDelegate.showForContact(contact);
-            if (null != incomingInvitation)
-                popupDelegate.showForInvitation(incomingInvitation);
-            if (null != outgoingInvitation)
-                popupDelegate.showForInvitation(outgoingInvitation);
+            if (isSetIncoming().booleanValue())
+                popupDelegate.showForInvitation(incoming);
+            if (isSetOutgoing().booleanValue())
+                popupDelegate.showForInvitation(outgoing);
         } else {
             tabDelegate.toggleExpansion(this);
         }
@@ -651,6 +683,13 @@ public class ContactTabPanel extends DefaultTabPanel {
             return null;
         }
         /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
+         *
+         */
+        public Boolean isEnabled() {
+            return Boolean.TRUE;
+        }
+        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
          *
          */
@@ -730,6 +769,13 @@ public class ContactTabPanel extends DefaultTabPanel {
             parent.invokeAction();
         }
         /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
+         * 
+         */
+        public Boolean isEnabled() {
+            return Boolean.TRUE;
+        }
+        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#isSetAdditionalText()
          *
          */
@@ -754,9 +800,9 @@ public class ContactTabPanel extends DefaultTabPanel {
         private IncomingCell() {
             super();
             add(new ContactFieldCell(this, localization.getString("CreatedOn"),
-                    formatFuzzy(incomingInvitation.getCreatedOn())));
+                    formatFuzzy(incoming.getCreatedOn())));
             add(new ContactFieldCell(this, localization.getString("InvitedAs"),
-                    incomingInvitation.getInvitedAs().toString()));
+                    incoming.getInvitedAs().toString()));
         }
         @Override
         public Icon getIcon() {
@@ -768,11 +814,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         }
         @Override
         public void invokeAction() {
-            actionDelegate.invokeForInvitation(incomingInvitation);
+            actionDelegate.invokeForInvitation(incoming);
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForInvitation(incomingInvitation);
+            popupDelegate.showForInvitation(incoming);
         }
     }
 
@@ -785,7 +831,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         private OutgoingCell() {
             super();
             add(new ContactFieldCell(this, localization.getString("CreatedOn"),
-                    formatFuzzy(outgoingInvitation.getCreatedOn())));
+                    formatFuzzy(outgoing.getCreatedOn())));
         }
         @Override
         public Icon getIcon() {
@@ -793,15 +839,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         }
         @Override
         public String getText() {
-            return outgoingInvitation.getEmail().toString();
+            return outgoing.getEmail().toString();
         }
         @Override
         public void invokeAction() {
-            actionDelegate.invokeForInvitation(outgoingInvitation);
+            actionDelegate.invokeForInvitation(outgoing);
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForInvitation(outgoingInvitation);
+            popupDelegate.showForInvitation(outgoing);
         }
     }
 }

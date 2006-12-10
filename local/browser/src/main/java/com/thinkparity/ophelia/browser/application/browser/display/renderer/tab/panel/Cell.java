@@ -16,6 +16,13 @@ import javax.swing.Icon;
 public interface Cell {
 
     /**
+     * Obtain the additional text.
+     * 
+     * @return Additiona text <code>String</code>.
+     */
+    public String getAdditionalText();
+
+    /**
      * Obtain the icon for the cell.
      * 
      * @return The <code>Icon</code>.
@@ -34,6 +41,20 @@ public interface Cell {
      * 
      */
     public void invokeAction();
+
+    /**
+     * Determine whether or not a cell is enabled.
+     * 
+     * @return True if it is enabled.
+     */
+    public Boolean isEnabled();
+
+    /**
+     * Determine whether or not additional text is set.
+     * 
+     * @return True if the additional text is set.
+     */
+    public Boolean isSetAdditionalText();
 
     /**
      * Show a popup menu for the cell.

@@ -17,7 +17,7 @@ import javax.swing.Icon;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class WestCell implements Cell {
+public class WestCell extends DefaultCell implements Cell {
 
     /** A list of <code>EastCell</code>s tied to the context of this cell. */
     private final List<EastCell> eastCells;

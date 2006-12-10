@@ -11,18 +11,4 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
  * @version 1.1.2.1
  */
 public interface EastCell extends Cell {
-
-    /**
-     * Obtain the additional text.
-     * 
-     * @return Additiona text <code>String</code>.
-     */
-    public String getAdditionalText();
-
-    /**
-     * Determine whether or not additional text is set.
-     * 
-     * @return True if the additional text is set.
-     */
-    public Boolean isSetAdditionalText();
 }

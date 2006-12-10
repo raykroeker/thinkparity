@@ -30,7 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @version 1.1.2.1
  * @param <T> The model type.
  */
-public abstract class TabPanelAvatar<T extends TabModel> extends TabAvatar<T> {
+public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<T> {
 
     /**
      * A client property key <code>String</code> mapping to the panels'

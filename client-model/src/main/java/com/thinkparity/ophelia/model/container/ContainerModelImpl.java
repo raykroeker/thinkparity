@@ -2221,7 +2221,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         for (final ArtifactVersion compareToDocument : compareToDocuments) {
             artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
             artifactVersionDelta.setArtifactId(compareToDocument.getArtifactId());
-//            artifactVersionDelta.setArtifactVersionId(compareToDocument.getVersionId());
             // walk through compare version's documents
             didHit = false;
             for (final ArtifactVersion versionDocument : compareDocuments) {
@@ -2241,6 +2240,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             }
             // the document is not in compare's version
             if (!didHit) {
+                artifactVersionDelta.setArtifactVersionId(compareToDocument.getVersionId());
                 artifactVersionDelta.setDelta(didNotHit);
             }
             versionDelta.addDelta(artifactVersionDelta);

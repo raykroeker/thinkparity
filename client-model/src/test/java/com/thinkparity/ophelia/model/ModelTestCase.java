@@ -530,6 +530,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return logger.logVariable("document", document);
     }
 
+    protected void revertDocument(final OpheliaTestUser revertAs,
+            final Long localContainerId, final Long localDocumentId) {
+        final Document document = getDocumentModel(revertAs).read(localDocumentId);
+        final Container container = getContainerModel(revertAs).read(localContainerId);
+        logger.logInfo("Reverting document \"{0}\" for container \"{1}\" as \"{2}.\"",
+                document.getName(), container.getName(), revertAs.getSimpleUsername());
+        getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
+    }
+
     /**
      * Add all of the input test files to the container as documents.
      * 
@@ -544,6 +553,24 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final List<Document> documents = new ArrayList<Document>();
         for(final String inputFileName : getInputFileNames()) {
             documents.add(addDocument(addAs, localContainerId, inputFileName));
+        }
+        return documents;
+    }
+
+    /**
+     * Add documents.
+     * 
+     * @param addAs
+     *            An <code>OpheliaTestUser</code> to add the container as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to addAs.
+     * @return An optional <code>List</code> of file name <code>String</code>s.
+     */
+    protected List<Document> addDocuments(final OpheliaTestUser addAs,
+            final Long localContainerId, final String... filenames) {
+        final List<Document> documents = new ArrayList<Document>(filenames.length);
+        for(final String filename : filenames) {
+            documents.add(addDocument(addAs, localContainerId, filename));
         }
         return documents;
     }
@@ -746,7 +773,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getReleaseModel(testUser);
     }
 
-	protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+    protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
         return modelFactory.getScriptModel(testUser);
     }
 
@@ -759,7 +786,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getUserModel(testUser);
     }
 
-    /**
+	/**
 	 * Obtain a handle to the parity workspace model.
 	 * 
 	 * @return A handle to the parity workspace model.
@@ -880,6 +907,47 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         for(final Document document : draft.getDocuments()) {
             modifyDocument(testUser, document.getId());
         }
+    }
+
+    /**
+     * Open a document for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A document id <code>Long</code> local to openAs.
+     */
+    protected void openDocument(final OpheliaTestUser openAs,
+            final Long localDocumentId) {
+        getDocumentModel(openAs).open(localDocumentId, new Opener() {
+            public void open(final File file) {
+                assertNotNull("File to open is null", file);
+                assertTrue("File to open does not exist.", file.exists());
+                assertTrue("File to open cannot be read.", file.canRead());
+            }
+        });
+    }
+
+    /**
+     * Open a document version for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A document id <code>Long</code> local to openAs.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     */
+    protected void openDocumentVersion(final OpheliaTestUser openAs,
+            final Long localDocumentId, final Long versionId) {
+        getDocumentModel(openAs).openVersion(localDocumentId, versionId,
+                new Opener() {
+                    public void open(final File file) {
+                        assertNotNull("File to open is null", file);
+                        assertTrue("File to open does not exist.", file.exists());
+                        assertTrue("File to open cannot be read.", file.canRead());
+                    }
+        });
     }
 
     /**
@@ -1105,47 +1173,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Open a document for a user.
-     * 
-     * @param readAs
-     *            An <code>OpheliaTestUser</code> to read as.
-     * @param localDocumentId
-     *            A document id <code>Long</code> local to openAs.
-     */
-    protected void openDocument(final OpheliaTestUser openAs,
-            final Long localDocumentId) {
-        getDocumentModel(openAs).open(localDocumentId, new Opener() {
-            public void open(final File file) {
-                assertNotNull("File to open is null", file);
-                assertTrue("File to open does not exist.", file.exists());
-                assertTrue("File to open cannot be read.", file.canRead());
-            }
-        });
-    }
-
-    /**
-     * Open a document version for a user.
-     * 
-     * @param readAs
-     *            An <code>OpheliaTestUser</code> to read as.
-     * @param localDocumentId
-     *            A document id <code>Long</code> local to openAs.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     */
-    protected void openDocumentVersion(final OpheliaTestUser openAs,
-            final Long localDocumentId, final Long versionId) {
-        getDocumentModel(openAs).openVersion(localDocumentId, versionId,
-                new Opener() {
-                    public void open(final File file) {
-                        assertNotNull("File to open is null", file);
-                        assertTrue("File to open does not exist.", file.exists());
-                        assertTrue("File to open cannot be read.", file.canRead());
-                    }
-        });
-    }
-
-    /**
      * Read an artifact's team.
      * 
      * @param artifact
@@ -1175,6 +1202,25 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             final Long localArtifactId) {
         final InternalArtifactModel artifactModel = getArtifactModel(readAs);
         return artifactModel.readTeam2(localArtifactId);
+    }
+
+    /**
+     * Remove a document.
+     * 
+     * @param removeAs
+     *            The user to remove the document as.
+     * @param localContainerId
+     *            A local container id <code>Long</code> relative to removeAs.
+     * @param localDocumentId
+     *            A local document id <code>Long</code> relative to removeAs.
+     */
+    protected void removeDocument(final OpheliaTestUser removeAs,
+            final Long localContainerId, final Long localDocumentId) {
+        final Document document = getDocumentModel(removeAs).read(localDocumentId);
+        final Container container = getContainerModel(removeAs).read(localContainerId);
+        logger.logInfo("Removing document \"{0}\" from container \"{1}\" as \"{2}.\"",
+                document.getName(), container.getName(), removeAs.getSimpleUsername());
+        getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
     }
 
     /**

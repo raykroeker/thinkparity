@@ -1,64 +1,58 @@
 /*
- * Created On: October 7, 2006, 1:34 PM
+ * Created On:  October 7, 2006, 1:34 PM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
 import java.awt.Component;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Version Content Cell Renderer<br>
+ * <b>Description:</b>A cell renderer for the eastern list within the versions
+ * panel.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-final class WestCellRenderer extends AbstractJPanel implements
+public class EastCellRenderer extends AbstractJPanel implements
         ListCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Creates VersionCellRenderer.
-     * 
+     * Create VersionContentCellRenderer.
+     *
      */
-    WestCellRenderer() {
-        super();
+    public EastCellRenderer() {
         initComponents();
     }
 
     /**
-     * Return a component that has been configured to display the specified
-     * value. That component's <code>paint</code> method is then called to
-     * "render" the cell.  If it is necessary to compute the dimensions
-     * of a list because the list cells do not have a fixed size, this method
-     * is called to generate a component on which <code>getPreferredSize</code>
-     * can be invoked.
-     * 
-     * @param list The JList we're painting.
-     * @param value The value returned by list.getModel().getElementAt(index).
-     * @param index The cells index.
-     * @param isSelected True if the specified cell was selected.
-     * @param cellHasFocus True if the specified cell has the focus.
-     * @return A component whose paint() method will render the specified value.
-     * @see JList
-     * @see ListSelectionModel
-     * @see ListModel
+     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
+     *      java.lang.Object, int, boolean, boolean)
      */
     public Component getListCellRendererComponent(final JList list,
             final Object value, final int index, final boolean isSelected,
             final boolean cellHasFocus) {
-        final Cell cell = (Cell) value;
-        iconJLabel.setIcon(cell.getIcon());
-        textJLabel.setText(cell.getText());
+        final EastCell eastCell = (EastCell) value;
+        iconJLabel.setIcon(eastCell.getIcon());
+        textJLabel.setText(eastCell.getText()); 
+        if (eastCell.isSetAdditionalText())
+            additionalTextJLabel.setText(eastCell.getAdditionalText());
+        else
+            additionalTextJLabel.setText("");
+        textJLabel.setForeground(Colors.Browser.List.LIST_FG);
         return this;
     }
 
@@ -79,15 +73,23 @@ final class WestCellRenderer extends AbstractJPanel implements
         setPreferredSize(new java.awt.Dimension(20, 24));
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Version Cell!");
+        textJLabel.setText("!VersionContent!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(textJLabel, gridBagConstraints);
+
+        additionalTextJLabel.setFont(Fonts.SmallFont);
+        additionalTextJLabel.setText("!Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(additionalTextJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 }

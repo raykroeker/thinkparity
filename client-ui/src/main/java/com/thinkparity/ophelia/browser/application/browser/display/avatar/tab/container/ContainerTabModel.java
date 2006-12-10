@@ -50,11 +50,11 @@ import com.thinkparity.ophelia.browser.util.DocumentUtil;
  */
 public final class ContainerTabModel extends TabPanelModel {
 
-    /** An application. */
-    private final Browser browser;
-
     /** A <code>ContainerTabActionDelegate</code>. */
     private final ContainerTabActionDelegate actionDelegate;
+
+    /** An application. */
+    private final Browser browser;
 
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
@@ -113,36 +113,11 @@ public final class ContainerTabModel extends TabPanelModel {
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {
+        logger.logTraceId();
         doToggleExpansion(tabPanel);
+        logger.logTraceId();
         synchronize();
-    }
-
-    /**
-     * Toggle a panel's expansion.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void doToggleExpansion(final TabPanel tabPanel) {
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        final Boolean expanded;
-        if (isExpanded(containerPanel)) {
-            expanded = Boolean.FALSE;
-        } else {
-            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
-            for (final TabPanel visiblePanel : visiblePanels) {
-                if (isExpanded(visiblePanel)) {
-                    doToggleExpansion(visiblePanel);
-                }
-            }
-            // NOTE-END:multi-expand
-
-            expanded = Boolean.TRUE;
-            browser.runApplyContainerFlagSeen(
-                    containerPanel.getContainer().getId());
-        }
-        containerPanel.setExpanded(expanded);
-        expandedState.put(tabPanel, expanded);
+        logger.logTraceId();
     }
 
     /**
@@ -160,7 +135,7 @@ public final class ContainerTabModel extends TabPanelModel {
             synchronize();
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
      * 
@@ -182,7 +157,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         return false;
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      * 
@@ -269,7 +244,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         debug();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#removeSearch()
      * 
@@ -348,7 +323,7 @@ public final class ContainerTabModel extends TabPanelModel {
             synchronize();
         }
     }
-
+    
     /**
      * Obtain the popup delegate.
      * 
@@ -375,6 +350,7 @@ public final class ContainerTabModel extends TabPanelModel {
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
+
     /**
      * Determine if an ordering is applied.
      * 
@@ -386,7 +362,6 @@ public final class ContainerTabModel extends TabPanelModel {
         debug();
         return sortedBy.contains(ordering);
     }
-
     /**
      * Determine if the container has been distributed.
      * 
@@ -603,6 +578,38 @@ public final class ContainerTabModel extends TabPanelModel {
         }
     }
 
+    private void clearPanels() {
+        panels.clear();
+    }
+
+    /**
+     * Toggle a panel's expansion.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     */
+    private void doToggleExpansion(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
+        final Boolean expanded;
+        if (isExpanded(containerPanel)) {
+            expanded = Boolean.FALSE;
+        } else {
+            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            for (final TabPanel visiblePanel : visiblePanels) {
+                if (isExpanded(visiblePanel)) {
+                    doToggleExpansion(visiblePanel);
+                }
+            }
+            // NOTE-END:multi-expand
+
+            expanded = Boolean.TRUE;
+            browser.runApplyContainerFlagSeen(
+                    containerPanel.getContainer().getId());
+        }
+        containerPanel.setExpanded(expanded);
+        expandedState.put(tabPanel, expanded);
+    }
+    
     /**
      * Extract a list of files from a transferable.
      * 
@@ -617,7 +624,7 @@ public final class ContainerTabModel extends TabPanelModel {
             throw new BrowserException("Cannot extract files from transferrable.", x);
         }
     }
-    
+
     /**
      * Import data into a container.
      * 
@@ -722,10 +729,6 @@ public final class ContainerTabModel extends TabPanelModel {
             expandedState.put(tabPanel, Boolean.FALSE);
             return isExpanded(tabPanel);
         }
-    }
-
-    private void clearPanels() {
-        panels.clear();
     }
 
     /**

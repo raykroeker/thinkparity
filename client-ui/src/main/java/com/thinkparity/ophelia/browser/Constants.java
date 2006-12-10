@@ -188,6 +188,7 @@ public final class Constants {
     /** thinkParity icons. */
     public static final class Icons {
         public static final class Tray {
+            // TODO Add an offline icon.
             public static final Icon TRAY_ICON_OFFLINE =
                 ImageIOUtil.readIcon("SystemTray.png");
             public static final Icon TRAY_ICON_ONLINE =

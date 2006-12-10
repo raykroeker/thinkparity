@@ -3,11 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
-import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,13 +11,10 @@ import java.util.Map.Entry;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JList;
-import javax.swing.border.Border;
 
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -37,12 +30,14 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.BackgroundRenderer;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
@@ -53,30 +48,27 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class ContainerPanel extends DefaultTabPanel {
     
-    /** The panel <code>Border</code>. */
-    private static final Border BORDER;
-
-    /** The number of rows in the version panel. */
-    private static final int NUMBER_VISIBLE_ROWS;
-
-    /** A <code>FuzzyDateFormat</code>. */
-    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
-
-    /** A session key pattern for the east list's selected index. */
-    private static final String SK_EAST_LIST_SELECTED_INDEX_PATTERN;
-
-    /** A session key pattern for the west list's selected index. */
-    private static final String SK_WEST_LIST_SELECTED_INDEX_PATTERN;
-
-    static {
-        BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
-        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
-        NUMBER_VISIBLE_ROWS = 6;
-        SK_EAST_LIST_SELECTED_INDEX_PATTERN =
-            "ContainerPanel#eastJList.getSelectedIndex({0})";
-        SK_WEST_LIST_SELECTED_INDEX_PATTERN =
-            "ContainerPanel#westJList.getSelectedIndex({0})";
-    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel collapsedJPanel;
+    private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
+    private final javax.swing.JList eastJList = new javax.swing.JList();
+    private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel eastLastJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel expansionJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westFirstJLabel = new javax.swing.JLabel();
+    private final javax.swing.JList westJList = new javax.swing.JList();
+    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel westLastJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
 
     /** A <code>Container</code>. */
     protected Container container;
@@ -87,39 +79,8 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The expanded <code>Boolean</code> state. */
     protected boolean expanded;
 
-    /** An image cache. */
-    protected final MainPanelImageCache imageCache;
-
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
-
-    /** A <code>Animator</code> used by expand and collapse. */
-    private Animator animator;
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel collapsedJPanel;
-    private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
-    private final javax.swing.JList eastJList = new javax.swing.JList();
-    private javax.swing.JPanel eastJPanel;
-    private final javax.swing.JLabel eastLastJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
-    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private javax.swing.JLabel expansionJLabel;
-    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFirstJLabel = new javax.swing.JLabel();
-    private final javax.swing.JList westJList = new javax.swing.JList();
-    private javax.swing.JPanel westJPanel;
-    private final javax.swing.JLabel westLastJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
-
-    /** A <code>TabDelegate</code>. */
-    private TabDelegate tabDelegate;
 
     /** The east list <code>DefaultListModel</code>. */
     private final DefaultListModel eastListModel;
@@ -134,13 +95,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final MainCellL18n localization;
 
     /** The container tab's <code>PopupDelegate</code>. */
-    private PopupDelegate popupDelegate;
-
-    /** A <code>BackgroundRenderer</code>. */
-    private final BackgroundRenderer renderer;
-
-    /** A <code>BrowserSession</code>. */
-    private final BrowserSession session;
+    public PopupDelegate popupDelegate;
 
     /** The west list <code>DefaultListModel</code>. */
     private final DefaultListModel westListModel;
@@ -150,20 +105,13 @@ public class ContainerPanel extends DefaultTabPanel {
      * 
      */
     public ContainerPanel(final BrowserSession session) {
-        super();
-        this.constraints = new GridBagConstraints();
-        this.constraints.fill = GridBagConstraints.BOTH;
-        this.constraints.weightx = this.constraints.weighty = 1.0F;
+        super(session);
         this.eastListModel = new DefaultListModel();
         this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
-        this.imageCache = new MainPanelImageCache();
         this.localization = new MainCellL18n("ContainerPanel");
-        this.renderer = new BackgroundRenderer();
-        this.session = session;
         this.westListModel = new DefaultListModel();
         initComponents();
-        this.animator = new Animator(this, 12);
     }
     
     /**
@@ -205,17 +153,8 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPanelPopupDelegate()
-     *
-     */
-    public TabPanelPopupDelegate getPanelPopupDelegate() {
-        return popupDelegate;
-    }
-
-    /**
-     * Obtain popupDelegate.
-     *
-     * @return A ContainerTabPopupDelegate.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPopupDelegate()
+     * 
      */
     public PopupDelegate getPopupDelegate() {
         return popupDelegate;
@@ -240,7 +179,6 @@ public class ContainerPanel extends DefaultTabPanel {
         this.actionDelegate = actionDelegate;
     }
 
-    private final GridBagConstraints constraints;
     /**
      * Set the expanded state.
      * 
@@ -297,11 +235,11 @@ public class ContainerPanel extends DefaultTabPanel {
                     .get(version)));
         }
         iconJLabel.setIcon(container.isBookmarked()
-                ? imageCache.read(TabPanelIcon.CONTAINER_BOOKMARK)
-                : imageCache.read(TabPanelIcon.CONTAINER));
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
-        restoreSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, eastListModel, eastJList);
-        restoreSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, westListModel, westJList);
+        restoreSelection("eastJList", eastListModel, eastJList);
+        restoreSelection("westJList", westListModel, westJList);
     }
 
     /**
@@ -312,16 +250,6 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public void setPopupDelegate(final PopupDelegate popupDelegate) {
         this.popupDelegate = popupDelegate;
-    }
-
-    /**
-     * Set the tab delegate.
-     * 
-     * @param tabDelegate
-     *            A <code>TabDelegate</code>.
-     */
-    public void setTabDelegate(final TabDelegate tabDelegate) {
-        this.tabDelegate = tabDelegate;
     }
 
     /**
@@ -337,7 +265,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final int selectionIndex = westJList.getSelectedIndex();
                 renderer.paintExpandedBackgroundWest(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
+                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), this);
             }
         } else {
             renderer.paintBackground(g, getWidth(), getHeight());
@@ -369,7 +297,7 @@ public class ContainerPanel extends DefaultTabPanel {
             repaint();
             return;
         }
-        saveSelection(SK_EAST_LIST_SELECTED_INDEX_PATTERN, (javax.swing.JList) e.getSource());
+        saveSelection("eastJList", (javax.swing.JList) e.getSource());
     }//GEN-LAST:event_eastJListValueChanged
 
     private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
@@ -394,9 +322,6 @@ public class ContainerPanel extends DefaultTabPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         collapsedJPanel = new javax.swing.JPanel();
-        westJPanel = new javax.swing.JPanel();
-        expansionJLabel = new javax.swing.JLabel();
-        eastJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -404,27 +329,24 @@ public class ContainerPanel extends DefaultTabPanel {
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                collapsedJPanelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                collapsedJPanelMousePressed(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                collapsedJPanelMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                collapsedJPanelMouseReleased(e);
             }
         });
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
-        iconJLabel.setMaximumSize(new java.awt.Dimension(16, 16));
-        iconJLabel.setMinimumSize(new java.awt.Dimension(16, 16));
-        iconJLabel.setPreferredSize(new java.awt.Dimension(16, 16));
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                iconJLabelMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                iconJLabelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                iconJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                iconJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                iconJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                iconJLabelMouseExited(e);
             }
         });
 
@@ -445,7 +367,7 @@ public class ContainerPanel extends DefaultTabPanel {
         collapsedJPanel.add(textJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(collapsedJPanel, gridBagConstraints);
@@ -458,14 +380,14 @@ public class ContainerPanel extends DefaultTabPanel {
         westJPanel.setOpaque(false);
         expansionJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
         expansionJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                expansionJLabelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                expansionJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                expansionJLabelMouseExited(e);
             }
         });
 
@@ -483,27 +405,27 @@ public class ContainerPanel extends DefaultTabPanel {
         westJList.setOpaque(false);
         westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
         westJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                westJListFocusGained(evt);
+            public void focusGained(java.awt.event.FocusEvent e) {
+                westJListFocusGained(e);
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                westJListFocusLost(evt);
+            public void focusLost(java.awt.event.FocusEvent e) {
+                westJListFocusLost(e);
             }
         });
         westJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                westJListValueChanged(evt);
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                westJListValueChanged(e);
             }
         });
         westJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                westJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                westJListMouseClicked(e);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                westJListMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                westJListMousePressed(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                westJListMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                westJListMouseReleased(e);
             }
         });
 
@@ -569,27 +491,27 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJList.setOpaque(false);
         eastJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
         eastJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                eastJListFocusGained(evt);
+            public void focusGained(java.awt.event.FocusEvent e) {
+                eastJListFocusGained(e);
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                eastJListFocusLost(evt);
+            public void focusLost(java.awt.event.FocusEvent e) {
+                eastJListFocusLost(e);
             }
         });
         eastJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                eastJListValueChanged(evt);
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                eastJListValueChanged(e);
             }
         });
         eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                eastJListMouseClicked(evt);
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                eastJListMouseClicked(e);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                eastJListMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                eastJListMousePressed(e);
             }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                eastJListMouseReleased(evt);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                eastJListMouseReleased(e);
             }
         });
 
@@ -598,7 +520,6 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(24, 0, 0, 0);
         eastJPanel.add(eastJList, gridBagConstraints);
 
         eastLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabel")); // NOI18N
@@ -647,6 +568,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         add(expandedJPanel, gridBagConstraints);
@@ -688,91 +610,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expansionJLabelMouseClicked
 
     /**
-     * Handle the focus gained event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>FocusEvent</code>.
-     */
-    private void jListFocusGained(final javax.swing.JList jList,
-            final java.awt.event.FocusEvent e) {
-        eastJList.repaint();
-        westJList.repaint();
-    }
-
-    /**
-     * Handle the focus lost event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>FocusEvent</code>.
-     */
-    private void jListFocusLost(final javax.swing.JList jList,
-            final java.awt.event.FocusEvent e) {
-        eastJList.repaint();
-        westJList.repaint();
-    }
-
-    /**
-     * Handle the click event for the given list. All we do is check for a
-     * double-click event to run a specific action.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMouseClicked(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        // a click count of 2, 4, 6, etc. triggers double click event
-        if (e.getClickCount() % 2 == 0) {
-            ((DefaultCell) jList.getSelectedValue()).invokeAction();
-        }
-    }
-
-    /**
-     * Handle the mouse pressed event for the given list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMousePressed(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((DefaultCell) jList.getSelectedValue()).showPopup();
-        }
-    }
-
-    /**
-     * Handle the mouse released event for the given list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListMouseReleased(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((DefaultCell) jList.getSelectedValue()).showPopup();
-        }
-    }
-
-    /**
      * Reload the container panel based upon internal criteria; more
      * specifically whether or not the panel is expanded controls the text to
      * display; the icons and fonts to use.
@@ -803,7 +640,7 @@ public class ContainerPanel extends DefaultTabPanel {
             } else if (null != latestVersion) {
                 text.append(localization.getString(
                         "ContainerMessagePublishDate",
-                        FUZZY_DATE_FORMAT.format(latestVersion.getUpdatedOn())));
+                        formatFuzzy(latestVersion.getUpdatedOn())));
             }
         }
         textJLabel.setText(text.toString());
@@ -817,43 +654,13 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Restore the saved selection for the list. If there is no saved selection
-     * then the first index is used.
-     * 
-     * @param keyPattern
-     *            A session attribute key pattern.
-     * @param listModel
-     *            A <code>DefaultListModel</code>.
-     * @param jList
-     *            The <code>JList</code>.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
+     *
      */
-    private void restoreSelection(final String keyPattern,
-            final DefaultListModel listModel, final javax.swing.JList jList) {
-        final Integer selectedIndex = (Integer) session.getAttribute(
-                MessageFormat.format(keyPattern, container.getId()));
-        if (null == selectedIndex) {
-            if (listModel.isEmpty()) {
-                return;
-            } else {
-                jList.setSelectedIndex(0);
-            }
-        } else {
-            jList.setSelectedIndex(selectedIndex.intValue());
-        }
-    }
-
-    /**
-     * Save the current selection.
-     * 
-     * @param keyPattern
-     *            A session attribute key pattern.
-     * @param jList
-     *            The <code>JList</code>.
-     */
-    private void saveSelection(final String keyPattern, final javax.swing.JList jList) {
-        session.setAttribute(MessageFormat.format(
-                keyPattern, container.getId()),
-                Integer.valueOf(jList.getSelectedIndex()));
+    @Override
+    protected void repaintLists() {
+        eastJList.repaint();
+        westJList.repaint();
     }
 
     private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
@@ -881,10 +688,10 @@ public class ContainerPanel extends DefaultTabPanel {
             repaint();
             return;
         }
-        saveSelection(SK_WEST_LIST_SELECTED_INDEX_PATTERN, (javax.swing.JList) e.getSource());
+        saveSelection("westJList", (javax.swing.JList) e.getSource());
         eastListModel.clear();
         for (final Object selectedValue : westJList.getSelectedValues()) {
-            for (final Cell cell : ((WestCell) selectedValue).eastCells) {
+            for (final Cell cell : ((WestCell) selectedValue).getEastCells()) {
                 eastListModel.addElement(cell);
             }
         }
@@ -905,13 +712,13 @@ public class ContainerPanel extends DefaultTabPanel {
             this.additionalText = additionalText;
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.EastCell#isSetAdditionalText()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#isSetAdditionalText()
          */
         public Boolean isSetAdditionalText() {
             return null != additionalText;
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.EastCell#getAdditionalText()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#getAdditionalText()
          */
         public String getAdditionalText() {
             return additionalText;
@@ -922,7 +729,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class ContainerCell extends WestCell {
         @Override
         public Icon getIcon() {
-            return imageCache.read(TabPanelIcon.CONTAINER);
+            return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
         }
         @Override
         public String getText() {
@@ -938,10 +745,13 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class DraftCell extends WestCell {
         private DraftCell() {
             super();
-            setIcon(imageCache.read(TabPanelIcon.DRAFT));
             for (final Document document : draft.getDocuments()) {
-                eastCells.add(new DraftDocumentCell(document));
+                add(new DraftDocumentCell(document));
             }
+        }
+        @Override
+        public Icon getIcon() {
+            return IMAGE_CACHE.read(TabPanelIcon.DRAFT);
         }
         @Override
         public String getText() {
@@ -991,24 +801,32 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A version cell. */
     private final class VersionCell extends WestCell {
         private final ContainerVersion version;
+        private final User publishedBy;
         private VersionCell(final ContainerVersion version,
                 final Map<DocumentVersion, Delta> documentVersions,
                 final Map<User, ArtifactReceipt> users, final User publishedBy) {
             this.version = version;
-            setText(localization.getString("Version", FUZZY_DATE_FORMAT
-                    .format(version.getCreatedOn()), publishedBy.getName()));
-            if (version.isSetComment()) {
-                setIcon(imageCache.read(TabPanelIcon.VERSION_WITH_COMMENT));
-            } else {
-                setIcon(imageCache.read(TabPanelIcon.VERSION)); 
-            }
+            this.publishedBy = publishedBy;
             for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                eastCells.add(new VersionDocumentCell(entry.getKey(), entry.getValue()));
+                add(new VersionDocumentCell(entry.getKey(), entry.getValue()));
             }
-            eastCells.add(new VersionUserCell(publishedBy));
+            add(new VersionUserCell(publishedBy));
             for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
-                eastCells.add(new VersionUserCell(entry.getKey(), entry.getValue()));
+                add(new VersionUserCell(entry.getKey(), entry.getValue()));
             }
+        }
+        @Override
+        public Icon getIcon() {
+            if (version.isSetComment()) {
+                return IMAGE_CACHE.read(TabPanelIcon.VERSION_WITH_COMMENT);
+            } else {
+                return IMAGE_CACHE.read(TabPanelIcon.VERSION); 
+            }
+        }
+        @Override
+        public String getText() {
+            return localization.getString("Version", formatFuzzy(version
+                    .getCreatedOn()), publishedBy.getName());
         }
         @Override
         public void invokeAction() {
@@ -1054,14 +872,14 @@ public class ContainerPanel extends DefaultTabPanel {
             setText(version.getName());
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#invokeAction()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
          */
         @Override
         public void invokeAction() {
             actionDelegate.invokeForDocument(version, delta);
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#showPopup()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
         public void showPopup() {
@@ -1082,7 +900,7 @@ public class ContainerPanel extends DefaultTabPanel {
         private VersionUserCell(final User user) {
             super();
             this.user = user;
-            setIcon(imageCache.read(TabPanelIcon.USER));
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
             setText(user.getName());
             setAdditionalText(localization.getString("UserPublished"));
         }
@@ -1097,31 +915,27 @@ public class ContainerPanel extends DefaultTabPanel {
         private VersionUserCell(final User user, final ArtifactReceipt receipt) {
             super();
             this.user = user;
-            setIcon(imageCache.read(TabPanelIcon.USER_NOT_RECEIVED));
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
             setText(user.getName());
             setAdditionalText(receipt.isSetReceivedOn()
-                    ? localization.getString("UserReceived", FUZZY_DATE_FORMAT.format(receipt.getReceivedOn()))
+                    ? localization.getString("UserReceived",
+                            formatFuzzy(receipt.getReceivedOn()))
                     : localization.getString("UserDidNotReceive"));
                     
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#invokeAction()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
          */
         @Override
         public void invokeAction() {
             actionDelegate.invokeForUser(user);
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.DefaultCell#showPopup()
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
         public void showPopup() {
             popupDelegate.showForUser(user);
         }
-    }
-
-    /** A west list cell. */
-    private class WestCell extends DefaultCell {
-        protected final List<EastCell> eastCells = new ArrayList<EastCell>();
     }
 }

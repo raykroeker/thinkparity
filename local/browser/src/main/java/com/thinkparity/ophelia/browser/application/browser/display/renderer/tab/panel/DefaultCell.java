@@ -1,9 +1,10 @@
 /*
  * Created On:  1-Dec-06 9:11:07 AM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
 import javax.swing.Icon;
+
 
 /**
  * <b>Title:</b><br>

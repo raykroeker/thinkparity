@@ -31,13 +31,13 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class BackgroundRenderer {
+public final class TabRenderer {
 
     /** The underlying background <code>Image</code>. */
     private static Image BACKGROUND;
 
     /** The east background <code>Image</code>. */
-    private static Image[] BACKGROUND_IMAGES_EAST;
+    private static Image BACKGROUND_EAST;
 
     /** The container version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
@@ -96,13 +96,9 @@ public final class BackgroundRenderer {
         BufferedImage buffer = ImageIOUtil.read("PanelBackground.png");
         BACKGROUND = buffer.getScaledInstance(bounds.width, buffer.getHeight(),
                 Image.SCALE_SMOOTH);
-        BACKGROUND_IMAGES_EAST = new Image[2];
-        buffer = ImageIOUtil.read("PanelBackgroundEast0.png");
-        BACKGROUND_IMAGES_EAST[0] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);        
-        buffer = ImageIOUtil.read("PanelBackgroundEast1.png");
-        BACKGROUND_IMAGES_EAST[1] = buffer.getScaledInstance(bounds.width,
-                buffer.getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundEast.png");
+        BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
+                buffer.getHeight(), Image.SCALE_SMOOTH);        
         VERSION_IMAGES_CENTER = new BufferedImage[] {
                 ImageIOUtil.read("PanelBackgroundCenter0.png"),
                 ImageIOUtil.read("PanelBackgroundCenter1.png"),
@@ -153,10 +149,10 @@ public final class BackgroundRenderer {
     }
 
     /**
-     * Create BackgroundRenderer.
+     * Create TabRenderer.
      *
      */
-    public BackgroundRenderer() {
+    public TabRenderer() {
         super();
     }
 
@@ -217,18 +213,18 @@ public final class BackgroundRenderer {
     }
 
     /**
-     * Paint the background for the container version panel.
+     * Paint the eastern background.
      * 
+     * @param g
+     *            The <code>Graphics<code>.
+     * @param x The x <code>int</code> coordinate.
+     * @param height The height <code>int</code>.
+     * @param observer The <code>ImageObserver</code>.
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
-            final int height, final int selectionIndex, final ImageObserver observer) {
-        // if the first row is selected then draw the topmost east image
-        if (selectionIndex == 0) {
-            g.drawImage(BACKGROUND_IMAGES_EAST[0], x, 0, observer);
-        }
-        
+            final int height, final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
-        g.drawImage(BACKGROUND_IMAGES_EAST[1], x, 23, observer);
+        g.drawImage(BACKGROUND_EAST, x, 0, observer);
     }
 
     /**

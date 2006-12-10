@@ -15,7 +15,6 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 
-
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
@@ -24,15 +23,17 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
+ * <b>Title:</b>thinkParity Create Invitation Avatar<br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class CreateInvitationAvatar extends Avatar {
+public final class CreateInvitationAvatar extends Avatar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** Create CreateInvitation */
+    /**
+     * Create CreateInvitationAvatar.
+     *
+     */
     public CreateInvitationAvatar() {
         super("CreateInvitation", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
@@ -48,13 +49,11 @@ public class CreateInvitationAvatar extends Avatar {
             }
         });
         bindEnterKey("Add", new AbstractAction() {
-            private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 addJButtonActionPerformed(e);
             }
         });
         bindEscapeKey("Cancel", new AbstractAction() {
-            private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 cancelJButtonActionPerformed(e);
             }
@@ -69,6 +68,15 @@ public class CreateInvitationAvatar extends Avatar {
      *            The avatar's state information.
      */
     public void setState(final State state) { throw Assert.createUnreachable("CreateInvitation#setState()"); }
+
+    /**
+     * @see Avatar#getAvatarTitle()
+     * 
+     */
+    @Override
+    public String getAvatarTitle() {
+        return getString("Title");
+    }
 
     /**
      * Obtain the avatar's state information.
@@ -133,23 +141,24 @@ public class CreateInvitationAvatar extends Avatar {
         emailJLabel = LabelFactory.create();
         emailJTextField = TextFactory.create();
 
-        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.Title")));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("AddContact.Title"))); // NOI18N
         addContactJPanel.setOpaque(false);
-        addJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.AddButton"));
+        addJButton.setText(bundle.getString("AddContact.AddButton")); // NOI18N
         addJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                addJButtonActionPerformed(e);
             }
         });
 
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.CancelButton"));
+        cancelJButton.setText(bundle.getString("AddContact.CancelButton")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
-        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("AddContact.EmailLabel"));
+        emailJLabel.setText(bundle.getString("AddContact.EmailLabel")); // NOI18N
 
         org.jdesktop.layout.GroupLayout addContactJPanelLayout = new org.jdesktop.layout.GroupLayout(addContactJPanel);
         addContactJPanel.setLayout(addContactJPanelLayout);
@@ -165,7 +174,7 @@ public class CreateInvitationAvatar extends Avatar {
                     .add(addContactJPanelLayout.createSequentialGroup()
                         .add(emailJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))
+                        .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 

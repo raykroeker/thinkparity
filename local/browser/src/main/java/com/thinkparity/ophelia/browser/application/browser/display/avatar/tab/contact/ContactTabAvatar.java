@@ -3,20 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JPopupMenu;
-
 import com.thinkparity.codebase.jabber.JabberId;
 
-
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 
 
 /**
@@ -25,7 +15,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version 1.1.2.11
  */
-public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
+public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
 
     /**
      * Create ContactTabAvatar.
@@ -33,6 +23,8 @@ public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
      */
     public ContactTabAvatar() {
         super(AvatarId.TAB_CONTACT, new ContactTabModel());
+        model.setSession(getSession());
+        setPopupDelegate(model.getPopupDelegate());
     }
 
     /**
@@ -44,6 +36,7 @@ public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
+        model.syncContact(contactId, remote);
     }
 
     /**
@@ -56,6 +49,7 @@ public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
+        model.syncIncomingInvitation(invitationId, remote);
     }
 
     /**
@@ -68,13 +62,6 @@ public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
      */
     public void syncOutgoingInvitation(final Long invitationId,
             final Boolean remote) {
-    }
-
-    /**
-     * Trigger a popup when clicking in a blank area.
-     * 
-     */
-    @Override
-    protected void triggerPopup(final Component invoker, final MouseEvent e) {
-    }   
+        model.syncOutgoingInvitation(invitationId, remote);
+    }  
 }

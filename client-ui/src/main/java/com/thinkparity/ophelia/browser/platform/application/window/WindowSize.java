@@ -8,9 +8,9 @@ import java.awt.Dimension;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+
+import org.apache.log4j.Logger;
 
 /**
  * Simple map of the avatar being displayed to the size of the window required.
@@ -29,11 +29,6 @@ class WindowSize {
         REGISTRY.put(AvatarId.DIALOG_CONFIRM, new Dimension(300, 125));
 		// DIMENSION Platform Login Window 385x173
 		REGISTRY.put(AvatarId.DIALOG_PLATFORM_LOGIN, new Dimension(358, 129));
-
-        // DIMENSION New Container
-        REGISTRY.put(AvatarId.DIALOG_CONTAINER_CREATE, new Dimension(350,150));
-        // DIMENSION Add Contact
-        REGISTRY.put(AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION, new Dimension(300, 125));
 	}
 
 	/**

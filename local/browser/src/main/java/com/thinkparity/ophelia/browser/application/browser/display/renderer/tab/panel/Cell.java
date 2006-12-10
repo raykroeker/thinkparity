@@ -1,13 +1,14 @@
 /*
  * Created On:  1-Dec-06 9:09:54 AM
  */
-package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
 import javax.swing.Icon;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Tab Panel Cell<br>
+ * <b>Description:</b>The interface each cell within a tab panel's multiple
+ * lists.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1

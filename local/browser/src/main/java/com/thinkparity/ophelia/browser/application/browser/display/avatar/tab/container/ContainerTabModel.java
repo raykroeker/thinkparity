@@ -51,7 +51,7 @@ import com.thinkparity.ophelia.browser.util.DocumentUtil;
 public final class ContainerTabModel extends TabPanelModel {
 
     /** An application. */
-    public final Browser browser;
+    private final Browser browser;
 
     /** A <code>ContainerTabActionDelegate</code>. */
     private final ContainerTabActionDelegate actionDelegate;
@@ -604,14 +604,6 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /**
-     * Clear all panels.
-     *
-     */
-    private void clearPanels() {
-        panels.clear();
-    }
-    
-    /**
      * Extract a list of files from a transferable.
      * 
      * @param transferable
@@ -730,6 +722,10 @@ public final class ContainerTabModel extends TabPanelModel {
             expandedState.put(tabPanel, Boolean.FALSE);
             return isExpanded(tabPanel);
         }
+    }
+
+    private void clearPanels() {
+        panels.clear();
     }
 
     /**

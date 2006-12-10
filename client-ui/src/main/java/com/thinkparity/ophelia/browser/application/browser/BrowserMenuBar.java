@@ -3,11 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
@@ -17,7 +15,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
@@ -71,13 +68,6 @@ public class BrowserMenuBar extends JMenuBar {
     /** Un-Maximize label rollover icon. */
     private static final Icon UNMAXIMIZE_ROLLOVER_ICON;
     
-    /** Sign-Up label icon. */
-    private static final Icon SIGNUP_ICON;
-    
-    /** Sign-Up label rollover icon. */
-    private static final Icon SIGNUP_ROLLOVER_ICON;
-    
-    
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
         CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseRollover.png");
@@ -90,9 +80,6 @@ public class BrowserMenuBar extends JMenuBar {
         
         UNMAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximize.png");
         UNMAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximizeRollover.png");
-        
-        SIGNUP_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUp.png");
-        SIGNUP_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUpRollover.png");
     }
 
     /**
@@ -194,27 +181,6 @@ public class BrowserMenuBar extends JMenuBar {
         this.add(Box.createRigidArea(new Dimension(2,0)));
         this.add(getCloseButton());
         this.add(Box.createRigidArea(new Dimension(4,0)));
-    }
-    
-    private JLabel getSignUpButton() {
-        final javax.swing.JLabel signUpJLabel = new JLabel(SIGNUP_ICON);
-        signUpJLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.HAND_CURSOR);
-                ((JLabel) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
-            }
-            @Override
-            public void mouseExited(final MouseEvent e) {
-                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), Cursor.DEFAULT_CURSOR);
-                ((JLabel) e.getSource()).setIcon(SIGNUP_ICON);
-            }
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                browser.runProfileSignUp();                
-            }            
-        });
-        return signUpJLabel;
     }
     
     private JLabel getMinimizeButton() {

@@ -43,7 +43,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabListAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
@@ -1902,8 +1902,8 @@ public class Browser extends AbstractApplication {
      * 
      * @return The contact tab avatar.
      */
-    private ContactAvatar getTabContactAvatar() {
-        return (ContactAvatar) getAvatar(AvatarId.TAB_CONTACT);
+    private ContactTabAvatar getTabContactAvatar() {
+        return (ContactTabAvatar) getAvatar(AvatarId.TAB_CONTACT);
     }
 
     /**

@@ -189,7 +189,7 @@ public final class Constants {
     public static final class Icons {
         public static final class Tray {
             public static final Icon TRAY_ICON_OFFLINE =
-                ImageIOUtil.readIcon("SystemTrayOffline.png");
+                ImageIOUtil.readIcon("SystemTray.png");
             public static final Icon TRAY_ICON_ONLINE =
                 ImageIOUtil.readIcon("SystemTray.png");
         }

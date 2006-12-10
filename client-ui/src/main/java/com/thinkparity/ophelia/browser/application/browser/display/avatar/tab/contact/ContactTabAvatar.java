@@ -25,11 +25,14 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version 1.1.2.11
  */
-public class ContactAvatar extends TabListAvatar<ContactModel> {
+public class ContactTabAvatar extends TabListAvatar<ContactTabModel> {
 
-    /** Create a BrowserContactsAvatar. */
-    public ContactAvatar() {
-        super(AvatarId.TAB_CONTACT, new ContactModel());
+    /**
+     * Create ContactTabAvatar.
+     *
+     */
+    public ContactTabAvatar() {
+        super(AvatarId.TAB_CONTACT, new ContactTabModel());
     }
 
     /**
@@ -41,9 +44,6 @@ public class ContactAvatar extends TabListAvatar<ContactModel> {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
-        final TabCell selectedCell = getSelectedCell();
-        model.syncContact(contactId, remote);
-        setSelectedCell(selectedCell);
     }
 
     /**
@@ -56,9 +56,6 @@ public class ContactAvatar extends TabListAvatar<ContactModel> {
      */
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
-        final TabCell selectedCell = getSelectedCell();
-        model.syncIncomingInvitation(invitationId, remote);
-        setSelectedCell(selectedCell);
     }
 
     /**
@@ -71,9 +68,6 @@ public class ContactAvatar extends TabListAvatar<ContactModel> {
      */
     public void syncOutgoingInvitation(final Long invitationId,
             final Boolean remote) {
-        final TabCell selectedCell = getSelectedCell();
-        model.syncOutgoingInvitation(invitationId, remote);
-        setSelectedCell(selectedCell);
     }
 
     /**
@@ -82,8 +76,5 @@ public class ContactAvatar extends TabListAvatar<ContactModel> {
      */
     @Override
     protected void triggerPopup(final Component invoker, final MouseEvent e) {
-        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(menuItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, Data.emptyData()));
-        jPopupMenu.show(invoker, e.getX(), e.getY());
     }   
 }

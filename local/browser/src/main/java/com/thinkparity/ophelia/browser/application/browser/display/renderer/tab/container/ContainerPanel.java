@@ -76,6 +76,9 @@ public class ContainerPanel extends DefaultTabPanel {
     /** A <code>Container</code>. */
     protected Container container;
 
+    /** The container's created by <code>User</code>. */
+    protected User containerCreatedBy;
+
     /** A <code>ContainerDraft</code>. */
     protected ContainerDraft draft;
 
@@ -213,6 +216,7 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     public void setPanelData(
             final Container container,
+            final User containerCreatedBy,
             final ContainerDraft draft,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
@@ -220,6 +224,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy) {
         this.container = container;
+        this.containerCreatedBy = containerCreatedBy;
         this.draft = draft;
         this.latestVersion = latestVersion;
         westListModel.addElement(new ContainerCell());
@@ -779,6 +784,15 @@ public class ContainerPanel extends DefaultTabPanel {
         private ContainerCell() {
             super();
             setEnabled(container.isLatest());
+            add(new ContainerFieldCell(this, "ContainerCreatedBy",
+                    containerCreatedBy.getName()));
+            add(new ContainerFieldCell(this, "ContainerCreatedOn",
+                    formatFuzzy(container.getCreatedOn())));
+            add(new ContainerFieldCell(this, "ContainerLatestVersion",
+                    null == latestVersion
+                    ? null : formatFuzzy(latestVersion.getUpdatedOn())));
+            add(new ContainerFieldCell(this, "ContainerDraftOwner",
+                    container.isDraft() ? draft.getOwner().getName() : null));
         }
         @Override
         public Icon getIcon() {
@@ -791,6 +805,56 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public void showPopup() {
             popupDelegate.showForContainer(container);
+        }
+    }
+
+    /** A container value cell. */
+    private final class ContainerFieldCell extends AbstractEastCell {
+        /** The field localization key <code>String</code>. */
+        private final String key;
+        /** The parent <code>WestCell</code>. */
+        private final WestCell parent;
+        /** The field value <code>String</code>. */
+        private final String value;
+        /**
+         * Create ContactFieldCell.
+         * 
+         * @param name
+         *            The field name <code>String</code>.
+         * @param value
+         *            The field value <code>String</code>.
+         */
+        private ContainerFieldCell(final WestCell parent, final String key,
+                final String value) {
+            super();
+            this.key = key;
+            this.parent = parent;
+            this.value = value;
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
+         *
+         */
+        public String getText() {
+            if (null == value) {
+                return "";
+            } else {
+                return localization.getString(key, value);
+            }
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
+         *
+         */
+        public void invokeAction() {
+            parent.invokeAction();
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
+         *
+         */
+        public void showPopup() {
+            parent.showPopup();
         }
     }
 

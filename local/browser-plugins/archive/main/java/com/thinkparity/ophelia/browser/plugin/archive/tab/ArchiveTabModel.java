@@ -253,8 +253,9 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             publishedBy.put(version, find(team, version.getUpdatedBy()));
             publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
-        containerPanels.add(index, toDisplay(container, null, null, versions,
-                documentVersions, publishedTo, publishedBy));
+        containerPanels.add(index, toDisplay(container, find(team, container
+                .getCreatedBy()), null, null, versions, documentVersions,
+                publishedTo, publishedBy));
     }
 
     /**
@@ -410,6 +411,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private TabPanel toDisplay(
             final Container container,
+            final User containerCreatedBy,
             final ContainerDraft draft,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
@@ -418,8 +420,9 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerPanel panel = new ArchiveTabContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, draft, latestVersion, versions,
-                documentVersions, publishedTo, publishedBy);
+        panel.setPanelData(container, containerCreatedBy,
+                draft, latestVersion, versions, documentVersions, publishedTo,
+                publishedBy);
         panel.setExpanded(isExpanded(panel));
         panel.setPopupDelegate(popupDelegate);
         panel.setTabDelegate(this);

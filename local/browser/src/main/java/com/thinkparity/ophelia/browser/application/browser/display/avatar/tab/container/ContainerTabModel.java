@@ -949,8 +949,9 @@ public final class ContainerTabModel extends TabPanelModel {
             final Map<ContainerVersion, User> publishedBy) {
         final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(container, draft, latestVersion, versions,
-                documentVersions, publishedTo, publishedBy);
+        panel.setPanelData(container, readUser(container.getCreatedBy()),
+                draft, latestVersion, versions, documentVersions, publishedTo,
+                publishedBy);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);

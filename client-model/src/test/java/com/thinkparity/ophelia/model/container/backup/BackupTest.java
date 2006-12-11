@@ -111,7 +111,7 @@ public final class BackupTest extends BackupTestCase {
                 t_id_local= t_id_list_local.get(j);
                 assertEquals("Team member id has not been properly backed up.", t_id_local, t_id_backup);
             }
-            logger.logInfo("Validating container \"{0}\" version \"{1}\" published to.", c.getName(), i);
+            logger.logInfo("Validating container \"{0}\" version \"{1}\" published to.", c_backup.getName(), cv_backup.getVersionId());
             pt_map_backup = getBackupModel(datum.junit_z).readPublishedTo(c.getUniqueId(), cv_backup.getVersionId());
             assertNotNull("Published to list has not been properly backed up.", pt_map_backup);
             pt_map_local = readPublishedTo(datum.junit_z, cv_local.getArtifactId(), cv_local.getVersionId());
@@ -149,11 +149,11 @@ public final class BackupTest extends BackupTestCase {
             for (int n = 0; n < dv_list_backup.size(); n++) {
                 dv_backup = dv_list_backup.get(n);
                 assertNotNull("Document version has not been properly backed up.", dv_backup);
-                logger.logInfo("Validating container \"{0}\" version \"{1}\" document version \"{2}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getVersionId());
+                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\".", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                 dv_local = dv_list_local.get(n);
                 assertEquals("Document version has not been properly backed up.", dv_local, dv_backup);
                 
-                logger.logInfo("Validating container \"{0}\" version \"{1}\" document version \"{2}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getVersionId());
+                logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getName(), dv_backup.getVersionId());
                 dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
                 dv_stream_local = getDocumentModel(datum.junit_z).openVersionStream(dv_local.getArtifactId(), dv_local.getVersionId());
                 try {

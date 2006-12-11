@@ -287,7 +287,7 @@ public final class ContainerTabModel extends TabPanelModel {
                     listModel.set(i, visiblePanels.get(i));
                 } else {
                     listModel.remove(listModelIndex);
-                    listModel.add(i, visiblePanels.get(i));
+                    listModel.add(listModelIndex, visiblePanels.get(i));
                 }
             } else {
                 listModel.add(i, visiblePanels.get(i));

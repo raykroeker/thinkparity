@@ -104,14 +104,8 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
-     * Apply the user's search to the contact list.
-     * 
-     * @param searchExpression
-     *            A search expression <code>String</code>.
-     * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #removeSearch()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
+     *
      */
     @Override
     protected void applySearch(final String searchExpression) {
@@ -377,11 +371,14 @@ public final class ContactTabModel extends TabPanelModel {
         }
     }
 
+    /**
+     * Apply the search results.
+     *
+     */
     private void applySearch() {
         this.searchResults.clear();
         this.searchResults.addAll(readSearchResults());
     }
-
     
     /**
      * Apply the sort to the filtered list of panels.

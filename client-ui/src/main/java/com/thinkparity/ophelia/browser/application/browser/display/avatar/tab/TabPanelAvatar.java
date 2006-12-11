@@ -349,6 +349,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     private void reloadPanels() {
         tabJPanel.revalidate();
+        tabJPanel.repaint();
     }
     /**
      * Remove the fill component.

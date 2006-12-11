@@ -1073,7 +1073,8 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForVersion(version, documentVersions, publishedTo);
+            popupDelegate.showForVersion(version, documentVersions,
+                    publishedTo, publishedBy);
         }
         @Override
         public Boolean isActionAvailable() {

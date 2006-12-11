@@ -48,6 +48,7 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
@@ -697,6 +698,17 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             containerIO.deleteDraft(containerId);
             // fire event
             notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    void handlePublished(final ArtifactPublishedEvent event) {
+        logger.logApiId();
+        logger.logVariable("event", event);
+        try {
+            final Long containerId = getArtifactModel().readId(event.getUniqueId());
+            notifyContainerUpdated(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

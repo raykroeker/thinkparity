@@ -339,15 +339,15 @@ final class ArtifactModelImpl extends AbstractModelImpl {
             } else {
                 removeFlagLatest(artifactId);
             }
-
-            // delete a draft - this will happen when an existing team member is
-            // not published to
+            /* delete a draft - this will happen when an existing team member is
+             * not published to */
             switch (readType(artifactId)) {
             case CONTAINER:
                 final InternalContainerModel containerModel = getContainerModel();
                 if (containerModel.doesExistDraft(artifactId)) {
                     containerModel.deleteDraft(artifactId);
                 }
+                containerModel.handlePublished(event);
                 break;
             case DOCUMENT:  // deliberate fall through
             default:

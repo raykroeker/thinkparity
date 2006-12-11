@@ -72,12 +72,14 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.Map, java.util.Map)
-     *
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.Map,
+     *      com.thinkparity.codebase.model.user.User)
+     * 
      */
     public void showForVersion(final ContainerVersion version,
             final Map<DocumentVersion, Delta> documentVersions,
-            final Map<User, ArtifactReceipt> publishedTo) {
+            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
     }
 
     /**

@@ -259,12 +259,14 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabPopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.Map,
+     *      com.thinkparity.codebase.model.user.User)
      * 
      */
     public void showForVersion(final ContainerVersion version,
             final Map<DocumentVersion, Delta> documentVersions,
-            final Map<User, ArtifactReceipt> publishedTo) {
+            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
         if (version.isSetComment()) {
             final Data commentData = new Data(2);
             commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
@@ -314,6 +316,15 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());
                 add(entry.getKey().getName(), ActionId.CONTACT_READ, data);
             }
+        }
+        if (isLocalUser(publishedBy)) {
+            final Data data = new Data(1);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(publishedBy.getName(), ActionId.PROFILE_UPDATE, data);
+        } else {
+            final Data data = new Data(1);
+            data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());
+            add(publishedBy.getName(), ActionId.CONTACT_READ, data);
         }
 
         show();

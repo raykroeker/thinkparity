@@ -53,5 +53,5 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      */
     public void showForVersion(final ContainerVersion version,
             final Map<DocumentVersion, Delta> documentVersions,
-            final Map<User, ArtifactReceipt> publishedTo);
+            final Map<User, ArtifactReceipt> publishedTo, final User publishedBy);
 }

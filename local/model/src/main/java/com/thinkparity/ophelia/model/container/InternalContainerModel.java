@@ -11,6 +11,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
@@ -124,6 +125,12 @@ public class InternalContainerModel extends ContainerModel implements
             final JabberId deletedBy, final Calendar deletedOn) {
         synchronized (getImplLock()) {
             getImpl().handleDraftDeleted(containerId, deletedBy, deletedOn);
+        }
+    }
+
+    public void handlePublished(final ArtifactPublishedEvent event) {
+        synchronized (getImplLock()) {
+            getImpl().handlePublished(event);
         }
     }
 

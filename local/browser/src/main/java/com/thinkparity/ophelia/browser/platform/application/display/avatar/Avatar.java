@@ -293,6 +293,16 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract void setState(final State state);
     
 	/**
+     * Obtain the avatar's localization.
+     * 
+     * @return A <code>JPanelLocalization</code>.
+     */
+    // NOTE This should return be a more generic interface.
+    protected final JPanelLocalization getLocalization() {
+        return localization;
+    }
+
+	/**
      * Obtain the pluginRegistry
      *
      * @return The PluginRegistry.
@@ -311,7 +321,7 @@ public abstract class Avatar extends AbstractJPanel {
         return Resizer.ResizeEdges.BOTTOM;
     }
 
-	/**
+    /**
      * Obtain a browser session.
      * 
      * @return A <code>BrowserSession</code>.
@@ -319,7 +329,7 @@ public abstract class Avatar extends AbstractJPanel {
     protected BrowserSession getSession() {
         return getController().getSession(getId());
     }
-
+    
     /**
      * Obtain a browser session.
      * 
@@ -336,8 +346,8 @@ public abstract class Avatar extends AbstractJPanel {
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-    
-    /**
+
+	/**
      * @see JPanelLocalization#getString(String, Object[])
      * 
      */
@@ -357,7 +367,7 @@ public abstract class Avatar extends AbstractJPanel {
         SwingUtilities.invokeLater(doRun);
     }
 
-	/**
+    /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -365,7 +375,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean isDebugMode() {
 		return getController().getPlatform().isDevelopmentMode();
 	}
-
+    
     /**
      * These get and set methods are used by classes that intend to do their
      * own mouse dragging. (For example, the bottom right resize control.)
@@ -385,7 +395,6 @@ public abstract class Avatar extends AbstractJPanel {
     protected Boolean isSupportMouseMove() {
         return Boolean.FALSE;
     }
-    
     /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
@@ -394,6 +403,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean isTestMode() {
 		return getController().getPlatform().isTestingMode();
 	}
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */

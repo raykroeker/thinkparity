@@ -21,6 +21,7 @@ import javax.swing.DefaultListModel;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -43,6 +44,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
+import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -68,6 +70,9 @@ public final class ContainerTabModel extends TabPanelModel {
     /** A list model. */
     private final DefaultListModel listModel;
 
+    /** A <code>JPanelLocalization</code>. */
+    private JPanelLocalization localization;
+
     /** A list of all panels. */
     private final List<TabPanel> panels;
 
@@ -84,7 +89,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private BrowserSession session;
 
     /** The current ordering. */
-    private final Stack<Ordering> sortedBy;
+    private final List<Ordering> sortedBy;
 
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -115,7 +120,6 @@ public final class ContainerTabModel extends TabPanelModel {
     public void toggleExpansion(final TabPanel tabPanel) {
         doToggleExpansion(tabPanel);
         synchronize();
-        ((ContainerPanel)tabPanel).requestFocusInWindow();
     }
 
     /**
@@ -133,7 +137,7 @@ public final class ContainerTabModel extends TabPanelModel {
             synchronize();
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(java.awt.datatransfer.DataFlavor[])
      * 
@@ -155,7 +159,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         return false;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      * 
@@ -163,9 +167,13 @@ public final class ContainerTabModel extends TabPanelModel {
     @Override
     protected void debug() {
         logger.logDebug("{0} container panels.", panels.size());
+        logger.logDebug("{0} filtered panels.", filteredPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
+        for (final TabPanel filteredPanel : filteredPanels) {
+            logger.logVariable("filteredPanel.getContainer().getName()", ((ContainerPanel) filteredPanel).getContainer().getName());
+        }
         for (final TabPanel visiblePanel : visiblePanels) {
-            logger.logVariable("visiblePanel.getId()", visiblePanel.getId());
+            logger.logVariable("visiblePanel.getContainer().getName()", ((ContainerPanel) visiblePanel).getContainer().getName());
         }
         logger.logDebug("{0} model elements.", listModel.size());
         final TabPanel[] listModelPanels = new TabPanel[listModel.size()];
@@ -173,6 +181,8 @@ public final class ContainerTabModel extends TabPanelModel {
         for (final TabPanel listModelPanel : listModelPanels) {
             logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
         }
+        logger.logDebug("Search expression:  {0}", searchExpression);
+        logger.logDebug("{0} search result hits.", searchResults.size());
     }
 
     /**
@@ -242,7 +252,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         debug();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#removeSearch()
      * 
@@ -288,7 +298,7 @@ public final class ContainerTabModel extends TabPanelModel {
                     listModel.set(i, visiblePanels.get(i));
                 } else {
                     listModel.remove(listModelIndex);
-                    listModel.add(listModelIndex, visiblePanels.get(i));
+                    listModel.add(i, visiblePanels.get(i));
                 }
             } else {
                 listModel.add(i, visiblePanels.get(i));
@@ -311,17 +321,27 @@ public final class ContainerTabModel extends TabPanelModel {
      * @param ordering
      *            An <code>Ordering</code>.
      */
-    void applySort(final Ordering ordering) {
+    void applySort(final Ordering ordering, final Boolean ascending) {
         debug();
         // if the sorted by stack already contains the ordering do nothing
         if (sortedBy.contains(ordering)) {
-            return;
+            if (sortedBy.get(sortedBy.indexOf(
+                    ordering)).isAscending().booleanValue()
+                    == ascending.booleanValue()) {
+                return;
+            } else {
+                ordering.setAscending(ascending);
+                sortedBy.remove(ordering);
+                sortedBy.add(ordering);
+                synchronize();
+            }
         } else {
-            sortedBy.push(ordering);
+            ordering.setAscending(ascending);
+            sortedBy.add(ordering);
             synchronize();
         }
     }
-    
+
     /**
      * Obtain the popup delegate.
      * 
@@ -329,6 +349,25 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     ContainerTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
+    }
+
+    /**
+     * Obtain a localized string for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return A localized <code>String</code>.
+     */
+    String getString(final Ordering ordering) {
+        if (isSortApplied(ordering)) {
+            if (ordering.isAscending()) {
+                return localization.getString(ordering + "_ASC");
+            } else {
+                return localization.getString(ordering + "_DESC");
+            }
+        } else {
+            return localization.getString(ordering);
+        }
     }
 
     /**
@@ -348,7 +387,6 @@ public final class ContainerTabModel extends TabPanelModel {
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
-
     /**
      * Determine if an ordering is applied.
      * 
@@ -360,6 +398,7 @@ public final class ContainerTabModel extends TabPanelModel {
         debug();
         return sortedBy.contains(ordering);
     }
+
     /**
      * Determine if the container has been distributed.
      * 
@@ -413,6 +452,16 @@ public final class ContainerTabModel extends TabPanelModel {
         } else {
             return;
         }
+    }
+
+    /**
+     * Set the model's localization.
+     * 
+     * @param localization
+     *            A <code>JPanelLocalization</code>.
+     */
+    void setLocalization(final JPanelLocalization localization) {
+        this.localization = localization;
     }
 
     /**
@@ -963,8 +1012,30 @@ public final class ContainerTabModel extends TabPanelModel {
     /** An enumerated type defining the tab panel ordering. */
     enum Ordering implements Comparator<TabPanel> {
 
-        BOOKMARK_ASC, BOOKMARK_DESC, DATE_ASC, DATE_DESC, NAME_ASC, NAME_DESC,
-        OWNER_ASC, OWNER_DESC;
+        BOOKMARK(true), DATE(true), NAME(true), OWNER(true);
+
+        /** An ascending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_ASC;
+
+        /** A descending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_DESC;
+
+        static {
+            STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
+            STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
+        }
+        
+        /** Whether or not to sort in ascending order. */
+        private boolean ascending;
+
+        /**
+         * Create Ordering.
+         *
+         * @param ascending
+         */
+        private Ordering(final boolean ascending) {
+            this.ascending = ascending;
+        }
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -973,52 +1044,64 @@ public final class ContainerTabModel extends TabPanelModel {
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContainerPanel p1 = (ContainerPanel) o1;
             final ContainerPanel p2 = (ContainerPanel) o2;
+            final int multiplier = ascending ? 1 : -1;
             switch (this) {
-            case BOOKMARK_ASC:
-                return p1.getContainer().isBookmarked().compareTo(
+            case BOOKMARK:
+                // we want true values at the top
+                return -1 * multiplier * p1.getContainer().isBookmarked().compareTo(
                         p2.getContainer().isBookmarked());
-            case BOOKMARK_DESC:
-                return -1 * p1.getContainer().isBookmarked().compareTo(
-                        p2.getContainer().isBookmarked());
-            case DATE_ASC:
-                return p1.getContainer().getUpdatedOn().compareTo(
+            case DATE:
+                return multiplier * p1.getContainer().getUpdatedOn().compareTo(
                         p2.getContainer().getUpdatedOn());
-            case DATE_DESC:
-                return -1 * p1.getContainer().getUpdatedOn().compareTo(
-                        p2.getContainer().getUpdatedOn());
-            case NAME_ASC:
-                return p1.getContainer().getName().compareTo(
-                        p2.getContainer().getName());
-            case NAME_DESC:
-                return -1 * p1.getContainer().getName().compareTo(
-                        p2.getContainer().getName());
-            case OWNER_ASC:
+            case NAME:
+                // note the lack of multiplier
+                return ascending
+                    ? STRING_COMPARATOR_ASC.compare(
+                            p1.getContainer().getName(),
+                            p2.getContainer().getName())
+                    : STRING_COMPARATOR_DESC.compare(
+                            p1.getContainer().getName(),
+                            p2.getContainer().getName());
+            case OWNER:
                 if (p1.getContainer().isDraft())
                     if(p2.getContainer().isDraft())
-                        return p1.getDraft().getOwner().getName().compareTo(
-                                p2.getDraft().getOwner().getName());
+                        // note the lack of multiplier
+                        return ascending
+                            ? STRING_COMPARATOR_ASC.compare(
+                                p1.getDraft().getOwner().getName(),
+                                p2.getDraft().getOwner().getName())
+                            : STRING_COMPARATOR_DESC.compare(
+                                    p1.getDraft().getOwner().getName(),
+                                    p2.getDraft().getOwner().getName());
                     else
-                        return -1;
+                        return multiplier * -1;
                 else
                     if (p2.getContainer().isDraft())
-                        return 1;
-                    else
-                        return 0;
-            case OWNER_DESC:
-                if (p1.getContainer().isDraft())
-                    if(p2.getContainer().isDraft())
-                        return -1 * p1.getDraft().getOwner().getName().compareTo(
-                                p2.getDraft().getOwner().getName());
-                    else
-                        return 1;
-                else
-                    if (p2.getContainer().isDraft())
-                        return -1;
+                        return multiplier * 1;
                     else
                         return 0;
             default:
                 return 0;
             }
+        }
+
+        /**
+         * Determine whether the current ordering is in ascending order.
+         * 
+         * @return True if it is ascending.
+         */
+        Boolean isAscending() {
+            return Boolean.valueOf(ascending);
+        }
+
+        /**
+         * Set the asending value.
+         * 
+         * @param ascending
+         *            Whether or not to sort in ascending order.
+         */
+        void setAscending(final Boolean ascending) {
+            this.ascending = ascending.booleanValue();
         }
     }
 }

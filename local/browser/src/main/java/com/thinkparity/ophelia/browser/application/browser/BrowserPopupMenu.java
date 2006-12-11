@@ -16,7 +16,7 @@ import javax.swing.JPopupMenu;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
 
 /**
  * @author rob_masako@shaw.ca
@@ -28,7 +28,7 @@ public class BrowserPopupMenu extends JPopupMenu {
     private final DropShadowBorder dropShadowBorder;
     
     /** List of menu items in this JMenu. */
-    final List<ThinkParityMenuItem> thinkParityMenuItems;
+    final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
     
     /**
      * Create ShadowPopupMenu.
@@ -37,7 +37,7 @@ public class BrowserPopupMenu extends JPopupMenu {
      */
     public BrowserPopupMenu() throws AWTException {
         super();
-        this.thinkParityMenuItems = new ArrayList<ThinkParityMenuItem>();
+        this.thinkParityMenuItems = new ArrayList<ThinkParityBasicMenuItem>();
         this.dropShadowBorder = new DropShadowBorder(Colors.Swing.MENU_BG);
         setBorder(dropShadowBorder);
     }
@@ -59,12 +59,12 @@ public class BrowserPopupMenu extends JPopupMenu {
      */
     @Override
     public JMenuItem add(final JMenuItem menuItem) {
-        for (final ThinkParityMenuItem earlierMenuItem : thinkParityMenuItems) {
+        for (final ThinkParityBasicMenuItem earlierMenuItem : thinkParityMenuItems) {
             earlierMenuItem.setLast(Boolean.FALSE);            
         }
-        if (menuItem instanceof ThinkParityMenuItem) {
-            ((ThinkParityMenuItem)menuItem).setLast(Boolean.TRUE);
-            thinkParityMenuItems.add((ThinkParityMenuItem)menuItem);
+        if (menuItem instanceof ThinkParityBasicMenuItem) {
+            ((ThinkParityBasicMenuItem)menuItem).setLast(Boolean.TRUE);
+            thinkParityMenuItems.add((ThinkParityBasicMenuItem)menuItem);
         }
         return super.add(menuItem);
     }

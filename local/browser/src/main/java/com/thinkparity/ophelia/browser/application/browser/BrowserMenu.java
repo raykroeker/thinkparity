@@ -22,7 +22,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
 
 /**
  * @author rob_masako@shaw.ca
@@ -34,7 +34,7 @@ public class BrowserMenu extends JMenu {
     final DropShadowBorder dropShadowBorder;
     
     /** List of menu items in this JMenu. */
-    final List<ThinkParityMenuItem> thinkParityMenuItems;
+    final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
     
     /**
      * @param text
@@ -42,7 +42,7 @@ public class BrowserMenu extends JMenu {
      */
     public BrowserMenu(final String text) throws AWTException {
         super(text);       
-        this.thinkParityMenuItems = new ArrayList<ThinkParityMenuItem>();
+        this.thinkParityMenuItems = new ArrayList<ThinkParityBasicMenuItem>();
         
         // Make it transparent. The override on paintComponent will paint a gradient.
         setBackground(new Color(255, 255, 255, 0));
@@ -84,12 +84,12 @@ public class BrowserMenu extends JMenu {
      */
     @Override
     public JMenuItem add(JMenuItem menuItem) {
-        for (final ThinkParityMenuItem earlierMenuItem : thinkParityMenuItems) {
+        for (final ThinkParityBasicMenuItem earlierMenuItem : thinkParityMenuItems) {
             earlierMenuItem.setLast(Boolean.FALSE);            
         }
-        if (menuItem instanceof ThinkParityMenuItem) {
-            ((ThinkParityMenuItem)menuItem).setLast(Boolean.TRUE);
-            thinkParityMenuItems.add((ThinkParityMenuItem)menuItem);
+        if (menuItem instanceof ThinkParityBasicMenuItem) {
+            ((ThinkParityBasicMenuItem)menuItem).setLast(Boolean.TRUE);
+            thinkParityMenuItems.add((ThinkParityBasicMenuItem)menuItem);
         }
         return super.add(menuItem);
     }

@@ -1,19 +1,17 @@
 /**
- * Created On: 4-Dec-06 3:36:13 PM
+ * Created On: 10-Dec-06 6:00:24 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.util.swing.plaf;
 
 import javax.swing.Action;
-import javax.swing.JMenuItem;
-
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem.MenuStyle;
+import javax.swing.JMenu;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMenuItem {
+public class ThinkParityPopupSubMenu extends JMenu implements ThinkParityBasicMenuItem {
     
     /** Flag indicating if this is the last menu item. */
     Boolean last;
@@ -23,41 +21,26 @@ public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMe
     
     /** The menu style. */
     MenuStyle menuStyle;
-    
-    /**
-     * @param action
-     *          The action.
-     */
-    public ThinkParityMenuItem(final Action action) {
-        this(action, MenuStyle.NORMAL); 
-    }
 
     /**
      * @param action
      *          The action.
      */
-    public ThinkParityMenuItem(final Action action, final MenuStyle menuStyle) {
+    public ThinkParityPopupSubMenu(Action action) {
         super(action);
         this.last = Boolean.TRUE;
         this.separatorNext = Boolean.FALSE;
-        this.menuStyle = menuStyle;
+        this.menuStyle = MenuStyle.NORMAL;
     }    
 
     /**
      * @param text
      */
-    public ThinkParityMenuItem(final String text) {
-        this(text, MenuStyle.NORMAL);
-    }
-    
-    /**
-     * @param text
-     */
-    public ThinkParityMenuItem(final String text, final MenuStyle menuStyle) {
+    public ThinkParityPopupSubMenu(String text) {
         super(text);
         this.last = Boolean.TRUE;
         this.separatorNext = Boolean.FALSE;
-        this.menuStyle = menuStyle;
+        this.menuStyle = MenuStyle.NORMAL;
     }
 
     /**
@@ -96,7 +79,7 @@ public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMe
      */
     public void setSeparatorNext(final Boolean separatorNext) {
         this.separatorNext = separatorNext;
-    } 
+    }
     
     /**
      * Determine the menu style.

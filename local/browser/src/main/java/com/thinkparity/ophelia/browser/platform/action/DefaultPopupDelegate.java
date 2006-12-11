@@ -135,7 +135,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
         if (jMenus.containsKey(text)) {
             jMenu = jMenus.get(text);
         } else {
-            jMenu = MenuFactory.create(text);
+            jMenu = MenuFactory.createPopupSubMenu(text);
             jPopupMenu.add(jMenu);
             jMenus.put(text,  jMenu);
         }

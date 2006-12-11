@@ -7,35 +7,57 @@ package com.thinkparity.ophelia.browser.util.swing.plaf;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem.MenuStyle;
+
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ThinkParityMenuItem extends JMenuItem {
+public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMenuItem {
     
     /** Flag indicating if this is the last menu item. */
     Boolean last;
     
     /** Flag indicating if there is a separator next. */
     Boolean separatorNext;
+    
+    /** The menu style. */
+    MenuStyle menuStyle;
+    
+    /**
+     * @param action
+     *          The action.
+     */
+    public ThinkParityMenuItem(final Action action) {
+        this(action, MenuStyle.NORMAL); 
+    }
 
     /**
      * @param action
      *          The action.
      */
-    public ThinkParityMenuItem(Action action) {
+    public ThinkParityMenuItem(final Action action, final MenuStyle menuStyle) {
         super(action);
         this.last = Boolean.TRUE;
         this.separatorNext = Boolean.FALSE;
+        this.menuStyle = menuStyle;
     }    
 
     /**
      * @param text
      */
-    public ThinkParityMenuItem(String text) {
+    public ThinkParityMenuItem(final String text) {
+        this(text, MenuStyle.NORMAL);
+    }
+    
+    /**
+     * @param text
+     */
+    public ThinkParityMenuItem(final String text, final MenuStyle menuStyle) {
         super(text);
         this.last = Boolean.TRUE;
         this.separatorNext = Boolean.FALSE;
+        this.menuStyle = menuStyle;
     }
 
     /**
@@ -75,4 +97,18 @@ public class ThinkParityMenuItem extends JMenuItem {
     public void setSeparatorNext(final Boolean separatorNext) {
         this.separatorNext = separatorNext;
     } 
+    
+    /**
+     * Determine the menu style.
+     */
+    public MenuStyle getMenuStyle() {
+        return menuStyle;
+    }
+        
+    /**
+     * Set the menu style.
+     */
+    public void setMenuStyle(final MenuStyle menuStyle) {
+        this.menuStyle = menuStyle;
+    }
 }

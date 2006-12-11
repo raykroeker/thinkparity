@@ -15,15 +15,12 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabModel.Ordering;
@@ -35,24 +32,14 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -213,11 +200,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         add(ActionId.CONTAINER_PRINT_DRAFT, printData);
 
         for (final Document document : draft.getDocuments()) {
+            addSeparator();            
+            
             final Data openData = new Data(1);
             openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
             add(document.getName(), ActionId.DOCUMENT_OPEN, openData);
     
-            addSeparator();
             final Data renameData = new Data(2);
             renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
             renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
@@ -332,7 +320,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * @return A <code>JMenuItem</code>.
      */
     private void add(final Ordering ordering) {
-        final JMenuItem item = new JMenuItem(model.getString(ordering));
+        final ThinkParityMenuItem item = new ThinkParityMenuItem(model.getString(ordering),
+                ThinkParityBasicMenuItem.MenuStyle.WHITE_SPACE);
         item.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if (isSortApplied(ordering)) {

@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.PopupMenuInfo;
 import com.thinkparity.ophelia.browser.application.browser.BrowserMenu;
 import com.thinkparity.ophelia.browser.application.browser.BrowserPopupMenu;
+import com.thinkparity.ophelia.browser.application.browser.BrowserPopupSubMenu;
 
 /**
  * @author raykroeker@gmail.com
@@ -66,6 +67,17 @@ public class MenuFactory {
 	}
     
     /**
+     * Create a JMenu for use in a JPopupMenu submenu.
+     * 
+     * @param text
+     *            The menu text <code>String</code>.
+     * @return The JMenu.
+     */
+    public static JMenu createPopupSubMenu(final String text) {
+        return SINGLETON.doCreatePopupSubMenu(text);
+    }
+    
+    /**
      * Determine if there is a popup menu showing. Will return
      * true if a popup menu was very recently made invisible.
      * 
@@ -81,7 +93,7 @@ public class MenuFactory {
 	 */
 	private MenuFactory() { super(); }
 
-	private JMenu doCreate(final String text) {
+	private JMenu doCreate(final String text) {        
         try {
             final BrowserMenu browserMenu = new BrowserMenu(text);
             return browserMenu;
@@ -135,4 +147,20 @@ public class MenuFactory {
             throw new BrowserException("Cannot instantiate shadow popop menu.", awtx);
         }
 	}
+    
+    /**
+     * Create a JMenu for use in a JPopupMenu submenu.
+     * 
+     * @param text
+     *            The menu text.
+     * @return The JMenu.
+     */
+    private JMenu doCreatePopupSubMenu(final String text) {
+        try {
+            final BrowserPopupSubMenu menu = new BrowserPopupSubMenu(text);
+            return menu;
+        } catch (final AWTException awtx) {
+            throw new BrowserException("Cannot instantiate browser popup submenu.", awtx);
+        }
+    }
 }

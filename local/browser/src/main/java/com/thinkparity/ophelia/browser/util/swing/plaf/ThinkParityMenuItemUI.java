@@ -13,6 +13,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem.MenuStyle;
 
 /**
  * @author rob_masako@shaw.ca
@@ -46,13 +47,15 @@ public class ThinkParityMenuItemUI extends BasicMenuItemUI {
     protected void paintBackground(final Graphics g, final JMenuItem menuItem, final Color bgColor) {
         super.paintBackground(g, menuItem, bgColor);
         if (menuItem instanceof ThinkParityMenuItem) {
-            if (!((ThinkParityMenuItem)menuItem).isLast() && !((ThinkParityMenuItem)menuItem).isSeparatorNext()) {
-                Color oldColor = g.getColor();
-                g.setColor(Colors.Swing.MENU_BETWEEN_ITEMS_BG);
-                int menuWidth = menuItem.getWidth();
-                int menuHeight = menuItem.getHeight();
-                g.drawLine(0, menuHeight-1, menuWidth-1, menuHeight-1);
-                g.setColor(oldColor);
+            if (((ThinkParityMenuItem)menuItem).getMenuStyle() == MenuStyle.WHITE_SPACE) {
+                if (!((ThinkParityMenuItem)menuItem).isLast() && !((ThinkParityMenuItem)menuItem).isSeparatorNext()) {
+                    Color oldColor = g.getColor();
+                    g.setColor(Colors.Swing.MENU_BETWEEN_ITEMS_BG);
+                    int menuWidth = menuItem.getWidth();
+                    int menuHeight = menuItem.getHeight();
+                    g.drawLine(0, menuHeight-1, menuWidth-1, menuHeight-1);
+                    g.setColor(oldColor);
+                }
             }
         }
     }   

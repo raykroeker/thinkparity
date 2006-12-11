@@ -65,4 +65,14 @@ public final class BrowserConstants {
         public static final Font StatusBar =
             new Font(FONT_NAME, Font.PLAIN, 11);
     }
+    
+    /** Browser Menu Constants */
+    public static final class Menu  {
+        
+        /** The submenu offset in X direction. */
+        public static final int SUBMENU_POPUP_OFFSET_X = -1;
+        
+        /** The submenu offset in Y direction. */
+        public static final int SUBMENU_POPUP_OFFSET_Y = 0;
+    }
 }

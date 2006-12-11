@@ -838,18 +838,19 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
-     * Revert a document draft to a version.
+     * Revert a document from a previous version.
      * 
      * @param documentId
      *            A document id.
-     * @param artifactVersionId
-     *            A version id.
      */
     void revertDraft(final Long documentId) {
         logger.logApiId();
         logger.logVariable("documentId", documentId);
-        
-        revertDraft(documentId, readLatestVersion(documentId).getVersionId());
+        try {
+            revertDraft(documentId, readLatestVersion(documentId).getVersionId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
 	/**
@@ -1120,30 +1121,23 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 	}
 
     /**
-     * Revert a document draft to a version.
+     * Revert a document draft to a version's content.
      * 
      * @param documentId
-     *            A document id.
+     *            A document id <code>Long</code>.
      * @param versionId
-     *            A version id.
+     *            A version id <code>Long</code>.
      */
-    private void revertDraft(final Long documentId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("versionId", versionId);
-        assertDraftIsModified(documentId, "Draft has not been modified.", documentId);
+    private void revertDraft(final Long documentId, final Long versionId)
+            throws IOException {
+        final Document document = read(documentId);
+        final LocalFile draftFile = getLocalFile(document);
+        draftFile.delete();
+        final InputStream inputStream = openVersionStream(documentId, versionId);
         try {
-            final Document document = read(documentId);
-            final LocalFile draftFile = getLocalFile(document);
-            draftFile.delete();
-            final InputStream inputStream = openVersionStream(documentId, versionId);
-            try {
-                draftFile.write(inputStream);
-            } finally {
-                inputStream.close();
-            }
-        } catch(final Throwable t) {
-            throw translateError(t);
+            draftFile.write(inputStream);
+        } finally {
+            inputStream.close();
         }
     }
 

@@ -3,8 +3,16 @@
  */
 package com.thinkparity.ophelia.model.test.ticket;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+
+import com.thinkparity.ophelia.model.util.Opener;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -46,6 +54,23 @@ public final class Ticket298Test extends TicketTestCase {
         createDraft(datum.junit, c.getId());
         removeDocument(datum.junit, c.getId(), d_odt.getId());
         revertDocument(datum.junit, c.getId(), d_odt.getId());
+
+        // ensure the contents are equal
+        final DocumentVersion dv_odt_latest = readDocumentLatestVersion(datum.junit, d_odt.getId());
+        final InputStream dv_odt_latest_stream =
+            getDocumentModel(datum.junit).openVersionStream(d_odt.getId(),
+                    dv_odt_latest.getVersionId());
+        getDocumentModel(datum.junit).open(d_odt.getId(), new Opener() {
+            public void open(final File file) {
+                try {
+                    final InputStream d_odt_stream = new FileInputStream(file);
+                    assertEquals("Reverted document's content does not match expectation.",
+                            d_odt_stream, dv_odt_latest_stream);
+                } catch (final IOException iox) {
+                    fail(createFailMessage(iox));
+                }
+            }
+        });
     }
 
     @Override

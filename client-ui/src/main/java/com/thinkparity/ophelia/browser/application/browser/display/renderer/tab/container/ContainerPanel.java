@@ -115,6 +115,18 @@ public class ContainerPanel extends DefaultTabPanel {
         this.fileIconReader = new FileIconReader();
         this.localization = new MainCellL18n("ContainerPanel");
         this.westListModel = new DefaultListModel();
+        // NOCOMMIT-BEGIN
+        this.eastCountJLabel.setVisible(false);
+        this.eastFirstJLabel.setVisible(false);
+        this.eastLastJLabel.setVisible(false);
+        this.eastNextJLabel.setVisible(false);
+        this.eastPreviousJLabel.setVisible(false);
+        this.westCountJLabel.setVisible(false);
+        this.westFirstJLabel.setVisible(false);
+        this.westLastJLabel.setVisible(false);
+        this.westNextJLabel.setVisible(false);
+        this.westPreviousJLabel.setVisible(false);
+        // NOCOMMIT-END        
         initComponents();
     }
     

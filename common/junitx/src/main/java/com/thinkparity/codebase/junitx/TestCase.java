@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import com.thinkparity.codebase.DateUtil;
@@ -23,6 +24,38 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * @author raykroeker@gmail.com
  */
 public abstract class TestCase extends junit.framework.TestCase {
+
+    /**
+     * Assert the contents of two streams are equal.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param actual
+     *            The actual <code>InputStream</code>.
+     * @param expected
+     *            The expected <code>InputStream</code>.
+     */
+    protected static void assertEquals(final String assertion,
+            final InputStream actual, final InputStream expected)
+            throws IOException {
+        final byte[] actualBuffer = new byte[384];
+        final byte[] expectedBuffer = new byte[actualBuffer.length];
+
+        int offset = 0;
+        int actualRead = actual.read(actualBuffer);
+        int expectedRead = expected.read(expectedBuffer);
+        while (-1 != actualRead) {
+            assertEquals("The number of bytes read at offset " + offset + " does not match expectation.",
+                    actualRead, expectedRead);
+            for (int i = 0; i < actualRead; i++) {
+                assertEquals("The byte at location " + offset + ":"  + i + " does not match expectation.",
+                        actualBuffer[i], expectedBuffer[i]);
+            }
+            offset += actualRead;
+            actualRead = actual.read(actualBuffer);
+            expectedRead = expected.read(expectedBuffer);
+        }
+    }
 
 	/**
 	 * Obtain the test session.

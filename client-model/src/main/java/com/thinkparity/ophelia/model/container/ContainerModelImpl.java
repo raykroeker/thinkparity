@@ -1960,7 +1960,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * Revert a document to it's pre-draft state.
      * 
      * @param documentId
-     *            A document id.
+     *            A document id <code>Long</code>.
      */
     void revertDocument(final Long containerId, final Long documentId) {
         logger.logApiId();

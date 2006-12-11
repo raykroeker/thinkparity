@@ -1173,6 +1173,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Read a document version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localDocumentId
+     *            A local document id <code>Long</code> relative to readAs.
+     * @return A <code>DocumentVersion</code>.
+     */
+    protected DocumentVersion readDocumentLatestVersion(
+            final OpheliaTestUser readAs, final Long localDocumentId) {
+        return getDocumentModel(readAs).readLatestVersion(localDocumentId);
+    }
+
+    /**
      * Read an artifact's team.
      * 
      * @param artifact

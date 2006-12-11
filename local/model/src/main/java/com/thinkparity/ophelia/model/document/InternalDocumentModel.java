@@ -179,7 +179,7 @@ public class InternalDocumentModel extends DocumentModel implements
      * Revert the document draft to its previous state.
      * 
      * @param documentId
-     *            A document id.
+     *            A document id <code>Long</code>.
      */
     public void revertDraft(final Long documentId) {
         synchronized (getImplLock()) {

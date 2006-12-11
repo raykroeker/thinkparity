@@ -53,7 +53,7 @@ public final class BackupTest extends BackupTestCase {
      */
     public void testBackup() {
         // test
-        final Container c = createContainer(datum.junit_z, "Backup Test: Restore backup 1");
+        final Container c = createContainer(datum.junit_z, "Backup Test: Backup 1");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");

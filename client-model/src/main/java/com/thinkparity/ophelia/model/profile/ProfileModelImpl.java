@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -38,35 +39,6 @@ final class ProfileModelImpl extends AbstractModelImpl {
     ProfileModelImpl(final Environment environment, final Workspace workspace) {
         super(environment, workspace);
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
-    }
-
-    /**
-     * Create the user's profile.
-     *
-     */
-    Profile create() {
-        logger.logApiId();
-        try {
-            final Profile remoteProfile = getSessionModel().readProfile();
-            /*
-             * NOTE Only verified emails are downloaded and created in the local
-             * profile.
-             */
-            final List<EMail> remoteEmails =
-                    getSessionModel().readProfileEmails();
-            profileIO.create(remoteProfile);
-            ProfileEMail profileEmail;
-            for (final EMail remoteEmail : remoteEmails) {
-                profileEmail = new ProfileEMail();
-                profileEmail.setEmail(remoteEmail);
-                profileEmail.setProfileId(remoteProfile.getLocalId());
-                profileEmail.setVerified(Boolean.TRUE);
-                profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
-            }
-            return profileIO.read(localUserId());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
     }
 
     /**
@@ -103,6 +75,45 @@ final class ProfileModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Create the user's profile.
+     *
+     */
+    Profile create() {
+        logger.logApiId();
+        try {
+            final Profile remoteProfile = getSessionModel().readProfile();
+            /*
+             * NOTE Only verified emails are downloaded and created in the local
+             * profile.
+             */
+            final List<EMail> remoteEmails =
+                    getSessionModel().readProfileEmails();
+            profileIO.create(remoteProfile);
+            ProfileEMail profileEmail;
+            for (final EMail remoteEmail : remoteEmails) {
+                profileEmail = new ProfileEMail();
+                profileEmail.setEmail(remoteEmail);
+                profileEmail.setProfileId(remoteProfile.getLocalId());
+                profileEmail.setVerified(Boolean.TRUE);
+                profileIO.createEmail(remoteProfile.getLocalId(), profileEmail);
+            }
+            return profileIO.read(localUserId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Determine if sign up is available.
+     * 
+     * @return True if sign up is available.
+     */
+    Boolean isSignUpAvailable() {
+        logger.logApiId();
+        return Boolean.FALSE;
     }
 
     /**

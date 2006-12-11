@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.profile;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -80,6 +81,17 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
     public Profile create() {
         synchronized (getImplLock()) {
             return getImpl().create();
+        }
+    }
+
+    /**
+     * Determine if sign up is available.
+     * 
+     * @return True if sign up is available.
+     */
+    public Boolean isSignUpAvailable() {
+        synchronized (getImplLock()) {
+            return getImpl().isSignUpAvailable();
         }
     }
 

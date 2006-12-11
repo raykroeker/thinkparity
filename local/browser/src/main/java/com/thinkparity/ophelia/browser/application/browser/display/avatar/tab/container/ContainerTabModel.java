@@ -284,8 +284,8 @@ public final class ContainerTabModel extends TabPanelModel {
         applySort();
         /* add the filtered panels the visibility list */
         visiblePanels.clear();
-        for (final TabPanel panel : filteredPanels) {
-            visiblePanels.add(panel);
+        for (final TabPanel filteredPanel : filteredPanels) {
+            visiblePanels.add(filteredPanel);
         }
         // add newly visible panels to the model; and set other panels
         int listModelIndex;
@@ -576,8 +576,11 @@ public final class ContainerTabModel extends TabPanelModel {
     private void applyFilters() {
         filteredPanels.clear();
         if (isSearchApplied()) {
+            TabPanel searchResultPanel;
             for (final Long searchResult : searchResults) {
-                filteredPanels.add(lookupPanel(searchResult));
+                searchResultPanel = lookupPanel(searchResult);
+                if (!filteredPanels.contains(searchResultPanel))
+                    filteredPanels.add(searchResultPanel);
             }
         } else {
             // no filter is applied

@@ -683,6 +683,8 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
         }
         // delete local
         contactIO.delete(contact.getLocalId());
+        // delete index
+        getIndexModel().deleteContact(contactId);
     }
 
     /**

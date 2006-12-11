@@ -124,7 +124,19 @@ public final class ContactTabModel extends TabPanelModel {
      * 
      */
     @Override
-    protected void debug() {}
+    protected void debug() {
+        logger.logDebug("{0} container panels.", panels.size());
+        logger.logDebug("{0} filtered panels.", filteredPanels.size());
+        logger.logDebug("{0} visible panels.", visiblePanels.size());
+        logger.logDebug("{0} model elements.", listModel.size());
+        final TabPanel[] listModelPanels = new TabPanel[listModel.size()];
+        listModel.copyInto(listModelPanels);
+        for (final TabPanel listModelPanel : listModelPanels) {
+            logger.logVariable("listModelPanel.getId()", listModelPanel.getId());
+        }
+        logger.logDebug("Search expression:  {0}", searchExpression);
+        logger.logDebug("{0} search result hits.", searchResults.size());
+    }
 
     /**
      * Obtain the swing list model.
@@ -193,8 +205,8 @@ public final class ContactTabModel extends TabPanelModel {
         applySort();
         /* add the filtered panels the visibility list */
         visiblePanels.clear();
-        for (final TabPanel panel : filteredPanels) {
-            visiblePanels.add(panel);
+        for (final TabPanel filteredPanel : filteredPanels) {
+            visiblePanels.add(filteredPanel);
         }
         // add newly visible panels to the model; and set other panels
         int listModelIndex;
@@ -362,8 +374,11 @@ public final class ContactTabModel extends TabPanelModel {
     private void applyFilters() {
         filteredPanels.clear();
         if (isSearchApplied()) {
+            TabPanel searchResultPanel;
             for (final JabberId searchResult : searchResults) {
-                filteredPanels.add(lookupPanel(searchResult));
+                searchResultPanel = lookupPanel(searchResult);
+                if (!filteredPanels.contains(searchResultPanel))
+                    filteredPanels.add(searchResultPanel);
             }
         } else {
             // no filter is applied

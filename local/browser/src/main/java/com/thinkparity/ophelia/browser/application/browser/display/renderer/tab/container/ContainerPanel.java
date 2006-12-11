@@ -5,13 +5,13 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
-import javax.swing.JList;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -248,9 +248,12 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         // display all version elements
         for (final ContainerVersion version : versions) {
-            westListModel.addElement(new VersionCell(version, documentVersions
-                    .get(version), publishedTo.get(version), publishedBy
-                    .get(version)));
+            // NOCOMMIT-Begin
+            if (NUMBER_VISIBLE_ROWS > westListModel.size())
+                westListModel.addElement(new VersionCell(version, documentVersions
+                        .get(version), publishedTo.get(version), publishedBy
+                        .get(version)));
+            // NOCOMMIT-End
         }
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
@@ -323,15 +326,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
     private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
+        jListFocusGained((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListFocusGained
 
     private void eastJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
+        jListFocusLost((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListFocusLost
 
     private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
+        jListMouseClicked((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListMouseClicked
 
     private void eastJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseEntered
@@ -349,11 +352,11 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_eastJListMouseMoved
 
     private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
+        jListMousePressed((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListMousePressed
 
     private void eastJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
+        jListMouseReleased((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListMouseReleased
 
     private void eastJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_eastJListValueChanged
@@ -734,37 +737,36 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
+        jListFocusGained((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListFocusGained
 
     private void westJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
+        jListFocusLost((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListFocusLost
 
-    /**
-     * Invoke an action for the west list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void westJListInvokeAction(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
+    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
+        final javax.swing.JList jList = (javax.swing.JList) e.getSource();
         if (!jList.isSelectionEmpty()) {
-            final AbstractWestCell selection = (AbstractWestCell) jList.getSelectedValue();
-            if (selection.isActionAvailable()) {
-                final Rectangle bounds = jList.getCellBounds(
-                        jList.getSelectedIndex(), jList.getSelectedIndex());
-                if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                    selection.invokeAction();
+            // ensure the click is within a cell
+            final Rectangle bounds = jList.getCellBounds(
+                    jList.getSelectedIndex(), jList.getSelectedIndex());
+            if (SwingUtil.regionContains(bounds, e.getPoint())) {
+                // ensure the cell has an action available
+                final AbstractWestCell selection = (AbstractWestCell) jList.getSelectedValue();
+                if (selection.isActionAvailable()) {
+                    // ensure the previous click was also on this cell
+                    final Integer clickIndex =
+                        (Integer) getAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"));
+                    if (null != clickIndex && clickIndex.equals(jList.getSelectedIndex())) {
+                        selection.invokeAction();
+                    }
+                    setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"),
+                            jList.getSelectedIndex());
+                } else {
+                    removeAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"));
                 }
             }
         }
-    }
-
-    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        westJListInvokeAction((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseClicked
 
     private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
@@ -780,11 +782,11 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_westJListMouseMoved
 
     private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
+        jListMousePressed((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMousePressed
 
     private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
+        jListMouseReleased((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseReleased
 
     /**
@@ -824,7 +826,10 @@ public class ContainerPanel extends DefaultTabPanel {
         eastListModel.clear();
         for (final Object selectedValue : westJList.getSelectedValues()) {
             for (final Cell cell : ((WestCell) selectedValue).getEastCells()) {
-                eastListModel.addElement(cell);
+                // NOCOMMIT-Begin
+                if (NUMBER_VISIBLE_ROWS > eastListModel.size())
+                    eastListModel.addElement(cell);
+                // NOCOMMIT-End
             }
         }
     }//GEN-LAST:event_westJListValueChanged
@@ -882,7 +887,10 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public Icon getIcon() {
-            return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
+            if (container.isBookmarked())
+                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK);
+            else
+                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
         }
         @Override
         public String getText() {

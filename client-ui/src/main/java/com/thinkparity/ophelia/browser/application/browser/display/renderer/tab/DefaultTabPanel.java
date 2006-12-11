@@ -53,8 +53,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
         NUMBER_VISIBLE_ROWS = 6;
-        SK_LIST_SELECTED_INDEX_PATTERN =
-            "TabPanel#JList.getSelectedIndex({0}:{1})";
+        SK_LIST_SELECTED_INDEX_PATTERN = "TabPanel#JList.getSelectedIndex({0}:{1})";
     }
 
     /**
@@ -155,6 +154,18 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
      */
     public void setTabDelegate(final TabDelegate tabDelegate) {
         this.tabDelegate = tabDelegate;
+    }
+
+    /**
+     * Obtain a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @return An attribute value <code>Object</code> or null if no such
+     *         attribute exists.
+     */
+    protected final Object getAttribute(final String name) {
+        return session.getAttribute(name);
     }
 
     /**
@@ -283,6 +294,16 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     }
 
     /**
+     * Remove a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     */
+    protected final void removeAttribute(final String name) {
+        session.removeAttribute(name);
+    }
+
+    /**
      * Repaint the lists.
      *
      */
@@ -292,8 +313,8 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
      * Restore the saved selection for the list. If there is no saved selection
      * then the first index is used.
      * 
-     * @param keyPattern
-     *            A session attribute key pattern.
+     * @param listKey
+     *            A list identifier key <code>String</code>.
      * @param listModel
      *            A <code>DefaultListModel</code>.
      * @param jList
@@ -302,7 +323,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     protected final void restoreSelection(final String listKey,
             final DefaultListModel listModel, final javax.swing.JList jList) {
         final Integer selectedIndex =
-            (Integer) session.getAttribute(MessageFormat.format(
+            (Integer) getAttribute(MessageFormat.format(
                     SK_LIST_SELECTED_INDEX_PATTERN, getId(), listKey));
         if (null == selectedIndex) {
             if (listModel.isEmpty()) {
@@ -316,17 +337,30 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
     }
 
     /**
-     * Save the current selection.
+     * Save the current selection. This will also save the previous selection.
      * 
-     * @param keyPattern
-     *            A session attribute key pattern.
+     * @param listKey
+     *            A list identifier <code>String</code>.
      * @param jList
      *            The <code>JList</code>.
      */
-    protected final void saveSelection(final String listKey, final javax.swing.JList jList) {
-        session.setAttribute(MessageFormat.format(
+    protected final void saveSelection(final String listKey,
+            final javax.swing.JList jList) {
+        setAttribute(MessageFormat.format(
                 SK_LIST_SELECTED_INDEX_PATTERN, getId(), listKey),
                 Integer.valueOf(jList.getSelectedIndex()));
+    }
+
+    /**
+     * Set a session attribute.
+     * 
+     * @param name
+     *            An attribute name <code>String</code>.
+     * @param value
+     *            An attribute value <code>Object</code>.
+     */
+    protected final void setAttribute(final String name, final Object value) {
+        session.setAttribute(name, value);
     }
 
     /**

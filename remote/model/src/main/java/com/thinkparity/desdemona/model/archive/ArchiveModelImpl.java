@@ -101,6 +101,10 @@ class ArchiveModelImpl extends AbstractModelImpl {
             final JabberId archiveId = readArchiveId(userId);
             final InternalArtifactModel artifactModel =
                 getModelFactory(archiveId).getArtifactModel(getClass());
+            Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                    "Artifact {0} does not exist for user {1} in archive {2}.",
+                    uniqueId, userId.getUsername(),
+                    archiveId.getUsername());
             final Long artifactId = artifactModel.readId(uniqueId);
             artifactModel.applyFlagArchived(artifactId);
         } catch (final Throwable t) {

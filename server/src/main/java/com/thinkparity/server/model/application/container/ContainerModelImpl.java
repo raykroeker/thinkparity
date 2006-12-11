@@ -346,8 +346,9 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     List<ContainerVersion> readArchiveVersions(final JabberId userId,
             final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
         try {
             assertIsAuthenticatedUser(userId);
             return getArchiveModel().getContainerReader(userId).readVersions(

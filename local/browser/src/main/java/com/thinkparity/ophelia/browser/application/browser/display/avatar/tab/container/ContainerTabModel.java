@@ -115,6 +115,7 @@ public final class ContainerTabModel extends TabPanelModel {
     public void toggleExpansion(final TabPanel tabPanel) {
         doToggleExpansion(tabPanel);
         synchronize();
+        ((ContainerPanel)tabPanel).requestFocusInWindow();
     }
 
     /**

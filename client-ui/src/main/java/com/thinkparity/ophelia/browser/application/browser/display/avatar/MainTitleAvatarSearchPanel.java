@@ -128,6 +128,9 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
             }
         });
         searchJTextField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchJTextFieldMouseClicked(evt);
+            }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 searchJTextFieldMouseEntered(evt);
             }
@@ -146,9 +149,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
         leftJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        leftJLabel.setMaximumSize(new java.awt.Dimension(8, 19));
-        leftJLabel.setMinimumSize(new java.awt.Dimension(8, 19));
-        leftJLabel.setPreferredSize(new java.awt.Dimension(8, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -158,6 +158,11 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void searchJTextFieldMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_searchJTextFieldMouseClicked
+        searchJTextField.getCaret().setVisible(true);
+        repaint();
+    }// GEN-LAST:event_searchJTextFieldMouseClicked
 
     private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
         Window window = SwingUtilities.getWindowAncestor(this);
@@ -175,13 +180,17 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
     private void searchJTextFieldFocusLost(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
         if (null != getParent()) {
-            // Note repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
+            // Note that repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
             getParent().repaint();
         }
     }//GEN-LAST:event_searchJTextFieldFocusLost
 
     private void searchJTextFieldFocusGained(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
-        repaint();
+        // NOTE Perhaps reconsider this approach if we need to tab to this control.
+        // Don't show the caret or repaint unless the mouse actually clicked in the JTextField
+        if (searchJTextField.getCaret().isVisible()) {
+            searchJTextField.getCaret().setVisible(false);
+        }
     }//GEN-LAST:event_searchJTextFieldFocusGained
     
     /**

@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Icon;
-
-
 /**
  * <b>Title:</b>thinkParity Tab Panel West Cell<br>
  * <b>Description:</b><br>
@@ -75,22 +72,6 @@ public class WestCell extends DefaultCell implements Cell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getIcon()
-     * 
-     */
-    public Icon getIcon() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
-     * 
-     */
-    public String getText() {
-        return null;
-    }
-
-    /**
      * Obtain the index of the cell.
      * 
      * @param cell
@@ -102,12 +83,6 @@ public class WestCell extends DefaultCell implements Cell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
-     * 
-     */
-    public void invokeAction() {}
-
-    /**
      * Remove the cell.
      * 
      * @param cell
@@ -116,10 +91,4 @@ public class WestCell extends DefaultCell implements Cell {
     public void remove(final EastCell cell) {
         eastCells.remove(cell);
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
-     * 
-     */
-    public void showPopup() {}
 }

@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
@@ -325,7 +326,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_eastJListFocusLost
 
     private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
     }//GEN-LAST:event_eastJListMouseClicked
 
     private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
@@ -562,7 +562,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_westJListFocusLost
 
     private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        jListMouseClicked((JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseClicked
 
     private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
@@ -646,7 +645,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /** A contact value cell. */
-    private final class ContactFieldCell implements EastCell {
+    private final class ContactFieldCell extends DefaultCell implements EastCell {
         /** The field name <code>String</code>. */
         private final String name;
         /** The parent <code>WestCell</code>. */
@@ -669,27 +668,6 @@ public class ContactTabPanel extends DefaultTabPanel {
             this.value = value;
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#getAdditionalText()
-         *
-         */
-        public String getAdditionalText() {
-            return null;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getIcon()
-         *
-         */
-        public Icon getIcon() {
-            return null;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
-         *
-         */
-        public Boolean isEnabled() {
-            return Boolean.TRUE;
-        }
-        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
          *
          */
@@ -708,13 +686,6 @@ public class ContactTabPanel extends DefaultTabPanel {
             parent.invokeAction();
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#isSetAdditionalText()
-         *
-         */
-        public Boolean isSetAdditionalText() {
-            return Boolean.FALSE;
-        }
-        /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
          *
          */
@@ -724,11 +695,9 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /** A contact text cell. */
-    private final class ContactTextCell implements EastCell {
+    private final class ContactTextCell extends DefaultCell implements EastCell {
         /** The parent <code>WestCell</code>. */
         private final WestCell parent;
-        /** The field text <code>String</code>. */
-        private final String text;
         /**
          * Create ContactFieldCell.
          * 
@@ -737,29 +706,8 @@ public class ContactTabPanel extends DefaultTabPanel {
          */
         private ContactTextCell(final WestCell parent, final String text) {
             super();
-            this.text = text;
+            setText(text);
             this.parent = parent;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#getAdditionalText()
-         *
-         */
-        public String getAdditionalText() {
-            return null;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getIcon()
-         *
-         */
-        public Icon getIcon() {
-            return null;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
-         *
-         */
-        public String getText() {
-            return text;
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
@@ -767,20 +715,6 @@ public class ContactTabPanel extends DefaultTabPanel {
          */
         public void invokeAction() {
             parent.invokeAction();
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()
-         * 
-         */
-        public Boolean isEnabled() {
-            return Boolean.TRUE;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell#isSetAdditionalText()
-         *
-         */
-        public Boolean isSetAdditionalText() {
-            return Boolean.FALSE;
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
@@ -830,16 +764,13 @@ public class ContactTabPanel extends DefaultTabPanel {
          */
         private OutgoingCell() {
             super();
+            setText(outgoing.getEmail().toString());
             add(new ContactFieldCell(this, localization.getString("CreatedOn"),
                     formatFuzzy(outgoing.getCreatedOn())));
         }
         @Override
         public Icon getIcon() {
             return IMAGE_CACHE.read(TabPanelIcon.USER);
-        }
-        @Override
-        public String getText() {
-            return outgoing.getEmail().toString();
         }
         @Override
         public void invokeAction() {

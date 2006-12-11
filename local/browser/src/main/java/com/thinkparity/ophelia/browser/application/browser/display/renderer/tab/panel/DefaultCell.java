@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import javax.swing.Icon;
 
+import com.thinkparity.ophelia.browser.util.ImageIOUtil;
+
 
 /**
  * <b>Title:</b><br>
@@ -32,6 +34,8 @@ public class DefaultCell implements Cell {
      */
     public DefaultCell() {
         super();
+        setEnabled(Boolean.TRUE);
+        setIcon(ImageIOUtil.readIcon("Invisible16x16.png"));
     }
 
     /**

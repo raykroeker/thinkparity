@@ -169,7 +169,7 @@ public abstract class BackupReader<T extends Artifact, U extends ArtifactVersion
      */
     protected Long readBackupArtifactId(final UUID uniqueId) {
         final Long artifactId = readArtifactId(uniqueId);
-        if (artifactModel.isFlagApplied(artifactId, ArtifactFlag.ARCHIVED)) {
+        if (null == artifactId || artifactModel.isFlagApplied(artifactId, ArtifactFlag.ARCHIVED)) {
             return null;
         } else {
             return artifactId;

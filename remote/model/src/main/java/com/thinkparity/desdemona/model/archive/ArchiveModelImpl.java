@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.DefaultLoginMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -107,6 +108,41 @@ class ArchiveModelImpl extends AbstractModelImpl {
                     archiveId.getUsername());
             final Long artifactId = artifactModel.readId(uniqueId);
             artifactModel.applyFlagArchived(artifactId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+        
+    }
+
+    /**
+     * Delete an artifact.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A unique id <code>UUID</code>.
+     */
+    void delete(final JabberId userId, final UUID uniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("uniqueId", uniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                logger.logInfo("No archive exists for user \"{0}\".", userId.getUsername());
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                final InternalContainerModel containerModel =
+                    getModelFactory(archiveId).getContainerModel(getClass());
+                containerModel.delete(artifactId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

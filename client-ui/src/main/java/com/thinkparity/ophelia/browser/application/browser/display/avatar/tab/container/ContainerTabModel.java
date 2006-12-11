@@ -590,6 +590,7 @@ public final class ContainerTabModel extends TabPanelModel {
         final Boolean expanded;
         if (isExpanded(containerPanel)) {
             expanded = Boolean.FALSE;
+            containerPanel.collapse();
         } else {
             // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
             for (final TabPanel visiblePanel : visiblePanels) {
@@ -602,8 +603,8 @@ public final class ContainerTabModel extends TabPanelModel {
             expanded = Boolean.TRUE;
             browser.runApplyContainerFlagSeen(
                     containerPanel.getContainer().getId());
+            containerPanel.expand();
         }
-        containerPanel.setExpanded(expanded);
         expandedState.put(tabPanel, expanded);
     }
     

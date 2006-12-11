@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +128,15 @@ public class ContainerPanel extends DefaultTabPanel {
         // NOCOMMIT-END        
         initComponents();
     }
-    
+
+    /**
+     * Collapse the panel.
+     * 
+     */
+    public void collapse() {
+        doCollapse(true);
+    }
+
     /**
      * Obtain actionDelegate.
      *
@@ -200,19 +209,18 @@ public class ContainerPanel extends DefaultTabPanel {
      *            A <code>Boolean</code> expanded state.
      */
     public void setExpanded(final Boolean expanded) {
-        this.expanded = expanded.booleanValue();
-        if (this.expanded) {
-            remove(collapsedJPanel);
-            add(expandedJPanel, constraints.clone());
-            revalidate();
-            animator.expand(20, 165);
-        } else {
-            animator.collapse(20, 25);
-            remove(expandedJPanel);
-            add(collapsedJPanel, constraints.clone());
-            revalidate();
-        }
-        reload();
+        if (expanded.booleanValue())
+            doExpand(false);
+        else
+            doCollapse(false);
+    }
+
+    /**
+     * Expand the panel.
+     *
+     */
+    public void expand() {
+        doExpand(true);
     }
 
     /**
@@ -322,6 +330,54 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
+
+    /**
+     * Expand the panel.
+     * 
+     * @param animate
+     *            Whether or not to animate.
+     */
+    private void doExpand(final boolean animate) {
+        this.expanded = true;
+        remove(collapsedJPanel);
+        add(expandedJPanel, constraints.clone());
+
+        if (animate) {
+            animator.expand(20, 165);
+        } else {
+            final Dimension preferredSize = expandedJPanel.getPreferredSize();
+            preferredSize.height = 165;
+            expandedJPanel.setPreferredSize(preferredSize);
+        }
+
+        revalidate();
+        reload();
+        repaint();
+    }
+
+    /**
+     * Collapse the panel.
+     * 
+     * @param animate
+     *            Whether or not to animate.
+     */
+    private void doCollapse(final boolean animate) {
+        this.expanded = false;
+        remove(expandedJPanel);
+        add(collapsedJPanel, constraints.clone());
+
+        if (animate) {
+            animator.collapse(20, 25);
+        } else {
+            final Dimension preferredSize = expandedJPanel.getPreferredSize();
+            preferredSize.height = 25;
+            expandedJPanel.setPreferredSize(preferredSize);
+        }
+
+        revalidate();
+        reload();
+        repaint();
+    }
 
     private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
         jListFocusGained((javax.swing.JList) e.getSource(), e);

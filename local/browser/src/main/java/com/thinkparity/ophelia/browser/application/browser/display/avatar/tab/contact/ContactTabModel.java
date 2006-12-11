@@ -411,6 +411,7 @@ public final class ContactTabModel extends TabPanelModel {
         final Boolean expanded;
         if (isExpanded(contactTabPanel)) {
             expanded = Boolean.FALSE;
+            contactTabPanel.collapse();
         } else {
             // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
             for (final TabPanel visiblePanel : visiblePanels) {
@@ -421,8 +422,8 @@ public final class ContactTabModel extends TabPanelModel {
             // NOTE-END:multi-expand
 
             expanded = Boolean.TRUE;
+            contactTabPanel.expand();
         }
-        contactTabPanel.setExpanded(expanded);
         expandedState.put(tabPanel, expanded);
     }
 

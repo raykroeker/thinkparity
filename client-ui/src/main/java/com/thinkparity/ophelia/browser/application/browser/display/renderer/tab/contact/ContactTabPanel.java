@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
@@ -39,6 +40,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 public class ContactTabPanel extends DefaultTabPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JList eastJList = new javax.swing.JList();
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
@@ -192,6 +194,7 @@ public class ContactTabPanel extends DefaultTabPanel {
             add(collapsedJPanel, constraints.clone());
             revalidate();
         }
+        reload();
     }
 
     /**
@@ -413,14 +416,22 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
         collapsedJPanel.add(iconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Package!");
+        textJLabel.setText("!Contact Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(textJLabel, gridBagConstraints);
+
+        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        additionalTextJLabel.setText("!Contact Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        collapsedJPanel.add(additionalTextJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -563,6 +574,46 @@ public class ContactTabPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Reload the panel data based upon internal criteria.
+     *
+     */
+    private void reload() {
+        reloadText();
+    }
+
+    /**
+     * Reload the text on the panel.
+     *
+     */
+    private void reloadText() {
+        if (!expanded) {
+            if (isSetContact()) {
+                final String pattern;
+                final Object[] values;
+                if (contact.isSetTitle()) {
+                    if (contact.isSetOrganization()) {
+                        pattern = "({0}, {1})";
+                        values = new Object[] { contact.getTitle(),
+                                contact.getOrganization() };
+                    } else {
+                        pattern = "({0})";
+                        values = new Object[] { contact.getTitle() };
+                    }
+                } else {
+                    if (contact.isSetOrganization()) {
+                        pattern = "({0})";
+                        values = new Object[] { contact.getOrganization() };
+                    } else {
+                        pattern = "";
+                        values = new Object[] {};
+                    }
+                }
+                additionalTextJLabel.setText(MessageFormat.format(pattern, values));
+            }
+        }
+    }
 
     private void westJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseMoved
         westJListSetCursor((javax.swing.JList) e.getSource(), e);

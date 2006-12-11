@@ -708,10 +708,8 @@ public class ContainerPanel extends DefaultTabPanel {
         // if not expanded display the container name; if there exists a draft
         // and the the latest version also display the draft owner; otherwise
         // if there exists the latest version display the published on date
-        if (expanded) {
-            textJLabel.setText(container.getName());
-        } else {
-            textJLabel.setText(container.getName());
+        textJLabel.setText(container.getName());
+        if (!expanded) {
             if (container.isDraft() && container.isLatest()) {
                 additionalTextJLabel.setText(localization.getString(
                         "ContainerMessageDraftOwner",

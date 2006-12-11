@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.util.Map;
+
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -53,13 +56,6 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion, com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta)
-     *
-     */
-    public void showForDocument(final DocumentVersion version, final Delta delta) {
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDraft(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft)
      *
      */
@@ -76,17 +72,12 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.Map, java.util.Map)
      *
      */
-    public void showForUser(final User user) {
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion)
-     *
-     */
-    public void showForVersion(final ContainerVersion version) {
+    public void showForVersion(final ContainerVersion version,
+            final Map<DocumentVersion, Delta> documentVersions,
+            final Map<User, ArtifactReceipt> publishedTo) {
     }
 
     /**

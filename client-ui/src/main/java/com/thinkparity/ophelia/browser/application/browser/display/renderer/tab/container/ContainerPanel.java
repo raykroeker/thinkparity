@@ -1018,8 +1018,12 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A version cell. */
     private final class VersionCell extends AbstractWestCell {
+        /** The <code>DocumentVersion</code>s and their <code>Delta</code>s. */ 
+        private final Map<DocumentVersion, Delta> documentVersions;
         /** A published to <code>User</code>. */
         private final User publishedBy;
+        /** The <code>User</code>s and their <code>ArtifactReceipt</code>s. */
+        private final Map<User, ArtifactReceipt> publishedTo;
         /** A <code>ContainerVersion</code>. */
         private final ContainerVersion version;
         /**
@@ -1037,15 +1041,17 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private VersionCell(final ContainerVersion version,
                 final Map<DocumentVersion, Delta> documentVersions,
-                final Map<User, ArtifactReceipt> users, final User publishedBy) {
+                final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
+            this.documentVersions = documentVersions;
             this.version = version;
             this.publishedBy = publishedBy;
+            this.publishedTo = publishedTo;
             for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                add(new VersionDocumentCell(entry.getKey(), entry.getValue()));
+                add(new VersionDocumentCell(this, entry.getKey(), entry.getValue()));
             }
-            add(new VersionUserCell(publishedBy));
-            for (final Entry<User, ArtifactReceipt> entry : users.entrySet()) {
-                add(new VersionUserCell(entry.getKey(), entry.getValue()));
+            add(new VersionUserCell(this, publishedBy));
+            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                add(new VersionUserCell(this, entry.getKey(), entry.getValue()));
             }
         }
         @Override
@@ -1067,7 +1073,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForVersion(version);
+            popupDelegate.showForVersion(version, documentVersions, publishedTo);
         }
         @Override
         public Boolean isActionAvailable() {
@@ -1079,6 +1085,8 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionDocumentCell extends AbstractEastCell {
         /** A <code>Delta</code>. */
         private final Delta delta;
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
         /** A <code>DocumentVersion</code>. */
         private final DocumentVersion version;
         /**
@@ -1089,10 +1097,11 @@ public class ContainerPanel extends DefaultTabPanel {
          * @param delta
          *            A <code>Delta</code>.
          */
-        private VersionDocumentCell(final DocumentVersion version,
-                final Delta delta) {
+        private VersionDocumentCell(final WestCell parent,
+                final DocumentVersion version, final Delta delta) {
             super();
             this.delta = delta;
+            this.parent = parent;
             this.version = version;
             setIcon(fileIconReader.getIcon(version));
             switch (delta) {
@@ -1120,7 +1129,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         @Override
         public void showPopup() {
-            popupDelegate.showForDocument(version, delta);
+            parent.showPopup();
         }
     }
 
@@ -1128,14 +1137,17 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionUserCell extends AbstractEastCell {
         /** A <code>User</code>. */
         private final User user;
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
         /**
          * Create VersionUserCell.
          * 
          * @param user
          *            A <code>User</code>.
          */
-        private VersionUserCell(final User user) {
+        private VersionUserCell(final WestCell parent, final User user) {
             super();
+            this.parent = parent;
             this.user = user;
             setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
             setText(user.getName());
@@ -1149,8 +1161,10 @@ public class ContainerPanel extends DefaultTabPanel {
          * @param receipt
          *            An <code>ArtifactReceipt</code>.
          */
-        private VersionUserCell(final User user, final ArtifactReceipt receipt) {
+        private VersionUserCell(final WestCell parent, final User user,
+                final ArtifactReceipt receipt) {
             super();
+            this.parent = parent;
             this.user = user;
             setIcon(receipt.isSetReceivedOn()
                     ? IMAGE_CACHE.read(TabPanelIcon.USER)
@@ -1174,7 +1188,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         @Override
         public void showPopup() {
-            popupDelegate.showForUser(user);
+            parent.showPopup();
         }
     }
 }

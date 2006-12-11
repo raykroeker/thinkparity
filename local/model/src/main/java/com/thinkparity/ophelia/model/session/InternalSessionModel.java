@@ -144,14 +144,14 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		}
 	}
 
-	public void createBackupStream(final JabberId userId,
+    public void createBackupStream(final JabberId userId,
             final String streamId, final UUID uniqueId, final Long versionId) {
         synchronized (getImplLock()) {
             getImpl().createBackupStream(userId, streamId, uniqueId, versionId);
         }
     }
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -163,13 +163,13 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	public String createStream(final StreamSession session) {
+    public String createStream(final StreamSession session) {
         synchronized (getImplLock()) {
             return getImpl().createStream(session);
         }
     }
 
-    /**
+	/**
      * Initialize a stream.
      * 
      * @return A <code>StreamSession</code>.
@@ -194,7 +194,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { getImpl().declineInvitation(invitedAs, invitedBy); }
     }
 
-	/**
+    /**
      * Delete a contact.
      * 
      * @param userId
@@ -208,7 +208,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -572,7 +572,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readContacts(userId); }
     }
 
-	/**
+    /**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -586,7 +586,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Read the user's profile.
      * 
      * @return A profile.
@@ -627,7 +627,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read a thinkParity user from the server.
      * 
      * @param userId
@@ -639,6 +639,17 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             return getImpl().readUser(userId);
 		}
 	}
+
+	/**
+     * Return the remote date and time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar readDateTime() {
+        synchronized (getImplLock()) {
+            return getImpl().readDateTime();
+        }
+    }
 
     /**
      * Remove an email from a user's profile.

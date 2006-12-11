@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
-import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.ZipUtil;
@@ -249,6 +248,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     void archive(final Long containerId) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
+        assertIsDistributed("Container has not been distributed.", containerId);
         try {
             final Container container = read(containerId);
             getArchiveModel().archive(container.getId());
@@ -1418,14 +1418,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
 
-        // START-NOTE:this should be a parameterized comparator
+        // NOTE-Begin:this should be a parameterized comparator
         if (null != draft) {
             final List<Document> documents = new ArrayList<Document>();
             documents.addAll(draft.getDocuments());
             ModelSorter.sortDocuments(documents, defaultComparator);
             draft.setDocuments(documents);
         }
-        // END-NOTE:this should be a parameterized comparator
+        // NOTE-End:this should be a parameterized comparator
 
         if (null != draft) {
             for (final Document document : draft.getDocuments()) {
@@ -1871,6 +1871,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final InternalArchiveModel archiveModel = getArchiveModel();
             // restore container info
             final Container container = archiveModel.readContainer(uniqueId);
+            Assert.assertNotNull(container, "Container \"{0}\" has not been archived.", uniqueId);
             restore(container, new RestoreModel() {
                 public InputStream openDocumentVersion(final UUID uniqueId,
                         final Long versionId) {
@@ -3028,15 +3029,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             version.setArtifactId(container.getId());
             containerIO.createVersion(version);
             artifactIO.updateFlags(container.getId(), container.getFlags());
-            publishedTo = restoreModel.readPublishedTo(version
-                    .getArtifactUniqueId(), version.getVersionId());
-            containerIO.createPublishedTo(container.getId(), version
-                    .getVersionId(), CollectionsUtil
-                    .proxy(publishedTo.keySet()));
+            publishedTo = restoreModel.readPublishedTo(
+                    version.getArtifactUniqueId(), version.getVersionId());
             for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                containerIO.createPublishedTo(container.getId(),
+                        version.getVersionId(),
+                        userModel.read(entry.getValue().getUserId()));
                 if (entry.getValue().isSetReceivedOn()) {
-                    containerIO.updatePublishedTo(container.getId(), version
-                            .getVersionId(), entry.getValue().getUserId(),
+                    containerIO.updatePublishedTo(container.getId(),
+                            version.getVersionId(),
+                            entry.getValue().getUserId(),
                             entry.getValue().getReceivedOn());
                 }
             }

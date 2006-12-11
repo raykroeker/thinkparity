@@ -567,14 +567,29 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             final List<User> publishedTo) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_CREATE_PUBLISHED_TO);
-            session.setLong(1, containerId);
-            session.setLong(2, versionId);
             for (final User publishedToUser : publishedTo) {
-                session.setLong(3, publishedToUser.getLocalId());
-                if (1 != session.executeUpdate())
-                    throw new HypersonicException("Could not create published to entry.");
+                createPublishedTo(session, containerId, versionId,
+                        publishedToUser);
             }
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long, java.lang.Long, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final User publishedTo) {
+        final Session session = openSession();
+        try {
+            createPublishedTo(session, containerId, versionId, publishedTo);
 
             session.commit();
         } catch (final HypersonicException hx) {
@@ -963,7 +978,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersion(java.lang.Long,
      *      java.lang.Long, java.lang.Long, java.lang.Long)
@@ -990,6 +1004,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -1206,6 +1221,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             }
         }
         finally { session.close(); }
+    }
+
+    /**
+     * Create a published to entry.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param publishedTo
+     *            A published to <code>User</code>.
+     */
+    private void createPublishedTo(final Session session,
+            final Long containerId, final Long versionId, final User publishedTo) {
+        session.prepareStatement(SQL_CREATE_PUBLISHED_TO);
+        session.setLong(1, containerId);
+        session.setLong(2, versionId);
+        session.setLong(3, publishedTo.getLocalId());
+        if (1 != session.executeUpdate())
+            throw new HypersonicException("Could not create published to entry.");
     }
 
     /**

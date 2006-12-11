@@ -89,10 +89,23 @@ public interface ContainerIOHandler {
      * @param versionId
      *            A version id <code>Long</code>.
      * @param publishedTo
-     *            A <code>List&lt;User&gt;</code>.
+     *            A <code>User</code> <code>List</code>.
      */
     public void createPublishedTo(final Long containerId, final Long versionId,
             final List<User> publishedTo);
+
+    /**
+     * Create a published to entry for a container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param publishedTo
+     *            A <code>User</code>.
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final User publishedTo);
 
     /**
      * Create a container version.

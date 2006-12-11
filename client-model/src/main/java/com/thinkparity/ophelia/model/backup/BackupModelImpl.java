@@ -437,7 +437,6 @@ final class BackupModelImpl extends AbstractModelImpl {
         }
     }
 
-
     /**
      * Assert that the backup server is online.
      *

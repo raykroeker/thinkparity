@@ -21,7 +21,7 @@ import com.thinkparity.ophelia.model.events.ContainerListener;
  * @author raymond@thinkparity.com
  * @version 1.1.2.7
  */
-abstract class ContainerTestCase extends ModelTestCase {
+public abstract class ContainerTestCase extends ModelTestCase {
 
     /**
      * Assert that the expected draft matches the actual.
@@ -79,7 +79,9 @@ abstract class ContainerTestCase extends ModelTestCase {
      * @param name
      *            The test name.
      */
-    protected ContainerTestCase(final String name) { super(name); }
+    protected ContainerTestCase(final String name) {
+        super(name);
+    }
 
     /**
      * Obtain an output directory for a container test case. This will locate

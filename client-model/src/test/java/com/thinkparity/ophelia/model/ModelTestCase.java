@@ -27,6 +27,7 @@ import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -39,6 +40,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
+import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
@@ -287,20 +289,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
 	}
 
-	/**
-     * Assert that a list of versions is not null and all of the versions in the
-     * list are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param versions
-     *            A list of versions.
-     */
-    protected static void assertNotNull(final String assertion, final Collection<DocumentVersion> versions) {
-        assertNotNull(assertion + " [DOCUMENT VERSIONS IS NULL]", (Object) versions);
-        for(final DocumentVersion version : versions) {
-            assertNotNull(assertion, version);
-        }
+	protected static void assertNotNull(final String assertion, final ArtifactReceipt receipt) {
+        assertNotNull(assertion + " [RECEIPT IS NULL]", (Object) receipt);
+        assertNotNull(assertion + " [RECEIPT'S ARTIFACT ID IS NULL]", receipt.getArtifactId());
+        assertNotNull(assertion + " [RECEIPT'S USER ID IS NULL]", receipt.getUserId());
     }
 
     /**
@@ -471,6 +463,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
     }
 
+    protected static void assertNotNull(final String assertion, final TeamMember teamMember) {
+        assertNotNull(assertion + " [TEAM MEMBER IS NULL]", (Object) teamMember);
+        assertNotNull(assertion + " [TEAM MEMBER's ARTIFACT ID IS NULL]", teamMember.getArtifactId());
+        assertNotNull(assertion + " [TEAM MEMBER'S ID IS NULL]", teamMember.getId());
+        assertNotNull(assertion + " [TEAM MEMBER'S LOCAL ID IS NULL]", teamMember.getLocalId());
+        assertNotNull(assertion + " [TEAM MEMBER'S NAME IS NULL]", teamMember.getName());
+        assertNotNull(assertion + " [TEAM MEMBER'S ORGANIZATION IS NULL]", teamMember.getOrganization());
+    }
+
     /**
      * Assert that the user and all of the user required fields are not null.
      * 
@@ -530,15 +531,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return logger.logVariable("document", document);
     }
 
-    protected void revertDocument(final OpheliaTestUser revertAs,
-            final Long localContainerId, final Long localDocumentId) {
-        final Document document = getDocumentModel(revertAs).read(localDocumentId);
-        final Container container = getContainerModel(revertAs).read(localContainerId);
-        logger.logInfo("Reverting document \"{0}\" for container \"{1}\" as \"{2}.\"",
-                document.getName(), container.getName(), revertAs.getSimpleUsername());
-        getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
-    }
-
     /**
      * Add all of the input test files to the container as documents.
      * 
@@ -573,6 +565,21 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             documents.add(addDocument(addAs, localContainerId, filename));
         }
         return documents;
+    }
+
+    /**
+     * Archive a container.
+     * 
+     * @param archiveAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to archiveAs.
+     */
+    protected void archive(final OpheliaTestUser archiveAs, final Long localContainerId) {
+        final Container container = getContainerModel(archiveAs).read(localContainerId);
+        logger.logInfo("Archiving container \"{0}\" as \"{1}\".", container,
+                archiveAs.getSimpleUsername());
+        getContainerModel(archiveAs).archive(localContainerId);
     }
 
     /**
@@ -694,6 +701,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected InternalArtifactModel getArtifactModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getArtifactModel(testUser);
+    }
+
+    protected InternalBackupModel getBackupModel(final OpheliaTestUser testUser) {
+        return modelFactory.getBackupModel(testUser);
     }
 
     protected InternalContactModel getContactModel(final OpheliaTestUser testUser) {
@@ -1017,7 +1028,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 c.getName(), publishAs.getSimpleUsername(), actualTeamMemberNames);
         getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
     }
-
     /**
      * Publish to a discrete set of team members.
      * 
@@ -1153,6 +1163,11 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return versions;
     }
 
+    protected List<ContainerVersion> readContainerVersions(
+            final OpheliaTestUser readAs, final Long localContainerId) {
+        return getContainerModel(readAs).readVersions(localContainerId);
+    }
+
     /**
      * Read a document for a user.
      * 
@@ -1203,6 +1218,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return team;
     }
 
+    protected Map<User, ArtifactReceipt> readPublishedTo(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long versionId) {
+        return getContainerModel(readAs).readPublishedTo(localContainerId,
+                versionId);
+    }
+
     /**
      * Read a team for an artifact.
      * 
@@ -1235,6 +1257,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logger.logInfo("Removing document \"{0}\" from container \"{1}\" as \"{2}.\"",
                 document.getName(), container.getName(), removeAs.getSimpleUsername());
         getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
+    }
+
+    protected void revertDocument(final OpheliaTestUser revertAs,
+            final Long localContainerId, final Long localDocumentId) {
+        final Document document = getDocumentModel(revertAs).read(localDocumentId);
+        final Container container = getContainerModel(revertAs).read(localContainerId);
+        logger.logInfo("Reverting document \"{0}\" for container \"{1}\" as \"{2}.\"",
+                document.getName(), container.getName(), revertAs.getSimpleUsername());
+        getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
     }
 
     /**

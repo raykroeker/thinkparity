@@ -525,6 +525,13 @@ public interface XMPPSession {
     public List<Contact> readContacts(final JabberId userId);
 
     /**
+     * Obtain the remote date/time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar readDateTime(final JabberId userId);
+
+    /**
      * Obtain the size of the event queue.
      * 
      * @return The size of the event queue.

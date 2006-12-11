@@ -12,6 +12,8 @@ import com.thinkparity.ophelia.model.archive.ArchiveModel;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
+import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -58,16 +60,16 @@ public class OpheliaTestModelFactory {
         super();
     }
 
-    private Context getContext(final OpheliaTestUser testUser) {
-        return TestModel.getTestContext();
-    }
-
     public InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
         return ArchiveModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalArtifactModel getArtifactModel(final OpheliaTestUser testUser) {
         return ArtifactModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
+    }
+
+    public InternalBackupModel getBackupModel(final OpheliaTestUser testUser) {
+        return BackupModel.getInternalModel(getContext(testUser), testUser.getEnvironment(), testUser.getWorkspace());
     }
 
     public InternalContactModel getContactModel(final OpheliaTestUser testUser) {
@@ -112,5 +114,9 @@ public class OpheliaTestModelFactory {
 
     public InternalWorkspaceModel getWorkspaceModel(final OpheliaTestUser testUser) {
         return WorkspaceModel.getInternalModel(getContext(testUser), testUser.getEnvironment());
+    }
+
+    private Context getContext(final OpheliaTestUser testUser) {
+        return TestModel.getTestContext();
     }
 }

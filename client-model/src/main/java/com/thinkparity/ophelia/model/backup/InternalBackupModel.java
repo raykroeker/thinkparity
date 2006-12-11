@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -218,7 +219,7 @@ public class InternalBackupModel extends BackupModel implements InternalModel {
     /**
      * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)
      */
-    public List<JabberId> readTeamIds(UUID uniqueId) {
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
         synchronized (getImplLock()) {
             return getImpl().readTeamIds(uniqueId);
         }

@@ -1,7 +1,7 @@
 /*
  * Created On: Sep 27, 2006 8:44:19 AM
  */
-package com.thinkparity.ophelia.model.container;
+package com.thinkparity.ophelia.model.container.archive;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +13,8 @@ import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerTestCase;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -34,7 +36,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ArchiveRestoreArchiveTest extends ContainerTestCase {
+public class ArchiveRestoreArchiveTest extends ArchiveTestCase {
 
     /** Test name. */
     private static final String NAME = "Restore Test";

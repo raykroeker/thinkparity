@@ -1124,6 +1124,23 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	}
 
     /**
+     * Return the remote date and time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    Calendar readDateTime() {
+        logger.logApiId();
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readDateTime(localUserId());
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Remove an email from a user's profile.
      * 
      * @param userId

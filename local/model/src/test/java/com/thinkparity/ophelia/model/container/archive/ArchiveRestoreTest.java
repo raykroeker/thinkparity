@@ -1,17 +1,20 @@
 /*
  * Created On: Sep 27, 2006 8:44:19 AM
  */
-package com.thinkparity.ophelia.model.container;
+package com.thinkparity.ophelia.model.container.archive;
 
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.ContainerTestCase;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * <b>Title:</b>thinkParity Container Restore Test<br>
@@ -28,7 +31,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ArchiveRestoreTest extends ContainerTestCase {
+public class ArchiveRestoreTest extends ArchiveTestCase {
 
     /** Test name. */
     private static final String NAME = "Restore Test";

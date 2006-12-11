@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.util.xmpp;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -29,17 +30,6 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
     }
 
     /**
-     * Obtain the size of the event queue.
-     * 
-     * @return The size of the event queue.
-     */
-    Integer readEventQueueSize(final JabberId userId) {
-        final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
-        readQueueEvents.setParameter("userId", userId);
-        return execute(readQueueEvents, Boolean.TRUE).readResultEvents("events").size();
-    }
-
-    /**
      * Process the remote event queue. Read the events; notify the local event
      * handlers then delete the remote event.
      * 
@@ -59,6 +49,29 @@ final class XMPPSystem extends AbstractXMPP<SystemListener> {
                 deleteQueueEvent(userId, queueEvent.getId());
             }
         }
+    }
+
+    /**
+     * Read the remote date/time.
+     * 
+     * @return A <code>Calendar</code>.
+     */
+    Calendar readDateTime(final JabberId userId) {
+        assertIsAuthenticatedUser(userId);
+        final XMPPMethod remoteDateTime = new XMPPMethod("system:readdatetime");
+        remoteDateTime.setParameter("userId", userId);
+        return execute(remoteDateTime).readResultCalendar("datetime");
+    }
+
+    /**
+     * Obtain the size of the event queue.
+     * 
+     * @return The size of the event queue.
+     */
+    Integer readEventQueueSize(final JabberId userId) {
+        final XMPPMethod readQueueEvents = new XMPPMethod("system:readqueueevents");
+        readQueueEvents.setParameter("userId", userId);
+        return execute(readQueueEvents, Boolean.TRUE).readResultEvents("events").size();
     }
 
     /**

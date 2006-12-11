@@ -93,6 +93,9 @@ public final class Constants {
                 public static final Color ROW_EVEN_BG = new Color(245, 246, 247, 255);
                 public static final Color ROW_ODD_BG = Color.WHITE;
             }
+            public static final class Publish {
+                public static final Color FIRST_CONTACT_BORDER = new Color(212, 212, 212, 255);
+            }
             public static final class UpdateProfile {
                 public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
                 public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
@@ -188,9 +191,8 @@ public final class Constants {
     /** thinkParity icons. */
     public static final class Icons {
         public static final class Tray {
-            // TODO Add an offline icon.
             public static final Icon TRAY_ICON_OFFLINE =
-                ImageIOUtil.readIcon("SystemTray.png");
+                ImageIOUtil.readIcon("SystemTrayOffline.png");
             public static final Icon TRAY_ICON_ONLINE =
                 ImageIOUtil.readIcon("SystemTray.png");
         }

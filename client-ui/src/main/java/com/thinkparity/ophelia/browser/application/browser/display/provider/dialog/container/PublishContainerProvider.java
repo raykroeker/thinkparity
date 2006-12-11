@@ -93,7 +93,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A container id <code>Long</code>.
      * @return The name <code>String</code>.             
      */
-    public String getContainerName(final Long containerId) {
+    public String readContainerName(final Long containerId) {
         return containerModel.read(containerId).getName();
     }
     
@@ -106,7 +106,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A version id <code>Long</code>.  
      * @return The comment <code>String</code>.              
      */
-    public String getContainerVersionComment(final Long containerId, final Long versionId) {
+    public String readContainerVersionComment(final Long containerId, final Long versionId) {
         final ContainerVersion containerVersion = containerModel.readVersion(containerId, versionId);
         if ((null!=containerVersion) && (containerVersion.isSetComment())) {
             return containerVersion.getComment();
@@ -123,7 +123,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A container id <code>Long</code>.
      * @return The version id <code>Long</code>.
      */
-    public Long getLatestVersionId(final Long containerId) {
+    public Long readLatestVersionId(final Long containerId) {
         final ContainerVersion containerVersion = containerModel.readLatestVersion(containerId);
         if (null==containerVersion) {
             return null;
@@ -141,7 +141,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A version id <code>Long</code>.
      * @return The publish date <code>Calendar</code>.
      */
-    public Calendar getPublishDate(final Long containerId, final Long versionId) {
+    public Calendar readPublishDate(final Long containerId, final Long versionId) {
         final ContainerVersion containerVersion = containerModel.readVersion(containerId, versionId);
         return containerVersion.getCreatedOn();
     }
@@ -155,7 +155,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A version id <code>Long</code>.
      * @return The publisher <code>User</code>.
      */
-    public User getPublisher(final Long containerId, final Long versionId) {
+    public User readPublisher(final Long containerId, final Long versionId) {
         final ContainerVersion containerVersion = containerModel.readVersion(containerId, versionId);
         return userModel.read(containerVersion.getUpdatedBy());
     }
@@ -169,7 +169,7 @@ public class PublishContainerProvider extends CompositeFlatSingleContentProvider
      *            A version id <code>Long</code>.
      * @return A Map<User, ArtifactReceipt>.
      */
-    public Map<User, ArtifactReceipt> getVersionUsers(final Long containerId, final Long versionId) {
+    public Map<User, ArtifactReceipt> readVersionUsers(final Long containerId, final Long versionId) {
         return containerModel.readPublishedTo(containerId, versionId);
     }    
 }

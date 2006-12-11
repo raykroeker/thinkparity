@@ -1152,7 +1152,9 @@ public class ContainerPanel extends DefaultTabPanel {
         private VersionUserCell(final User user, final ArtifactReceipt receipt) {
             super();
             this.user = user;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+            setIcon(receipt.isSetReceivedOn()
+                    ? IMAGE_CACHE.read(TabPanelIcon.USER)
+                    : IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
             setText(user.getName());
             setAdditionalText(receipt.isSetReceivedOn()
                     ? localization.getString("UserReceived",

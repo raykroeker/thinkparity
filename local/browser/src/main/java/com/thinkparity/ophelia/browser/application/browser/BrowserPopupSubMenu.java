@@ -27,10 +27,10 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupSubMenu;
 public class BrowserPopupSubMenu extends ThinkParityPopupSubMenu {
     
     /** A drop shadow border. */
-    final DropShadowBorder dropShadowBorder;
+    private final DropShadowBorder dropShadowBorder;
     
     /** List of menu items in this JMenu. */
-    final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
+    private final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
     
     /**
      * @param text
@@ -61,7 +61,7 @@ public class BrowserPopupSubMenu extends ThinkParityPopupSubMenu {
      * @see javax.swing.JMenu#add(javax.swing.JMenuItem)
      */
     @Override
-    public JMenuItem add(JMenuItem menuItem) {
+    public JMenuItem add(final JMenuItem menuItem) {
         for (final ThinkParityBasicMenuItem earlierMenuItem : thinkParityMenuItems) {
             earlierMenuItem.setLast(Boolean.FALSE);            
         }

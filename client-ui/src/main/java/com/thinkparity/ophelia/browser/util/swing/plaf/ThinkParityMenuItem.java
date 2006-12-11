@@ -7,8 +7,6 @@ package com.thinkparity.ophelia.browser.util.swing.plaf;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem.MenuStyle;
-
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
@@ -107,6 +105,9 @@ public class ThinkParityMenuItem extends JMenuItem implements ThinkParityBasicMe
         
     /**
      * Set the menu style.
+     * 
+     * @param menuStyle
+     *          The menu style.
      */
     public void setMenuStyle(final MenuStyle menuStyle) {
         this.menuStyle = menuStyle;

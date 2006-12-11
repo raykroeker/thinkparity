@@ -28,7 +28,7 @@ public class BrowserPopupMenu extends JPopupMenu {
     private final DropShadowBorder dropShadowBorder;
     
     /** List of menu items in this JMenu. */
-    final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
+    private final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
     
     /**
      * Create ShadowPopupMenu.

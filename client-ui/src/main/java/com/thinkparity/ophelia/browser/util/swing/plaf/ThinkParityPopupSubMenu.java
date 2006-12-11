@@ -90,6 +90,9 @@ public class ThinkParityPopupSubMenu extends JMenu implements ThinkParityBasicMe
         
     /**
      * Set the menu style.
+     * 
+     * @param menuStyle
+     *          The menu style.
      */
     public void setMenuStyle(final MenuStyle menuStyle) {
         this.menuStyle = menuStyle;

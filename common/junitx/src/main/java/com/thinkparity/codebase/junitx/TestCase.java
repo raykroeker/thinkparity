@@ -36,24 +36,24 @@ public abstract class TestCase extends junit.framework.TestCase {
      *            The expected <code>InputStream</code>.
      */
     protected static void assertEquals(final String assertion,
-            final InputStream actual, final InputStream expected)
+            final InputStream expected, final InputStream actual)
             throws IOException {
-        final byte[] actualBuffer = new byte[384];
-        final byte[] expectedBuffer = new byte[actualBuffer.length];
+        final byte[] expectedBuffer = new byte[384];
+        final byte[] actualBuffer = new byte[expectedBuffer.length];
 
         int offset = 0;
-        int actualRead = actual.read(actualBuffer);
         int expectedRead = expected.read(expectedBuffer);
-        while (-1 != actualRead) {
+        int actualRead = actual.read(actualBuffer);
+        while (-1 != expectedRead) {
             assertEquals("The number of bytes read at offset " + offset + " does not match expectation.",
-                    actualRead, expectedRead);
-            for (int i = 0; i < actualRead; i++) {
+                    expectedRead, actualRead);
+            for (int i = 0; i < expectedRead; i++) {
                 assertEquals("The byte at location " + offset + ":"  + i + " does not match expectation.",
-                        actualBuffer[i], expectedBuffer[i]);
+                        expectedBuffer[i], actualBuffer[i]);
             }
-            offset += actualRead;
-            actualRead = actual.read(actualBuffer);
+            offset += expectedRead;
             expectedRead = expected.read(expectedBuffer);
+            actualRead = actual.read(actualBuffer);
         }
     }
 

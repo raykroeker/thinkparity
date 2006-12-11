@@ -278,6 +278,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         final Boolean expanded;
         if (isExpanded(containerPanel)) {
             expanded = Boolean.FALSE;
+            containerPanel.collapse();
         } else {
             // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
             for (final TabPanel visiblePanel : visiblePanels) {
@@ -288,8 +289,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             // NOTE-END:multi-expand
 
             expanded = Boolean.TRUE;
+            containerPanel.expand();
         }
-        containerPanel.setExpanded(expanded);
         expandedState.put(tabPanel, expanded);
     }
 

@@ -308,11 +308,11 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             if (isLocalUser(entry.getKey())) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add(ActionId.PROFILE_UPDATE, data);
+                add(entry.getKey().getName(), ActionId.PROFILE_UPDATE, data);
             } else {
                 final Data data = new Data(1);
                 data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());
-                add(ActionId.CONTACT_READ, data);
+                add(entry.getKey().getName(), ActionId.CONTACT_READ, data);
             }
         }
 

@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.util.Map;
+
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -32,16 +35,6 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
     public void showForContainer(final Container container);
 
     /**
-     * Display a popup menu for the version's document version.
-     * 
-     * @param version
-     *            A <code>DocumentVersion</code>.
-     * @param delta
-     *            A <code>Delta</code>.
-     */
-    public void showForDocument(final DocumentVersion version, final Delta delta);
-
-    /**
      * Display a popup menu for a draft.
      * 
      * @param container
@@ -53,18 +46,12 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
             final ContainerDraft draft);
 
     /**
-     * Display a popup menu for a user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     */
-    public void showForUser(final User user);
-
-    /**
      * Display a popup menu for the version.
      * 
      * @param version
      *            A <code>ContainerVersion</code>.
      */
-    public void showForVersion(final ContainerVersion version);
+    public void showForVersion(final ContainerVersion version,
+            final Map<DocumentVersion, Delta> documentVersions,
+            final Map<User, ArtifactReceipt> publishedTo);
 }

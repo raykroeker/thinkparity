@@ -4,8 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
 import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -745,28 +743,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_westJListFocusLost
 
     private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        final javax.swing.JList jList = (javax.swing.JList) e.getSource();
-        if (!jList.isSelectionEmpty()) {
-            // ensure the click is within a cell
-            final Rectangle bounds = jList.getCellBounds(
-                    jList.getSelectedIndex(), jList.getSelectedIndex());
-            if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                // ensure the cell has an action available
-                final AbstractWestCell selection = (AbstractWestCell) jList.getSelectedValue();
-                if (selection.isActionAvailable()) {
-                    // ensure the previous click was also on this cell
-                    final Integer clickIndex =
-                        (Integer) getAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"));
-                    if (null != clickIndex && clickIndex.equals(jList.getSelectedIndex())) {
-                        selection.invokeAction();
-                    }
-                    setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"),
-                            jList.getSelectedIndex());
-                } else {
-                    removeAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), "westJList"));
-                }
-            }
-        }
+        westJListMouseClicked("westJList", (javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseClicked
 
     private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
@@ -788,34 +765,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
         jListMouseReleased((javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseReleased
-
-    /**
-     * Set the cursor for the west list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void westJListSetCursor(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        if (jList.isSelectionEmpty()) {
-            SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-        } else {
-            final AbstractWestCell selection = (AbstractWestCell) jList.getSelectedValue();
-            if (selection.isActionAvailable()) {
-                final Rectangle bounds = jList.getCellBounds(
-                        jList.getSelectedIndex(), jList.getSelectedIndex());
-                if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                    SwingUtil.setCursor(jList, java.awt.Cursor.HAND_CURSOR);
-                } else {
-                    SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-                }
-            } else {
-                SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-            }
-        }
-    }
 
     private void westJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_westJListValueChanged
         if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
@@ -857,14 +806,6 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             setEnabled(isLatest());
         }
-        /**
-         * Determine whether or not an action is available for the cell.
-         * 
-         * @return True if an action is available.
-         */
-        protected boolean isActionAvailable() {
-            return false;
-        }
     }
 
     /** A container cell. */
@@ -905,8 +846,8 @@ public class ContainerPanel extends DefaultTabPanel {
             popupDelegate.showForContainer(container);
         }
         @Override
-        protected boolean isActionAvailable() {
-            return true;
+        public Boolean isActionAvailable() {
+            return Boolean.TRUE;
         }
     }
 
@@ -1075,7 +1016,7 @@ public class ContainerPanel extends DefaultTabPanel {
             popupDelegate.showForVersion(version);
         }
         @Override
-        protected boolean isActionAvailable() {
+        public Boolean isActionAvailable() {
             return version.isSetComment();
         }
     }

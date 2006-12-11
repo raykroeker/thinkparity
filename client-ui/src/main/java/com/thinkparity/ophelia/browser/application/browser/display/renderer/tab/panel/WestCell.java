@@ -83,6 +83,15 @@ public class WestCell extends DefaultCell implements Cell {
     }
 
     /**
+     * Determine whether or not an action is available for the cell.
+     * 
+     * @return True if an action is available.
+     */
+    public Boolean isActionAvailable() {
+        return Boolean.FALSE;
+    }
+
+    /**
      * Remove the cell.
      * 
      * @param cell

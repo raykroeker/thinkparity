@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
 
 /**
  * <b>Title:</b>thinkParity Default Tab Panel<br>
@@ -329,9 +330,13 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
             if (listModel.isEmpty()) {
                 return;
             } else {
+                setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
+                        Integer.valueOf(0));
                 jList.setSelectedIndex(0);
             }
         } else {
+            setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
+                    selectedIndex);
             jList.setSelectedIndex(selectedIndex.intValue());
         }
     }
@@ -361,6 +366,70 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
      */
     protected final void setAttribute(final String name, final Object value) {
         session.setAttribute(name, value);
+    }
+
+    /**
+     * Handle a click event in a western list.
+     * 
+     * @param listKey
+     *            A list identifier key <code>String</code>.
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void westJListMouseClicked(final String listKey,
+            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
+        if (!jList.isSelectionEmpty()) {
+            // ensure the click is within a cell
+            final Rectangle bounds = jList.getCellBounds(
+                    jList.getSelectedIndex(), jList.getSelectedIndex());
+            if (SwingUtil.regionContains(bounds, e.getPoint())) {
+                // ensure the cell has an action available
+                final WestCell selection = (WestCell) jList.getSelectedValue();
+                if (selection.isActionAvailable()) {
+                    /* ensure the previous click was also on this cell or this
+                     * is the first cell */
+                    final Integer clickIndex =
+                        (Integer) getAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey));
+                    if (null != clickIndex && clickIndex.equals(jList.getSelectedIndex())) {
+                        selection.invokeAction();
+                    }
+                    setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
+                            jList.getSelectedIndex());
+                } else {
+                    removeAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey));
+                }
+            }
+        }
+    }
+
+    /**
+     * Set the cursor for the west list.
+     * 
+     * @param jList
+     *            A <code>JList</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    protected void westJListSetCursor(final javax.swing.JList jList,
+            final java.awt.event.MouseEvent e) {
+        if (jList.isSelectionEmpty()) {
+            SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+        } else {
+            final WestCell selection = (WestCell) jList.getSelectedValue();
+            if (selection.isActionAvailable().booleanValue()) {
+                final Rectangle bounds = jList.getCellBounds(
+                        jList.getSelectedIndex(), jList.getSelectedIndex());
+                if (SwingUtil.regionContains(bounds, e.getPoint())) {
+                    SwingUtil.setCursor(jList, java.awt.Cursor.HAND_CURSOR);
+                } else {
+                    SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+                }
+            } else {
+                SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
+            }
+        }
     }
 
     /**

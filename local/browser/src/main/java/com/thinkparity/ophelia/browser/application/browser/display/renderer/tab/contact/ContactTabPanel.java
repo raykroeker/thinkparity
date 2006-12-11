@@ -459,6 +459,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         westJList.setCellRenderer(new WestCellRenderer());
         westJList.setOpaque(false);
         westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
+        westJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                westJListMouseMoved(e);
+            }
+        });
         westJList.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 westJListFocusGained(e);
@@ -475,6 +480,12 @@ public class ContactTabPanel extends DefaultTabPanel {
         westJList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 westJListMouseClicked(e);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                westJListMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                westJListMouseExited(e);
             }
             public void mousePressed(java.awt.event.MouseEvent e) {
                 westJListMousePressed(e);
@@ -552,6 +563,18 @@ public class ContactTabPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void westJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseMoved
+        westJListSetCursor((javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMouseMoved
+
+    private void westJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseExited
+        westJListSetCursor((javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMouseExited
+
+    private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
+        westJListSetCursor((javax.swing.JList) e.getSource(), e);
+    }//GEN-LAST:event_westJListMouseEntered
     
     private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
         jListFocusGained((JList) e.getSource(), e);
@@ -562,6 +585,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_westJListFocusLost
 
     private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
+        westJListMouseClicked("westJList", (javax.swing.JList) e.getSource(), e);
     }//GEN-LAST:event_westJListMouseClicked
 
     private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
@@ -615,6 +639,10 @@ public class ContactTabPanel extends DefaultTabPanel {
         @Override
         public void showPopup() {
             popupDelegate.showForContact(contact);
+        }
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.TRUE;
         }
     }
 

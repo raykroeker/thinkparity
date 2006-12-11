@@ -84,7 +84,6 @@ public final class RestoreTest extends BackupTestCase {
                 assertNotNull("Document version has not been properly backed up.", dv_backup);
             }
         }
-        getContainerModel(datum.junit_z).delete(c.getId());
         getContainerModel(datum.junit_z).restoreBackup();
     }
 

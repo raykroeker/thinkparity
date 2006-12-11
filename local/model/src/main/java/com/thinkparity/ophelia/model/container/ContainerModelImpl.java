@@ -389,11 +389,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             final Container container = read(containerId);
             if (isDistributed(container.getId())) {
-                final TeamMember localTeamMember = localTeamMember(container.getId());
-                final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
-                team.remove(localUserId());
-                getSessionModel().removeTeamMember(
-                        container.getUniqueId(), team, localTeamMember.getId());
+                /* the archive model is not part of the team */
+                if (isLocalTeamMember(container.getId())) {
+                    final TeamMember localTeamMember = localTeamMember(container.getId());
+                    final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
+                    team.remove(localUserId());
+                    getSessionModel().removeTeamMember(
+                            container.getUniqueId(), team, localTeamMember.getId());
+                }
                 deleteLocal(container.getId());
             } else {
                 deleteLocal(container.getId());
@@ -1916,7 +1919,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (0 < containers.size()) {
                 logger.logWarning("{0} containers will be deleted.", containers.size());
                 for (final Container container : containers) {
-                    delete(container.getId());
+                    deleteLocal(container.getId());
                 }
             }
 
@@ -2335,7 +2338,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return createVersion(containerId, versionId, null, createdBy, createdOn);
     }
 
-
     /**
      * Create a new container version.
      * 
@@ -2372,6 +2374,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         return containerIO.readVersion(
                 version.getArtifactId(), version.getVersionId());
     }
+
 
     /**
      * Delete the local info for this container.
@@ -2654,6 +2657,18 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
+    }
+
+    /**
+     * Determine if the local user ia a team member. The only scenaio where this
+     * will not be the case is for archive users.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the local user is a team member.
+     */
+    private boolean isLocalTeamMember(final Long containerId) {
+        return contains(getArtifactModel().readTeam2(containerId), localUser());
     }
 
     /**

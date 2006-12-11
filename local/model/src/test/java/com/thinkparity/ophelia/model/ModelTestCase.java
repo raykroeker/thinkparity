@@ -614,6 +614,19 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Delete a container.
+     * @param deleteAs
+     * @param localContainerId
+     */
+    protected void deleteContainer(final OpheliaTestUser deleteAs,
+            final Long localContainerId) {
+        final Container container = getContainerModel(deleteAs).read(localContainerId);
+        logger.logInfo("Deleting container \"{0}\" as \"{1}\".", container
+                .getName(), deleteAs.getSimpleUsername());
+        getContainerModel(deleteAs).delete(localContainerId);
+    }
+
+    /**
      * Create a container draft.
      * 
      * @param container

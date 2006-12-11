@@ -387,6 +387,7 @@ public final class ContainerTabModel extends TabPanelModel {
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
     }
+
     /**
      * Determine if an ordering is applied.
      * 

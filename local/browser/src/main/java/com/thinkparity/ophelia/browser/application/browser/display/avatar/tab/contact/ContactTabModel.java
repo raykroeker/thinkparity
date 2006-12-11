@@ -12,8 +12,10 @@ import java.util.Map;
 
 import javax.swing.DefaultListModel;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
@@ -28,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
@@ -51,6 +54,9 @@ public final class ContactTabModel extends TabPanelModel {
 
     /** The swing list model. */
     private final DefaultListModel listModel;
+
+    /** A <code>JPanelLocalization</code>. */
+    private JPanelLocalization localization;
 
     /** A list of all contacts. */
     private final List<TabPanel> panels;
@@ -237,6 +243,33 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
+     * Apply an ordering to the panels.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void applySort(final Ordering ordering, final Boolean ascending) {
+        debug();
+        // if the sorted by stack already contains the ordering do nothing
+        if (sortedBy.contains(ordering)) {
+            if (sortedBy.get(sortedBy.indexOf(
+                    ordering)).isAscending().booleanValue()
+                    == ascending.booleanValue()) {
+                return;
+            } else {
+                ordering.setAscending(ascending);
+                sortedBy.remove(ordering);
+                sortedBy.add(ordering);
+                synchronize();
+            }
+        } else {
+            ordering.setAscending(ascending);
+            sortedBy.add(ordering);
+            synchronize();
+        }
+    }
+
+    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -246,12 +279,85 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
+     * Obtain a localized string for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return A localized <code>String</code>.
+     */
+    String getString(final Ordering ordering) {
+        if (isSortApplied(ordering)) {
+            if (ordering.isAscending()) {
+                return localization.getString(ordering + "_ASC");
+            } else {
+                return localization.getString(ordering + "_DESC");
+            }
+        } else {
+            return localization.getString(ordering);
+        }
+    }
+
+    /**
      * Determine whether or not we are online.
      * 
      * @return True if we are online.
      */
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    Boolean isSortApplied(final Ordering ordering) {
+        debug();
+        return sortedBy.contains(ordering);
+    }
+
+    /**
+     * Remove all orderings.
+     *
+     */
+    void removeSort() {
+        debug();
+        // if the sorted by stack is empty; then there is no
+        // sort applied -> do nothing
+        if (sortedBy.isEmpty()) {
+            return;
+        } else {
+            sortedBy.clear();
+            synchronize();
+        }
+    }
+
+    /**
+     * Remove an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void removeSort(final Ordering ordering) {
+        debug();
+        if (sortedBy.contains(ordering)) {
+            sortedBy.remove(ordering);
+            synchronize();
+        } else {
+            return;
+        }
+    }
+
+    /**
+     * Set localization.
+     *
+     * @param localization
+     *		A JPanelLocalization.
+     */
+    void setLocalization(final JPanelLocalization localization) {
+        this.localization = localization;
     }
 
     /**
@@ -350,7 +456,7 @@ public final class ContactTabModel extends TabPanelModel {
     private void addPanel(final IncomingInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size() - 1, invitation);
     }
-
+    
     private void addPanel(final int index, final Contact contact) {
         panels.add(index, toDisplay(contact));
     }
@@ -394,7 +500,7 @@ public final class ContactTabModel extends TabPanelModel {
         this.searchResults.clear();
         this.searchResults.addAll(readSearchResults());
     }
-    
+
     /**
      * Apply the sort to the filtered list of panels.
      *
@@ -576,6 +682,7 @@ public final class ContactTabModel extends TabPanelModel {
         }
     }
 
+    
     /**
      * Obtain the contact display cell for a contact.
      * 
@@ -592,6 +699,7 @@ public final class ContactTabModel extends TabPanelModel {
         panel.setTabDelegate(this);
         return panel;
     }
+
 
     /**
      * Obtain the contact display cell for a contact.
@@ -627,10 +735,100 @@ public final class ContactTabModel extends TabPanelModel {
         return panel;
     }
 
-    private enum Ordering implements Comparator<TabPanel> {
-        NAME_ASC, NAME_DESC;
+    enum Ordering implements Comparator<TabPanel> {
+    
+        NAME(true), ORGANIZATION(true), TITLE(true);
+
+        /** An ascending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_ASC;
+
+        /** A descending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_DESC;
+
+        static {
+            STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
+            STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
+        }
+        
+        /** Whether or not to sort in ascending order. */
+        private boolean ascending;
+
+        /**
+         * Create Ordering.
+         *
+         * @param ascending
+         */
+        private Ordering(final boolean ascending) {
+            this.ascending = ascending;
+        }
+
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         * 
+         */
         public int compare(final TabPanel o1, final TabPanel o2) {
-            return 0;
+            final ContactTabPanel p1 = (ContactTabPanel) o1;
+            final ContactTabPanel p2 = (ContactTabPanel) o2;
+            final int multiplier = ascending ? 1 : -1;
+            if (p1.isSetContact() && p2.isSetContact()) {
+                switch (this) {
+                case NAME:
+                    // note the lack of multiplier
+                    return ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                p1.getContact().getName(),
+                                p2.getContact().getName())
+                        : STRING_COMPARATOR_DESC.compare(
+                                p1.getContact().getName(),
+                                p2.getContact().getName());
+                case TITLE:
+                    // note the lack of multiplier
+                    return ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                p1.getContact().getTitle(),
+                                p2.getContact().getTitle())
+                            : STRING_COMPARATOR_DESC.compare(
+                                    p1.getContact().getTitle(),
+                                    p2.getContact().getTitle());
+                case ORGANIZATION:
+                    // note the lack of multiplier
+                    return ascending
+                        ? STRING_COMPARATOR_ASC.compare(
+                                p1.getContact().getOrganization(),
+                                p2.getContact().getOrganization())
+                            : STRING_COMPARATOR_DESC.compare(
+                                    p1.getContact().getOrganization(),
+                                    p2.getContact().getOrganization());
+                default:
+                    throw Assert.createUnreachable("Unknown ordering.");
+                }
+            } else {
+                if (p1.isSetContact()) {
+                    return multiplier * 1;
+                } else {
+                    return multiplier * -1;
+                }
+            }
+        }
+
+        /**
+         * Determine whether the current ordering is in ascending order.
+         * 
+         * @return True if it is ascending.
+         */
+        Boolean isAscending() {
+            return Boolean.valueOf(ascending);
+        }
+
+        /**
+         * Set the asending value.
+         * 
+         * @param ascending
+         *            Whether or not to sort in ascending order.
+         */
+        void setAscending(final Boolean ascending) {
+            this.ascending = ascending.booleanValue();
         }
     }
+
 }

@@ -3,7 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JMenuItem;
 
 import com.thinkparity.codebase.model.contact.Contact;
 
@@ -11,6 +14,7 @@ import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabModel.Ordering;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.PopupDelegate;
@@ -104,8 +108,39 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForSort() {
-        // raymond@thinkparity.com - 9-Dec-06 10:20:17 PM
-        throw Assert.createNotYetImplemented("");
+        for (final Ordering ordering : Ordering.values()) {
+            add(ordering);
+        }
+        show();
+    }
+
+    private void add(final Ordering ordering) {
+        final JMenuItem item = new JMenuItem(model.getString(ordering));
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                if (isSortApplied(ordering)) {
+                    if (ordering.isAscending()) {
+                        model.applySort(ordering, Boolean.FALSE);
+                    } else {
+                        model.removeSort(ordering);
+                    }
+                } else {
+                    model.applySort(ordering, Boolean.TRUE);
+                }
+            }
+        });
+        add(item);
+    }
+
+    /**
+     * Determine if the ordering is currently applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied.
+     */
+    private boolean isSortApplied(final Ordering ordering) {
+        return model.isSortApplied(ordering);
     }
 
     /**

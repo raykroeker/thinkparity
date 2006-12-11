@@ -540,10 +540,36 @@ public final class PublishContainerAvatar extends Avatar implements
     }
     
     /**
+     * Get the publisher of the most recent version.
+     */
+    private User readLatestPublisher() {
+        final Long containerId = getInputContainerId();
+        final Long versionId = readLatestVersionId(containerId);
+        if ((null != containerId) && (null != versionId)) {
+            return ((PublishContainerProvider)contentProvider).readPublisher(containerId, versionId);
+        } else {
+            return null;
+        }
+    } 
+    
+    /**
      * Get most recent version id, or null if there is no version.
      */
     private Long readLatestVersionId(final Long containerId) {
         return ((PublishContainerProvider)contentProvider).readLatestVersionId(containerId);
+    }    
+    
+    /**
+     * Read users that got this version.
+     */
+    private Map<User, ArtifactReceipt> readLatestVersionUsers() {
+        final Long containerId = getInputContainerId();
+        final Long versionId = readLatestVersionId(containerId);
+        if ((null != containerId) && (null != versionId)) {
+            return ((PublishContainerProvider)contentProvider).readVersionUsers(containerId, versionId);
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -568,19 +594,6 @@ public final class PublishContainerAvatar extends Avatar implements
     }
     
     /**
-     * Get the publisher.
-     */
-    private User readPublisher() {
-        final Long containerId = getInputContainerId();
-        final Long versionId = getInputVersionId();
-        if ((null != containerId) && (null != versionId)) {
-            return ((PublishContainerProvider)contentProvider).readPublisher(containerId, versionId);
-        } else {
-            return null;
-        }
-    }
-    
-    /**
      * Read team members. The current user is removed.
      * When forwarding, an empty list is returned.
      * When this is the first publish, an empty list is returned.
@@ -599,19 +612,6 @@ public final class PublishContainerAvatar extends Avatar implements
         }
         
         return teamMembers;
-    }
-    
-    /**
-     * Read users that got this version.
-     */
-    private Map<User, ArtifactReceipt> readLatestVersionUsers() {
-        final Long containerId = getInputContainerId();
-        final Long versionId = readLatestVersionId(containerId);
-        if ((null != containerId) && (null != versionId)) {
-            return ((PublishContainerProvider)contentProvider).readVersionUsers(containerId, versionId);
-        } else {
-            return null;
-        }
     }
     
     /**
@@ -664,7 +664,7 @@ public final class PublishContainerAvatar extends Avatar implements
         if (getPublishTypeSpecific() == PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME) {
             teamMembers = readTeamMembers();
             versionUsers = readLatestVersionUsers();
-            publisher = readPublisher();
+            publisher = readLatestPublisher();
             firstContact = !teamMembers.isEmpty();
         } else {
             teamMembers = Collections.emptyList();

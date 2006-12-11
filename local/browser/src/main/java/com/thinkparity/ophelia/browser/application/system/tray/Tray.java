@@ -6,17 +6,18 @@ package com.thinkparity.ophelia.browser.application.system.tray;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
+
+import org.jdesktop.jdic.tray.SystemTray;
+import org.jdesktop.jdic.tray.TrayIcon;
 
 
 /**
@@ -179,14 +180,15 @@ public final class Tray {
      * 
      */
     private void setIcon() {
-        switch(systemApplication.getConnection()) {
+        switch (systemApplication.getConnection()) {
         case OFFLINE:
             systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_OFFLINE);
             break;
         case ONLINE:
             systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_ONLINE);
+            break;
         default:
-            throw Assert.createUnreachable("[UNKNOWN CONNECTION]");
+            throw Assert.createUnreachable("Unknown connection.");
         }
     }
 

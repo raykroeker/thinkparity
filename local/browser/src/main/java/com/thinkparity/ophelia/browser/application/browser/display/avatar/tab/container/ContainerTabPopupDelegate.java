@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
@@ -214,7 +213,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         add(ActionId.CONTAINER_PRINT_DRAFT, printData);
 
         for (final Document document : draft.getDocuments()) {
-            final ContainerDraft.ArtifactState state = draft.getState(document);
             final Data openData = new Data(1);
             openData.set(Open.DataKey.DOCUMENT_ID, document.getId());
             add(document.getName(), ActionId.DOCUMENT_OPEN, openData);
@@ -225,7 +223,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
             add(document.getName(), ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
             
-            switch (state) {
+            switch (draft.getState(document)) {
             case ADDED:
                 break;
             case MODIFIED:
@@ -246,7 +244,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 throw Assert.createUnreachable("UNKNOWN ARTIFACT STATE");
             }
             
-            if (ContainerDraft.ArtifactState.REMOVED != state) {
+            if (ContainerDraft.ArtifactState.REMOVED != draft.getState(document)) {
                 final Data removeData = new Data(2);
                 removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
                 removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
@@ -334,16 +332,18 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * @return A <code>JMenuItem</code>.
      */
     private void add(final Ordering ordering) {
-        // TODO localize ordering
-        final JCheckBoxMenuItem item = new JCheckBoxMenuItem(ordering.toString());
-        item.setSelected(isSortApplied(ordering));
+        final JMenuItem item = new JMenuItem(model.getString(ordering));
         item.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                final JMenuItem menuItem = (JMenuItem) e.getSource();
-                if (menuItem.isSelected())
-                    model.applySort(ordering);
-                else
-                    model.removeSort(ordering);
+                if (isSortApplied(ordering)) {
+                    if (ordering.isAscending()) {
+                        model.applySort(ordering, Boolean.FALSE);
+                    } else {
+                        model.removeSort(ordering);
+                    }
+                } else {
+                    model.applySort(ordering, Boolean.TRUE);
+                }
             }
         });
         add(item);

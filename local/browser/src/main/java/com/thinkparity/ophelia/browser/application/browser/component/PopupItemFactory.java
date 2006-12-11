@@ -64,19 +64,11 @@ public class PopupItemFactory extends AbstractFactory {
     /** The action extension action wrapper map. */
     private final Map<ActionExtension, ActionWrapper> extensionRegistry;
     
-    /** The action wrapper registry (for main menus). */
-    private final Map<ActionId, ActionWrapper> menuWrapperRegistry;
-
-    /** The action wrapper registry (for context popup menus). */
-    private final Map<ActionId, ActionWrapper> wrapperRegistry;
-    
     /** Create PopupItemFactory. */
     private PopupItemFactory() {
         super();
         this.actionRegistry = new ActionRegistry();
         this.extensionRegistry = new HashMap<ActionExtension, ActionWrapper>();
-        this.menuWrapperRegistry = new HashMap<ActionId, ActionWrapper>(ActionId.values().length, 1.0F);
-        this.wrapperRegistry = new HashMap<ActionId, ActionWrapper>(ActionId.values().length, 1.0F);
     }
 
     /**
@@ -170,15 +162,7 @@ public class PopupItemFactory extends AbstractFactory {
             action = ActionFactory.create(actionId);
         }
         
-        final Map<ActionId, ActionWrapper> registry;
-        if (mainMenu) {
-            registry = menuWrapperRegistry;
-        }
-        else {
-            registry = wrapperRegistry;            
-        }
-        
-        final ActionWrapper actionWrapper = getWrapper(actionId, action, registry);        
+        final ActionWrapper actionWrapper = getWrapper(action);        
         actionWrapper.setData(data);
         
         // Adjust the action so it is suited to main menu or context popup menu
@@ -218,19 +202,8 @@ public class PopupItemFactory extends AbstractFactory {
      *              The registry, either for menus or for context popups.
      * @return An ActionWrapper.
      */
-    private ActionWrapper getWrapper(final ActionId actionId,
-            final AbstractAction action,
-            final Map<ActionId, ActionWrapper> registry) {
-        final ActionWrapper actionWrapper;
-        if (registry.containsKey(actionId)) {
-            actionWrapper = registry.get(actionId);
-        }
-        else {
-            registry.put(actionId, new ActionWrapper(action));
-            actionWrapper = registry.get(actionId);
-        }
-        
-        return actionWrapper;
+    private ActionWrapper getWrapper(final AbstractAction action) {
+        return new ActionWrapper(action);
     }
 
     /**

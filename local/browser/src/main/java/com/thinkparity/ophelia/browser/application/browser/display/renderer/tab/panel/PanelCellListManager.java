@@ -21,7 +21,7 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 public class PanelCellListManager {
        
     /** The complete list of <code>Cell</code>. */
-    private List<Cell> cells;
+    private List<? extends Cell> cells;
     
     /** The component invoker. */
     private final Component invoker;
@@ -126,13 +126,13 @@ public class PanelCellListManager {
      * @param cells
      *            The complete list of <code>Cell</code>.
      */
-    public void initialize(final List<Cell> cells) {
+    public void initialize(final List<? extends Cell> cells) {
         this.cells = cells;
         if (null == cells) {
             numberPages = 0;
         } else {
             final int firstItemOffset = fixedFirstRow ? 1 : 0;
-            numberPages = 1 + (cells.size()-firstItemOffset-1) / perPage;
+            numberPages = 1 + (cells.size() - firstItemOffset - 1) / perPage;
         }
         currentPage = 0;
         updateModel();

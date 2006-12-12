@@ -21,6 +21,7 @@ public final class ArchiveTabAvatar extends TabPanelExtensionAvatar<ArchiveTabMo
     ArchiveTabAvatar(final TabPanelExtension extension) {
         super(extension, new ArchiveTabModel(extension));
         model.setSession(getSession());
+        setPopupDelegate(model.getPopupDelegate());
     }
 
     /**

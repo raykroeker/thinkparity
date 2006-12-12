@@ -3,7 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +15,8 @@ import java.util.UUID;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -42,20 +47,26 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     /** The <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
 
-    /** A list of the archived container panels. */
-    private final List<TabPanel> containerPanels;
-
     /** A list of the panels' expanded state. */
     private final Map<TabPanel, Boolean> expandedState;
 
+    /** A list of panels passing through all filters. */
+    private final List<TabPanel> filteredPanels;
+
     /** The list model. */
     private final DefaultListModel listModel;
+
+    /** A list of the archived container panels. */
+    private final List<TabPanel> panels;
 
     /** The <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
 
     /** A <code>BrowserSession</code>. */
     private BrowserSession session;
+
+    /** The current ordering. */
+    private final List<Ordering> sortedBy;
 
     /** A list of all visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -64,10 +75,12 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     ArchiveTabModel(final TabPanelExtension extension) {
         super(extension);
         this.actionDelegate = new ArchiveTabActionDelegate(this);
-        this.containerPanels = new ArrayList<TabPanel>();
         this.expandedState = new HashMap<TabPanel, Boolean>();
+        this.filteredPanels = new ArrayList<TabPanel>();
         this.listModel = new DefaultListModel();
+        this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ArchiveTabPopupDelegate(this);
+        this.sortedBy = new ArrayList<Ordering>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
 
@@ -87,7 +100,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     @Override
     protected void debug() {
-        logger.logDebug("{0} container panels.", containerPanels.size());
+        logger.logDebug("{0} container panels.", panels.size());
         int expandedCount = 0;
         for (final Boolean state : expandedState.values()) {
             if (Boolean.TRUE == state)
@@ -119,6 +132,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         for (final Container container : containers) {
             addContainerPanel(container);
         }
+        applySort(Ordering.CREATED_ON, Boolean.FALSE);
         debug();
     }
 
@@ -129,11 +143,12 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     @Override
     protected void synchronize() {
         debug();
-        /* add container panels and container version panels to the visiblity
-           list */
+        applyFilters();
+        applySort();
+        /* add the filtered panels the visibility list */
         visiblePanels.clear();
-        for (final TabPanel containerPanel : containerPanels) {
-            visiblePanels.add(containerPanel);
+        for (final TabPanel filteredPanel : filteredPanels) {
+            visiblePanels.add(filteredPanel);
         }
         // add newly visible panels to the model; and set other panels
         int listModelIndex;
@@ -164,12 +179,118 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /**
+     * Apply an ordering to the panels.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void applySort(final Ordering ordering, final Boolean ascending) {
+        debug();
+        // if the sorted by stack already contains the ordering do nothing
+        if (sortedBy.contains(ordering)) {
+            if (sortedBy.get(sortedBy.indexOf(
+                    ordering)).isAscending().booleanValue()
+                    == ascending.booleanValue()) {
+                return;
+            } else {
+                ordering.setAscending(ascending);
+                sortedBy.clear();
+                sortedBy.remove(ordering);
+                sortedBy.add(ordering);
+                synchronize();
+            }
+        } else {
+            ordering.setAscending(ascending);
+            sortedBy.clear();
+            sortedBy.add(ordering);
+            synchronize();
+        }
+    }
+
+    /**
+     * Obtain the popup delegate.
+     * 
+     * @return A <code>ArchiveTabPopupDelegate</code>.
+     */
+    ArchiveTabPopupDelegate getPopupDelegate() {
+        return popupDelegate;
+    }
+
+    /**
+     * Obtain a localized string for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return A localized <code>String</code>.
+     */
+    String getString(final Ordering ordering) {
+        final StringBuffer pattern = new StringBuffer("ArchiveTab.{0}");
+        if (isSortApplied(ordering)) {
+            pattern.append("_{1}");
+            if (ordering.isAscending()) {
+                return getExtension().getLocalization().getString(
+                        MessageFormat.format(pattern.toString(), ordering, "ASC"));
+            } else {
+                return getExtension().getLocalization().getString(
+                        MessageFormat.format(pattern.toString(), ordering, "DESC"));
+            }
+        } else {
+            return getExtension().getLocalization().getString(
+                    MessageFormat.format(pattern.toString(), ordering));
+        }
+    }
+
+    /**
      * Determine if the model is online.
      * 
      * @return True if the model is online.
      */
     Boolean isOnline() {
         return Connection.ONLINE == super.getBrowser().getConnection();
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    Boolean isSortApplied(final Ordering ordering) {
+        debug();
+        return sortedBy.contains(ordering);
+    }
+
+    /**
+     * Remove all orderings.
+     *
+     */
+    void removeSort() {
+        debug();
+        // if the sorted by stack is empty; then there is no
+        // sort applied -> do nothing
+        if (sortedBy.isEmpty()) {
+            return;
+        } else {
+            sortedBy.clear();
+            synchronize();
+        }
+    }
+
+    /**
+     * Remove an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    void removeSort(final Ordering ordering) {
+        debug();
+        if (sortedBy.contains(ordering)) {
+            sortedBy.remove(ordering);
+            synchronize();
+        } else {
+            return;
+        }
     }
 
     /**
@@ -213,7 +334,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      *            A <code>Container</code>.
      */
     private void addContainerPanel(final Container container) {
-        addContainerPanel(containerPanels.isEmpty() ? 0 : containerPanels.size() - 1,
+        addContainerPanel(panels.isEmpty() ? 0 : panels.size() - 1,
                 container);
     }
 
@@ -253,9 +374,30 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             publishedBy.put(version, find(team, version.getUpdatedBy()));
             publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
-        containerPanels.add(index, toDisplay(container, find(team, container
+        panels.add(index, toDisplay(container, find(team, container
                 .getCreatedBy()), null, null, versions, documentVersions,
                 publishedTo, publishedBy, team));
+    }
+
+    /**
+     * Apply a series of filters on the panels.
+     * 
+     */
+    private void applyFilters() {
+        filteredPanels.clear();
+        filteredPanels.addAll(panels);
+    }
+
+    /**
+     * Apply the sort to the filtered list of panels.
+     *
+     */
+    private void applySort() {
+        final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
+        for (final Ordering ordering : sortedBy) {
+            comparator.add(ordering);
+        }
+        Collections.sort(filteredPanels, comparator);
     }
 
     /**
@@ -263,7 +405,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * 
      */
     private void clearPanels() {
-        containerPanels.clear();
+        panels.clear();
     }
 
     /**
@@ -325,8 +467,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      *         list.
      */
     private int lookupIndex(final UUID uniqueId) {
-        for (int i = 0; i < containerPanels.size(); i++)
-            if (((ContainerPanel) containerPanels.get(i)).getContainer()
+        for (int i = 0; i < panels.size(); i++)
+            if (((ContainerPanel) panels.get(i)).getContainer()
                     .getUniqueId().equals(uniqueId))
                 return i;
         return -1;    }
@@ -396,10 +538,10 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             final boolean removeExpandedState) {
         final int panelIndex = lookupIndex(uniqueId);
         if (removeExpandedState) {
-            final TabPanel containerPanel = containerPanels.remove(panelIndex);
+            final TabPanel containerPanel = panels.remove(panelIndex);
             expandedState.remove(containerPanel);
         } else {
-            containerPanels.remove(panelIndex);
+            panels.remove(panelIndex);
         }
     }
 
@@ -429,5 +571,82 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         panel.setPopupDelegate(popupDelegate);
         panel.setTabDelegate(this);
         return panel;
+    }
+
+    /** An enumerated type defining the tab panel ordering. */
+    enum Ordering implements Comparator<TabPanel> {
+
+        CREATED_ON(true), NAME(true), UPDATED_ON(true);
+
+        /** An ascending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_ASC;
+
+        /** A descending <code>StringComparator</code>. */
+        private static final StringComparator STRING_COMPARATOR_DESC;
+
+        static {
+            STRING_COMPARATOR_ASC = new StringComparator(Boolean.TRUE);
+            STRING_COMPARATOR_DESC = new StringComparator(Boolean.FALSE);
+        }
+        
+        /** Whether or not to sort in ascending order. */
+        private boolean ascending;
+
+        /**
+         * Create Ordering.
+         *
+         * @param ascending
+         */
+        private Ordering(final boolean ascending) {
+            this.ascending = ascending;
+        }
+
+        /**
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         * 
+         */
+        public int compare(final TabPanel o1, final TabPanel o2) {
+            final ContainerPanel p1 = (ContainerPanel) o1;
+            final ContainerPanel p2 = (ContainerPanel) o2;
+            final int multiplier = ascending ? 1 : -1;
+            switch (this) {
+            case CREATED_ON:
+                return multiplier * p1.getContainer().getCreatedOn().compareTo(
+                        p2.getContainer().getCreatedOn());
+            case UPDATED_ON:
+                return multiplier * p1.getContainer().getUpdatedOn().compareTo(
+                        p2.getContainer().getUpdatedOn());
+            case NAME:
+                // note the lack of multiplier
+                return ascending
+                    ? STRING_COMPARATOR_ASC.compare(
+                            p1.getContainer().getName(),
+                            p2.getContainer().getName())
+                    : STRING_COMPARATOR_DESC.compare(
+                            p1.getContainer().getName(),
+                            p2.getContainer().getName());
+            default:
+                return 0;
+            }
+        }
+
+        /**
+         * Determine whether the current ordering is in ascending order.
+         * 
+         * @return True if it is ascending.
+         */
+        Boolean isAscending() {
+            return Boolean.valueOf(ascending);
+        }
+
+        /**
+         * Set the asending value.
+         * 
+         * @param ascending
+         *            Whether or not to sort in ascending order.
+         */
+        void setAscending(final Boolean ascending) {
+            this.ascending = ascending.booleanValue();
+        }
     }
 }

@@ -150,6 +150,7 @@
                 <include name="database/"/>
                 <include name="localization/Model_Messages*"/>
                 <include name="security/*_client_*"/>
+                <include name="xml/"/>
             </fileset>
         </jar>
         <!-- /core/browser.jar -->

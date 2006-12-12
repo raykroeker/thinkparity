@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container.export;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
@@ -92,19 +93,28 @@ public final class PDFWriter  {
         driver.setRenderer(Driver.RENDER_PDF);
 
         final OutputStream outStream = new FileOutputStream(newFile(pdfPath));
+        final InputStream xslStream = ResourceUtil.getInputStream("xml/xslt/pdfWriter.xsl");
         try {
             driver.setOutputStream(outStream);
             final TransformerFactory factory = TransformerFactory.newInstance();
-            final Transformer transformer = factory.newTransformer(
-                    new StreamSource(ResourceUtil.getFile("xml/xslt/pdfWriter.xsl")));
+            final Transformer transformer =
+                factory.newTransformer(new StreamSource(xslStream));
 
             final Result result = new SAXResult(driver.getContentHandler());
             transformer.transform(new StreamSource(
                     exportFileSystem.findFile(xmlPath)), result);
         } finally {
-            outStream.close();
-            Assert.assertTrue(exportFileSystem.findFile(xmlPath).delete(),
-                    "Could not delete xml file {0}.", xmlPath);
+            try {
+                xslStream.close();
+            } finally {
+                try {
+                    outStream.close();
+                } finally {
+                    Assert.assertTrue(
+                            exportFileSystem.findFile(xmlPath).delete(),
+                            "Could not delete xml file {0}.", xmlPath);
+                }
+            } 
         }
     }
 

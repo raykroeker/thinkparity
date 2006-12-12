@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -567,7 +568,11 @@ public final class ContainerTabModel extends TabPanelModel {
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
         panels.add(index, toDisplay(container, draft, latestVersion,
-                versions, documentVersions, publishedTo, publishedBy));
+                versions, documentVersions, publishedTo, publishedBy, readTeam()));
+    }
+
+    private List<TeamMember> readTeam() {
+        return Collections.emptyList();
     }
 
     /**
@@ -1001,12 +1006,13 @@ public final class ContainerTabModel extends TabPanelModel {
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
-            final Map<ContainerVersion, User> publishedBy) {
+            final Map<ContainerVersion, User> publishedBy,
+            final List<TeamMember> team) {
         final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, readUser(container.getCreatedBy()),
                 draft, latestVersion, versions, documentVersions, publishedTo,
-                publishedBy);
+                publishedBy, team);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);

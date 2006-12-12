@@ -55,7 +55,6 @@ public final class PublishContainerAvatar extends Avatar implements
     private javax.swing.JTextArea commentJTextArea;
     private javax.swing.JLabel documentJLabel;
     private javax.swing.JLabel documentNameJLabel;
-    private javax.swing.JLabel explanationJLabel;
     private javax.swing.JLabel filler1JLabel;
     private javax.swing.JList namesJList;
     private javax.swing.JScrollPane namesJScrollPane;
@@ -86,15 +85,18 @@ public final class PublishContainerAvatar extends Avatar implements
     public String getAvatarTitle() {
         final PublishType publishType;
         if (input==null) {
-            publishType = PublishType.PUBLISH;
+            return getString("Title");
         } else {
             publishType = getInputPublishType();
-        }
-        
-        if (publishType == PublishType.PUBLISH_VERSION) {
-            return getString("PublishVersionTitle");
-        } else {
-            return getString("Title");
+            final Long containerId = getInputContainerId();
+            final Long versionId = getInputVersionId();
+            final String name = ((PublishContainerProvider) contentProvider).readContainerName(containerId);
+            if (publishType == PublishType.PUBLISH_VERSION) {
+                final Calendar publishDate = readPublishDate(containerId, versionId);
+                return getString("TitlePublishVersion", new Object[] {name, publishDate.getTime()});
+            } else {
+                return getString("TitlePublish", new Object[] {name});
+            }
         }
     }
     
@@ -138,7 +140,6 @@ public final class PublishContainerAvatar extends Avatar implements
     public void reload() {
         reloadProgressBar();
         if (input != null) { 
-            reloadExplanation();
             reloadComment();
             reloadJList();           
             publishJButton.setEnabled(isInputValid());
@@ -296,7 +297,8 @@ public final class PublishContainerAvatar extends Avatar implements
         javax.swing.JLabel filler2JLabel;
         javax.swing.JLabel titleJLabel;
 
-        explanationJLabel = new javax.swing.JLabel();
+        namesJScrollPane = new javax.swing.JScrollPane();
+        namesJList = new javax.swing.JList();
         commentJLabel = new javax.swing.JLabel();
         commentJScrollPane = new javax.swing.JScrollPane();
         commentJTextArea = new javax.swing.JTextArea();
@@ -310,14 +312,22 @@ public final class PublishContainerAvatar extends Avatar implements
         documentJLabel = new javax.swing.JLabel();
         documentNameJLabel = new javax.swing.JLabel();
         publishJProgressBar = new javax.swing.JProgressBar();
-        namesJScrollPane = new javax.swing.JScrollPane();
-        namesJList = new javax.swing.JList();
+
+        namesJScrollPane.setBorder(null);
+        namesJScrollPane.setOpaque(false);
+        namesJList.setModel(namesListModel);
+        namesJList.setCellRenderer(new PublishContainerAvatarUserCellRenderer());
+        namesJList.setOpaque(false);
+        namesJList.setVisibleRowCount(7);
+        namesJList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                namesJListMouseClicked(evt);
+            }
+        });
+
+        namesJScrollPane.setViewportView(namesJList);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        explanationJLabel.setText(bundle.getString("PublishContainerDialog.Explanation")); // NOI18N
-        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        explanationJLabel.setFocusable(false);
-
         commentJLabel.setText(bundle.getString("PublishContainerDialog.Comment")); // NOI18N
         commentJLabel.setFocusable(false);
 
@@ -410,20 +420,6 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        namesJScrollPane.setBorder(null);
-        namesJScrollPane.setOpaque(false);
-        namesJList.setModel(namesListModel);
-        namesJList.setCellRenderer(new PublishContainerAvatarUserCellRenderer());
-        namesJList.setOpaque(false);
-        namesJList.setVisibleRowCount(6);
-        namesJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                namesJListMouseClicked(evt);
-            }
-        });
-
-        namesJScrollPane.setViewportView(namesJList);
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -433,18 +429,15 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, namesJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
                     .add(commentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, commentJScrollPane))
+                    .add(commentJScrollPane))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(namesJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commentJLabel)
@@ -636,22 +629,6 @@ public final class PublishContainerAvatar extends Avatar implements
     }
     
     /**
-     * Reload the explanation control.
-     */
-    private void reloadExplanation() {
-        final PublishType publishType = getInputPublishType();
-        final Long containerId = getInputContainerId();
-        final Long versionId = getInputVersionId();
-        final String name = ((PublishContainerProvider) contentProvider).readContainerName(containerId);
-        if (publishType == PublishType.PUBLISH_VERSION) {
-            final Calendar publishDate = readPublishDate(containerId, versionId);
-            explanationJLabel.setText(getString("PublishVersionExplanation", new Object[] {publishDate.getTime(), name}));
-        } else {
-            explanationJLabel.setText(getString("Explanation", new Object[] {name}));    
-        }
-    }
-    
-    /**
      * Reload the jList.
      */
     private void reloadJList() {
@@ -659,18 +636,18 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<Contact> contacts;
         final Map<User, ArtifactReceipt> versionUsers;
         final User publisher;
-        Boolean firstContact;
+        Boolean needSpacer;
         
         if (getPublishTypeSpecific() == PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME) {
             teamMembers = readTeamMembers();
             versionUsers = readLatestVersionUsers();
             publisher = readLatestPublisher();
-            firstContact = !teamMembers.isEmpty();
+            needSpacer = !teamMembers.isEmpty();
         } else {
             teamMembers = Collections.emptyList();
             versionUsers = null;
             publisher = null;
-            firstContact = Boolean.FALSE;
+            needSpacer = Boolean.FALSE;
         }     
         contacts = readContacts(teamMembers);
         
@@ -679,9 +656,11 @@ public final class PublishContainerAvatar extends Avatar implements
             namesListModel.addElement(new PublishContainerAvatarUser(teamMember,
                     isVersionUser(teamMember, publisher, versionUsers)));
         }
+        if (needSpacer) {
+            namesListModel.addElement(new PublishContainerAvatarUser(null, Boolean.FALSE));
+        }
         for (final Contact contact : contacts) {
-            namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE, firstContact));
-            firstContact = Boolean.FALSE;
+            namesListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
         }
     }
     
@@ -703,17 +682,9 @@ public final class PublishContainerAvatar extends Avatar implements
         /** The selection status. */
         private Boolean selected;
         
-        /** The first contact in the list. */
-        private Boolean firstContact;
-        
         public PublishContainerAvatarUser(final User user, final Boolean selected) {
-            this(user, selected, Boolean.FALSE);
-        }
-        
-        public PublishContainerAvatarUser(final User user, final Boolean selected, final Boolean firstContact) {
             this.user = user;
             this.selected = selected;
-            this.firstContact = firstContact;
         }
         
         public User getUser() {
@@ -726,15 +697,15 @@ public final class PublishContainerAvatar extends Avatar implements
         }
         
         public Boolean isSelected() {
-            return selected;
+            if (null == user) {
+                return Boolean.FALSE;
+            } else {
+                return selected;
+            }
         }
         
         public void toggleSelected() {
             selected = !selected;
-        }
-        
-        public Boolean isFirstContact() {
-            return firstContact;
         }
     }
     

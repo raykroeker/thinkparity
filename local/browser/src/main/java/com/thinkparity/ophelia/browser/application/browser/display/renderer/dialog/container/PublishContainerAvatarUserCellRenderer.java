@@ -7,7 +7,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.container;
 
 import java.awt.Component;
-import java.awt.Insets;
+import java.awt.Graphics;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -15,7 +15,6 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar.PublishContainerAvatarUser;
@@ -25,12 +24,32 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
  * @author  Administrator
  */
 public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel implements ListCellRenderer {
+    
+    /** Flag indicating if this is a spacer cell */
+    Boolean spacer;
 
     /** Creates new form PublishContainerAvatarUserCellRenderer */
     public PublishContainerAvatarUserCellRenderer() {
         initComponents();
     }
-    
+        
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (spacer) {
+            // Draw a line through the middle.
+            final Graphics g2 = g.create();
+            try {
+                g2.setColor(Colors.Browser.Publish.FIRST_CONTACT_BORDER);
+                g2.drawLine(20, getSize().height / 2, getSize().width - 1, getSize().height / 2);
+            }
+            finally { g2.dispose(); }
+        }
+    }
+
     /**
      * Return a component that has been configured to display the specified
      * value. That component's <code>paint</code> method is then called to
@@ -51,14 +70,17 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
      */
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         final PublishContainerAvatarUser user = (PublishContainerAvatarUser) value;
-        userJCheckBox.setText(user.getExtendedName());
-        userJCheckBox.setSelected(user.isSelected());
-        if (user.isFirstContact()) {
-            final Insets insets = new Insets(0, 20, 0, 0);
-            setBorder(new TopBorder(Colors.Browser.Publish.FIRST_CONTACT_BORDER, insets));
-        } else {
-            setBorder(null);
+        
+        if (null == user.getUser()) {
+            spacer = Boolean.TRUE;     
+            userJCheckBox.setVisible(false);     
+        } else {  
+            spacer = Boolean.FALSE;
+            userJCheckBox.setVisible(true);
+            userJCheckBox.setText(user.getExtendedName());
+            userJCheckBox.setSelected(user.isSelected());
         }
+        
         return this;
     }
 

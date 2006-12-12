@@ -251,6 +251,7 @@ public final class ContainerTabModel extends TabPanelModel {
         for (final Container container : containers) {
             addContainerPanel(container);
         }
+        applySort(Ordering.CREATED_ON, Boolean.FALSE);
         debug();
     }
     
@@ -332,12 +333,14 @@ public final class ContainerTabModel extends TabPanelModel {
                 return;
             } else {
                 ordering.setAscending(ascending);
+                sortedBy.clear();
                 sortedBy.remove(ordering);
                 sortedBy.add(ordering);
                 synchronize();
             }
         } else {
             ordering.setAscending(ascending);
+            sortedBy.clear();
             sortedBy.add(ordering);
             synchronize();
         }
@@ -568,11 +571,8 @@ public final class ContainerTabModel extends TabPanelModel {
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
         panels.add(index, toDisplay(container, draft, latestVersion,
-                versions, documentVersions, publishedTo, publishedBy, readTeam()));
-    }
-
-    private List<TeamMember> readTeam() {
-        return Collections.emptyList();
+                versions, documentVersions, publishedTo, publishedBy,
+                readTeam(container.getId())));
     }
 
     /**
@@ -666,7 +666,7 @@ public final class ContainerTabModel extends TabPanelModel {
         }
         expandedState.put(tabPanel, expanded);
     }
-    
+
     /**
      * Extract a list of files from a transferable.
      * 
@@ -681,7 +681,7 @@ public final class ContainerTabModel extends TabPanelModel {
             throw new BrowserException("Cannot extract files from transferrable.", x);
         }
     }
-
+    
     /**
      * Import data into a container.
      * 
@@ -827,7 +827,7 @@ public final class ContainerTabModel extends TabPanelModel {
         else
             return panels.get(panelIndex);
     }
-    
+
     /**
      * Read the container from the provider.
      * 
@@ -838,7 +838,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-
+    
     /**
      * Read the containers from the provider.
      * 
@@ -862,7 +862,7 @@ public final class ContainerTabModel extends TabPanelModel {
         return ((ContainerProvider) contentProvider).readDocumentVersionDeltas(
                 containerId, versionId);
     }
-    
+
     /**
      * Read the draft for a container.
      *
@@ -873,7 +873,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-
+    
     /**
      * Read the draft's document list.
      * 
@@ -928,6 +928,17 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private List<Long> readSearchResults() {
         return ((ContainerProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
+     * Read the team.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A list of <code>TeamMember</code>s.
+     */
+    private List<TeamMember> readTeam(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readTeam(containerId);
     }
 
     /**
@@ -1022,7 +1033,7 @@ public final class ContainerTabModel extends TabPanelModel {
     /** An enumerated type defining the tab panel ordering. */
     enum Ordering implements Comparator<TabPanel> {
 
-        BOOKMARK(true), DATE(true), NAME(true), OWNER(true);
+        BOOKMARK(true), CREATED_ON(true), NAME(true), OWNER(true), UPDATED_ON(true);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;
@@ -1060,7 +1071,10 @@ public final class ContainerTabModel extends TabPanelModel {
                 // we want true values at the top
                 return -1 * multiplier * p1.getContainer().isBookmarked().compareTo(
                         p2.getContainer().isBookmarked());
-            case DATE:
+            case CREATED_ON:
+                return multiplier * p1.getContainer().getCreatedOn().compareTo(
+                        p2.getContainer().getCreatedOn());
+            case UPDATED_ON:
                 return multiplier * p1.getContainer().getUpdatedOn().compareTo(
                         p2.getContainer().getUpdatedOn());
             case NAME:

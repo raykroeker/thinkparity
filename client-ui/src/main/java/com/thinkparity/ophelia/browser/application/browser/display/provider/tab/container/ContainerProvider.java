@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -182,6 +183,17 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         return containerModel.readPublishedTo(containerId, versionId);
+    }
+
+    /**
+     * Read the team.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A list of <code>TeamMember</code>s.
+     */
+    public List<TeamMember> readTeam(final Long containerId) {
+        return containerModel.readTeam(containerId);
     }
 
     /**

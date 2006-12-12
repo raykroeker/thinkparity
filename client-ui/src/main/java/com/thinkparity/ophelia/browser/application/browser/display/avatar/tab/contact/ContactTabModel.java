@@ -258,12 +258,14 @@ public final class ContactTabModel extends TabPanelModel {
                 return;
             } else {
                 ordering.setAscending(ascending);
+                sortedBy.clear();
                 sortedBy.remove(ordering);
                 sortedBy.add(ordering);
                 synchronize();
             }
         } else {
             ordering.setAscending(ascending);
+            sortedBy.clear();
             sortedBy.add(ordering);
             synchronize();
         }

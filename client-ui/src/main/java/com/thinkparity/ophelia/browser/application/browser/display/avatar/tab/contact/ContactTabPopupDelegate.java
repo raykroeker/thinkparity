@@ -25,7 +25,6 @@ import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 
 /**
  * <b>Title:</b><br>
@@ -55,10 +54,6 @@ final class ContactTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForContact(final Contact contact) {
-        final Data readData = new Data(1);
-        readData.set(Read.DataKey.CONTACT_ID, contact.getId());
-        add(ActionId.CONTACT_READ, readData);
-
         final Data deleteData = new Data(1);
         deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
         add(ActionId.CONTACT_DELETE, deleteData);

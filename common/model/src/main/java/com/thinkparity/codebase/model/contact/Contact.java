@@ -81,6 +81,15 @@ public class Contact extends User {
     }
 
     /**
+     * Obtain the user e-mails size.
+     * 
+     * @return The number of user <code>EMail</code> addresses.
+     */
+    public int getEmailsSize() {
+        return emails.size();
+    }
+
+    /**
      * Obtain the mobile phone number.
      * 
      * @return A mobile phone <code>String</code>.

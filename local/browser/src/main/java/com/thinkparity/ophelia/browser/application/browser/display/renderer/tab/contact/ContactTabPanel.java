@@ -11,7 +11,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JList;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -28,6 +27,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
@@ -214,7 +214,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final Contact contact) {
         this.contact = contact;
         westListModel.addElement(new ContactCell());
-        westListModel.addElement(new ContactEMailCell());
         iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
         textJLabel.setText(contact.getName());
         restoreSelection("eastJList", eastListModel, eastJList);
@@ -437,6 +436,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         final javax.swing.JLabel expansionJLabel = new javax.swing.JLabel();
+        final javax.swing.JScrollPane eastJScrollPane = new javax.swing.JScrollPane();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -579,6 +579,10 @@ public class ContactTabPanel extends DefaultTabPanel {
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastJPanel.setOpaque(false);
+        eastJScrollPane.setBorder(null);
+        eastJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        eastJScrollPane.setOpaque(false);
+        eastJScrollPane.getViewport().setOpaque(false);
         eastJList.setModel(eastListModel);
         eastJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         eastJList.setCellRenderer(new EastCellRenderer());
@@ -609,11 +613,13 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
         });
 
+        eastJScrollPane.setViewportView(eastJList);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        eastJPanel.add(eastJList, gridBagConstraints);
+        eastJPanel.add(eastJScrollPane, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -710,6 +716,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         }
         saveSelection("westJList", (javax.swing.JList) e.getSource());
         eastListModel.clear();
+        eastListModel.addElement(EmptyCell.getEmptyCell());
         for (final Object selectedValue : westJList.getSelectedValues()) {
             for (final Cell cell : ((WestCell) selectedValue).getEastCells()) {
                 eastListModel.addElement(cell);
@@ -730,6 +737,8 @@ public class ContactTabPanel extends DefaultTabPanel {
             add(new ContactFieldCell(this, localization.getString("OrganizationAddress"), contact.getOrganizationAddress()));
             add(new ContactFieldCell(this, localization.getString("Phone"), contact.getPhone()));
             add(new ContactFieldCell(this, localization.getString("MobilePhone"), contact.getMobilePhone()));
+            if (0 < contact.getEmailsSize())
+                add(new ContactTextCell(this, contact.getEmails().get(0).toString()));
         }
         @Override
         public Icon getIcon() {
@@ -740,42 +749,12 @@ public class ContactTabPanel extends DefaultTabPanel {
             return contact.getName();
         }
         @Override
-        public void invokeAction() {
-            actionDelegate.invokeForContact(contact);
-        }
-        @Override
         public void showPopup() {
             popupDelegate.showForContact(contact);
         }
         @Override
         public Boolean isActionAvailable() {
-            return Boolean.TRUE;
-        }
-    }
-
-    /** A contact email cell. */
-    private final class ContactEMailCell extends WestCell {
-        /**
-         * Create ContactEMailCell.
-         *
-         */
-        private ContactEMailCell() {
-            super();
-            for (final EMail email : contact.getEmails()) {
-                add(new ContactTextCell(this, email.toString()));
-            }
-        }
-        @Override
-        public String getText() {
-            return localization.getString("EMails");
-        }
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForContact(contact);
-        }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForContact(contact);
+            return Boolean.FALSE;
         }
     }
 

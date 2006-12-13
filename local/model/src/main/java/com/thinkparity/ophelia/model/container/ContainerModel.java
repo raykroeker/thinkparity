@@ -304,12 +304,15 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container version id <code>Long</code>.
      * @param contacts
      *            A contact <code>List</code>.
+     * @param teamMembers
+     *            A <code>TeamMember</code> <code>List</code>.
      */
     public void publishVersion(final PublishMonitor monitor,
             final Long containerId, final Long versionId,
-            final List<Contact> contacts) {
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
         synchronized (getImplLock()) {
-            getImpl().publishVersion(monitor, containerId, versionId, contacts);
+            getImpl().publishVersion(monitor, containerId, versionId, contacts,
+                    teamMembers);
         }
     }
 

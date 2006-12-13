@@ -1053,16 +1053,19 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            A contact <code>List</code>.
      */
     void publishVersion(final PublishMonitor monitor, final Long containerId,
-            final Long versionId, final List<Contact> contacts) {
+            final Long versionId, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
         logger.logVariable("contacts", contacts);
         try {
+            // start monitor
+            fireProcessBegin(monitor);
+
             // remove local key
             getArtifactModel().removeFlagKey(containerId);
 
-            final List<TeamMember> teamMembers = Collections.emptyList();
             doPublishVersion(monitor, containerId, versionId, contacts,
                     teamMembers);
 

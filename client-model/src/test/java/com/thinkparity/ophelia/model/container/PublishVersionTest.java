@@ -3,11 +3,13 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.user.UserUtils;
@@ -32,7 +34,7 @@ public class PublishVersionTest extends ContainerTestCase {
     /** Test the publish version api. */
     public void testPublishVersion() {
         datum.containerModel.publishVersion(new TestPublishMonitor(),
-                datum.container.getId(), datum.version.getVersionId(), datum.contacts);
+                datum.container.getId(), datum.version.getVersionId(), datum.contacts, datum.teamMembers);
         assertTrue("The draft published event was not fired.", datum.didNotify);
     }
 
@@ -68,6 +70,7 @@ public class PublishVersionTest extends ContainerTestCase {
     /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
         private final List<Contact> contacts;
+        private final List<TeamMember> teamMembers;
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
@@ -79,6 +82,7 @@ public class PublishVersionTest extends ContainerTestCase {
             this.container = container;
             this.containerModel = containerModel;
             this.didNotify = Boolean.FALSE;
+            this.teamMembers = Collections.emptyList();
             this.version = version;
         }
         @Override

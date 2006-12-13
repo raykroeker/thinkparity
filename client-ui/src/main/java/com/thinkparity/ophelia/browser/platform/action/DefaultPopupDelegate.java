@@ -116,8 +116,10 @@ public class DefaultPopupDelegate implements PopupDelegate {
     }
 
     /**
-     * Add an action to a menu. If the menu for the given text does not exist it
-     * will be created.
+     * Add an action to a submenu. If the menu for the given text does not exist it
+     * will be created. Example:
+     *    Doc1 - Open
+     *           Print
      * 
      * @param text
      *            The menu texxt <code>String</code>.
@@ -137,6 +139,39 @@ public class DefaultPopupDelegate implements PopupDelegate {
         }
         jMenu.add(itemFactory.createPopupItem(actionId, data));
     }
+    
+    /**
+     * Add an action to a submenu such that the action name is used for the parent
+     * and the text is used for the child menu item. Example:
+     *    Open - Doc1
+     *           Doc2
+     *           
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param text
+     *            The menu texxt <code>String</code>.
+     * @param data
+     *            The action <code>Data</code>.                    
+     */
+    public void add(final ActionId actionId, final String text, final Data data) {
+        final JMenu jMenu = maybeAddPopupSubMenu(actionId);
+        jMenu.add(itemFactory.createPopupItem(actionId, data, text));      
+    }
+    
+    /**
+     * Add an action to a submenu such that actionIdSubmenu determines the location.
+     *  
+     * @param actionIdSubmenu
+     *            An <code>ActionId</code> for naming the submenu.
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.                    
+     */
+    public void add(final ActionId actionIdSubmenu, final ActionId actionId, final Data data) {
+        final JMenu jMenu = maybeAddPopupSubMenu(actionIdSubmenu);
+        jMenu.add(itemFactory.createPopupItem(actionId, data));      
+    }
 
     /**
      * Add a separator to the popup menu.
@@ -144,6 +179,14 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void addSeparator() {
         jPopupMenu.addSeparator();
+    }
+    
+    /**
+     * Add a separator to the submenu associated with this action.
+     */
+    public void addSeparator(final ActionId actionId) {
+        final JMenu jMenu = maybeAddPopupSubMenu(actionId);
+        jMenu.addSeparator();  
     }
 
     /**
@@ -181,5 +224,21 @@ public class DefaultPopupDelegate implements PopupDelegate {
         invoker = jPopupMenu = null;
         jMenus.clear();
         x = y = -1;
+    }
+    
+    /**
+     * Add or get the popup submenu associated with this action.
+     */
+    private JMenu maybeAddPopupSubMenu(final ActionId actionId) {
+        final JMenu jMenu;
+        final String menuName = itemFactory.getPopupActionName(actionId);
+        if (jMenus.containsKey(menuName)) {
+            jMenu = jMenus.get(menuName);
+        } else {
+            jMenu = MenuFactory.createPopupSubMenu(menuName);
+            jPopupMenu.add(jMenu);
+            jMenus.put(menuName, jMenu);
+        }
+        return jMenu;
     }
 }

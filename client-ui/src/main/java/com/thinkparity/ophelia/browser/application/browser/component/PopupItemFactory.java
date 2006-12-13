@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,6 +108,25 @@ public class PopupItemFactory extends AbstractFactory {
             final Data data) {
         return SINGLETON.doCreatePopupItem(actionId, data, Boolean.FALSE);
     }
+    
+    /**
+     * Create a popup menu item for an action and its data.
+     * This method is suited for context menus.
+     * This method supplies the menu name, so the AbstractAction
+     * can't be used.
+     * 
+     * @param actionId
+     *            An action id.
+     * @param data
+     *            The action data.
+     * @param name
+     *            The menu item name.         
+     * @return A popup menu item.
+     */
+    public JMenuItem createPopupItem(final ActionId actionId,
+            final Data data, final String name) {
+        return SINGLETON.doCreatePopupItem(actionId, data, name);
+    }
 
     /**
      * Create a popup menu item from an action id.
@@ -142,7 +162,18 @@ public class PopupItemFactory extends AbstractFactory {
             }
         }
     }
-
+    
+    /**
+     * Get action name.
+     * 
+     * @param actionId
+     *            An action id.
+     * @return The action name.     
+     */
+    public String getPopupActionName(final ActionId actionId) {
+        return SINGLETON.doGetPopupActionName(actionId);
+    }
+        
     /**
      * Create a popup menu item from an action id.
      * 
@@ -154,7 +185,7 @@ public class PopupItemFactory extends AbstractFactory {
      *            true for main menu, false for context menu
      * @return A popup menu item.
      */
-    private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data, Boolean mainMenu) {
+    private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data, final Boolean mainMenu) {
         final AbstractAction action;
         if (actionRegistry.contains(actionId)) {
             action = actionRegistry.get(actionId);
@@ -169,6 +200,55 @@ public class PopupItemFactory extends AbstractFactory {
         actionWrapper.adjustForMenuType(mainMenu);
         
         return new ThinkParityMenuItem(actionWrapper);
+    }
+    
+    /**
+     * Create a popup menu item from an action id.
+     * 
+     * @param actionId
+     *            An action id.
+     * @param data
+     *            The action data.
+     * @param name
+     *            The menu item name.     
+     * @return A popup menu item.
+     */
+    private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data, final String name) {
+        final AbstractAction action;
+        if (actionRegistry.contains(actionId)) {
+            action = actionRegistry.get(actionId);
+        } else {
+            action = ActionFactory.create(actionId);
+        }
+        
+        final ActionWrapper actionWrapper = getWrapper(action);        
+        actionWrapper.setData(data);
+        
+        final JMenuItem menuItem = new ThinkParityMenuItem(name);
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                actionWrapper.actionPerformed(e);
+            }           
+        });
+        
+        return menuItem;
+    }
+    
+    /**
+     * Get action name.
+     * 
+     * @param actionId
+     *            An action id.
+     * @return The action name.     
+     */    
+    private String doGetPopupActionName(final ActionId actionId) {   
+        final AbstractAction action;
+        if (actionRegistry.contains(actionId)) {
+            action = actionRegistry.get(actionId);
+        } else {
+            action = ActionFactory.create(actionId);
+        }
+        return action.getName();
     }
 
     /**
@@ -255,7 +335,7 @@ public class PopupItemFactory extends AbstractFactory {
         /**
          * Tailor the action so it is suited for main menu or popup menu.
          */
-        public void adjustForMenuType(Boolean mainMenu) {
+        public void adjustForMenuType(final Boolean mainMenu) {
             if (mainMenu) {
                 putValue(Action.NAME, action.isSetMenuName() ? action.getMenuName() : "!No name set.!"); 
                 setMnemonicAndAccelerator();

@@ -99,6 +99,15 @@ public interface ArtifactIOHandler {
     public Boolean doesExist(final UUID uniqueId);
 
     /**
+     * Determine if a version exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if a version exists.
+     */
+    public Boolean doesVersionExist(final Long artifactId);
+
+    /**
      * Determine if the artifact version exists.
      * 
      * @param artifactId

@@ -53,7 +53,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublished
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
-import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -838,7 +837,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         try {
-            return getArtifactModel().doesVersionExist(containerId, Versioning.START);
+            return getArtifactModel().doesVersionExist(containerId);
         } catch (final Throwable t) {
             throw translateError(t);
         }

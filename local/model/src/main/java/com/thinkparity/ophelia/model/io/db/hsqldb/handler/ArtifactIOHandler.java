@@ -183,12 +183,20 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to determine if an artifact version exists. */
+    /** Sql to determine if an artifact version exists. */
     private static final String SQL_DOES_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
             .append("from ARTIFACT A ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+            .toString();
+
+    /** Sql to determine if any artifact version exists. */
+    private static final String SQL_DOES_ANY_VERSION_EXIST =
+            new StringBuffer("select COUNT(*) \"COUNT\" ")
+            .append("from ARTIFACT A ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID>=1")
             .toString();
 
 	private static final String SQL_READ_ID =
@@ -464,6 +472,28 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesVersionExist(java.lang.Long)
+     *
+     */
+    public Boolean doesVersionExist(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_ANY_VERSION_EXIST);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+
+            session.nextResult();
+            if (0 == session.getInteger("COUNT")) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
             }
         } finally {
             session.close();

@@ -224,8 +224,23 @@ public class InternalArtifactModel extends ArtifactModel {
      * @return True if the artifact version exists.
      */
     public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
-        synchronized(getImplLock()) {
+        synchronized (getImplLock()) {
             return getImpl().doesVersionExist(artifactId, versionId);
+        }
+    }
+
+    /**
+     * Determine if the artifact version exists.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param versionId
+     *            An artifact version id.
+     * @return True if the artifact version exists.
+     */
+    public Boolean doesVersionExist(final Long artifactId) {
+        synchronized (getImplLock()) {
+            return getImpl().doesVersionExist(artifactId);
         }
     }
 

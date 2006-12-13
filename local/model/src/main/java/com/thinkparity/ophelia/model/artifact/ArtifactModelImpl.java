@@ -266,11 +266,17 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+    Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         logger.logVariable("versionId", versionId);
         return artifactIO.doesVersionExist(artifactId, versionId);
+    }
+
+    Boolean doesVersionExist(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        return artifactIO.doesVersionExist(artifactId);
     }
 
 	/**

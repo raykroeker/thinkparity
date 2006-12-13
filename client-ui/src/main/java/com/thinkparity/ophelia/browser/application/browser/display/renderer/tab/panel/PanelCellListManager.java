@@ -53,8 +53,11 @@ public class PanelCellListManager {
     /** The last JLabel */
     private final javax.swing.JLabel lastJLabel;
     
-    /** Flag indicating if row 0 stays at the top */
+    /** Flag indicating if row 0 stays at the top, & is in the cells list */
     private final Boolean fixedFirstRow;
+    
+    /** Flag indicating if the first row is blank, & not in the cells list */
+    private final Boolean blankFirstRow;
             
     /** Number of rows per page */
     private final int perPage;
@@ -89,7 +92,9 @@ public class PanelCellListManager {
      * @param lastJLabel
      *            The last <code>JLabel</code>.
      * @param fixedFirstRow
-     *            Flag indicating that the first row is fixed in place.                                          
+     *            Flag indicating that the first row is fixed, & in the cells list.
+     * @param blankFirstRow
+     *            Flag indicating that the first row is blank, & not in the cells list.                                                     
      */
     public PanelCellListManager(
             final Component invoker,
@@ -102,7 +107,8 @@ public class PanelCellListManager {
             final javax.swing.JLabel countJLabel,
             final javax.swing.JLabel nextJLabel,
             final javax.swing.JLabel lastJLabel,
-            final Boolean fixedFirstRow) {
+            final Boolean fixedFirstRow,
+            final Boolean blankFirstRow) {
         super();
         this.invoker = invoker;
         this.localization = localization;
@@ -114,7 +120,8 @@ public class PanelCellListManager {
         this.countJLabel = countJLabel;
         this.nextJLabel = nextJLabel;
         this.lastJLabel = lastJLabel;
-        this.fixedFirstRow = fixedFirstRow;        
+        this.fixedFirstRow = fixedFirstRow;
+        this.blankFirstRow = blankFirstRow;  
         perPage = fixedFirstRow ? visibleRows-1 : visibleRows;
         initializeMouseListeners();
     }
@@ -131,6 +138,9 @@ public class PanelCellListManager {
         if (null == cells) {
             numberPages = 0;
         } else {
+            if (blankFirstRow) {
+                cells.add(0, cells.get(0));
+            }                        
             final int firstItemOffset = fixedFirstRow ? 1 : 0;
             numberPages = 1 + (cells.size() - firstItemOffset - 1) / perPage;
         }
@@ -229,7 +239,11 @@ public class PanelCellListManager {
         listModel.clear();
         if (rowsThisPage > 0) {
             if (fixedFirstRow) {
-                listModel.addElement(cells.get(0)); 
+                if (blankFirstRow) {
+                    listModel.addElement(EmptyCell.getEmptyCell());
+                } else {
+                    listModel.addElement(cells.get(0));
+                }
                 for (int index = 1; index < rowsThisPage; index++) {
                     listModel.addElement(cells.get(offset+index));
                 }

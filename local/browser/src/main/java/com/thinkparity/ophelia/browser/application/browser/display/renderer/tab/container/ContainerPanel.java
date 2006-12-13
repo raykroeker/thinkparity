@@ -14,8 +14,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,8 +22,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -33,14 +30,9 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListManager;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -132,11 +124,11 @@ public class ContainerPanel extends DefaultTabPanel {
         this.eastListManager = new PanelCellListManager(this, localization,
                 eastListModel, eastJList, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
                 eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
-                eastLastJLabel, Boolean.FALSE);
+                eastLastJLabel, Boolean.TRUE, Boolean.TRUE);
         this.westListManager = new PanelCellListManager(this, localization,
                 westListModel, westJList, NUMBER_VISIBLE_ROWS, westFirstJLabel,
                 westPreviousJLabel, westCountJLabel, westNextJLabel,
-                westLastJLabel, Boolean.TRUE);     
+                westLastJLabel, Boolean.TRUE, Boolean.FALSE);     
         initComponents();
     }
 
@@ -777,16 +769,21 @@ public class ContainerPanel extends DefaultTabPanel {
      *
      */
     private void reloadText() {
-        // if expanded display the container name
-        // if not expanded display the container name; if there exists a draft
-        // and the the latest version also display the draft owner; otherwise
+        // if expanded display the container name;
+        // if not expanded and there exists a draft
+        // and the user has latest version also display the draft owner; otherwise
         // if there exists the latest version display the published on date
         textJLabel.setText(container.getName());
         if (!expanded) {
             if (container.isDraft() && container.isLatest()) {
-                additionalTextJLabel.setText(localization.getString(
-                        "ContainerMessageDraftOwner",
-                        draft.getOwner().getName()));
+                if (container.isLocalDraft()) {
+                    additionalTextJLabel.setText(localization.getString(
+                            "ContainerMessageLocalDraftOwner"));      
+                } else {
+                    additionalTextJLabel.setText(localization.getString(
+                            "ContainerMessageDraftOwner",
+                            draft.getOwner().getName()));
+                }
             } else if (null != latestVersion) {
                 additionalTextJLabel.setText(localization.getString(
                         "ContainerMessagePublishDate",
@@ -848,8 +845,7 @@ public class ContainerPanel extends DefaultTabPanel {
             eastListManager.initialize(null);
         } else {
             saveSelection("westJList", (javax.swing.JList) e.getSource());
-            List<Cell> cells = (List<Cell>)(List)selectedCell.getEastCells();
-            eastListManager.initialize(cells);
+            eastListManager.initialize(selectedCell.getEastCells());
         }
     }//GEN-LAST:event_westJListValueChanged
 
@@ -895,6 +891,21 @@ public class ContainerPanel extends DefaultTabPanel {
                     ? null : formatFuzzy(latestVersion.getUpdatedOn())));
             add(new ContainerFieldCell(this, "ContainerDraftOwner",
                     container.isDraft() ? draft.getOwner().getName() : null));
+            
+            if (container.isDraft() && container.isLatest()) {
+                if (container.isLocalDraft()) {
+                    setAdditionalText(localization.getString(
+                            "ContainerMessageLocalDraftOwner"));      
+                } else {
+                    setAdditionalText(localization.getString(
+                            "ContainerMessageDraftOwner",
+                            draft.getOwner().getName()));
+                }
+            } else if (null != latestVersion) {
+                setAdditionalText(localization.getString(
+                        "ContainerMessagePublishDate",
+                        formatFuzzy(latestVersion.getUpdatedOn())));
+            }
         }
         @Override
         public Icon getIcon() {
@@ -906,7 +917,7 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public String getText() {
             return container.getName();
-        }
+        }        
         @Override
         public void invokeAction() {
             actionDelegate.invokeForContainer(container);

@@ -16,12 +16,13 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -491,8 +492,7 @@ public final class PublishContainerAvatar extends Avatar implements
         if (publishType == PublishType.PUBLISH_VERSION) {
             final Long versionId = getInputVersionId();
             getController().runPublishContainerVersion(createMonitor(),
-                    containerId, versionId, teamMembers, contacts,
-                    extractComment());   
+                    containerId, versionId, teamMembers, contacts);   
         } else {
             getController().runPublishContainer(createMonitor(), containerId,
                     teamMembers, contacts, extractComment());  

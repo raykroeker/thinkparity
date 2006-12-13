@@ -1353,14 +1353,11 @@ public class Browser extends AbstractApplication {
      *              The comment.                 
      */
     public void runPublishContainerVersion(final ThinkParitySwingMonitor monitor, final Long containerId, final Long versionId,
-            final List<TeamMember> teamMembers, final List<Contact> contacts, final String comment) {
+            final List<TeamMember> teamMembers, final List<Contact> contacts) {
         final Data data = new Data(6);
         data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
         data.set(PublishVersion.DataKey.VERSION_ID, versionId);
         data.set(PublishVersion.DataKey.CONTACTS, contacts);
-        if (null != comment) {
-            data.set(PublishVersion.DataKey.COMMENT, comment);
-        }
         data.set(PublishVersion.DataKey.MONITOR, monitor);
         data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
         SwingUtilities.invokeLater(new Runnable() {

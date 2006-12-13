@@ -490,7 +490,9 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<Contact> contacts = model.getSelectedContacts();
         if (publishType == PublishType.PUBLISH_VERSION) {
             final Long versionId = getInputVersionId();
-            getController().runPublishContainerVersion(containerId, versionId, teamMembers, contacts);   
+            getController().runPublishContainerVersion(createMonitor(),
+                    containerId, versionId, teamMembers, contacts,
+                    extractComment());   
         } else {
             getController().runPublishContainer(createMonitor(), containerId,
                     teamMembers, contacts, extractComment());  

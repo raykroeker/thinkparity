@@ -1307,6 +1307,8 @@ public class Browser extends AbstractApplication {
     /**
      * Publish the container.
      * 
+     *  @param monitor
+     *              The monitor.
      *  @param containerId
      *              The container id.
      *  @param teamMembers
@@ -1319,11 +1321,12 @@ public class Browser extends AbstractApplication {
     public void runPublishContainer(final ThinkParitySwingMonitor monitor,
             final Long containerId, final List<TeamMember> teamMembers,
             final List<Contact> contacts, final String comment) {
-        final Data data = new Data(4);
+        final Data data = new Data(5);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
         data.set(Publish.DataKey.CONTACTS, contacts);
-        if (null != comment)
+        if (null != comment) {
             data.set(Publish.DataKey.COMMENT, comment);
+        }
         data.set(Publish.DataKey.MONITOR, monitor);
         data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
         SwingUtilities.invokeLater(new Runnable() {
@@ -1336,6 +1339,8 @@ public class Browser extends AbstractApplication {
     /**
      * Publish the container version (ie. forward).
      * 
+     *  @param monitor
+     *              The monitor.
      *  @param containerId
      *              The container id.
      *  @param versionId
@@ -1343,15 +1348,21 @@ public class Browser extends AbstractApplication {
      *  @param teamMembers
      *              The team members. 
      *  @param contacts
-     *              The contacts.   
+     *              The contacts. 
+     *  @param comment
+     *              The comment.                 
      */
-    public void runPublishContainerVersion(final Long containerId, final Long versionId,
-            final List<TeamMember> teamMembers, final List<Contact> contacts) {
-        final Data data = new Data(4);
+    public void runPublishContainerVersion(final ThinkParitySwingMonitor monitor, final Long containerId, final Long versionId,
+            final List<TeamMember> teamMembers, final List<Contact> contacts, final String comment) {
+        final Data data = new Data(6);
         data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
         data.set(PublishVersion.DataKey.VERSION_ID, versionId);
-        data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
         data.set(PublishVersion.DataKey.CONTACTS, contacts);
+        if (null != comment) {
+            data.set(PublishVersion.DataKey.COMMENT, comment);
+        }
+        data.set(PublishVersion.DataKey.MONITOR, monitor);
+        data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH_VERSION, data); }
         });

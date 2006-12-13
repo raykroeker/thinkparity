@@ -222,9 +222,10 @@ public final class TabRenderer {
      * @param observer The <code>ImageObserver</code>.
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
-            final int height, final ImageObserver observer) {
+            final int height, final int selectionIndex,
+            final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
-        g.drawImage(BACKGROUND_EAST, x, 0, observer);
+        g.drawImage(BACKGROUND_EAST, x, 0 == selectionIndex ? 0 : 24, observer);
     }
 
     /**

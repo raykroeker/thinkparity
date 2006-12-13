@@ -305,7 +305,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final int selectionIndex = westJList.getSelectedIndex();
                 renderer.paintExpandedBackgroundWest(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), this);
+                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
             }
         } else {
             renderer.paintBackground(g, getWidth(), getHeight());

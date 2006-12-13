@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.platform.action;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -183,11 +182,6 @@ public class DefaultPopupDelegate implements PopupDelegate {
         logger.logVariable("invoker", invoker);
         logger.logVariable("x", x);
         logger.logVariable("y", y);
-        logger.logVariable("width", width);
-        final Dimension size = jPopupMenu.getSize();
-        logger.logVariable("size", size);
-        size.width = width;
-        jPopupMenu.setSize(size);
         jPopupMenu.show(invoker, x, y);
         invoker = jPopupMenu = null;
         jMenus.clear();

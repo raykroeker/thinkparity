@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -924,8 +925,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A container.
      */
     protected void modifyDocuments(final OpheliaTestUser testUser,
-            final Container container) throws FileNotFoundException,
-            IOException {
+            final Container container) {
         final ContainerModel containerModel = getContainerModel(testUser);
         final ContainerDraft draft = containerModel.readDraft(container.getId());
         for(final Document document : draft.getDocuments()) {
@@ -1001,10 +1001,35 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected void publishToContacts(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... contactNames) {
+        publishToContacts(publishAs, localContainerId, Boolean.FALSE,
+                contactNames);
+    }
+
+    /**
+     * Publish the container to contacts.
+     * 
+     * @param publisAs
+     *            An <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publishAs.
+     * @param contactNames
+     *            A list of contact names to publish to.
+     */
+    protected void publishToContacts(final OpheliaTestUser publishAs,
+            final Long localContainerId, final Boolean includeTeam,
+            final String... contactNames) {
         final List<Contact> contacts = readContacts(publishAs);
         userUtils.filter(contacts, contactNames);
 
-        final List<TeamMember> teamMembers = Collections.emptyList();
+        final List<TeamMember> teamMembers;
+        if (includeTeam.booleanValue()) {
+            teamMembers = getContainerModel(publishAs).readTeam(localContainerId);
+            for (final Iterator<TeamMember> iTeamMember = teamMembers.iterator(); iTeamMember.hasNext();)
+                if (iTeamMember.next().getId().equals(publishAs.getId()))
+                    iTeamMember.remove();
+        } else {
+            teamMembers = Collections.emptyList();
+        }
         final InternalContainerModel containerModel = getContainerModel(publishAs);
         final Container c = containerModel.read(localContainerId);
         final StringBuffer actualContactNames = new StringBuffer();
@@ -1013,8 +1038,15 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 actualContactNames.append(Separator.SemiColon);
             actualContactNames.append(contact.getSimpleUsername());
         }
-        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\".",
-                c.getName(), publishAs.getSimpleUsername(), actualContactNames);
+        final StringBuffer actualTeamMemberNames = new StringBuffer();
+        for (final TeamMember teamMember : teamMembers) {
+            if (0 < actualTeamMemberNames.length())
+                actualTeamMemberNames.append(Separator.SemiColon);
+            actualTeamMemberNames.append(teamMember.getSimpleUsername());
+        }
+        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\", team members \"{3}\".",
+                c.getName(), publishAs.getSimpleUsername(), actualContactNames,
+                actualTeamMemberNames);
         getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
     }
 

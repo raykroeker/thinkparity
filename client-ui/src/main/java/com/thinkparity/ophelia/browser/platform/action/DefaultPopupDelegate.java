@@ -34,11 +34,11 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** A <code>PopupItemFactory</code>. */
     private final PopupItemFactory itemFactory;
 
-    /** A map of menu name <code>String</code> to existing <code>JMenu</code>s. */
-    private final Map<String, JMenu> jMenus;
-
     /** A <code>MenuFactory</code>. */
     private JPopupMenu jPopupMenu;
+
+    /** A map of menu name <code>String</code> to existing <code>JMenu</code>s. */
+    private final Map<String, JMenu> submenus;
 
     /** The popup location coordinate <code>int</code>s. */
     private int x, y;
@@ -50,8 +50,24 @@ public class DefaultPopupDelegate implements PopupDelegate {
     public DefaultPopupDelegate() {
         super();
         this.logger = new Log4JWrapper(getClass());
-        this.jMenus = new HashMap<String, JMenu>();
+        this.submenus = new HashMap<String, JMenu>();
         this.itemFactory = PopupItemFactory.getInstance();
+    }
+
+    /**
+     * Add an action to a submenu. The submenu's action id will determine the
+     * name of the menu.
+     * 
+     * @param submenuActionId
+     *            An <code>ActionId</code> for naming the submenu.
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    public void add(final ActionId submenuActionId, final ActionId actionId, final Data data) {
+        final JMenu submenu = getSubmenu(submenuActionId);
+        submenu.add(itemFactory.createPopupItem(actionId, data));      
     }
 
     /**
@@ -64,6 +80,24 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void add(final ActionId actionId, final Data data) {
         jPopupMenu.add(itemFactory.createPopupItem(actionId, data));
+    }
+
+    /**
+     * Add an action to a submenu such that the action name is used for the parent
+     * and the text is used for the child menu item. Example:
+     *    Open - Doc1
+     *           Doc2
+     *           
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param text
+     *            The menu texxt <code>String</code>.
+     * @param data
+     *            The action <code>Data</code>.                    
+     */
+    public void add(final ActionId actionId, final String text, final Data data) {
+        final JMenu jMenu = getSubmenu(actionId);
+        jMenu.add(itemFactory.createPopupItem(actionId, text, data));      
     }
 
     /**
@@ -104,7 +138,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
             final Object selection) {
         itemFactory.addPopupItem(jPopupMenu, pluginId, actionName, selection);
     }
-
+    
     /**
      * Add a string to the popup menu.
      * 
@@ -114,7 +148,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
     public void add(final String s) {
         jPopupMenu.add(s);
     }
-
+    
     /**
      * Add an action to a submenu. If the menu for the given text does not exist it
      * will be created. Example:
@@ -130,47 +164,14 @@ public class DefaultPopupDelegate implements PopupDelegate {
      */
     public void add(final String text, final ActionId actionId, final Data data) {
         final JMenu jMenu;
-        if (jMenus.containsKey(text)) {
-            jMenu = jMenus.get(text);
+        if (submenus.containsKey(text)) {
+            jMenu = submenus.get(text);
         } else {
             jMenu = MenuFactory.createPopupSubMenu(text);
             jPopupMenu.add(jMenu);
-            jMenus.put(text,  jMenu);
+            submenus.put(text,  jMenu);
         }
         jMenu.add(itemFactory.createPopupItem(actionId, data));
-    }
-    
-    /**
-     * Add an action to a submenu such that the action name is used for the parent
-     * and the text is used for the child menu item. Example:
-     *    Open - Doc1
-     *           Doc2
-     *           
-     * @param actionId
-     *            An <code>ActionId</code>.
-     * @param text
-     *            The menu texxt <code>String</code>.
-     * @param data
-     *            The action <code>Data</code>.                    
-     */
-    public void add(final ActionId actionId, final String text, final Data data) {
-        final JMenu jMenu = maybeAddPopupSubMenu(actionId);
-        jMenu.add(itemFactory.createPopupItem(actionId, data, text));      
-    }
-    
-    /**
-     * Add an action to a submenu such that actionIdSubmenu determines the location.
-     *  
-     * @param actionIdSubmenu
-     *            An <code>ActionId</code> for naming the submenu.
-     * @param actionId
-     *            An <code>ActionId</code>.
-     * @param data
-     *            The action <code>Data</code>.                    
-     */
-    public void add(final ActionId actionIdSubmenu, final ActionId actionId, final Data data) {
-        final JMenu jMenu = maybeAddPopupSubMenu(actionIdSubmenu);
-        jMenu.add(itemFactory.createPopupItem(actionId, data));      
     }
 
     /**
@@ -182,11 +183,14 @@ public class DefaultPopupDelegate implements PopupDelegate {
     }
     
     /**
-     * Add a separator to the submenu associated with this action.
+     * Add a submenu separator.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
      */
-    public void addSeparator(final ActionId actionId) {
-        final JMenu jMenu = maybeAddPopupSubMenu(actionId);
-        jMenu.addSeparator();  
+    public void addSeparator(final ActionId submenuActionId) {
+        final JMenu submenu = getSubmenu(submenuActionId);
+        submenu.addSeparator();  
     }
 
     /**
@@ -222,23 +226,28 @@ public class DefaultPopupDelegate implements PopupDelegate {
         logger.logVariable("y", y);
         jPopupMenu.show(invoker, x, y);
         invoker = jPopupMenu = null;
-        jMenus.clear();
+        submenus.clear();
         x = y = -1;
     }
     
     /**
-     * Add or get the popup submenu associated with this action.
+     * Obtain a sub menu for an action. If the action already has a sub menu
+     * retreive it; if not create a new one.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @return A <code>JMenu</code>.
      */
-    private JMenu maybeAddPopupSubMenu(final ActionId actionId) {
-        final JMenu jMenu;
+    private JMenu getSubmenu(final ActionId actionId) {
+        final JMenu subMenu;
         final String menuName = itemFactory.getPopupActionName(actionId);
-        if (jMenus.containsKey(menuName)) {
-            jMenu = jMenus.get(menuName);
+        if (submenus.containsKey(menuName)) {
+            subMenu = submenus.get(menuName);
         } else {
-            jMenu = MenuFactory.createPopupSubMenu(menuName);
-            jPopupMenu.add(jMenu);
-            jMenus.put(menuName, jMenu);
+            subMenu = MenuFactory.createPopupSubMenu(menuName);
+            jPopupMenu.add(subMenu);
+            submenus.put(menuName, subMenu);
         }
-        return jMenu;
+        return subMenu;
     }
 }

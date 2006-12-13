@@ -124,8 +124,8 @@ public class PopupItemFactory extends AbstractFactory {
      * @return A popup menu item.
      */
     public JMenuItem createPopupItem(final ActionId actionId,
-            final Data data, final String name) {
-        return SINGLETON.doCreatePopupItem(actionId, data, name);
+            final String text, final Data data) {
+        return SINGLETON.doCreatePopupItem(actionId, text, data);
     }
 
     /**
@@ -206,14 +206,15 @@ public class PopupItemFactory extends AbstractFactory {
      * Create a popup menu item from an action id.
      * 
      * @param actionId
-     *            An action id.
+     *            An <code>ActionId</code>.
+     * @param text
+     *            The menu item text <code>String</code>.
      * @param data
-     *            The action data.
-     * @param name
-     *            The menu item name.     
-     * @return A popup menu item.
+     *            The action <code>Data</code>.
+     * @return A <code>JMenuItem</code>.
      */
-    private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data, final String name) {
+    private JMenuItem doCreatePopupItem(final ActionId actionId,
+            final String text, final Data data) {
         final AbstractAction action;
         if (actionRegistry.contains(actionId)) {
             action = actionRegistry.get(actionId);
@@ -224,13 +225,12 @@ public class PopupItemFactory extends AbstractFactory {
         final ActionWrapper actionWrapper = getWrapper(action);        
         actionWrapper.setData(data);
         
-        final JMenuItem menuItem = new ThinkParityMenuItem(name);
+        final JMenuItem menuItem = new ThinkParityMenuItem(text);
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 actionWrapper.actionPerformed(e);
             }           
         });
-        
         return menuItem;
     }
     

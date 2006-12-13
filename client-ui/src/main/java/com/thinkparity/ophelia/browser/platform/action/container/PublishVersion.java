@@ -11,17 +11,16 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 
 /**
  * @author raymond@thinkparity.com
@@ -148,8 +147,8 @@ public class PublishVersion extends AbstractAction {
         }
         @Override
         public Object construct() {
-            containerModel.publishVersion(publishMonitor, containerId,
-                    versionId, contacts, teamMembers);
+            containerModel.publishVersion(publishMonitor, containerId, versionId, contacts);
+
             artifactModel.applyFlagSeen(containerId);
             return containerModel.readVersion(containerId, versionId);
         }

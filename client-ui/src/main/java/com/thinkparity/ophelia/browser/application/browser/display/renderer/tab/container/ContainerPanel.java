@@ -133,11 +133,11 @@ public class ContainerPanel extends DefaultTabPanel {
         this.eastListManager = new PanelCellListManager(this, localization,
                 eastListModel, eastJList, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
                 eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
-                eastLastJLabel, Boolean.TRUE, Boolean.FALSE);
+                eastLastJLabel, Boolean.TRUE);
         this.westListManager = new PanelCellListManager(this, localization,
                 westListModel, westJList, NUMBER_VISIBLE_ROWS, westFirstJLabel,
                 westPreviousJLabel, westCountJLabel, westNextJLabel,
-                westLastJLabel, Boolean.TRUE, Boolean.FALSE);     
+                westLastJLabel, Boolean.TRUE);     
         initComponents();
     }
 

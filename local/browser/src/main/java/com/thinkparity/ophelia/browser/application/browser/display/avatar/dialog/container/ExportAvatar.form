@@ -18,14 +18,14 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="explanationJLabel" alignment="0" pref="384" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
+                      <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="directoryJTextField" pref="352" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="directoryJButton" min="-2" pref="26" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
-                      <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -38,14 +38,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="directoryJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="directoryJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="directoryJTextField" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryJButton" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="31" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

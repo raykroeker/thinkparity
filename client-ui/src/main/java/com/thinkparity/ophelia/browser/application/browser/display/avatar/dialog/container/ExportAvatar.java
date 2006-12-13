@@ -232,22 +232,22 @@ public class ExportAvatar extends Avatar {
 
         directoryJButton.setText(bundle.getString("ExportDialog.DirectoryButton")); // NOI18N
         directoryJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                directoryJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                directoryJButtonActionPerformed(evt);
             }
         });
 
         okJButton.setText(bundle.getString("ExportDialog.OK")); // NOI18N
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                okJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okJButtonActionPerformed(evt);
             }
         });
 
         cancelJButton.setText(bundle.getString("ExportDialog.Cancel")); // NOI18N
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -260,13 +260,13 @@ public class ExportAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton))
+                    .add(layout.createSequentialGroup()
                         .add(directoryJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(okJButton)
-                        .add(7, 7, 7)
-                        .add(cancelJButton)))
+                        .add(directoryJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -278,13 +278,13 @@ public class ExportAvatar extends Avatar {
                 .addContainerGap()
                 .add(explanationJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(directoryJButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 31, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(directoryJButton)
-                    .add(directoryJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(okJButton)
-                    .add(cancelJButton))
+                    .add(cancelJButton)
+                    .add(okJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

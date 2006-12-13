@@ -53,6 +53,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
 import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
@@ -319,8 +320,8 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
         if (isLocalUser(publishedBy)) {
             final Data data = new Data(1);
-            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(publishedBy.getName(), ActionId.PROFILE_UPDATE, data);
+            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(publishedBy.getName(), ActionId.PROFILE_EDIT, data);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, publishedBy.getId());

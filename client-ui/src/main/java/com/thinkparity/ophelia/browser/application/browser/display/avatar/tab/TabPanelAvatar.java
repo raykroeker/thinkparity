@@ -62,8 +62,8 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     private final TransferHandler panelTransferHandler;
 
-    /** A popup delegate for the tab. */
-    private TabAvatarPopupDelegate popupDelegate;
+    /** A <code>TabAvatarSortByDelegate</code>. */
+    private TabAvatarSortByDelegate sortByDelegate;
 
     /**
      * Creates TabPanelAvatar.
@@ -155,15 +155,6 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     }
 
     /**
-     * Obtain the popup delegate.
-     * 
-     * @return A <code>TabAvatarPopupDelegate</code>.
-     */
-    protected TabAvatarPopupDelegate getPopupDelegate() {
-        return popupDelegate;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
      * 
      */
@@ -171,15 +162,25 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     protected ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.MIDDLE;
     }
+    
+    /**
+     * Obtain sortByDelegate.
+     *
+     * @return A TabAvatarSortByDelegate.
+     */
+    protected TabAvatarSortByDelegate getSortByDelegate() {
+        return sortByDelegate;
+    }
 
     /**
-     * Set the popup delegate.
-     * 
-     * @param popupDelegate
-     *            A <code>TabAvatarPopupDelegate</code>.
+     * Set sortByDelegate.
+     *
+     * @param sortByDelegate
+     *		A TabAvatarSortByDelegate.
      */
-    protected void setPopupDelegate(final TabAvatarPopupDelegate popupDelegate) {
-        this.popupDelegate = popupDelegate;
+    protected void setSortByDelegate(
+            final TabAvatarSortByDelegate sortByDelegate) {
+        this.sortByDelegate = sortByDelegate;
     }
 
     /**
@@ -191,7 +192,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     private void addFill(final int listSize) {
         tabJPanel.add(fillJLabel, fillConstraints, listSize);
     }
-    
+
     /**
      * Add a panel from a model at an index.
      * 
@@ -335,12 +336,14 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
             } 
         });
     }
-
     private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
-        final javax.swing.JLabel jLabel = (javax.swing.JLabel) e.getSource();
-        popupDelegate.initialize(this, jLabel.getX(), jLabel.getY()
-                + jLabel.getHeight(), jLabel.getWidth(), jLabel.getHeight());
-        popupDelegate.showForSort();
+        if (null != sortByDelegate) {
+            final javax.swing.JLabel orderByJLabel = (javax.swing.JLabel) e.getSource();
+            final TabAvatarSortByPanel sortByPanel = new TabAvatarSortByPanel();
+            sortByPanel.setDelegate(sortByDelegate);
+            sortByPanel.show(this, orderByJLabel.getX(),
+                    orderByJLabel.getY() + orderByJLabel.getHeight());
+        }
     }//GEN-LAST:event_orderByJLabelMouseClicked
 
     /**
@@ -351,6 +354,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         tabJPanel.revalidate();
         tabJPanel.repaint();
     }
+
     /**
      * Remove the fill component.
      *

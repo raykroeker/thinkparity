@@ -39,16 +39,28 @@ public class StringComparator implements Comparator<String> {
      */
     public int compare(final String o1, final String o2) {
         final int compareResult;
-        switch (platform) {
-        case WIN32:
-            compareResult = o1.toLowerCase().compareTo(o2.toLowerCase());
-            break;
-        case LINUX:
-        case UNIX:
-            compareResult = o1.compareTo(o2);
-            break;
-        default:
-            throw Assert.createUnreachable("Unknown platform.");
+        if (null == o1) {
+            if (null == o2) {
+                compareResult = 0;
+            } else {
+                compareResult = -1;
+            }
+        } else {
+            if (null == o2) {
+                compareResult = 1;
+            } else {
+                switch (platform) {
+                case WIN32:
+                    compareResult = o1.toLowerCase().compareTo(o2.toLowerCase());
+                    break;
+                case LINUX:
+                case UNIX:
+                    compareResult = o1.compareTo(o2);
+                    break;
+                default:
+                    throw Assert.createUnreachable("Unknown platform.");
+                }                
+            }
         }
         return compareResult * (ascending ? 1 : -1);
     }

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -29,6 +32,8 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
@@ -42,7 +47,8 @@ import com.thinkparity.ophelia.browser.util.UserUtil;
  * @author raymond@thinkparity.com
  * @version 1.1.2.6
  */
-final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
+final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
+        implements TabAvatarSortByDelegate {
 
     /** The <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
@@ -66,7 +72,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     private BrowserSession session;
 
     /** The current ordering. */
-    private final List<Ordering> sortedBy;
+    private final List<SortBy> sortedBy;
 
     /** A list of all visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -80,8 +86,31 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         this.listModel = new DefaultListModel();
         this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ArchiveTabPopupDelegate(this);
-        this.sortedBy = new ArrayList<Ordering>();
+        this.sortedBy = new ArrayList<SortBy>();
         this.visiblePanels = new ArrayList<TabPanel>();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortBy()
+     *
+     */
+    public List<TabAvatarSortBy> getSortBy() {
+        final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
+        for (final SortBy sortByValue : SortBy.values()) {
+            sortBy.add(new TabAvatarSortBy() {
+                public Action getAction() {
+                    return new AbstractAction() {
+                        public void actionPerformed(final ActionEvent e) {
+                            applySort(sortByValue);
+                        }
+                    };
+                }
+                public String getText() {
+                    return getString(sortByValue);
+                }
+            });
+        }
+        return sortBy;
     }
 
     /**
@@ -132,7 +161,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         for (final Container container : containers) {
             addContainerPanel(container);
         }
-        applySort(Ordering.CREATED_ON, Boolean.FALSE);
+        applySort(SortBy.CREATED_ON);
         debug();
     }
 
@@ -184,25 +213,24 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      * @param ordering
      *            An <code>Ordering</code>.
      */
-    void applySort(final Ordering ordering, final Boolean ascending) {
+    void applySort(final SortBy sortBy) {
         debug();
         // if the sorted by stack already contains the ordering do nothing
-        if (sortedBy.contains(ordering)) {
-            if (sortedBy.get(sortedBy.indexOf(
-                    ordering)).isAscending().booleanValue()
-                    == ascending.booleanValue()) {
-                return;
-            } else {
-                ordering.setAscending(ascending);
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                sortBy.ascending = false;
+
                 sortedBy.clear();
-                sortedBy.remove(ordering);
-                sortedBy.add(ordering);
-                synchronize();
+                sortedBy.add(sortBy);
+            } else {
+                sortedBy.clear();
             }
+            synchronize();
         } else {
-            ordering.setAscending(ascending);
+            sortBy.ascending = true;
+
             sortedBy.clear();
-            sortedBy.add(ordering);
+            sortedBy.add(sortBy);
             synchronize();
         }
     }
@@ -223,20 +251,20 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      *            An <code>Ordering</code>.
      * @return A localized <code>String</code>.
      */
-    String getString(final Ordering ordering) {
+    String getString(final SortBy sortBy) {
         final StringBuffer pattern = new StringBuffer("ArchiveTab.{0}");
-        if (isSortApplied(ordering)) {
+        if (isSortApplied(sortBy)) {
             pattern.append("_{1}");
-            if (ordering.isAscending()) {
+            if (sortBy.ascending) {
                 return getExtension().getLocalization().getString(
-                        MessageFormat.format(pattern.toString(), ordering, "ASC"));
+                        MessageFormat.format(pattern.toString(), sortBy, "ASC"));
             } else {
                 return getExtension().getLocalization().getString(
-                        MessageFormat.format(pattern.toString(), ordering, "DESC"));
+                        MessageFormat.format(pattern.toString(), sortBy, "DESC"));
             }
         } else {
             return getExtension().getLocalization().getString(
-                    MessageFormat.format(pattern.toString(), ordering));
+                    MessageFormat.format(pattern.toString(), sortBy));
         }
     }
 
@@ -247,50 +275,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     Boolean isOnline() {
         return Connection.ONLINE == super.getBrowser().getConnection();
-    }
-
-    /**
-     * Determine if an ordering is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if it is applied false otherwise.
-     */
-    Boolean isSortApplied(final Ordering ordering) {
-        debug();
-        return sortedBy.contains(ordering);
-    }
-
-    /**
-     * Remove all orderings.
-     *
-     */
-    void removeSort() {
-        debug();
-        // if the sorted by stack is empty; then there is no
-        // sort applied -> do nothing
-        if (sortedBy.isEmpty()) {
-            return;
-        } else {
-            sortedBy.clear();
-            synchronize();
-        }
-    }
-
-    /**
-     * Remove an ordering.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    void removeSort(final Ordering ordering) {
-        debug();
-        if (sortedBy.contains(ordering)) {
-            sortedBy.remove(ordering);
-            synchronize();
-        } else {
-            return;
-        }
     }
 
     /**
@@ -394,8 +378,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
      */
     private void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final Ordering ordering : sortedBy) {
-            comparator.add(ordering);
+        for (final SortBy sortBy : sortedBy) {
+            comparator.add(sortBy);
         }
         Collections.sort(filteredPanels, comparator);
     }
@@ -456,6 +440,18 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             expandedState.put(tabPanel, Boolean.FALSE);
             return isExpanded(tabPanel);
         }
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    private boolean isSortApplied(final SortBy sortBy) {
+        debug();
+        return sortedBy.contains(sortBy);
     }
 
     /**
@@ -574,7 +570,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
     }
 
     /** An enumerated type defining the tab panel ordering. */
-    enum Ordering implements Comparator<TabPanel> {
+    private enum SortBy implements Comparator<TabPanel> {
 
         CREATED_ON(true), NAME(true), UPDATED_ON(true);
 
@@ -593,11 +589,11 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
         private boolean ascending;
 
         /**
-         * Create Ordering.
+         * Create SortBy.
          *
          * @param ascending
          */
-        private Ordering(final boolean ascending) {
+        private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
 
@@ -628,25 +624,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider> {
             default:
                 return 0;
             }
-        }
-
-        /**
-         * Determine whether the current ordering is in ascending order.
-         * 
-         * @return True if it is ascending.
-         */
-        Boolean isAscending() {
-            return Boolean.valueOf(ascending);
-        }
-
-        /**
-         * Set the asending value.
-         * 
-         * @param ascending
-         *            Whether or not to sort in ascending order.
-         */
-        void setAscending(final Boolean ascending) {
-            this.ascending = ascending.booleanValue();
         }
     }
 }

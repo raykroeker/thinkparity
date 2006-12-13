@@ -75,22 +75,6 @@ public class DropShadowBorder extends AbstractBorder {
     /**
      * Create DropShadowBorder.
      */
-    public DropShadowBorder() throws AWTException {
-        super();
-        this.topThickness = 0;
-        this.leftThickness = 0;
-        this.bottomThickness = 0;
-        this.rightThickness = 0;
-        this.robot = new Robot();
-        this.topColors = null;
-        this.leftColors = null;
-        this.bottomColors = null;
-        this.rightColors = null;
-    }
-    
-    /**
-     * Create DropShadowBorder.
-     */
     public DropShadowBorder(final Color topColor) throws AWTException {
         super();
         this.topThickness = 1;

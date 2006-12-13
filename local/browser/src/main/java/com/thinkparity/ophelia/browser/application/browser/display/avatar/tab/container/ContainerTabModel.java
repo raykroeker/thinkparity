@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -39,6 +42,8 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
@@ -51,7 +56,8 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
  * @version 1.1.2.4
  */
-public final class ContainerTabModel extends TabPanelModel {
+public final class ContainerTabModel extends TabPanelModel implements
+        TabAvatarSortByDelegate {
 
     /** A <code>ContainerTabActionDelegate</code>. */
     private final ContainerTabActionDelegate actionDelegate;
@@ -90,7 +96,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private BrowserSession session;
 
     /** The current ordering. */
-    private final List<Ordering> sortedBy;
+    private final List<SortBy> sortedBy;
 
     /** A list of visible panels. */
     private final List<TabPanel> visiblePanels;
@@ -110,8 +116,31 @@ public final class ContainerTabModel extends TabPanelModel {
         this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.searchResults = new ArrayList<Long>();
-        this.sortedBy = new Stack<Ordering>();
+        this.sortedBy = new Stack<SortBy>();
         this.visiblePanels = new ArrayList<TabPanel>();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortedBy()
+     *
+     */
+    public List<TabAvatarSortBy> getSortBy() {
+        final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
+        for (final SortBy sortByValue : SortBy.values()) {
+            sortBy.add(new TabAvatarSortBy() {
+                public Action getAction() {
+                    return new AbstractAction() {
+                        public void actionPerformed(final ActionEvent e) {
+                            applySort(sortByValue);
+                        }
+                    };
+                }
+                public String getText() {
+                    return getString(sortByValue);
+                }
+            });
+        }
+        return sortBy;
     }
 
     /**
@@ -251,7 +280,7 @@ public final class ContainerTabModel extends TabPanelModel {
         for (final Container container : containers) {
             addContainerPanel(container);
         }
-        applySort(Ordering.CREATED_ON, Boolean.FALSE);
+        applySort(SortBy.CREATED_ON);
         debug();
     }
     
@@ -318,60 +347,12 @@ public final class ContainerTabModel extends TabPanelModel {
     }
     
     /**
-     * Apply an ordering to the panels.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    void applySort(final Ordering ordering, final Boolean ascending) {
-        debug();
-        // if the sorted by stack already contains the ordering do nothing
-        if (sortedBy.contains(ordering)) {
-            if (sortedBy.get(sortedBy.indexOf(
-                    ordering)).isAscending().booleanValue()
-                    == ascending.booleanValue()) {
-                return;
-            } else {
-                ordering.setAscending(ascending);
-                sortedBy.clear();
-                sortedBy.remove(ordering);
-                sortedBy.add(ordering);
-                synchronize();
-            }
-        } else {
-            ordering.setAscending(ascending);
-            sortedBy.clear();
-            sortedBy.add(ordering);
-            synchronize();
-        }
-    }
-
-    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
      */
     ContainerTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
-    }
-
-    /**
-     * Obtain a localized string for an ordering.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return A localized <code>String</code>.
-     */
-    String getString(final Ordering ordering) {
-        if (isSortApplied(ordering)) {
-            if (ordering.isAscending()) {
-                return localization.getString(ordering + "_ASC");
-            } else {
-                return localization.getString(ordering + "_DESC");
-            }
-        } else {
-            return localization.getString(ordering);
-        }
     }
 
     /**
@@ -390,18 +371,6 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
-    }
-
-    /**
-     * Determine if an ordering is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if it is applied false otherwise.
-     */
-    Boolean isSortApplied(final Ordering ordering) {
-        debug();
-        return sortedBy.contains(ordering);
     }
 
     /**
@@ -425,38 +394,6 @@ public final class ContainerTabModel extends TabPanelModel {
     Boolean readIsLocalUser(final User user) {
         final Profile profile = readProfile();
         return (user.getId().equals(profile.getId()));
-    }
-
-    /**
-     * Remove all orderings.
-     *
-     */
-    void removeSort() {
-        debug();
-        // if the sorted by stack is empty; then there is no
-        // sort applied -> do nothing
-        if (sortedBy.isEmpty()) {
-            return;
-        } else {
-            sortedBy.clear();
-            synchronize();
-        }
-    }
-
-    /**
-     * Remove an ordering.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    void removeSort(final Ordering ordering) {
-        debug();
-        if (sortedBy.contains(ordering)) {
-            sortedBy.remove(ordering);
-            synchronize();
-        } else {
-            return;
-        }
     }
 
     /**
@@ -609,10 +546,38 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final Ordering ordering : sortedBy) {
-            comparator.add(ordering);
+        for (final SortBy sortBy : sortedBy) {
+            comparator.add(sortBy);
         }
         Collections.sort(filteredPanels, comparator);
+    }
+
+    /**
+     * Apply an ordering to the panels.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     */
+    private void applySort(final SortBy sortBy) {
+        debug();
+        // if the sorted by stack already contains the ordering do nothing
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                sortBy.ascending = false;
+
+                sortedBy.clear();
+                sortedBy.add(sortBy);
+            } else {
+                sortedBy.clear();
+            }
+            synchronize();
+        } else {
+            sortBy.ascending = true;
+
+            sortedBy.clear();
+            sortedBy.add(sortBy);
+            synchronize();
+        }
     }
 
     /**
@@ -681,7 +646,26 @@ public final class ContainerTabModel extends TabPanelModel {
             throw new BrowserException("Cannot extract files from transferrable.", x);
         }
     }
-    
+
+    /**
+     * Obtain a localized string for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return localization.getString(sortBy + "_ASC");
+            } else {
+                return localization.getString(sortBy + "_DESC");
+            }
+        } else {
+            return localization.getString(sortBy);
+        }
+    }
+
     /**
      * Import data into a container.
      * 
@@ -787,7 +771,7 @@ public final class ContainerTabModel extends TabPanelModel {
             return isExpanded(tabPanel);
         }
     }
-
+    
     /**
      * Determine if a search is applied by checking the search expression.
      * 
@@ -795,6 +779,18 @@ public final class ContainerTabModel extends TabPanelModel {
      */
     private boolean isSearchApplied() {
         return null != searchExpression;
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    private boolean isSortApplied(final SortBy sortBy) {
+        debug();
+        return sortedBy.contains(sortBy);
     }
 
     /**
@@ -838,7 +834,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-    
+
     /**
      * Read the containers from the provider.
      * 
@@ -847,7 +843,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private List<Container> readContainers() {
         return ((ContainerProvider) contentProvider).read();
     }
-
+    
     /**
      * Read the documents from the provider.
      * 
@@ -873,7 +869,7 @@ public final class ContainerTabModel extends TabPanelModel {
     private ContainerDraft readDraft(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
-    
+
     /**
      * Read the draft's document list.
      * 
@@ -889,7 +885,7 @@ public final class ContainerTabModel extends TabPanelModel {
             return draft.getDocuments();
         }
     }
-
+    
     /**
      * Determine if the draft document has been modified.
      * 
@@ -1031,7 +1027,7 @@ public final class ContainerTabModel extends TabPanelModel {
     }
 
     /** An enumerated type defining the tab panel ordering. */
-    enum Ordering implements Comparator<TabPanel> {
+    private enum SortBy implements Comparator<TabPanel> {
 
         BOOKMARK(true), CREATED_ON(true), NAME(true), OWNER(true), UPDATED_ON(true);
 
@@ -1050,11 +1046,12 @@ public final class ContainerTabModel extends TabPanelModel {
         private boolean ascending;
 
         /**
-         * Create Ordering.
-         *
+         * Create SortBy.
+         * 
          * @param ascending
+         *            Whether or not to sort in ascending order.
          */
-        private Ordering(final boolean ascending) {
+        private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
 
@@ -1107,25 +1104,6 @@ public final class ContainerTabModel extends TabPanelModel {
             default:
                 return 0;
             }
-        }
-
-        /**
-         * Determine whether the current ordering is in ascending order.
-         * 
-         * @return True if it is ascending.
-         */
-        Boolean isAscending() {
-            return Boolean.valueOf(ascending);
-        }
-
-        /**
-         * Set the asending value.
-         * 
-         * @param ascending
-         *            Whether or not to sort in ascending order.
-         */
-        void setAscending(final Boolean ascending) {
-            this.ascending = ascending.booleanValue();
         }
     }
 }

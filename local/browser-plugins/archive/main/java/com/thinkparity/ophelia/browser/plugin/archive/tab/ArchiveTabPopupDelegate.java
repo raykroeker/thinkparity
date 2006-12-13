@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Map;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -16,15 +14,11 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.browser.plugin.archive.tab.ArchiveTabModel.Ordering;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 
 /**
@@ -34,7 +28,7 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
  * @version 1.1.2.1
  */
 final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
-        TabAvatarPopupDelegate, TabPanelPopupDelegate, PopupDelegate {
+        TabPanelPopupDelegate, PopupDelegate {
 
     /** An <code>ArchiveTabModel</code>. */
     private ArchiveTabModel model;
@@ -78,17 +72,6 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate#showForSort()
-     *
-     */
-    public void showForSort() {
-        for (final Ordering ordering : Ordering.values()) {
-            add(ordering);
-        }
-        show();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.Map,
      *      com.thinkparity.codebase.model.user.User)
@@ -99,25 +82,6 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
             final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
     }
 
-    private void add(final Ordering ordering) {
-        final ThinkParityMenuItem item = new ThinkParityMenuItem(model.getString(ordering),
-                ThinkParityBasicMenuItem.MenuStyle.WHITE_SPACE);
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                if (isSortApplied(ordering)) {
-                    if (ordering.isAscending()) {
-                        model.applySort(ordering, Boolean.FALSE);
-                    } else {
-                        model.removeSort(ordering);
-                    }
-                } else {
-                    model.applySort(ordering, Boolean.TRUE);
-                }
-            }
-        });
-        add(item);
-    }
-
     /**
      * Determine if the model is online.
      * 
@@ -125,16 +89,5 @@ final class ArchiveTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean isOnline() {
         return model.isOnline().booleanValue();
-    }
-
-    /**
-     * Determine whether or not the ordering is applied to the model.
-     * 
-     * @param ordering
-     *            A model <code>Ordering</code>.
-     * @return True if the ordering is applied to the model.
-     */
-    private boolean isSortApplied(final Ordering ordering) {
-        return model.isSortApplied(ordering).booleanValue();
     }
 }

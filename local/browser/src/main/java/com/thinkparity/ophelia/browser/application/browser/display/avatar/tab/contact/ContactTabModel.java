@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -25,6 +28,8 @@ import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
@@ -38,7 +43,8 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactTabModel extends TabPanelModel {
+public final class ContactTabModel extends TabPanelModel implements
+        TabAvatarSortByDelegate {
 
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;
@@ -74,7 +80,7 @@ public final class ContactTabModel extends TabPanelModel {
     private BrowserSession session;
 
     /** A list of the current sort orderings. */
-    private final List<Ordering> sortedBy;
+    private final List<SortBy> sortedBy;
 
     /** A list of all visible cells. */
     private final List<TabPanel> visiblePanels;
@@ -93,8 +99,31 @@ public final class ContactTabModel extends TabPanelModel {
         this.panels = new ArrayList<TabPanel>();
         this.popupDelegate= new ContactTabPopupDelegate(this);
         this.searchResults = new ArrayList<JabberId>();
-        this.sortedBy = new ArrayList<Ordering>();
+        this.sortedBy = new ArrayList<SortBy>();
         this.visiblePanels = new ArrayList<TabPanel>();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate#getSortBy()
+     *
+     */
+    public List<TabAvatarSortBy> getSortBy() {
+        final List<TabAvatarSortBy> sortBy = new ArrayList<TabAvatarSortBy>();
+        for (final SortBy sortByValue : SortBy.values()) {
+            sortBy.add(new TabAvatarSortBy() {
+                public Action getAction() {
+                    return new AbstractAction() {
+                        public void actionPerformed(final ActionEvent e) {
+                            applySort(sortByValue);
+                        }
+                    };
+                }
+                public String getText() {
+                    return getString(sortByValue);
+                }
+            });
+        }
+        return sortBy;
     }
 
     /**
@@ -243,35 +272,6 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
-     * Apply an ordering to the panels.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    void applySort(final Ordering ordering, final Boolean ascending) {
-        debug();
-        // if the sorted by stack already contains the ordering do nothing
-        if (sortedBy.contains(ordering)) {
-            if (sortedBy.get(sortedBy.indexOf(
-                    ordering)).isAscending().booleanValue()
-                    == ascending.booleanValue()) {
-                return;
-            } else {
-                ordering.setAscending(ascending);
-                sortedBy.clear();
-                sortedBy.remove(ordering);
-                sortedBy.add(ordering);
-                synchronize();
-            }
-        } else {
-            ordering.setAscending(ascending);
-            sortedBy.clear();
-            sortedBy.add(ordering);
-            synchronize();
-        }
-    }
-
-    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -281,75 +281,12 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
-     * Obtain a localized string for an ordering.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return A localized <code>String</code>.
-     */
-    String getString(final Ordering ordering) {
-        if (isSortApplied(ordering)) {
-            if (ordering.isAscending()) {
-                return localization.getString(ordering + "_ASC");
-            } else {
-                return localization.getString(ordering + "_DESC");
-            }
-        } else {
-            return localization.getString(ordering);
-        }
-    }
-
-    /**
      * Determine whether or not we are online.
      * 
      * @return True if we are online.
      */
     Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
-    }
-
-    /**
-     * Determine if an ordering is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if it is applied false otherwise.
-     */
-    Boolean isSortApplied(final Ordering ordering) {
-        debug();
-        return sortedBy.contains(ordering);
-    }
-
-    /**
-     * Remove all orderings.
-     *
-     */
-    void removeSort() {
-        debug();
-        // if the sorted by stack is empty; then there is no
-        // sort applied -> do nothing
-        if (sortedBy.isEmpty()) {
-            return;
-        } else {
-            sortedBy.clear();
-            synchronize();
-        }
-    }
-
-    /**
-     * Remove an ordering.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     */
-    void removeSort(final Ordering ordering) {
-        debug();
-        if (sortedBy.contains(ordering)) {
-            sortedBy.remove(ordering);
-            synchronize();
-        } else {
-            return;
-        }
     }
 
     /**
@@ -458,7 +395,7 @@ public final class ContactTabModel extends TabPanelModel {
     private void addPanel(final IncomingInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size() - 1, invitation);
     }
-    
+
     private void addPanel(final int index, final Contact contact) {
         panels.add(index, toDisplay(contact));
     }
@@ -470,7 +407,7 @@ public final class ContactTabModel extends TabPanelModel {
     private void addPanel(final int index, final OutgoingInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
-
+    
     private void addPanel(final OutgoingInvitation invitation) {
         addPanel(panels.size() == 0 ? 0 : panels.size() - 1, invitation);
     }
@@ -509,10 +446,38 @@ public final class ContactTabModel extends TabPanelModel {
      */
     private void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
-        for (final Ordering ordering : sortedBy) {
-            comparator.add(ordering);
+        for (final SortBy sortBy : sortedBy) {
+            comparator.add(sortBy);
         }
         Collections.sort(filteredPanels, comparator);
+    }
+
+    /**
+     * Apply an ordering to the panels.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     */
+    private void applySort(final SortBy sortBy) {
+        debug();
+        // if the sorted by stack already contains the ordering do nothing
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                sortBy.ascending = false;
+
+                sortedBy.clear();
+                sortedBy.add(sortBy);
+            } else {
+                sortedBy.clear();
+            }
+            synchronize();
+        } else {
+            sortBy.ascending = true;
+
+            sortedBy.clear();
+            sortedBy.add(sortBy);
+            synchronize();
+        }
     }
 
     /**
@@ -551,6 +516,25 @@ public final class ContactTabModel extends TabPanelModel {
     }
 
     /**
+     * Obtain a localized string for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return localization.getString(sortBy + "_ASC");
+            } else {
+                return localization.getString(sortBy + "_DESC");
+            }
+        } else {
+            return localization.getString(sortBy);
+        }
+    }
+
+    /**
      * Determine if a panel is expanded.
      * 
      * @param tabPanel
@@ -569,6 +553,18 @@ public final class ContactTabModel extends TabPanelModel {
 
     private boolean isSearchApplied() {
         return null != searchExpression;
+    }
+
+    /**
+     * Determine if an ordering is applied.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return True if it is applied false otherwise.
+     */
+    private boolean isSortApplied(final SortBy sortBy) {
+        debug();
+        return sortedBy.contains(sortBy);
     }
 
     private int lookupIndex(final JabberId contactId) {
@@ -684,7 +680,6 @@ public final class ContactTabModel extends TabPanelModel {
         }
     }
 
-    
     /**
      * Obtain the contact display cell for a contact.
      * 
@@ -701,7 +696,6 @@ public final class ContactTabModel extends TabPanelModel {
         panel.setTabDelegate(this);
         return panel;
     }
-
 
     /**
      * Obtain the contact display cell for a contact.
@@ -737,7 +731,7 @@ public final class ContactTabModel extends TabPanelModel {
         return panel;
     }
 
-    enum Ordering implements Comparator<TabPanel> {
+    private enum SortBy implements Comparator<TabPanel> {
     
         NAME(true), ORGANIZATION(true), TITLE(true);
 
@@ -760,7 +754,7 @@ public final class ContactTabModel extends TabPanelModel {
          *
          * @param ascending
          */
-        private Ordering(final boolean ascending) {
+        private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
 
@@ -812,25 +806,5 @@ public final class ContactTabModel extends TabPanelModel {
                 }
             }
         }
-
-        /**
-         * Determine whether the current ordering is in ascending order.
-         * 
-         * @return True if it is ascending.
-         */
-        Boolean isAscending() {
-            return Boolean.valueOf(ascending);
-        }
-
-        /**
-         * Set the asending value.
-         * 
-         * @param ascending
-         *            Whether or not to sort in ascending order.
-         */
-        void setAscending(final Boolean ascending) {
-            this.ascending = ascending.booleanValue();
-        }
     }
-
 }

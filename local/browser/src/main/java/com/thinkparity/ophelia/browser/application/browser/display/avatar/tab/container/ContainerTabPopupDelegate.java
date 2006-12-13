@@ -28,8 +28,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabModel.Ordering;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -56,7 +54,6 @@ import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -66,7 +63,7 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
  * @version 1.1.2.1
  */
 final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
-        TabAvatarPopupDelegate, TabPanelPopupDelegate, PopupDelegate {
+        TabPanelPopupDelegate, PopupDelegate {
 
     /** A <code>ContainerModel</code>. */
     private final ContainerTabModel model;
@@ -249,17 +246,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarPopupDelegate#showForSort()
-     *
-     */
-    public void showForSort() {
-        for (final Ordering ordering : Ordering.values()) {
-            add(ordering);
-        }
-        show();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.Map, java.util.Map,
      *      com.thinkparity.codebase.model.user.User)
@@ -332,32 +318,6 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
     }
 
     /**
-     * Create a sort by menu item.
-     * 
-     * @param ordering
-     *            The model tab <code>Ordering</code>.
-     * @return A <code>JMenuItem</code>.
-     */
-    private void add(final Ordering ordering) {
-        final ThinkParityMenuItem item = new ThinkParityMenuItem(model.getString(ordering),
-                ThinkParityBasicMenuItem.MenuStyle.WHITE_SPACE);
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                if (isSortApplied(ordering)) {
-                    if (ordering.isAscending()) {
-                        model.applySort(ordering, Boolean.FALSE);
-                    } else {
-                        model.removeSort(ordering);
-                    }
-                } else {
-                    model.applySort(ordering, Boolean.TRUE);
-                }
-            }
-        });
-        add(item);
-    }
-
-    /**
      * Determine if the container has been distributed.
      * 
      * @param containerId
@@ -386,16 +346,5 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      */
     private boolean isOnline() {
         return model.isOnline().booleanValue();
-    }
-
-    /**
-     * Determine whether or not an order is applied.
-     * 
-     * @param ordering
-     *            An <code>Ordering</code>.
-     * @return True if the ordering is applied.
-     */
-    private boolean isSortApplied(final Ordering ordering) {
-        return model.isSortApplied(ordering).booleanValue();
     }
 }

@@ -1052,8 +1052,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param contacts
      *            A contact <code>List</code>.
      */
-    void publishVersion(final Long containerId, final Long versionId,
-            final List<Contact> contacts) {
+    void publishVersion(final PublishMonitor monitor, final Long containerId,
+            final Long versionId, final List<Contact> contacts) {
         logger.logApiId();
         logger.logVariable("containerId", containerId);
         logger.logVariable("versionId", versionId);
@@ -1063,7 +1063,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             getArtifactModel().removeFlagKey(containerId);
 
             final List<TeamMember> teamMembers = Collections.emptyList();
-            doPublishVersion(PUBLISH_MONITOR, containerId, versionId, contacts,
+            doPublishVersion(monitor, containerId, versionId, contacts,
                     teamMembers);
 
             // fire event

@@ -31,7 +31,7 @@ public class PublishVersionTest extends ContainerTestCase {
 
     /** Test the publish version api. */
     public void testPublishVersion() {
-        datum.containerModel.publishVersion(
+        datum.containerModel.publishVersion(new TestPublishMonitor(),
                 datum.container.getId(), datum.version.getVersionId(), datum.contacts);
         assertTrue("The draft published event was not fired.", datum.didNotify);
     }

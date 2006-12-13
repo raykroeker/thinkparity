@@ -305,10 +305,11 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @param contacts
      *            A contact <code>List</code>.
      */
-    public void publishVersion(final Long containerId, final Long versionId,
+    public void publishVersion(final PublishMonitor monitor,
+            final Long containerId, final Long versionId,
             final List<Contact> contacts) {
         synchronized (getImplLock()) {
-            getImpl().publishVersion(containerId, versionId, contacts);
+            getImpl().publishVersion(monitor, containerId, versionId, contacts);
         }
     }
 

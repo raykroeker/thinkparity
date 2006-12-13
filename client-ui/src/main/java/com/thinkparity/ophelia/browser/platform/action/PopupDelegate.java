@@ -38,7 +38,7 @@ public interface PopupDelegate {
      *            The popup width.
      */
     public void initialize(final Component invoker, final int x, final int y,
-            final int width);
+            final int width, final int height);
 
     /**
      * Show the popup.

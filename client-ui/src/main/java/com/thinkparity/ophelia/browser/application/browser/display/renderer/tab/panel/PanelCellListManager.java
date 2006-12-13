@@ -138,9 +138,6 @@ public class PanelCellListManager {
         if (null == cells) {
             numberPages = 0;
         } else {
-            if (blankFirstRow) {
-                cells.add(0, cells.get(0));
-            }                        
             final int firstItemOffset = fixedFirstRow ? 1 : 0;
             numberPages = 1 + (cells.size() - firstItemOffset - 1) / perPage;
         }

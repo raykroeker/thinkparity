@@ -14,6 +14,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -22,7 +24,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -30,9 +33,15 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListManager;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -124,7 +133,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.eastListManager = new PanelCellListManager(this, localization,
                 eastListModel, eastJList, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
                 eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
-                eastLastJLabel, Boolean.TRUE, Boolean.TRUE);
+                eastLastJLabel, Boolean.TRUE, Boolean.FALSE);
         this.westListManager = new PanelCellListManager(this, localization,
                 westListModel, westJList, NUMBER_VISIBLE_ROWS, westFirstJLabel,
                 westPreviousJLabel, westCountJLabel, westNextJLabel,
@@ -871,6 +880,7 @@ public class ContainerPanel extends DefaultTabPanel {
         private AbstractWestCell() {
             super();
             setEnabled(isLatest());
+            add(EmptyCell.getEmptyCell());
         }
     }
 

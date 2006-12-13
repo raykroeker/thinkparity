@@ -339,7 +339,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
         final javax.swing.JLabel jLabel = (javax.swing.JLabel) e.getSource();
         popupDelegate.initialize(this, jLabel.getX(), jLabel.getY()
-                + jLabel.getHeight(), jLabel.getWidth());
+                + jLabel.getHeight(), jLabel.getWidth(), jLabel.getHeight());
         popupDelegate.showForSort();
     }//GEN-LAST:event_orderByJLabelMouseClicked
 

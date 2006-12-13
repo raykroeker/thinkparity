@@ -40,9 +40,6 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** A <code>MenuFactory</code>. */
     private JPopupMenu jPopupMenu;
 
-    /** The popup size width <code>int</code>. */
-    private int width;
-
     /** The popup location coordinate <code>int</code>s. */
     private int x, y;
 
@@ -162,14 +159,12 @@ public class DefaultPopupDelegate implements PopupDelegate {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component,
-     *      int, int, int, int)
-     * 
+     * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component, int, int, int, int)
+     *
      */
     public void initialize(final Component invoker, final int x, final int y,
-            final int width) {
+            final int width, final int height) {
         initialize(invoker, x, y);
-        this.width = width;
     }
 
     /**

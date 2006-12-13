@@ -10,7 +10,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class EmptyCell extends DefaultCell {
+public final class EmptyCell extends DefaultCell implements EastCell {
 
     /** An <code>EmptyCell</code> singleton. */
     private static final EmptyCell SINGLETON;

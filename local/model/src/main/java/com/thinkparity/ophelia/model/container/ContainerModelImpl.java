@@ -1077,6 +1077,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                     localEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
+        } finally {
+            fireProcessEnd(monitor);
         }
     }
 

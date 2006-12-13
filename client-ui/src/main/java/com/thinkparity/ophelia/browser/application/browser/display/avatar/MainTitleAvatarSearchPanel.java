@@ -35,6 +35,9 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     /** The search activation timer. */
     private Timer searchActivationTimer;
     
+    /** Flag indicating the user clicked in the text area */
+    private Boolean userActivated = Boolean.FALSE;
+    
     /** Creates new form BrowserTitleSearch */
     public MainTitleAvatarSearchPanel() {
         super();
@@ -51,7 +54,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g.create();
         try {
-            if (searchJTextField.hasFocus()) {
+            if (userActivated) {
                 final Point leftLocation = leftJLabel.getLocation();
                 g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 1, leftLocation.y - 1, null);
             } else {
@@ -160,6 +163,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchJTextFieldMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_searchJTextFieldMouseClicked
+        userActivated = Boolean.TRUE;
         searchJTextField.getCaret().setVisible(true);
         repaint();
     }// GEN-LAST:event_searchJTextFieldMouseClicked
@@ -179,6 +183,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }// GEN-LAST:event_searchJTextFieldMouseEntered
 
     private void searchJTextFieldFocusLost(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
+        userActivated = Boolean.FALSE;
         if (null != getParent()) {
             // Note that repaint(), or getParent().repaint() on bounds, causes visible flicker drawing rectangle.
             getParent().repaint();
@@ -187,10 +192,11 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
     private void searchJTextFieldFocusGained(final java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
         // NOTE Perhaps reconsider this approach if we need to tab to this control.
-        // Don't show the caret or repaint unless the mouse actually clicked in the JTextField
+        // Don't show the caret unless the mouse actually clicked in the JTextField
         if (searchJTextField.getCaret().isVisible()) {
             searchJTextField.getCaret().setVisible(false);
         }
+        repaint();
     }//GEN-LAST:event_searchJTextFieldFocusGained
     
     /**

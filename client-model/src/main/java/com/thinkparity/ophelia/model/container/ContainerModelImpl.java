@@ -48,6 +48,7 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
@@ -683,20 +684,23 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param deletedOn
      *            When the draft was deleted.
      */
-    void handleDraftDeleted(final Long containerId,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("createdBy", deletedBy);
-        logger.logVariable("createdOn", deletedOn);
+        logger.logVariable("event", event);
         try {
-            final ContainerDraft draft = readDraft(containerId);
-            for (final Artifact artifact : draft.getArtifacts()) {
-                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            if (localUserId().equals(event.getDeletedBy())) {
+                logger.logInfo("Receiving {0} event for local user:  {1}.",
+                        event.getClass().getSimpleName(), event);
+            } else {
+                final Long containerId = getArtifactModel().readId(event.getUniqueId());
+                final ContainerDraft draft = readDraft(containerId);
+                for (final Artifact artifact : draft.getArtifacts()) {
+                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                }
+                containerIO.deleteDraft(containerId);
+                // fire event
+                notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
             }
-            containerIO.deleteDraft(containerId);
-            // fire event
-            notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
         }

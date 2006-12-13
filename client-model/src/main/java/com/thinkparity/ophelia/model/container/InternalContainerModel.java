@@ -11,6 +11,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
@@ -121,10 +122,9 @@ public class InternalContainerModel extends ContainerModel implements
      * @param deletedOn
      *            When the draft was deleted.
      */
-    public void handleDraftDeleted(final Long containerId,
-            final JabberId deletedBy, final Calendar deletedOn) {
+    public void handleDraftDeleted(final ArtifactDraftDeletedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleDraftDeleted(containerId, deletedBy, deletedOn);
+            getImpl().handleDraftDeleted(event);
         }
     }
 

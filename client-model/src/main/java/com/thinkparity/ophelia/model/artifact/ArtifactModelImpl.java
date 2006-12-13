@@ -324,11 +324,10 @@ final class ArtifactModelImpl extends AbstractModelImpl {
             final Long artifactId = artifactIO.readId(event.getUniqueId());
             switch (artifactIO.readType(artifactId)) {
             case CONTAINER:
-                getContainerModel().handleDraftDeleted(artifactId,
-                        event.getDeletedBy(), event.getDeletedOn());
+                getContainerModel().handleDraftDeleted(event);
                 break;
             default:
-                Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+                Assert.assertUnreachable("Unsupported artifact type.");
             }
         } catch (final Throwable t) {
             throw translateError(t);

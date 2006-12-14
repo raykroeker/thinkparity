@@ -30,6 +30,9 @@ public abstract class Window extends AbstractJDialog {
 
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
+    
+    /** Whether or not to display title text. */
+    private final Boolean titleText;
 
 	/** The panel onto which all displays are dropped. */
 	protected WindowPanel windowPanel;
@@ -50,12 +53,15 @@ public abstract class Window extends AbstractJDialog {
      *            The window owner.
      * @param modal
      *            Whether or not to display a modal window.
+     * @param titleText
+     *            Whether or not to display title text.         
      * @param l18nContext
      *            The localisation context.
      */
 	public Window(final AbstractJFrame owner, final Boolean modal,
-            final String l18nContext) {
+            final Boolean titleText, final String l18nContext) {
         super(owner, modal, l18nContext);
+        this.titleText = titleText;
         this.localization = new JFrameLocalization(l18nContext);
         this.windowSize = new WindowSize();
         setTitle(getString("Title"));
@@ -139,7 +145,7 @@ public abstract class Window extends AbstractJDialog {
 		avatar.reload();
 
         windowPanel = new WindowPanel();
-        windowPanel.addPanel(avatar);
+        windowPanel.addPanel(avatar, titleText);
 
         add(windowPanel);
         

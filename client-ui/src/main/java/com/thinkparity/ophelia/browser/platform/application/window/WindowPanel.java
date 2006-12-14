@@ -71,13 +71,16 @@ class WindowPanel extends AbstractJPanel {
 	 * 
 	 * @param avatar
 	 *            The avatar to add.
+     * @param titleText
+     *            Whether or not to display title text.            
 	 */
-	void addPanel(final Avatar avatar) {
+	void addPanel(final Avatar avatar, final Boolean titleText) {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
         if (avatar.isAvatarTitle()) {
-		    add(new WindowTitle(avatar.getAvatarTitle()), c.clone());
+            final String title = titleText ? avatar.getAvatarTitle() : null;
+		    add(new WindowTitle(title), c.clone());
         }
 
 		jPanels.add(avatar);

@@ -26,7 +26,7 @@ public class RenameWindow extends Window {
      *            The parity owner.
      */
     public RenameWindow(final BrowserWindow owner) {
-        super(owner, Boolean.TRUE, "RenameWindow");
+        super(owner, Boolean.TRUE, Boolean.FALSE, "RenameWindow");
     }
 
     /**

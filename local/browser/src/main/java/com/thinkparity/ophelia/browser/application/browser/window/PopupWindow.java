@@ -28,7 +28,7 @@ public class PopupWindow extends Window {
      *            The parity owner.
      */
 	public PopupWindow(final BrowserWindow owner) {
-		super(owner, Boolean.TRUE, "PopupWindow");
+		super(owner, Boolean.TRUE, Boolean.TRUE, "PopupWindow");
         applyEscapeListener();
 	}
 

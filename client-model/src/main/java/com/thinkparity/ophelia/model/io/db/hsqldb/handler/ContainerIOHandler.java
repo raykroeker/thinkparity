@@ -327,6 +327,23 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
             .toString();
 
+    /** Sql to read the container published to list. */
+    private static final String SQL_READ_PUBLISHED_TO_BY_USER =
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
+            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
+            .append("from CONTAINER C ")
+            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+            .append("inner join USER U on CVPT.USER_ID=U.USER_ID ")
+            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=? ")
+            .append("and CVPT.PUBLISHED_ON=? and CVPT.USER_ID=?")
+            .toString();
+
     /** Sql to read the published to count. */
     private static final String SQL_READ_PUBLISHED_TO_COUNT =
             new StringBuffer("select COUNT(*) PUBLISHED_TO_COUNT ")
@@ -932,6 +949,30 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 publishedTo.put(userIO.extractUser(session), extractReceipt(session));
             }
             return publishedTo;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long, java.util.Calendar, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public ArtifactReceipt readPublishedTo(final Long containerId,
+            final Long versionId, final Calendar publishedOn, final User user) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PUBLISHED_TO_BY_USER);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.setCalendar(3, publishedOn);
+            session.setLong(4, user.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractReceipt(session);
+            } else {
+                return null;
+            }
         } finally {
             session.close();
         }

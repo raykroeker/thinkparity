@@ -827,6 +827,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("event", event);
         try {
             final Long containerId = artifactIO.readId(event.getUniqueId());
+            final User receivedBy = getUserModel().readLazyCreate(event.getReceivedBy());
+            final ArtifactReceipt receipt = containerIO.readPublishedTo(
+                    containerId, event.getVersionId(), event.getPublishedOn(),
+                    receivedBy);
+            if (null == receipt) {
+                containerIO.createPublishedTo(containerId, event.getVersionId(),
+                        receivedBy, event.getPublishedOn());
+            }
             containerIO.updatePublishedTo(containerId, event.getVersionId(),
                     event.getPublishedOn(), event.getReceivedBy(),
                     event.getReceivedOn());

@@ -265,6 +265,24 @@ public interface ContainerIOHandler {
             final Long versionId);
 
     /**
+     * Read the published to artifact receipt for a container version for a
+     * publish for a user.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param publishedOn
+     *            A published on date <code>Calendar</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return The <code>ArtifactReceipt</code>.
+     */
+    public ArtifactReceipt readPublishedTo(final Long containerId,
+            final Long versionId, final Calendar publishedOn,
+            final User user);
+
+    /**
      * Read a container version.
      * 
      * @param containerId

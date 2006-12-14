@@ -8,16 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
-
-import org.jivesoftware.database.JiveID;
-
-import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.user.User;
@@ -25,6 +23,9 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
+
+import org.jivesoftware.database.JiveID;
+import org.xmpp.packet.JID;
 
 
 /**
@@ -36,8 +37,8 @@ public class ArtifactSql extends AbstractSql {
 
 	private static final String INSERT =
 		new StringBuffer("insert into parityArtifact ")
-		.append("(artifactId,artifactUUID,artifactKeyHolder,artifactStateId,createdBy,updatedOn,updatedBy) ")
-		.append("values (?,?,?,?,?,CURRENT_TIMESTAMP,?)")
+		.append("(artifactId,artifactUUID,artifactKeyHolder,artifactStateId,createdBy,createdOn,updatedBy,updatedOn) ")
+		.append("values (?,?,?,?,?,?,?,?)")
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
@@ -105,7 +106,8 @@ public class ArtifactSql extends AbstractSql {
 	}
 
 	public Integer insert(final UUID uniqueId, final JabberId keyHolder,
-            final ArtifactState state, final JabberId createdBy) {
+            final ArtifactState state, final JabberId createdBy,
+            final Calendar createdOn) {
 		logApiId();
 		logVariable("uniqueId", uniqueId);
         logVariable("keyHolder", keyHolder);
@@ -120,7 +122,9 @@ public class ArtifactSql extends AbstractSql {
 			session.setString(3, keyHolder.getUsername());
             session.setInt(4, state.getId());
             session.setString(5, createdBy.getUsername());
-            session.setString(6, createdBy.getUsername());
+            session.setCalendar(6, createdOn);
+            session.setString(7, createdBy.getUsername());
+            session.setCalendar(8, createdOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT CREATE ARTIFACT");
 			return artifactId;

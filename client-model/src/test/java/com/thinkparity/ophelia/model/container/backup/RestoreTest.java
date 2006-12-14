@@ -54,7 +54,7 @@ public final class RestoreTest extends BackupTestCase {
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publishToContacts(datum.junit_z, c.getId(), "JUnit.X thinkParity");
+        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // postconditions
         // ensure backed up remotely

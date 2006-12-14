@@ -79,8 +79,7 @@ public final class DeleteTest extends ContainerTestCase {
         final Document d_odt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         final Document d_pdf = addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
         final Document d_txt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
-                "JUnit.Y thinkParity");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
@@ -90,7 +89,7 @@ public final class DeleteTest extends ContainerTestCase {
         modifyDocument(datum.junit, d_odt.getId());
         modifyDocument(datum.junit, d_pdf.getId());
         modifyDocument(datum.junit, d_txt.getId());
-        publishToTeam(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         d.addAll(readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId()));
@@ -114,8 +113,7 @@ public final class DeleteTest extends ContainerTestCase {
         final Document d_odt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         final Document d_pdf = addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
         final Document d_txt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
-                "JUnit.Y thinkParity");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
@@ -126,7 +124,7 @@ public final class DeleteTest extends ContainerTestCase {
         modifyDocument(datum.junit, d_odt.getId());
         modifyDocument(datum.junit, d_pdf.getId());
         modifyDocument(datum.junit, d_txt.getId());
-        publishToTeam(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         d.addAll(readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId()));
@@ -156,8 +154,7 @@ public final class DeleteTest extends ContainerTestCase {
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
-                "JUnit.Y thinkParity");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
         final List<Document> d = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
@@ -181,7 +178,7 @@ public final class DeleteTest extends ContainerTestCase {
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity",
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity",
                 "JUnit.Y thinkParity");
         datum.waitForEvents();
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());

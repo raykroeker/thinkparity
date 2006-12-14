@@ -16,6 +16,9 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public final class ArtifactReceivedEvent extends XMPPEvent {
 
+    /** When the artifact was published. */
+    private Calendar publishedOn;
+
     /** Who is confirming receipt. */
     private JabberId receivedBy;
 
@@ -110,5 +113,24 @@ public final class ArtifactReceivedEvent extends XMPPEvent {
      */
     public void setVersionId(final Long versionId) {
         this.versionId = versionId;
+    }
+
+    /**
+     * Obtain publishedOn.
+     *
+     * @return A Calendar.
+     */
+    public Calendar getPublishedOn() {
+        return publishedOn;
+    }
+
+    /**
+     * Set publishedOn.
+     *
+     * @param publishedOn
+     *		A Calendar.
+     */
+    public void setPublishedOn(final Calendar publishedOn) {
+        this.publishedOn = publishedOn;
     }
 }

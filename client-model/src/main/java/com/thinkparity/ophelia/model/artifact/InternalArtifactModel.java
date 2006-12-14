@@ -24,7 +24,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEve
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
 import com.thinkparity.ophelia.model.ParityException;
-import com.thinkparity.ophelia.model.util.smack.SmackException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -118,25 +117,6 @@ public class InternalArtifactModel extends ArtifactModel {
                     deniedBy);
 		}
 	}
-
-    /**
-     * Confirm the reciept of an artifact.
-     * 
-     * @param receivedFrom
-     *            From whom the artifact was received.
-     * @param artifactId
-     *            The artifact id.
-     * @param artifactVersionId
-     *            The artifact version id.
-     * @throws ParityException
-     * @throws SmackException
-     */
-	public void confirmReceipt(final Long artifactId,
-            final Long artifactVersionId) {
-	    synchronized(getImplLock()) {
-            getImpl().confirmReceipt(artifactId, artifactVersionId);
-        }
-    }
 
     /**
      * Create the artifact's remote info.

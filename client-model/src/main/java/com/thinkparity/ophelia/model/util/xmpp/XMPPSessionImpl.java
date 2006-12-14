@@ -252,10 +252,10 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void confirmArtifactReceipt(final JabberId userId,
             final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy,
-            final Calendar receivedOn) {
+            final Long versionId, final Calendar publishedOn,
+            final JabberId receivedBy, final Calendar receivedOn) {
         xmppArtifact.confirmReceipt(userId, team, uniqueId, versionId,
-                receivedBy, receivedOn);
+                publishedOn, receivedBy, receivedOn);
     }
 
     /**
@@ -272,8 +272,9 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createArtifact(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.UUID)
      */
-	public void createArtifact(final JabberId userId, final UUID uniqueId) {
-	    xmppArtifact.create(userId, uniqueId);
+	public void createArtifact(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
+	    xmppArtifact.create(userId, uniqueId, createdOn);
 	}
 
     /**

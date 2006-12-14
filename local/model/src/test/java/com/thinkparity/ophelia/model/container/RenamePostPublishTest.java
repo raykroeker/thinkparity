@@ -49,7 +49,7 @@ public class RenamePostPublishTest extends ContainerTestCase {
         final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
         addDocuments(OpheliaTestUser.JUNIT, container.getId());
         login(OpheliaTestUser.JUNIT);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
+        publish(OpheliaTestUser.JUNIT, container.getId());
         logout(OpheliaTestUser.JUNIT);
         final String name = NAME + " RENAMED";
         datum = new Fixture(container, containerModel, name);

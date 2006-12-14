@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * @author raymond@thinkparity.com
@@ -15,7 +16,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class DeleteDraftTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST DELETE DRAFT";
+    private static final String NAME = "Delete Draft Test";
 
     /** The test datum. */
     private Fixture datum;
@@ -23,12 +24,33 @@ public class DeleteDraftTest extends ContainerTestCase {
     /** Create DeleteDraftTest. */
     public DeleteDraftTest() { super(NAME); }
 
-    /** Test the delete draft api. */
+    /**
+     * Test the delete draft api.
+     * 
+     */
     public void testDeleteDraft() {
-        datum.containerModel.deleteDraft(datum.container.getId());
-        assertTrue(NAME + " DRAFT DELETED EVENT NOT FIRED", datum.didNotify);
-        final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
-        assertNull(NAME + " DRAFT CAN STILL BE READ", draft);
+        final Container c = createContainer(OpheliaTestUser.JUNIT, NAME);
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        datum.addListener(datum.junit);
+        deleteDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        datum.removeListener(datum.junit);
+        assertTrue(datum.didNotify);
+
+        final ContainerDraft cd = readContainerDraft(datum.junit, c.getId());
+        assertNull("Container draft is not null for " + datum.junit.getSimpleUsername() + ".", cd);
+        
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        final ContainerDraft cd_x = readContainerDraft(datum.junit_x, c_x.getId());
+        assertNull("Container draft is not null for " + datum.junit_x.getSimpleUsername() + ".", cd_x);
+
+        final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
+        final ContainerDraft cd_y = readContainerDraft(datum.junit_y, c_y.getId());
+        assertNull("Container draft is not null for " + datum.junit_y.getSimpleUsername() + ".", cd_y);
     }
 
     /**
@@ -37,14 +59,11 @@ public class DeleteDraftTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        publishToContacts(OpheliaTestUser.JUNIT, container);
-        createContainerDraft(OpheliaTestUser.JUNIT, container);
-        datum = new Fixture(container, containerModel);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -52,22 +71,34 @@ public class DeleteDraftTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
 
     /** Test datum definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final InternalContainerModel containerModel;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
         private Boolean didNotify;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel) {
-            this.container = container;
-            this.containerModel = containerModel;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
             this.didNotify = Boolean.FALSE;
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
+        }
+        private void addListener(final OpheliaTestUser addAs) {
+            getContainerModel(addAs).addListener(this);
+        }
+        private void removeListener(final OpheliaTestUser removeAs) {
+            getContainerModel(removeAs).removeListener(this);
         }
         @Override
         public void draftDeleted(ContainerEvent e) {

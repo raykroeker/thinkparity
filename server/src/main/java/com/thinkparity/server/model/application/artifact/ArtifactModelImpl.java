@@ -107,14 +107,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	void confirmReceipt(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar receivedOn) {
-        logApiId();
-        logVariable("userId", userId);
+            final Calendar publishedOn, final JabberId receivedBy,
+            final Calendar receivedOn) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
         logger.logVariable("team", team);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("receivedBy", receivedBy);
-        logVariable("receivedOn", receivedOn);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("receivedBy", receivedBy);
+        logger.logVariable("receivedOn", receivedOn);
         try {
             assertIsAuthenticatedUser(userId);
             if (getUserModel().isArchive(userId)) {
@@ -123,6 +125,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
                 received.setUniqueId(uniqueId);
                 received.setVersionId(versionId);
+                received.setPublishedOn(publishedOn);
                 received.setReceivedBy(receivedBy);
                 received.setReceivedOn(receivedOn);
                 enqueueEvent(userId, team, received);
@@ -143,13 +146,15 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact unique id <code>UUID</code>.
      * @return The new <code>Artifact</code>.
      */
-    Artifact create(final JabberId userId, final UUID uniqueId) {
+    Artifact create(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
 		logApiId();
 		logVariable("userId", userId);
         logVariable("uniqueId", uniqueId);
+        logVariable("createdOn", createdOn);
 		try {
 			artifactSql.insert(uniqueId, userId, ArtifactState.ACTIVE, session
-                    .getJabberId());
+                    .getJabberId(), createdOn);
 			return read(uniqueId);
 		} catch (final Throwable t) {
 		    throw translateError(t);

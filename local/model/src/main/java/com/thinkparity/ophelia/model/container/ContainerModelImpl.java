@@ -50,6 +50,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
@@ -339,12 +340,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
+                final Calendar createdOn = getSessionModel().readDateTime();
                 final InternalArtifactModel artifactModel = getArtifactModel();
 
                 assertOnline("The user is not online.");
                 final Container container = read(containerId);
                 if (!isDistributed(container.getId())) {
-                    createDistributed(container);
+                    createDistributed(container, createdOn);
                 }
                 final ContainerVersion latestVersion =
                         readLatestVersion(container.getId());
@@ -390,7 +392,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             final Container container = read(containerId);
             if (isDistributed(container.getId())) {
-                /* the archive model is not part of the team */
+                /* the archive user is not part of the team */
                 if (isLocalTeamMember(container.getId())) {
                     final TeamMember localTeamMember = localTeamMember(container.getId());
                     final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
@@ -616,7 +618,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 // index
                 getIndexModel().indexContainer(container.getId());
             }
-
+            final Long artifactId = artifactIO.readId(event.getArtifactUniqueId());
+            final boolean doesArtifactVersionExist = null == artifactId
+                    ? false
+                    : artifactIO.doesVersionExist(artifactId,
+                            event.getArtifactVersionId());
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
             switch (event.getArtifactType()) {
@@ -627,10 +633,15 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             default:
                 throw Assert.createUnreachable("UNKNOWN ARTIFACT TYPE");
             }
-            containerIO.addVersion(version.getArtifactId(),
-                    version.getVersionId(), artifactVersion.getArtifactId(),
-                    artifactVersion.getVersionId(),
-                    artifactVersion.getArtifactType());
+            if (doesArtifactVersionExist) {
+                logger.logWarning("Artifact {0}:{1} already exists.", event
+                        .getArtifactUniqueId(), event.getArtifactVersionId());
+            } else {
+                containerIO.addVersion(version.getArtifactId(),
+                        version.getVersionId(), artifactVersion.getArtifactId(),
+                        artifactVersion.getVersionId(),
+                        artifactVersion.getArtifactType());
+            }
         }
         catch(final Throwable t) {
             throw translateError(t);
@@ -742,24 +753,20 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Long containerId = artifactModel.readId(event.getUniqueId());
-            // add to local team
+            // build published to list
             final InternalUserModel userModel = getInternalUserModel();
-            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
             final List<User> publishedToUsers = new ArrayList<User>();
             for (final JabberId publishedToId : event.getPublishedTo()) {
-                if (!contains(localTeam, publishedToId)) {
-                    artifactModel.addTeamMember(containerId, publishedToId);
-                }
-                publishedToUsers.add(userModel.read(publishedToId));
+                publishedToUsers.add(userModel.readLazyCreate(publishedToId));
             }
-            // add the sender as well
+            // add only published by user to the team
             final TeamMember publishedBy;
+            final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
             if (!contains(localTeam, event.getPublishedBy())) {
                 publishedBy = artifactModel.addTeamMember(containerId, event.getPublishedBy());
             } else {
                 publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
             }
-
             // delete draft
             final ContainerDraft draft = readDraft(containerId);
             if (null == draft) {
@@ -768,7 +775,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 deleteDraft(containerId);
             }
             // create published to list
-            containerIO.createPublishedTo(containerId, event.getVersionId(), publishedToUsers);
+            containerIO.createPublishedTo(containerId, event.getVersionId(),
+                    publishedToUsers, event.getPublishedOn());
             // calculate differences
             final ContainerVersion version = readVersion(containerId, event.getVersionId());
             final ContainerVersion previous = readPreviousVersion(containerId, event.getVersionId());
@@ -796,9 +804,11 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // index
             getIndexModel().indexContainer(containerId);
             // send confirmation
-            getSessionModel().confirmArtifactReceipt(localUserId(),
-                    event.getUniqueId(), event.getVersionId(), localUserId(),
-                    currentDateTime());
+            final InternalSessionModel sessionModel = getSessionModel();
+            final Calendar confirmedOn = sessionModel.readDateTime();
+            sessionModel.confirmArtifactReceipt(localUserId(),
+                    event.getUniqueId(), event.getVersionId(),
+                    event.getPublishedOn(), localUserId(), confirmedOn);
             // audit\fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
@@ -812,16 +822,14 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
     }
 
-    void handleReceived(final Long containerId, final Long versionId,
-            final JabberId receivedBy, final Calendar receivedOn) {
+    void handleReceived(final ArtifactReceivedEvent event) {
         logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("receivedBy", receivedBy);
-        logger.logVariable("receivedOn", receivedOn);
+        logger.logVariable("event", event);
         try {
-            containerIO.updatePublishedTo(containerId, versionId, receivedBy,
-                    receivedOn);
+            final Long containerId = artifactIO.readId(event.getUniqueId());
+            containerIO.updatePublishedTo(containerId, event.getVersionId(),
+                    event.getPublishedOn(), event.getReceivedBy(),
+                    event.getReceivedOn());
             notifyContainerUpdated(read(containerId), remoteEventGenerator);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -971,11 +979,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
         assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
         try {
+            final Calendar publishedOn = getSessionModel().readDateTime();
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
             // if the artfiact doesn't exist on the server; create it there
             if (!isDistributed(container.getId())) {
-                createDistributed(container);
+                createDistributed(container, publishedOn);
             }
             // ensure the user is the key holder
             assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
@@ -986,7 +995,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             fireStageBegin(monitor, PublishStage.CreateVersion);
             final ContainerVersion version = createVersion(container.getId(),
                     readNextVersionId(containerId), comment, localUserId(),
-                    currentDateTime());
+                    publishedOn);
 
             // attach artifacts to the version
             final InternalDocumentModel documentModel = getInternalDocumentModel();
@@ -1020,7 +1029,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             fireStageEnd(monitor, PublishStage.CreateVersion);
 
             doPublishVersion(monitor, containerId, version.getVersionId(),
-                    contacts, teamMembers);
+                    contacts, teamMembers, publishedOn);
 
             // delete draft
             for (final Artifact artifact : draft.getArtifacts()) {
@@ -1065,13 +1074,41 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             // start monitor
             fireProcessBegin(monitor);
+            final Calendar publishedOn = getSessionModel().readDateTime();
+            final ContainerVersion version = readVersion(containerId, versionId);
+            final List<JabberId> publishTo = new ArrayList<JabberId>();
+            final List<User> publishToUsers = new ArrayList<User>();
+            // build the team ids and the publish to list
+            final List<JabberId> teamMemberIds =
+                getArtifactModel().readTeamIds(containerId);
+            for (final Contact contact : contacts) {
+                publishTo.add(contact.getId());
+                publishToUsers.add(contact);
+                teamMemberIds.add(contact.getId());
+            }
+            for (final TeamMember teamMember : teamMembers) {
+                if (!contains(publishToUsers, teamMember)) {
+                    if (!containsUser(publishTo, teamMember)) {
+                        publishTo.add(teamMember.getId());
+                        publishToUsers.add(teamMember);
+                    } else {
+                        Assert.assertUnreachable("Inconsistent publish to state.");
+                    }
+                }
+            }
+            // publish
+            publish(monitor, version, publishTo, version.getCreatedBy(), publishedOn);
+            // update the remote team
+            final InternalSessionModel sessionModel = getSessionModel();
+            final Container container = read(containerId);
+            for (final Contact contact : contacts) {
+                sessionModel.addTeamMember(container.getUniqueId(),
+                        teamMemberIds, contact.getId());
 
-            // remove local key
-            getArtifactModel().removeFlagKey(containerId);
-
-            doPublishVersion(monitor, containerId, versionId, contacts,
-                    teamMembers);
-
+            }
+            // update the publish to list if required
+            containerIO.createPublishedTo(containerId, versionId, publishToUsers,
+                            publishedOn);
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =
@@ -1668,20 +1705,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("versionId", versionId);
         logger.logVariable("comparator", comparator);
         logger.logVariable("filter", filter);
-        final Map<User, Calendar> publishedTo =
+        final Map<User, ArtifactReceipt> publishedTo =
             containerIO.readPublishedTo(containerId, versionId);
         final List<User> users = new ArrayList<User>(publishedTo.size());
-        for (final Entry<User, Calendar> entry : publishedTo.entrySet()) {
+        for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
             users.add(entry.getKey());
         }
         FilterManager.filter(users, filter);
         final Map<User, ArtifactReceipt> filteredPublishedTo = new TreeMap<User, ArtifactReceipt>(comparator);
         for (final User user : users) {
-            final ArtifactReceipt receipt = new ArtifactReceipt();
-            receipt.setArtifactId(containerId);
-            receipt.setReceivedOn(publishedTo.get(user));
-            receipt.setUserId(user.getId());
-            filteredPublishedTo.put(user, receipt);
+            filteredPublishedTo.put(user, publishedTo.get(user));
         }
         return filteredPublishedTo;
     }
@@ -2288,9 +2321,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param container
      *            The container.
      */
-    private void createDistributed(final Container container) {
+    private void createDistributed(final Container container,
+            final Calendar createdOn) {
         final InternalSessionModel sessionModel = getSessionModel();
-        sessionModel.createArtifact(localUserId(), container.getUniqueId());
+        sessionModel.createArtifact(localUserId(), container.getUniqueId(),
+                createdOn);
+        // TODO update the container's created on date
     }
 
     /**
@@ -2475,39 +2511,36 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      */
     private void doPublishVersion(final PublishMonitor monitor,
             final Long containerId, final Long versionId,
-            final List<Contact> contacts, final List<TeamMember> teamMembers)
-            throws IOException {
+            final List<Contact> contacts, final List<TeamMember> teamMembers,
+            final Calendar publishedOn) throws IOException {
         final Container container = read(containerId);
         final ContainerVersion version = readVersion(containerId, versionId);
-
-        // update local team
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        for (final Contact contact : contacts)
-            artifactModel.addTeamMember(container.getId(), contact.getId());
-
-        // build the publish to list then publish
+        // build the team ids
+        final List<JabberId> teamMemberIds =
+            getArtifactModel().readTeamIds(containerId);
+        // build the publish to list
         final List<JabberId> publishTo = new ArrayList<JabberId>();
         final List<User> publishToUsers = new ArrayList<User>();
         for (final Contact contact : contacts) {
             publishTo.add(contact.getId());
             publishToUsers.add(contact);
+            teamMemberIds.add(contact.getId());
         }
         for (final TeamMember teamMember : teamMembers) {
             publishTo.add(teamMember.getId());
             publishToUsers.add(teamMember);
+            if (!containsUser(teamMemberIds, teamMember))
+                teamMemberIds.add(teamMember.getId());
         }
-        final Calendar currentDateTime = currentDateTime();
-        publish(monitor, version, publishTo, localUserId(), currentDateTime);
-
+        // publish container contents
+        publish(monitor, version, publishTo, localUserId(), publishedOn);
         // update remote team
-        final InternalSessionModel sessionModel = getSessionModel();
         for (final Contact contact : contacts)
-            sessionModel.addTeamMember(container.getUniqueId(), artifactModel
-                    .readTeamIds(container.getId()), contact.getId());
-
+            getSessionModel().addTeamMember(container.getUniqueId(),
+                    teamMemberIds, contact.getId());
         // create published to list
         containerIO.createPublishedTo(containerId,
-                version.getVersionId(), publishToUsers);
+                version.getVersionId(), publishToUsers, publishedOn);
     }
 
     /**
@@ -3069,10 +3102,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
                 containerIO.createPublishedTo(container.getId(),
                         version.getVersionId(),
-                        userModel.read(entry.getValue().getUserId()));
+                        userModel.read(entry.getValue().getUserId()),
+                        entry.getValue().getPublishedOn());
                 if (entry.getValue().isSetReceivedOn()) {
                     containerIO.updatePublishedTo(container.getId(),
                             version.getVersionId(),
+                            entry.getValue().getPublishedOn(),
                             entry.getValue().getUserId(),
                             entry.getValue().getReceivedOn());
                 }

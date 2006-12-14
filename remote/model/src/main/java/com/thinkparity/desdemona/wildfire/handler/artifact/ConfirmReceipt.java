@@ -32,15 +32,15 @@ public class ConfirmReceipt extends AbstractHandler {
         logApiId();
         confirmReceipt(readJabberId("userId"),
                 readJabberIds("team", "teamMember"), readUUID("uniqueId"),
-                readLong("versionId"), readJabberId("receivedBy"),
+                readLong("versionId"), readCalendar("publishedOn"), readJabberId("receivedBy"),
                 readCalendar("receivedOn"));
     }
 
     private void confirmReceipt(final JabberId userId,
             final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy,
-            final Calendar receivedOn) {
+            final Long versionId, final Calendar publishedOn,
+            final JabberId receivedBy, final Calendar receivedOn) {
         getArtifactModel().confirmReceipt(userId, team, uniqueId, versionId,
-                receivedBy, receivedOn);
+                publishedOn, receivedBy, receivedOn);
     }
 }

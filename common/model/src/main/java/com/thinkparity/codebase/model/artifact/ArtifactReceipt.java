@@ -15,11 +15,16 @@ public class ArtifactReceipt {
 
     private Long artifactId;
 
+    private Calendar publishedOn;
+
     private Calendar receivedOn;
 
     private JabberId userId;
 
-    /** Create ArtifactReceipt. */
+    /**
+     * Create ArtifactReceipt.
+     * 
+     */
     public ArtifactReceipt() {
         super();
     }
@@ -31,6 +36,15 @@ public class ArtifactReceipt {
      */
     public Long getArtifactId() {
         return artifactId;
+    }
+
+    /**
+     * Obtain publishedOn.
+     *
+     * @return A Calendar.
+     */
+    public Calendar getPublishedOn() {
+        return publishedOn;
     }
 
     /**
@@ -62,6 +76,16 @@ public class ArtifactReceipt {
      */
     public void setArtifactId(final Long artifactId) {
         this.artifactId = artifactId;
+    }
+
+    /**
+     * Set publishedOn.
+     *
+     * @param publishedOn
+     *		A Calendar.
+     */
+    public void setPublishedOn(Calendar publishedOn) {
+        this.publishedOn = publishedOn;
     }
 
     /**

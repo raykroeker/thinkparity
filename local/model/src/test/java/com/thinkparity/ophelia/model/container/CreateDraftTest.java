@@ -45,11 +45,13 @@ public class CreateDraftTest extends ContainerTestCase {
     public void testCreateDraft() {
         final Container c = createContainer(datum.junit, NAME);
         addDocuments(datum.junit, c.getId());
-        publishToContacts(OpheliaTestUser.JUNIT, c);
+        publish(OpheliaTestUser.JUNIT, c.getId());
         datum.waitForEvents();
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
         final Container c_y = readContainer(datum.junit_x, c.getUniqueId());
+        datum.addListener(datum.junit);
         ContainerDraft draftCreate = getContainerModel(datum.junit).createDraft(c.getId());
+        datum.removeListener(datum.junit);
         datum.waitForEvents();
 
         ContainerDraft draftRead = readContainerDraft(datum.junit, c.getId());
@@ -96,7 +98,6 @@ public class CreateDraftTest extends ContainerTestCase {
         login(OpheliaTestUser.JUNIT_Y);
         datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
                 OpheliaTestUser.JUNIT_Y);
-        getContainerModel(OpheliaTestUser.JUNIT).addListener(datum);
     }
 
     /**
@@ -104,7 +105,6 @@ public class CreateDraftTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        getContainerModel(OpheliaTestUser.JUNIT).removeListener(datum);
         logout(datum.junit);
         logout(datum.junit_x);
         logout(datum.junit_y);
@@ -128,7 +128,12 @@ public class CreateDraftTest extends ContainerTestCase {
             addQueueHelper(junit_x);
             addQueueHelper(junit_y);
         }
-
+        private void addListener(final OpheliaTestUser addAs) {
+            getContainerModel(addAs).addListener(this);
+        }
+        private void removeListener(final OpheliaTestUser removeAs) {
+            getContainerModel(removeAs).removeListener(this);
+        }
         @Override
         public void draftCreated(ContainerEvent e) {
             didNotify = Boolean.TRUE;

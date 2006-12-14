@@ -170,12 +170,13 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
 	 *            The artifact unique id.
 	 */
 	void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy,
-            final Calendar receivedOn) {
+            final Long versionId, final Calendar publishedOn,
+            final JabberId receivedBy, final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedOn", publishedOn);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
         try {
@@ -185,7 +186,7 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
             final XMPPSession xmppSession = workspace.getXMPPSession();
     	    synchronized(xmppSession) {
     	        xmppSession.confirmArtifactReceipt(localUserId(), team, uniqueId,
-                        versionId, receivedBy, receivedOn);
+                        versionId, publishedOn, receivedBy, receivedOn);
     	    }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -214,14 +215,16 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      * @param uniqueId
      *            An artifact unique id.
      */
-	void createArtifact(final JabberId userId, final UUID uniqueId) {
+	void createArtifact(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
 		logger.logApiId();
         logger.logVariable("userId", userId);
 		logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("createdOn", createdOn);
 		try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
 		    synchronized (xmppSession) {
-		        xmppSession.createArtifact(userId, uniqueId);
+		        xmppSession.createArtifact(userId, uniqueId, createdOn);
 		    }
 		} catch (final Throwable t) {
             throw translateError(t);

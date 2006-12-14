@@ -57,7 +57,7 @@ public final class BackupTest extends BackupTestCase {
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publishToContacts(datum.junit_z, c.getId(), "JUnit.X thinkParity");
+        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // postconditions
         final Container c_local = readContainer(datum.junit_z, c.getUniqueId());
@@ -101,7 +101,7 @@ public final class BackupTest extends BackupTestCase {
             cv_local = cv_list_local.get(i);
             assertEquals("Container verison has not been properly backed up.", cv_local, cv_backup);
             logger.logInfo("Validating container \"{0}\" version \"{1}\" team.", c_backup.getName(), cv_backup.getVersionId());
-            t_id_list_local = readTeam(datum.junit_z, c_local);
+            t_id_list_local = readTeamIds(datum.junit_z, c_local.getId());
             t_id_list_backup = getBackupModel(datum.junit_z).readTeamIds(c.getUniqueId());
             assertEquals("Team member ids have not been properly backed up.", t_id_list_local.size(), t_id_list_backup.size());
             for (int j = 0; j < t_id_list_backup.size(); j++) {

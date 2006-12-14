@@ -180,21 +180,6 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Confirm the reciept of an artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param versionId
-     *            The artifact version id.
-     */
-    void confirmReceipt(final Long artifactId, final Long versionId) {
-        final UUID uniqueId = readArtifactUniqueId(artifactId);
-        final JabberId localUserId = localUserId();
-        getSessionModel().confirmArtifactReceipt(localUserId, uniqueId,
-                versionId, localUserId, currentDateTime());
-    }
-
-    /**
      * Create the artifact's remote info.
      * 
      * @param artifactId
@@ -371,9 +356,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
             if (doesVersionExist(artifactId, event.getVersionId())) {
                 switch (artifactIO.readType(artifactId)) {
                 case CONTAINER:
-                    getContainerModel().handleReceived(artifactId,
-                            event.getVersionId(), event.getReceivedBy(),
-                            event.getReceivedOn());
+                    getContainerModel().handleReceived(event);
                     break;
                 default:
                     Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
@@ -402,17 +385,10 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         try {
             final Long artifactId = readId(event.getUniqueId());
             if (null == artifactId) {
-                logger.logWarning("Artifact {0} no longer exists.", event.getUniqueId());
+                logger.logWarning("Artifact {0} no longer exists.", event
+                        .getUniqueId());
             } else {
                 addTeamMember(artifactId, event.getJabberId());
-            }
-        } catch (final TrueAssertion ta) {
-            if ("TEAM MEMBER ALREADY ADDED".equals(ta.getMessage())) {
-                logger.logWarning(
-                        "Team member {0} already exists for artifact {1}.",
-                        event.getJabberId(), event.getUniqueId());
-            } else {
-                throw ta;
             }
         } catch(final Throwable t) {
             throw translateError(t);

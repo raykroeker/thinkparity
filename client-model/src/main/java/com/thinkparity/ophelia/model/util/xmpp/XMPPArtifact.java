@@ -68,7 +68,8 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      */
 	void confirmReceipt(final JabberId userId, final List<JabberId> team,
             final UUID uniqueId, final Long versionId,
-            final JabberId receivedBy, final Calendar receivedOn) {
+            final Calendar publishedOn, final JabberId receivedBy,
+            final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("team", team);
@@ -81,6 +82,7 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
         confirmReceipt.setParameter("team", "teamMember", team);
         confirmReceipt.setParameter("uniqueId", uniqueId);
         confirmReceipt.setParameter("versionId", versionId);
+        confirmReceipt.setParameter("publishedOn", publishedOn);
         confirmReceipt.setParameter("receivedBy", receivedBy);
         confirmReceipt.setParameter("receivedOn", receivedOn);
         execute(confirmReceipt);
@@ -94,12 +96,14 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-	void create(final JabberId userId, final UUID uniqueId) {
+	void create(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         final XMPPMethod create = new XMPPMethod("artifact:create");
         create.setParameter("userId", userId);
         create.setParameter("uniqueId", uniqueId);
+        create.setParameter("createdOn", createdOn);
         execute(create);
     }
 

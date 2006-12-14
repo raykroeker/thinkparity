@@ -39,7 +39,7 @@ public class RevertPostPublishTest extends ContainerTestCase {
         final Document document = addDocument(OpheliaTestUser.JUNIT,
                 container.getId(), getInputFileNames()[0]);
         login(OpheliaTestUser.JUNIT);
-        publishToContacts(OpheliaTestUser.JUNIT, container);
+        publish(OpheliaTestUser.JUNIT, container.getId());
         createContainerDraft(OpheliaTestUser.JUNIT, container);
         modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         logout(OpheliaTestUser.JUNIT);

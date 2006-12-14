@@ -56,11 +56,11 @@ public class ArchiveTest extends ArchiveTestCase {
         final Container c = createContainer(datum.junit_z, "Packages Test: Archive 1");
         final Document d_doc = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         final Document d_pdf = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
-        publishToContacts(datum.junit_z, c.getId(), "JUnit.X thinkParity");
+        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit_z, c.getId());
         final Document d_png = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publishToTeam(datum.junit_x, c.getId());
+        publish(datum.junit_x, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // archive
         archive(datum.junit_z, c.getId());

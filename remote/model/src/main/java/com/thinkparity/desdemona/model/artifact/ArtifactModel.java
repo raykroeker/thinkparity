@@ -82,11 +82,11 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      */
     public void confirmReceipt(final JabberId userId,
             final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy,
-            final Calendar receivedOn) {
+            final Long versionId, final Calendar publishedOn,
+            final JabberId receivedBy, final Calendar receivedOn) {
         synchronized (getImplLock()) {
             getImpl().confirmReceipt(userId, team, uniqueId, versionId,
-                    receivedBy, receivedOn);
+                    publishedOn, receivedBy, receivedOn);
         }
     }
 
@@ -98,9 +98,10 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-	public Artifact create(final JabberId userId, final UUID uniqueId) {
+	public Artifact create(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
 		synchronized (getImplLock()) {
-            return getImpl().create(userId, uniqueId);
+            return getImpl().create(userId, uniqueId, createdOn);
 		}
 	}
 

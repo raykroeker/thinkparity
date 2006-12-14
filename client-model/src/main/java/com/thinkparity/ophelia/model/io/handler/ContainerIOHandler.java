@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -92,7 +93,7 @@ public interface ContainerIOHandler {
      *            A <code>User</code> <code>List</code>.
      */
     public void createPublishedTo(final Long containerId, final Long versionId,
-            final List<User> publishedTo);
+            final List<User> publishedTo, final Calendar publishedOn);
 
     /**
      * Create a published to entry for a container version.
@@ -105,7 +106,7 @@ public interface ContainerIOHandler {
      *            A <code>User</code>.
      */
     public void createPublishedTo(final Long containerId, final Long versionId,
-            final User publishedTo);
+            final User publishedTo, final Calendar publishedOn);
 
     /**
      * Create a container version.
@@ -260,7 +261,7 @@ public interface ContainerIOHandler {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
-    public Map<User, Calendar> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId);
 
     /**
@@ -355,5 +356,6 @@ public interface ContainerIOHandler {
      *            A received on <code>Calendar</code>.
      */
     public void updatePublishedTo(final Long containerId, final Long versionId,
-            final JabberId userId, final Calendar receivedOn);
+            final Calendar publishedOn, final JabberId receivedBy,
+            final Calendar receivedOn);
 }

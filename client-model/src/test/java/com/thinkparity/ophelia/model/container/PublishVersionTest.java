@@ -3,16 +3,10 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.util.Collections;
-import java.util.List;
-
-import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -33,8 +27,16 @@ public class PublishVersionTest extends ContainerTestCase {
 
     /** Test the publish version api. */
     public void testPublishVersion() {
-        datum.containerModel.publishVersion(new TestPublishMonitor(),
-                datum.container.getId(), datum.version.getVersionId(), datum.contacts, datum.teamMembers);
+        final Container c = createContainer(datum.junit, NAME);
+        addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity");
+        datum.waitForEvents();
+
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        datum.addListener(datum.junit);
+        publishVersion(datum.junit, c.getId(), cv_latest.getVersionId(), "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        datum.removeListener(datum.junit);
         assertTrue("The draft published event was not fired.", datum.didNotify);
     }
 
@@ -44,16 +46,11 @@ public class PublishVersionTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        publishToContacts(OpheliaTestUser.JUNIT, container.getId(), OpheliaTestUser.JUNIT_X.getName());
-        final List<Contact> contacts = readContacts(OpheliaTestUser.JUNIT);
-        UserUtils.getInstance().remove(contacts, OpheliaTestUser.JUNIT_X);
-        final ContainerVersion version = containerModel.readLatestVersion(container.getId());
-        datum = new Fixture(contacts, container, containerModel, version);
-        containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -61,30 +58,37 @@ public class PublishVersionTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
         super.tearDown();
     }
 
     /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final List<Contact> contacts;
-        private final List<TeamMember> teamMembers;
-        private final Container container;
-        private final ContainerModel containerModel;
+        private OpheliaTestUser junit;
+        private OpheliaTestUser junit_x;
+        private OpheliaTestUser junit_y;
         private Boolean didNotify;
-        private final ContainerVersion version;
-        private Fixture(final List<Contact> contacts,
-                final Container container, final ContainerModel containerModel,
-                final ContainerVersion version) {
-            this.contacts = contacts;
-            this.container = container;
-            this.containerModel = containerModel;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
             this.didNotify = Boolean.FALSE;
-            this.teamMembers = Collections.emptyList();
-            this.version = version;
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
+        private void addListener(final OpheliaTestUser addAs) {
+            getContainerModel(addAs).addListener(this);
+        }
+        private void removeListener(final OpheliaTestUser removeAs) {
+            getContainerModel(removeAs).removeListener(this);
+        }
+        @Override
+        public void containerUpdated(final ContainerEvent e) {}
         @Override
         public void draftPublished(ContainerEvent e) {
             didNotify = Boolean.TRUE;

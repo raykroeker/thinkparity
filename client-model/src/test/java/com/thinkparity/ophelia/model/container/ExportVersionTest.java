@@ -3,10 +3,8 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.File;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -35,10 +33,39 @@ public class ExportVersionTest extends ContainerTestCase {
      * Test the container model create api.
      *
      */
-    public void testExport() {
-        datum.containerModel.exportVersion(datum.exportDirectory,
-                datum.container.getId(), datum.version.getVersionId());
-        Assert.assertTrue(true,"");
+    public void testExportVersion() {
+        final Container c = createContainer(datum.junit, NAME);
+
+        // add documents
+        final List<Document> documents = addDocuments(datum.junit, c.getId());
+        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        // remove half of the documents
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        for (int i = 0; i < documents.size(); i++) {
+            if (1 == i % 2)
+                removeDocument(datum.junit, c.getId(), documents.get(i).getId());
+        }
+        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        // re-add half of the documents
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        final String[] inputFileNames = getInputFileNames();
+        for (int i = 0; i < inputFileNames.length; i++) {
+            if (1 == i % 2) {
+                addDocument(datum.junit, c.getId(), inputFileNames[i]);
+            }
+        }
+        publish(OpheliaTestUser.JUNIT, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        exportContainerVersion(datum.junit, c.getId(),
+                cv_latest.getVersionId(), getOutputDirectory());
     }
 
     /**
@@ -47,35 +74,11 @@ public class ExportVersionTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        login(OpheliaTestUser.JUNIT_X);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final List<Document> documents = addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        publishToContacts(OpheliaTestUser.JUNIT, container);
-
-        createDraft(OpheliaTestUser.JUNIT, container.getId());
-        // remove half of the documents
-        for (int i = 0; i < documents.size(); i++) {
-            if (1 == i % 2)
-                containerModel.removeDocument(container.getId(),
-                        documents.get(i).getId());
-        }
-        publishToTeam(OpheliaTestUser.JUNIT, container.getId());
-
-        // re-add half of the documents
-        createDraft(OpheliaTestUser.JUNIT_X, container.getId());
-        final String[] inputFileNames = getInputFileNames();
-        for (int i = 0; i < inputFileNames.length; i++) {
-            if (1 == i % 2) {
-                addDocument(OpheliaTestUser.JUNIT, container.getId(), inputFileNames[i]);
-            }
-        }
-        publishToTeam(OpheliaTestUser.JUNIT_X, container.getId());
-
-        final ContainerVersion version = containerModel.readLatestVersion(container.getId());
-        datum = new Fixture(container, containerModel, getOutputDirectory(), version);
-        containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -83,25 +86,27 @@ public class ExportVersionTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        logout(OpheliaTestUser.JUNIT);
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final ContainerModel containerModel;
-        private final File exportDirectory;
-        private final ContainerVersion version;
-        private Fixture(final Container container,
-                final ContainerModel containerModel,
-                final File exportDirectory, final ContainerVersion version) {
-            this.containerModel = containerModel;
-            this.container = container;
-            this.exportDirectory = exportDirectory;
-            this.version = version;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            super();
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

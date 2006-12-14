@@ -307,13 +307,6 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logApiId();
         logger.logVariable("event", event);
         try {
-            final File streamFile = downloadStream(new StreamMonitor() {
-                public void chunkReceived(final int chunkSize) {}
-                public void chunkSent(final int chunkSize) {}
-                public void headerReceived(final String header) {}
-                public void headerSent(final String header) {}
-                public void streamError(final StreamException error) {}
-            }, event.getArtifactStreamId());
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
             final DocumentVersion version;
@@ -329,6 +322,13 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                     version = readVersion(document.getId(), event.getArtifactVersionId());
                 }
                 else {
+                    final File streamFile = downloadStream(new StreamMonitor() {
+                        public void chunkReceived(final int chunkSize) {}
+                        public void chunkSent(final int chunkSize) {}
+                        public void headerReceived(final String header) {}
+                        public void headerSent(final String header) {}
+                        public void streamError(final StreamException error) {}
+                    }, event.getArtifactStreamId());
                     final InputStream stream = new FileInputStream(streamFile);
                     try {
                         version = createVersion(document.getId(),
@@ -343,6 +343,13 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 document = create(event.getArtifactUniqueId(),
                         event.getArtifactName(), event.getPublishedBy(),
                         event.getPublishedOn());
+                final File streamFile = downloadStream(new StreamMonitor() {
+                    public void chunkReceived(final int chunkSize) {}
+                    public void chunkSent(final int chunkSize) {}
+                    public void headerReceived(final String header) {}
+                    public void headerSent(final String header) {}
+                    public void streamError(final StreamException error) {}
+                }, event.getArtifactStreamId());
                 final InputStream stream = new FileInputStream(streamFile);
                 try {
                     version = createVersion(document.getId(),

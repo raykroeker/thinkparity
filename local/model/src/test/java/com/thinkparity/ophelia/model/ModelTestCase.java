@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +46,8 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerHistoryItem;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -615,19 +616,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Delete a container.
-     * @param deleteAs
-     * @param localContainerId
-     */
-    protected void deleteContainer(final OpheliaTestUser deleteAs,
-            final Long localContainerId) {
-        final Container container = getContainerModel(deleteAs).read(localContainerId);
-        logger.logInfo("Deleting container \"{0}\" as \"{1}\".", container
-                .getName(), deleteAs.getSimpleUsername());
-        getContainerModel(deleteAs).delete(localContainerId);
-    }
-
-    /**
      * Create a container draft.
      * 
      * @param container
@@ -707,6 +695,75 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		logger.logFatal(t, "Test {0} failed.", getName());
 		return super.createFailMessage(t);
 	}
+
+    /**
+     * Delete a container.
+     * @param deleteAs
+     * @param localContainerId
+     */
+    protected void deleteContainer(final OpheliaTestUser deleteAs,
+            final Long localContainerId) {
+        final Container container = getContainerModel(deleteAs).read(localContainerId);
+        logger.logInfo("Deleting container \"{0}\" as \"{1}\".", container
+                .getName(), deleteAs.getSimpleUsername());
+        getContainerModel(deleteAs).delete(localContainerId);
+    }
+
+    /**
+     * Create a draft.
+     * 
+     * @param testUser
+     *            A <code>OpheliaTestUser</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    protected void deleteDraft(final OpheliaTestUser deleteAs,
+            final Long localContainerId) {
+        final Container c = getContainerModel(deleteAs).read(localContainerId);
+        logger.logInfo("Deleting draft for container \"{0}\" as \"{1}.\"",
+                c.getName(), deleteAs.getSimpleUsername());
+        getContainerModel(deleteAs).deleteDraft(localContainerId);
+    }
+
+    /**
+     * Export a container.
+     * 
+     * @param exportAs
+     *            An <code>OpheliaTestUser</code> to export as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to exportAs.
+     * @param exportTo
+     *            A directory <code>File</code> to export to.
+     */
+    protected void exportContainer(final OpheliaTestUser exportAs,
+            final Long localContainerId, final File exportTo) {
+        final Container container = readContainer(exportAs, localContainerId);
+        logger.logInfo("Exporting container \"{0}\" as \"{1}\" to \"{2}\".", container.getId(),
+                exportAs.getSimpleUsername(), exportTo);
+        getContainerModel(exportAs).export(exportTo, localContainerId);
+    }
+
+    /**
+     * Export a container version.
+     * 
+     * @param exportAs
+     *            An <code>OpheliaTestUser</code> to export as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to exportAs.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param exportTo
+     *            A directory <code>File</code> to export to.
+     */
+    protected void exportContainerVersion(final OpheliaTestUser exportAs,
+            final Long localContainerId, final Long versionId,
+            final File exportTo) {
+        final Container container = readContainer(exportAs, localContainerId);
+        logger.logInfo("Exporting container \"{0}\" version \"{1}\" as \"{2}\" to \"{3}\".",
+                container.getId(), versionId, exportAs.getSimpleUsername(), exportTo);
+        getContainerModel(exportAs).exportVersion(exportTo, localContainerId, versionId);
+    }
 
     protected InternalArchiveModel getArchiveModel(final OpheliaTestUser testUser) {
         return modelFactory.getArchiveModel(testUser);
@@ -798,7 +855,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getReleaseModel(testUser);
     }
 
-    protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
+	protected InternalScriptModel getScriptModel(final OpheliaTestUser testUser) {
         return modelFactory.getScriptModel(testUser);
     }
 
@@ -811,7 +868,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getUserModel(testUser);
     }
 
-	/**
+    /**
 	 * Obtain a handle to the parity workspace model.
 	 * 
 	 * @return A handle to the parity workspace model.
@@ -975,105 +1032,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Publish the container to contacts.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    protected void publishToContacts(final OpheliaTestUser testUser,
-            final Container container) {
-        final List<TeamMember> teamMembers = Collections.emptyList();
-        final List<Contact> contacts = readContacts(testUser);
-        logTrace("{0} - Publishing container {1} to contacts {2} and team members {3}.",
-                getName(), container.getName(), contacts, teamMembers);
-        getContainerModel(testUser).publish(container.getId(), contacts, teamMembers);
-    }
-
-    /**
-     * Publish the container to contacts.
-     * 
-     * @param publisAs
-     *            An <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> local to publishAs.
-     * @param contactNames
-     *            A list of contact names to publish to.
-     */
-    protected void publishToContacts(final OpheliaTestUser publishAs,
-            final Long localContainerId, final String... contactNames) {
-        publishToContacts(publishAs, localContainerId, Boolean.FALSE,
-                contactNames);
-    }
-
-    /**
-     * Publish the container to contacts.
-     * 
-     * @param publisAs
-     *            An <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> local to publishAs.
-     * @param contactNames
-     *            A list of contact names to publish to.
-     */
-    protected void publishToContacts(final OpheliaTestUser publishAs,
-            final Long localContainerId, final Boolean includeTeam,
-            final String... contactNames) {
-        final List<Contact> contacts = readContacts(publishAs);
-        userUtils.filter(contacts, contactNames);
-
-        final List<TeamMember> teamMembers;
-        if (includeTeam.booleanValue()) {
-            teamMembers = getContainerModel(publishAs).readTeam(localContainerId);
-            for (final Iterator<TeamMember> iTeamMember = teamMembers.iterator(); iTeamMember.hasNext();)
-                if (iTeamMember.next().getId().equals(publishAs.getId()))
-                    iTeamMember.remove();
-        } else {
-            teamMembers = Collections.emptyList();
-        }
-        final InternalContainerModel containerModel = getContainerModel(publishAs);
-        final Container c = containerModel.read(localContainerId);
-        final StringBuffer actualContactNames = new StringBuffer();
-        for (final Contact contact : contacts) {
-            if (0 < actualContactNames.length())
-                actualContactNames.append(Separator.SemiColon);
-            actualContactNames.append(contact.getSimpleUsername());
-        }
-        final StringBuffer actualTeamMemberNames = new StringBuffer();
-        for (final TeamMember teamMember : teamMembers) {
-            if (0 < actualTeamMemberNames.length())
-                actualTeamMemberNames.append(Separator.SemiColon);
-            actualTeamMemberNames.append(teamMember.getSimpleUsername());
-        }
-        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\", team members \"{3}\".",
-                c.getName(), publishAs.getSimpleUsername(), actualContactNames,
-                actualTeamMemberNames);
-        getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
-    }
-
-    /**
-     * Publish the container a to the team members.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    protected void publishToTeam(final OpheliaTestUser publishAs,
-            final Long localContainerId) {
-        final List<TeamMember> teamMembers = getArtifactModel(publishAs).readTeam2(localContainerId);
-        remove(teamMembers, publishAs);
-        final List<Contact> contacts = Collections.emptyList();
-        final Container c = getContainerModel(publishAs).read(localContainerId);
-        final StringBuffer actualTeamMemberNames = new StringBuffer();
-        for (final TeamMember teamMember : teamMembers) {
-            if (0 < actualTeamMemberNames.length()) {
-                actualTeamMemberNames.append(Separator.SemiColon);
-            }
-            actualTeamMemberNames.append(teamMember.getName());
-        }
-        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to team members \"{2}\".",
-                c.getName(), publishAs.getSimpleUsername(), actualTeamMemberNames);
-        getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
-    }
-    /**
      * Publish to a discrete set of team members.
      * 
      * @param publishAs
@@ -1084,22 +1042,90 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A <code>String</code> list of <code>TeamMember</code>
      *            names.
      */
-    protected void publishToTeamMembers(final OpheliaTestUser publishAs,
-            final Long localContainerId, final String... teamMemberNames) {
+    protected void publish(final OpheliaTestUser publishAs,
+            final Long localContainerId, final String... userNames) {
         final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
-        userUtils.filter(teamMembers, teamMemberNames);
-        final Container c = getContainerModel(publishAs).read(localContainerId);
-        final StringBuffer actualTeamMemberNames = new StringBuffer();
-        for (final TeamMember teamMember : teamMembers) {
-            if (0 < actualTeamMemberNames.length()) {
-                actualTeamMemberNames.append(Separator.SemiColon);
-            }
-            actualTeamMemberNames.append(teamMember.getName());
+        final List<Contact> contacts = readContacts(publishAs);
+        if (0 < userNames.length) {
+            userUtils.filter(teamMembers, userNames);
+            userUtils.filter(contacts, userNames);
         }
-        logger.logInfo("Publishing container \"{0}\" as \"{1}\" to team members \"{2}\".",
-                c.getName(), publishAs.getSimpleUsername(), actualTeamMemberNames);
-        final List<Contact> contacts = Collections.emptyList();
+        filter(contacts, teamMembers);
+        remove(teamMembers, publishAs);
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        final String teamMemberNames = extractUserNames(teamMembers);
+        final String contactNames = extractUserNames(contacts);
+        if (0 < teamMembers.size()) {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\" and team members \"{3}\".",
+                        c.getName(), publishAs.getSimpleUsername(), contactNames,
+                        teamMemberNames);
+            } else {
+                logger.logInfo("Publishing container \"{0}\" as \"{1}\" to team members \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(), teamMemberNames);
+            }
+        } else {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" as \"{1}\" to contacts \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(), contactNames);
+            } else {
+                fail("Cannot publish to nobody.");
+            }
+        }
         getContainerModel(publishAs).publish(localContainerId, contacts, teamMembers);
+    }
+
+    /**
+     * Publish a container version. By providing a list of user names a filtered
+     * list of contacts and team members is created. Only users whose names
+     * match that provided in the list are published to. If no names are
+     * provided; all contacts and all team members are published to; note that
+     * the publishAs user is never published to and that the contacts list will
+     * not include any team members.
+     * 
+     * @param publishAs
+     *            The <code>OpheliaTestUser</code> to publish as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to publishAs.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param userNames
+     *            An optional list of user names to filter. The user name can be
+     *            either a contact name or a team member name.
+     */
+    protected void publishVersion(final OpheliaTestUser publishAs,
+            final Long localContainerId, final Long versionId,
+            final String... userNames) {
+        final List<TeamMember> teamMembers = readTeam(publishAs, localContainerId);
+        final List<Contact> contacts = readContacts(publishAs);
+        userUtils.filter(teamMembers, userNames);
+        userUtils.filter(contacts, userNames);
+        filter(contacts, teamMembers);
+        remove(teamMembers, publishAs);
+        final Container c = getContainerModel(publishAs).read(localContainerId);
+        final String teamMemberNames = extractUserNames(teamMembers);
+        final String contactNames = extractUserNames(contacts);
+        if (0 < teamMembers.size()) {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" version \"{4}\" as \"{1}\" to contacts \"{2}\" and team members \"{3}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        contactNames, teamMemberNames, versionId);
+            } else {
+                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to team members \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        teamMemberNames, versionId);
+            }
+        } else {
+            if (0 < contacts.size()) {
+                logger.logInfo("Publishing container \"{0}\" version \"{3}\" as \"{1}\" to contacts \"{2}\".",
+                        c.getName(), publishAs.getSimpleUsername(),
+                        contactNames, versionId);
+            } else {
+                fail("Cannot publish to nobody.");
+            }
+        }
+        getContainerModel(publishAs).publishVersion(new TestPublishMonitor(),
+                localContainerId, versionId, contacts, teamMembers);
     }
 
     /**
@@ -1131,12 +1157,26 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @return A <code>Container</code>.
      */
     protected Container readContainer(final OpheliaTestUser readAs,
+            final Long localContainerId) {
+        return getContainerModel(readAs).read(localContainerId);
+    }
+
+    /**
+     * Read a container for a user.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>Container</code>.
+     */
+    protected Container readContainer(final OpheliaTestUser readAs,
             final UUID uniqueId) {
-        final Long localId = getArtifactModel(readAs).readId(uniqueId);
-        if (null == localId) {
+        final Long localContainerId = getArtifactModel(readAs).readId(uniqueId);
+        if (null == localContainerId) {
             return null;
         } else {
-            return getContainerModel(readAs).read(localId);
+            return readContainer(readAs, localContainerId);
         }
     }
 
@@ -1246,23 +1286,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return getDocumentModel(readAs).readLatestVersion(localDocumentId);
     }
 
-    /**
-     * Read an artifact's team.
-     * 
-     * @param artifact
-     *            An artifact.
-     * @return A list of jabber ids.
-     */
-    protected List<JabberId> readTeam(final OpheliaTestUser testUser,
-            final Artifact artifact) {
-        final List<JabberId> team = new ArrayList<JabberId>();
-        for(final User user : getArtifactModel(testUser).readTeam(
-                artifact.getId())) {
-            team.add(user.getId());
-        }
-        return team;
-    }
-
     protected Map<User, ArtifactReceipt> readPublishedTo(
             final OpheliaTestUser readAs, final Long localContainerId,
             final Long versionId) {
@@ -1283,6 +1306,24 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             final Long localArtifactId) {
         final InternalArtifactModel artifactModel = getArtifactModel(readAs);
         return artifactModel.readTeam2(localArtifactId);
+    }
+
+    /**
+     * Read the team user ids for an artifact.
+     * 
+     * @param readAs
+     *            The <code>OpheliaTestUser</code> to read as.
+     * @param localArtifactId
+     *            The artifact id <code>Long</code> local to readAs.
+     * @return A <code>List</code> of <code>JabberId</code>s.
+     */
+    protected List<JabberId> readTeamIds(final OpheliaTestUser readAs,
+            final Long localArtifactId) {
+        final List<JabberId> teamIds = new ArrayList<JabberId>();
+        for(final TeamMember teamMember : readTeam(readAs, localArtifactId)) {
+            teamIds.add(teamMember.getId());
+        }
+        return teamIds;
     }
 
     /**
@@ -1330,12 +1371,81 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         this.modelFactory = null;
 	}
 
+    /**
+     * Extract a separated list of names from a list of users.
+     * 
+     * @param <T>
+     *            A <code>User</code> type.
+     * @param users
+     *            A <code>List</code> of <code>User</code>s.
+     * @return A separated list of <code>User</code>s' names.
+     */
+    private <T extends User> String extractUserNames(final List<T> users) {
+        final StringBuffer buffer = new StringBuffer();
+        for (final T user : users) {
+            if (0 < buffer.length())
+                buffer.append(Separator.SemiColon);
+            buffer.append(user.getName());
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Filter one list of users with a second.
+     * 
+     * @param <T>
+     *            A <code>User</code> type.
+     * @param <U>
+     *            A <code>User</code> type.
+     * @param users
+     *            A list of <code>User</code>s.
+     * @param filterUsers
+     *            A list of <code>User</code>s to filter out of users.
+     */
+    private <T extends User, U extends User> void filter(final List<T> users,
+            final List<U> filterUsers) {
+        T user;
+        for (final Iterator<T> iUsers = users.iterator(); iUsers.hasNext();) {
+            user = iUsers.next();
+            for (final U filterUser : filterUsers)
+                if (user.getId().equals(filterUser.getId()))
+                    iUsers.remove();
+        }
+    }
+
     private void remove(final List<? extends User> users, final User user) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId().equals(user.getId())) {
                 users.remove(i);
                 break;
             }
+        }
+    }
+
+    public final class TestPublishMonitor implements PublishMonitor {
+        
+        public TestPublishMonitor() {
+            super();
+        }
+
+        public void determine(final Integer stages) {
+            logger.logTraceId();
+            logger.logVariable("stages", stages);
+        }
+        public void processBegin() {
+            logger.logTraceId();
+        }
+        public void processEnd() {
+            logger.logTraceId();
+        }
+        public void stageBegin(final PublishStage stage, final Object data) {
+            logger.logTraceId();
+            logger.logVariable("stage", stage);
+            logger.logVariable("data", data);
+        }
+        public void stageEnd(final PublishStage stage) {
+            logger.logTraceId();
+            logger.logVariable("stage", stage);
         }
     }
 

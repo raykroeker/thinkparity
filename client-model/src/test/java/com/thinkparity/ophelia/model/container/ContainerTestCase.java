@@ -11,8 +11,6 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.model.ModelTestCase;
-import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
-import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 
@@ -169,26 +167,4 @@ public abstract class ContainerTestCase extends ModelTestCase {
             fail(getName() + " - Team member removed event was fired.");
         }
     }
-
-    protected final class TestPublishMonitor implements PublishMonitor {
-        public void determine(final Integer stages) {
-            logger.logApiId();
-            logger.logVariable("stages", stages);
-        }
-        public void processBegin() {
-            logger.logApiId();
-        }
-        public void processEnd() {
-            logger.logApiId();
-        }
-        public void stageBegin(final PublishStage stage, final Object data) {
-            logger.logApiId();
-            logger.logVariable("stage", stage);
-            logger.logVariable("data", data);
-        }
-        public void stageEnd(final PublishStage stage) {
-            logger.logApiId();
-            logger.logVariable("stage", stage);
-        }
-    } 
 }

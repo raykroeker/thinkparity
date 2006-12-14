@@ -13,6 +13,7 @@ import java.util.Properties;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -82,8 +83,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read the container published to list. */
     private static final String SQL_CREATE_PUBLISHED_TO =
             new StringBuffer("insert into CONTAINER_VERSION_PUBLISHED_TO ")
-            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
-            .append("values (?,?,?)")
+            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID,PUBLISHED_ON) ")
+            .append("values (?,?,?,?)")
             .toString();
 
     /** Sql to create a container version. */
@@ -313,7 +314,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
             new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,CVPT.RECEIVED_ON ")
+            .append("U.ORGANIZATION,U.TITLE,CVPT.CONTAINER_ID,")
+            .append("CVPT.PUBLISHED_ON,CVPT.RECEIVED_ON ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
@@ -399,7 +401,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_UPDATE_PUBLISHED_TO =
         new StringBuffer("update CONTAINER_VERSION_PUBLISHED_TO ")
         .append("set RECEIVED_ON=? ")
-        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=?")
+        .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? and USER_ID=? ")
+        .append("and PUBLISHED_ON=?")
         .toString();
 
     /** Generic artifact io. */
@@ -564,12 +567,12 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      * 
      */
     public void createPublishedTo(final Long containerId, final Long versionId,
-            final List<User> publishedTo) {
+            final List<User> publishedTo, final Calendar publishedOn) {
         final Session session = openSession();
         try {
             for (final User publishedToUser : publishedTo) {
                 createPublishedTo(session, containerId, versionId,
-                        publishedToUser);
+                        publishedToUser, publishedOn);
             }
 
             session.commit();
@@ -586,10 +589,11 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      *
      */
     public void createPublishedTo(final Long containerId, final Long versionId,
-            final User publishedTo) {
+            final User publishedTo, final Calendar publishedOn) {
         final Session session = openSession();
         try {
-            createPublishedTo(session, containerId, versionId, publishedTo);
+            createPublishedTo(session, containerId, versionId, publishedTo,
+                    publishedOn);
 
             session.commit();
         } catch (final HypersonicException hx) {
@@ -915,7 +919,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long)
      */
-    public Map<User, Calendar> readPublishedTo(final Long containerId,
+    public Map<User, ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId) {
         final Session session = openSession();
         try {
@@ -923,10 +927,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, containerId);
             session.setLong(2, versionId);
             session.executeQuery();
-            final Map<User, Calendar> publishedTo = new HashMap<User, Calendar>();
+            final Map<User, ArtifactReceipt> publishedTo = new HashMap<User, ArtifactReceipt>();
             while (session.nextResult()) {
-                publishedTo.put(userIO.extractUser(session),
-                        session.getCalendar("RECEIVED_ON"));
+                publishedTo.put(userIO.extractUser(session), extractReceipt(session));
             }
             return publishedTo;
         } finally {
@@ -1004,7 +1007,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#removeVersions(java.lang.Long, java.lang.Long)
      */
@@ -1025,6 +1027,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#restore(com.thinkparity.codebase.model.container.Container)
      */
@@ -1091,17 +1094,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updatePublishedTo()
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#updatePublishedTo(java.lang.Long,
+     *      java.lang.Long, com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar, java.util.Calendar)
+     * 
      */
     public void updatePublishedTo(final Long containerId, final Long versionId,
-            final JabberId userId, final Calendar receivedOn) {
+            final Calendar publishedOn, final JabberId receivedBy,
+            final Calendar receivedOn) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_PUBLISHED_TO);
             session.setCalendar(1, receivedOn);
             session.setLong(2, containerId);
             session.setLong(3, versionId);
-            session.setLong(4, readLocalId(userId));
+            session.setLong(4, readLocalId(receivedBy));
+            session.setCalendar(5, publishedOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not update container version published to list.");
 
@@ -1179,6 +1187,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * Extract an artifact receipt from the published to table.
+     * @param session A <code>Session</code>.
+     * @param user
+     * @return An <code>ArtifactReceipt</code>.
+     */
+    ArtifactReceipt extractReceipt(final Session session) {
+        final ArtifactReceipt receipt = new ArtifactReceipt();
+        receipt.setArtifactId(session.getLong("CONTAINER_ID"));
+        receipt.setPublishedOn(session.getCalendar("PUBLISHED_ON"));
+        receipt.setReceivedOn(session.getCalendar("RECEIVED_ON"));
+        receipt.setUserId(session.getQualifiedUsername("JABBER_ID"));
+        return receipt;
+    }
+
+    /**
      * Extract a container version from the database session.
      * 
      * @param session
@@ -1234,13 +1257,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      *            A container version id <code>Long</code>.
      * @param publishedTo
      *            A published to <code>User</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
      */
     private void createPublishedTo(final Session session,
-            final Long containerId, final Long versionId, final User publishedTo) {
+            final Long containerId, final Long versionId, final User publishedTo, final Calendar publishedOn) {
         session.prepareStatement(SQL_CREATE_PUBLISHED_TO);
         session.setLong(1, containerId);
         session.setLong(2, versionId);
         session.setLong(3, publishedTo.getLocalId());
+        session.setCalendar(4, publishedOn);
         if (1 != session.executeUpdate())
             throw new HypersonicException("Could not create published to entry.");
     }

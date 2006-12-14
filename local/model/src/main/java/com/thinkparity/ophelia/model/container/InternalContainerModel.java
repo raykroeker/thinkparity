@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
@@ -140,10 +141,9 @@ public class InternalContainerModel extends ContainerModel implements
         }
     }
 
-    public void handleReceived(final Long artifactId, final Long versionId,
-            final JabberId receivedBy, final Calendar receivedOn) {
+    public void handleReceived(final ArtifactReceivedEvent event) {
         synchronized (getImplLock()) {
-            getImpl().handleReceived(artifactId, versionId, receivedBy, receivedOn);
+            getImpl().handleReceived(event);
         }
     }
 

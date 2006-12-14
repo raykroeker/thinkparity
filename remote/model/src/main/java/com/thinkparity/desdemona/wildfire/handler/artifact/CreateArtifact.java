@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.wildfire.handler.artifact;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -26,7 +27,7 @@ public class CreateArtifact extends AbstractHandler {
     @Override
     public void service() {
         logApiId();
-        create(readJabberId("userId"), readUUID("uniqueId"));
+        create(readJabberId("userId"), readUUID("uniqueId"), readCalendar("createdOn"));
     }
 
     /**
@@ -37,7 +38,8 @@ public class CreateArtifact extends AbstractHandler {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    private void create(final JabberId userId, final UUID uniqueId) {
-        getArtifactModel().create(userId, uniqueId);
+    private void create(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn) {
+        getArtifactModel().create(userId, uniqueId, createdOn);
     }
 }

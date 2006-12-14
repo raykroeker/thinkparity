@@ -158,6 +158,7 @@ public final class XStreamXMPPEventTest extends XStreamTestCase {
 
     private Fixture setUp(final ArtifactReceivedEvent event,
             final ArtifactReceivedEvent event2) {
+        event.setPublishedOn(DateUtil.getInstance());
         event.setReceivedBy(jabberId);
         event.setReceivedOn(DateUtil.getInstance());
         event.setUniqueId(UUID.randomUUID());

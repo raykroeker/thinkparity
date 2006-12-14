@@ -69,7 +69,7 @@ public class ArchiveRestoreTest extends ArchiveTestCase {
         final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
         final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
         addDocuments(OpheliaTestUser.JUNIT_Z, container.getId());
-        publishToContacts(OpheliaTestUser.JUNIT_Z, container);
+        publish(OpheliaTestUser.JUNIT_Z, container.getId());
         containerModel.archive(container.getId());
         datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT_Z),
                 artifactModel, container, containerModel);

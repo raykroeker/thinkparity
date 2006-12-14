@@ -40,7 +40,7 @@ public class IsDistributedTest extends ContainerTestCase {
         assertFalse("Container is distributed post creation.", getContainerModel(datum.junit).isDistributed(c.getId()));
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
         assertFalse("Container is distributed post document addition.", getContainerModel(datum.junit).isDistributed(c.getId()));
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit).isDistributed(c.getId()));
         assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit_x).isDistributed(c.getId()));
@@ -50,7 +50,7 @@ public class IsDistributedTest extends ContainerTestCase {
         assertFalse("Container " + c2.getName() + " is distributed " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
         addDocument(datum.junit, c2.getId(), "JUnitTestFramework.doc");
         assertFalse("Container " + c2.getName() + " is distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
-        publishToContacts(datum.junit, c2.getId(), "JUnit.X thinkParity");
+        publish(datum.junit, c2.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
@@ -61,7 +61,7 @@ public class IsDistributedTest extends ContainerTestCase {
         modifyDocuments(datum.junit, c2);
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
-        publishToContacts(datum.junit, c2.getId(), Boolean.TRUE, "JUnit.Y thinkParity");
+        publish(datum.junit, c2.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
         assertTrue("Container " + c2.getName() + " is not distributed post publish for user " + datum.junit_y.getSimpleUsername() + ".", getContainerModel(datum.junit_y).isDistributed(c2.getId()));

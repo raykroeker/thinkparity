@@ -35,7 +35,6 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -81,6 +80,7 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
 import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.util.localization.Localization;
@@ -106,6 +106,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		.append("Before you can create the first parity artifact; you will ")
 		.append("need to establish a parity session.").toString();
 
+    /** A set of user utilitiy methods. */
+    private static final UserUtils USER_UTILS;
+
+    static {
+        USER_UTILS = UserUtils.getInstance();
+    }
+
     /**
 	 * Obtain the current date\time.
 	 * 
@@ -115,7 +122,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return DateUtil.getInstance();
 	}
 
-    /** The configuration io. */
+	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
 	/** A thinkParity <code>Environment</code>. */
@@ -124,16 +131,16 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	/** An internal model factory. */
     protected final InternalModelFactory internalModelFactory;
 
-	/** A localization interface. */
+    /** A localization interface. */
 	protected final L18n l18n;
 
-    /** An apache logger. */
+	/** An apache logger. */
 	protected final Log4JWrapper logger;
 
 	/** The thinkParity workspace <code>Preferences</code>. */
 	protected final Preferences preferences;
 
-	/** A thinkParity <code>Workspace</code>. */
+    /** A thinkParity <code>Workspace</code>. */
 	protected final Workspace workspace;
 
     /** The decryption cipher. */
@@ -142,13 +149,13 @@ public abstract class AbstractModelImpl<T extends EventListener>
     /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-    /** A quick-lookup for the local user id. */
+	/** A quick-lookup for the local user id. */
     private JabberId localUserId;
 
-	/** The secret key spec. */
+    /** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
-    /**
+	/**
      * Create an AbstractModelImpl
      * 
      * @param environment
@@ -168,7 +175,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
 
-	/**
+    /**
      * Add a thinkParity event listener.
      * 
      * @param listener
@@ -217,7 +224,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-    /**
+	/**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -248,7 +255,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue(assertion, contains(teamMembers, user));
     }
 
-	/**
+    /**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -276,7 +283,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-    /**
+	/**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -290,7 +297,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-	/**
+    /**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -334,7 +341,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, reference);
     }
 
-    /**
+	/**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -359,7 +366,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline("USER NOT ONLINE");
     }
 
-	/**
+    /**
      * Assert the user is online.
      *
      * @param assertion
@@ -373,7 +380,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -403,7 +410,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 	}
 
-	/**
+    /**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -439,9 +446,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A user id <code>JabberId</code>.
      * @return True if the user id matches one of the team members.
      */
-    protected Boolean contains(final List<TeamMember> team,
+    protected <U extends User> Boolean contains(final List<U> users,
             final JabberId userId) {
-        return -1 != indexOf(team, userId);
+        return USER_UTILS.contains(users, userId);
     }
 
     /**
@@ -453,34 +460,23 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A user.
      * @return True if the id of the user matches one of the team members.
      */
-    protected Boolean contains(final List<TeamMember> team, final User user) {
-        return -1 != indexOf(team, user);
+    protected <U extends User, V extends User> Boolean contains(
+            final List<U> users, final V user) {
+        return USER_UTILS.contains(users, user);
     }
 
     /**
-     * Determine if the list of users contains the team member.
+     * Determine if a list of user ids contains a reference to a user.
      * 
-     * @param users
-     *            A list of users.
-     * @param contact
-     *            A contact.
-     * @return True if the id of the team member matches one of the users.
+     * @param userIds
+     *            A list of user ids <code>JabberId</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the list contains a reference to a user.
      */
-    protected Boolean contains(final List<User> users, final Contact contact) {
-        return -1 != indexOf(users, contact);
-    }
-
-    /**
-     * Determine if the list of users contains the team member.
-     * 
-     * @param users
-     *            A list of users.
-     * @param teamMember
-     *            A team member.
-     * @return True if the id of the team member matches one of the users.
-     */
-    protected Boolean contains(final List<User> users, final TeamMember teamMember) {
-        return -1 != indexOf(users, teamMember);
+    protected <U extends User> Boolean containsUser(final List<JabberId> userIds,
+            final U user) {
+        return USER_UTILS.containsUser(userIds, user);
     }
 
     /**
@@ -595,10 +591,10 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected TeamMember get(final List<TeamMember> team, final User user) {
         return team.get(indexOf(team, user));
     }
-
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), environment, workspace);
     }
+
     /**
      * Obtain the internal thinkParity artifact model.
      * 
@@ -634,7 +630,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -643,7 +639,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ContactModel.getInternalModel(getContext(), environment, workspace);
     }
 
-	/**
+    /**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
@@ -652,14 +648,14 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return DocumentModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-    /**
+	/**
      * Obtain the internal parity download interface.
      *
      * @return The internal parity download interface.
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    }
+    };
 
 	/**
      * Obtain the internal parity library interface.
@@ -668,7 +664,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalLibraryModel getInternalLibraryModel() {
         return LibraryModel.getInternalModel(getContext(), environment, workspace);
-    };
+    }
 
 	/**
      * Obtain the thinkParity internal message interface.
@@ -688,7 +684,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ReleaseModel.getInternalModel(getContext(), environment, workspace);
     }
 
-	/**
+    /**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.
@@ -696,7 +692,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(getContext(), environment, workspace);
 	}
-
     /**
      * Obtain the internal parity user interface.
      * 
@@ -773,42 +768,23 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return l18n.getString(localKey, arguments);
 	}
 
+    protected InternalUserModel getUserModel() {
+        return getInternalUserModel();
+    }
+
     /**
-     * Obtain the index of a user id in a team.
+     * Obtain the index of a user id in a list of users.
      * 
-     * @param team
-     *            A team.
+     * @param users
+     *            A list of <code>User</code>s.
      * @param userId
      *            A user id.
      * @return The index of the user id in the list; or -1 if the user does not
      *         exist in the list.
      */
-    protected int indexOf(final List<TeamMember> team, final JabberId userId) {
-        for (int i = 0; i < team.size(); i++) {
-            if (team.get(i).getId().equals(userId)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Obtain the index of the user in the team.
-     * 
-     * @param team
-     *            The team.
-     * @param user
-     *            A user.
-     * @return The index of the user in the team; or -1 if the user does not
-     *         exist in the list.
-     */
-    protected int indexOf(final List<TeamMember> team, final User user) {
-        for (int i = 0; i < team.size(); i++) {
-            if (team.get(i).getId().equals(user.getId())) {
-                return i;
-            }
-        }
-        return -1;
+    protected <U extends User> int indexOf(final List<U> users,
+            final JabberId userId) {
+        return USER_UTILS.indexOf(users, userId);
     }
 
     /**
@@ -1107,7 +1083,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
     }
-
     /**
      * Encrypt clear text into a base 64 encoded cipher text.
      * 
@@ -1129,6 +1104,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         final Cipher cipher = getEncryptionCipher();
         return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
     }
+
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1238,28 +1214,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return The index of the team member in the users list or -1 if the team
      *         member does not exist in the list.
      */
-    private int indexOf(final List<User> users, final Contact contact) {
-        for(int i = 0; i < users.size(); i++) {
-            if(users.get(i).getId().equals(contact.getId())) { return i; }
-        }
-        return -1;
-    }
-
-    /**
-     * Obtain the index of a team member in a user list.
-     * 
-     * @param users
-     *            A user list.
-     * @param teamMember
-     *            A team member.
-     * @return The index of the team member in the users list or -1 if the team
-     *         member does not exist in the list.
-     */
-    private int indexOf(final List<User> users, final TeamMember teamMember) {
-        for(int i = 0; i < users.size(); i++) {
-            if(users.get(i).getId().equals(teamMember.getId())) { return i; }
-        }
-        return -1;
+    private <U extends User, V extends User> int indexOf(final List<U> users,
+            final V user) {
+        return USER_UTILS.indexOf(users, user);
     }
 
     /**

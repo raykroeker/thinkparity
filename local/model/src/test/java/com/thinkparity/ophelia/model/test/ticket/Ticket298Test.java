@@ -48,7 +48,7 @@ public final class Ticket298Test extends TicketTestCase {
         final Container c = createContainer(datum.junit, NAME);
         final Document d_odt = addDocument(datum.junit, c.getId(), "JUnitTestFramework.odt");
         addDocument(datum.junit, c.getId(), "JUnitTestFramework.txt");
-        publishToContacts(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         // create draft; remove first document; revert first document
         createDraft(datum.junit, c.getId());

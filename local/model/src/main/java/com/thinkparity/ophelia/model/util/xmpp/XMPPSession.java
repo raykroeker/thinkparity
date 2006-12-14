@@ -130,8 +130,8 @@ public interface XMPPSession {
      */
     public void confirmArtifactReceipt(final JabberId userId,
             final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final JabberId receivedBy,
-            final Calendar receivedOn);
+            final Long versionId, final Calendar publishedOn,
+            final JabberId receivedBy, final Calendar receivedOn);
 
     /**
      * Open a document version's content.
@@ -155,7 +155,8 @@ public interface XMPPSession {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    public void createArtifact(final JabberId userId, final UUID uniqueId);
+    public void createArtifact(final JabberId userId, final UUID uniqueId,
+            final Calendar createdOn);
 
     /**
      * Open a document version's content.

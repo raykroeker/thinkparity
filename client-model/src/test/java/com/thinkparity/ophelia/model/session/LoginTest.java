@@ -26,10 +26,7 @@ public class LoginTest extends ModelTestCase {
 	 * Test the session model login api.
 	 */
 	public void testLogin() {
-		datum.sessionModel.login(datum.monitor, datum.testUser.getCredentials());
-			
-		assertTrue(datum.sessionModel.isLoggedIn());
-        datum.sessionModel.logout();
+        login(datum.junit);
 	}
 
 	/**
@@ -37,9 +34,7 @@ public class LoginTest extends ModelTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-        final OpheliaTestUser testUser = OpheliaTestUser.JUNIT;
-		final SessionModel sessionModel = getSessionModel(testUser);
-		datum = new Fixture(sessionModel, testUser);
+		datum = new Fixture(OpheliaTestUser.JUNIT_Y);
 	}
 
 	/**
@@ -56,15 +51,11 @@ public class LoginTest extends ModelTestCase {
 	 * @see LoginTest#setUp()
 	 * @see LoginTest#tearDown()
 	 */
-	private class Fixture {
-		private final LoginMonitor monitor;
-		private final SessionModel sessionModel;
-        private final OpheliaTestUser testUser;
-		private Fixture(final SessionModel sessionModel,
-                final OpheliaTestUser testUser) {
-            this.monitor = new DefaultLoginMonitor();
-			this.sessionModel = sessionModel;
-			this.testUser = testUser;
+	private class Fixture extends ModelTestCase.Fixture {
+		private final OpheliaTestUser junit;
+		private Fixture(final OpheliaTestUser junit) {
+			this.junit = junit;
+            addQueueHelper(junit);
 		}
 	}
 }

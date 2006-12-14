@@ -38,6 +38,9 @@ public final class TabRenderer {
 
     /** The east background <code>Image</code>. */
     private static Image BACKGROUND_EAST;
+    
+    /** The east background when row 0 is selected <code>Image</code>. */
+    private static Image BACKGROUND_EAST_ROW0_SELECTED;
 
     /** The container version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
@@ -98,7 +101,10 @@ public final class TabRenderer {
                 Image.SCALE_SMOOTH);
         buffer = ImageIOUtil.read("PanelBackgroundEast.png");
         BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
-                buffer.getHeight(), Image.SCALE_SMOOTH);        
+                buffer.getHeight(), Image.SCALE_SMOOTH);
+        buffer = ImageIOUtil.read("PanelBackgroundEast_0Selected.png");
+        BACKGROUND_EAST_ROW0_SELECTED = buffer.getScaledInstance(bounds.width,
+                buffer.getHeight(), Image.SCALE_SMOOTH);    
         VERSION_IMAGES_CENTER = new BufferedImage[] {
                 ImageIOUtil.read("PanelBackgroundCenter0.png"),
                 ImageIOUtil.read("PanelBackgroundCenter1.png"),
@@ -208,7 +214,7 @@ public final class TabRenderer {
          * the bar is not scaled
          */
         g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], width
-                - VERSION_IMAGES_CENTER[selectionIndex].getWidth(), 23,
+                - VERSION_IMAGES_CENTER[selectionIndex].getWidth(), 24,
                 observer);
     }
 
@@ -225,7 +231,11 @@ public final class TabRenderer {
             final int height, final int selectionIndex,
             final ImageObserver observer) {
         // paint a solid gradient image on the eastern side of the version panel
-        g.drawImage(BACKGROUND_EAST, x, 0 == selectionIndex ? 0 : 24, observer);
+        if (selectionIndex==0) {
+            g.drawImage(BACKGROUND_EAST_ROW0_SELECTED, x, 0, observer);
+        } else {
+            g.drawImage(BACKGROUND_EAST, x, 0, observer);
+        }
     }
 
     /**
@@ -246,19 +256,14 @@ public final class TabRenderer {
          * selection index; and paint it
          *
          * the number 26 is the height of the each selected row image (ie. row
-         * height of 24 plus 2 extra pixels), except the first row which is 25 pixels.
+         * height of 24 plus 2 extra pixels).
          * 
          * the number 24 is the offset at which to draw each selected row
          */
         final int rowHeight;
         final int rowOffset;
-        if (selectionIndex == 0) {
-            rowHeight = 25;
-            rowOffset = 0;
-        } else {
-            rowHeight = 26;
-            rowOffset = selectionIndex * 24 - 1;
-        }
+        rowHeight = 26;
+        rowOffset = selectionIndex * 24;
         if (isDirty(versionImagesWest[selectionIndex], width, height)) {
             versionImagesWest[selectionIndex] = clipImage(
                     VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, rowHeight,

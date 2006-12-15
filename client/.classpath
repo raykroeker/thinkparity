@@ -6,7 +6,6 @@
 	<classpathentry path="local/browser-plugins/archive/main/java" kind="src"/>
 	<classpathentry path="local/model/src/main/java" kind="src"/>
 	<classpathentry path="local/thinkparity/src/main/java" kind="src"/>
-	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
 	<classpathentry path="common/junitx/src/main/java" output="target/test-classes" kind="src"/>
 	<classpathentry path="common/codebase/src/test/java" output="target/test-classes" kind="src"/>
 	<classpathentry path="common/model/src/test/java" output="target/test-classes" kind="src"/>
@@ -29,9 +28,18 @@
 	<classpathentry sourcepath="vendor/fop/0.20.5/fop-sources.jar" path="vendor/fop/0.20.5/fop.jar" kind="lib"/>
 	<classpathentry path="vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar" kind="lib"/>
 	<classpathentry path="vendor/fop/0.20.5/batik.jar" kind="lib"/>
-	<classpathentry sourcepath="vendor/jdic/0.9.1/win32/jdic-sources.jar" path="vendor/jdic/0.9.1/win32/jdic.jar" kind="lib"/>
-	<classpathentry sourcepath="vendor/jdic_icon/0.1.1/win32/jdic_icon-sources.jar" path="vendor/jdic_icon/0.1.1/win32/jdic_icon.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/jdic/0.9.1/win32/jdic-sources.jar" path="vendor/jdic/0.9.1/win32/jdic.jar" kind="lib">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/jdic/0.9.1"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="vendor/jdic_icon/0.1.1/win32/jdic_icon-sources.jar" path="vendor/jdic_icon/0.1.1/win32/jdic_icon.jar" kind="lib">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/jdic_icon/0.1.1"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry sourcepath="vendor/xstream/1.2.1/xstream-sources.jar" path="vendor/xstream/1.2.1/xstream.jar" kind="lib"/>
 	<classpathentry sourcepath="vendor/dom4j/1.6.1/dom4j-sources.jar" path="vendor/dom4j/1.6.1/dom4j.jar" kind="lib"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_08" kind="con"/>
 	<classpathentry path="target/classes" kind="output"/>
 </classpath>

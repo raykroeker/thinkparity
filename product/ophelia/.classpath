@@ -19,13 +19,7 @@
 	<classpathentry sourcepath="vendor/smack/2.2.1/smack-sources.jar" path="vendor/smack/2.2.1/smack.jar" kind="lib"/>
 	<classpathentry sourcepath="vendor/lucene/1.9.1/lucene-sources.jar" path="vendor/lucene/1.9.1/lucene.jar" kind="lib"/>
 	<classpathentry sourcepath="vendor/log4j/1.2.13/log4j-sources.jar" path="vendor/log4j/1.2.13/log4j.jar" kind="lib"/>
-	<classpathentry sourcepath="vendor/jdic/0.9.1/jdic-sources.jar" path="vendor/jdic/0.9.1/jdic.jar" kind="lib">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/jdic/0.9.1"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry sourcepath="vendor/junit/3.8.1/junit-sources.jar" path="vendor/junit/3.8.1/junit.jar" kind="lib"/>
-	<classpathentry sourcepath="vendor/xstream/1.1.2/xstream-sources.jar" path="vendor/xstream/1.1.2/xstream.jar" kind="lib"/>
 	<classpathentry sourcepath="vendor/nativeskin/6.7/nativeskin-sources.jar" path="vendor/nativeskin/6.7/nativeskin.jar" kind="lib">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ophelia/vendor/i686/win32/nativeskin/6.7"/>
@@ -35,5 +29,9 @@
 	<classpathentry sourcepath="vendor/fop/0.20.5/fop-sources.jar" path="vendor/fop/0.20.5/fop.jar" kind="lib"/>
 	<classpathentry path="vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar" kind="lib"/>
 	<classpathentry path="vendor/fop/0.20.5/batik.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/jdic/0.9.1/win32/jdic-sources.jar" path="vendor/jdic/0.9.1/win32/jdic.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/jdic_icon/0.1.1/win32/jdic_icon-sources.jar" path="vendor/jdic_icon/0.1.1/win32/jdic_icon.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/xstream/1.2.1/xstream-sources.jar" path="vendor/xstream/1.2.1/xstream.jar" kind="lib"/>
+	<classpathentry sourcepath="vendor/dom4j/1.6.1/dom4j-sources.jar" path="vendor/dom4j/1.6.1/dom4j.jar" kind="lib"/>
 	<classpathentry path="target/classes" kind="output"/>
 </classpath>

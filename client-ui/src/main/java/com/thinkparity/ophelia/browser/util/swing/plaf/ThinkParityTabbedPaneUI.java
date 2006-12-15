@@ -9,14 +9,13 @@ import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
-
-import com.sun.java.swing.plaf.windows.WindowsTabbedPaneUI;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ThinkParityTabbedPaneUI extends WindowsTabbedPaneUI {
+public class ThinkParityTabbedPaneUI extends BasicTabbedPaneUI {
 
     /**
      * Create a thinkParity tabbed pane ui.

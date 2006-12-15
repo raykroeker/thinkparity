@@ -40,6 +40,6 @@
 	</classpathentry>
 	<classpathentry sourcepath="vendor/xstream/1.2.1/xstream-sources.jar" path="vendor/xstream/1.2.1/xstream.jar" kind="lib"/>
 	<classpathentry sourcepath="vendor/dom4j/1.6.1/dom4j-sources.jar" path="vendor/dom4j/1.6.1/dom4j.jar" kind="lib"/>
-	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_08" kind="con"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6" kind="con"/>
 	<classpathentry path="target/classes" kind="output"/>
 </classpath>

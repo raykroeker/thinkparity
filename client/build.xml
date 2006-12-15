@@ -218,7 +218,7 @@
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${release.version}/lib/${platform}">
-                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
+                    <jre minVersion="1.6.0" maxVersion="1.6.0"
                             args="-Dthinkparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=${thinkparity.innerMode} -Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
             </config>
         </launch4j>
@@ -231,7 +231,7 @@
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico"
                     chdir="${release.version}/lib/${platform}">
-                    <jre minVersion="1.5.0" maxVersion="1.5.0_08"
+                    <jre minVersion="1.6.0" maxVersion="1.6.0"
                             args="-Dthinkparity.install=&quot;%EXEDIR%&quot; -Dthinkparity.mode=DEMO -Dthinkparity.environment=DEMO"/>
             </config>
         </launch4j>

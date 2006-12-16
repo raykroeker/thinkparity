@@ -213,6 +213,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel
             ((Cell) jList.getSelectedValue()).invokeAction();
         }
     }
+    
+    public void panelCellMouseClicked(final Cell cell, final java.awt.event.MouseEvent e) {        
+    }
+    
+    public void panelCellSelectionChanged(final Cell cell) {        
+    }
 
     /**
      * Handle the mouse entered event for the given list.

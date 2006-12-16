@@ -4,11 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.util.List;
-
-import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -23,17 +20,11 @@ public class PanelCellListManager {
     /** The complete list of <code>Cell</code>. */
     private List<? extends Cell> cells;
     
-    /** The component invoker. */
-    private final Component invoker;
+    /** The list model. */
+    private final PanelCellListModel listModel;
     
     /** The panel localization. */
     private final MainCellL18n localization;
-    
-    /** The list model. */
-    private final DefaultListModel listModel;
-    
-    /** The JList. */
-    private final javax.swing.JList jList;
     
     /** The number of visible rows. */
     private final int visibleRows;
@@ -70,12 +61,10 @@ public class PanelCellListManager {
      * This handles the paging up and down through a Cell list
      * by clicking on next / previous style buttons.
      * 
-     * @param invoker
-     *            A <code>Component</code> invoker.
      * @param listModel
-     *            A <code>DefaultListModel</code>.
-     * @param jList
-     *            The <code>JList</code>.
+     *            A <code>PanelCellListModel</code>.
+     * @param localization
+     *            A <code>MainCellL18n</code>.          
      * @param visibleRows
      *            The number of visible rows.
      * @param firstJLabel
@@ -92,10 +81,8 @@ public class PanelCellListManager {
      *            Flag indicating that the first row is fixed, & in the cells list.                                                   
      */
     public PanelCellListManager(
-            final Component invoker,
+            final PanelCellListModel listModel,
             final MainCellL18n localization,
-            final DefaultListModel listModel,
-            final javax.swing.JList jList,
             final int visibleRows,
             final javax.swing.JLabel firstJLabel,
             final javax.swing.JLabel previousJLabel,
@@ -104,10 +91,8 @@ public class PanelCellListManager {
             final javax.swing.JLabel lastJLabel,
             final Boolean fixedFirstRow) {
         super();
-        this.invoker = invoker;
         this.localization = localization;
         this.listModel = listModel;
-        this.jList = jList;
         this.visibleRows = visibleRows;
         this.firstJLabel = firstJLabel;
         this.previousJLabel = previousJLabel;
@@ -202,8 +187,7 @@ public class PanelCellListManager {
         }
         updateModel();
         reloadControls();
-        jList.setSelectedIndex(0);
-        invoker.repaint();
+        listModel.setSelectedIndex(0);
     }
     
     private void iconJLabelMouseEntered(final java.awt.event.MouseEvent e) {
@@ -226,16 +210,16 @@ public class PanelCellListManager {
         final int offset = currentPage * perPage;
         
         // Repopulate the list model
-        listModel.clear();
+        listModel.getListModel().clear();
         if (rowsThisPage > 0) {
             if (fixedFirstRow) {
-                listModel.addElement(cells.get(0));
+                listModel.getListModel().addElement(cells.get(0));
                 for (int index = 1; index < rowsThisPage; index++) {
-                    listModel.addElement(cells.get(offset+index));
+                    listModel.getListModel().addElement(cells.get(offset+index));
                 }
             } else {
                 for (int index = 0; index < rowsThisPage; index++) {
-                    listModel.addElement(cells.get(offset+index));
+                    listModel.getListModel().addElement(cells.get(offset+index));
                 }
             }
         }

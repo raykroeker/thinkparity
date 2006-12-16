@@ -66,7 +66,14 @@ public class DefaultCell implements Cell {
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#invokeAction()
      * 
      */
-    public void invokeAction() {}
+    public void invokeAction() {}   
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isActionAvailable()
+     */
+    public Boolean isActionAvailable() {
+        return Boolean.TRUE;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isEnabled()

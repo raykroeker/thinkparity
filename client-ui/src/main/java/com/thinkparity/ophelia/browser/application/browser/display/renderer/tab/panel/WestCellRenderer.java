@@ -3,16 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import java.awt.Component;
-
-import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-
-import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 
 /**
@@ -22,15 +16,14 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class WestCellRenderer extends AbstractJPanel implements
-        ListCellRenderer {
+public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer, ListCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
-
+    
     /**
      * Create WestCellRenderer.
      * 
@@ -39,42 +32,36 @@ public final class WestCellRenderer extends AbstractJPanel implements
         super();
         initComponents();
     }
-
+    
     /**
-     * Return a component that has been configured to display the specified
-     * value. That component's <code>paint</code> method is then called to
-     * "render" the cell.  If it is necessary to compute the dimensions
-     * of a list because the list cells do not have a fixed size, this method
-     * is called to generate a component on which <code>getPreferredSize</code>
-     * can be invoked.
+     * Create WestCellRenderer.
      * 
-     * @param list The JList we're painting.
-     * @param value The value returned by list.getModel().getElementAt(index).
-     * @param index The cells index.
-     * @param isSelected True if the specified cell was selected.
-     * @param cellHasFocus True if the specified cell has the focus.
-     * @return A component whose paint() method will render the specified value.
-     * @see JList
-     * @see ListSelectionModel
-     * @see ListModel
      */
-    public Component getListCellRendererComponent(final JList list,
-            final Object value, final int index, final boolean isSelected,
-            final boolean cellHasFocus) {
-        final Cell cell = (Cell) value;
-        iconJLabel.setIcon(cell.getIcon());
-        textJLabel.setText(cell.getText()); 
-        if (cell.isSetAdditionalText())
-            additionalTextJLabel.setText(cell.getAdditionalText());
-        else
-            additionalTextJLabel.setText("");
-        if (cell.isEnabled()) {
-            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-        } else {
-            textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
-        }
-        return this;
-
+    public WestCellRenderer(final DefaultTabPanel tabPanel) {
+        super(tabPanel);
+        initComponents();
+        installListeners();
+    }
+    
+    /**
+     * Get the icon JLabel
+     */
+    protected javax.swing.JLabel getIconJLabel() {
+        return iconJLabel;
+    }
+    
+    /**
+     * Get the text JLabel
+     */
+    protected javax.swing.JLabel getTextJLabel() {
+        return textJLabel;
+    }
+    
+    /**
+     * Get the additional text JLabel
+     */
+    protected javax.swing.JLabel getAdditionalTextJLabel() {
+        return additionalTextJLabel;
     }
 
     /**
@@ -94,7 +81,7 @@ public final class WestCellRenderer extends AbstractJPanel implements
         setPreferredSize(new java.awt.Dimension(20, 24));
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconDraft.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(0, 55, 0, 5);
         add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!West Cell Text!");
@@ -109,7 +96,7 @@ public final class WestCellRenderer extends AbstractJPanel implements
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(additionalTextJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

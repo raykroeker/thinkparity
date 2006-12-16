@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +15,10 @@ import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -24,8 +27,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -33,15 +35,9 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListManager;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -57,21 +53,20 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private javax.swing.JLabel eastFillerJLabel;
     private final javax.swing.JLabel eastFirstJLabel = new javax.swing.JLabel();
-    private final javax.swing.JList eastJList = new javax.swing.JList();
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastLastJLabel = new javax.swing.JLabel();
+    private javax.swing.JPanel eastListJPanel;
     private final javax.swing.JLabel eastNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastPreviousJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel expansionJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
     private javax.swing.JLabel westFillerJLabel;
     private final javax.swing.JLabel westFirstJLabel = new javax.swing.JLabel();
-    private final javax.swing.JList westJList = new javax.swing.JList();
     private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel westLastJLabel = new javax.swing.JLabel();
+    private javax.swing.JPanel westListJPanel;
     private final javax.swing.JLabel westNextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westPreviousJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
@@ -91,8 +86,11 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The visible east list <code>DefaultListModel</code>. */
-    private final DefaultListModel eastListModel;
+    /** The visible east list model. */
+    private final PanelCellListModel eastListModel;
+        
+    /** The east list of <code>PanelCellRenderer</code>.*/
+    private final List<PanelCellRenderer> eastCellPanels;
 
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
@@ -106,38 +104,41 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
-    /** The visible west list <code>DefaultListModel</code>. */
-    private final DefaultListModel westListModel;
+    /** The visible west list model. */
+    private final PanelCellListModel westListModel;
     
     /** The west list of <code>Cell</code>. */
     private final List<Cell> westCells;
     
-    /** The east list manager. */
-    private final PanelCellListManager eastListManager;
-    
-    /** The west list manager. */
-    private final PanelCellListManager westListManager;
+    /** The west list of <code>PanelCellRenderer</code>.*/
+    private final List<PanelCellRenderer> westCellPanels;
 
     /**
      * Create ContainerPanel.
      * 
      */
     public ContainerPanel(final BrowserSession session) {
-        super(session);
-        this.eastListModel = new DefaultListModel();
+        super(session);            
         this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
         this.localization = new MainCellL18n("ContainerPanel");
-        this.westListModel = new DefaultListModel();
+        this.eastListModel = new PanelCellListModel(this, localization,
+                NUMBER_VISIBLE_ROWS, eastFirstJLabel, eastPreviousJLabel,
+                eastCountJLabel, eastNextJLabel, eastLastJLabel);
+        this.westListModel = new PanelCellListModel(this, localization,
+                NUMBER_VISIBLE_ROWS, westFirstJLabel, westPreviousJLabel,
+                westCountJLabel, westNextJLabel, westLastJLabel);
         this.westCells = new ArrayList<Cell>();
-        this.eastListManager = new PanelCellListManager(this, localization,
-                eastListModel, eastJList, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
-                eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
-                eastLastJLabel, Boolean.TRUE);
-        this.westListManager = new PanelCellListManager(this, localization,
-                westListModel, westJList, NUMBER_VISIBLE_ROWS, westFirstJLabel,
-                westPreviousJLabel, westCountJLabel, westNextJLabel,
-                westLastJLabel, Boolean.TRUE);     
+        this.eastCellPanels = new ArrayList<PanelCellRenderer>();
+        this.westCellPanels = new ArrayList<PanelCellRenderer>();
+        for (int index = 0; index < NUMBER_VISIBLE_ROWS; index++) {
+            eastCellPanels.add(new EastCellRenderer(this));
+            if (index==0) {
+                westCellPanels.add(new TopWestCellRenderer(this));
+            } else {
+                westCellPanels.add(new WestCellRenderer(this));
+            }
+        }
         initComponents();
     }
 
@@ -234,6 +235,40 @@ public class ContainerPanel extends DefaultTabPanel {
     public void expand() {
         doExpand(true);
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMouseClicked(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
+     */
+    @Override
+    public void panelCellMouseClicked(final Cell cell, final MouseEvent e) {
+        if (cell instanceof WestCell) {
+            if (e.isPopupTrigger() || (e.getButton() == MouseEvent.BUTTON1)) {
+                westListModel.setSelectedCell(cell);
+            }
+            if (((e.getClickCount() % 2) == 0) &&  (westListModel.getIndexOf(cell)==0)) {
+                tabDelegate.toggleExpansion(this);
+            }
+        } else if (cell instanceof EastCell) {
+            if (((e.getClickCount() % 2) == 0) &&  (eastListModel.getIndexOf(cell)==0)) {
+                tabDelegate.toggleExpansion(this);
+            }
+        }
+    }
+       
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellSelectionChanged()
+     */
+    @Override
+    public void panelCellSelectionChanged(final Cell cell) {
+        if (cell instanceof WestCell) {
+            if (westListModel.isSelectionEmpty()) {
+                eastListModel.initialize(null);
+            } else {
+                eastListModel.initialize(((WestCell)cell).getEastCells());
+            }
+            repaint();
+        }
+    }
 
     /**
      * Set the panel data.
@@ -261,7 +296,17 @@ public class ContainerPanel extends DefaultTabPanel {
         this.latestVersion = latestVersion;
         
         // Build the complete west list
-        westCells.add(new ContainerCell());
+        if (container.isLocalDraft()) {
+            westCells.add(new ContainerCell(draft));
+        } else if (null != latestVersion) {
+            final ContainerVersion version = latestVersion;
+            westCells.add(new ContainerCell(version, documentVersions
+                    .get(version), publishedTo.get(version), publishedBy
+                    .get(version)));
+        } else {
+            westCells.add(new ContainerCell());
+        }
+        
         if (container.isLocalDraft()) {
             westCells.add(new DraftCell());
         }
@@ -271,15 +316,16 @@ public class ContainerPanel extends DefaultTabPanel {
                     .get(version)));
         }
         
-        // Initialize the list manager
-        westListManager.initialize(westCells);
+        // Initialize the list model
+        westListModel.initialize(westCells);
         
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
-        restoreSelection("eastJList", eastListModel, eastJList);
-        restoreSelection("westJList", westListModel, westJList);
+        // TODO
+        //restoreSelection("eastList", eastListModel, eastJList);
+        //restoreSelection("westList", westListModel, westJList);
     }
 
     /**
@@ -301,8 +347,8 @@ public class ContainerPanel extends DefaultTabPanel {
         super.paintComponent(g);
         if (expanded) {
             renderer.paintExpandedBackground(g, this);
-            if (!westJList.isSelectionEmpty()) {
-                final int selectionIndex = westJList.getSelectedIndex();
+            if (!westListModel.isSelectionEmpty()) {
+                final int selectionIndex = westListModel.getSelectedIndex();
                 renderer.paintExpandedBackgroundWest(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
                 renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
@@ -318,8 +364,8 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     protected void repaintLists() {
-        eastJList.repaint();
-        westJList.repaint();
+        eastListJPanel.repaint();
+        westListJPanel.repaint();
     }
 
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
@@ -329,6 +375,8 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
             popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
             popupDelegate.showForContainer(container);
+        } else if ((e.getClickCount() % 2) == 0) {
+            tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
@@ -339,8 +387,6 @@ public class ContainerPanel extends DefaultTabPanel {
             tabDelegate.toggleExpansion(this);
             popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
             popupDelegate.showForContainer(container);
-        } else {
-            tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
@@ -391,60 +437,24 @@ public class ContainerPanel extends DefaultTabPanel {
         reload();
         repaint();
     }
-
-    private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
-        jListFocusGained((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusGained
-
-    private void eastJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusLost
-        jListFocusLost((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusLost
-
-    private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
-        jListMouseClicked((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseClicked
-
-    private void eastJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseEntered
-        jListMouseEntered(eastListModel, (javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseEntered
-
-    private void eastJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseExited
-        jListMouseExited((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseExited
-
-    private void eastJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseMoved
-        jListMouseMoved(
-                (DefaultListModel) ((javax.swing.JList) e.getSource()).getModel(),
-                (javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseMoved
-
-    private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
-        jListMousePressed((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMousePressed
-
-    private void eastJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseReleased
-        jListMouseReleased((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseReleased
-
-    private void eastJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_eastJListValueChanged
-        if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
-            repaint();
-            return;
+    
+    /**
+     * Get a panel cell.
+     * 
+     * @param listType
+     *          The list type.
+     * @return The panel cell.
+     */
+    private PanelCellRenderer getPanelCellRenderer(final ListType listType, final int index) {
+        Assert.assertTrue("INVALID PANEL CELL INDEX", (index>=0 && index<NUMBER_VISIBLE_ROWS));
+        if (ListType.WEST_LIST == listType) {
+            return westCellPanels.get(index);
+        } else if (ListType.EAST_LIST == listType) {
+            return eastCellPanels.get(index);
+        } else {
+            throw Assert.createUnreachable("UNKNOWN LIST TYPE");
         }
-        saveSelection("eastJList", (javax.swing.JList) e.getSource());
-    }//GEN-LAST:event_eastJListValueChanged
-
-    private void expansionJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseClicked
-        tabDelegate.toggleExpansion(this);
-    }//GEN-LAST:event_expansionJLabelMouseClicked
-
-    private void expansionJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseEntered
-
-    private void expansionJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseExited
+    }
 
     private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
         actionDelegate.invokeForContainer(container);
@@ -467,7 +477,9 @@ public class ContainerPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        westListJPanel = new PanelCellListJPanel(westListModel, ListType.WEST_LIST);
         westFillerJLabel = new javax.swing.JLabel();
+        eastListJPanel = new PanelCellListJPanel(eastListModel, ListType.EAST_LIST);
         eastFillerJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -501,7 +513,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 5);
         collapsedJPanel.add(iconJLabel, gridBagConstraints);
 
         textJLabel.setText("!Package Text!");
@@ -518,7 +530,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 4, 0);
         collapsedJPanel.add(additionalTextJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -533,79 +545,18 @@ public class ContainerPanel extends DefaultTabPanel {
         westJPanel.setLayout(new java.awt.GridBagLayout());
 
         westJPanel.setOpaque(false);
-        expansionJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
-        expansionJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                expansionJLabelMouseExited(evt);
-            }
-        });
+        westListJPanel.setLayout(new java.awt.GridBagLayout());
 
+        westListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 8, 0, 8);
-        westJPanel.add(expansionJLabel, gridBagConstraints);
-
-        westJList.setModel(westListModel);
-        westJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        westJList.setCellRenderer(new WestCellRenderer());
-        westJList.setOpaque(false);
-        westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
-        westJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
-                westJListMouseMoved(evt);
-            }
-        });
-        westJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                westJListFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                westJListFocusLost(evt);
-            }
-        });
-        westJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                westJListValueChanged(evt);
-            }
-        });
-        westJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                westJListMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                westJListMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                westJListMouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                westJListMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                westJListMouseReleased(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        westJPanel.add(westJList, gridBagConstraints);
+        westJPanel.add(westListJPanel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
@@ -615,35 +566,35 @@ public class ContainerPanel extends DefaultTabPanel {
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/ListItem_Messages"); // NOI18N
         westFirstJLabel.setText(bundle.getString("ContainerPanel.firstJLabelWest")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 5);
         westJPanel.add(westFirstJLabel, gridBagConstraints);
 
         westPreviousJLabel.setText(bundle.getString("ContainerPanel.previousJLabelWest")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westPreviousJLabel, gridBagConstraints);
 
         westCountJLabel.setText(bundle.getString("ContainerPanel.countJLabel")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westCountJLabel, gridBagConstraints);
 
         westNextJLabel.setText(bundle.getString("ContainerPanel.nextJLabelWest")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westNextJLabel, gridBagConstraints);
 
         westLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabelWest")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westLastJLabel, gridBagConstraints);
@@ -653,53 +604,15 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastJPanel.setOpaque(false);
-        eastJList.setModel(eastListModel);
-        eastJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        eastJList.setCellRenderer(new EastCellRenderer());
-        eastJList.setOpaque(false);
-        eastJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
-        eastJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
-                eastJListMouseMoved(evt);
-            }
-        });
-        eastJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                eastJListFocusGained(evt);
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                eastJListFocusLost(evt);
-            }
-        });
-        eastJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                eastJListValueChanged(evt);
-            }
-        });
-        eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                eastJListMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                eastJListMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                eastJListMouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                eastJListMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                eastJListMouseReleased(evt);
-            }
-        });
+        eastListJPanel.setLayout(new java.awt.GridBagLayout());
 
+        eastListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        eastJPanel.add(eastJList, gridBagConstraints);
+        eastJPanel.add(eastListJPanel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -813,53 +726,6 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
-        jListFocusGained((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusGained
-
-    private void westJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusLost
-        jListFocusLost((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusLost
-
-    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        westJListMouseClicked("westJList", (javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseClicked
-
-    private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
-        westJListSetCursor((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseEntered
-
-    private void westJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseExited
-        jListMouseExited((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseExited
-
-    private void westJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseMoved
-        westJListSetCursor((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseMoved
-
-    private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
-        jListMousePressed((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMousePressed
-
-    private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
-        jListMouseReleased((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseReleased
-
-    private void westJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_westJListValueChanged
-        if (e.getValueIsAdjusting()) {
-            repaint();
-            return;
-        }
-        
-        WestCell selectedCell = (WestCell) westJList.getSelectedValue();
-        if (null == selectedCell) {
-            eastListManager.initialize(null);
-        } else {
-            saveSelection("westJList", (javax.swing.JList) e.getSource());
-            eastListManager.initialize(selectedCell.getEastCells());
-        }
-    }//GEN-LAST:event_westJListValueChanged
-
     /** An east list cell. */
     private abstract class AbstractEastCell extends DefaultCell implements
             EastCell {
@@ -894,16 +760,32 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private ContainerCell() {
             super();
-            add(new ContainerFieldCell(this, "ContainerCreatedBy",
-                    containerCreatedBy.getName()));
-            add(new ContainerFieldCell(this, "ContainerCreatedOn",
-                    formatFuzzy(container.getCreatedOn())));
-            add(new ContainerFieldCell(this, "ContainerLatestVersion",
-                    null == latestVersion
-                    ? null : formatFuzzy(latestVersion.getUpdatedOn())));
-            add(new ContainerFieldCell(this, "ContainerDraftOwner",
-                    container.isDraft() ? draft.getOwner().getName() : null));
-            
+            prepareText();
+        }
+        
+        private ContainerCell(final ContainerDraft draft) {
+            super();
+            for (final Document document : draft.getDocuments()) {
+                add(new DraftDocumentCell(document));
+            }
+            prepareText();
+        }
+
+        private ContainerCell(final ContainerVersion version,
+                final Map<DocumentVersion, Delta> documentVersions,
+                final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
+
+            super();
+            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
+                add(new VersionDocumentCell(this, entry.getKey(), entry.getValue()));
+            }
+            add(new VersionUserCell(this, publishedBy));
+            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                add(new VersionUserCell(this, entry.getKey(), entry.getValue()));
+            }
+            prepareText();
+        }
+        private void prepareText() {
             if (container.isDraft() && container.isLatest()) {
                 if (container.isLocalDraft()) {
                     setAdditionalText(localization.getString(
@@ -1231,4 +1113,139 @@ public class ContainerPanel extends DefaultTabPanel {
             parent.showPopup();
         }
     }
+
+    private class PanelCellListJPanel extends javax.swing.JPanel {
+        
+        /** The list model. */
+        private final PanelCellListModel panelCellListModel;
+        
+        /** The list type. */
+        private final ListType listType;
+        
+        /**
+         * The set of <code>GridBagConstraints</code> used when adding a fill
+         * component.
+         */
+        private final GridBagConstraints fillConstraints;
+
+        /** The set of <code>GridBagConstraints</code> used when adding a panel. */
+        private final GridBagConstraints panelConstraints;
+        
+        /** A fill <code>JLabel</code>. */
+        private final javax.swing.JLabel fillJLabel = new javax.swing.JLabel();
+        
+        PanelCellListJPanel(final PanelCellListModel panelCellListModel,
+                final ListType listType) {
+            super();
+            this.panelCellListModel = panelCellListModel;
+            this.listType = listType;
+            this.fillConstraints = new GridBagConstraints();
+            this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
+            this.fillConstraints.weightx = 1.0F;
+            this.fillConstraints.weighty = 1.0F;
+            this.fillConstraints.gridx = 0;
+            this.fillConstraints.gridy = GridBagConstraints.RELATIVE;
+            this.panelConstraints = new GridBagConstraints();
+            this.panelConstraints.fill = GridBagConstraints.BOTH;
+            this.panelConstraints.gridx = 0;
+            add(fillJLabel, new java.awt.GridBagConstraints());
+            installDataListener();
+        }
+        
+        private void installDataListener() {
+            final DefaultListModel listModel = panelCellListModel.getListModel();
+            listModel.addListDataListener(new ListDataListener() {
+                /**
+                 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
+                 */
+                public void contentsChanged(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                        removePanel(i);
+                        addPanel((Cell) listModel.get(i), i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                }
+                
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalAdded(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                        addPanel((Cell) listModel.get(i), i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                }
+                
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalRemoved(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex1(); i >= e.getIndex0(); i--) {
+                        removePanel(i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                } 
+            });
+        }
+        
+        /**
+         * Add the fill component.
+         * 
+         * @param listSize
+         *            The <code>int</code> size of the list.
+         */
+        private void addFill(final int listSize) {
+            add(fillJLabel, fillConstraints, listSize);
+        }
+
+        /**
+         * Add a panel from a model at an index.
+         * 
+         * @param cell
+         *            A <code>Cell</code>.
+         * @param index
+         *            An <code>int</code> index.
+         */
+        private void addPanel(final Cell cell, final int index) {
+            panelConstraints.gridy = index;
+            final PanelCellRenderer panelCell = getPanelCellRenderer(listType, index);
+            panelCell.renderComponent(cell, index);
+            add((Component)panelCell, panelConstraints.clone(), index);
+        }
+        
+        /**
+         * Reload the panels display. The jpanel is revalidated.
+         * 
+         */
+        private void reloadPanels() {
+            revalidate();
+            repaint();
+        }
+        
+        /**
+         * Remove the fill component.
+         *
+         */
+        private void removeFill() {
+            remove(fillJLabel);
+        }
+
+        /**
+         * Remove a panel at an index.
+         * 
+         * @param index
+         *            An <code>int</code> index.
+         */
+        private void removePanel(final int index) {
+            remove(index);
+        }
+    }
+    
+    private enum ListType { WEST_LIST, EAST_LIST }
 }

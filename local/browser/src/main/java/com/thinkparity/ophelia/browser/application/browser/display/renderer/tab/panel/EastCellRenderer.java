@@ -3,14 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import java.awt.Component;
-
-import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import com.thinkparity.codebase.swing.AbstractJPanel;
-
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
  * <b>Title:</b>thinkParity Version Content Cell Renderer<br>
@@ -20,8 +16,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class EastCellRenderer extends AbstractJPanel implements
-        ListCellRenderer {
+public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRenderer, ListCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
@@ -30,33 +25,42 @@ public class EastCellRenderer extends AbstractJPanel implements
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Create VersionContentCellRenderer.
-     *
+     * Create a EastCellRenderer
      */
     public EastCellRenderer() {
+        super();
         initComponents();
     }
-
+    
     /**
-     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
-     *      java.lang.Object, int, boolean, boolean)
+     * Create EastCellRenderer.
+     * 
      */
-    public Component getListCellRendererComponent(final JList list,
-            final Object value, final int index, final boolean isSelected,
-            final boolean cellHasFocus) {
-        final Cell cell = (Cell) value;
-        iconJLabel.setIcon(cell.getIcon());
-        textJLabel.setText(cell.getText()); 
-        if (cell.isSetAdditionalText())
-            additionalTextJLabel.setText(cell.getAdditionalText());
-        else
-            additionalTextJLabel.setText("");
-        if (cell.isEnabled()) {
-            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
-        } else {
-            textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
-        }
-        return this;
+    public EastCellRenderer(final DefaultTabPanel tabPanel) {
+        super(tabPanel);
+        initComponents();
+        installListeners();
+    }
+    
+    /**
+     * Get the icon JLabel
+     */
+    protected javax.swing.JLabel getIconJLabel() {
+        return iconJLabel;
+    }
+    
+    /**
+     * Get the text JLabel
+     */
+    protected javax.swing.JLabel getTextJLabel() {
+        return textJLabel;
+    }
+    
+    /**
+     * Get the additional text JLabel
+     */
+    protected javax.swing.JLabel getAdditionalTextJLabel() {
+        return additionalTextJLabel;
     }
 
     /**
@@ -82,7 +86,7 @@ public class EastCellRenderer extends AbstractJPanel implements
         textJLabel.setText("!East Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
         additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
@@ -91,7 +95,7 @@ public class EastCellRenderer extends AbstractJPanel implements
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(additionalTextJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

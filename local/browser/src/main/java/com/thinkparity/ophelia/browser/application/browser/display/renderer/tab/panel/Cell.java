@@ -41,6 +41,13 @@ public interface Cell {
      * 
      */
     public void invokeAction();
+    
+    /**
+     * Determine whether or not an action is available for the cell.
+     * 
+     * @return True if an action is available.
+     */
+    public Boolean isActionAvailable();
 
     /**
      * Determine whether or not a cell is enabled.

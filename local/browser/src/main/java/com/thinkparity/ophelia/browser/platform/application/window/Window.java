@@ -31,7 +31,7 @@ public abstract class Window extends AbstractJDialog {
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
     
-    /** Whether or not to display title text.  */
+    /** Whether or not to display title text. */
     private final Boolean titleText;
 
 	/** The panel onto which all displays are dropped. */

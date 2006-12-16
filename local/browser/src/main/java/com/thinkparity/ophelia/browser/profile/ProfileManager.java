@@ -17,6 +17,7 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.DirectoryNames;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -31,22 +32,26 @@ public class ProfileManager {
      */
     public static FileSystem initProfileFileSystem() {
         final File fileSystemRoot;
-        switch(OSUtil.getOS()) {
-            case WINDOWS_2000:
-            case WINDOWS_XP:
-                final StringBuffer win32Path = new StringBuffer()
-                        .append(System.getenv("APPDATA"))
-                        .append(File.separatorChar).append("thinkParity");
-                fileSystemRoot = new File(win32Path.toString());
-                break;
-            case LINUX:
-                final StringBuffer linuxPath = new StringBuffer()
-                        .append(System.getenv("HOME"))
-                        .append(File.separatorChar).append(".thinkParity");
-                fileSystemRoot = new File(linuxPath.toString());
-                break;
-            default:
-                throw Assert.createUnreachable("UNSUPPORTED OS");
+        if (null != System.getProperty("thinkparity.profile.root")) {
+            fileSystemRoot = new File(System.getProperty("thinkparity.profile.root"));
+        } else {
+            switch(OSUtil.getOS()) {
+                case WINDOWS_2000:
+                case WINDOWS_XP:
+                    final StringBuffer win32Path = new StringBuffer()
+                            .append(System.getenv("APPDATA"))
+                            .append(File.separatorChar).append("thinkParity");
+                    fileSystemRoot = new File(win32Path.toString());
+                    break;
+                case LINUX:
+                    final StringBuffer linuxPath = new StringBuffer()
+                            .append(System.getenv("HOME"))
+                            .append(File.separatorChar).append(".thinkParity");
+                    fileSystemRoot = new File(linuxPath.toString());
+                    break;
+                default:
+                    throw Assert.createUnreachable("Unsupported operating system.");
+            }
         }
         if(!fileSystemRoot.exists()) {
             Assert.assertTrue(fileSystemRoot.mkdirs(),

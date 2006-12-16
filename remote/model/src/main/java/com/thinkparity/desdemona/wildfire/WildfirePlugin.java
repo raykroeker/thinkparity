@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
@@ -88,6 +89,8 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.active", jiveProperties.get("xmpp.socket.ssl.active"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.keypass", jiveProperties.get("xmpp.socket.ssl.keypass"));
 		logger.logInfo("{0}:{1}", "xmpp.socket.ssl.port", jiveProperties.get("xmpp.socket.ssl.port"));
+        logger.logInfo("{0}:{1}", "thinkparity.environment", jiveProperties.get("thinkparity.environment"));
+        logger.logInfo("{0}:{1}", "thinkparity.mode", jiveProperties.get("thinkparity.mode"));
 		initializeHandlers(pluginDirectory);
 		startStream();
         startArchive();
@@ -119,68 +122,163 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
 	private void bootstrapLog4J(final Mode mode) {
         final Properties logging = bootstrapLog4JConfig(mode);
         final File loggingRoot = bootstrapLog4JRoot();
-        // console appender
+        // desdemona console
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
-        // default appender
+        logging.setProperty("log4j.appender.DESDEMONA_CONSOLE.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        // ophelia console
+        logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+        logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        // desdemona default file appender
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.DESDEMONA_DEFAULT.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server.log"));
-        // sql appender
+        // ophelia default file appender
+        logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DEFAULT.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.DEFAULT.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity.log"));
+        // desdemona sql appender
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.DESDEMONA_SQL_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server SQL.log"));
-        // xmpp appender
+        // ophelia sql appender
+        logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity SQL.log"));
+        // desdemona xmpp appender
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout.ConversionPattern", "%d{ISO8601} %t %m%n");
+        logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         logging.setProperty("log4j.appender.DESDEMONA_XMPP_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Server XMPP.log"));
+        // ophelia xmpp appender
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity XMPP.log"));
         // loggers
         switch (mode) {
         case DEMO:
         case PRODUCTION:
+            // root
             logging.setProperty("log4j.rootLogger", "WARN, DESDEMONA_DEFAULT");
+
+            // desdemona
             logging.setProperty("log4j.logger.com.thinkparity.desdemona", "WARN, DESDEMONA_DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.desdemona", "false");
+            // desdemona sql
             logging.setProperty("log4j.logger.DESDEMONA_SQL_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.DESDEMONA_SQL_DEBUGGER", "false");
+            // desdemona xmpp
             logging.setProperty("log4j.logger.DESDEMONA_XMPP_DEBUGGER", "NONE");
             logging.setProperty("log4j.additivity.DESDEMONA_XMPP_DEBUGGER", "false");
+
+            // ophelia
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia sql
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xmpp
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
         case DEVELOPMENT:
+            // root
             logging.setProperty("log4j.rootLogger", "INFO, DESDEMONA_CONSOLE, DESDEMONA_DEFAULT");
+
+            // desdemona
             logging.setProperty("log4j.logger.com.thinkparity.desdemona", "INFO, DESDEMONA_CONSOLE, DESDEMONA_DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.desdemona", "false");
+            // desdmona sql
             logging.setProperty("log4j.logger.DESDEMONA_SQL_DEBUGGER", "DEBUG, DESDEMONA_SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.DESDEMONA_SQL_DEBUGGER", "false");
+            // desdemona xmpp
             logging.setProperty("log4j.logger.DESDEMONA_XMPP_DEBUGGER", "DEBUG, DESDEMONA_XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.DESDEMONA_XMPP_DEBUGGER", "false");
+
+            // ophelia
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia sql
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xmpp
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
         case TESTING:
+            // root
             logging.setProperty("log4j.rootLogger", "INFO, DESDEMONA_DEFAULT");
+
+            // desdemona
             logging.setProperty("log4j.logger.com.thinkparity.desdemona", "INFO, DESDEMONA_DEFAULT");
             logging.setProperty("log4j.additivity.com.thinkparity.desdemona", "false");
+            // desdemona sql
             logging.setProperty("log4j.logger.DESDEMONA_SQL_DEBUGGER", "DEBUG, DESDEMONA_SQL_DEBUGGER");
             logging.setProperty("log4j.additivity.DESDEMONA_SQL_DEBUGGER", "false");
+            // desdmona xmpp
             logging.setProperty("log4j.logger.DESDEMONA_XMPP_DEBUGGER", "DEBUG, DESDEMONA_XMPP_DEBUGGER");
             logging.setProperty("log4j.additivity.DESDEMONA_XMPP_DEBUGGER", "false");
+
+            // ophelia
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            // ophelia sql
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+            // ophelia xmpp
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
             break;
         default:
             throw Assert.createUnreachable("Unknown operating mode.");
         }
-        // renderers
+        // common renderers
+        logging.setProperty(
+                "log4j.renderer.java.util.Calendar",
+                "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
+                "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.container.Container",
+                "com.thinkparity.codebase.model.util.logging.or.ContainerRenderer");
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.jabber.JabberId",
                 "com.thinkparity.codebase.log4j.or.JabberIdRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.Document",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.user.User",
+                "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
+        // desdemona renderers
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.artifact.Artifact",
                 "com.thinkparity.desdemona.util.logging.or.ArtifactRenderer");
@@ -203,10 +301,14 @@ public class WildfirePlugin implements Plugin, XMPPServerListener {
                 "log4j.renderer.org.xmpp.packet.IQ",
                 "com.thinkparity.codebase.xmpp.IQRenderer");
         logging.setProperty(
-            "log4j.renderer.org.xmpp.packet.JID",
-            "com.thinkparity.desdemona.util.logging.or.JIDRenderer");
+                "log4j.renderer.org.xmpp.packet.JID",
+                "com.thinkparity.desdemona.util.logging.or.JIDRenderer");
+        // ophelia renderers
+        logging.setProperty(
+                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
+                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
 
-        LogManager.resetConfiguration();
+        System.setProperty("log4j.defaultInitOverride", "true");
         PropertyConfigurator.configure(logging);
     }
 

@@ -4,7 +4,6 @@
 package com.thinkparity.desdemona.model;
 
 import com.thinkparity.codebase.Constants.Xml;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 
@@ -20,6 +19,6 @@ public abstract class EventGenerator {
         final IQ iq = new IQ();
         iq.setType(IQ.Type.set);
         iq.setChildElement(Xml.NAME, Xml.NAMESPACE + eventName);
-        return new IQWriter(iq, new Log4JWrapper(getClass()));
+        return new IQWriter(iq);
     }
 }

@@ -11,9 +11,14 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -28,34 +33,43 @@ public final class ReadDocumentVersionDeltas extends AbstractHandler {
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
         final Map<DocumentVersion, Delta> versionDeltas;
-        final Long compareToVersionId = readLong("compareToVersionId");
+        final Long compareToVersionId = reader.readLong("compareToVersionId");
         if (null == compareToVersionId) {
-            versionDeltas = readArchiveDocumentVersionDeltas(
-                readJabberId("userId"), readUUID("uniqueId"),
-                readLong("compareVersionId"));
+            versionDeltas = readArchiveDocumentVersionDeltas(provider,
+                reader.readJabberId("userId"), reader.readUUID("uniqueId"),
+                reader.readLong("compareVersionId"));
         } else {
-            versionDeltas = readArchiveDocumentVersionDeltas(
-                    readJabberId("userId"), readUUID("uniqueId"),
-                    readLong("compareVersionId"), readLong("compareToVersionId"));
+            versionDeltas = readArchiveDocumentVersionDeltas(provider,
+                    reader.readJabberId("userId"), reader.readUUID("uniqueId"),
+                    reader.readLong("compareVersionId"),
+                    reader.readLong("compareToVersionId"));
         }
-        writeDocumentVersionDeltas("versionDeltas", versionDeltas);
+        writer.writeDocumentVersionDeltas("versionDeltas", versionDeltas);
     }
 
-    private Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
+    private Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long compareVersionId) {
-        return getContainerModel().readArchiveDocumentVersionDeltas(userId,
+        return provider.getContainerModel().readArchiveDocumentVersionDeltas(userId,
                 uniqueId, compareVersionId);
     }
 
-    private Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
-            final UUID uniqueId, final Long compareVersionId, final Long compareToVersionId) {
-        return getContainerModel().readArchiveDocumentVersionDeltas(userId,
-                uniqueId, compareVersionId, compareToVersionId);
+    private Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
+            final ServiceModelProvider provider, final JabberId userId,
+            final UUID uniqueId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        return provider.getContainerModel().readArchiveDocumentVersionDeltas(
+                userId, uniqueId, compareVersionId, compareToVersionId);
     }
 }

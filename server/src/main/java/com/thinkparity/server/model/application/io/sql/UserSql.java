@@ -14,11 +14,14 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
+
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -133,6 +136,12 @@ public class UserSql extends AbstractSql {
     private static final String SQL_UPDATE_PROFILE_TOKEN =
         new StringBuffer("update PARITY_USER_PROFILE PUP ")
         .append("set TOKEN=? where USERNAME=?")
+        .toString();
+
+    /** Sql to update the user. */
+    private static final String SQL_UPDATE =
+        new StringBuffer("update PARITY_USER_PROFILE PUP ")
+        .append("set VCARD=? where USERNAME=?")
         .toString();
 
     private static final String SQL_VERIFY_EMAIL =
@@ -406,6 +415,23 @@ public class UserSql extends AbstractSql {
             }
         } finally {
             close(cx, ps, rs);
+        }
+    }
+
+    public void update(final JabberId userId, final UserVCard vcard) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE);
+            session.setString(1, vcard.getVCardXML());
+            session.setString(2, userId.getUsername());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not update user.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
         }
     }
 

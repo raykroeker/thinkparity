@@ -5,24 +5,38 @@ package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Delete extends AbstractHandler {
+public final class Delete extends AbstractHandler {
 
-    /** Create Delete. */
+    /**
+     * Create Delete.
+     *
+     */
     public Delete() { super("contact:delete"); }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        delete(readJabberId("userId"), readJabberId("contactId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        delete(provider, reader.readJabberId("userId"),
+                reader.readJabberId("contactId"));
     }
 
     /**
@@ -33,9 +47,10 @@ public class Delete extends AbstractHandler {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    private void delete(final JabberId userId, final JabberId contactId) {
+    private void delete(final ServiceModelProvider context,
+            final JabberId userId, final JabberId contactId) {
         logger.logVariable("userId", userId);
         logger.logVariable("contactId", contactId);
-        getContactModel().delete(userId, contactId);
+        context.getContactModel().delete(userId, contactId);
     }
 }

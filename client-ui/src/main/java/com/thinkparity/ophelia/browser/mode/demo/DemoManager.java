@@ -266,7 +266,9 @@ public final class DemoManager implements DemoProvider {
      */
     private Demo doReadDemo(final FileSystem fileSystem) throws IOException {
         // create a resource loader
-        final URL[] demoRoot = new URL[] { fileSystem.getRoot().toURL() };
+        final URL[] demoRoot = new URL[] {
+                fileSystem.getRoot().toURI().toURL() 
+        };
         final URLClassLoader resourceLoader = new URLClassLoader(demoRoot, null);
         return doReadDemo(resourceLoader);
     }

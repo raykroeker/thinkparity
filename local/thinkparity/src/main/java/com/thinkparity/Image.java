@@ -101,7 +101,7 @@ public class Image {
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
             // execute
-            final Class mainClass = classLoader.loadClass(mainClassName);
+            final Class<?> mainClass = classLoader.loadClass(mainClassName);
             final Method mainMethod = mainClass.getMethod("main", new Class[] {mainArgs.getClass()});
             mainMethod.invoke(null, new Object[] {mainArgs});
         } catch (final ClassNotFoundException cnfx) {
@@ -138,8 +138,11 @@ public class Image {
         final StringTokenizer classPath = new StringTokenizer(properties.getProperty(PropertyNames.ParityImageClassPath), ",");
         final List<URL> imageClassPath = new ArrayList<URL>();
         while(classPath.hasMoreTokens()) {
-            try { imageClassPath.add(new File(root, classPath.nextToken()).toURL()); }
-            catch(final MalformedURLException murlx) { throw new ThinkParityException("", murlx); }
+            try {
+                imageClassPath.add(new File(root, classPath.nextToken()).toURI().toURL());
+            } catch (final MalformedURLException murlx) {
+                throw new ThinkParityException("", murlx);
+            }
         }
         this.classPath = imageClassPath.toArray(new URL[] {});
 

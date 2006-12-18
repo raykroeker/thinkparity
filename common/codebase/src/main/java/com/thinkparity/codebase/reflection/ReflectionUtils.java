@@ -16,7 +16,7 @@ public class ReflectionUtils {
 
     static { SINGLETON = new ReflectionUtils(); }
 
-    public static Object newDefaultInstance(final Class clasz)
+    public static Object newDefaultInstance(final Class<?> clasz)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException, InstantiationException {
         return SINGLETON.doCreateNewDefaultInstance(clasz);
@@ -27,7 +27,7 @@ public class ReflectionUtils {
         super();
     }
 
-    private Object doCreateNewDefaultInstance(final Class clasz)
+    private Object doCreateNewDefaultInstance(final Class<?> clasz)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException, InstantiationException {
         final Constructor constructor = clasz.getConstructor(new Class[] {});

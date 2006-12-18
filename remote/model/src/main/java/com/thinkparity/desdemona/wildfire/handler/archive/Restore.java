@@ -7,26 +7,36 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Restore extends AbstractHandler {
+public final class Restore extends AbstractHandler {
 
-    /** Create Archive. */
+    /**
+     * Create Restore.
+     *
+     */
     public Restore() {
         super("archive:restore");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
-    @Override
-    public void service() {
-        logApiId();
-        archive(readJabberId("userId"), readUUID("uniqueId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        archive(provider, reader.readJabberId("userId"), reader.readUUID("uniqueId"));
     }
 
     /**
@@ -37,7 +47,8 @@ public class Restore extends AbstractHandler {
      * @param uniqueId
      *            A container unique id <code>UUID</code>.
      */
-    private void archive(final JabberId userId, final UUID uniqueId) {
-        getArtifactModel().restore(userId, uniqueId);
+    private void archive(final ServiceModelProvider provider,
+            final JabberId userId, final UUID uniqueId) {
+        provider.getArtifactModel().restore(userId, uniqueId);
     }
 }

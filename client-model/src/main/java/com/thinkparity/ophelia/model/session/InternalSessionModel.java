@@ -109,21 +109,15 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
-     * Send an artifact received confirmation receipt.
-     * 
-     * @param receivedFrom
-     *            From whom the artifact was received.
-     * @param uniqueId
-     *            The artifact unique id.
-     */
     public void confirmArtifactReceipt(final JabberId userId,
             final UUID uniqueId, final Long versionId,
-            final Calendar publishedOn, final JabberId receivedBy,
+            final JabberId publishedBy, final Calendar publishedOn,
+            final List<JabberId> publishedTo, final JabberId receivedBy,
             final Calendar receivedOn) {
         synchronized(getImplLock()) {
             getImpl().confirmArtifactReceipt(userId, uniqueId, versionId,
-                    publishedOn, receivedBy, receivedOn);
+                    publishedBy, publishedOn, publishedTo, receivedBy,
+                    receivedOn);
         }
     }
 
@@ -323,11 +317,11 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(container, documents, team, publishTo,
-                    publishedBy, publishedOn);
+            getImpl().publish(container, documents, publishTo, publishedBy,
+                    publishedOn);
         }
     }
 
@@ -572,7 +566,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @throws ParityException
      */
     public List<Contact> readContactList(final JabberId userId) {
-        synchronized(getImplLock()) { return getImpl().readContacts(userId); }
+        synchronized (getImplLock()) {
+            return getImpl().readContacts(userId);
+        }
     }
 
     /**

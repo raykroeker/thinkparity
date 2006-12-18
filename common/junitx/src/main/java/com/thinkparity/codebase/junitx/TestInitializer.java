@@ -9,8 +9,10 @@ import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.Properties;
 
+import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import org.apache.log4j.LogManager;
@@ -51,10 +53,18 @@ class TestInitializer {
      * 
      */
     private void bootstrapLog4J(final File defaultLoggingRoot) {
-        final Mode mode = Mode.DEVELOPMENT;
-        final Properties logging = new Properties();
+        final Mode mode = Mode.valueOf(System.getProperty("thinkparity.mode"));
+        final Properties logging = bootstrapLog4JConfig(mode);
         final File loggingRoot = bootstrapLog4JRoot(mode, defaultLoggingRoot);
         System.setProperty("thinkparity.logging.root", loggingRoot.getAbsolutePath());
+        // test console appender
+        logging.setProperty("log4j.appender.TEST_CONSOLE", "org.apache.log4j.ConsoleAppender");
+        logging.setProperty("log4j.appender.TEST_CONSOLE.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.TEST_CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
+        // ophelia console appender
+        logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+        logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
         // test file appender
         logging.setProperty("log4j.appender.TEST_FILE", "org.apache.log4j.RollingFileAppender");
         logging.setProperty("log4j.appender.TEST_FILE.layout", "org.apache.log4j.PatternLayout");
@@ -62,13 +72,101 @@ class TestInitializer {
         logging.setProperty("log4j.appender.TEST_FILE.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity Test.log"));
-        // test console appender
-        logging.setProperty("log4j.appender.TEST_CONSOLE", "org.apache.log4j.ConsoleAppender");
-        logging.setProperty("log4j.appender.TEST_CONSOLE.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.TEST_CONSOLE.layout.ConversionPattern", "%d{ISO8601} %t %p %m%n");
-        // loggers
+        // ophelia file default appender
+        logging.setProperty("log4j.appender.DEFAULT", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.DEFAULT.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.DEFAULT.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.DEFAULT.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.DEFAULT.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity.log"));
+        // ophelia sql appender
+        logging.setProperty("log4j.appender.SQL_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.SQL_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity SQL.log"));
+        // ophelia xmpp appender
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
+                MessageFormat.format("{0}{1}{2}", loggingRoot,
+                        File.separatorChar, "thinkParity XMPP.log"));
+        // test logger
         logging.setProperty("log4j.logger.TEST_LOGGER", "INFO, TEST_CONSOLE, TEST_FILE");
         logging.setProperty("log4j.additivity.TEST_LOGGER", "false");
+        // ophelia loggers
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+            logging.setProperty("log4j.rootLogger", "WARN, DEFAULT");
+
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "WARN, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "NONE");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        case DEVELOPMENT:
+            logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
+
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        case TESTING:
+            logging.setProperty("log4j.rootLogger", "INFO, DEFAULT");
+
+            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+
+            logging.setProperty("log4j.logger.SQL_DEBUGGER", "DEBUG, SQL_DEBUGGER");
+            logging.setProperty("log4j.additivity.SQL_DEBUGGER", "false");
+
+            logging.setProperty("log4j.logger.XMPP_DEBUGGER", "DEBUG, XMPP_DEBUGGER");
+            logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+            break;
+        default:
+            throw Assert.createUnreachable("Unknown operating mode.");
+        }
+        // renderers
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.jabber.JabberId",
+                "com.thinkparity.codebase.log4j.or.JabberIdRenderer");
+        logging.setProperty(
+                "log4j.renderer.java.util.Calendar",
+                "com.thinkparity.codebase.log4j.or.CalendarRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent",
+                "com.thinkparity.codebase.model.util.logging.or.XMPPEventRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.container.Container",
+                "com.thinkparity.codebase.model.util.logging.or.ContainerRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.Document",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.document.DocumentVersion",
+                "com.thinkparity.codebase.model.util.logging.or.DocumentVersionRenderer");
+        logging.setProperty(
+                "log4j.renderer.com.thinkparity.codebase.model.user.User",
+                "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
+        logging.setProperty(
+                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
+                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
+
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
         new Log4JWrapper("TEST_LOGGER").logInfo("{0} - {1}", "thinkParity", "1.0");
@@ -127,4 +225,26 @@ class TestInitializer {
             throw new RuntimeException(x);
         }
     }
+
+    /**
+     * Create a logging configuration for the operating mode.
+     * 
+     * @param mode
+     *            A thinkParity <code>Mode</code>.
+     * @return A log4j configuration <code>Properties</code>.
+     */
+    private Properties bootstrapLog4JConfig(final Mode mode) {
+        switch (mode) {
+        case DEMO:
+        case PRODUCTION:
+        case TESTING:
+            return new Properties();
+        case DEVELOPMENT:
+            return ConfigFactory.newInstance("log4j.properties");
+        default:
+            throw Assert.createUnreachable("Unknown operating mode.");
+        }
+    }
+
+
 }

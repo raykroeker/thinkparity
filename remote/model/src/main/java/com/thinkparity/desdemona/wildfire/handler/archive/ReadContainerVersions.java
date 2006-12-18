@@ -9,28 +9,42 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadContainerVersions extends AbstractHandler {
+public final class ReadContainerVersions extends AbstractHandler {
 
-    /** Create ReadContainerVersions. */
+    /**
+     * Create ReadContainerVersions.
+     *
+     */
     public ReadContainerVersions() {
         super("archive:readcontainerversions");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
         final List<ContainerVersion> versions =
-            readArchiveVersions(readJabberId("userId"), readUUID("uniqueId"));
-        writeContainerVersions("containerVersions", "containerVersions", versions);
+            readArchiveVersions(provider, reader.readJabberId("userId"),
+                    reader.readUUID("uniqueId"));
+        writer.writeContainerVersions("containerVersions", "containerVersions", versions);
     }
 
     /**
@@ -42,8 +56,9 @@ public class ReadContainerVersions extends AbstractHandler {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    private List<ContainerVersion> readArchiveVersions(final JabberId userId,
+    private List<ContainerVersion> readArchiveVersions(
+            final ServiceModelProvider context, final JabberId userId,
             final UUID uniqueId) {
-        return getContainerModel().readArchiveVersions(userId, uniqueId);
+        return context.getContainerModel().readArchiveVersions(userId, uniqueId);
     }
 }

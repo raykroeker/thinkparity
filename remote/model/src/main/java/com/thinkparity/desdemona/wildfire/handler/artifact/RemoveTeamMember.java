@@ -8,26 +8,40 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class RemoveTeamMember extends AbstractHandler {
-
-    /** Create RemoveTeamMember. */
-    public RemoveTeamMember() { super("artifact:removeteammember"); }
+public final class RemoveTeamMember extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create RemoveTeamMember.
+     *
+     */
+    public RemoveTeamMember() {
+        super("artifact:removeteammember");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
-        removeTeamMember(readJabberId("userId"),
-                readJabberIds("team", "teamMember"), readUUID("uniqueId"),
-                readJabberId("teamMemberId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        removeTeamMember(provider, reader.readJabberId("userId"),
+                reader.readJabberIds("team", "teamMember"),
+                reader.readUUID("uniqueId"),
+                reader.readJabberId("teamMemberId"));
     }
 
     /**
@@ -38,10 +52,10 @@ public class RemoveTeamMember extends AbstractHandler {
      * @param jabberId
      *            A jabber id.
      */
-    private void removeTeamMember(final JabberId userId,
-            final List<JabberId> team, final UUID uniqueId,
-            final JabberId teamMemberId) {
-        getArtifactModel().removeTeamMember(userId, team, uniqueId,
+    private void removeTeamMember(final ServiceModelProvider provider,
+            final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final JabberId teamMemberId) {
+        provider.getArtifactModel().removeTeamMember(userId, team, uniqueId,
                 teamMemberId);
     }
 }

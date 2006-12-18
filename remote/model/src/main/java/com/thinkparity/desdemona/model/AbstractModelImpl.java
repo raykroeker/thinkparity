@@ -601,7 +601,7 @@ public abstract class AbstractModelImpl
         iq.setChildElement(Xml.NAME, new StringBuffer(Xml.NAMESPACE)
                 .append(":system:queueupdated").toString());
 
-        final IQWriter queryWriter = new IQWriter(iq, logger);
+        final IQWriter queryWriter = new IQWriter(iq);
         queryWriter.writeCalendar("updatedOn", currentDateTime());
         final IQ query = queryWriter.getIQ();
         for (final ClientSession session : getClientSessions(userId)) {

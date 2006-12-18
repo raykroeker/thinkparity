@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
@@ -112,8 +114,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             userIO.create(session, profile);
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, profile.getLocalId());
-            // NOCOMMIT Profile vcard.
-            session.setString(2, "");
+            session.setString(2, profile.getVCard().getVCardXML());
             if(1 != session.executeUpdate())
                 throw translateError("Could not create user profile {0}.", profile);
             session.commit();
@@ -231,8 +232,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             userIO.update(session, profile);
 
             session.prepareStatement(SQL_UPDATE);
-            // NOCOMMIT Profile vcard.
-            session.setString(1, "");
+            session.setString(1, profile.getVCard().getVCardXML());
             session.setLong(2, profile.getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not update profile.");
@@ -300,6 +300,9 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         profile.setName(session.getString("NAME"));
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
+        final ProfileVCard vcard = new ProfileVCard();
+        vcard.setVCardXML(session.getString("PROFILE_VCARD"));
+        profile.setVCard(vcard);
         return profile;
     }
 }

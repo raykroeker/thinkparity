@@ -9,29 +9,42 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.document.Document;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadDocuments extends AbstractHandler {
+public final class ReadDocuments extends AbstractHandler {
 
-    /** Create ReadDocuments. */
+    /**
+     * Create ReadDocuments.
+     *
+     */
     public ReadDocuments() {
         super("backup:readdocuments");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        final List<Document> documents = readBackupDocuments(
-                readJabberId("userId"), readUUID("uniqueId"),
-                readLong("versionId"));
-        writeDocuments("documents", "document", documents);
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        final List<Document> documents = readBackupDocuments(provider,
+                reader.readJabberId("userId"), reader.readUUID("uniqueId"),
+                reader.readLong("versionId"));
+        writer.writeDocuments("documents", "document", documents);
     }
 
     /**
@@ -45,8 +58,10 @@ public class ReadDocuments extends AbstractHandler {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    private List<Document> readBackupDocuments(final JabberId userId,
+    private List<Document> readBackupDocuments(
+            final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        return getContainerModel().readBackupDocuments(userId, uniqueId, versionId);
+        return provider.getContainerModel().readBackupDocuments(userId,
+                uniqueId, versionId);
     }
 }

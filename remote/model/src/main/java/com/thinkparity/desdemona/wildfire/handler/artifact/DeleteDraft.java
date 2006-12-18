@@ -8,25 +8,41 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DeleteDraft extends AbstractHandler {
-
-    /** Create DeleteDraft. */
-    public DeleteDraft() { super("artifact:deletedraft"); }
+public final class DeleteDraft extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create DeleteDraft.
+     *
+     */
+    public DeleteDraft() {
+        super("artifact:deletedraft");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        deleteDraft(readJabberId("userId"),
-                readJabberIds("team", "teamMember"), readUUID("uniqueId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        deleteDraft(provider, reader.readJabberId("userId"),
+                reader.readJabberIds("team", "teamMember"),
+                reader.readUUID("uniqueId"));
     }
 
     /**
@@ -35,8 +51,9 @@ public class DeleteDraft extends AbstractHandler {
      * @param uniqueId
      *            An artifact unique id.
      */
-    private void deleteDraft(final JabberId userId, final List<JabberId> team,
+    private void deleteDraft(final ServiceModelProvider context,
+            final JabberId userId, final List<JabberId> team,
             final UUID uniqueId) {
-        getArtifactModel().deleteDraft(userId, team, uniqueId);
+        context.getArtifactModel().deleteDraft(userId, team, uniqueId);
     }
 }

@@ -11,12 +11,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
-import com.thinkparity.ophelia.model.container.InternalContainerModel;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -95,108 +90,66 @@ public class ArchiveRestoreArchiveTest extends ArchiveTestCase {
 
     /** Test the archive api. */
     public void testArchive() {
-        final List<ContainerVersion> versions =
-            datum.containerModel.readVersions(datum.container.getId());
-        final Map<ContainerVersion, List<Document>> documents = new HashMap<ContainerVersion, List<Document>>();
-        for (final ContainerVersion version : versions) {
-            documents.put(version,
-                    datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId()));
+        final Container c = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
+        addDocuments(datum.junit_z, c.getId());
+        publish(datum.junit_z, c.getId(), "JUnit thinkParity", "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        archive(datum.junit_z, c.getId());
+        datum.waitForEvents();
+        restore(datum.junit_z, c.getUniqueId());
+        datum.waitForEvents();
+
+        final Container c_restore = readContainer(datum.junit_z, c.getUniqueId());
+        final List<ContainerVersion> c_v_restore_list = readContainerVersions(datum.junit_z, c.getId());
+        final Map<ContainerVersion, List<Document>> cv_d_restore_map = new HashMap<ContainerVersion, List<Document>>();
+        for (final ContainerVersion c_v_restore : c_v_restore_list) {
+            cv_d_restore_map.put(c_v_restore, readContainerVersionDocuments(
+                    datum.junit_z, c_restore.getId(), c_v_restore.getVersionId()));
         }
 
-        datum.containerModel.archive(datum.container.getId());
-        assertTrue("The archive event was not fired.", datum.didNotify);
+        archive(datum.junit_z, c_restore.getId());
 
-        final Container archivedContainer =
-            datum.archiveModel.readContainer(datum.container.getUniqueId());
-        assertNotNull(NAME + " - Archived container is null.", archivedContainer);
-        final List<ContainerVersion> archivedVersions =
-            datum.archiveModel.readContainerVersions(datum.container.getUniqueId());
-        assertNotNull(NAME + " - Archived container versions is null.", archivedVersions);
-        assertEquals(NAME + " - Archived container versions size is wrong.", 1, archivedVersions.size());
-
-        final Container postArchiveContainer = datum.containerModel.read(datum.container.getId());
-        assertNull(NAME + " - Archived container is not null.", postArchiveContainer);
-
-        final List<ContainerVersion> postArchiveVersions =
-            datum.containerModel.readVersions(datum.container.getId());
-        assertNotNull(NAME + " - Archived container versions is null.", postArchiveVersions);
-        assertEquals(NAME + " - Archived versions' size does not match expectation.", 0, postArchiveVersions.size());
-
-        List<Document> postArchiveDocuments;
-        Document postArchiveDocument;
-        for (final ContainerVersion version : versions) {
-            postArchiveDocuments = datum.containerModel.readDocuments(datum.container.getId(), version.getVersionId());   
-            assertNotNull(NAME + " - Archived container documents is null.", postArchiveDocuments);
-            assertEquals(NAME + " - Archived container documents' size does not match expectation.", 0, postArchiveDocuments.size());
-
-            for (final Document document : documents.get(version)) {
-                postArchiveDocument = datum.documentModel.get(document.getId());
-                assertNull(NAME + " - Archived document is not null.", postArchiveDocument);
-            }
-        }
+        final Container c_archive = getArchiveModel(datum.junit_z).readContainer(c.getUniqueId());
+        assertNotNull(NAME + " - Archived container is null.", c_archive);
+        final List<ContainerVersion> cv_archive_list =
+            getArchiveModel(datum.junit_z).readContainerVersions(c.getUniqueId());
+        assertNotNull(NAME + " - Archived container versions is null.", cv_archive_list);
+        assertEquals(NAME + " - Archived container versions size is wrong.", 1, cv_archive_list.size());
     }
 
     /**
-     * @see com.thinkparity.codebase.junitx.TestCase#setUp()
+     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#setUp()
+     *
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT_Z);
-        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT_Z);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
-        final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
-        addDocuments(OpheliaTestUser.JUNIT_Z, container.getId());
-        publish(OpheliaTestUser.JUNIT_Z, container.getId());
-        containerModel.archive(container.getId());
-        containerModel.restore(container.getUniqueId());
-
-        final Long containerId = artifactModel.readId(container.getUniqueId());
-        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT_Z),
-                artifactModel, containerModel.read(containerId),
-                containerModel, getDocumentModel(OpheliaTestUser.JUNIT_Z));
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT_X, OpheliaTestUser.JUNIT_Z);
+        login(datum.junit_x);
+        login(datum.junit_z);
     }
 
     /**
-     * @see com.thinkparity.codebase.junitx.TestCase#tearDown()
+     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#tearDown()
+     *
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit_x);
+        logout(datum.junit_z);
         datum = null;
-        logout(OpheliaTestUser.JUNIT_Z);
         super.tearDown();
     }
 
-    /** Test datum definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final InternalArchiveModel archiveModel;
-        private final Container container;
-        private final InternalContainerModel containerModel;
-        private Boolean didNotify;
-        private final InternalDocumentModel documentModel;
-        private Fixture(final InternalArchiveModel archiveModel,
-                final InternalArtifactModel artifactModel,
-                final Container container, final InternalContainerModel containerModel,
-                final InternalDocumentModel documentModel) {
-            super();
-            this.archiveModel = archiveModel;
-            this.container = container;
-            this.containerModel = containerModel;
-            this.didNotify = Boolean.FALSE;
-            this.documentModel = documentModel;
-        }
-        @Override
-        public void containerArchived(final ContainerEvent e) {
-            didNotify = Boolean.TRUE;
-            assertTrue("Event generated is not local.", e.isLocal());
-            assertTrue("Event generated is remote .", !e.isRemote());
-            assertNotNull("The archive event's container is null.", e.getContainer());
-            assertNull("The archive event's document is not null.", e.getDocument());
-            assertNull("The archive event's draft is not null.", e.getDraft());
-            assertNull("The archive event's team member is not null.", e.getTeamMember());
-            assertNull("The archive event's version is not null.", e.getVersion());
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_z;
+        private Fixture(final OpheliaTestUser junit_x, final OpheliaTestUser junit_z) {
+            this.junit_x = junit_x;
+            this.junit_z = junit_z;
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_z);
         }
     }
 }

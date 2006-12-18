@@ -161,32 +161,25 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
-    /**
-	 * Send an artifact received confirmation receipt.
-	 * 
-	 * @param receivedFrom
-	 *            From whom the artifact was received.
-	 * @param uniqueId
-	 *            The artifact unique id.
-	 */
 	void confirmArtifactReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final Calendar publishedOn,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
         try {
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final Long artifactId = artifactModel.readId(uniqueId);
-            final List<JabberId> team = artifactModel.readTeamIds(artifactId);
             final XMPPSession xmppSession = workspace.getXMPPSession();
     	    synchronized(xmppSession) {
-    	        xmppSession.confirmArtifactReceipt(localUserId(), team, uniqueId,
-                        versionId, publishedOn, receivedBy, receivedOn);
+    	        xmppSession.confirmArtifactReceipt(localUserId(), uniqueId,
+                        versionId, publishedBy, publishedOn, publishedTo,
+                        receivedBy, receivedOn);
     	    }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -589,19 +582,18 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);
         logger.logVariable("publishTo", publishTo);
-        logger.logVariable("team", team);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.publish(container, documents, team, publishTo,
+                xmppSession.publish(container, documents, publishTo,
                         publishedBy, publishedOn);
             }
         } catch(final Throwable t) {

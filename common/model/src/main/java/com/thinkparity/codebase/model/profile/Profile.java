@@ -17,16 +17,13 @@ import com.thinkparity.codebase.model.user.User;
  */
 public class Profile extends User {
 
-    /** A mobile phone <code>String</code>. */
-    private String mobilePhone;
+    /** The profile's vcard info. */
+    private ProfileVCard vcard;
 
-    /** An organziation address <code>String</code>. */
-    private String organizationAddress;
-
-    /** A phone <code>String</code>. */
-    private String phone;
-
-	/** Create Profile. */
+    /**
+     * Create Profile.
+     *
+     */
 	public Profile() {
         super();
     }
@@ -37,7 +34,7 @@ public class Profile extends User {
      * @return A String.
      */
     public String getMobilePhone() {
-        return mobilePhone;
+        return "";
     }
 
     /**
@@ -46,7 +43,7 @@ public class Profile extends User {
      * @return A String.
      */
     public String getOrganizationAddress() {
-        return organizationAddress;
+        return "";
     }
 
     /**
@@ -55,7 +52,16 @@ public class Profile extends User {
      * @return A String.
      */
     public String getPhone() {
-        return phone;
+        return "";
+    }
+
+    /**
+     * Obtain vcard.
+     *
+     * @return A <code>ProfileVCard</code>.
+     */
+    public ProfileVCard getVCard() {
+        return vcard;
     }
 
     /**
@@ -65,7 +71,6 @@ public class Profile extends User {
      *		A String.
      */
     public void setMobilePhone(String mobilePhone) {
-        this.mobilePhone = mobilePhone;
     }
 
     /**
@@ -75,7 +80,6 @@ public class Profile extends User {
      *		A String.
      */
     public void setOrganizationAddress(String organizationAddress) {
-        this.organizationAddress = organizationAddress;
     }
 
     /**
@@ -85,6 +89,15 @@ public class Profile extends User {
      *		A String.
      */
     public void setPhone(String phone) {
-        this.phone = phone;
+    }
+
+    /**
+     * Set vcard.
+     *
+     * @param vcard
+     *		A <code>ProfileVCard</code>.
+     */
+    public void setVCard(final ProfileVCard vcard) {
+        this.vcard = vcard;
     }
 }

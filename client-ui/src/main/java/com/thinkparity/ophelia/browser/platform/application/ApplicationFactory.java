@@ -106,7 +106,7 @@ public class ApplicationFactory {
     private Application doCreate(final Platform platform,
             final String applicationName) {
         try {
-            final Class applicationClass = Class.forName(applicationName);
+            final Class<?> applicationClass = Class.forName(applicationName);
             final Constructor constructor = applicationClass.getConstructor(new Class[] {Platform.class});
             return (Application) constructor.newInstance(new Object[] {platform});
         }

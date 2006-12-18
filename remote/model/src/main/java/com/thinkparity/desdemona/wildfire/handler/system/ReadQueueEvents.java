@@ -9,27 +9,40 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ReadQueueEvents extends AbstractHandler {
+public final class ReadQueueEvents extends AbstractHandler {
 
 	/**
 	 * Create a ReadQueueEvents.
 	 * 
 	 */
-	public ReadQueueEvents() { super("system:readqueueevents"); }
+	public ReadQueueEvents() {
+        super("system:readqueueevents");
+	}
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        writeEvents("events", "event-element", readEvents(readJabberId("userId")));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        writer.writeEvents("events", "event-element", readEvents(provider,
+                reader.readJabberId("userId")));
     }
 
     /**
@@ -38,7 +51,8 @@ public class ReadQueueEvents extends AbstractHandler {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    private List<XMPPEvent> readEvents(final JabberId userId) {
-        return getQueueModel().readEvents(userId);
+    private List<XMPPEvent> readEvents(final ServiceModelProvider provider,
+            final JabberId userId) {
+        return provider.getQueueModel().readEvents(userId);
     }
 }

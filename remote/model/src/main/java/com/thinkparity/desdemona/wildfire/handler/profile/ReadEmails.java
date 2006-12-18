@@ -8,24 +8,40 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.1
  */
-public class ReadEmails extends AbstractHandler {
-
-    /** Create Read. */
-    public ReadEmails() { super("profile:reademails"); }
+public final class ReadEmails extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create ReadEmails.
+     *
+     */
+    public ReadEmails() {
+        super("profile:reademails");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        writeEMails("emails", "email", readEmails(readJabberId("userId")));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        writer.writeEMails("emails", "email", readEmails(provider,
+                reader.readJabberId("userId")));
     }
 
     /**
@@ -35,7 +51,8 @@ public class ReadEmails extends AbstractHandler {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;EMail&gt;</code>.
      */
-    private List<EMail> readEmails(final JabberId userId) {
-        return getProfileModel().readEmails(userId);
+    private List<EMail> readEmails(final ServiceModelProvider provider,
+            final JabberId userId) {
+        return provider.getProfileModel().readEmails(userId);
     }
 }

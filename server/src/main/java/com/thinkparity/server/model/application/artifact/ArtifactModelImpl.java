@@ -96,25 +96,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
         getArchiveModel().archive(userId, uniqueId);
     }
 
-    /**
-     * Confirm an artifact receipt.
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param receivedFrom
-     *            The original sender of the document.
-     * @throws ParityServerModelException
-     */
-	void confirmReceipt(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final Long versionId,
-            final Calendar publishedOn, final JabberId receivedBy,
-            final Calendar receivedOn) {
+	void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn, final List<JabberId> publishedTo,
+            final JabberId receivedBy, final Calendar receivedOn) {
         logger.logApiId();
         logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
         try {
@@ -128,7 +120,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 received.setPublishedOn(publishedOn);
                 received.setReceivedBy(receivedBy);
                 received.setReceivedOn(receivedOn);
-                enqueueEvent(userId, team, received);
+                final List<JabberId> enqueueFor =
+                    new ArrayList<JabberId>(publishedTo.size() + 1);
+                enqueueFor.add(publishedBy);
+                enqueueFor.addAll(publishedTo);
+                enqueueEvent(userId, enqueueFor, received);
             }
         } catch (final Throwable t) {
             throw translateError(t);

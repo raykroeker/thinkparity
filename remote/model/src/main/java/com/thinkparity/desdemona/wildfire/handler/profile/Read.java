@@ -4,35 +4,52 @@
 package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version
+ * @version 1.1.2.1
  */
-public class Read extends AbstractHandler {
-
-    /** Create Read. */
-    public Read() { super("profile:read"); }
+public final class Read extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create Read.
+     *
+     */
+    public Read() {
+        super("profile:read");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
         final Profile profile =
-            logger.logVariable("profile", read(readJabberId("userId")));
+            logger.logVariable("profile", read(provider, reader.readJabberId("userId")));
 
         if(null != profile) {
-            writeJabberId("id", profile.getId());
-            writeString("name", profile.getName());
+            writer.writeJabberId("id", profile.getId());
+            writer.writeString("name", profile.getName());
             if (profile.isSetOrganization())
-                writeString("organization", profile.getOrganization());
+                writer.writeString("organization", profile.getOrganization());
             if (profile.isSetTitle())
-                writeString("title", profile.getTitle());
+                writer.writeString("title", profile.getTitle());
+            writer.writeString("vcard", profile.getVCard().getVCardXML());
         }
     }
 
@@ -43,7 +60,8 @@ public class Read extends AbstractHandler {
      *            A jabber id.
      * @return A profile.
      */
-    private Profile read(final JabberId jabberId) {
-        return getProfileModel().read(jabberId);
+    private Profile read(final ServiceModelProvider context,
+            final JabberId jabberId) {
+        return context.getProfileModel().read(jabberId);
     }
 }

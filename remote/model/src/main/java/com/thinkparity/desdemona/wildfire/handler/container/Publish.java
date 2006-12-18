@@ -9,55 +9,51 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.model.Constants.Xml.Service;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Publish extends AbstractHandler {
-
-    /** Create Publish. */
-    public Publish() { super(Service.Container.PUBLISH); }
+public final class Publish extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create Publish.
+     *
      */
-    @Override
-    public void service() {
-        logApiId();
-        publish(readUUID("uniqueId"), readLong("versionId"),
-                readString("name"), readString("comment"),
-                readJabberIds("team", "teamMember"),
-                readInteger("artifactCount"), readJabberId("publishedBy"),
-                readJabberIds("publishedTo", "publishedTo"),
-                readCalendar("publishedOn"));
+    public Publish() {
+        super("container:publish");
     }
 
     /**
-     * Publish the container version.
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
      * 
-     * @param uniqueId
-     *            A container unique id.
-     * @param versionId
-     *            A container version id.
-     * @param name
-     *            A container name.
-     * @param artifactCount
-     *            A container version artifact count.
-     * @param publishedBy
-     *            By whom the container was published.
-     * @param publishedTo
-     *            To whom the container was published.
-     * @param publishedOn
-     *            When the container was published.
      */
-    private void publish(final UUID uniqueId, final Long versionId,
-            final String name, final String comment, final List<JabberId> team,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
-        getContainerModel().publish(uniqueId, versionId, name, comment, team,
+    @Override
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        publish(provider, reader.readUUID("uniqueId"),
+                reader.readLong("versionId"), reader.readString("name"),
+                reader.readString("comment"),
+                reader.readInteger("artifactCount"),
+                reader.readJabberId("publishedBy"),
+                reader.readJabberIds("publishedTo", "publishedTo"),
+                reader.readCalendar("publishedOn"));
+    }
+
+    private void publish(final ServiceModelProvider context,
+            final UUID uniqueId, final Long versionId, final String name,
+            final String comment, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        context.getContainerModel().publish(uniqueId, versionId, name, comment,
                 artifactCount, publishedBy, publishedTo, publishedOn);
     }
 }

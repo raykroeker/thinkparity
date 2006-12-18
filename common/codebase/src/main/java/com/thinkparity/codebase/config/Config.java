@@ -156,26 +156,27 @@ public class Config extends Properties implements Serializable {
 	Config(File file) {this(file, null);}
 
 	/**
-	 * Create a new Config
-	 * @param file <code>java.io.File</code>
-	 * @param defaults <code>java.util.Properties</code>
-	 */	
-	Config(File file, Properties defaults) {
+     * Create a new Config
+     * 
+     * @param file
+     *            <code>java.io.File</code>
+     * @param defaults
+     *            <code>java.util.Properties</code>
+     */	
+	Config(final File file, final Properties defaults) {
 		super(defaults);
 		try {
 			if(null == file)
 				configURL = null;
 			else
-				configURL = file.toURL();
+				configURL = file.toURI().toURL();
 			loadConfig();
-		}
-		catch (FileNotFoundException fnfx) {
+		} catch (final FileNotFoundException fnfx) {
 			throw new ConfigError(
 				configURL,
 				ConfigError.ErrorType.FileNotFound,
 				fnfx);
-		}
-		catch (IOException iox) {
+		} catch (IOException iox) {
 			throw new ConfigError(
 				configURL,
 				ConfigError.ErrorType.CouldNotLoad,

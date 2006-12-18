@@ -9,29 +9,42 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadDocumentVersions extends AbstractHandler {
+public final class ReadDocumentVersions extends AbstractHandler {
 
-    /** Create ReadArchiveDocumentVersions. */
+    /**
+     * Create ReadDocumentVersions.
+     *
+     */
     public ReadDocumentVersions() {
         super("archive:readdocumentversions");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
         final List<DocumentVersion> versions = readArchiveDocumentVersions(
-                readJabberId("userId"), readUUID("uniqueId"),
-                readLong("versionId"));
-        writeDocumentVersions("documentVersions", "documentVersion", versions);
+                provider, reader.readJabberId("userId"),
+                reader.readUUID("uniqueId"), reader.readLong("versionId"));
+        writer.writeDocumentVersions("documentVersions", "documentVersion", versions);
     }
 
     /**
@@ -47,9 +60,10 @@ public class ReadDocumentVersions extends AbstractHandler {
      *            A document unique id <code>UUID</code>.
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
-    private List<DocumentVersion> readArchiveDocumentVersions(final JabberId userId,
+    private List<DocumentVersion> readArchiveDocumentVersions(
+            final ServiceModelProvider provider, final JabberId userId,
             final UUID uniqueId, final Long versionId) {
-        return getContainerModel().readArchiveDocumentVersions(userId,
+        return provider.getContainerModel().readArchiveDocumentVersions(userId,
                 uniqueId, versionId);
     }
 }

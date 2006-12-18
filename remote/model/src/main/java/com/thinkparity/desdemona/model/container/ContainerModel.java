@@ -70,11 +70,11 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            When the container was published.
      */
     public void publish(final UUID uniqueId, final Long versionId,
-            final String name, final String comment, final List<JabberId> team,
+            final String name, final String comment,
             final Integer artifactCount, final JabberId publishedBy,
             final List<JabberId> publishedTo, final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(uniqueId, versionId, name, comment, team,
+            getImpl().publish(uniqueId, versionId, name, comment,
                     artifactCount, publishedBy, publishedTo, publishedOn);
         }
     }

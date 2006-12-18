@@ -116,22 +116,11 @@ public interface XMPPSession {
      */
     public void clearListeners();
 
-    /**
-     * Confirm artifact receipt.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @param versionId
-     *            An artifact version id.
-     * @param receivedBy
-     *            By whom the artifact was received <code>JabberId</code>.
-     */
     public void confirmArtifactReceipt(final JabberId userId,
-            final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final Calendar publishedOn,
-            final JabberId receivedBy, final Calendar receivedOn);
+            final UUID uniqueId, final Long versionId,
+            final JabberId publishedBy, final Calendar publishedOn,
+            final List<JabberId> publishedTo, final JabberId receivedBy,
+            final Calendar receivedOn);
 
     /**
      * Open a document version's content.
@@ -343,8 +332,8 @@ public interface XMPPSession {
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn);
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn);
 
     /**
      * Read the archive's containers.

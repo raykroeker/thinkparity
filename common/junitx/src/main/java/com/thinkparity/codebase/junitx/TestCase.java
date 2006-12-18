@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -318,4 +319,10 @@ public abstract class TestCase extends junit.framework.TestCase {
 		finally { fis.close(); }
 		return byteBuffer.array();
 	}
+
+    protected static void assertTrue(final boolean expression,
+            final String assertionPattern, final Object... assertionArguments) {
+        assertTrue(new MessageFormat(assertionPattern)
+                .format(assertionArguments), expression);
+    }
 }

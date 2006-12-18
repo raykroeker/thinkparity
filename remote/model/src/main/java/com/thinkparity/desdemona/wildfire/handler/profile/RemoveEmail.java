@@ -6,24 +6,38 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
-/** 
+/**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class RemoveEmail extends AbstractHandler {
-
-    /** Create RemoveEmail. */
-    public RemoveEmail() { super("profile:removeemail"); }
+public final class RemoveEmail extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create RemoveEmail.
+     *
+     */
+    public RemoveEmail() {
+        super("profile:removeemail");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
-        removeEmail(readJabberId("userId"), readEMail("email"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        removeEmail(provider, reader.readJabberId("userId"),
+                reader.readEMail("email"));
     }
 
     /**
@@ -34,7 +48,8 @@ public class RemoveEmail extends AbstractHandler {
      * @param email
      *            An <code>EMail</code>.
      */
-    private void removeEmail(final JabberId userId, final EMail email) {
-        getProfileModel().removeEmail(userId, email);
+    private void removeEmail(final ServiceModelProvider provider,
+            final JabberId userId, final EMail email) {
+        provider.getProfileModel().removeEmail(userId, email);
     }
 }

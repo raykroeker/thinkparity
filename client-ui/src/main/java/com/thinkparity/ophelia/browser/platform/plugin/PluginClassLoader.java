@@ -132,7 +132,7 @@ class PluginClassLoader extends PluginUtility {
         final List<URL> libs = new ArrayList<URL>();
         final File[] libFiles = fileSystem.list("lib", JAR_FILE_FILTER);
         for (final File libFile : libFiles) {
-            libs.add(libFile.toURL());
+            libs.add(libFile.toURI().toURL());
         }
         return libs;
     }
@@ -147,7 +147,7 @@ class PluginClassLoader extends PluginUtility {
         final List<URL> resources = new ArrayList<URL>();
         final File[] resourceFiles = fileSystem.list("/", RESOURCE_FILTER);
         for (final File resourceFile : resourceFiles) {
-            resources.add(resourceFile.toURL());
+            resources.add(resourceFile.toURI().toURL());
         }
         return resources;
     }
@@ -191,7 +191,7 @@ class PluginClassLoader extends PluginUtility {
             ClassNotFoundException, NoSuchMethodException,
             InvocationTargetException, IllegalAccessException,
             InstantiationException {
-        final Class loadedClass = lazyCreateClassLoader().loadClass(name);
+        final Class<?> loadedClass = lazyCreateClassLoader().loadClass(name);
         final Constructor constructor =
             loadedClass.getConstructor(new Class[] {});
         return constructor.newInstance(new Object[] {});

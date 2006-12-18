@@ -182,10 +182,10 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         final XMPPMethod update = new XMPPMethod("profile:update");
         update.setParameter("userId", userId);
         update.setParameter("name", profile.getName());
-        update.setParameter("organization", profile.getOrganization());
-        if (profile.isSetTitle()) {
+        if (profile.isSetOrganization())
+            update.setParameter("organization", profile.getOrganization());
+        if (profile.isSetTitle())
             update.setParameter("title", profile.getTitle());
-        }
         execute(update);
     }
 

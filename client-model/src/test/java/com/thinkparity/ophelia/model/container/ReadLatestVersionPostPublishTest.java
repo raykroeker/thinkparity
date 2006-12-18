@@ -18,52 +18,68 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class ReadLatestVersionPostPublishTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "TEST READ LATEST VERSION";
+    private static final String NAME = "Read latest version post publish test.";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create ReadLatestVersionPostPublishTest. */
+    /**
+     * Create ReadLatestVersionPostPublishTest.
+     *
+     */
     public ReadLatestVersionPostPublishTest() { super(NAME); }
 
-    /** Test the container model's read latest version api. */
+    /**
+     * Test the container model's read latest version api.
+     * 
+     */
     public void testReadLatestVersion() {
-        final ContainerVersion version =
-            datum.containerModel.readLatestVersion(datum.container.getId());
-        assertNotNull(NAME, version);
+        final Container c = createContainer(datum.junit, NAME);
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        assertNotNull("Latest version is null.", cv_latest);
     }
 
     /**
      * @see com.thinkparity.ophelia.model.container.ContainerTestCase#setUp()
-     * 
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        datum = new Fixture(container, containerModel);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
      * @see com.thinkparity.ophelia.model.container.ContainerTestCase#tearDown()
-     * 
      */
+    @Override
     protected void tearDown() throws Exception {
-        logout(OpheliaTestUser.JUNIT);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Test data definition. */
-    private class Fixture {
-        private final Container container;
-        private final ContainerModel containerModel;
-        private Fixture(final Container container,
-                final ContainerModel containerModel) {
-            this.containerModel = containerModel;
-            this.container = container;
+    /** Test datumn fixture. */
+    private class Fixture extends ContainerTestCase.Fixture {
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

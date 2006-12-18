@@ -287,6 +287,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             // local key
             final InternalArtifactModel artifactModel = getArtifactModel();
             artifactModel.applyFlagKey(container.getId());
+            artifactModel.applyFlagLatest(container.getId());
     
             // create remote info
             artifactModel.createRemoteInfo(container.getId(),
@@ -808,7 +809,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             final Calendar confirmedOn = sessionModel.readDateTime();
             sessionModel.confirmArtifactReceipt(localUserId(),
                     event.getUniqueId(), event.getVersionId(),
-                    event.getPublishedOn(), localUserId(), confirmedOn);
+                    event.getPublishedBy(), event.getPublishedOn(),
+                    event.getPublishedTo(), localUserId(), confirmedOn);
             // audit\fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion = readVersion(containerId, event.getVersionId());
@@ -1917,9 +1919,13 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         logger.logVariable("containerId", containerId);
         logger.logVariable("name", name);
         assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
-        containerIO.updateName(containerId, name);
-        // fire event
-        notifyContainerUpdated(read(containerId), localEventGenerator);
+        try {
+            containerIO.updateName(containerId, name);
+            // fire event
+            notifyContainerUpdated(read(containerId), localEventGenerator);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -1931,6 +1937,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
     void restore(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
+        assertArtifactDoesNotExist(uniqueId,
+                "Cannot restore an artifact that still exists.");
         try {
             final InternalArchiveModel archiveModel = getArchiveModel();
             // restore container info
@@ -3013,11 +3021,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             fireStageEnd(monitor, PublishStage.UploadStream);
         }
         getSessionModel().deleteStreamSession(session);
-
-	fireStageBegin(monitor, PublishStage.PublishContainer);
-        getSessionModel().publish(version, documentVersionStreamIds,
-                getArtifactModel().readTeamIds(version.getArtifactId()),
-                publishTo, publishedBy, publishedOn);
+        fireStageBegin(monitor, PublishStage.PublishContainer);
+        getSessionModel().publish(version, documentVersionStreamIds, publishTo,
+                publishedBy, publishedOn);
         fireStageEnd(monitor, PublishStage.PublishContainer);
     }
 

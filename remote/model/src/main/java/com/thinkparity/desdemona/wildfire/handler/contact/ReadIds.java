@@ -7,39 +7,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ReadIds extends AbstractHandler {
+public final class ReadIds extends AbstractHandler {
 
-	/** Create a ReadIds. */
-	public ReadIds() { super("contact:readids"); }
+    /**
+     * Create ReadIds.
+     *
+     */
+	public ReadIds() {
+        super("contact:readids");
+	}
 
-	/**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        final List<Contact> contacts = read(readJabberId("userId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        final List<Contact> contacts = read(provider,
+                reader.readJabberId("userId"));
 
         final List<JabberId> contactIds = new ArrayList<JabberId>(contacts.size());
         for (final Contact contact : contacts) {
             contactIds.add(contact.getId());
         }
-        writeJabberIds("contactIds", "contactId", contactIds);
+        writer.writeJabberIds("contactIds", "contactId", contactIds);
     }
 
     /**
      * @see ContactModel#readContacts(JabberId)
      */
-	private List<Contact> read(final JabberId userId) {
-        return getContactModel().read(userId);
+	private List<Contact> read(final ServiceModelProvider provider,
+            final JabberId userId) {
+        return provider.getContactModel().read(userId);
     }
 }

@@ -152,7 +152,7 @@ public class HypersonicIOFactory extends IOFactory {
             final String className =
                     new StringBuffer("com.thinkparity.ophelia.model.io.db.hsqldb.handler.")
                     .append(simpleName).toString();
-            final Class handlerClass = Class.forName(className);
+            final Class<?> handlerClass = Class.forName(className);
             final Class[] paramTypes = new Class[] { SessionManager.class };
             final Object[] params = new Object[] { workspace.getSessionManager() };
             final Constructor constructor = handlerClass.getConstructor(paramTypes);

@@ -80,13 +80,13 @@ public class ArtifactModel extends AbstractModel<ArtifactModelImpl> {
      * @param versionId
      *            The version id <code>Long</code>.
      */
-    public void confirmReceipt(final JabberId userId,
-            final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final Calendar publishedOn,
+    public void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn) {
         synchronized (getImplLock()) {
-            getImpl().confirmReceipt(userId, team, uniqueId, versionId,
-                    publishedOn, receivedBy, receivedOn);
+            getImpl().confirmReceipt(userId, uniqueId, versionId, publishedBy,
+                    publishedOn, publishedTo, receivedBy, receivedOn);
         }
     }
 

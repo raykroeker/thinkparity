@@ -100,14 +100,18 @@ class ArchiveModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final JabberId archiveId = readArchiveId(userId);
-            final InternalArtifactModel artifactModel =
-                getModelFactory(archiveId).getArtifactModel(getClass());
-            Assert.assertTrue(artifactModel.doesExist(uniqueId),
-                    "Artifact {0} does not exist for user {1} in archive {2}.",
-                    uniqueId, userId.getUsername(),
-                    archiveId.getUsername());
-            final Long artifactId = artifactModel.readId(uniqueId);
-            artifactModel.applyFlagArchived(artifactId);
+            if (null == archiveId) {
+                logWarning("No archive exists for user {0}.", userId);
+            } else {
+                final InternalArtifactModel artifactModel =
+                    getModelFactory(archiveId).getArtifactModel(getClass());
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
+                final Long artifactId = artifactModel.readId(uniqueId);
+                artifactModel.applyFlagArchived(artifactId);
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -324,12 +328,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 final InternalArtifactModel artifactModel =
                     getModelFactory(archiveId).getArtifactModel(getClass());
                 final Long artifactId = artifactModel.readId(uniqueId);
+                Assert.assertTrue(artifactModel.doesExist(uniqueId),
+                        "Artifact {0} does not exist for user {1} in archive {2}.",
+                        uniqueId, userId.getUsername(),
+                        archiveId.getUsername());
                 artifactModel.removeFlagArchived(artifactId);
             }
         } catch (final Throwable t) {
             throw translateError(t);
         }
-        
     }
 
     /**

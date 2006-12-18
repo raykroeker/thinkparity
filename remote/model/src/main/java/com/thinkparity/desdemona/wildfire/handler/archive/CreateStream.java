@@ -7,27 +7,39 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
+import com.thinkparity.desdemona.wildfire.handler.AuthenticatedHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class CreateStream extends AbstractHandler {
+public final class CreateStream extends AuthenticatedHandler {
 
-    /** Create ReadArchive. */
+    /**
+     * Create CreateStream.
+     *
+     */
     public CreateStream() {
         super("archive:createstream");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
-        createStream(readJabberId("userId"), readString("streamId"),
-                readUUID("uniqueId"), readLong("versionId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        createStream(provider, reader.readJabberId("userId"),
+                reader.readString("streamId"), reader.readUUID("uniqueId"),
+                reader.readLong("versionId"));
     }
 
     /**
@@ -41,8 +53,10 @@ public class CreateStream extends AbstractHandler {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    private void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        getArchiveModel().createStream(userId, streamId, uniqueId, versionId);
+    private void createStream(final ServiceModelProvider provider,
+            final JabberId userId, final String streamId, final UUID uniqueId,
+            final Long versionId) {
+        provider.getArchiveModel().createStream(userId, streamId, uniqueId,
+                versionId);
     }
 }

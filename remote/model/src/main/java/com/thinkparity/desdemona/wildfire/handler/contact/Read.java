@@ -4,45 +4,60 @@
 package com.thinkparity.desdemona.wildfire.handler.contact;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.desdemona.model.Constants.Xml;
 import com.thinkparity.desdemona.model.contact.ContactModel;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Read extends AbstractHandler {
+public final class Read extends AbstractHandler {
 
-    /** Create Read. */
+    /**
+     * Create Read.
+     *
+     */
     public Read() { super("contact:read"); }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        final Contact contact =
-            read(readJabberId("userId"), readJabberId("contactId"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        final Contact contact = read(provider, reader.readJabberId("userId"),
+                    reader.readJabberId("contactId"));
 
         if(null != contact) {
-            writeEMails(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
-            writeJabberId(Xml.Contact.JABBER_ID, contact.getId());
-            writeString(Xml.Contact.NAME, contact.getName());
+            writer.writeEMails(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
+            writer.writeJabberId(Xml.Contact.JABBER_ID, contact.getId());
+            writer.writeString(Xml.Contact.NAME, contact.getName());
             if (contact.isSetOrganization())
-                writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
+                writer.writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
             if (contact.isSetTitle())
-                writeString("title", contact.getTitle());
+                writer.writeString("title", contact.getTitle());
         }
     }
 
     /**
      * @see ContactModel#read(JabberId, JabberId)
      */
-    private Contact read(final JabberId userId, final JabberId contactId) {
-        return getContactModel().read(userId, contactId);
+    private Contact read(final ServiceModelProvider context,
+            final JabberId userId, final JabberId contactId) {
+        return context.getContactModel().read(userId, contactId);
     }
 }

@@ -151,6 +151,22 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Apply the archived flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    void applyFlagLatest(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        try {
+            applyFlag(artifactId, ArtifactFlag.LATEST);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
 	 * Apply the seen flag.
 	 * 
 	 * @param artifactId
@@ -231,7 +247,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
-    Boolean doesExist(final Long artifactId) {
+	Boolean doesExist(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         try {
@@ -241,7 +257,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	Boolean doesExist(final UUID uniqueId) {
+    Boolean doesExist(final UUID uniqueId) {
         logger.logApiId();
         logger.logVariable("uniqueId", uniqueId);
         try {
@@ -251,20 +267,20 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    Boolean doesVersionExist(final Long artifactId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        logger.logVariable("versionId", versionId);
-        return artifactIO.doesVersionExist(artifactId, versionId);
-    }
-
     Boolean doesVersionExist(final Long artifactId) {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.doesVersionExist(artifactId);
     }
 
-	/**
+	Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        logger.logVariable("versionId", versionId);
+        return artifactIO.doesVersionExist(artifactId, versionId);
+    }
+
+    /**
      * Handle the remote event generated when a draft is created.
      * 
      * @param uniqueId
@@ -415,7 +431,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -444,7 +460,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 		return flags.contains(flag);
 	}
 
-	/**
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -472,7 +488,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-    /**
+	/**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -485,7 +501,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readLatestVersionId(artifactId);
     }
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -696,7 +712,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         assertStateTransition(currentState, state);
         artifactIO.updateState(artifactId, state);
     }
-
+    
     /**
 	 * Apply a flag to an artifact.
 	 * 
@@ -719,22 +735,6 @@ final class ArtifactModelImpl extends AbstractModelImpl {
 			artifactIO.updateFlags(artifactId, flags);
 		}
 	}
-    
-    /**
-     * Apply the archived flag.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
-    private void applyFlagLatest(final Long artifactId) {
-        logger.logApiId();
-        logger.logVariable("artifactId", artifactId);
-        try {
-            applyFlag(artifactId, ArtifactFlag.LATEST);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     /**
 	 * Remove a flag from an artifact.

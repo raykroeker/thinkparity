@@ -8,11 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
-import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -46,72 +42,52 @@ public class ArchiveRestoreTest extends ArchiveTestCase {
 
     /** Test the restore api. */
     public void testRestore() {
-        datum.containerModel.restore(datum.container.getUniqueId());
-        assertTrue("Restore event did not fire.", datum.didNotify);
+        final Container c = createContainer(datum.junit_z, NAME);
+        addDocuments(datum.junit_z, c.getId());
+        publish(datum.junit_z, c.getId(), "JUnit thinkParity", "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        archive(datum.junit_z, c.getId());
+        datum.waitForEvents();
+        restore(datum.junit_z, c.getUniqueId());
 
-        final Long containerId = datum.artifactModel.readId(datum.container.getUniqueId());
-        final Container container = datum.containerModel.read(containerId);
-        assertNotNull(NAME + " - Container is null.", container);
-
-        final List<ContainerVersion> versions =
-            datum.containerModel.readVersions(container.getId());
-        assertNotNull(NAME + " - Container versions is null.", versions);
+        final Container c_restore = readContainer(datum.junit_z, c.getUniqueId());
+        assertNotNull(NAME + " - Container is null.", c);
+        final List<ContainerVersion> cv_list_restore = readContainerVersions(datum.junit_z, c_restore.getId());
+        assertNotNull(NAME + " - Container versions is null.", cv_list_restore);
     }
 
     /**
-     * @see com.thinkparity.codebase.junitx.TestCase#setUp()
+     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#setUp()
+     *
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT_Z);
-        final InternalArtifactModel artifactModel = getArtifactModel(OpheliaTestUser.JUNIT_Z);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT_Z);
-        final Container container = createContainer(OpheliaTestUser.JUNIT_Z, NAME);
-        addDocuments(OpheliaTestUser.JUNIT_Z, container.getId());
-        publish(OpheliaTestUser.JUNIT_Z, container.getId());
-        containerModel.archive(container.getId());
-        datum = new Fixture(getArchiveModel(OpheliaTestUser.JUNIT_Z),
-                artifactModel, container, containerModel);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT_X, OpheliaTestUser.JUNIT_Z);
+        login(datum.junit_x);
+        login(datum.junit_z);
     }
 
     /**
-     * @see com.thinkparity.codebase.junitx.TestCase#tearDown()
+     * @see com.thinkparity.ophelia.model.container.ContainerTestCase#tearDown()
+     *
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit_x);
+        logout(datum.junit_z);
         datum = null;
-        logout(OpheliaTestUser.JUNIT_Z);
         super.tearDown();
     }
 
-    /** Test datum definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final InternalArtifactModel artifactModel;
-        private final Container container;
-        private final ContainerModel containerModel;
-        private Boolean didNotify;
-        private Fixture(final InternalArchiveModel archiveModel,
-                final InternalArtifactModel artifactModel,
-                final Container container, final ContainerModel containerModel) {
-            super();
-            this.artifactModel = artifactModel;
-            this.container = container;
-            this.containerModel = containerModel;
-            this.didNotify = Boolean.FALSE;
-        }
-        @Override
-        public void containerRestored(final ContainerEvent e) {
-            didNotify = Boolean.TRUE;
-            assertTrue("Event generated is not local.", e.isLocal());
-            assertTrue("Event generated is remote .", !e.isRemote());
-            assertNotNull("The archive event's container is null.", e.getContainer());
-            assertNull("The archive event's document is not null.", e.getDocument());
-            assertNull("The archive event's draft is not null.", e.getDraft());
-            assertNull("The archive event's team member is not null.", e.getTeamMember());
-            assertNull("The archive event's version is not null.", e.getVersion());
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_z;
+        private Fixture(final OpheliaTestUser junit_x, final OpheliaTestUser junit_z) {
+            this.junit_x = junit_x;
+            this.junit_z = junit_z;
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_z);
         }
     }
 }

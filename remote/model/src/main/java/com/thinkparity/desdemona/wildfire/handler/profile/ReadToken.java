@@ -5,27 +5,39 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.user.Token;
+
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadToken extends AbstractHandler {
+public final class ReadToken extends AbstractHandler {
 
-    /** Create ReadToken. */
+    /**
+     * Create ReadToken.
+     *
+     */
     public ReadToken() {
         super("profile:readtoken");
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
-        final Token token = readToken(readJabberId("userId"));
-        writeToken("token", token);
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        final Token token = readToken(provider, reader.readJabberId("userId"));
+        writer.writeToken("token", token);
     }
 
     /**
@@ -35,7 +47,8 @@ public class ReadToken extends AbstractHandler {
      *            A user id <code>JabberId</code>.
      * @return A <code>Token</code>.
      */
-    private Token readToken(final JabberId userId) {
-        return getProfileModel().readToken(userId);
+    private Token readToken(final ServiceModelProvider provider,
+            final JabberId userId) {
+        return provider.getProfileModel().readToken(userId);
     }
 }

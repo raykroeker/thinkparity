@@ -8,31 +8,40 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
- * Read the team member user ids.
- * 
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class ReadTeamIds extends AbstractHandler {
+public final class ReadTeamIds extends AbstractHandler {
 
 	/**
 	 * Create ReadTeamIds.
 	 * 
 	 */
-	public ReadTeamIds() { super("artifact:readteamids"); }
+	public ReadTeamIds() {
+        super("artifact:readteamids");
+	}
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
         final List<JabberId> teamIds =
-            logger.logVariable("teamIds", readTeamIds(readUUID("uniqueId")));
-        writeJabberIds("teamIds", "teamIds", teamIds);
+            logger.logVariable("teamIds", readTeamIds(provider,
+                    reader.readUUID("uniqueId")));
+        writer.writeJabberIds("teamIds", "teamIds", teamIds);
     }
 
     /**
@@ -42,7 +51,8 @@ public class ReadTeamIds extends AbstractHandler {
      *            The artifact unique id.
      * @return A list of the artifact team member ids <code>JabberId</code>.
      */
-    private List<JabberId> readTeamIds(final UUID uniqueId) {
-        return getArtifactModel().readTeamIds(uniqueId);
+    private List<JabberId> readTeamIds(final ServiceModelProvider provider,
+            final UUID uniqueId) {
+        return provider.getArtifactModel().readTeamIds(uniqueId);
     }
 }

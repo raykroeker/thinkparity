@@ -18,6 +18,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JContext;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -92,8 +93,14 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         });
 	}
 
+    /** The current login <code>Credentials</code>. */
+    private transient Credentials credentials;
+
     /** An <code>XMPPSessionDebugger</code>. */
     private final Class<? extends XMPPSessionDebugger> debuggerClass;
+
+    /** The current login <code>Environment</code>. */
+    private Environment environment;
 
     /** A list of the session listeners. */
     private final List<SessionListener> listeners;
@@ -222,7 +229,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArchive.archive(userId, uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#assertContainsResult(java.lang.Object,
      *      com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse)
      * 
@@ -244,18 +251,19 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppEventDispatcher.clearListeners();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.List, java.util.UUID, java.lang.Long,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
     public void confirmArtifactReceipt(final JabberId userId,
-            final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final Calendar publishedOn,
-            final JabberId receivedBy, final Calendar receivedOn) {
-        xmppArtifact.confirmReceipt(userId, team, uniqueId, versionId,
-                publishedOn, receivedBy, receivedOn);
+            final UUID uniqueId, final Long versionId,
+            final JabberId publishedBy, final Calendar publishedOn,
+            final List<JabberId> publishedTo, final JabberId receivedBy,
+            final Calendar receivedOn) {
+        xmppArtifact.confirmReceipt(userId, uniqueId, versionId, publishedBy,
+                publishedOn, publishedTo, receivedBy, receivedOn);
     }
 
     /**
@@ -287,7 +295,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppBackup.createStream(userId, streamId, uniqueId, versionId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createDraft(com.thinkparity.codebase.jabber.JabberId,
      *      java.util.List, java.util.UUID)
      * 
@@ -307,7 +315,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppStream.create(userId, session);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#createStreamSession(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -333,7 +341,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.decline(invitedAs, invitedBy);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteArtifact(java.util.UUID)
      * 
      */
@@ -341,7 +349,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.delete(uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteContact(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -370,7 +378,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.deleteDraft(userId, team, uniqueId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteStream(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.stream.StreamSession,
      *      java.lang.String)
@@ -381,7 +389,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppStream.delete(userId, session, streamId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#deleteStreamSession(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.stream.StreamSession)
      * 
@@ -409,7 +417,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return execute(method, xmppConnection, assertResponse);
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.model.util.xmpp.XMPPSession#sendInvitation(com.thinkparity.codebase.jabber.JabberId)
 	 * 
 	 */
@@ -428,7 +436,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return JabberIdBuilder.parse(xmppConnection.getUser());
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.util.xmpp.XMPPCore#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent)
      *
 	 */
@@ -477,7 +485,20 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *
      */
     public void processEventQueue(final JabberId userId) {
-        xmppSystem.processEventQueue(userId);
+        logger.pushContext(new Log4JContext() {
+            public String getContext() {
+                return userId.getUsername();
+            }
+        });
+        try {
+            xmppSystem.processEventQueue(userId);
+        } catch (final Throwable t) {
+            logger.logFatal(t, "A fatal error occured whilst processing a remote event.  Re-establishing connection now.");
+            logout();
+            login(0, environment, credentials);
+        } finally {
+            logger.popContext();
+        }
     }
 
     /**
@@ -488,10 +509,10 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        xmppContainer.publish(container, documents, team, publishTo,
-                publishedBy, publishedOn);
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
+        xmppContainer.publish(container, documents, publishTo, publishedBy,
+                publishedOn);
     }
 
 	/**
@@ -953,7 +974,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         logVariable("environment", environment);
         logVariable("credentials", credentials);
 	    assertXMPPIsReachable(environment);
-        Assert.assertTrue(attempt < 4, "Cannot login after 3 attempts.");
+        Assert.assertTrue(attempt < 4, "Cannot login after 3 failed attempts.");
         try {
 			if (Boolean.TRUE == isLoggedIn())
 				logout();
@@ -1012,7 +1033,9 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
             xmppConnection.login(credentials.getUsername(),
                     credentials.getPassword(), credentials.getResource());
             logger.logInfo("{0}", readVersion());
-
+            // save credentials/environment
+            this.credentials = credentials;
+            this.environment = environment;
             // fire event
             handleConnectionEstablished();
         } catch (final IllegalStateException isx) {
@@ -1047,7 +1070,7 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * 
      */
 	private void processEventQueue() {
-	    xmppSystem.processEventQueue(getUserId());
+	    processEventQueue(getUserId());
 	}
 
     /**

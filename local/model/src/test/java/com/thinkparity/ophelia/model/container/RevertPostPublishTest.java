@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class RevertPostPublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST REVERT POST PUBLISH";
+    private static final String NAME = "Revert post publish test.";
 
     /** Test datum. */
     private Fixture datum;
@@ -25,7 +25,14 @@ public class RevertPostPublishTest extends ContainerTestCase {
 
     /** Test the rename api. */
     public void testRevert() {
-        datum.containerModel.revertDocument(datum.container.getId(), datum.document.getId());
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        publish(datum.junit, c.getId());
+        datum.waitForEvents();
+        createContainerDraft(datum.junit, c.getId());
+        modifyDocument(datum.junit, d.getId());
+
+        revertDocument(datum.junit, c.getId(), d.getId());
     }
 
     /**
@@ -34,17 +41,11 @@ public class RevertPostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final Document document = addDocument(OpheliaTestUser.JUNIT,
-                container.getId(), getInputFileNames()[0]);
-        login(OpheliaTestUser.JUNIT);
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        createContainerDraft(OpheliaTestUser.JUNIT, container);
-        modifyDocument(OpheliaTestUser.JUNIT, document.getId());
-        logout(OpheliaTestUser.JUNIT);
-        datum = new Fixture(container, containerModel, document);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -52,21 +53,26 @@ public class RevertPostPublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Test datum definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final InternalContainerModel containerModel;
-        private final Document document;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel, final Document document) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.document = document;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

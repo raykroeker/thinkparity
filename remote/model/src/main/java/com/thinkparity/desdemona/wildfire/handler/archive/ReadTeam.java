@@ -7,8 +7,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.user.TeamMember;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
@@ -29,13 +33,17 @@ public final class ReadTeam extends AbstractHandler {
     }
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider, com.thinkparity.desdemona.util.service.ServiceRequestReader, com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     *
      */
     @Override
-    public void service() {
-        logApiId();
-        final List<TeamMember> team = readTeam(readJabberId("userId"), readUUID("uniqueId"));
-        writeTeam("team", "teamMember", team);
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        final List<TeamMember> team = readTeam(provider,
+                reader.readJabberId("userId"), reader.readUUID("uniqueId"));
+        writer.writeTeam("team", "teamMember", team);
     }
 
     /**
@@ -47,8 +55,8 @@ public final class ReadTeam extends AbstractHandler {
      *            A container unique id <code>UUID</code>.
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    private List<TeamMember> readTeam(final JabberId userId,
-            final UUID uniqueId) {
-        return getArchiveModel().readTeam(userId, uniqueId);
+    private List<TeamMember> readTeam(final ServiceModelProvider provider,
+            final JabberId userId, final UUID uniqueId) {
+        return provider.getArchiveModel().readTeam(userId, uniqueId);
     }
 }

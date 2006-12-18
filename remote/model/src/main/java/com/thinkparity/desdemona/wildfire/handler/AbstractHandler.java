@@ -1,17 +1,11 @@
 /*
- * Created On: Jun 22, 2006 2:51:33 PM
+ * Created On: May 10, 2006 2:38:59 PM
  */
 package com.thinkparity.desdemona.wildfire.handler;
 
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.UUID;
-
-import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.desdemona.model.archive.ArchiveModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
@@ -23,244 +17,158 @@ import com.thinkparity.desdemona.model.queue.QueueModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.UserModel;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.util.xmpp.IQReader;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
+import org.jivesoftware.wildfire.IQHandlerInfo;
 import org.jivesoftware.wildfire.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
-
+import org.xmpp.packet.PacketError;
 
 /**
- * <b>Title:</b>thinkParity Model Controller <br>
- * <b>Description:</b>An abstraction of an xmpp controller.
+ * An abstraction of the use-case controller from the MVC paradigm. The IQ
+ * controller is a stateless class that handles actions from the IQDispatcher.
+ * All state is convened in the IQ as well as the Session.
  * 
- * @author raymond@thinkparity.com
- * @version 1.1.2.9
+ * @author raykroeker@gmail.com
+ * @version 1.1.2.8
  */
 public abstract class AbstractHandler extends
-        com.thinkparity.codebase.wildfire.handler.AbstractHandler {
+		org.jivesoftware.wildfire.handler.IQHandler {
 
     /** An apache iq logger. */
-    static final Log4JWrapper IQ_LOGGER;
+    private static final Log4JWrapper IQ_LOGGER;
 
-    /**
-     * A synchronization lock used to serialize all incoming iq handler
-     * requests.
-     */
-    static final Object SERIALIZER;
+    private static final SessionUtil SESSION_UTIL;
 
-    static {
+	static {
         IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
-        SERIALIZER = new Object();
+        SESSION_UTIL = SessionUtil.getInstance();
     }
 
-    /** A thinkParity archive interface. */
-    private ArchiveModel archiveModel;
-
-    /** A thinkParity stream interface. */
-    private StreamModel streamModel;
-
-    /** A thinkParity artifact interface. */
-    private ArtifactModel artifactModel;
-
-    /** A thinkParity backup interface. */
-    private BackupModel backupModel;
-
-    /** A thinkParity contact interface. */
-    private ContactModel contactModel;
-
-    /** A thinkParity container interface. */
-    private ContainerModel containerModel;
-
-    /** A custom iq reader. */
-    private IQReader iqReader;
-
-    /** A custom iq writer. */
-    private IQWriter iqWriter;
-
-    /** An apache logger. */
+    /** An apache logger wrapper. */
     protected final Log4JWrapper logger;
 
-    /** A thinkParity profile interface. */
-    private ProfileModel profileModel;
+    /** The info. */
+	private final IQHandlerInfo info;
 
-    /** A thinkParity queue interface. */
-    private QueueModel queueModel;
-
-    /** A thinkParity user session. */
-    private Session session;
-
-    /** A thinkParity user interface. */
-    private UserModel userModel;
-
-    /** Create AbstractHandler. */
-    public AbstractHandler(final String action) {
-        super(action);
+	/**
+     * Create AbstractHandler2.
+     * 
+     * @param service
+     *            The service <code>String</code> this handler can provide.
+     */
+	protected AbstractHandler(final String service) {
+		super(service);
+		this.info = new IQHandlerInfo(Xml.NAME, Xml.NAMESPACE + ":" + service);
         this.logger = new Log4JWrapper(getClass());
-    }
+	}
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#createReader(org.xmpp.packet.IQ)
+     * @see org.jivesoftware.wildfire.handler.IQHandler#getInfo()
+     * 
      */
-    public IQReader createReader(final IQ iq) {
-        iqReader = new IQReader(iq);
-        return iqReader;
-    }
-
+	public IQHandlerInfo getInfo() {
+        return info;
+	}
+    
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#createWriter(org.xmpp.packet.IQ)
-     */
-    public IQWriter createWriter(final IQ iq) {
-        iqWriter = new IQWriter(iq, logger);
-        return iqWriter;
-    }
-
-    /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#handleIQ(org.xmpp.packet.IQ)
-     */
+     * @see org.jivesoftware.wildfire.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
+     * 
+	 */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-        synchronized (SERIALIZER) {
-            this.session = SessionUtil.getInstance().createSession(iq);
-            this.archiveModel = ArchiveModel.getModel(session);
-            this.artifactModel = ArtifactModel.getModel(session);
-            this.backupModel = BackupModel.getModel(session);
-            this.contactModel = ContactModel.getModel(session);
-            this.containerModel = ContainerModel.getModel(session);
-            this.profileModel = ProfileModel.getModel(session);
-            this.queueModel = QueueModel.getModel(session);
-            this.streamModel = StreamModel.getModel(session);
-            this.userModel = UserModel.getModel(session);
-            final IQ response = super.handleIQ(iq);
-            IQ_LOGGER.logVariable("iq", iq);
-            IQ_LOGGER.logVariable("iq response", response);
-            return response;
+        IQ_LOGGER.logVariable("iq", iq);
+        final ServiceRequestReader reader = new IQReader(iq);
+        final IQ response = createResponse(iq);
+        final ServiceResponseWriter writer = new IQWriter(response);
+        final Session session = SESSION_UTIL.createSession(iq);
+        try {
+            service(new ServiceModelProvider() {
+                public ArchiveModel getArchiveModel() {
+                    return ArchiveModel.getModel(session);
+                }
+                public ArtifactModel getArtifactModel() {
+                    return ArtifactModel.getModel(session);
+                }
+                public BackupModel getBackupModel() {
+                    return BackupModel.getModel(session);
+                }
+                public ContactModel getContactModel() {
+                    return ContactModel.getModel(session);
+                }
+                public ContainerModel getContainerModel() {
+                    return ContainerModel.getModel(session);
+                }
+                public ProfileModel getProfileModel() {
+                    return ProfileModel.getModel(session);
+                }
+                public QueueModel getQueueModel() {
+                    return QueueModel.getModel(session);
+                }
+                public StreamModel getStreamModel() {
+                    return StreamModel.getModel(session);
+                }
+                public UserModel getUserModel() {
+                    return UserModel.getModel(session);
+                }
+            }, reader, writer);
+        } catch (final Throwable t) {
+            logger.logFatal(t, "A non-recoverable error has occured trying to service {0}.",
+                    info.getNamespace());
+            return createErrorResponse(iq, t);
         }
+        IQ_LOGGER.logVariable("response", response);
+        return response;
     }
 
-    /**
-     * Obtain a thinkParity archive interface.
+	/**
+     * Provides a thinkParity service.
      * 
-     * @return A thinkParity archive interface.
+     * @param provider
+     *            A thinkParity <code>ServiceModelProvider</code>.
+     * @param reader
+     *            A thinkParity <code>ServiceRequestReader</code>.
+     * @param writer
+     *            A thinkParity <code>ServiceResponseWriter</code>.
      */
-    protected ArchiveModel getArchiveModel() {
-        return archiveModel;
-    }
+    protected abstract void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer);
 
     /**
-     * Obtain a thinkParity stream interface.
+     * Create an error response for the query, for the error.
      * 
-     * @return A thinkParity stream interface.
+     * @param iq
+     *            The internet query.
+     * @param x
+     *            The error.
+     * @return The error response.
      */
-    protected StreamModel getStreamModel() {
-        return streamModel;
+    private IQ createErrorResponse(final IQ iq, final Throwable t) {
+        final IQ errorResult = IQ.createResultIQ(iq);
+
+        final PacketError packetError = new PacketError(
+                PacketError.Condition.internal_server_error,
+                PacketError.Type.cancel, StringUtil.printStackTrace(t));
+
+		errorResult.setError(packetError);
+        return errorResult;
     }
 
     /**
-     * Obtain a thinkParity artifact interface.
+     * Create a response for the query.
      * 
-     * @return A thinkParity artifact interface.
+     * @param iq
+     *            The xmpp internet query <code>IQ</code>.
+     * @return An xmpp internet query response <code>IQ</code>.
      */
-    protected ArtifactModel getArtifactModel() {
-        return artifactModel;
-    }
-
-    /**
-     * Obtain a thinkParity archive interface.
-     * 
-     * @return A thinkParity archive interface.
-     */
-    protected BackupModel getBackupModel() {
-        return backupModel;
-    }
-
-    /**
-     * Obtain a thinkParity contact interface.
-     * 
-     * @return A thinkParity contact interface.
-     */
-    protected ContactModel getContactModel() {
-        return contactModel;
-    }
-
-    /**
-     * Obtain a thinkParity container interface.
-     * 
-     * @return A thinkParity container interface.
-     */
-    protected ContainerModel getContainerModel() {
-        return containerModel;
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @return An error id.
-     */
-    protected final Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                    session.getJabberId().getUsername(),
-                    StackUtil.getFrameClassName(2),
-                    StackUtil.getFrameMethodName(2),
-                    t.getMessage());
-    }
-
-    /**
-     * Obtain a thinkParity profile interface.
-     * 
-     * @return A thinkParity profile interface.
-     */
-    protected ProfileModel getProfileModel() {
-        return profileModel;
-    }
-
-    /**
-     * Obtain a thinkParity queue interface.
-     * 
-     * @return A thinkParity queue interface.
-     */
-    protected QueueModel getQueueModel() {
-        return queueModel;
-    }
-
-    /**
-     * Obtain a thinkParity user interface.
-     * 
-     * @return A thinkParity user interface.
-     */
-    protected UserModel getUserModel() {
-        return userModel;
-    }
-
-    /** Log an api id. */
-    protected final void logApiId() {
-        logger.logApiId();
-    }
-
-    /**
-     * Read an artifact type parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The artifact type.
-     */ 
-    protected final ArtifactType readArtifactType(final String name) {
-        return iqReader.readArtifactType(name);
-    }
-
-    /**
-     * Read a unique id parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The unique id.
-     */
-    protected final UUID readUUID(final String name) {
-        return iqReader.readUUID(name);
-    }
-
-    protected final void writeProfileEMails(final String name,
-            final List<ProfileEMail> profileEMails) {
-        iqWriter.writeProfileEMails(name, profileEMails);
+    private IQ createResponse(final IQ iq) {
+        final IQ response = IQ.createResultIQ(iq);
+        response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
+        return response;
     }
 }

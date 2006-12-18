@@ -11,32 +11,51 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 
-import com.thinkparity.desdemona.model.Constants.Xml.Service;
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class PublishArtifact extends AbstractHandler {
-
-    /** Create PublishArtifact. */
-    public PublishArtifact() { super(Service.Container.PUBLISH_ARTIFACT); }
+public final class PublishArtifact extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create PublishArtifact.
+     *
+     */
+    public PublishArtifact() {
+        super("container:publishartifact");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        publishArtifact(readUUID("uniqueId"), readLong("versionId"),
-                readString("name"), readInteger("artifactCount"),
-                readInteger("artifactIndex"), readUUID("artifactUniqueId"),
-                readLong("artifactVersionId"), readString("artifactName"),
-                readArtifactType("artifactType"),
-                readString("artifactChecksum"), readString("artifactStreamId"),
-                readJabberIds("publishTo", "publishTo"),
-                readJabberId("publishedBy"), readCalendar("publishedOn"));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        publishArtifact(provider, reader.readUUID("uniqueId"),
+                reader.readLong("versionId"), reader.readString("name"),
+                reader.readInteger("artifactCount"),
+                reader.readInteger("artifactIndex"),
+                reader.readUUID("artifactUniqueId"),
+                reader.readLong("artifactVersionId"),
+                reader.readString("artifactName"),
+                reader.readArtifactType("artifactType"),
+                reader.readString("artifactChecksum"),
+                reader.readString("artifactStreamId"),
+                reader.readJabberIds("publishTo", "publishTo"),
+                reader.readJabberId("publishedBy"),
+                reader.readCalendar("publishedOn"));
     }
 
     /**
@@ -71,14 +90,15 @@ public class PublishArtifact extends AbstractHandler {
      * @param publishedOn
      *            When the artifact was published.
      */
-    private void publishArtifact(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final Integer artifactIndex, final UUID artifactUniqueId,
-            final Long artifactVersionId, final String artifactName,
-            final ArtifactType artifactType, final String artifactChecksum,
-            final String artifactStreamId, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        getContainerModel().publishArtifact(uniqueId, versionId, name,
+    private void publishArtifact(final ServiceModelProvider context,
+            final UUID uniqueId, final Long versionId, final String name,
+            final Integer artifactCount, final Integer artifactIndex,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final String artifactStreamId,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
+        context.getContainerModel().publishArtifact(uniqueId, versionId, name,
                 artifactCount, artifactIndex, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
                 artifactChecksum, artifactStreamId, publishTo, publishedBy,

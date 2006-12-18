@@ -4,16 +4,9 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raymond@thinkparity.com
@@ -22,18 +15,30 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class ReceivePublishTest extends ContainerTestCase {
 
     /** Test name. */
-    private static final String NAME = "TEST PUBLISH";
+    private static final String NAME = "Receive publish test.";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create PublishTest. */
-    public ReceivePublishTest() { super(NAME); }
+    /**
+     * Create ReceivePublishTest.
+     *
+     */
+    public ReceivePublishTest() {
+        super(NAME);
+    }
 
     /** Test the publish api. */
     public void testReceivePublish() {
-        datum.containerModel.publish(datum.container.getId(), datum.contacts, datum.teamMembers);
-        assertTrue("Did not fire publish event.", datum.didNotify);
+        final Container c = createContainer(datum.junit, NAME);
+        addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        assertNotNull("Container not received by user " + datum.junit_x.getSimpleUsername() + ".", c_x);
+        final Container c_y = readContainer(datum.junit_x, c.getUniqueId());
+        assertNotNull("Container not received by user " + datum.junit_y.getSimpleUsername() + ".", c_y);
     }
 
     /**
@@ -42,15 +47,11 @@ public class ReceivePublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        login(OpheliaTestUser.JUNIT_X);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        final List<Contact> contacts = new ArrayList<Contact>(1);
-        contacts.add(readContact(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X));
-        datum = new Fixture(contacts, container, containerModel);
-        containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -58,31 +59,26 @@ public class ReceivePublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
-        logout(OpheliaTestUser.JUNIT);
-        logout(OpheliaTestUser.JUNIT_X);
         super.tearDown();
     }
 
     /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final List<Contact> contacts;
-        private final Container container;
-        private final ContainerModel containerModel;
-        private Boolean didNotify;
-        private final List<TeamMember> teamMembers;
-        private Fixture(final List<Contact> contacts,
-                final Container container, final ContainerModel containerModel) {
-            this.contacts = contacts;
-            this.container = container;
-            this.containerModel = containerModel;
-            this.didNotify = Boolean.FALSE;
-            this.teamMembers = Collections.emptyList();
-        }
-        @Override
-        public void draftPublished(ContainerEvent e) {
-            didNotify = Boolean.TRUE;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
@@ -39,7 +40,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
-import com.thinkparity.ophelia.browser.util.UserUtil;
 
 /**
  * <b>Title:</b><br>
@@ -49,6 +49,13 @@ import com.thinkparity.ophelia.browser.util.UserUtil;
  */
 final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         implements TabAvatarSortByDelegate {
+
+    /** A set of user object utilities. */
+    private static final UserUtils USER_UTILS;
+
+    static {
+        USER_UTILS = UserUtils.getInstance();
+    }
 
     /** The <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
@@ -422,7 +429,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
 
     private <T extends User> T find(final List<T> users,
             final JabberId userId) {
-        return users.get(UserUtil.indexOf(users, userId));
+        return users.get(USER_UTILS.indexOf(users, userId));
     }
 
     /**

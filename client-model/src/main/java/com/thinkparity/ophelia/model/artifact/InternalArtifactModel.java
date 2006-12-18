@@ -92,10 +92,22 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The artifact id.
      */
     public void applyFlagKey(final Long artifactId) {
-		synchronized (getImplLock()) {
+        synchronized (getImplLock()) {
             getImpl().applyFlagKey(artifactId);
-		}
-	}
+        }
+    }
+
+    /**
+     * Apply the key flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void applyFlagLatest(final Long artifactId) {
+        synchronized (getImplLock()) {
+            getImpl().applyFlagLatest(artifactId);
+        }
+    }
 
 	/**
 	 * Audit the denial of a key request for an artifact.
@@ -203,9 +215,9 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact version id.
      * @return True if the artifact version exists.
      */
-    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+    public Boolean doesVersionExist(final Long artifactId) {
         synchronized (getImplLock()) {
-            return getImpl().doesVersionExist(artifactId, versionId);
+            return getImpl().doesVersionExist(artifactId);
         }
     }
 
@@ -218,9 +230,9 @@ public class InternalArtifactModel extends ArtifactModel {
      *            An artifact version id.
      * @return True if the artifact version exists.
      */
-    public Boolean doesVersionExist(final Long artifactId) {
+    public Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         synchronized (getImplLock()) {
-            return getImpl().doesVersionExist(artifactId);
+            return getImpl().doesVersionExist(artifactId, versionId);
         }
     }
 
@@ -323,19 +335,6 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
-     * Read the artifact team.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
-    public List<TeamMember> readTeam2(final Long artifactId) {
-        // TODO Rename to readTeam.
-        synchronized (getImplLock()) {
-            return getImpl().readTeam2(artifactId);
-        }
-    }
-
-    /**
      * Read the team for an artifact.
      * 
      * @param artifactId
@@ -351,6 +350,19 @@ public class InternalArtifactModel extends ArtifactModel {
             final Filter<? super User> filter) {
         synchronized (getImplLock()) {
             return getImpl().readTeam(artifactId, comparator, filter);
+        }
+    }
+
+    /**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public List<TeamMember> readTeam2(final Long artifactId) {
+        // TODO Rename to readTeam.
+        synchronized (getImplLock()) {
+            return getImpl().readTeam2(artifactId);
         }
     }
 

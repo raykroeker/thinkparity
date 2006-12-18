@@ -4,10 +4,10 @@
 package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.assertion.TrueAssertion;
+
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raymond@thinkparity.com
@@ -16,27 +16,34 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class RenamePostPublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST RENAME POST PUBLISH";
+    private static final String NAME = "Rename post publish test.";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create RenamePostPublishTest. */
+    /**
+     * Create RenamePostPublishTest.
+     *
+     */
     public RenamePostPublishTest() { super(NAME); }
 
     /** Test the rename api. */
     public void testRename() {
+        Container c = createContainer(datum.junit, NAME);
+        final String c_name = c.getName();
+        addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
         try {
-            datum.containerModel.rename(datum.container.getId(), datum.name);
+            renameContainer(datum.junit, c.getId(), NAME + "  Renamed.");
         } catch (final TrueAssertion ta) {
             if (ta.getMessage().equals("CONTAINER HAS BEEN DISTRIBUTED")) {
             } else { 
                 fail(createFailMessage(ta));
             }
         }
-        assertTrue(NAME + " CONTAINER UPDATED EVENT FIRED", !datum.didNotify);
-        final Container container = datum.containerModel.read(datum.container.getId());
-        assertTrue(NAME + " CONTAINER NAME UPDATED", !datum.name.equals(container.getName()));
+        c = readContainer(datum.junit, c.getId());
+        assertEquals("The container has been renamed.", c_name, c.getName());
     }
 
     /**
@@ -45,15 +52,11 @@ public class RenamePostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        login(OpheliaTestUser.JUNIT);
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        logout(OpheliaTestUser.JUNIT);
-        final String name = NAME + " RENAMED";
-        datum = new Fixture(container, containerModel, name);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -61,32 +64,26 @@ public class RenamePostPublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Test datum definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final InternalContainerModel containerModel;
-        private Boolean didNotify;
-        private final String name;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel, final String name) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.didNotify = Boolean.FALSE;
-            this.name = name;
-        }
-        @Override
-        public void containerUpdated(ContainerEvent e) {
-            didNotify = Boolean.TRUE;
-            assertNotNull(NAME + " EVENT CONTAINER IS NULL", e.getContainer());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getDocument());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getDraft());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getTeamMember());
-            assertNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getVersion());
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

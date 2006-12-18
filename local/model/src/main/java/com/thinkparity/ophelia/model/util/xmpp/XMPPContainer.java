@@ -46,8 +46,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      *            A container.
      * @param documents
      *            A list of documents and their content.
-     * @param team
-     *            A <code>JabberId</code> <code>List</code> of the team.
      * @param publishTo
      *            Whom the container is to be published to.
      * @param publishedBy
@@ -58,12 +56,11 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      */
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> team, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);
-        logger.logVariable("team", team);
         logger.logVariable("publishTo", publishTo);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
@@ -94,7 +91,6 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("versionId", container.getVersionId());
         publish.setParameter("name", container.getName());
         publish.setParameter("comment", container.getComment());
-        publish.setParameter("team", "teamMember", team);
         publish.setParameter("artifactCount", entries.size());
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedTo", "publishedTo", publishTo);

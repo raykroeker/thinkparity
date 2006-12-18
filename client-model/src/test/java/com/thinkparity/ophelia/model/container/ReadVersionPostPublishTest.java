@@ -8,24 +8,35 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
-
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadVersionPostPublishTest extends ContainerTestCase {
+public final class ReadVersionPostPublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST READ VERSION POST PUBLISH";
+    private static final String NAME = "Read version post publish test.";
 
     /** Test datum. */
     private Fixture datum;
 
+    /**
+     * Create ReadVersionPostPublishTest.
+     *
+     */
+    public ReadVersionPostPublishTest() {
+        super(NAME);
+    }
+
     public void testReadVersion() {
-        final ContainerVersion version =
-            datum.containerModel.readVersion(datum.container.getId(), datum.version.getVersionId());
-        assertNotNull(NAME + " VERSION IS NULL", version);
-        assertEquals(NAME + " VERSION DOES NOT MATCH EXPECTATION", datum.version, version);
+        final Container c = createContainer(datum.junit, NAME);
+        addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        assertNotNull("Latest version is null.", cv_latest);
     }
 
     /**
@@ -34,15 +45,11 @@ public class ReadVersionPostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        login(OpheliaTestUser.JUNIT);
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        logout(OpheliaTestUser.JUNIT);
-        final ContainerVersion version = containerModel.readLatestVersion(container.getId());
-        datum = new Fixture(container, containerModel, version);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -50,25 +57,26 @@ public class ReadVersionPostPublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Create ReadVersionPostPublishTest. */
-    public ReadVersionPostPublishTest() { super(NAME); }
-
-    /** Test datum definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final InternalContainerModel containerModel;
-        private final Container container;
-        private final ContainerVersion version;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel,
-                final ContainerVersion version) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.version = version;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

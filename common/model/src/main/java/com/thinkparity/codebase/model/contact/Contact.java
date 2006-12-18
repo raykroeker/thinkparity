@@ -21,16 +21,13 @@ public class Contact extends User {
     /** The contact's e-mails. */
     private final List<EMail> emails;
 
-    /** A mobile phone <code>String</code>. */
-    private String mobilePhone;
+    /** The contact vcard info. */
+    private ContactVCard vcard;
 
-    /** An organziation address <code>String</code>. */
-    private String organizationAddress;
-
-    /** A phone <code>String</code>. */
-    private String phone;
-
-	/** Create Contact. */
+    /**
+     * Create Contact.
+     *
+     */
 	public Contact() {
         super();
         this.emails = new ArrayList<EMail>();
@@ -95,7 +92,7 @@ public class Contact extends User {
      * @return A mobile phone <code>String</code>.
      */
     public String getMobilePhone() {
-        return mobilePhone;
+        return "";
     }
 
     /**
@@ -104,7 +101,7 @@ public class Contact extends User {
      * @return An organization address <code>String</code>.
      */
     public String getOrganizationAddress() {
-        return organizationAddress;
+        return "";
     }
 
     /**
@@ -113,7 +110,16 @@ public class Contact extends User {
      * @return A phone number <code>String</code>.
      */
     public String getPhone() {
-        return phone;
+        return "";
+    }
+
+    /**
+     * Obtain vcard.
+     *
+     * @return A ContactVCard.
+     */
+    public ContactVCard getVCard() {
+        return vcard;
     }
 
     /**
@@ -172,7 +178,6 @@ public class Contact extends User {
      *            A mobile phone <code>String</code>.
      */
     public void setMobilePhone(final String mobilePhone) {
-        this.mobilePhone = mobilePhone;
     }
 
     /**
@@ -182,7 +187,6 @@ public class Contact extends User {
      *            An organization address <code>String</code>.
      */
     public void setOrganizationAddress(final String organizationAddress) {
-        this.organizationAddress = organizationAddress;
     }
 
     /**
@@ -192,6 +196,15 @@ public class Contact extends User {
      *            A phone <code>String</code>.
      */
     public void setPhone(final String phone) {
-        this.phone = phone;
+    }
+
+    /**
+     * Set vcard.
+     *
+     * @param vcard
+     *		A ContactVCard.
+     */
+    public void setVCard(final ContactVCard vcard) {
+        this.vcard = vcard;
     }
 }

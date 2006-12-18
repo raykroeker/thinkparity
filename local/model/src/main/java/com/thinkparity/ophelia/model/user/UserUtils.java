@@ -3,7 +3,9 @@
  */
 package com.thinkparity.ophelia.model.user;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
@@ -68,6 +70,28 @@ public class UserUtils {
     public <T extends User, U extends User> boolean contains(
             final List<T> list, final U o) {
         return -1 < indexOf(list, o);
+    }
+
+    /**
+     * Determine if the map contains the user key.
+     * 
+     * @param <T>
+     *            A <code>User</code> type.
+     * @param <U>
+     *            A <code>User</code> type.
+     * @param map
+     *            A <code>Map</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the user exists in the map as a key entry.
+     */
+    public <T extends User, U extends User> boolean containsKey(final Map<T, ?> map,
+            final U user) {
+        for (final Iterator<T> iUsers = map.keySet().iterator();
+                iUsers.hasNext();)
+            if (iUsers.next().getId().equals(user.getId()))
+                return true;
+        return false;
     }
 
     public <T extends User> boolean containsUser(final List<JabberId> userIds,

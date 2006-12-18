@@ -66,23 +66,26 @@ final class XMPPArtifact extends AbstractXMPP<ArtifactListener> {
      * @param versionId
      *            The artifact version id.
      */
-	void confirmReceipt(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final Long versionId,
-            final Calendar publishedOn, final JabberId receivedBy,
-            final Calendar receivedOn) {
+	void confirmReceipt(final JabberId userId, final UUID uniqueId,
+            final Long versionId, final JabberId publishedBy,
+            final Calendar publishedOn, final List<JabberId> publishedTo,
+            final JabberId receivedBy, final Calendar receivedOn) {
 	    logger.logApiId();
         logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
         logger.logVariable("uniqueId", uniqueId);
         logger.logVariable("versionId", versionId);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedOn", publishedOn);
+        logger.logVariable("publishedTo", publishedTo);
         logger.logVariable("receivedBy", receivedBy);
         logger.logVariable("receivedOn", receivedOn);
         final XMPPMethod confirmReceipt = new XMPPMethod("artifact:confirmreceipt");
         confirmReceipt.setParameter("userId", userId);
-        confirmReceipt.setParameter("team", "teamMember", team);
         confirmReceipt.setParameter("uniqueId", uniqueId);
         confirmReceipt.setParameter("versionId", versionId);
+        confirmReceipt.setParameter("publishedBy", publishedBy);
         confirmReceipt.setParameter("publishedOn", publishedOn);
+        confirmReceipt.setParameter("publishedTo", "publishedToId", publishedTo);
         confirmReceipt.setParameter("receivedBy", receivedBy);
         confirmReceipt.setParameter("receivedOn", receivedOn);
         execute(confirmReceipt);

@@ -29,14 +29,24 @@ public class ReadPublishedToTest extends ContainerTestCase {
         super(NAME);
     }
 
+    /**
+     * Test the read published to api.
+     *
+     */
     public void testReadPublishedTo() {
-        final Map<User, ArtifactReceipt> publishedTo = datum.containerModel.readPublishedTo(
-                datum.container.getId(), datum.version.getVersionId());
-        assertNotNull(NAME + " - Published to user list is null.", publishedTo);
-        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_X,
-                publishedTo.containsKey(OpheliaTestUser.JUNIT_X));
-        assertTrue(NAME + " - Published to list does not contain " + OpheliaTestUser.JUNIT_Y,
-                publishedTo.containsKey(OpheliaTestUser.JUNIT_Y));
+        final Container c = createContainer(datum.junit, NAME);
+        addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity",
+                "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+
+        final Map<User, ArtifactReceipt> pt = readPublishedTo(datum.junit, c.getId(), cv_latest.getVersionId());
+        assertNotNull(NAME + " - Published to user list is null.", pt);
+        assertTrue(NAME + " - Published to list does not contain " + datum.junit_x.getSimpleUsername(), 
+                USER_UTILS.containsKey(pt, datum.junit_x));
+        assertTrue(NAME + " - Published to list does not contain " + datum.junit_y.getSimpleUsername(), 
+                USER_UTILS.containsKey(pt, datum.junit_y));
     }
 
     /**
@@ -45,13 +55,11 @@ public class ReadPublishedToTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        final ContainerVersion version = containerModel.readLatestVersion(container.getId());
-        datum = new Fixture(container, containerModel, version);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -59,22 +67,26 @@ public class ReadPublishedToTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        logout(OpheliaTestUser.JUNIT);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final ContainerModel containerModel;
-        private final ContainerVersion version;
-        private Fixture(final Container container,
-                final ContainerModel containerModel,
-                final ContainerVersion version) {
-            super();
-            this.container = container;
-            this.containerModel = containerModel;
-            this.version = version;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

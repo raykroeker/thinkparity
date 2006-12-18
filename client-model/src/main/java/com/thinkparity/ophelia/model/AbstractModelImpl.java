@@ -240,8 +240,36 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
     }
 
+    /**
+     * Assert that the artifact does not exist.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            The assertion message arguments <code>Object...</code>.
+     */
+    protected void assertArtifactDoesNotExist(final UUID uniqueId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertNotTrue(doesArtifactExist(uniqueId), assertMessage,
+                assertArguments);
+    }
+
+    /**
+     * Determine whether or not the artifact exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the artifact exists; false otherwise.
+     */
+    protected Boolean doesArtifactExist(final UUID uniqueId) {
+        return getArtifactModel().doesExist(uniqueId);
+    }
+
 	/**
      * Assert that the list of team members does not contain the user.
+     * 
      * 
      * @param assertion
      *            An assertion.

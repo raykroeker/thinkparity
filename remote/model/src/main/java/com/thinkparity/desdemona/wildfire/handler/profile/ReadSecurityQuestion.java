@@ -5,24 +5,40 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.desdemona.util.service.ServiceModelProvider;
+import com.thinkparity.desdemona.util.service.ServiceRequestReader;
+import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
 import com.thinkparity.desdemona.wildfire.handler.AbstractHandler;
 
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadSecurityQuestion extends AbstractHandler {
-
-    /** Create ReadSecurityQuestion. */
-    public ReadSecurityQuestion() { super("profile:readsecurityquestion"); }
+public final class ReadSecurityQuestion extends AbstractHandler {
 
     /**
-     * @see com.thinkparity.codebase.wildfire.handler.AbstractHandler#service()
+     * Create ReadSecurityQuestion.
+     *
+     */
+    public ReadSecurityQuestion() {
+        super("profile:readsecurityquestion");
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.wildfire.handler.AbstractHandler#service(com.thinkparity.desdemona.util.service.ServiceModelProvider,
+     *      com.thinkparity.desdemona.util.service.ServiceRequestReader,
+     *      com.thinkparity.desdemona.util.service.ServiceResponseWriter)
+     * 
      */
     @Override
-    public void service() {
-        logApiId();
-        writeString("securityQuestion", readSecurityQuestion(readJabberId("userId")));
+    protected void service(final ServiceModelProvider provider,
+            final ServiceRequestReader reader,
+            final ServiceResponseWriter writer) {
+        logger.logApiId();
+        writer.writeString("securityQuestion", readSecurityQuestion(provider,
+                reader.readJabberId("userId")));
     }
 
     /**
@@ -32,7 +48,8 @@ public class ReadSecurityQuestion extends AbstractHandler {
      *            A user id <code>JabberId</code>.
      * @return A security question <code>String</code>.
      */
-    private String readSecurityQuestion(final JabberId userId) {
-        return getProfileModel().readSecurityQuestion(userId);
+    private String readSecurityQuestion(final ServiceModelProvider provider,
+            final JabberId userId) {
+        return provider.getProfileModel().readSecurityQuestion(userId);
     }
 }

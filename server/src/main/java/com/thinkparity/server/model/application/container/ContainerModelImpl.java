@@ -70,15 +70,14 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            When the container was published.
      */
     void publish(final UUID uniqueId, final Long versionId, final String name,
-            final String comment, final List<JabberId> team,
-            final Integer artifactCount, final JabberId publishedBy,
-            final List<JabberId> publishedTo, final Calendar publishedOn) {
+            final String comment, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
         logApiId();
         logVariable("uniqueId", uniqueId);
         logVariable("versionId", versionId);
         logVariable("name", name);
         logVariable("comment", comment);
-        logVariable("team", team);
         logVariable("artifactCount", artifactCount);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedTo", publishedTo);
@@ -100,7 +99,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             artifactPublishedEvent.setPublishedOn(publishedOn);
             artifactPublishedEvent.setUniqueId(uniqueId);
             artifactPublishedEvent.setVersionId(versionId);
-            enqueueEvent(session.getJabberId(), team, artifactPublishedEvent);
+            enqueueEvent(session.getJabberId(), publishedTo, artifactPublishedEvent);
 
             final Artifact artifact = getArtifactModel().read(uniqueId);
             artifactSql.updateKeyHolder(artifact.getId(),

@@ -10,25 +10,35 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
-
-
 /**
+ * <b>Title:</b><br>
+ * <b>Description:</b><br>
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadVersionsPostPublishTest extends ContainerTestCase {
+public final class ReadVersionsPostPublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST READ VERSION POST PUBLISH";
+    private static final String NAME = "Read versions post publish test.";
 
     /** Test datum. */
     private Fixture datum;
 
+    /**
+     * Create ReadVersionsPostPublishTest.
+     *
+     */
+    public ReadVersionsPostPublishTest() {
+        super(NAME);
+    }
+
     public void testReadVersions() {
-        final List<ContainerVersion> versions =
-            datum.containerModel.readVersions(datum.container.getId());
-        assertNotNull(NAME + " VERSIONS IS NULL", versions);
-        assertEquals(NAME + " VERSIONS DOES NOT MATCH EXPECTATION", datum.versions, versions);
+        final Container c = createContainer(datum.junit, NAME);
+        addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        final List<ContainerVersion> cv_list = readContainerVersions(datum.junit, c.getId());
+        assertNotNull("Container versions list is null.", cv_list);
     }
 
     /**
@@ -37,15 +47,11 @@ public class ReadVersionsPostPublishTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        addDocuments(OpheliaTestUser.JUNIT, container.getId());
-        login(OpheliaTestUser.JUNIT);
-        publish(OpheliaTestUser.JUNIT, container.getId());
-        logout(OpheliaTestUser.JUNIT);
-        final List<ContainerVersion> versions = containerModel.readVersions(container.getId());
-        datum = new Fixture(container, containerModel, versions);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -53,25 +59,26 @@ public class ReadVersionsPostPublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Create ReadVersionPostPublishTest. */
-    public ReadVersionsPostPublishTest() { super(NAME); }
-
-    /** Test datum definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final InternalContainerModel containerModel;
-        private final Container container;
-        private final List<ContainerVersion> versions;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel,
-                final List<ContainerVersion> versions) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.versions = versions;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

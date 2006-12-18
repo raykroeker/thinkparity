@@ -34,7 +34,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class ArchiveTest extends ArchiveTestCase {
 
     /** The test name <code>String</code>. */
-    private static final String NAME = "Test Case:  4014";
+    private static final String NAME = "4004: Package: Archive";
 
     /** Test datum <code>Fixture</code>. */
     private Fixture datum;
@@ -52,18 +52,20 @@ public class ArchiveTest extends ArchiveTestCase {
      * 
      */
     public void testArchive() {
-        // preconditions
         final Container c = createContainer(datum.junit_z, "Packages Test: Archive 1");
         final Document d_doc = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.doc");
         final Document d_pdf = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.pdf");
         publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         createDraft(datum.junit_z, c.getId());
+        datum.waitForEvents();
         final Document d_png = addDocument(datum.junit_z, c.getId(), "JUnitTestFramework.png");
-        publish(datum.junit_x, c.getId(), "JUnit.X thinkParity");
+        publish(datum.junit_z, c.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         // archive
+        datum.addListener(datum.junit_z);
         archive(datum.junit_z, c.getId());
+        datum.removeListener(datum.junit_z);
         datum.waitForEvents();
         // postconditions
         assertTrue("Archive event not fired.", datum.didNotify);
@@ -113,12 +115,11 @@ public class ArchiveTest extends ArchiveTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login(OpheliaTestUser.JUNIT_X);
-        login(OpheliaTestUser.JUNIT_Y);
-        login(OpheliaTestUser.JUNIT_Z);
         datum = new Fixture(OpheliaTestUser.JUNIT_X, OpheliaTestUser.JUNIT_Y,
                 OpheliaTestUser.JUNIT_Z);
-        getContainerModel(datum.junit_z).addListener(datum);
+        login(datum.junit_x);
+        login(datum.junit_y);
+        login(datum.junit_z);
     }
 
     /**
@@ -126,7 +127,6 @@ public class ArchiveTest extends ArchiveTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        getContainerModel(datum.junit_z).removeListener(datum);
         logout(datum.junit_x);
         logout(datum.junit_y);
         logout(datum.junit_z);
@@ -161,6 +161,12 @@ public class ArchiveTest extends ArchiveTestCase {
             assertNull("The archive event's draft is not null.", e.getDraft());
             assertNull("The archive event's team member is not null.", e.getTeamMember());
             assertNull("The archive event's version is not null.", e.getVersion());
+        }
+        private void addListener(final OpheliaTestUser testUser) {
+            getContainerModel(testUser).addListener(this);
+        }
+        private void removeListener(final OpheliaTestUser testUser) {
+            getContainerModel(testUser).removeListener(this);
         }
     }
 }

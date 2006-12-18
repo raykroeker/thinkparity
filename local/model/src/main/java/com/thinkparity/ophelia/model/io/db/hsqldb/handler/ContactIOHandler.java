@@ -9,7 +9,9 @@ import java.util.List;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactInvitation;
@@ -221,8 +223,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, contact.getLocalId());
-            // NOCOMMIT Contact vcard.
-            session.setString(2, "");
+            session.setString(2, contact.getVCard().getVCardXML());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create contact.");
 
@@ -556,8 +557,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE);
-            // NOCOMMIT Contact vcard.
-            session.setString(1, "");
+            session.setString(1, contact.getVCard().getVCardXML());
             session.setLong(2, contact.getLocalId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT UPDATE CONTACT");
@@ -587,6 +587,9 @@ public class ContactIOHandler extends AbstractIOHandler implements
         contact.setOrganization(session.getString("ORGANIZATION"));
         contact.setTitle(session.getString("TITLE"));
         contact.addAllEmails(readEmails(contact.getLocalId()));
+        final ContactVCard vcard = new ContactVCard();
+        vcard.setVCardXML(session.getString("CONTACT_VCARD"));
+        contact.setVCard(vcard);
         return contact;
     }
 

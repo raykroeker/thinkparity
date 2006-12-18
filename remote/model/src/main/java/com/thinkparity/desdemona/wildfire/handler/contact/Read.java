@@ -50,6 +50,7 @@ public final class Read extends AbstractHandler {
                 writer.writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());
             if (contact.isSetTitle())
                 writer.writeString("title", contact.getTitle());
+            writer.writeVCard("vcard", contact.getVCard());
         }
     }
 

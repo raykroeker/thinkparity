@@ -122,6 +122,12 @@ public class UserModel extends AbstractModel<UserModelImpl> {
         }
     }
 
+    public String readVCard(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readVCard(userId);
+        }
+    }
+
     public void update(final JabberId userId, final String name,
             final String organization, final String title) {
         synchronized (getImplLock()) {

@@ -18,6 +18,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
@@ -135,6 +136,9 @@ class ProfileModelImpl extends AbstractModelImpl {
             final User user = getUserModel().read(userId);
     
             final Profile profile = new Profile();
+            final ProfileVCard vcard = new ProfileVCard();
+            vcard.setVCardXML(getUserModel().readVCard(userId));
+            profile.setVCard(vcard);
             return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);

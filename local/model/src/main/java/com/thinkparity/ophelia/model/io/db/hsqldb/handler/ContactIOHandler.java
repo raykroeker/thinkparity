@@ -97,8 +97,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
 
     /** Sql to read contacts. */
     private static final String SQL_READ =
-            new StringBuffer("select C.CONTACT_ID,U.USER_ID,U.JABBER_ID,")
-            .append("U.NAME,U.ORGANIZATION,U.TITLE ")
+            new StringBuffer("select C.CONTACT_ID,C.CONTACT_VCARD,U.USER_ID,")
+            .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,U.TITLE ")
             .append("from CONTACT C ")
             .append("inner join USER U on C.CONTACT_ID=U.USER_ID ")
             .toString();

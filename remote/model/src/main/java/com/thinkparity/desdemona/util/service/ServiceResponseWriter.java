@@ -23,6 +23,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
@@ -196,4 +197,6 @@ public interface ServiceResponseWriter {
 
     public void writeUserReceipts(final String name,
             Map<User, ArtifactReceipt> values);
+
+    public void writeVCard(final String name, final UserVCard vcard);
 }

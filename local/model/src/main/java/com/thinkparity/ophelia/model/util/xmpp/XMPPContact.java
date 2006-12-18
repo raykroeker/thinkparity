@@ -11,6 +11,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactVCard;
 
 import com.thinkparity.ophelia.model.Constants.Xml;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
@@ -175,6 +176,9 @@ final class XMPPContact extends AbstractXMPP<ContactListener> {
         contact.setOrganization(response.readResultString(Xml.Contact.ORGANIZATION));
         contact.setTitle(response.readResultString("title"));
         contact.addAllEmails(response.readResultEMails("emails"));
+        final ContactVCard vcard = new ContactVCard();
+        vcard.setVCardXML(response.readResultString("vcard"));
+        contact.setVCard(vcard);
         return contact;
     }
 }

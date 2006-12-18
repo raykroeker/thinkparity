@@ -6,15 +6,12 @@ package com.thinkparity.desdemona.model.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jivesoftware.wildfire.vcard.VCardManager;
-
-import org.dom4j.Element;
-
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
@@ -23,6 +20,9 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.VCardFields;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
+
+import org.dom4j.Element;
+import org.jivesoftware.wildfire.vcard.VCardManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -36,6 +36,10 @@ class UserModelImpl extends AbstractModelImpl {
 	/** The jive vcard manager. */
 	private final VCardManager vcardManager;
 
+    UserModelImpl() {
+        this(null);
+    }
+
     /**
 	 * Create a UserModelImpl.
 	 * 
@@ -47,10 +51,6 @@ class UserModelImpl extends AbstractModelImpl {
         this.userSql = new UserSql();
 		this.vcardManager = VCardManager.getInstance();
 	}
-
-    UserModelImpl() {
-        this(null);
-    }
 
     /**
      * Determine if the user is an archive.
@@ -107,7 +107,7 @@ class UserModelImpl extends AbstractModelImpl {
             final List<User> users = userSql.read();
             FilterManager.filter(users, filter);
             for (final User user : users) {
-                inject(user, readVCard(user.getId()));
+                inject(user, readVCardElement(user.getId()));
             }
             return users;
         } catch (final Throwable t) {
@@ -119,7 +119,7 @@ class UserModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("userId", userId);
         try {
-            return inject(userSql.read(userId), readVCard(userId));
+            return inject(userSql.read(userId), readVCardElement(userId));
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -182,6 +182,16 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
+    String readVCard(final JabberId userId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        try {
+            return readVCardElement(userId).asXML();
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     void update(final JabberId userId, final String name,
             final String organization, final String title) {
         logApiId();
@@ -190,7 +200,7 @@ class UserModelImpl extends AbstractModelImpl {
         logVariable("organization", organization);
         logVariable("title", title);
         try {
-            final Element vcard = readVCard(userId);
+            final Element vcard = readVCardElement(userId);
             vcard.element("FN").setText(name);
             Element organizationElement = vcard.element("ORG");
             Element organizationNameElement = null;
@@ -260,7 +270,7 @@ class UserModelImpl extends AbstractModelImpl {
      *            A user id <code>JabberId</code>.
      * @return A user's vcard dom <code>Element</code>.
      */
-    private Element readVCard(final JabberId userId) {
+    private Element readVCardElement(final JabberId userId) {
         return vcardManager.getVCard(userId.getUsername());
     }
 

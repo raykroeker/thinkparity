@@ -49,7 +49,7 @@ public final class Read extends AbstractHandler {
                 writer.writeString("organization", profile.getOrganization());
             if (profile.isSetTitle())
                 writer.writeString("title", profile.getTitle());
-            writer.writeString("vcard", profile.getVCard().getVCardXML());
+            writer.writeVCard("vcard", profile.getVCard());
         }
     }
 

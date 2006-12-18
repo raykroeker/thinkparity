@@ -18,6 +18,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent;
@@ -263,6 +264,9 @@ class ContactModelImpl extends AbstractModelImpl {
         assertIsAuthenticatedUser(userId);
 		try {
 		    final Contact contact = inject(new Contact(), getUserModel().read(contactId));
+            final ContactVCard vcard = new ContactVCard();
+            vcard.setVCardXML(getUserModel().readVCard(userId));
+            contact.setVCard(vcard);
             contact.addAllEmails(userSql.readEmails(contactId, Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {

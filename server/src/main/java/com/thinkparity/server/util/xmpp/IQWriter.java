@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.dom4j.ElementBuilder;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -159,7 +160,6 @@ public final class IQWriter implements ServiceResponseWriter {
     public final void writeEvents(final String name, final String childName,
             final List<XMPPEvent> values) {
         final Element parent = iq.getChildElement();
-        IQ_LOGGER.logVariable("parent", parent.asXML());
         if (values.size() < 1) {
             ElementBuilder.addNullElement(parent, name, List.class);
         } else {
@@ -170,7 +170,6 @@ public final class IQWriter implements ServiceResponseWriter {
                 XSTREAM_UTIL.marshal(value, writer);
             }
         }
-        IQ_LOGGER.logVariable("parent", parent.asXML());
     }
 
     /**
@@ -323,5 +322,9 @@ public final class IQWriter implements ServiceResponseWriter {
     public final void writeUserReceipts(final String name,
             final Map<User, ArtifactReceipt> values) {
         ElementBuilder.addUserReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
+    }
+
+    public void writeVCard(final String name, final UserVCard vcard) {
+        ElementBuilder.addElement(iq.getChildElement(), name, vcard.getVCardXML());
     }
 }

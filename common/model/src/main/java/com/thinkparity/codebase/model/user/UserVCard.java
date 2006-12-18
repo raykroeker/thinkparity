@@ -12,6 +12,9 @@ package com.thinkparity.codebase.model.user;
  */
 public abstract class UserVCard {
 
+    /** The vcard xml. */
+    private String xml;
+
     /**
      * Create UserVCard.
      *
@@ -20,10 +23,22 @@ public abstract class UserVCard {
         super();
     }
 
+    /**
+     * Obtain the vcard xml.
+     * 
+     * @return The vcard xml <code>String</code>.
+     */
     public String getVCardXML() {
-        return "";
+        return xml;
     }
 
+    /**
+     * Set the vcard xml.
+     * 
+     * @param xml
+     *            The vcard xml <code>String</code>.
+     */
     public void setVCardXML(final String xml) {
+        this.xml = xml;
     }
 }

@@ -10,6 +10,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -22,8 +24,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 
 /**
  * <b>Title:</b><br>
@@ -50,7 +51,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
     private final AbstractAction documentOpenVersion;
 
     /** The profile update <code>AbstractAction</code>. */
-    private final AbstractAction profileEdit;
+    private final AbstractAction profileUpdate;
 
     /** The user <code>AbstractAction</code>. */
     private final AbstractAction userRead;
@@ -69,7 +70,7 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         this.containerRemoveBookmark = ActionFactory.create(ActionId.CONTAINER_REMOVE_BOOKMARK);
         this.documentOpenDraft = getInstance(ActionId.DOCUMENT_OPEN);
         this.documentOpenVersion = getInstance(ActionId.DOCUMENT_OPEN_VERSION);
-        this.profileEdit = getInstance(ActionId.PROFILE_EDIT);
+        this.profileUpdate = getInstance(ActionId.PROFILE_UPDATE);
         this.userRead = getInstance(ActionId.CONTACT_READ);
         this.versionRead = getInstance(ActionId.CONTAINER_READ_VERSION);
     }
@@ -120,8 +121,8 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
     public void invokeForUser(final User user) {        
         if (isLocalUser(user)) {
             final Data data = new Data(1);
-            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            invoke(profileEdit, data);
+            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            invoke(profileUpdate, data);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, user.getId());

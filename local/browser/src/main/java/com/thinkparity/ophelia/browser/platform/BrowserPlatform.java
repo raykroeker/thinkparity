@@ -5,13 +5,20 @@ package com.thinkparity.ophelia.browser.platform;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.session.Environment;
 
@@ -66,7 +73,7 @@ public class BrowserPlatform implements Platform {
         return BrowserPlatform.getInstance();
     }
 
-	/**
+    /**
      * Obtain the platform instance.
      * 
      * @return The thinkParity platform.
@@ -76,7 +83,7 @@ public class BrowserPlatform implements Platform {
         return SINGLETON;
     }
 
-	/**
+    /**
      * Obtain a log id for the platform class.
      * 
      * @return A log id.
@@ -85,16 +92,16 @@ public class BrowserPlatform implements Platform {
         return new StringBuffer("[LBROWSER] [PLATFORM] ").append(suffix);
     }
 
-	/** The platform's log4j wrapper. */
+    /** The platform's log4j wrapper. */
 	protected final Log4JWrapper logger;
 
-	/** An application factory. */
+    /** An application factory. */
     private final ApplicationFactory applicationFactory;
 
-    /** An application registry. */
+	/** An application registry. */
 	private final ApplicationRegistry applicationRegistry;
 
-    /** An avatar registry. */
+	/** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
 	/** The thinkParity <code>Environment</code>. */
@@ -103,7 +110,7 @@ public class BrowserPlatform implements Platform {
 	/** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
-	/**
+    /**
      * The listener helper. Manages all listeners as well as the listener
      * notification.
      */
@@ -115,19 +122,19 @@ public class BrowserPlatform implements Platform {
 	/** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-    /** The platform online helper. */
+	/** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
-    /** The platform settings. */
+	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
     /** The platform plugin helper. */
     private final PluginHelper pluginHelper;
 
-    /** The parity preferences. */
+	/** The parity preferences. */
 	private final Preferences preferences;
 
-	/** The platform update helper. */
+    /** The platform update helper. */
     private final UpdateHelper updateHelper;
 
     /** The thinkParity <code>WindowRegistry</code>. */
@@ -161,14 +168,14 @@ public class BrowserPlatform implements Platform {
         this.updateHelper = new UpdateHelper(this);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      */
     public void addListener(final LifeCycleListener listener) {
         listenerHelper.addListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#end()
      * 
      */
@@ -178,6 +185,67 @@ public class BrowserPlatform implements Platform {
         endApplications();
         endPlugins();
         notifyLifeCycleEnded();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getAvailableLocales()
+     *
+     */
+    public Locale[] getAvailableLocales() {
+        final Locale[] locales = Locale.getAvailableLocales();
+        final List<Locale> availableLocales = new ArrayList<Locale>(locales.length);
+        boolean didHit = false;
+        for (final Locale locale : locales) {
+            didHit = false;
+            for (final Locale availableLocale : availableLocales) {
+                if (availableLocale.getCountry().equals(locale.getCountry())) {
+                    didHit = true;
+                    break;
+                }
+            }
+            if (!didHit)
+                availableLocales.add(locale);
+        }
+        Collections.sort(availableLocales, new Comparator<Locale>() {
+            final StringComparator stringComparator =
+                new StringComparator(Boolean.TRUE);
+            public int compare(final Locale o1, final Locale o2) {
+                return stringComparator.compare(o1.getCountry(), o2.getCountry());
+            }
+        });
+        return availableLocales.toArray(new Locale[] {});
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getAvailableTimeZones()
+     *
+     */
+    public TimeZone[] getAvailableTimeZones() {
+        final String[] timeZoneIDs = TimeZone.getAvailableIDs();
+        final List<TimeZone> available = new ArrayList<TimeZone>(timeZoneIDs.length);
+        for (final String timeZoneID : timeZoneIDs) {
+            available.add(TimeZone.getTimeZone(timeZoneID));
+        }
+        final List<TimeZone> clone = new ArrayList<TimeZone>(available.size());
+        clone.addAll(available);
+        FilterManager.filter(available, new Filter<TimeZone>() {
+            public Boolean doFilter(final TimeZone o) {
+                for (final TimeZone timeZone : clone) {
+                    if (o.hasSameRules(timeZone))
+                        return Boolean.FALSE;
+                }
+                return Boolean.TRUE;
+            }
+        });
+        Collections.sort(available, new Comparator<TimeZone>() {
+            final StringComparator stringComparator =
+                new StringComparator(Boolean.TRUE);
+            public int compare(final TimeZone o1, final TimeZone o2) {
+                return stringComparator.compare(o1.getDisplayName(),
+                        o2.getDisplayName());
+            }
+        });
+        return available.toArray(new TimeZone[] {});
     }
 
 	/**
@@ -193,6 +261,14 @@ public class BrowserPlatform implements Platform {
         return environment;
     }
 
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getLocale()
+     *
+     */
+    public Locale getLocale() {
+        return persistence.getLocale();
+    }
+
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
@@ -201,7 +277,7 @@ public class BrowserPlatform implements Platform {
 		return Logger.getLogger(clasz);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getModelFactory()
 	 * 
 	 */
@@ -228,6 +304,14 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public Preferences getPreferences() { return preferences; }
+
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()
+     *
+     */
+    public TimeZone getTimeZone() {
+        return persistence.getTimeZone();
+    }
 
     /**
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getWindowRegistry()
@@ -390,25 +474,6 @@ public class BrowserPlatform implements Platform {
         notifyLifeCycleStarted();
 	}
 
-    /**
-     * Determine if the workspace has been initialized.
-     * 
-     * @return True if the workspace has been initialized.
-     */
-    private Boolean isWorkspaceInitialized() {
-        final WorkspaceModel workspaceModel =
-            modelFactory.getWorkspaceModel(getClass());
-        return workspaceModel.isInitialized(modelFactory.getWorkspace(getClass()));
-    }
-
-    /**
-     * Delete the workspace.
-     *
-     */
-    private void deleteWorkspace() {
-        modelFactory.getWorkspaceModel(getClass()).delete(modelFactory.getWorkspace(getClass()));
-    }
-
     /** Update the browser. */
     public void update() {
         logApiId();
@@ -427,6 +492,14 @@ public class BrowserPlatform implements Platform {
      */
     protected final <V> V logVariable(final String name, final V value) {
         return logger.logVariable(name, value);
+    }
+
+    /**
+     * Delete the workspace.
+     *
+     */
+    private void deleteWorkspace() {
+        modelFactory.getWorkspaceModel(getClass()).delete(modelFactory.getWorkspace(getClass()));
     }
 
     /**
@@ -462,6 +535,17 @@ public class BrowserPlatform implements Platform {
      * @return True if a newer release is available.
      */
     private Boolean isUpdateAvailable() { return Boolean.FALSE; }
+
+    /**
+     * Determine if the workspace has been initialized.
+     * 
+     * @return True if the workspace has been initialized.
+     */
+    private Boolean isWorkspaceInitialized() {
+        final WorkspaceModel workspaceModel =
+            modelFactory.getWorkspaceModel(getClass());
+        return workspaceModel.isInitialized(modelFactory.getWorkspace(getClass()));
+    }
 
 	private void notifyLifeCycleEnded() {
         final LifeCycleEvent e = listenerHelper.createEvent();

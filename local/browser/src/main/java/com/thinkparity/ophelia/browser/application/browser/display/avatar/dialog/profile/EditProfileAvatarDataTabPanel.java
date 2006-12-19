@@ -6,11 +6,16 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
-import com.thinkparity.codebase.model.profile.Profile;
+import java.util.Locale;
+
+import javax.swing.DefaultComboBoxModel;
+
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.profile.Profile;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 
 
 /**
@@ -19,9 +24,22 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
  */
 public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabPanel {
 
-    /** Creates new form EditProfileAvatarDataTabPanel */
-    public EditProfileAvatarDataTabPanel(final Browser browser, final EditProfileAvatar editProfileAvatar, final String tabName) {
+    /** The country <code>DefaultComboBoxModel</code>. */
+    private final DefaultComboBoxModel countryModel;
+
+    /**
+     * Create EditProfileAvatarDataTabPanel.
+     *
+     * @param browser
+     * @param editProfileAvatar
+     * @param tabName
+     */
+    public EditProfileAvatarDataTabPanel(final Browser browser,
+            final EditProfileAvatar editProfileAvatar, final String tabName) {
         super(browser, editProfileAvatar, tabName);
+        this.countryModel = new DefaultComboBoxModel();
+        for (final Locale locale : browser.getAvailableLocales())
+            countryModel.addElement(locale);
         initComponents();
     }
     
@@ -30,14 +48,28 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
      */
     @Override
     protected void reload(final Profile profile) {
-        reloadName(profile);
-        reloadOrganization(profile);
-        reloadTitle(profile);
-        reloadAddress(profile);
-        reloadOfficePhone(profile);
-        reloadMobilePhone(profile);
+        reload(cityJTextField, profile.getCity());
+        reload(countryJComboBox, profile.getCountry());
+        reload(mobilePhoneJTextField, profile.getMobilePhone());
+        reload(organizationJTextField, profile.getOrganization());
+        reload(officePhoneJTextField, profile.getPhone());
+        reload(titleJTextField, profile.getTitle());
+        reload(nameJTextField, profile.getName());
     }
-   
+
+    /**
+     * Reload a combo box.
+     * 
+     * @param jComboBox
+     *            A <code>JComboBox</code>.
+     * @param selectedItem
+     *            The selected item <code>Object</code>.
+     */
+    private void reload(final javax.swing.JComboBox jComboBox,
+            final Object selectedItem) {
+        jComboBox.setSelectedItem(selectedItem);
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.EditProfileAvatarAbstractTabPanel#save()
      */
@@ -45,12 +77,14 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
     protected void save() {
         if (isInputValid()) {
             final String name =  extractInputName();
+            final String city = SwingUtil.extract(cityJTextField);
+            final String country = ((Locale) countryJComboBox.getSelectedItem()).getCountry();
             final String organization = extractInputOrganization();
             final String title = extractInputTitle();
-            final String address = extractInputAddress();
-            final String officePhone = extractInputOfficePhone();
+            final String phone = extractInputOfficePhone();
             final String mobilePhone = extractInputMobilePhone();
-            getController().runUpdateProfile(name, organization, title, address, officePhone, mobilePhone);
+            getController().runUpdateProfile(name, city, country, mobilePhone,
+                    organization, phone, null, title);
         }
     }
 
@@ -82,10 +116,6 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         return SwingUtil.extract(titleJTextField);
     }
     
-    private String extractInputAddress() {
-        return SwingUtil.extract(addressJTextArea);
-    }
-    
     private String extractInputOfficePhone() {
         return SwingUtil.extract(officePhoneJTextField);
     }
@@ -94,52 +124,17 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         return SwingUtil.extract(mobilePhoneJTextField);
     }
     
-    private void reloadName(final Profile profile) {
-        nameJTextField.setText("");
-        final String name = profile.getName();
-        if (null != name) {
-            nameJTextField.setText(name);
-        }
-    }
-    
-    private void reloadOrganization(final Profile profile) {
-        organizationJTextField.setText("");
-        final String organization = profile.getOrganization();
-        if (null != organization) {
-            organizationJTextField.setText(organization);
-        }
-    }
-    
-    private void reloadTitle(final Profile profile) {
-        titleJTextField.setText("");
-        final String title = profile.getTitle();
-        if (null != title) {
-            titleJTextField.setText(title);
-        }
-    }
-    
-    private void reloadAddress(final Profile profile) {
-        addressJTextArea.setText("");
-        final String address = profile.getOrganizationAddress();
-        if (null != address) {
-            addressJTextArea.setText(address);
-        }
-    }
-    
-    private void reloadOfficePhone(final Profile profile) { 
-        officePhoneJTextField.setText("");
-        final String officePhone = profile.getPhone();
-        if (null != officePhone) {
-            officePhoneJTextField.setText(officePhone);
-        }
-    }
-    
-    private void reloadMobilePhone(final Profile profile) { 
-        mobilePhoneJTextField.setText("");
-        final String mobilePhone = profile.getMobilePhone();
-        if (null != mobilePhone) {
-            mobilePhoneJTextField.setText(mobilePhone);
-        }
+    /**
+     * Reload a text field with a value.
+     * 
+     * @param jTextField
+     *            A <code>JTextField</code>.
+     * @param value
+     *            A value <code>String</code>.
+     */
+    private void reload(final javax.swing.JTextField jTextField,
+            final String value) {
+        jTextField.setText(null == value ? "" : value);
     }
 
     /** This method is called from within the constructor to
@@ -155,13 +150,14 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         titleJTextField = new javax.swing.JTextField();
         organizationJLabel = new javax.swing.JLabel();
         organizationJTextField = new javax.swing.JTextField();
-        addressJLabel = new javax.swing.JLabel();
         officePhoneJLabel = new javax.swing.JLabel();
         officePhoneJTextField = new javax.swing.JTextField();
         mobilePhoneJLabel = new javax.swing.JLabel();
         mobilePhoneJTextField = new javax.swing.JTextField();
-        addressJScrollPane = new javax.swing.JScrollPane();
-        addressJTextArea = new javax.swing.JTextArea();
+        countryJLabel = new javax.swing.JLabel();
+        countryJComboBox = new javax.swing.JComboBox();
+        cityJTextField = new javax.swing.JTextField();
+        cityJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
         nameJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
@@ -174,19 +170,20 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         organizationJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         organizationJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.Organization")); // NOI18N
 
-        addressJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        addressJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.Address")); // NOI18N
-
         officePhoneJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         officePhoneJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.OfficePhone")); // NOI18N
 
         mobilePhoneJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         mobilePhoneJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.MobilePhone")); // NOI18N
 
-        addressJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        addressJTextArea.setFont(Fonts.DialogFont);
-        addressJTextArea.setRows(3);
-        addressJScrollPane.setViewportView(addressJTextArea);
+        countryJLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        countryJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.Country")); // NOI18N
+
+        countryJComboBox.setModel(countryModel);
+        countryJComboBox.setRenderer(new LocaleRenderer(browser.getLocale()));
+
+        cityJLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        cityJLabel.setText(bundle.getString("EditProfileDialogDataTabPanel.City")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -196,67 +193,68 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(nameJLabel)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, titleJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, organizationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, officePhoneJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mobilePhoneJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, countryJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(officePhoneJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .add(countryJComboBox, 0, 263, Short.MAX_VALUE)
+                            .add(mobilePhoneJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
-                        .add(titleJLabel)
+                        .add(cityJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(mobilePhoneJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, addressJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, organizationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .add(officePhoneJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(officePhoneJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                            .add(addressJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                            .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mobilePhoneJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))))
+                        .add(cityJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {addressJLabel, mobilePhoneJLabel, nameJLabel, officePhoneJLabel, organizationJLabel, titleJLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJLabel)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(nameJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(titleJLabel)
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(titleJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(organizationJLabel)
-                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(addressJLabel)
-                    .add(addressJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(organizationJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(officePhoneJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(officePhoneJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(mobilePhoneJLabel)
-                    .add(mobilePhoneJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(60, Short.MAX_VALUE))
+                    .add(mobilePhoneJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(mobilePhoneJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(countryJComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(countryJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cityJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(cityJLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel addressJLabel;
-    private javax.swing.JScrollPane addressJScrollPane;
-    private javax.swing.JTextArea addressJTextArea;
+    private javax.swing.JLabel cityJLabel;
+    private javax.swing.JTextField cityJTextField;
+    private javax.swing.JComboBox countryJComboBox;
+    private javax.swing.JLabel countryJLabel;
     private javax.swing.JLabel mobilePhoneJLabel;
     private javax.swing.JTextField mobilePhoneJTextField;
     private javax.swing.JLabel nameJLabel;

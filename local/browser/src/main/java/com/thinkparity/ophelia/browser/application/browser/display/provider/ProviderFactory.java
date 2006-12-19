@@ -3,10 +3,18 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.profile.Profile;
+
+import com.thinkparity.ophelia.model.archive.ArchiveModel;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
+import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
@@ -17,19 +25,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.dial
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.EditProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.ResetPasswordProvider;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.archive.ArchiveModel;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.document.DocumentModel;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
-import com.thinkparity.ophelia.model.user.UserModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -143,9 +144,6 @@ public class ProviderFactory {
             break;
         case DIALOG_PROFILE_EDIT:
             provider = new EditProfileProvider(profile, profileModel);
-            break;
-        case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProvider(profile, profileModel);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             provider = new VerifyEMailProvider(profile, profileModel);

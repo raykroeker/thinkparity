@@ -5,12 +5,12 @@ package com.thinkparity.ophelia.browser.platform.action.profile;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -39,32 +39,27 @@ public class Update extends AbstractAction {
     public void invoke(final Data data) {
         final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
         if (displayAvatar) {
-            browser.displayUpdateProfileDialog();
+            browser.displayEditProfileDialog();
         } else {
             final ProfileModel profileModel = getProfileModel();
             final Profile profile = profileModel.read();
 
             // update profile
-            final String name = (String) data.get(DataKey.NAME);
-            final String organization = (String) data.get(DataKey.ORGANIZATION);
-            final String title = (String) data.get(DataKey.TITLE);
-            profile.setName(name);
-            profile.setOrganization(organization);
-            profile.setTitle(title);
+            profile.setCity((String) data.get(DataKey.CITY));
+            profile.setCountry((String) data.get(DataKey.COUNTRY));
+            profile.setMobilePhone((String) data.get(DataKey.MOBILE_PHONE));
+            profile.setName((String) data.get(DataKey.NAME));
+            profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
+            profile.setPhone((String) data.get(DataKey.PHONE));
+            profile.setProvince((String) data.get(DataKey.PROVINCE));
+            profile.setTitle((String) data.get(DataKey.TITLE));
             profileModel.update(profile);
-            // update password
-            final String password = (String) data.get(DataKey.PASSWORD);
-            final String newPassword = (String) data.get(DataKey.NEW_PASSWORD);
-            if (null != password) {
-                // TODO Add a check for password complexity.
-                profileModel.updatePassword(password, newPassword);
-            }
         }
     }
 
     /** Data keys. */
     public enum DataKey {
-        DISPLAY_AVATAR, NAME, NEW_PASSWORD, NEW_PASSWORD_CONFIRM, ORGANIZATION,
-        PASSWORD, TITLE
+        CITY, COUNTRY, DISPLAY_AVATAR, MOBILE_PHONE, NAME, ORGANIZATION, PHONE,
+        PROVINCE, TITLE
     }
 }

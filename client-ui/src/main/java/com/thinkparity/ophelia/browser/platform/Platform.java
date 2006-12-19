@@ -3,11 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.platform;
 
+import java.util.Locale;
 import java.util.Properties;
-
-import org.apache.log4j.Logger;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.workspace.Preferences;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -16,7 +18,8 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowRegistr
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.model.workspace.Preferences;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -38,6 +41,20 @@ public interface Platform extends ApplicationListener {
      */
     public void end();
 
+    /**
+     * Obtain all available locales.
+     * 
+     * @return The available <code>Locale[]</code>.
+     */
+    public Locale[] getAvailableLocales();
+
+    /**
+     * Obtain the available time zone.
+     * 
+     * @return The available <code>TimeZones[]</code>.
+     */
+    public TimeZone[] getAvailableTimeZones();
+
     public AvatarRegistry getAvatarRegistry();
 
     /**
@@ -47,7 +64,14 @@ public interface Platform extends ApplicationListener {
      */
     public Environment getEnvironment();
 
-	public Logger getLogger(final Class clasz);
+    /**
+     * Obtain the locale.
+     * 
+     * @return The <code>Locale</code>.
+     */
+    public Locale getLocale();
+
+    public Logger getLogger(final Class clasz);
 
 	public ModelFactory getModelFactory();
 
@@ -60,7 +84,14 @@ public interface Platform extends ApplicationListener {
      */
     public PluginRegistry getPluginRegistry();
 
-    public Preferences getPreferences();
+	public Preferences getPreferences();
+
+    /**
+     * Obtain the time zone.
+     * 
+     * @return The <code>TimeZone</code>.
+     */
+    public TimeZone getTimeZone();
 
     public WindowRegistry getWindowRegistry();
 

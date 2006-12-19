@@ -6,8 +6,9 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 
@@ -63,34 +64,29 @@ public class EditProfileAvatarPasswordTabPanel extends EditProfileAvatarAbstract
      */
     @Override
     protected void save() {
-        final String oldPassword = extractOldPassword();
-        if (isInputValid() && (null != oldPassword)) {
+        if (isInputValid()) {
+            final String password = extractOldPassword();
             final String newPassword = extractNewPassword();
             final String newPasswordConfirm = extractConfirmNewPassword();
-            getController().runUpdateProfile(oldPassword, newPassword, newPasswordConfirm);
+            getController().runUpdateProfilePassword(password, newPassword,
+                    newPasswordConfirm);
         }
     }
     
     /**
-     * Determine whether the user input is valid.
-     * This method should return false whenever we want the
-     * OK button to be disabled.
+     * Determine whether the user input is valid. This method should return
+     * false whenever we want the OK button to be disabled.
      * 
      * @return True if the input is valid; false otherwise.
      */
     public Boolean isInputValid() {
-        final String oldPassword = extractOldPassword();
+        final String password = extractOldPassword();
         final String newPassword = extractNewPassword();
         final String newPasswordConfirm = extractConfirmNewPassword();
-        
-        if ((null == oldPassword) && (null == newPassword) && (null == newPasswordConfirm)) {
-            return Boolean.TRUE;
-        } else if ((null != oldPassword) && (null != newPassword) && (null != newPasswordConfirm) &&
-                newPassword.equals(newPasswordConfirm)) {
-            return Boolean.TRUE;  
-        } else {
-            return Boolean.FALSE;
-        }
+        return null != password
+            && null != newPassword
+            && null != newPasswordConfirm
+            && newPassword.equals(newPasswordConfirm);
     }
 
     /** This method is called from within the constructor to

@@ -295,14 +295,14 @@ public class ProfileIOHandler extends AbstractIOHandler implements
      */
     Profile extractProfile(final Session session) {
         final Profile profile = new Profile();
+        final ProfileVCard vcard = new ProfileVCard();
+        vcard.setVCardXML(session.getString("PROFILE_VCARD"));
+        profile.setVCard(vcard);
         profile.setId(session.getQualifiedUsername("JABBER_ID"));
         profile.setLocalId(session.getLong("PROFILE_ID"));
         profile.setName(session.getString("NAME"));
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
-        final ProfileVCard vcard = new ProfileVCard();
-        vcard.setVCardXML(session.getString("PROFILE_VCARD"));
-        profile.setVCard(vcard);
         return profile;
     }
 }

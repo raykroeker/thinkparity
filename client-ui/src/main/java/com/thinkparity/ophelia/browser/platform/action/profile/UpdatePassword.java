@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
-import com.thinkparity.codebase.model.profile.Profile;
-
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -16,7 +14,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Update extends AbstractAction {
+public class UpdatePassword extends AbstractAction {
 
     /** The thinkParity browser application. */
     private final Browser browser;
@@ -27,8 +25,8 @@ public class Update extends AbstractAction {
      * @param browser
      *            The thinkParity browser application.
      */
-    public Update(final Browser browser) {
-        super(ActionId.PROFILE_UPDATE);
+    public UpdatePassword(final Browser browser) {
+        super(ActionId.PROFILE_UPDATE_PASSWORD);
         this.browser = browser;
     }
 
@@ -42,24 +40,16 @@ public class Update extends AbstractAction {
             browser.displayEditProfileDialog();
         } else {
             final ProfileModel profileModel = getProfileModel();
-            final Profile profile = profileModel.read();
 
-            // update profile
-            profile.setCity((String) data.get(DataKey.CITY));
-            profile.setCountry((String) data.get(DataKey.COUNTRY));
-            profile.setMobilePhone((String) data.get(DataKey.MOBILE_PHONE));
-            profile.setName((String) data.get(DataKey.NAME));
-            profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
-            profile.setPhone((String) data.get(DataKey.PHONE));
-            profile.setProvince((String) data.get(DataKey.PROVINCE));
-            profile.setTitle((String) data.get(DataKey.TITLE));
-            profileModel.update(profile);
+            // update password
+            final String password = (String) data.get(DataKey.PASSWORD);
+            final String newPassword = (String) data.get(DataKey.NEW_PASSWORD);
+            profileModel.updatePassword(password, newPassword);
         }
     }
 
     /** Data keys. */
     public enum DataKey {
-        CITY, COUNTRY, DISPLAY_AVATAR, MOBILE_PHONE, NAME, ORGANIZATION, PHONE,
-        PROVINCE, TITLE
+        DISPLAY_AVATAR, NEW_PASSWORD, NEW_PASSWORD_CONFIRM, PASSWORD
     }
 }

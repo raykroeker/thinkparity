@@ -28,22 +28,21 @@ public class Profile extends User {
         super();
     }
 
-    /**
-     * Obtain mobilePhone.
-     *
-     * @return A String.
-     */
-    public String getMobilePhone() {
-        return "";
+    public String getCity() {
+        return vcard.getCity();
+    }
+
+    public String getCountry() {
+        return vcard.getCountry();
     }
 
     /**
-     * Obtain organizationAddress.
-     *
-     * @return A String.
+     * Obtain the user's mobile phone number.
+     * 
+     * @return A mobile phone number <code>String</code>.
      */
-    public String getOrganizationAddress() {
-        return "";
+    public String getMobilePhone() {
+        return vcard.getMobilePhone();
     }
 
     /**
@@ -52,7 +51,11 @@ public class Profile extends User {
      * @return A String.
      */
     public String getPhone() {
-        return "";
+        return vcard.getPhone();
+    }
+
+    public String getProvince() {
+        return vcard.getProvince();
     }
 
     /**
@@ -65,21 +68,83 @@ public class Profile extends User {
     }
 
     /**
-     * Set mobilePhone.
-     *
-     * @param mobilePhone
-     *		A String.
+     * Determine whether or not the user's mobile phone number is set.
+     * 
+     * @return True if it is set; false otherwise.
      */
-    public void setMobilePhone(String mobilePhone) {
+    public Boolean isSetMobilePhone() {
+        return vcard.isSetMobilePhone();
     }
 
     /**
-     * Set organizationAddress.
-     *
-     * @param organizationAddress
-     *		A String.
+     * Set city.
+     * 
+     * @param city
+     *            The city <code>String</code>.
      */
-    public void setOrganizationAddress(String organizationAddress) {
+    public void setCity(final String city) {
+        vcard.setCity(city);
+    }
+
+    /**
+     * Set the country.
+     * 
+     * @param country
+     *            The country <code>String</code>.
+     */
+    public void setCountry(final String country) {
+        vcard.setCountry(country);
+    }
+   
+    /**
+     * Set mobile phone.
+     * 
+     * @param mobilePhone
+     *            A mobile phone number <code>String</code>.
+     */
+    public void setMobilePhone(final String mobilePhone) {
+        vcard.setMobilePhone(mobilePhone);
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.user.User#setName(java.lang.String)
+     *
+     */
+    @Override
+    public void setName(final String name) {
+        super.setName(name);
+        vcard.setName(getName());
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.user.User#setName(java.lang.String, java.lang.String)
+     *
+     */
+    @Override
+    public void setName(final String first, final String last) {
+        super.setName(first, last);
+        vcard.setName(getName());
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.user.User#setName(java.lang.String, java.lang.String, java.lang.String)
+     *
+     */
+    @Override
+    public void setName(final String first, final String middle,
+            final String last) {
+        super.setName(first, middle, last);
+        vcard.setName(getName());
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.user.User#setOrganization(java.lang.String)
+     *
+     */
+    @Override
+    public void setOrganization(final String organization) {
+        super.setOrganization(organization);
+        vcard.setOrganization(getOrganization());
     }
 
     /**
@@ -88,7 +153,28 @@ public class Profile extends User {
      * @param phone
      *		A String.
      */
-    public void setPhone(String phone) {
+    public void setPhone(final String phone) {
+        vcard.setPhone(phone);
+    }
+
+    /**
+     * Set the province.
+     * 
+     * @param province
+     *            The province <code>String</code>.
+     */
+    public void setProvince(final String province) {
+        vcard.setProvince(province);
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.user.User#setTitle(java.lang.String)
+     *
+     */
+    @Override
+    public void setTitle(final String title) {
+        super.setTitle(title);
+        vcard.setTitle(getTitle());
     }
 
     /**

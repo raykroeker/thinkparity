@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -82,7 +84,7 @@ public class PersistenceFactory {
 				return Boolean.parseBoolean(get(key, defaultValue.toString()));
 			}
 
-            public Dimension get(String key, Dimension defaultValue) {
+            public Dimension get(final String key, final Dimension defaultValue) {
 				return new Dimension(
 						get(key + ".width", defaultValue.width),
 						get(key + ".height", defaultValue.height));
@@ -94,7 +96,7 @@ public class PersistenceFactory {
                 return new File(sValue);
             }
 
-			public int get(final String key, final int defaultValue) {
+            public int get(final String key, final int defaultValue) {
 				try {
                     return Integer.parseInt(
                             javaProperties.getProperty(
@@ -104,21 +106,31 @@ public class PersistenceFactory {
 				catch(final NumberFormatException nfx) { return defaultValue; }
 			}
 
-			public Point get(String key, Point defaultValue) {
+            public Locale get(final String key, final Locale defaultValue) {
+                return new Locale(get(key + ".language", defaultValue.getLanguage()),
+                        get(key + ".country", defaultValue.getCountry()),
+                        get(key + ".variant", defaultValue.getVariant()));
+            }
+
+            public Point get(final String key, final Point defaultValue) {
 				return new Point(
 						get(key + ".x", defaultValue.x),
 						get(key + ".y", defaultValue.y));
 			}
 
-			public String get(String key, String defaultValue) {
+            public String get(final String key, final String defaultValue) {
 				return javaProperties.getProperty(contextualize(key), defaultValue);
 			}
 
-			public void set(String key, Boolean value) {
+            public TimeZone get(final String key, final TimeZone defaultValue) {
+                return TimeZone.getTimeZone(get(key + ".id", defaultValue.getID()));
+            }
+
+			public void set(final String key, final Boolean value) {
 				set(key, value.toString());
 			}
 
-			public void set(String key, Dimension value) {
+			public void set(final String key, final Dimension value) {
 				set(key + ".height", value.height);
 				set(key + ".width", value.width);
 			}
@@ -127,18 +139,28 @@ public class PersistenceFactory {
                 javaProperties.setProperty(key, value.getAbsolutePath());
             }
 
-            public void set(String key, int value) {
+			public void set(String key, int value) {
 				javaProperties.setProperty(contextualize(key), String.valueOf(value));
 			}
 
-			public void set(String key, Point value) {
+			public void set(final String key, final Locale value) {
+                set(key + ".language", value.getLanguage());
+                set(key + ".country", value.getLanguage());
+                set(key + ".variant", value.getLanguage());
+            }
+
+            public void set(final String key, final Point value) {
 				set(key + ".x", value.x);
 				set(key + ".y", value.y);
 			}
 
-			public void set(String key, String value) {
+			public void set(final String key, final String value) {
 				javaProperties.setProperty(contextualize(key), value);
 			}
+
+            public void set(final String key, final TimeZone value) {
+                set(key + ".id", value.getID());
+            }
 
 			/**
              * Contextualize the java property key.

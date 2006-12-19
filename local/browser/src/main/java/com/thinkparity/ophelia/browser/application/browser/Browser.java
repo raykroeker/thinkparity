@@ -11,7 +11,9 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -78,10 +80,10 @@ import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
-import com.thinkparity.ophelia.browser.platform.action.profile.Edit;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.ResetPassword;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -498,14 +500,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the update profile dialog.
-     *
-     */
-    public void displayUpdateProfileDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
-    }
-
-    /**
      * Display the verify profile email dialog.
      * 
      * @param emailId
@@ -858,6 +852,24 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Obtain the browser's locales.
+     * 
+     * @return The browser's available <code>Locale[]</code>s.
+     */
+    public Locale[] getAvailableLocales() {
+        return getPlatform().getAvailableLocales();
+    }
+
+    /**
+     * Obtain the browser's locale.
+     * 
+     * @return The browser's <code>Locale</code>.
+     */
+    public TimeZone[] getAvailableTimeZones() {
+        return getPlatform().getAvailableTimeZones();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
      */
     public Connection getConnection() { return connection; }
@@ -867,6 +879,15 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public ApplicationId getId() { return ApplicationId.BROWSER; }
+
+    /**
+     * Obtain the browser's locale.
+     * 
+     * @return The browser's <code>Locale</code>.
+     */
+    public Locale getLocale() {
+        return getPlatform().getLocale();
+    }
 
     /**
      * Obtain a logger for the class from the applilcation.
@@ -879,7 +900,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
-	/**
+    /**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
@@ -917,6 +938,15 @@ public class Browser extends AbstractApplication {
      */
     public BrowserSession getSession(final AvatarId avatarId, final Boolean create) {
         return sessionImpl.getSession(new BrowserContext(avatarId), create);
+    }
+
+	/**
+     * Obtain the browser's locales.
+     * 
+     * @return The browser's available <code>Locale[]</code>s.
+     */
+    public TimeZone getTimeZone() {
+        return getPlatform().getTimeZone();
     }
 
 	/**
@@ -1508,28 +1538,6 @@ public class Browser extends AbstractApplication {
     /**
      * Update the user's profile.
      * 
-     * @param oldPassword
-     *            The user's password <code>String</code>.
-     * @param newPassword
-     *            The user's updated password <code>String</code>.
-     * @param confirmNewPassword
-     *            The user's updated password again <code>String</code>.
-     */
-    public void runUpdateProfile(final String oldPassword, final String newPassword,
-            final String confirmNewPassword) {     
-        if (null != oldPassword) {
-            final Data data = new Data(4); 
-            data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-            data.set(Edit.DataKey.PASSWORD, oldPassword);
-            data.set(Edit.DataKey.NEW_PASSWORD, newPassword);
-            data.set(Edit.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
-            invoke(ActionId.PROFILE_EDIT, data);
-        }
-    }
-    
-    /**
-     * Update the user's profile.
-     * 
      * @param name
      *            The user's name <code>String</code>.
      * @param organization
@@ -1543,62 +1551,49 @@ public class Browser extends AbstractApplication {
      * @param mobile phone
      *            The user's mobile phone <code>String</code>.                        
      */
-    public void runUpdateProfile(final String name, final String organization,
-            final String title, final String address,
-            final String officePhone, final String mobilePhone) {
+    public void runUpdateProfile(final String name, final String city,
+            final String country, final String mobilePhone,
+            final String organization, final String phone,
+            final String province, final String title) {
         final Data data = new Data(7);
-        data.set(Edit.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(Edit.DataKey.NAME, name);
-        if (null != organization) {
-            data.set(Edit.DataKey.ORGANIZATION, organization);
-        }
-        if (null != title) {
-            data.set(Edit.DataKey.TITLE, title);
-        }
-        if (null != address) {
-            data.set(Edit.DataKey.ADDRESS, address);
-        }
-        if (null != officePhone) {
-            data.set(Edit.DataKey.OFFICE_PHONE, officePhone);
-        }
-        if (null != mobilePhone) {
-            data.set(Edit.DataKey.MOBILE_PHONE, mobilePhone);
-        }
-        invoke(ActionId.PROFILE_EDIT, data);
+        data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(Update.DataKey.NAME, name);
+
+        if (null != city)
+            data.set(Update.DataKey.CITY, city);
+        if (null != country)
+            data.set(Update.DataKey.COUNTRY, country);
+        if (null != mobilePhone)
+            data.set(Update.DataKey.MOBILE_PHONE, mobilePhone);
+        if (null != organization)
+            data.set(Update.DataKey.ORGANIZATION, organization);
+        if (null != phone)
+            data.set(Update.DataKey.PHONE, phone);
+        if (null != province)
+            data.set(Update.DataKey.PROVINCE, province);
+        if (null != title)
+            data.set(Update.DataKey.TITLE, title);
+        invoke(ActionId.PROFILE_UPDATE, data);
     }
-  
+    
     /**
      * Update the user's profile.
      * 
-     * @param name
-     *            The user's name <code>String</code>.
-     * @param organization
-     *            The user's organization <code>String</code>.
-     * @param title
-     *            The user's title <code>String</code>.
-     * @param password
+     * @param oldPassword
      *            The user's password <code>String</code>.
      * @param newPassword
      *            The user's updated password <code>String</code>.
-     * @param newPasswordConfirm
+     * @param confirmNewPassword
      *            The user's updated password again <code>String</code>.
      */
-    public void runUpdateProfileOld(final String name, final String organization,
-            final String title, final String password,
-            final String newPassword, final String newPasswordConfirm) {
-        final Data data = new Data(4);
-        data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(Update.DataKey.NAME, name);
-        if (null != organization)
-            data.set(Update.DataKey.ORGANIZATION, organization);
-        if (null != title)
-            data.set(Update.DataKey.TITLE, title);
-        if (null != password) {
-            data.set(Update.DataKey.PASSWORD, password);
-            data.set(Update.DataKey.NEW_PASSWORD, newPassword);
-            data.set(Update.DataKey.NEW_PASSWORD_CONFIRM, newPasswordConfirm);
-        }
-        invoke(ActionId.PROFILE_UPDATE, data);
+    public void runUpdateProfilePassword(final String password,
+            final String newPassword, final String confirmNewPassword) {     
+        final Data data = new Data(4); 
+        data.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(UpdatePassword.DataKey.PASSWORD, password);
+        data.set(UpdatePassword.DataKey.NEW_PASSWORD, newPassword);
+        data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
+        invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
     }
 
     /**

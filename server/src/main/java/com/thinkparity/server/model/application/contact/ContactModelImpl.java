@@ -41,7 +41,7 @@ import com.thinkparity.desdemona.util.smtp.TransportManager;
  */
 class ContactModelImpl extends AbstractModelImpl {
 
-	/** The thinkParity contact io. */
+    /** The thinkParity contact io. */
 	private final ContactSql contactSql;
 
     /** The thinkParity invitation io. */
@@ -162,7 +162,7 @@ class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Delete a contact invitation.
      * 
      * @param userId
@@ -241,7 +241,7 @@ class ContactModelImpl extends AbstractModelImpl {
         }
     }
 
-	List<Contact> read(final JabberId userId) {
+    List<Contact> read(final JabberId userId) {
         logApiId();
         logVariable("userId", userId);
         assertIsAuthenticatedUser(userId);
@@ -264,9 +264,7 @@ class ContactModelImpl extends AbstractModelImpl {
         assertIsAuthenticatedUser(userId);
 		try {
 		    final Contact contact = inject(new Contact(), getUserModel().read(contactId));
-            final ContactVCard vcard = new ContactVCard();
-            vcard.setVCardXML(getUserModel().readVCard(userId));
-            contact.setVCard(vcard);
+            contact.setVCard(getUserModel().readVCard(contactId, new ContactVCard()));
             contact.addAllEmails(userSql.readEmails(contactId, Boolean.TRUE));
             return contact;
 	    } catch (final Throwable t) {

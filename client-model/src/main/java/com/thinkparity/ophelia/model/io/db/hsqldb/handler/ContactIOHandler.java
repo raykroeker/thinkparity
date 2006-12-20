@@ -223,7 +223,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, contact.getLocalId());
-            session.setString(2, contact.getVCard().getVCardXML());
+            session.setVCard(2, contact.getVCard());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create contact.");
 
@@ -557,7 +557,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE);
-            session.setString(1, contact.getVCard().getVCardXML());
+            session.setVCard(1, contact.getVCard());
             session.setLong(2, contact.getLocalId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT UPDATE CONTACT");
@@ -583,13 +583,11 @@ public class ContactIOHandler extends AbstractIOHandler implements
         final Contact contact = new Contact();
         contact.setId(session.getQualifiedUsername("JABBER_ID"));
         contact.setLocalId(session.getLong("USER_ID"));
+        contact.setVCard(session.getVCard("CONTACT_VCARD", new ContactVCard()));
         contact.setName(session.getString("NAME"));
         contact.setOrganization(session.getString("ORGANIZATION"));
         contact.setTitle(session.getString("TITLE"));
         contact.addAllEmails(readEmails(contact.getLocalId()));
-        final ContactVCard vcard = new ContactVCard();
-        vcard.setVCardXML(session.getString("CONTACT_VCARD"));
-        contact.setVCard(vcard);
         return contact;
     }
 

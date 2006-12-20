@@ -61,6 +61,10 @@ public class XStreamUtil {
         return (XMPPEvent) xstream.fromXML(xml, root);
     }
 
+    public Object fromXML(final Reader xml, final Object root) {
+        return xstream.fromXML(xml, root);
+    }
+
     /**
      * Marshal an artifact receipt to an xstream writer.
      * 
@@ -77,6 +81,10 @@ public class XStreamUtil {
     public void marshal(final Container container,
             final HierarchicalStreamWriter writer) {
         xstream.marshal(container, writer);
+    }
+
+    public void marshal(final Object obj, final HierarchicalStreamWriter writer) {
+        xstream.marshal(obj, writer);
     }
 
     /**
@@ -117,6 +125,10 @@ public class XStreamUtil {
         xstream.marshal(event, writer);
     }
 
+    public void toXML(final Object obj, final Writer out) {
+        xstream.toXML(obj, out);
+    }
+
     /**
      * Create an xml stream from an xmpp event.
      * 
@@ -127,6 +139,11 @@ public class XStreamUtil {
      */
     public void toXML(final XMPPEvent event, final Writer writer) {
         xstream.toXML(event, writer);
+    }
+
+    public Object unmarshal(final HierarchicalStreamReader reader,
+            final Object root) {
+        return xstream.unmarshal(reader, root);
     }
 
     public ArtifactReceipt unmarshalArtifactReceipt(

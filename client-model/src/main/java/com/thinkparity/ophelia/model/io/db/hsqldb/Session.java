@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.model.io.db.hsqldb;
 
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -28,6 +30,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.migrator.Library;
+import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.audit.AuditEventType;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -49,8 +53,12 @@ public final class Session {
     /** An apache logger wrapper. */
     protected static final Log4JWrapper LOGGER;
 
+    /** An <code>XStreamUtil</code> instance. */
+    protected static final XStreamUtil XSTREAM_UTIL;
+
     static {
         LOGGER = new Log4JWrapper("SQL_DEBUGGER");
+        XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /** The sql connection. */
@@ -430,7 +438,7 @@ public final class Session {
 		}
 	}
 
-	public ArtifactState getStateFromInteger(final String columnName) {
+    public ArtifactState getStateFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -442,7 +450,7 @@ public final class Session {
 		}
 	}
 
-	public ArtifactState getStateFromString(final String columnName) {
+    public ArtifactState getStateFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -515,6 +523,28 @@ public final class Session {
         }
     }
 
+	public <T extends UserVCard> T getVCard(final String columnName,
+            final T vcard) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final String vcardXML = resultSet.getString(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return null;
+            }
+            else {
+                logColumnExtraction(columnName, vcardXML);
+                final StringReader vcardXMLReader = new StringReader(vcardXML);
+                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
+                return vcard;
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+
+    }
+
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
@@ -533,7 +563,7 @@ public final class Session {
 		}
 	}
 
-    /**
+	/**
 	 * Obtain the database metadata.
 	 * 
 	 * @return The database metadata.
@@ -548,7 +578,7 @@ public final class Session {
 		}
 	}
 
-	public PreparedStatement prepareStatement(final String sql) {
+    public PreparedStatement prepareStatement(final String sql) {
 		assertConnectionIsOpen();
 		logStatement(sql);
 		try {
@@ -610,7 +640,7 @@ public final class Session {
         }
     }
 
-    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -632,7 +662,7 @@ public final class Session {
 		}
 	}
 
-	public void setFlagAsString(final Integer index, final ArtifactFlag value) {
+    public void setFlagAsString(final Integer index, final ArtifactFlag value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -676,7 +706,7 @@ public final class Session {
 		}
 	}
 
-    public void setQualifiedUsername(final Integer index, final JabberId value) {
+	public void setQualifiedUsername(final Integer index, final JabberId value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -687,7 +717,7 @@ public final class Session {
 		}
 	}
 
-	public void setStateAsInteger(final Integer index, final ArtifactState value) {
+    public void setStateAsInteger(final Integer index, final ArtifactState value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -709,7 +739,7 @@ public final class Session {
         }
     }
 
-    public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState value) {
+	public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -720,7 +750,7 @@ public final class Session {
         }
     }
 
-	public void setStream(final Integer index, final InputStream value,
+    public void setStream(final Integer index, final InputStream value,
             final Integer valueLength) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
@@ -732,7 +762,7 @@ public final class Session {
         }
     }
 
-    public void setString(final Integer index, final String value) {
+	public void setString(final Integer index, final String value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -791,7 +821,7 @@ public final class Session {
 		}
 	}
 
-	public void setTypeAsInteger(final Integer index, final SystemMessageType value) {
+    public void setTypeAsInteger(final Integer index, final SystemMessageType value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -802,7 +832,7 @@ public final class Session {
         }
     }
 
-    public void setTypeAsString(final Integer index, final ArtifactType value) {
+	public void setTypeAsString(final Integer index, final ArtifactType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -835,7 +865,7 @@ public final class Session {
 		}
 	}
 
-	public void setTypeAsString(final Integer index, final Library.Type value) {
+    public void setTypeAsString(final Integer index, final Library.Type value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -857,7 +887,7 @@ public final class Session {
 		}
 	}
 
-    public void setTypeAsString(final Integer index, final SystemMessageType value) {
+	public void setTypeAsString(final Integer index, final SystemMessageType value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -878,6 +908,20 @@ public final class Session {
             throw new HypersonicException(sqlx);
 		}
 	}
+
+    public <T extends UserVCard> void setVCard(final Integer index,
+            final T value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            final StringWriter valueWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(value, valueWriter);
+            preparedStatement.setString(index, valueWriter.toString());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
 	/**
      * Assert the connection is open.

@@ -69,6 +69,24 @@ public class Contact extends User {
     public void clearEmails() { emails.clear(); }
 
     /**
+     * Obtain the contact's city.
+     * 
+     * @return A city <code>String</code>.
+     */
+    public String getCity() {
+        return vcard.getCity();
+    }
+
+    /**
+     * Obtain the contact's country.
+     * 
+     * @return A country <code>String</code>.
+     */
+    public String getCountry() {
+        return vcard.getCountry();
+    }
+
+    /**
      * Obtain the list of user e-mails.
      * 
      * @return An immutable list of user e-mails.
@@ -92,16 +110,7 @@ public class Contact extends User {
      * @return A mobile phone <code>String</code>.
      */
     public String getMobilePhone() {
-        return "";
-    }
-
-    /**
-     * Obtain the organization address.
-     * 
-     * @return An organization address <code>String</code>.
-     */
-    public String getOrganizationAddress() {
-        return "";
+        return vcard.getMobilePhone();
     }
 
     /**
@@ -110,7 +119,7 @@ public class Contact extends User {
      * @return A phone number <code>String</code>.
      */
     public String getPhone() {
-        return "";
+        return vcard.getPhone();
     }
 
     /**
@@ -127,17 +136,8 @@ public class Contact extends User {
      * 
      * @return True if the phone number is set.
      */
-    public boolean isSetMobilePhone() {
-        return false;
-    }
-
-    /**
-     * Determine if the organization address is set.
-     * 
-     * @return True if the address is set.
-     */
-    public boolean isSetOrganizationAddress() {
-        return false;
+    public Boolean isSetMobilePhone() {
+        return vcard.isSetMobilePhone();
     }
 
     /**
@@ -145,8 +145,8 @@ public class Contact extends User {
      * 
      * @return True if the phone number is set.
      */
-    public boolean isSetPhone() {
-        return false;
+    public Boolean isSetPhone() {
+        return vcard.isSetPhone();
     }
 
     /**
@@ -178,15 +178,7 @@ public class Contact extends User {
      *            A mobile phone <code>String</code>.
      */
     public void setMobilePhone(final String mobilePhone) {
-    }
-
-    /**
-     * Set the organization address.
-     * 
-     * @param organizationAddress
-     *            An organization address <code>String</code>.
-     */
-    public void setOrganizationAddress(final String organizationAddress) {
+        vcard.setMobilePhone(mobilePhone);
     }
 
     /**
@@ -196,6 +188,7 @@ public class Contact extends User {
      *            A phone <code>String</code>.
      */
     public void setPhone(final String phone) {
+        vcard.setPhone(phone);
     }
 
     /**

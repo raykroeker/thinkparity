@@ -3,6 +3,8 @@
  */
 package com.thinkparity.desdemona.model.profile;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
@@ -134,11 +136,9 @@ class ProfileModelImpl extends AbstractModelImpl {
         try {
             assertIsAuthenticatedUser(userId);
             final User user = getUserModel().read(userId);
-    
+
             final Profile profile = new Profile();
-            final ProfileVCard vcard = new ProfileVCard();
-            vcard.setVCardXML(getUserModel().readVCard(userId));
-            profile.setVCard(vcard);
+            profile.setVCard(getUserModel().readVCard(userId, new ProfileVCard()));
             return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -265,16 +265,18 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
     }
 
-    void update(final JabberId userId, final String name,
-            final String organization, final String title) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("name", name);
-        logVariable("organization", organization);
-        logVariable("title", title);
+    void update(final JabberId userId, final ProfileVCard vcard) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("vcard", vcard);
         try {
-            getUserModel().update(userId, name, organization, title);
-            notifyContactUpdated(userId);
+            final Writer vcardXMLWriter = new StringWriter();
+            try {
+                getUserModel().updateVCard(userId, vcard);
+                notifyContactUpdated(userId);
+            } finally {
+                vcardXMLWriter.close();
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }

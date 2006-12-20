@@ -39,7 +39,7 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         super(browser, editProfileAvatar, tabName);
         this.countryModel = new DefaultComboBoxModel();
         for (final Locale locale : browser.getAvailableLocales())
-            countryModel.addElement(locale);
+            this.countryModel.addElement(locale);
         initComponents();
     }
     
@@ -49,25 +49,18 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
     @Override
     protected void reload(final Profile profile) {
         reload(cityJTextField, profile.getCity());
-        reload(countryJComboBox, profile.getCountry());
+        Locale locale;
+        for (int i = 0; i < countryModel.getSize(); i++) {
+            locale = (Locale) countryModel.getElementAt(i);
+            if (locale.getCountry().equals(profile.getCountry())) {
+                countryModel.setSelectedItem(locale);
+            }
+        }
         reload(mobilePhoneJTextField, profile.getMobilePhone());
         reload(organizationJTextField, profile.getOrganization());
         reload(officePhoneJTextField, profile.getPhone());
         reload(titleJTextField, profile.getTitle());
         reload(nameJTextField, profile.getName());
-    }
-
-    /**
-     * Reload a combo box.
-     * 
-     * @param jComboBox
-     *            A <code>JComboBox</code>.
-     * @param selectedItem
-     *            The selected item <code>Object</code>.
-     */
-    private void reload(final javax.swing.JComboBox jComboBox,
-            final Object selectedItem) {
-        jComboBox.setSelectedItem(selectedItem);
     }
 
     /**
@@ -78,7 +71,8 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
         if (isInputValid()) {
             final String name =  extractInputName();
             final String city = SwingUtil.extract(cityJTextField);
-            final String country = ((Locale) countryJComboBox.getSelectedItem()).getCountry();
+            final Locale locale = (Locale) countryJComboBox.getSelectedItem();
+            final String country = locale.getCountry();
             final String organization = extractInputOrganization();
             final String title = extractInputTitle();
             final String phone = extractInputOfficePhone();

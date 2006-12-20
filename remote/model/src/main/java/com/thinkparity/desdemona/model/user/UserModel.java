@@ -8,6 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
@@ -21,7 +22,11 @@ import com.thinkparity.desdemona.model.session.Session;
  */
 public class UserModel extends AbstractModel<UserModelImpl> {
 
-	/**
+	public static UserModel getModel() {
+        return new UserModel();
+    }
+
+    /**
 	 * Obtain a user model.
 	 * 
 	 * @param session
@@ -33,11 +38,11 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 		return userModel;
 	}
 
-    public static UserModel getModel() {
-        return new UserModel();
+	private UserModel() {
+        super(new UserModelImpl());
     }
 
-	/**
+    /**
 	 * Create a UserModel.
 	 * 
 	 * @param session
@@ -46,10 +51,6 @@ public class UserModel extends AbstractModel<UserModelImpl> {
 	private UserModel(final Session session) {
 		super(new UserModelImpl(session));
 	}
-
-    private UserModel() {
-        super(new UserModelImpl());
-    }
 
     /**
      * Determine if the user is an archive.
@@ -122,16 +123,16 @@ public class UserModel extends AbstractModel<UserModelImpl> {
         }
     }
 
-    public String readVCard(final JabberId userId) {
+    public <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
+            final JabberId userId, final T vcard) {
         synchronized (getImplLock()) {
-            return getImpl().readVCard(userId);
+            return getImpl().readVCard(userId, vcard);
         }
     }
-
-    public void update(final JabberId userId, final String name,
-            final String organization, final String title) {
+    public void updateVCard(final JabberId userId,
+            final com.thinkparity.codebase.model.user.UserVCard vcard) {
         synchronized (getImplLock()) {
-            getImpl().update(userId, name, organization, title);
+            getImpl().updateVCard(userId, vcard);
         }
     }
 }

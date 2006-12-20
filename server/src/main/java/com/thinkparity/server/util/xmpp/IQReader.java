@@ -20,11 +20,14 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
+
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Reader <br>
@@ -34,6 +37,12 @@ import org.xmpp.packet.IQ;
  * @version $Revision$
  */
 public final class IQReader implements ServiceRequestReader {
+
+    private static final XStreamUtil XSTREAM_UTIL;
+
+    static {
+        XSTREAM_UTIL = XStreamUtil.getInstance();
+    }
 
     /** The xmpp internet query <code>IQ</code>. */
     private final IQ iq;
@@ -176,9 +185,17 @@ public final class IQReader implements ServiceRequestReader {
      *
      */
     public final ProfileVCard readProfileVCard(final String name) {
-        final ProfileVCard vcard = new ProfileVCard();
-        vcard.setVCardXML(readString(name));
-        return vcard;
+        final Element vcardElement = iq.getChildElement().element(name);
+        final Dom4JReader xmlReader = new Dom4JReader(vcardElement);
+        xmlReader.moveDown();
+        try {
+            final ProfileVCard vcard = new ProfileVCard();
+            XSTREAM_UTIL.unmarshal(xmlReader, vcard);
+            return vcard;
+        } finally {
+            xmlReader.moveUp();
+            xmlReader.close();
+        }
     }
 
     /**

@@ -9,7 +9,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.user.Token;
 
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
@@ -83,12 +82,10 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
         final XMPPMethodResponse response = execute(read, Boolean.TRUE);
         final Profile profile = new Profile();
         profile.setId(response.readResultJabberId("id"));
+        profile.setVCard(response.readResultProfileVCard("vcard"));
         profile.setName(response.readResultString("name"));
         profile.setOrganization(response.readResultString("organization"));
         profile.setTitle(response.readResultString("title"));
-        final ProfileVCard vcard = new ProfileVCard();
-        vcard.setVCardXML(response.readResultString("vcard"));
-        profile.setVCard(vcard);
         return profile;
     }
 
@@ -190,6 +187,7 @@ final class XMPPProfile extends AbstractXMPP<ProfileListener> {
             update.setParameter("organization", profile.getOrganization());
         if (profile.isSetTitle())
             update.setParameter("title", profile.getTitle());
+        update.setParameter("vcard", profile.getVCard());
         execute(update);
     }
 

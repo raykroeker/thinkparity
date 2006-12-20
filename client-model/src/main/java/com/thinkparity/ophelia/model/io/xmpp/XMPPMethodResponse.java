@@ -13,6 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.contact.ContactVCard;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -21,6 +22,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
@@ -63,6 +65,10 @@ public class XMPPMethodResponse extends IQ {
 
     public Calendar readResultCalendar(final String name) {
         return (Calendar) readResult(name);
+    }
+
+    public ContactVCard readResultContactVCard(final String name) {
+        return (ContactVCard) readResult(name);
     }
 
     public Container readResultContainer(final String name) {
@@ -155,6 +161,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<ProfileEMail> readResultProfileEMails(final String name) {
         return (List<ProfileEMail>) readResult(name);
+    }
+
+    public ProfileVCard readResultProfileVCard(final String name) {
+        return (ProfileVCard) readResult(name);
     }
 
     public List<Release> readResultReleases(final String name) {

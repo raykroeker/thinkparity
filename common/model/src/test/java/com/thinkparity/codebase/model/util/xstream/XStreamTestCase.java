@@ -8,6 +8,7 @@ import java.beans.PropertyDescriptor;
 import com.thinkparity.codebase.beans.BeanUtils;
 
 import com.thinkparity.codebase.model.ModelTestCase;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
@@ -55,6 +56,21 @@ abstract class XStreamTestCase extends ModelTestCase {
             expectedPValue = expectedUtils.readProperty(expectedPD);
             actualPValue = actualUtils.readProperty(expectedPD);
             assertEquals("XMPP event property " + expectedPD.getName()
+                    + " does not match expectation.", expectedPValue,
+                    actualPValue);
+        }
+    }
+
+    protected static void assertEquals(final UserVCard actual,
+            final UserVCard expected) {
+        final BeanUtils expectedUtils = new BeanUtils(expected);
+        final BeanUtils actualUtils = new BeanUtils(expected);
+        final PropertyDescriptor[] expectedPDs = expectedUtils.getPropertyDescriptors();
+        Object expectedPValue, actualPValue;
+        for (final PropertyDescriptor expectedPD : expectedPDs) {
+            expectedPValue = expectedUtils.readProperty(expectedPD);
+            actualPValue = actualUtils.readProperty(expectedPD);
+            assertEquals("VCard property " + expectedPD.getName()
                     + " does not match expectation.", expectedPValue,
                     actualPValue);
         }

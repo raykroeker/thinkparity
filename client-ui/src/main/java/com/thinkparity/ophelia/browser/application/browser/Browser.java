@@ -556,11 +556,28 @@ public class Browser extends AbstractApplication {
      * @param contactId
      *           The contact id.
      */
-    public void fireContactDeleted(final JabberId contactId) {
+    public void fireContactDeleted(final JabberId contactId,
+            final Boolean remote) {
         setStatus("ContactDeleted");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContactAvatar().syncContact(contactId, Boolean.FALSE);
+                getTabContactAvatar().syncContact(contactId, remote);
+            }
+        });
+    }
+
+    /**
+     * 
+     * Notify the application that a contact has been deleted.
+     * 
+     * @param contactId
+     *           The contact id.
+     */
+    public void fireContactUpdated(final JabberId contactId) {
+        setStatus("ContactUpdated");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncContact(contactId, Boolean.TRUE);
             }
         });
     }
@@ -793,6 +810,27 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Notify the application that an incoming contact invitation has been
+     * deleted.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            A remote event indicator.
+     */
+    public void fireIncomingContactInvitationDeleted(final Long invitationId,
+            final Boolean remote) {
+        setStatus("IncomingContactInvitationDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
      * Notify the application that an outgoing invitation has been accepted.
      * 
      * @param contactId
@@ -825,6 +863,25 @@ public class Browser extends AbstractApplication {
     public void fireOutgoingContactInvitationCreated(final Long invitationId,
             final Boolean remote) {
         setStatus("OutgoingContactInvitationDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application than an outgoing contact invitation has been
+     * created.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireOutgoingContactInvitationDeclined(final Long invitationId,
+            final Boolean remote) {
+        setStatus("OutgoingContactInvitationDeclined");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);

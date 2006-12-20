@@ -5,6 +5,8 @@ package com.thinkparity.desdemona.wildfire.handler.profile;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.profile.ProfileVCard;
+
 import com.thinkparity.desdemona.util.service.ServiceModelProvider;
 import com.thinkparity.desdemona.util.service.ServiceRequestReader;
 import com.thinkparity.desdemona.util.service.ServiceResponseWriter;
@@ -36,8 +38,7 @@ public class Update extends AbstractHandler {
             final ServiceResponseWriter writer) {
         logger.logApiId();
         update(provider, reader.readJabberId("userId"),
-                reader.readString("name"),
-                reader.readString("organization"), reader.readString("title"));
+                reader.readProfileVCard("vcard"));
     }
 
     /**
@@ -55,8 +56,7 @@ public class Update extends AbstractHandler {
      *            A user's title <code>String</code>.
      */
     private void update(final ServiceModelProvider provider,
-            final JabberId userId, final String name,
-            final String organization, final String title) {
-        provider.getProfileModel().update(userId, name, organization, title);
+            final JabberId userId, final ProfileVCard vcard) {
+        provider.getProfileModel().update(userId, vcard);
     }
 }

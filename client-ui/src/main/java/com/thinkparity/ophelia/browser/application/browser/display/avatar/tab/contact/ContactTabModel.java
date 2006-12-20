@@ -206,6 +206,7 @@ public final class ContactTabModel extends TabPanelModel implements
         for (final Contact contact : contacts) {
             addPanel(contact);
         }
+        applySort(SortBy.NAME);
         debug();
     }
 
@@ -388,28 +389,72 @@ public final class ContactTabModel extends TabPanelModel implements
 
     }
 
+    /**
+     * Add a contact to the end of the panels list.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     */
     private void addPanel(final Contact contact) {
-        addPanel(panels.size() == 0 ? 0 : panels.size() - 1, contact);
+        addPanel(panels.size() == 0 ? 0 : panels.size(), contact);
     }
 
+    /**
+     * Add an incoming invitation to the end of the panels list.
+     * 
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     */
     private void addPanel(final IncomingInvitation invitation) {
-        addPanel(panels.size() == 0 ? 0 : panels.size() - 1, invitation);
+        addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
     }
 
+    /**
+     * Add a contact to the panels list.
+     * 
+     * @param index
+     *            The index at which to add the contact.
+     * @param contact
+     *            A <code>Contact</code>.
+     */
     private void addPanel(final int index, final Contact contact) {
         panels.add(index, toDisplay(contact));
     }
 
+    /**
+     * Add an incoming invitation to the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     */
     private void addPanel(final int index, final IncomingInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
 
+    /**
+     * Add an outgoing invitation to the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param invitation
+     *            An <code>OutgoingInvitation</code>.
+     */
     private void addPanel(final int index, final OutgoingInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
     
+    /**
+     * Add an outgoing invitation to the end of the panels list.
+     * 
+     * @param index
+     *            The index at which to add the invitation.
+     * @param invitation
+     *            An <code>IncomingInvitation</code>.
+     */
     private void addPanel(final OutgoingInvitation invitation) {
-        addPanel(panels.size() == 0 ? 0 : panels.size() - 1, invitation);
+        addPanel(panels.size() == 0 ? 0 : panels.size(), invitation);
     }
 
     /**
@@ -765,44 +810,47 @@ public final class ContactTabModel extends TabPanelModel implements
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContactTabPanel p1 = (ContactTabPanel) o1;
             final ContactTabPanel p2 = (ContactTabPanel) o2;
-            final int multiplier = ascending ? 1 : -1;
-            if (p1.isSetContact() && p2.isSetContact()) {
-                switch (this) {
-                case NAME:
-                    // note the lack of multiplier
-                    return ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                p1.getContact().getName(),
-                                p2.getContact().getName())
-                        : STRING_COMPARATOR_DESC.compare(
-                                p1.getContact().getName(),
-                                p2.getContact().getName());
-                case TITLE:
-                    // note the lack of multiplier
-                    return ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                p1.getContact().getTitle(),
-                                p2.getContact().getTitle())
+            if (p1.isSetContact()) {
+                if (p2.isSetContact()) {
+                    switch (this) {
+                    case NAME:
+                        // note the lack of multiplier
+                        return ascending
+                            ? STRING_COMPARATOR_ASC.compare(
+                                    p1.getContact().getName(),
+                                    p2.getContact().getName())
                             : STRING_COMPARATOR_DESC.compare(
+                                    p1.getContact().getName(),
+                                    p2.getContact().getName());
+                    case TITLE:
+                        // note the lack of multiplier
+                        return ascending
+                            ? STRING_COMPARATOR_ASC.compare(
                                     p1.getContact().getTitle(),
-                                    p2.getContact().getTitle());
-                case ORGANIZATION:
-                    // note the lack of multiplier
-                    return ascending
-                        ? STRING_COMPARATOR_ASC.compare(
-                                p1.getContact().getOrganization(),
-                                p2.getContact().getOrganization())
-                            : STRING_COMPARATOR_DESC.compare(
+                                    p2.getContact().getTitle())
+                                : STRING_COMPARATOR_DESC.compare(
+                                        p1.getContact().getTitle(),
+                                        p2.getContact().getTitle());
+                    case ORGANIZATION:
+                        // note the lack of multiplier
+                        return ascending
+                            ? STRING_COMPARATOR_ASC.compare(
                                     p1.getContact().getOrganization(),
-                                    p2.getContact().getOrganization());
-                default:
-                    throw Assert.createUnreachable("Unknown ordering.");
+                                    p2.getContact().getOrganization())
+                                : STRING_COMPARATOR_DESC.compare(
+                                        p1.getContact().getOrganization(),
+                                        p2.getContact().getOrganization());
+                    default:
+                        throw Assert.createUnreachable("Unknown ordering.");
+                    }
+                } else {
+                    return 1;
                 }
             } else {
-                if (p1.isSetContact()) {
-                    return multiplier * 1;
+                if (p2.isSetContact()) {
+                    return -1;
                 } else {
-                    return multiplier * -1;
+                    return 1;
                 }
             }
         }

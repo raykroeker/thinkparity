@@ -5,6 +5,8 @@ package com.thinkparity.codebase.model.profile;
 
 import com.thinkparity.codebase.model.user.UserVCard;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 /**
  * <b>Title:</b>thinkParity Profile VCard<br>
  * <b>Description:</b>A user's personal vcard.<br>
@@ -12,6 +14,7 @@ import com.thinkparity.codebase.model.user.UserVCard;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@XStreamAlias("v-card")
 public class ProfileVCard extends UserVCard {
 
     /**

@@ -54,10 +54,6 @@ public class Profile extends User {
         return vcard.getPhone();
     }
 
-    public String getProvince() {
-        return vcard.getProvince();
-    }
-
     /**
      * Obtain vcard.
      *
@@ -155,16 +151,6 @@ public class Profile extends User {
      */
     public void setPhone(final String phone) {
         vcard.setPhone(phone);
-    }
-
-    /**
-     * Set the province.
-     * 
-     * @param province
-     *            The province <code>String</code>.
-     */
-    public void setProvince(final String province) {
-        vcard.setProvince(province);
     }
 
     /**

@@ -32,7 +32,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public abstract class DefaultTabPanel extends AbstractJPanel implements TabPanel {
+public abstract class DefaultTabPanel extends AbstractJPanel implements
+        TabPanel {
 
 	/** The panel <code>Border</code>. */
     protected static final Border BORDER;

@@ -3,7 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.DocumentAdapter;
+import com.thinkparity.ophelia.model.events.DocumentListener;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * The system application's event dispatcher.  
@@ -83,12 +90,7 @@ class EventDispatcher {
      * @return A <code>ContactListener</code>.
      */
     private ContactListener createContactListener() {
-        return new ContactAdapter() {
-            @Override
-            public void contactUpdated(final ContactEvent e) {
-                systemApplication.fireContactUpdated(e);
-            }
-        };
+        return new ContactAdapter() {};
     }
 
 	private ContainerListener createContainerListener() {

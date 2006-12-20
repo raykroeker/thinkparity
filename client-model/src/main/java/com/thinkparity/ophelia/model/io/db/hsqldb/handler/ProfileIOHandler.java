@@ -114,7 +114,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             userIO.create(session, profile);
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, profile.getLocalId());
-            session.setString(2, profile.getVCard().getVCardXML());
+            session.setVCard(2, profile.getVCard());
             if(1 != session.executeUpdate())
                 throw translateError("Could not create user profile {0}.", profile);
             session.commit();
@@ -232,7 +232,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             userIO.update(session, profile);
 
             session.prepareStatement(SQL_UPDATE);
-            session.setString(1, profile.getVCard().getVCardXML());
+            session.setVCard(1, profile.getVCard());
             session.setLong(2, profile.getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not update profile.");
@@ -295,9 +295,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
      */
     Profile extractProfile(final Session session) {
         final Profile profile = new Profile();
-        final ProfileVCard vcard = new ProfileVCard();
-        vcard.setVCardXML(session.getString("PROFILE_VCARD"));
-        profile.setVCard(vcard);
+        profile.setVCard(session.getVCard("PROFILE_VCARD", new ProfileVCard()));
         profile.setId(session.getQualifiedUsername("JABBER_ID"));
         profile.setLocalId(session.getLong("PROFILE_ID"));
         profile.setName(session.getString("NAME"));

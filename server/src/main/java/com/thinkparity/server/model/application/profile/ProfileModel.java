@@ -7,9 +7,12 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
+
 import com.thinkparity.desdemona.model.AbstractModel;
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -175,10 +178,9 @@ public class ProfileModel extends AbstractModel<ProfileModelImpl> {
      * @param title
      *            A user's title <code>String</code>.
      */
-    public void update(final JabberId userId, final String name,
-            final String organization, final String title) {
+    public void update(final JabberId userId, final ProfileVCard vcard) {
         synchronized (getImplLock()) {
-            getImpl().update(userId, name, organization, title);
+            getImpl().update(userId, vcard);
         }
     }
 

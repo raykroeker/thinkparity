@@ -51,7 +51,6 @@ public class Update extends AbstractAction {
             profile.setName((String) data.get(DataKey.NAME));
             profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
             profile.setPhone((String) data.get(DataKey.PHONE));
-            profile.setProvince((String) data.get(DataKey.PROVINCE));
             profile.setTitle((String) data.get(DataKey.TITLE));
             profileModel.update(profile);
         }

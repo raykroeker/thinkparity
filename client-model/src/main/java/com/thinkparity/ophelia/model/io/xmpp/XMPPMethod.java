@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.model.io.xmpp;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -44,6 +45,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -76,8 +78,12 @@ public class XMPPMethod extends IQ {
     /** An apache logger. */
     protected static final Log4JWrapper logger;
 
+    /** An <code>XStreamUtil</code> instance. */
+    protected static final XStreamUtil XSTREAM_UTIL;
+
     static {
         logger = new Log4JWrapper();
+        XSTREAM_UTIL = XStreamUtil.getInstance();
 
         ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
     }
@@ -197,6 +203,10 @@ public class XMPPMethod extends IQ {
             parameters.add(new XMPPMethodParameter(name, Long.class, value));
 
         this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
+    }
+
+    public final void setParameter(final String name, final UserVCard value) {
+        parameters.add(new XMPPMethodParameter(name, value.getClass(), value));
     }
 
     public final void setParameter(final String name, final ArtifactType value) {
@@ -328,13 +338,11 @@ public class XMPPMethod extends IQ {
     private String getParameterXMLValue(final XMPPMethodParameter parameter) {
         if (parameter.javaType.equals(ArtifactType.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(Calendar.class)) {
+        } else if (parameter.javaType.equals(Calendar.class)) {
             final Calendar valueGMT =
                 DateUtil.getInstance(((Calendar) parameter.javaValue).getTime(), new SimpleTimeZone(0, "GMT"));
             return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
-        }
-        else if (parameter.javaType.equals(DocumentVersionContent.class)) {
+        } else if (parameter.javaType.equals(DocumentVersionContent.class)) {
             final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
             return new StringBuffer("")
                     .append(getParameterXML(new XMPPMethodParameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
@@ -345,20 +353,15 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(EMail.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(Integer.class)) {
+        } else if (parameter.javaType.equals(Integer.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(JabberId.class)) {
+        } else if (parameter.javaType.equals(JabberId.class)) {
             return ((JabberId) parameter.javaValue).getQualifiedUsername();
-        }
-        else if (parameter.javaType.equals(Long.class)) {
+        } else if (parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(Library.Type.class)) {
+        } else if (parameter.javaType.equals(Library.Type.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(List.class)) {
+        } else if (parameter.javaType.equals(List.class)) {
             final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
             final StringBuffer xmlValue = new StringBuffer("");
 
@@ -369,14 +372,15 @@ public class XMPPMethod extends IQ {
             }
 
             return xmlValue.toString();
-        }
-        else if (parameter.javaType.equals(String.class)) {
+        } else if (parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();
-        }
-        else if (parameter.javaType.equals(UUID.class)) {
+        } else if (parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
-        }
-        else {
+        } else if (UserVCard.class.isAssignableFrom(parameter.javaType)) {
+            final StringWriter xmlWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(parameter.javaValue, xmlWriter);
+            return xmlWriter.toString();
+        } else {
             final String assertion =
                 MessageFormat.format("[XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
                         parameter.javaType.getName());
@@ -527,9 +531,15 @@ public class XMPPMethod extends IQ {
                     parser.next();
                     parser.next();
                     return user;
+                } else if (UserVCard.class.isAssignableFrom(javaType)) {
+                    UserVCard vcard = null;
+                    vcard = (UserVCard) xstreamUtil.unmarshal(new SmackXppReader(parser), vcard);
+                    parser.next();
+                    parser.next();
+                    return vcard;
                 } else if (XMPPEvent.class.isAssignableFrom(javaType)) {
                     XMPPEvent xmppEvent = null;
-                    xmppEvent= xstreamUtil.unmarshalEvent(new SmackXppReader(parser), xmppEvent);
+                    xmppEvent = xstreamUtil.unmarshalEvent(new SmackXppReader(parser), xmppEvent);
                     parser.next();
                     parser.next();
                     return xmppEvent;

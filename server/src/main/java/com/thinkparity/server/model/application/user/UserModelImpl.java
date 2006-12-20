@@ -3,6 +3,8 @@
  */
 package com.thinkparity.desdemona.model.user;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +17,11 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.Constants.VCardFields;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.session.Session;
-
-import org.dom4j.Element;
-import org.jivesoftware.wildfire.vcard.VCardManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,12 +29,19 @@ import org.jivesoftware.wildfire.vcard.VCardManager;
  */
 class UserModelImpl extends AbstractModelImpl {
 
+    private static final XStreamUtil XSTREAM_UTIL;
+
+    static {
+        XSTREAM_UTIL = XStreamUtil.getInstance();
+    }
+
 	/** User sql io. */
     private final UserSql userSql;
 
-	/** The jive vcard manager. */
-	private final VCardManager vcardManager;
-
+    /**
+     * Create UserModelImpl.
+     *
+     */
     UserModelImpl() {
         this(null);
     }
@@ -49,7 +55,6 @@ class UserModelImpl extends AbstractModelImpl {
 	UserModelImpl(final Session session) {
 		super(session);
         this.userSql = new UserSql();
-		this.vcardManager = VCardManager.getInstance();
 	}
 
     /**
@@ -107,7 +112,7 @@ class UserModelImpl extends AbstractModelImpl {
             final List<User> users = userSql.read();
             FilterManager.filter(users, filter);
             for (final User user : users) {
-                inject(user, readVCardElement(user.getId()));
+                inject(user, readVCard(user.getId(), new UserVCard()));
             }
             return users;
         } catch (final Throwable t) {
@@ -119,7 +124,7 @@ class UserModelImpl extends AbstractModelImpl {
         logApiId();
 		logVariable("userId", userId);
         try {
-            return inject(userSql.read(userId), readVCardElement(userId));
+            return inject(userSql.read(userId), readVCard(userId, new UserVCard()));
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -182,54 +187,33 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    String readVCard(final JabberId userId) {
+    <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
+            final JabberId userId, final T vcard) {
         logger.logApiId();
         logger.logVariable("userId", userId);
         try {
-            return readVCardElement(userId).asXML();
+            final StringReader vcardXMLReader =
+                new StringReader(userSql.readProfileVCard(userId));
+            try {
+                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
+                return vcard;
+            } finally {
+                vcardXMLReader.close();
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    void update(final JabberId userId, final String name,
-            final String organization, final String title) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("name", name);
-        logVariable("organization", organization);
-        logVariable("title", title);
+    void updateVCard(final JabberId userId,
+            final com.thinkparity.codebase.model.user.UserVCard vcard) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("vcard", vcard);
         try {
-            final Element vcard = readVCardElement(userId);
-            vcard.element("FN").setText(name);
-            Element organizationElement = vcard.element("ORG");
-            Element organizationNameElement = null;
-            if (null != organization) {
-                if (null == organizationElement) {
-                    organizationElement = vcard.addElement("ORG");
-                }
-                organizationNameElement = organizationElement.element("ORGNAME");
-                if (null == organizationNameElement) {
-                    organizationNameElement = organizationElement.addElement("ORGNAME");
-                }
-                organizationNameElement.setText(organization);
-            } else {
-                if (null != organizationElement) {
-                    vcard.remove(organizationElement);
-                }
-            }
-            Element titleElement = vcard.element(VCardFields.TITLE);
-            if (null != title) {
-                if (null == titleElement) {
-                    titleElement = vcard.addElement(VCardFields.TITLE);
-                }
-                titleElement.setText(title);
-            } else {
-                if (null != titleElement) {
-                    vcard.remove(titleElement);
-                }
-            }
-            updateVCard(userId, vcard);
+            final StringWriter vcardXMLWriter = new StringWriter();
+            XSTREAM_UTIL.toXML(vcard, vcardXMLWriter);
+            userSql.updateProfileVCard(userId, vcardXMLWriter.toString());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -243,48 +227,12 @@ class UserModelImpl extends AbstractModelImpl {
      * @param vcard
      *            A user's vcard dom4j <code>Element</code>.
      */
-    private User inject(final User user, final Element vcard) {
-        if (null == vcard) {
-            logWarning("NULL VCARD");
-        } else {
-            user.setName((String) vcard.element("FN").getData());
-            final Element organization = vcard.element("ORG");
-            if (null != organization) {
-                final Element organizationName = organization.element("ORGNAME");
-                if (null != organizationName) {
-                    user.setOrganization((String) organizationName.getData());
-                }
-            }
-            final Element title = vcard.element(VCardFields.TITLE);
-            if (null != title) {
-                user.setTitle((String) title.getData());
-            }
-        }
+    private User inject(final User user, final UserVCard vcard) {
+        user.setName(vcard.getName());
+        if (vcard.isSetOrganization())
+            user.setOrganization(vcard.getOrganization());
+        if (vcard.isSetTitle())
+            user.setTitle(vcard.getTitle());
         return user;
-    }
-
-    /**
-     * Read a user's vcard information.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A user's vcard dom <code>Element</code>.
-     */
-    private Element readVCardElement(final JabberId userId) {
-        return vcardManager.getVCard(userId.getUsername());
-    }
-
-    /**
-     * Update a user's vcard information.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param vcard
-     *            A users's vcard dom <code>Element</code>.
-     * @throws Exception
-     */
-    private void updateVCard(final JabberId userId, final Element vcard)
-            throws Exception {
-        vcardManager.setVCard(userId.getUsername(), vcard);
     }
 }

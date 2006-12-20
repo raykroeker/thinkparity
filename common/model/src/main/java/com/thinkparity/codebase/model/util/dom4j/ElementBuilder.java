@@ -30,6 +30,7 @@ import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactPublishedEvent;
@@ -577,6 +578,18 @@ public class ElementBuilder {
             for (final String value : values) {
                 addElement(element, name, value);
             }
+            return element;
+        }
+    }
+
+    public static final Element addVCardElement(final XStreamUtil xstreamUtil,
+            final Element parent, final String name, final UserVCard value) {
+        if (null == value) {
+            return addNullElement(parent, name, UserVCard.class);
+        } else {
+            final Element element = addElement(parent, name, UserVCard.class);
+            final Dom4JWriter writer = new Dom4JWriter(element);
+            xstreamUtil.marshal(value, writer);
             return element;
         }
     }

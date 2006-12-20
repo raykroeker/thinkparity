@@ -8,6 +8,8 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
+
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethodResponse;
 
@@ -19,11 +21,15 @@ import com.thoughtworks.xstream.XStream;
  */
 abstract class AbstractXMPP<T extends EventListener> {
 
+    /** An <code>XStreamUtil</code> instance. */
+    protected static final XStreamUtil XSTREAM_UTIL;
+
     /** An apache logger. */
     protected static final Log4JWrapper logger;
 
     static {
         logger = new Log4JWrapper();
+        XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
     /** The xmpp core functionality. */

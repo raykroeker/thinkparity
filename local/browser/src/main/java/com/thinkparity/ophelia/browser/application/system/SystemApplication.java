@@ -11,7 +11,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -250,17 +249,6 @@ public class SystemApplication extends AbstractApplication {
     void fireConnectionOnline() {
         connection = Connection.ONLINE;
         impl.reloadConnectionStatus(connection);
-    }
-
-    /**
-     * Fire the contact updated event.
-     * 
-     * @param e
-     *            A <code>ContactEvent</code>.
-     */
-    void fireContactUpdated(final ContactEvent e) {
-        fireNotification("Norification.ContactUpdatedMessage",
-                getName(e.getContact()));
     }
 
     /**

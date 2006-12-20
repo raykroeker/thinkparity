@@ -20,7 +20,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.Feature;
 import com.thinkparity.codebase.model.user.Token;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.user.UserVCard;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
@@ -48,6 +47,7 @@ public class UserSql extends AbstractSql {
     private static final String SQL_READ =
             new StringBuffer("select * ")
             .append("from jiveUser JU ")
+            .append("inner join PARITY_USER_PROFILE PUP on JU.USERNAME=PUP.USERNAME ")
             .append("order by JU.USERNAME")
             .toString();
 
@@ -124,6 +124,14 @@ public class UserSql extends AbstractSql {
         .append("where JU.USERNAME=? and PUP.TOKEN is not null")
         .toString();
 
+    /** Sql to read the user's vcard. */
+    private static final String SQL_READ_PROFILE_VCARD =
+        new StringBuffer("select PUP.VCARD ")
+        .append("from PARITY_USER_PROFILE PUP ")
+        .append("inner join jiveUser JU on PUP.USERNAME=JU.USERNAME ")
+        .append("where JU.USERNAME=?")
+        .toString();
+
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_USERNAME =
             new StringBuffer("select JU.USERNAME ")
@@ -138,8 +146,8 @@ public class UserSql extends AbstractSql {
         .append("set TOKEN=? where USERNAME=?")
         .toString();
 
-    /** Sql to update the user. */
-    private static final String SQL_UPDATE =
+    /** Sql to update the user's vcard. */
+    private static final String SQL_UPDATE_PROFILE_VCARD =
         new StringBuffer("update PARITY_USER_PROFILE PUP ")
         .append("set VCARD=? where USERNAME=?")
         .toString();
@@ -390,6 +398,22 @@ public class UserSql extends AbstractSql {
         }
     }
 
+    public String readProfileVCard(final JabberId userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PROFILE_VCARD);
+            session.setString(1, userId.getUsername());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("VCARD");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
     /**
      * Read a jabber id for an e-mail addreses.
      * 
@@ -418,14 +442,14 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public void update(final JabberId userId, final UserVCard vcard) {
+    public void updateProfileToken(final JabberId userId, final Token token) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_UPDATE);
-            session.setString(1, vcard.getVCardXML());
+            session.prepareStatement(SQL_UPDATE_PROFILE_TOKEN);
+            session.setString(1, token.getValue());
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update user.");
+                throw new HypersonicException("Could not update profile token.");
 
             session.commit();
         } catch (final Throwable t) {
@@ -435,14 +459,14 @@ public class UserSql extends AbstractSql {
         }
     }
 
-    public void updateProfileToken(final JabberId userId, final Token token) {
+    public void updateProfileVCard(final JabberId userId, final String vcardXML) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_UPDATE_PROFILE_TOKEN);
-            session.setString(1, token.getValue());
+            session.prepareStatement(SQL_UPDATE_PROFILE_VCARD);
+            session.setString(1, vcardXML);
             session.setString(2, userId.getUsername());
             if (1 != session.executeUpdate())
-                throw new HypersonicException("Could not update profile token.");
+                throw new HypersonicException("Could not update profile vcard.");
 
             session.commit();
         } catch (final Throwable t) {

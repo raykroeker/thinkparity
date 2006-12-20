@@ -76,6 +76,14 @@ class EventDispatcher {
     private ContactListener createContactListener() {
         return new ContactAdapter() {
             @Override
+            public void contactDeleted(final ContactEvent e) {
+                browser.fireContactDeleted(e.getContact().getId(), e.isRemote());
+            }
+            @Override
+            public void contactUpdated(final ContactEvent e) {
+                browser.fireContactUpdated(e.getContact().getId());
+            }
+            @Override
             public void incomingInvitationAccepted(final ContactEvent e) {
                 browser.fireIncomingContactInvitationAccepted(e.getContact().getId(), e.getIncomingInvitation().getId(), e.isRemote());
             }
@@ -88,12 +96,20 @@ class EventDispatcher {
                 browser.fireIncomingContactInvitationDeclined(e.getIncomingInvitation().getId(), e.isRemote());
             }
             @Override
+            public void incomingInvitationDeleted(final ContactEvent e) {
+                browser.fireIncomingContactInvitationDeleted(e.getIncomingInvitation().getId(), e.isRemote());
+            }
+            @Override
             public void outgoingInvitationAccepted(final ContactEvent e) {
                 browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
             public void outgoingInvitationCreated(final ContactEvent e) {
                 browser.fireOutgoingContactInvitationCreated(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingInvitationDeclined(final ContactEvent e) {
+                browser.fireOutgoingContactInvitationDeclined(e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
             public void outgoingInvitationDeleted(final ContactEvent e) {

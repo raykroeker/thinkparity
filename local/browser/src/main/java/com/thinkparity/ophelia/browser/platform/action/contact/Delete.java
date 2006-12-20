@@ -5,8 +5,8 @@
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.contact.Contact;
 
+import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
@@ -42,7 +42,7 @@ public class Delete extends AbstractAction {
 
         if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
             getContactModel().delete(contactId);
-            browser.fireContactDeleted(contactId);
+            browser.fireContactDeleted(contactId, Boolean.FALSE);
         }
     }
 

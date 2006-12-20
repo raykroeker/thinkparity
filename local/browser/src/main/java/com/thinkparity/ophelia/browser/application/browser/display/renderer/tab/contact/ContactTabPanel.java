@@ -1,16 +1,12 @@
 /*
- * Created On: December 9, 2006, 8:14 PM
+ * Created On:  December 19, 2006, 9:01 AM
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.text.MessageFormat;
 
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JList;
-
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -23,75 +19,69 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
-import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
 
 /**
- * <b>Title:</b>thinkParity Contact Tab Panel<br>
+ * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class ContactTabPanel extends DefaultTabPanel {
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel additionalTextJLabel = new javax.swing.JLabel();
+//  Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel collapsedIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JList eastJList = new javax.swing.JList();
-    private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel collapsedTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactAdditionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactCityValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactCountryValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactEMailValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel contactJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel contactMobliePhoneValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactPhoneValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contactTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JList westJList = new javax.swing.JList();
-    private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel incomingAdditionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel incomingIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel incomingInvitedAsValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel incomingInvitedByValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel incomingInvitedOnValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel incomingJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel incomingTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel outgoingAdditionalTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel outgoingIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel outgoingInvitedAsValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel outgoingInvitedOnValueJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel outgoingJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel outgoingTextJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
-    /** A contact tab <code>ActionDelegate</code>. */
+    /** An <code>ActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The <code>Contact</code> panel data. */
+    /** A <code>Contact</code>. */
     private Contact contact;
-    
-    /** The east <code>DefaultListModel</code>. */
-    private final DefaultListModel eastListModel;
 
     /** The panel's expanded state. */
     private boolean expanded;
 
-    /** The <code>IncomingInvitation</code>. */
+    /** A contact <code>IncomingInvitation</code>. */
     private IncomingInvitation incoming;
 
-    /** The invitation invited by <code>User</code>. */
-    private User invitedBy;
-
-    /** The panel localization. */
-    private final MainCellL18n localization;
-
-    /** The <code>OutgoingInvitation</code>. */
+    /** A contact <code>OutgoingInvitation</code>. */
     private OutgoingInvitation outgoing;
 
     /** A contact tab <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
-    /** The west <code>DefaultListModel</code>. */
-    private final DefaultListModel westListModel;
-
     /**
      * Create ContactTabPanel.
-     *
      */
     public ContactTabPanel(final BrowserSession session) {
         super(session);
-        this.eastListModel = new DefaultListModel();
-        this.expanded = Boolean.FALSE;
-        this.localization = new MainCellL18n("ContactTabPanel");
-        this.westListModel = new DefaultListModel();
         initComponents();
     }
 
@@ -121,6 +111,25 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#getId()
+     *
+     */
+    @Override
+    public Object getId() {
+        final StringBuffer id = new StringBuffer(getClass().getName())
+            .append("//");
+        if (isSetContact())
+            id.append(contact.getId());
+        else if (isSetIncoming())
+            id.append(incoming.getId());
+        else if (isSetOutgoing())
+            id.append(outgoing.getId());
+        else
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        return id.toString();
+    }
+
+    /**
      * Obtain the incoming invitation.
      * 
      * @return An <code>IncomingInvitation</code>.
@@ -136,6 +145,23 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public OutgoingInvitation getOutgoing() {
         return outgoing;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPopupDelegate()
+     *
+     */
+    public PopupDelegate getPopupDelegate() {
+        return popupDelegate;
+    }
+
+    /**
+     * Determine if the panel is expanded.
+     * 
+     * @return True if the panel is expanded.
+     */
+    public Boolean isExpanded() {
+        return Boolean.valueOf(expanded);
     }
 
     /**
@@ -165,23 +191,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         return null != outgoing;
     }
 
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#getPopupDelegate()
-     *
-     */
-    public PopupDelegate getPopupDelegate() {
-        return popupDelegate;
-    }
-
-    /**
-     * Determine if the panel is expanded.
-     * 
-     * @return True if the panel is expanded.
-     */
-    public Boolean isExpanded() {
-        return Boolean.valueOf(expanded);
-    }
-    
     /**
      * Set actionDelegate.
      *
@@ -213,13 +222,23 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public void setPanelData(final Contact contact) {
         this.contact = contact;
-        westListModel.addElement(new ContactCell());
-        iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-        textJLabel.setText(contact.getName());
-        restoreSelection("eastJList", eastListModel, eastJList);
-        restoreSelection("westJList", westListModel, westJList);
-    }
+        collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+        reload(collapsedTextJLabel, contact.getName());
+        reload(collapsedAdditionalTextJLabel, getAdditionalText(contact));
 
+        reload(contactTextJLabel, contact.getName());
+        reload(contactAdditionalTextJLabel, getAdditionalText(contact));
+
+        reload(contactCityValueJLabel, contact.getCity());
+        reload(contactCountryValueJLabel, contact.getCountry());
+        if (0 < contact.getEmailsSize())
+            reload(contactEMailValueJLabel, contact.getEmails().get(0).toString());
+        else
+            reload(contactEMailValueJLabel, null);
+        reload(contactMobliePhoneValueJLabel, contact.getMobilePhone());
+        reload(contactPhoneValueJLabel, contact.getPhone());
+    }
+    
     /**
      * Set the panel data.
      * 
@@ -231,14 +250,17 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final IncomingInvitation incoming,
             final User invitedBy) {
         this.incoming = incoming;
-        this.invitedBy = invitedBy;
-        westListModel.addElement(new IncomingCell());
-        iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        textJLabel.setText(invitedBy.getName());
-        restoreSelection("eastJList", eastListModel, eastJList);
-        restoreSelection("westJList", westListModel, westJList);
-    }
+        collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+        reload(collapsedAdditionalTextJLabel, getAdditionalText(invitedBy));
+        reload(collapsedTextJLabel, invitedBy.getName());
 
+        incomingIconJLabel.setIcon(collapsedIconJLabel.getIcon());
+        reload(incomingAdditionalTextJLabel, getAdditionalText(invitedBy));
+        reload(incomingInvitedAsValueJLabel, incoming.getInvitedAs().toString());
+        reload(incomingInvitedByValueJLabel, invitedBy.getName());
+        reload(incomingInvitedOnValueJLabel, formatFuzzy(incoming.getCreatedOn()));
+        reload(incomingTextJLabel, invitedBy.getName());
+    }
 
     /**
      * Set the panel data.
@@ -248,11 +270,15 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public void setPanelData(final OutgoingInvitation outgoing) {
         this.outgoing = outgoing;
-        westListModel.addElement(new OutgoingCell());
-        iconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        textJLabel.setText(outgoing.getEmail().toString());
-        restoreSelection("eastJList", eastListModel, eastJList);
-        restoreSelection("westJList", westListModel, westJList);
+        collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+        reload(collapsedAdditionalTextJLabel, null);
+        reload(collapsedTextJLabel, outgoing.getEmail().toString());
+        
+        outgoingIconJLabel.setIcon(collapsedIconJLabel.getIcon());
+        reload(outgoingAdditionalTextJLabel, null);
+        reload(outgoingInvitedAsValueJLabel, outgoing.getEmail().toString());
+        reload(outgoingInvitedOnValueJLabel, formatFuzzy(outgoing.getCreatedOn()));
+        reload(outgoingTextJLabel, outgoing.getEmail().toString());
     }
 
     /**
@@ -267,19 +293,13 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     * 
+     *
      */
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         if (expanded) {
             renderer.paintExpandedBackground(g, this);
-            if (!westJList.isSelectionEmpty()) {
-                final int selectionIndex = westJList.getSelectedIndex();
-                renderer.paintExpandedBackgroundWest(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundCenter(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westJPanel.getWidth(), getHeight(), selectionIndex, this);
-            }
         } else {
             renderer.paintBackground(g, getWidth(), getHeight());
         }
@@ -290,42 +310,55 @@ public class ContactTabPanel extends DefaultTabPanel {
      *
      */
     @Override
-    protected void repaintLists() {
-        eastJList.repaint();
-        westJList.repaint();
-    }
+    protected void repaintLists() {}
+
+    private void collapsedIconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseClicked
+        actionDelegate.invokeForContact(contact);
+    }//GEN-LAST:event_collapsedIconJLabelMouseClicked
+
+    private void collapsedIconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseEntered
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+    }//GEN-LAST:event_collapsedIconJLabelMouseEntered
+
+    private void collapsedIconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseExited
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+    }//GEN-LAST:event_collapsedIconJLabelMouseExited
+
+    private void collapsedJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseClicked
+        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_collapsedJPanelMouseClicked
 
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            if (isSetContact().booleanValue())
-                popupDelegate.showForContact(contact);
-            if (isSetIncoming().booleanValue())
-                popupDelegate.showForInvitation(incoming);
-            if (isSetOutgoing().booleanValue())
-                popupDelegate.showForInvitation(outgoing);
-        }
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
     private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            if (isSetContact().booleanValue())
-                popupDelegate.showForContact(contact);
-            if (isSetIncoming().booleanValue())
-                popupDelegate.showForInvitation(incoming);
-            if (isSetOutgoing().booleanValue())
-                popupDelegate.showForInvitation(outgoing);
-        } else {
-            tabDelegate.toggleExpansion(this);
-        }
+        jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedJPanelMouseReleased
+
+    private void contactJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactJPanelMouseClicked
+        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactJPanelMouseClicked
+
+    private void contactJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactJPanelMousePressed
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactJPanelMousePressed
+
+    private void contactJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactJPanelMouseReleased
+        jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactJPanelMouseReleased
+
+    private void contactScrolledJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactScrolledJPanelMouseClicked
+        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactScrolledJPanelMouseClicked
+
+    private void contactScrolledJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactScrolledJPanelMousePressed
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactScrolledJPanelMousePressed
+
+    private void contactScrolledJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactScrolledJPanelMouseReleased
+        jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_contactScrolledJPanelMouseReleased
 
     /**
      * Collapse the panel.
@@ -334,17 +367,13 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doCollapse(final boolean animate) {
-        this.expanded = false;
-        remove(expandedJPanel);
-        add(collapsedJPanel, constraints.clone());
+        expanded = false;
 
-        if (animate) {
-            animator.collapse(20, 25);
-        } else {
-            final Dimension preferredSize = expandedJPanel.getPreferredSize();
-            preferredSize.height = 25;
-            expandedJPanel.setPreferredSize(preferredSize);
-        }
+        if (isAncestorOf(expandedJPanel))
+            remove(expandedJPanel);
+        if (isAncestorOf(collapsedJPanel))
+            remove(collapsedJPanel);
+        add(collapsedJPanel, constraints.clone());
 
         revalidate();
         reload();
@@ -358,73 +387,72 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
-        this.expanded = true;
-        remove(collapsedJPanel);
-        add(expandedJPanel, constraints.clone());
+        expanded = true;
+        expandedJPanel.removeAll();
+        if (isSetContact())
+            expandedJPanel.add(contactJPanel, constraints.clone());
+        else if (isSetIncoming())
+            expandedJPanel.add(incomingJPanel, constraints.clone());
+        else if (isSetOutgoing())
+            expandedJPanel.add(outgoingJPanel, constraints.clone());
+        else
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
 
-        if (animate) {
-            animator.expand(20, 165);
-        } else {
-            final Dimension preferredSize = expandedJPanel.getPreferredSize();
-            preferredSize.height = 165;
-            expandedJPanel.setPreferredSize(preferredSize);
-        }
+        if (isAncestorOf(expandedJPanel))
+            remove(expandedJPanel);
+        if (isAncestorOf(collapsedJPanel))
+            remove(collapsedJPanel);
+        add(expandedJPanel, constraints.clone());
 
         revalidate();
         reload();
         repaint();
     }
-    
-    private void eastJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusGained
 
-    private void eastJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_eastJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListFocusLost
-
-    private void eastJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseClicked
-    }//GEN-LAST:event_eastJListMouseClicked
-
-    private void eastJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMousePressed
-
-    private void eastJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
-    }//GEN-LAST:event_eastJListMouseReleased
-
-    private void eastJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_eastJListValueChanged
-        if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
-            repaint();
-            return;
+    /**
+     * Extract addtional text from a user.
+     * 
+     * @param <T>
+     *            A user type.
+     * @param user
+     *            A <code>T</code>.
+     * @return Additional display text <code>String</code>.
+     */
+    private <T extends User> String getAdditionalText(final T user) {
+        final String pattern;
+        final Object[] values;
+        if (contact.isSetTitle()) {
+            if (contact.isSetOrganization()) {
+                pattern = "({0}, {1})";
+                values = new Object[] { contact.getTitle(),
+                        contact.getOrganization() };
+            } else {
+                pattern = "({0})";
+                values = new Object[] { contact.getTitle() };
+            }
+        } else {
+            if (contact.isSetOrganization()) {
+                pattern = "({0})";
+                values = new Object[] { contact.getOrganization() };
+            } else {
+                pattern = "";
+                values = new Object[] {};
+            }
         }
-        saveSelection("eastJList", (javax.swing.JList) e.getSource());
-    }//GEN-LAST:event_eastJListValueChanged
+        return new MessageFormat(pattern).format(values);
+    }
 
-    private void expansionJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseClicked
-        tabDelegate.toggleExpansion(this);
-    }//GEN-LAST:event_expansionJLabelMouseClicked
+    private void incomingJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingJPanelMouseClicked
+        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_incomingJPanelMouseClicked
 
-    private void expansionJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseEntered
+    private void incomingJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingJPanelMousePressed
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_incomingJPanelMousePressed
 
-    private void expansionJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_expansionJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_expansionJLabelMouseExited
-
-    private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
-        actionDelegate.invokeForContact(contact);
-    }//GEN-LAST:event_iconJLabelMouseClicked
-
-    private void iconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }//GEN-LAST:event_iconJLabelMouseEntered
-
-    private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_iconJLabelMouseExited
+    private void incomingJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingJPanelMouseReleased
+        jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_incomingJPanelMouseReleased
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -435,15 +463,28 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        final javax.swing.JLabel expansionJLabel = new javax.swing.JLabel();
-        final javax.swing.JScrollPane eastJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JScrollPane contactJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JPanel contactScrolledJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel contactEMailJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel contactPhoneJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel contactMobilePhoneJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel contactCountryJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel contactCityJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel outgoingNestedJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel outgoingInvitedAsJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel outgoingInvitedOnJLabel = new javax.swing.JLabel();
+        final javax.swing.JPanel incomingNestedJPanel = new javax.swing.JPanel();
+        final javax.swing.JLabel incomingInvitedByJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel incomingInvitedAsJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel incomingInvitedOnJLabel = new javax.swing.JLabel();
 
-        setLayout(new java.awt.GridBagLayout());
-
-        setBorder(BORDER);
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
+        collapsedJPanel.setOpaque(false);
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                collapsedJPanelMouseClicked(e);
+            }
             public void mousePressed(java.awt.event.MouseEvent e) {
                 collapsedJPanelMousePressed(e);
             }
@@ -452,16 +493,16 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
         });
 
-        iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
-        iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        collapsedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
+        collapsedIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                iconJLabelMouseClicked(e);
+                collapsedIconJLabelMouseClicked(e);
             }
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                iconJLabelMouseEntered(e);
+                collapsedIconJLabelMouseEntered(e);
             }
             public void mouseExited(java.awt.event.MouseEvent e) {
-                iconJLabelMouseExited(e);
+                collapsedIconJLabelMouseExited(e);
             }
         });
 
@@ -470,172 +511,415 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
-        collapsedJPanel.add(iconJLabel, gridBagConstraints);
+        collapsedJPanel.add(collapsedIconJLabel, gridBagConstraints);
 
-        textJLabel.setText("!Contact Text!");
+        collapsedTextJLabel.setText("!Contact Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
-        collapsedJPanel.add(textJLabel, gridBagConstraints);
+        collapsedJPanel.add(collapsedTextJLabel, gridBagConstraints);
 
-        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
-        additionalTextJLabel.setText("!Contact Additional Text!");
+        collapsedAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        collapsedAdditionalTextJLabel.setText("!Contact Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
-        collapsedJPanel.add(additionalTextJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(collapsedJPanel, gridBagConstraints);
+        collapsedJPanel.add(collapsedAdditionalTextJLabel, gridBagConstraints);
 
         expandedJPanel.setLayout(new java.awt.GridBagLayout());
 
         expandedJPanel.setOpaque(false);
-        westJPanel.setLayout(new java.awt.GridBagLayout());
+        contactJPanel.setLayout(new java.awt.GridBagLayout());
 
-        westJPanel.setOpaque(false);
-        expansionJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconCollapse.png")));
-        expansionJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        contactJPanel.setOpaque(false);
+        contactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                expansionJLabelMouseClicked(e);
+                contactJPanelMouseClicked(e);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                expansionJLabelMouseEntered(e);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                contactJPanelMousePressed(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                expansionJLabelMouseExited(e);
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                contactJPanelMouseReleased(e);
             }
         });
 
+        contactIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 8, 0, 8);
-        westJPanel.add(expansionJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        contactJPanel.add(contactIconJLabel, gridBagConstraints);
 
-        westJList.setModel(westListModel);
-        westJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        westJList.setCellRenderer(new WestCellRenderer());
-        westJList.setOpaque(false);
-        westJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
-        westJList.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent e) {
-                westJListMouseMoved(e);
-            }
-        });
-        westJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                westJListFocusGained(e);
-            }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                westJListFocusLost(e);
-            }
-        });
-        westJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                westJListValueChanged(e);
-            }
-        });
-        westJList.addMouseListener(new java.awt.event.MouseAdapter() {
+        contactTextJLabel.setText("!Name!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
+        contactJPanel.add(contactTextJLabel, gridBagConstraints);
+
+        contactAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        contactAdditionalTextJLabel.setText("!Title, Organization!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        contactJPanel.add(contactAdditionalTextJLabel, gridBagConstraints);
+
+        contactJScrollPane.setBorder(null);
+        contactJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        contactJScrollPane.setOpaque(false);
+        contactJScrollPane.getViewport().setOpaque(false);
+        contactScrolledJPanel.setOpaque(false);
+        contactScrolledJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                westJListMouseClicked(e);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                westJListMouseEntered(e);
-            }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                westJListMouseExited(e);
+                contactScrolledJPanelMouseClicked(e);
             }
             public void mousePressed(java.awt.event.MouseEvent e) {
-                westJListMousePressed(e);
+                contactScrolledJPanelMousePressed(e);
             }
             public void mouseReleased(java.awt.event.MouseEvent e) {
-                westJListMouseReleased(e);
+                contactScrolledJPanelMouseReleased(e);
             }
         });
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        westJPanel.add(westJList, gridBagConstraints);
+        contactEMailValueJLabel.setText("!E-Mail Address!");
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 1.0;
-        expandedJPanel.add(westJPanel, gridBagConstraints);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
+        contactEMailJLabel.setText(bundle.getString("TAB_CONTACT.emailJLabel")); // NOI18N
 
-        eastJPanel.setLayout(new java.awt.GridBagLayout());
+        contactPhoneJLabel.setText(bundle.getString("TAB_CONTACT.phoneJLabel")); // NOI18N
 
-        eastJPanel.setOpaque(false);
-        eastJScrollPane.setBorder(null);
-        eastJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        eastJScrollPane.setOpaque(false);
-        eastJScrollPane.getViewport().setOpaque(false);
-        eastJList.setModel(eastListModel);
-        eastJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        eastJList.setCellRenderer(new EastCellRenderer());
-        eastJList.setOpaque(false);
-        eastJList.setVisibleRowCount(NUMBER_VISIBLE_ROWS);
-        eastJList.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                eastJListFocusGained(e);
-            }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                eastJListFocusLost(e);
-            }
-        });
-        eastJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                eastJListValueChanged(e);
-            }
-        });
-        eastJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                eastJListMouseClicked(e);
-            }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                eastJListMousePressed(e);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                eastJListMouseReleased(e);
-            }
-        });
+        contactPhoneValueJLabel.setText("!Phone!");
 
-        eastJScrollPane.setViewportView(eastJList);
+        contactMobilePhoneJLabel.setText(bundle.getString("TAB_CONTACT.mobilePhoneJLabel")); // NOI18N
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        eastJPanel.add(eastJScrollPane, gridBagConstraints);
+        contactMobliePhoneValueJLabel.setText("!Mobile Phone!");
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 1.0;
-        expandedJPanel.add(eastJPanel, gridBagConstraints);
+        contactCountryJLabel.setText(bundle.getString("TAB_CONTACT.countryJLabel")); // NOI18N
+
+        contactCountryValueJLabel.setText("!Country!");
+
+        contactCityJLabel.setText(bundle.getString("TAB_CONTACT.cityJLabel")); // NOI18N
+
+        contactCityValueJLabel.setText("!City!");
+
+        org.jdesktop.layout.GroupLayout contactScrolledJPanelLayout = new org.jdesktop.layout.GroupLayout(contactScrolledJPanel);
+        contactScrolledJPanel.setLayout(contactScrolledJPanelLayout);
+        contactScrolledJPanelLayout.setHorizontalGroup(
+            contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(contactScrolledJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactCityJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactCountryJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactMobilePhoneJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactPhoneJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactEMailJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(contactEMailValueJLabel)
+                    .add(contactPhoneValueJLabel)
+                    .add(contactMobliePhoneValueJLabel)
+                    .add(contactCountryValueJLabel)
+                    .add(contactCityValueJLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        contactScrolledJPanelLayout.setVerticalGroup(
+            contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(contactScrolledJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(contactEMailJLabel)
+                    .add(contactEMailValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(contactPhoneJLabel)
+                    .add(contactPhoneValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(contactMobilePhoneJLabel)
+                    .add(contactMobliePhoneValueJLabel))
+                .add(20, 20, 20)
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(contactCountryJLabel)
+                    .add(contactCountryValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(contactScrolledJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(contactCityJLabel)
+                    .add(contactCityValueJLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        contactJScrollPane.setViewportView(contactScrolledJPanel);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(expandedJPanel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        contactJPanel.add(contactJScrollPane, gridBagConstraints);
 
+        outgoingJPanel.setLayout(new java.awt.GridBagLayout());
+
+        outgoingJPanel.setOpaque(false);
+        outgoingJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                outgoingJPanelMouseClicked(e);
+            }
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                outgoingJPanelMousePressed(e);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                outgoingJPanelMouseReleased(e);
+            }
+        });
+
+        outgoingIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUserNotReceived.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        outgoingJPanel.add(outgoingIconJLabel, gridBagConstraints);
+
+        outgoingTextJLabel.setText("!Outgoing Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
+        outgoingJPanel.add(outgoingTextJLabel, gridBagConstraints);
+
+        outgoingAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        outgoingAdditionalTextJLabel.setText("!Outgoing Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        outgoingJPanel.add(outgoingAdditionalTextJLabel, gridBagConstraints);
+
+        outgoingNestedJPanel.setOpaque(false);
+        outgoingInvitedAsJLabel.setText(bundle.getString("TAB_CONTACT.invitedAsJLabel")); // NOI18N
+
+        outgoingInvitedOnJLabel.setText(bundle.getString("TAB_CONTACT.invitedOnJLabel")); // NOI18N
+
+        outgoingInvitedAsValueJLabel.setText("!Sent To!");
+
+        outgoingInvitedOnValueJLabel.setText("!Invited On!");
+
+        org.jdesktop.layout.GroupLayout outgoingNestedJPanelLayout = new org.jdesktop.layout.GroupLayout(outgoingNestedJPanel);
+        outgoingNestedJPanel.setLayout(outgoingNestedJPanelLayout);
+        outgoingNestedJPanelLayout.setHorizontalGroup(
+            outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(outgoingNestedJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, outgoingInvitedAsJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, outgoingInvitedOnJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(outgoingInvitedOnValueJLabel)
+                    .add(outgoingInvitedAsValueJLabel))
+                .addContainerGap(126, Short.MAX_VALUE))
+        );
+        outgoingNestedJPanelLayout.setVerticalGroup(
+            outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(outgoingNestedJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(outgoingInvitedAsJLabel)
+                    .add(outgoingInvitedAsValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(outgoingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(outgoingInvitedOnJLabel)
+                    .add(outgoingInvitedOnValueJLabel))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        outgoingJPanel.add(outgoingNestedJPanel, gridBagConstraints);
+
+        incomingJPanel.setLayout(new java.awt.GridBagLayout());
+
+        incomingJPanel.setOpaque(false);
+        incomingJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                incomingJPanelMouseClicked(e);
+            }
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                incomingJPanelMousePressed(e);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                incomingJPanelMouseReleased(e);
+            }
+        });
+
+        incomingIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUserNotReceived.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 32, 0, 4);
+        incomingJPanel.add(incomingIconJLabel, gridBagConstraints);
+
+        incomingTextJLabel.setText("!Incoming Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
+        incomingJPanel.add(incomingTextJLabel, gridBagConstraints);
+
+        incomingAdditionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        incomingAdditionalTextJLabel.setText("!Incoming Additional Text!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 2, 4, 0);
+        incomingJPanel.add(incomingAdditionalTextJLabel, gridBagConstraints);
+
+        incomingNestedJPanel.setOpaque(false);
+        incomingInvitedByJLabel.setText(bundle.getString("TAB_CONTACT.invitedByJLabel")); // NOI18N
+
+        incomingInvitedByValueJLabel.setText("!Invited By!");
+
+        incomingInvitedAsJLabel.setText(bundle.getString("TAB_CONTACT.invitedAsJLabel")); // NOI18N
+
+        incomingInvitedAsValueJLabel.setText("!Sent To!");
+
+        incomingInvitedOnJLabel.setText(bundle.getString("TAB_CONTACT.invitedOnJLabel")); // NOI18N
+
+        incomingInvitedOnValueJLabel.setText("!Invited On!");
+
+        org.jdesktop.layout.GroupLayout incomingNestedJPanelLayout = new org.jdesktop.layout.GroupLayout(incomingNestedJPanel);
+        incomingNestedJPanel.setLayout(incomingNestedJPanelLayout);
+        incomingNestedJPanelLayout.setHorizontalGroup(
+            incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(incomingNestedJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, incomingInvitedAsJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, incomingInvitedOnJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, incomingInvitedByJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(incomingInvitedByValueJLabel)
+                    .add(incomingInvitedOnValueJLabel)
+                    .add(incomingInvitedAsValueJLabel))
+                .addContainerGap(147, Short.MAX_VALUE))
+        );
+        incomingNestedJPanelLayout.setVerticalGroup(
+            incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(incomingNestedJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(incomingInvitedByJLabel)
+                    .add(incomingInvitedByValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(incomingInvitedOnJLabel)
+                    .add(incomingInvitedOnValueJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(incomingNestedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(incomingInvitedAsJLabel)
+                    .add(incomingInvitedAsValueJLabel))
+                .addContainerGap())
+        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 44, 0, 0);
+        incomingJPanel.add(incomingNestedJPanel, gridBagConstraints);
+
+        setLayout(new java.awt.GridBagLayout());
+
+        setBorder(BORDER);
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Handle the mouse clicked event for any one of the panels in this tab. If
+     * the click is a double click; the panel will be expanded/collapsed.
+     * 
+     * @param jPanel
+     *            A <code>JPanel</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jPanelMouseClicked(final javax.swing.JPanel jPanel,
+            final java.awt.event.MouseEvent e) {
+        if (0 == e.getClickCount() % 2)
+            tabDelegate.toggleExpansion(this);
+    }
+
+    /**
+     * Handle the mouse pressed event for any one of the jpanels in this tab.
+     * Depending on whether or not the event is a popup trigger the popup
+     * appropriate to the state of the panel will be dislpayed.
+     * 
+     * @param jPanel
+     *            A <code>JPanel</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jPanelMousePressed(final javax.swing.JPanel jPanel,
+            final java.awt.event.MouseEvent e) {
+        if (expanded && e.isPopupTrigger()) {
+            popupDelegate.initialize(jPanel, e.getX(), e.getY());
+            if (isSetContact())
+                popupDelegate.showForContact(contact);
+            else if (isSetIncoming())
+                popupDelegate.showForInvitation(incoming);
+            else if (isSetOutgoing())
+                popupDelegate.showForInvitation(outgoing);
+            else
+                Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        }
+    }
+
+    /**
+     * Handle the mouse released event for any one of the jpanels in this tab.
+     * Depending on whether or not the event is a popup trigger the popup
+     * appropriate to the state of the panel will be dislpayed.
+     * 
+     * @param jPanel
+     *            A <code>JPanel</code>.
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jPanelMouseReleased(final javax.swing.JPanel jPanel,
+            final java.awt.event.MouseEvent e) {
+        if (expanded && e.isPopupTrigger()) {
+            popupDelegate.initialize(jPanel, e.getX(), e.getY());
+            if (isSetContact())
+                popupDelegate.showForContact(contact);
+            else if (isSetIncoming())
+                popupDelegate.showForInvitation(incoming);
+            else if (isSetOutgoing())
+                popupDelegate.showForInvitation(outgoing);
+            else
+                Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        }
+    }
+
+    private void outgoingJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_outgoingJPanelMouseClicked
+        jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_outgoingJPanelMouseClicked
+
+    private void outgoingJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_outgoingJPanelMousePressed
+        jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_outgoingJPanelMousePressed
+
+    private void outgoingJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_outgoingJPanelMouseReleased
+        jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
+    }//GEN-LAST:event_outgoingJPanelMouseReleased
 
     /**
      * Reload the panel data based upon internal criteria.
@@ -646,253 +930,22 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * Reload a display label.
+     * 
+     * @param jLabel
+     *            A swing <code>JLabel</code>.
+     * @param value
+     *            The label value.
+     */
+    private void reload(final javax.swing.JLabel jLabel,
+            final String value) {
+        jLabel.setText(null == value ? " " : value);
+    }
+
+    /**
      * Reload the text on the panel.
      *
      */
     private void reloadText() {
-        if (!expanded) {
-            if (isSetContact()) {
-                final String pattern;
-                final Object[] values;
-                if (contact.isSetTitle()) {
-                    if (contact.isSetOrganization()) {
-                        pattern = "({0}, {1})";
-                        values = new Object[] { contact.getTitle(),
-                                contact.getOrganization() };
-                    } else {
-                        pattern = "({0})";
-                        values = new Object[] { contact.getTitle() };
-                    }
-                } else {
-                    if (contact.isSetOrganization()) {
-                        pattern = "({0})";
-                        values = new Object[] { contact.getOrganization() };
-                    } else {
-                        pattern = "";
-                        values = new Object[] {};
-                    }
-                }
-                additionalTextJLabel.setText(MessageFormat.format(pattern, values));
-            }
-        }
-    }
-
-    private void westJListMouseMoved(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseMoved
-        westJListSetCursor((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseMoved
-
-    private void westJListMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseExited
-        westJListSetCursor((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseExited
-
-    private void westJListMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseEntered
-        westJListSetCursor((javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseEntered
-    
-    private void westJListFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusGained
-        jListFocusGained((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusGained
-
-    private void westJListFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_westJListFocusLost
-        jListFocusLost((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListFocusLost
-
-    private void westJListMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseClicked
-        westJListMouseClicked("westJList", (javax.swing.JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseClicked
-
-    private void westJListMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMousePressed
-        jListMousePressed((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMousePressed
-
-    private void westJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_westJListMouseReleased
-        jListMouseReleased((JList) e.getSource(), e);
-    }//GEN-LAST:event_westJListMouseReleased
-
-    private void westJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_westJListValueChanged
-        if (e.getValueIsAdjusting() || ((javax.swing.JList) e.getSource()).isSelectionEmpty()) {
-            repaint();
-            return;
-        }
-        saveSelection("westJList", (javax.swing.JList) e.getSource());
-        eastListModel.clear();
-        eastListModel.addElement(EmptyCell.getEmptyCell());
-        for (final Object selectedValue : westJList.getSelectedValues()) {
-            for (final Cell cell : ((WestCell) selectedValue).getEastCells()) {
-                eastListModel.addElement(cell);
-            }
-        }
-    }//GEN-LAST:event_westJListValueChanged
-
-    /** A contact cell. */
-    private final class ContactCell extends WestCell {
-        /**
-         * Create ContactCell.
-         *
-         */
-        private ContactCell() {
-            super();
-            add(new ContactFieldCell(this, localization.getString("Title"), contact.getTitle()));
-            add(new ContactFieldCell(this, localization.getString("Organization"), contact.getOrganization()));
-            add(new ContactFieldCell(this, localization.getString("OrganizationAddress"), contact.getOrganizationAddress()));
-            add(new ContactFieldCell(this, localization.getString("Phone"), contact.getPhone()));
-            add(new ContactFieldCell(this, localization.getString("MobilePhone"), contact.getMobilePhone()));
-            if (0 < contact.getEmailsSize())
-                add(new ContactTextCell(this, contact.getEmails().get(0).toString()));
-        }
-        @Override
-        public Icon getIcon() {
-            return IMAGE_CACHE.read(TabPanelIcon.USER);
-        }
-        @Override
-        public String getText() {
-            return contact.getName();
-        }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForContact(contact);
-        }
-        @Override
-        public Boolean isActionAvailable() {
-            return Boolean.FALSE;
-        }
-    }
-
-    /** A contact value cell. */
-    private final class ContactFieldCell extends DefaultCell implements EastCell {
-        /** The field name <code>String</code>. */
-        private final String name;
-        /** The parent <code>WestCell</code>. */
-        private final WestCell parent;
-        /** The field value <code>String</code>. */
-        private final String value;
-        /**
-         * Create ContactFieldCell.
-         * 
-         * @param name
-         *            The field name <code>String</code>.
-         * @param value
-         *            The field value <code>String</code>.
-         */
-        private ContactFieldCell(final WestCell parent, final String name,
-                final String value) {
-            super();
-            this.name = name;
-            this.parent = parent;
-            this.value = value;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
-         *
-         */
-        public String getText() {
-            if (null == value) {
-                return MessageFormat.format("{0}:  {1}", name, localization.getString("NoValue"));
-            } else {
-                return MessageFormat.format("{0}:  {1}", name, value);
-            }
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
-         *
-         */
-        public void invokeAction() {
-            parent.invokeAction();
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
-         *
-         */
-        public void showPopup() {
-            parent.showPopup();
-        }
-    }
-
-    /** A contact text cell. */
-    private final class ContactTextCell extends DefaultCell implements EastCell {
-        /** The parent <code>WestCell</code>. */
-        private final WestCell parent;
-        /**
-         * Create ContactFieldCell.
-         * 
-         * @param text
-         *            The field text <code>String</code>.
-         */
-        private ContactTextCell(final WestCell parent, final String text) {
-            super();
-            setText(text);
-            this.parent = parent;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
-         *
-         */
-        public void invokeAction() {
-            parent.invokeAction();
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
-         *
-         */
-        public void showPopup() {
-            parent.showPopup();
-        }
-    }
-
-    /** An incoming invitation cell. */
-    private final class IncomingCell extends WestCell {
-        /**
-         * Create IncomingCell.
-         *
-         */
-        private IncomingCell() {
-            super();
-            add(new ContactFieldCell(this, localization.getString("CreatedOn"),
-                    formatFuzzy(incoming.getCreatedOn())));
-            add(new ContactFieldCell(this, localization.getString("InvitedAs"),
-                    incoming.getInvitedAs().toString()));
-        }
-        @Override
-        public Icon getIcon() {
-            return IMAGE_CACHE.read(TabPanelIcon.USER);
-        }
-        @Override
-        public String getText() {
-            return invitedBy.getName();
-        }
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForInvitation(incoming);
-        }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForInvitation(incoming);
-        }
-    }
-
-    /** An outgoing invitation cell. */
-    private final class OutgoingCell extends WestCell {
-        /**
-         * Create OutgoingCell.
-         *
-         */
-        private OutgoingCell() {
-            super();
-            setText(outgoing.getEmail().toString());
-            add(new ContactFieldCell(this, localization.getString("CreatedOn"),
-                    formatFuzzy(outgoing.getCreatedOn())));
-        }
-        @Override
-        public Icon getIcon() {
-            return IMAGE_CACHE.read(TabPanelIcon.USER);
-        }
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForInvitation(outgoing);
-        }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForInvitation(outgoing);
-        }
     }
 }

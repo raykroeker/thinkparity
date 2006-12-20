@@ -324,7 +324,8 @@ public final class IQWriter implements ServiceResponseWriter {
         ElementBuilder.addUserReceiptElements(XSTREAM_UTIL, iq.getChildElement(), name, values);
     }
 
-    public void writeVCard(final String name, final UserVCard vcard) {
-        ElementBuilder.addElement(iq.getChildElement(), name, vcard.getVCardXML());
+    public void writeVCard(final String name, final UserVCard value) {
+        ElementBuilder.addVCardElement(XSTREAM_UTIL, iq.getChildElement(),
+                name, value);
     }
 }

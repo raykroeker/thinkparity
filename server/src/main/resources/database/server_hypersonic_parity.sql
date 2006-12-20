@@ -112,6 +112,7 @@ create table PARITY_USER_PROFILE (
     SECURITY_ANSWER varchar not null,
     DISABLED boolean not null,
     TOKEN varchar null,
+    VCARD varchar not null,
     primary key (username),
     foreign key (username) references jiveUser(username)
 );

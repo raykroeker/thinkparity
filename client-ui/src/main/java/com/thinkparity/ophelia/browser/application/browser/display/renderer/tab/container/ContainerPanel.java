@@ -1075,6 +1075,7 @@ public class ContainerPanel extends DefaultTabPanel {
             setText(user.getName());
             setAdditionalText(localization.getString("UserPublished"));
         }
+        
         /**
          * Create VersionUserCell.
          * 
@@ -1092,11 +1093,10 @@ public class ContainerPanel extends DefaultTabPanel {
                     ? IMAGE_CACHE.read(TabPanelIcon.USER)
                     : IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
             setText(user.getName());
-            setAdditionalText(receipt.isSetReceivedOn()
-                    ? localization.getString("UserReceived",
-                            formatFuzzy(receipt.getReceivedOn()))
-                    : localization.getString("UserDidNotReceive"));
-                    
+            if (receipt.isSetReceivedOn()) {
+                setAdditionalText(localization.getString("UserReceived",
+                        formatFuzzy(receipt.getReceivedOn())));
+            }                   
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()

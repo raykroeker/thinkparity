@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.awt.Component;
+
+import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -39,28 +42,28 @@ public class EastCellRenderer extends DefaultCellRenderer implements PanelCellRe
     public EastCellRenderer(final DefaultTabPanel tabPanel) {
         super(tabPanel);
         initComponents();
-        installListeners();
+        installListeners(tabPanel, iconJLabel);
     }
     
     /**
-     * Get the icon JLabel
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCellRenderer#renderComponent(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, int)
      */
-    protected javax.swing.JLabel getIconJLabel() {
-        return iconJLabel;
+    @Override
+    public void renderComponent(final Cell cell, final int index) {
+        renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
     }
     
     /**
-     * Get the text JLabel
+     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
+     *      java.lang.Object, int, boolean, boolean)
      */
-    protected javax.swing.JLabel getTextJLabel() {
-        return textJLabel;
-    }
-    
-    /**
-     * Get the additional text JLabel
-     */
-    protected javax.swing.JLabel getAdditionalTextJLabel() {
-        return additionalTextJLabel;
+    @Override    
+    public Component getListCellRendererComponent(final JList list,
+            final Object value, final int index, final boolean isSelected,
+            final boolean cellHasFocus) {
+        final Cell cell = (Cell) value;
+        renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
+        return this;
     }
 
     /**

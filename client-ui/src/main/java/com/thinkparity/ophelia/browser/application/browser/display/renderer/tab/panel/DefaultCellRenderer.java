@@ -48,99 +48,72 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
     /**
      * This method is always called before the panel is added and painted.
      */
-    public void renderComponent(final Cell cell, final int index) {
-        this.cell = cell;
-        if (null != getIconJLabel()) {
-            getIconJLabel().setIcon(cell.getIcon());
-        }
-        if (null != getTextJLabel()) {
-            getTextJLabel().setText(cell.getText());
-            if (cell.isEnabled()) {
-                getTextJLabel().setForeground(Colors.Browser.List.LIST_FG);
-            } else {
-                getTextJLabel().setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
-            }
-        }
-        if (null != getAdditionalTextJLabel()) {
-            if (cell.isSetAdditionalText()) {
-                getAdditionalTextJLabel().setText(cell.getAdditionalText());
-            } else {
-                getAdditionalTextJLabel().setText("");
-            }
-        }
-    }
+    public abstract void renderComponent(final Cell cell, final int index);
     
     /**
      * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
      *      java.lang.Object, int, boolean, boolean)
      */
-    public Component getListCellRendererComponent(final JList list,
+    public abstract Component getListCellRendererComponent(final JList list,
             final Object value, final int index, final boolean isSelected,
-            final boolean cellHasFocus) {
-        final Cell cell = (Cell) value;
+            final boolean cellHasFocus);
+    
+    /**
+     * This method is always called before the panel is added and painted.
+     */
+    protected void renderComponent(final Cell cell, final int index,
+            final javax.swing.JLabel iconJLabel,
+            final javax.swing.JLabel textJLabel,
+            final javax.swing.JLabel additionalTextJLabel) {
         this.cell = cell;
-        renderComponent(cell, index);
-        return this;
-    }
-    
-    /**
-     * Get the icon JLabel
-     */
-    protected javax.swing.JLabel getIconJLabel() {
-        return null;
-    }
-    
-    /**
-     * Get the text JLabel
-     */
-    protected javax.swing.JLabel getTextJLabel() {
-        return null;
-    }
-    
-    /**
-     * Get the additional text JLabel
-     */
-    protected javax.swing.JLabel getAdditionalTextJLabel() {
-        return null;
+        iconJLabel.setIcon(cell.getIcon());
+        textJLabel.setText(cell.getText());
+        if (cell.isEnabled()) {
+            textJLabel.setForeground(Colors.Browser.List.LIST_FG);
+        } else {
+            textJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
+        }
+        if (cell.isSetAdditionalText()) {
+            additionalTextJLabel.setText(cell.getAdditionalText());
+        } else {
+            additionalTextJLabel.setText("");
+        }
     }
     
     /**
      * Install mouse listeners.
      */
-    protected void installListeners() {
-        if (null != tabPanel) {
-            if (null != getIconJLabel()) {
-                getIconJLabel().addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseClicked(final java.awt.event.MouseEvent e) {
-                        tabPanel.panelCellMouseClicked(cell, e);
-                        if (cell.isActionAvailable()) {
-                            cell.invokeAction();
-                        }
-                    }
-                    public void mouseEntered(final java.awt.event.MouseEvent e) {
-                        if (cell.isActionAvailable()) {
-                            SwingUtil.setCursor(DefaultCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
-                        }
-                    }
-                    public void mouseExited(final java.awt.event.MouseEvent e) {
-                        if (cell.isActionAvailable()) {
-                            SwingUtil.setCursor(DefaultCellRenderer.this, java.awt.Cursor.DEFAULT_CURSOR);
-                        }
-                    }
-                });
+    protected void installListeners(final DefaultTabPanel tabPanel,
+            final javax.swing.JLabel iconJLabel) {
+        iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(final java.awt.event.MouseEvent e) {
+                tabPanel.panelCellMouseClicked(cell, e);
+                if (cell.isActionAvailable()) {
+                    cell.invokeAction();
+                }
             }
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(final java.awt.event.MouseEvent e) {
-                    tabPanel.panelCellMouseClicked(cell, e);
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                if (cell.isActionAvailable()) {
+                    SwingUtil.setCursor(DefaultCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
                 }
-                public void mousePressed(final java.awt.event.MouseEvent e) {
-                    maybeShowPopup(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                if (cell.isActionAvailable()) {
+                    SwingUtil.setCursor(DefaultCellRenderer.this, java.awt.Cursor.DEFAULT_CURSOR);
                 }
-                public void mouseReleased(final java.awt.event.MouseEvent e) {
-                    maybeShowPopup(e);
-                }
-            });
-        }
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(final java.awt.event.MouseEvent e) {
+                tabPanel.panelCellMouseClicked(cell, e);
+            }
+            public void mousePressed(final java.awt.event.MouseEvent e) {
+                maybeShowPopup(e);
+            }
+            public void mouseReleased(final java.awt.event.MouseEvent e) {
+                maybeShowPopup(e);
+            }
+        });
     }
     
     /**

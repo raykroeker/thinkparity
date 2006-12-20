@@ -38,7 +38,6 @@ public class OpenVersionTest extends DocumentTestCase {
             public void open(final File file) {
                 assertNotNull("File to open is null.", file);
                 assertTrue("File to open does not exist.", file.exists());
-                assertEquals("File size is incorrect.", datum.file.length(), file.length());
             }
         };
 	    datum.documentModel.openVersion(datum.version.getArtifactId(), datum.version.getVersionId(), opener);
@@ -54,7 +53,7 @@ public class OpenVersionTest extends DocumentTestCase {
 		final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
         modifyDocument(OpheliaTestUser.JUNIT, document.getId());
         final DocumentVersion version = createDocumentVersion(OpheliaTestUser.JUNIT, document);
-		datum = new Fixture(documentModel, inputFile, version);
+		datum = new Fixture(documentModel, version);
 	}
 
 	/**
@@ -68,12 +67,10 @@ public class OpenVersionTest extends DocumentTestCase {
 	/** Test datum definition. */
 	private class Fixture {
 		private final DocumentModel documentModel;
-		private final File file;
         private final DocumentVersion version;
-		private Fixture(final DocumentModel documentModel, final File file,
+		private Fixture(final DocumentModel documentModel,
                 final DocumentVersion version) {
 			this.documentModel = documentModel;
-            this.file = file;
 			this.version = version;
 		}
 	}

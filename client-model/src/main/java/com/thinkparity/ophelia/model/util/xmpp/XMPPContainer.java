@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.util.xmpp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.Constants.Xml.Service;
 import com.thinkparity.ophelia.model.io.xmpp.XMPPMethod;
@@ -56,11 +58,12 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
      */
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final List<TeamMember> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);
+        logger.logVariable("team", team);
         logger.logVariable("publishTo", publishTo);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
@@ -92,6 +95,10 @@ final class XMPPContainer extends AbstractXMPP<ContainerListener> {
         publish.setParameter("name", container.getName());
         publish.setParameter("comment", container.getComment());
         publish.setParameter("artifactCount", entries.size());
+        final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
+        for (final TeamMember teamMember : team)
+            teamIds.add(teamMember.getId());
+        publish.setParameter("team", "team-element", teamIds);
         publish.setParameter("publishedBy", publishedBy);
         publish.setParameter("publishedTo", "publishedTo", publishTo);
         publish.setParameter("publishedOn", publishedOn);

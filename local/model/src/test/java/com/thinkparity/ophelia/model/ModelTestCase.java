@@ -480,7 +480,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [TEAM MEMBER'S ID IS NULL]", teamMember.getId());
         assertNotNull(assertion + " [TEAM MEMBER'S LOCAL ID IS NULL]", teamMember.getLocalId());
         assertNotNull(assertion + " [TEAM MEMBER'S NAME IS NULL]", teamMember.getName());
-        assertNotNull(assertion + " [TEAM MEMBER'S ORGANIZATION IS NULL]", teamMember.getOrganization());
     }
 
     /**
@@ -496,7 +495,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [USER'S ID IS NULL]", user.getId());
         assertNotNull(assertion + " [USER'S LOCAL ID IS NULL]", user.getLocalId());
         assertNotNull(assertion + " [USER'S NAME IS NULL]", user.getName());
-        assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
     }
 
     /** A test model factory. */
@@ -674,6 +672,27 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } catch (final IOException iox) {
             throw new RuntimeException(iox);
         }
+    }
+
+    protected Document createDocument(final OpheliaTestUser testUser, 
+            final String filename) {
+        logger.logInfo("Creating document \"{0}\".", filename);
+        try {
+            return getDocumentModel(testUser).create(filename,
+                new FileInputStream(getInputFile(filename)));
+        } catch (final IOException iox) {
+            throw new RuntimeException(iox);
+        }
+    }
+
+    protected List<Document> createDocuments(final OpheliaTestUser createAs,
+            final String... filenames) {
+        final List<Document> documents = new ArrayList<Document>(filenames.length);
+        for(final String filename : filenames) {
+            documents.add(createDocument(createAs, filename));
+        }
+        return documents;
+
     }
 
     /**

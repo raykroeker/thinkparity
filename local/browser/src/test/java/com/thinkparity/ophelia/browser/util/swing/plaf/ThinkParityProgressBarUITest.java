@@ -31,6 +31,12 @@ public final class ThinkParityProgressBarUITest extends
         Swing.init();
     }
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton goDeterminateJButton;
+    private javax.swing.JButton goIndeterminateJButton;
+    private javax.swing.JProgressBar jProgressBar1;
+    // End of variables declaration//GEN-END:variables
+
     /**
      * Create ThinkParityProgressBarUITest.
      *
@@ -38,6 +44,64 @@ public final class ThinkParityProgressBarUITest extends
     public ThinkParityProgressBarUITest() {
         initComponents();
     }
+
+    /**
+     * Test the progress bar.
+     *
+     */
+    public void testProgressBar() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new ThinkParityProgressBarUITest().setVisible(true);
+            }
+        });
+    }
+
+    /**
+     * Start a task. Set the progress bar determination; disable controls and
+     * set the cursor.
+     * 
+     * @param indeterminate
+     *            The progress bar determination.
+     */
+    private void fireTaskBegin(final boolean indeterminate) {
+        jProgressBar1.setIndeterminate(indeterminate);
+        goDeterminateJButton.setEnabled(false);
+        goIndeterminateJButton.setEnabled(false);
+        getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    }
+
+    /**
+     * End a task. Set the progress bar value to completion; reset the cursor and
+     * enable the buttons.
+     * 
+     */
+    private void fireTaskEnd() {
+        jProgressBar1.setValue(jProgressBar1.getMaximum());
+        getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        goDeterminateJButton.setEnabled(true);
+        goIndeterminateJButton.setEnabled(true);
+    }
+
+    /**
+     * Update a task.  Set the progress bar value.
+     * 
+     * @param value
+     *            The progress bar value.
+     */
+    private void fireTaskUpdate(final int value) {
+        jProgressBar1.setValue(value);
+    }
+
+    private void goDeterminateJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goDeterminateJButtonActionPerformed
+        final SwingWorker task = new DeterminateTask();
+        task.start();
+    }//GEN-LAST:event_goDeterminateJButtonActionPerformed
+
+    private void goIndeterminateJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goIndeterminateJButtonActionPerformed
+        final SwingWorker task = new IndeterminateTask();
+        task.start();
+    }//GEN-LAST:event_goIndeterminateJButtonActionPerformed
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -94,53 +158,34 @@ public final class ThinkParityProgressBarUITest extends
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void goIndeterminateJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goIndeterminateJButtonActionPerformed
-        final SwingWorker task = new IndeterminateTask();
-        task.start();
-    }//GEN-LAST:event_goIndeterminateJButtonActionPerformed
-
-    private void goDeterminateJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goDeterminateJButtonActionPerformed
-        final SwingWorker task = new DeterminateTask();
-        task.start();
-    }//GEN-LAST:event_goDeterminateJButtonActionPerformed
-
     /**
-     * Start a task. Set the progress bar determination; disable controls and
-     * set the cursor.
+     * <b>Title:</b>Determinate Task<br>
+     * <b>Description:</b>An determinate task that works to completion.<br>
      * 
-     * @param indeterminate
-     *            The progress bar determination.
+     * @author raymond@thinkparity.com
+     * @version 1.1.2.1
      */
-    private void fireTaskBegin(final boolean indeterminate) {
-        jProgressBar1.setIndeterminate(indeterminate);
-        goDeterminateJButton.setEnabled(false);
-        goIndeterminateJButton.setEnabled(false);
-        getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    class DeterminateTask extends SwingWorker {
+        @Override
+        public Object construct() {
+            fireTaskBegin(false);
+            Random random = new Random();
+            int progress = 0;
+            //Initialize progress property.
+            fireTaskUpdate(0);
+            while (progress < 100) {
+                //Sleep for up to one second.
+                try {
+                    Thread.sleep(random.nextInt(250));
+                } catch (InterruptedException ignore) {}
+                //Make random progress.
+                progress += random.nextInt(10);
+                fireTaskUpdate(Math.min(progress, 100));
+            }
+            fireTaskEnd();
+            return null;
+        }
     }
-
-    /**
-     * End a task. Set the progress bar value to completion; reset the cursor and
-     * enable the buttons.
-     * 
-     */
-    private void fireTaskEnd() {
-        jProgressBar1.setValue(jProgressBar1.getMaximum());
-        getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        goDeterminateJButton.setEnabled(true);
-        goIndeterminateJButton.setEnabled(true);
-    }
-
-    /**
-     * Update a task.  Set the progress bar value.
-     * 
-     * @param value
-     *            The progress bar value.
-     */
-    private void fireTaskUpdate(final int value) {
-        jProgressBar1.setValue(value);
-    }
-
     /**
      * <b>Title:</b>Indeterminate Task<br>
      * <b>Description:</b>An indeterminate task that works to 35% of completion
@@ -174,53 +219,4 @@ public final class ThinkParityProgressBarUITest extends
             return null;
         }
     }
-
-    /**
-     * <b>Title:</b>Determinate Task<br>
-     * <b>Description:</b>An determinate task that works to completion.<br>
-     * 
-     * @author raymond@thinkparity.com
-     * @version 1.1.2.1
-     */
-    class DeterminateTask extends SwingWorker {
-        @Override
-        public Object construct() {
-            fireTaskBegin(false);
-            Random random = new Random();
-            int progress = 0;
-            //Initialize progress property.
-            fireTaskUpdate(0);
-            while (progress < 100) {
-                //Sleep for up to one second.
-                try {
-                    Thread.sleep(random.nextInt(250));
-                } catch (InterruptedException ignore) {}
-                //Make random progress.
-                progress += random.nextInt(10);
-                fireTaskUpdate(Math.min(progress, 100));
-            }
-            fireTaskEnd();
-            return null;
-        }
-    }
-
-    /**
-     * Execute the progress bar test.
-     * 
-     * @param args
-     *            the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ThinkParityProgressBarUITest().setVisible(true);
-            }
-        });
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton goDeterminateJButton;
-    private javax.swing.JButton goIndeterminateJButton;
-    private javax.swing.JProgressBar jProgressBar1;
-    // End of variables declaration//GEN-END:variables
 }

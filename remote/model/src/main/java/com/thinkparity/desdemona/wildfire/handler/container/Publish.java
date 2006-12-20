@@ -43,6 +43,7 @@ public final class Publish extends AbstractHandler {
                 reader.readLong("versionId"), reader.readString("name"),
                 reader.readString("comment"),
                 reader.readInteger("artifactCount"),
+                reader.readJabberIds("team", "team-element"),
                 reader.readJabberId("publishedBy"),
                 reader.readJabberIds("publishedTo", "publishedTo"),
                 reader.readCalendar("publishedOn"));
@@ -51,9 +52,9 @@ public final class Publish extends AbstractHandler {
     private void publish(final ServiceModelProvider context,
             final UUID uniqueId, final Long versionId, final String name,
             final String comment, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
+            final List<JabberId> team, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
         context.getContainerModel().publish(uniqueId, versionId, name, comment,
-                artifactCount, publishedBy, publishedTo, publishedOn);
+                artifactCount, team, publishedBy, publishedTo, publishedOn);
     }
 }

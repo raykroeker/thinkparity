@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -14,7 +15,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class ReadDraftTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "TEST READ DRAFT";
+    private static final String NAME = "Read draft test.";
 
     /** Test datum. */
     private Fixture datum;
@@ -24,9 +25,15 @@ public class ReadDraftTest extends ContainerTestCase {
 
     /** Test the read draft api. */
     public void testReadDraft() {
-        final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
-        assertNotNull(NAME + " DRAFT IS NULL", draft);
-        assertEquals(NAME + " DRAFT DOES NOT MATCH EXPECTATION", datum.draft, draft);
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d = addDocument(datum.junit, c.getId(), "JUnitTestFramework.doc");
+        final ContainerDraft c_d = getContainerModel(datum.junit).readDraft(c.getId());
+        assertNotNull(NAME + " DRAFT IS NULL", c_d);
+        assertEquals("Draft container id does not match expectation.", c.getId(), c_d.getContainerId());
+        assertEquals("Draft owner does not match expectation.", datum.junit.getId(), c_d.getOwner().getId());
+        assertTrue("Draft does not contain document.", 1 == c_d.getDocumentCount());
+        final Document c_d_d = c_d.getDocument(d.getId());
+        assertEquals("Draft document does not match expectation.", d, c_d_d);
     }
 
     /**
@@ -35,11 +42,11 @@ public class ReadDraftTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final InternalContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        final ContainerDraft draft = containerModel.readDraft(container.getId());
-        datum = new Fixture(container, containerModel, draft);
-        datum.containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
@@ -47,22 +54,26 @@ public class ReadDraftTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Test datum definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final InternalContainerModel containerModel;
-        private final ContainerDraft draft;
-        private Fixture(final Container container,
-                final InternalContainerModel containerModel,
-                final ContainerDraft draft) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.draft = draft;
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

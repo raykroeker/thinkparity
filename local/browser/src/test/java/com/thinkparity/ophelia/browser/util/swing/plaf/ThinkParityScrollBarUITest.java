@@ -16,19 +16,6 @@ public class ThinkParityScrollBarUITest extends javax.swing.JFrame {
         Swing.init();
     }
 
-    /**
-     * Run the thinkParity scroll bar ui test.
-     * 
-     * @param args
-     *            Command line arguments.
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ThinkParityScrollBarUITest().setVisible(true);
-            }
-        });
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 
@@ -37,7 +24,20 @@ public class ThinkParityScrollBarUITest extends javax.swing.JFrame {
      * 
      */
     public ThinkParityScrollBarUITest() {
+        super();
         initComponents();
+    }
+
+    /**
+     * Test the scroll bar.
+     *
+     */
+    public void testScrollBar() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new ThinkParityScrollBarUITest().setVisible(true);
+            }
+        });
     }
 
     /**

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.container;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -71,17 +72,18 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     void publish(final UUID uniqueId, final Long versionId, final String name,
             final String comment, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        logVariable("name", name);
-        logVariable("comment", comment);
-        logVariable("artifactCount", artifactCount);
-        logVariable("publishedBy", publishedBy);
-        logVariable("publishedTo", publishedTo);
-        logVariable("publishedOn", publishedOn);
+            final List<JabberId> team, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("name", name);
+        logger.logVariable("comment", comment);
+        logger.logVariable("artifactCount", artifactCount);
+        logger.logVariable("team", team);
+        logger.logVariable("publishedBy", publishedBy);
+        logger.logVariable("publishedTo", publishedTo);
+        logger.logVariable("publishedOn", publishedOn);
         try {
             final ContainerPublishedEvent publishedEvent = new ContainerPublishedEvent();
             publishedEvent.setArtifactCount(artifactCount);
@@ -99,7 +101,14 @@ class ContainerModelImpl extends AbstractModelImpl {
             artifactPublishedEvent.setPublishedOn(publishedOn);
             artifactPublishedEvent.setUniqueId(uniqueId);
             artifactPublishedEvent.setVersionId(versionId);
-            enqueueEvent(session.getJabberId(), publishedTo, artifactPublishedEvent);
+            final List<JabberId> enqueueTo = new ArrayList<JabberId>(team.size() + publishedTo.size());
+            for (final JabberId jabberId : team)
+                enqueueTo.add(jabberId);
+            for (final JabberId jabberId : publishedTo) {
+                if (!enqueueTo.contains(jabberId))
+                    enqueueTo.add(jabberId);
+            }
+            enqueueEvent(session.getJabberId(), enqueueTo, artifactPublishedEvent);
 
             final Artifact artifact = getArtifactModel().read(uniqueId);
             artifactSql.updateKeyHolder(artifact.getId(),

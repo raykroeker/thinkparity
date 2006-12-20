@@ -332,8 +332,8 @@ public interface XMPPSession {
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn);
+            final List<TeamMember> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn);
 
     /**
      * Read the archive's containers.

@@ -582,18 +582,19 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
      */
     void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final List<TeamMember> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("container", container);
         logger.logVariable("documents", documents);
+        logger.logVariable("team", team);
         logger.logVariable("publishTo", publishTo);
         logger.logVariable("publishedBy", publishedBy);
         logger.logVariable("publishedOn", publishedOn);
         try {
             final XMPPSession xmppSession = workspace.getXMPPSession();
             synchronized (xmppSession) {
-                xmppSession.publish(container, documents, publishTo,
+                xmppSession.publish(container, documents, team, publishTo,
                         publishedBy, publishedOn);
             }
         } catch(final Throwable t) {

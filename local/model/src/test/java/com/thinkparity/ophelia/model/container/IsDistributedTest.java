@@ -43,8 +43,10 @@ public class IsDistributedTest extends ContainerTestCase {
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
         assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit).isDistributed(c.getId()));
-        assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit_x).isDistributed(c.getId()));
-        assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit_y).isDistributed(c.getId()));
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit_x).isDistributed(c_x.getId()));
+        final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
+        assertTrue("Container is not distributed post publish.", getContainerModel(datum.junit_y).isDistributed(c_y.getId()));
 
         final Container c2 = createContainer(datum.junit, NAME + " 2");
         assertFalse("Container " + c2.getName() + " is distributed " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
@@ -53,18 +55,18 @@ public class IsDistributedTest extends ContainerTestCase {
         publish(datum.junit, c2.getId(), "JUnit.X thinkParity");
         datum.waitForEvents();
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
-        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
+        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c_x.getId()));
         createDraft(datum.junit, c2.getId());
         datum.waitForEvents();
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
-        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
+        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c_x.getId()));
         modifyDocuments(datum.junit, c2);
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
-        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
+        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c_x.getId()));
         publish(datum.junit, c2.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit.getSimpleUsername() + ".", getContainerModel(datum.junit).isDistributed(c2.getId()));
-        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c2.getId()));
-        assertTrue("Container " + c2.getName() + " is not distributed post publish for user " + datum.junit_y.getSimpleUsername() + ".", getContainerModel(datum.junit_y).isDistributed(c2.getId()));
+        assertTrue("Container " + c2.getName() + " is not distributed for user " + datum.junit_x.getSimpleUsername() + ".", getContainerModel(datum.junit_x).isDistributed(c_x.getId()));
+        assertTrue("Container " + c2.getName() + " is not distributed post publish for user " + datum.junit_y.getSimpleUsername() + ".", getContainerModel(datum.junit_y).isDistributed(c_y.getId()));
     }
 
     /**

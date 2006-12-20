@@ -9,7 +9,6 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Add Document Test<br>
@@ -21,7 +20,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 public class AddDocumentTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "Container - Add Document Test";
+    private static final String NAME = "Add document test.";
 
     /** Test datum. */
     private Fixture datum;
@@ -34,71 +33,60 @@ public class AddDocumentTest extends ContainerTestCase {
      *
      */
     public void testAddDocument() {
-        logTrace("{0} - Adding document {1}.", NAME, datum.document.getName());
-        datum.containerModel.addDocument(datum.container.getId(), datum.document.getId());
+        final Container c = createContainer(datum.junit, NAME);
+        final Document d = createDocument(datum.junit, "JUnitTestFramework.doc");
+        getContainerModel(datum.junit).addDocument(c.getId(), d.getId());
 
-        assertTrue(NAME + " [DOCUMENT ADDED EVENT NOT FIRED]", datum.didNotify);
-        final Container container = datum.containerModel.read(datum.container.getId());
+        final Container container = readContainer(datum.junit, c.getId());
         assertNotNull(NAME + " [CONTAINER IS NULL]", container);
-        final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
+        final ContainerDraft draft = readContainerDraft(datum.junit, c.getId());
         assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
         final List<Document> documents = draft.getDocuments();
         assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);
-        assertTrue(NAME + " [DRAFT DOCUMENTS DOES NOT CONTAIN ADDED DOCUMENT]", documents.contains(datum.document));
+        assertTrue(NAME + " [DRAFT DOCUMENTS DOES NOT CONTAIN ADDED DOCUMENT]", documents.contains(d));
         assertEquals(NAME + " [DRAFT DOCUMENT STATE DOES NOT MATCH EXPECTATION]",
                 ContainerDraft.ArtifactState.ADDED,
-                draft.getState(datum.document));
+                draft.getState(d));
     }
 
     /**
      * @see com.thinkparity.ophelia.model.container.ContainerTestCase#setUp()
-     * 
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        logTrace("{0} setUp logging in as {1}.", NAME, OpheliaTestUser.JUNIT);
-        login(OpheliaTestUser.JUNIT);
-        logTrace("{0} setUp creating container.", NAME);
-        final ContainerModel containerModel = getContainerModel(OpheliaTestUser.JUNIT);
-        final Container container = createContainer(OpheliaTestUser.JUNIT, NAME);
-        logTrace("{0} setUp creating document {1}.", NAME, getInputFiles()[0].getName());
-        final Document document = createDocument(OpheliaTestUser.JUNIT, getInputFiles()[0]);
-        datum = new Fixture(container, containerModel, document);
-        containerModel.addListener(datum);
+        datum = new Fixture(OpheliaTestUser.JUNIT, OpheliaTestUser.JUNIT_X,
+                OpheliaTestUser.JUNIT_Y);
+        login(datum.junit);
+        login(datum.junit_x);
+        login(datum.junit_y);
     }
 
     /**
      * @see com.thinkparity.ophelia.model.container.ContainerTestCase#tearDown()
-     * 
      */
+    @Override
     protected void tearDown() throws Exception {
-        datum.containerModel.removeListener(datum);
-        logout(OpheliaTestUser.JUNIT);
+        logout(datum.junit);
+        logout(datum.junit_x);
+        logout(datum.junit_y);
         datum = null;
         super.tearDown();
     }
 
-    /** Test data definition. */
+    /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final Container container;
-        private final ContainerModel containerModel;
-        private Boolean didNotify;
-        private final Document document;
-        private Fixture(final Container container,
-                final ContainerModel containerModel, final Document document) {
-            this.container = container;
-            this.containerModel = containerModel;
-            this.didNotify = Boolean.FALSE;
-            this.document = document;
-        }
-        @Override
-        public void documentAdded(final ContainerEvent e) {
-            datum.didNotify = Boolean.TRUE;
-            assertTrue(NAME + " [EVENT IS NOT LOCAL]", e.isLocal());
-            assertTrue(NAME + " [EVENT IS REMOTE]", !e.isRemote());
-            assertEquals(NAME + " [EVENT CONTAINER DOES NOT MATCH EXPECTATION]", datum.container, e.getContainer());
-            assertEquals(NAME + " [EVENT DOCUMENT DOES NOT MATCH EXPECTATION]", datum.document, e.getDocument());
-            assertNotNull(NAME + " [EVENT CONTAINER DRAFT IS NULL]", e.getDraft());
+        private final OpheliaTestUser junit;
+        private final OpheliaTestUser junit_x;
+        private final OpheliaTestUser junit_y;
+        private Fixture(final OpheliaTestUser junit,
+                final OpheliaTestUser junit_x, final OpheliaTestUser junit_y) {
+            this.junit = junit;
+            this.junit_x = junit_x;
+            this.junit_y = junit_y;
+            addQueueHelper(junit);
+            addQueueHelper(junit_x);
+            addQueueHelper(junit_y);
         }
     }
 }

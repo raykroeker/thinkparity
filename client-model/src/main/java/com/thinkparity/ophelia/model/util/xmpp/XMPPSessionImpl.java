@@ -509,10 +509,10 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void publish(final ContainerVersion container,
             final Map<DocumentVersion, String> documents,
-            final List<JabberId> publishTo, final JabberId publishedBy,
-            final Calendar publishedOn) {
-        xmppContainer.publish(container, documents, publishTo, publishedBy,
-                publishedOn);
+            final List<TeamMember> team, final List<JabberId> publishTo,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        xmppContainer.publish(container, documents, team, publishTo,
+                publishedBy, publishedOn);
     }
 
 	/**

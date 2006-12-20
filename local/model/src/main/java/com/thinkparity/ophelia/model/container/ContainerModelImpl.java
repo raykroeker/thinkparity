@@ -1107,7 +1107,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 }
             }
             // publish
-            publish(monitor, version, publishTo, version.getCreatedBy(), publishedOn);
+            publish(monitor, version, readTeam(containerId), publishTo, version
+                    .getCreatedBy(), publishedOn);
             // update the remote team
             final InternalSessionModel sessionModel = getSessionModel();
             final Container container = read(containerId);
@@ -2549,7 +2550,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 teamMemberIds.add(teamMember.getId());
         }
         // publish container contents
-        publish(monitor, version, publishTo, localUserId(), publishedOn);
+        publish(monitor, version, readTeam(containerId), publishTo,
+                localUserId(), publishedOn);
         // update remote team
         for (final Contact contact : contacts)
             getSessionModel().addTeamMember(container.getUniqueId(),
@@ -2989,9 +2991,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      *            The publish date.
      */
     private void publish(final PublishMonitor monitor,
-            final ContainerVersion version, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws IOException {
+            final ContainerVersion version, final List<TeamMember> team,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) throws IOException {
         final Map<DocumentVersion, InputStream> documentVersionStreams =
             readDocumentVersionStreams(version.getArtifactId(),
                     version.getVersionId());
@@ -3022,8 +3024,8 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         }
         getSessionModel().deleteStreamSession(session);
         fireStageBegin(monitor, PublishStage.PublishContainer);
-        getSessionModel().publish(version, documentVersionStreamIds, publishTo,
-                publishedBy, publishedOn);
+        getSessionModel().publish(version, documentVersionStreamIds, team,
+                publishTo, publishedBy, publishedOn);
         fireStageEnd(monitor, PublishStage.PublishContainer);
     }
 

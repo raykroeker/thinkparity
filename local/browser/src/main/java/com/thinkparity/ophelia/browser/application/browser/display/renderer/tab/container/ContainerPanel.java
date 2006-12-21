@@ -19,8 +19,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -29,8 +27,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -40,17 +37,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -697,27 +686,12 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private void reloadText() {
         // if expanded display the container name;
-        // if not expanded and there exists a draft
-        // and the user has latest version also display the draft owner; otherwise
-        // if there exists the latest version display the published on date
+        // if the user doesn't have the latest version then tell him so;
+        // if not expanded and there exists a draft then display the draft owner;
+        // otherwise if there exists the latest version display the published on date
         textJLabel.setText(container.getName());
         if (!expanded) {
-            if (container.isDraft() && container.isLatest()) {
-                if (container.isLocalDraft()) {
-                    additionalTextJLabel.setText(localization.getString(
-                            "ContainerMessageLocalDraftOwner"));      
-                } else {
-                    additionalTextJLabel.setText(localization.getString(
-                            "ContainerMessageDraftOwner",
-                            draft.getOwner().getName()));
-                }
-            } else if (null != latestVersion) {
-                additionalTextJLabel.setText(localization.getString(
-                        "ContainerMessagePublishDate",
-                        formatFuzzy(latestVersion.getUpdatedOn())));
-            } else {
-                additionalTextJLabel.setText("");
-            }
+            additionalTextJLabel.setText(getContainerAdditionalText(container));
         }
         if (!expanded && !container.isSeen().booleanValue()) {
             textJLabel.setFont(Fonts.DefaultFontBold);
@@ -726,6 +700,29 @@ public class ContainerPanel extends DefaultTabPanel {
         if (!isLatest()) {
             textJLabel.setForeground(
                     Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
+        }
+    }
+    
+    /**
+     * Get additional text associated with the container.
+     * 
+     * @param container
+     *       The <code>Container</code>.
+     * @return A <code>String</code>.
+     */
+    private String getContainerAdditionalText(final Container container) {
+        if (!container.isLatest()) {
+            return localization.getString("ContainerMessageNotLatest");    
+        } else if (container.isLocalDraft()) {
+            return localization.getString("ContainerMessageLocalDraftOwner");    
+        } else if (container.isDraft()) {
+            return localization.getString("ContainerMessageDraftOwner",
+                    draft.getOwner().getName()); 
+        } else if (null != latestVersion) {
+            return localization.getString("ContainerMessagePublishDate",
+                    formatFuzzy(latestVersion.getUpdatedOn()));
+        } else {
+            return "";
         }
     }
 
@@ -807,20 +804,7 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         private void prepareText() {
-            if (container.isDraft() && container.isLatest()) {
-                if (container.isLocalDraft()) {
-                    setAdditionalText(localization.getString(
-                            "ContainerMessageLocalDraftOwner"));      
-                } else {
-                    setAdditionalText(localization.getString(
-                            "ContainerMessageDraftOwner",
-                            draft.getOwner().getName()));
-                }
-            } else if (null != latestVersion) {
-                setAdditionalText(localization.getString(
-                        "ContainerMessagePublishDate",
-                        formatFuzzy(latestVersion.getUpdatedOn())));
-            }
+            setAdditionalText(getContainerAdditionalText(container));
         }
         @Override
         public Icon getIcon() {

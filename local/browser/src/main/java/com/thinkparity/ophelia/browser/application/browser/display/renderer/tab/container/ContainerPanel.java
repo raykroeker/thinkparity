@@ -309,7 +309,7 @@ public class ContainerPanel extends DefaultTabPanel {
         this.latestVersion = latestVersion;
         
         // Build the west list
-        westCells.add(new ContainerCell(draft, latestVersion, versions,
+        westCells.add(new ContainerCell(draftView, latestVersion, versions,
                 documentViews, team));        
         if (container.isLocalDraft()) {
             westCells.add(new DraftCell());
@@ -760,13 +760,13 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create ContainerCell.
          */
-        private ContainerCell(final ContainerDraft draft,
+        private ContainerCell(final DraftView draftView,
                 final ContainerVersion latestVersion,
                 final List<ContainerVersion> versions,
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             if (container.isLocalDraft()) {
-                addDraftDocumentCells(draft);
+                addDraftDocumentCells(draftView);
             } else if (null != latestVersion) {
                 addActiveVersionDocumentCells(latestVersion, documentViews.get(latestVersion));
             }
@@ -776,9 +776,9 @@ public class ContainerPanel extends DefaultTabPanel {
             addUserCells(team);
             prepareText();
         }
-        private void addDraftDocumentCells(final ContainerDraft draft) {
-            for (final Document document : draft.getDocuments()) {
-                add(new ContainerDraftDocumentCell(this, document));
+        private void addDraftDocumentCells(final DraftView draftView) {
+            for (final Document document : draftView.getDraft().getDocuments()) {
+                add(new ContainerDraftDocumentCell(this, document, draftView));
             }
         }
         private void addActiveVersionDocumentCells(
@@ -856,29 +856,34 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create ContainerDraftDocumentCell.
          * 
+         * @param parent
+         *            A <code>WestCell</code>.
          * @param document
          *            A <code>Document</code>.
+         * @param draftView
+         *            A <code>DraftView</code>.        
          */
-        private ContainerDraftDocumentCell(final WestCell parent, final Document document) {
+        private ContainerDraftDocumentCell(final WestCell parent, final Document document,
+                final DraftView draftView) {
             super();
             this.parent = parent;
             this.document = document;
             setIcon(fileIconReader.getIcon(document));
-            switch (draft.getState(document)) {
+            switch (draftView.getDraft().getState(document)) {
             case ADDED:
                 setAdditionalText(localization.getString("DocumentSummaryDraftAdded"));
                 break;
             case MODIFIED:
                 setAdditionalText(localization.getString("DocumentSummaryDraftModified",
-                        formatFuzzy(document.getCreatedOn())));
+                        formatFuzzy(draftView.getFirstPublishedOn(document))));
                 break;
             case REMOVED:
                 setAdditionalText(localization.getString("DocumentSummaryDraftRemoved",
-                        formatFuzzy(document.getCreatedOn())));
+                        formatFuzzy(draftView.getFirstPublishedOn(document))));
                 break;
             case NONE:
                 setAdditionalText(localization.getString("DocumentSummary",
-                        formatFuzzy(document.getCreatedOn())));
+                        formatFuzzy(draftView.getFirstPublishedOn(document))));
                 break;
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
@@ -906,12 +911,12 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create ContainerVersionDocumentCell.
          * 
+         * @param parent
+         *            A <code>WestCell</code>.
          * @param containerVersion
          *            A <code>ContainerVersion</code>.
-         * @param version
-         *            A <code>DocumentVersion</code>.
-         * @param delta
-         *            A <code>Delta</code>.
+         * @param documentView
+         *            A <code>DocumentView</code>.
          */
         private ContainerVersionDocumentCell(final WestCell parent, final ContainerVersion containerVersion,
                 final DocumentView documentView) {
@@ -961,6 +966,8 @@ public class ContainerPanel extends DefaultTabPanel {
         /**
          * Create ContainerVersionUserCell.
          * 
+         * @param parent
+         *            A <code>WestCell</code>.
          * @param user
          *            A <code>User</code>.
          */

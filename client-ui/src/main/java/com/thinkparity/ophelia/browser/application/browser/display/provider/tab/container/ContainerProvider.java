@@ -175,11 +175,13 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         final DraftView draftView = new DraftView();
         draftView.setDraft(containerModel.readDraft(containerId));
         DocumentVersion firstVersion;
-        for (final Document document : draftView.getDraft().getDocuments()) {
-            firstVersion = documentModel.readVersion(document.getId(), Versioning.START);
-            if (null != firstVersion)
-                draftView.setFirstPublishedOn(
-                        document, firstVersion.getCreatedOn()); 
+        if (draftView.isSetDraft()) {
+            for (final Document document : draftView.getDraft().getDocuments()) {
+                firstVersion = documentModel.readVersion(document.getId(), Versioning.START);
+                if (null != firstVersion)
+                    draftView.setFirstPublishedOn(
+                            document, firstVersion.getCreatedOn()); 
+            }
         }
         return draftView;
     }

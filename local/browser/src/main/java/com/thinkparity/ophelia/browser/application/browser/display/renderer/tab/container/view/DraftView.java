@@ -67,6 +67,15 @@ public class DraftView {
     }
 
     /**
+     * Determine whether or not the draft is set.
+     * 
+     * @return True if the draft is set.
+     */
+    public Boolean isSetDraft() {
+        return null != draft;
+    }
+
+    /**
      * Set draft.
      *
      * @param draft

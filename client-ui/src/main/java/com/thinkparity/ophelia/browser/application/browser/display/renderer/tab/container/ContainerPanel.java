@@ -295,18 +295,8 @@ public class ContainerPanel extends DefaultTabPanel {
         this.draft = draft;
         this.latestVersion = latestVersion;
         
-        // Build the complete west list
-        if (container.isLocalDraft()) {
-            westCells.add(new ContainerCell(draft));
-        } else if (null != latestVersion) {
-            final ContainerVersion version = latestVersion;
-            westCells.add(new ContainerCell(version, documentVersions
-                    .get(version), publishedTo.get(version), publishedBy
-                    .get(version)));
-        } else {
-            westCells.add(new ContainerCell());
-        }
-        
+        // Build the west list
+        westCells.add(new ContainerCell(draft, latestVersion, versions, documentVersions, team));        
         if (container.isLocalDraft()) {
             westCells.add(new DraftCell());
         }
@@ -756,34 +746,52 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class ContainerCell extends AbstractWestCell {
         /**
          * Create ContainerCell.
-         * 
          */
-        private ContainerCell() {
-            super();
+        private ContainerCell(final ContainerDraft draft,
+                final ContainerVersion latestVersion,
+                final List<ContainerVersion> versions,
+                final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+                final List<TeamMember> team) {
+            if (container.isLocalDraft()) {
+                addDraftDocumentCells(draft);
+            } else if (null != latestVersion) {
+                addActiveVersionDocumentCells(latestVersion, documentVersions.get(latestVersion));
+            }
+            for (final ContainerVersion version : versions) {
+                addRemovedVersionDocumentCells(version, documentVersions.get(version));
+            }
+            addUserCells(team);
             prepareText();
         }
-        
-        private ContainerCell(final ContainerDraft draft) {
-            super();
+        private void addDraftDocumentCells(final ContainerDraft draft) {
             for (final Document document : draft.getDocuments()) {
-                add(new DraftDocumentCell(document));
+                add(new ContainerDraftDocumentCell(this, document));
             }
-            prepareText();
         }
-
-        private ContainerCell(final ContainerVersion version,
-                final Map<DocumentVersion, Delta> documentVersions,
-                final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
-
-            super();
+        private void addActiveVersionDocumentCells(final ContainerVersion containerVersion,
+                final Map<DocumentVersion, Delta> documentVersions) {
             for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                add(new VersionDocumentCell(this, entry.getKey(), entry.getValue()));
+                final Delta delta = entry.getValue();
+                if (Delta.REMOVED != delta) {
+                    add(new ContainerVersionDocumentCell(this,
+                            containerVersion, entry.getKey(), entry.getValue()));
+                }
             }
-            add(new VersionUserCell(this, publishedBy));
-            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
-                add(new VersionUserCell(this, entry.getKey(), entry.getValue()));
+        }
+        private void addRemovedVersionDocumentCells(final ContainerVersion containerVersion,
+                final Map<DocumentVersion, Delta> documentVersions) {
+            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
+                final Delta delta = entry.getValue();
+                if (Delta.REMOVED == delta) {
+                    add(new ContainerVersionDocumentCell(this,
+                            containerVersion, entry.getKey(), entry.getValue()));
+                }
             }
-            prepareText();
+        }
+        private void addUserCells(final List<TeamMember> team) {
+            for (final TeamMember teamMember : team) {
+                add(new ContainerVersionUserCell(this, teamMember));
+            }
         }
         private void prepareText() {
             if (container.isDraft() && container.isLatest()) {
@@ -826,51 +834,141 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    /** A container value cell. */
-    private final class ContainerFieldCell extends AbstractEastCell {
-        /** The field localization key <code>String</code>. */
-        private final String key;
-        /** The parent <code>WestCell</code>. */
+    /** A container draft document cell. */
+    private final class ContainerDraftDocumentCell extends AbstractEastCell {
+        /** A <code>WestCell</code> parent. */
         private final WestCell parent;
-        /** The field value <code>String</code>. */
-        private final String value;
+        /** A <code>Document</code>. */
+        private final Document document;
         /**
-         * Create ContactFieldCell.
+         * Create ContainerDraftDocumentCell.
          * 
-         * @param name
-         *            The field name <code>String</code>.
-         * @param value
-         *            The field value <code>String</code>.
+         * @param document
+         *            A <code>Document</code>.
          */
-        private ContainerFieldCell(final WestCell parent, final String key,
-                final String value) {
+        private ContainerDraftDocumentCell(final WestCell parent, final Document document) {
             super();
-            this.key = key;
             this.parent = parent;
-            this.value = value;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getText()
-         *
-         */
-        public String getText() {
-            if (null == value) {
-                return "";
-            } else {
-                return localization.getString(key, value);
+            this.document = document;
+            setIcon(fileIconReader.getIcon(document));
+            switch (draft.getState(document)) {
+            case ADDED:
+                setAdditionalText(localization.getString("DocumentSummaryDraftAdded"));
+                break;
+            case MODIFIED:
+                setAdditionalText(localization.getString("DocumentSummaryDraftModified",
+                        formatFuzzy(document.getCreatedOn())));
+                break;
+            case REMOVED:
+                setAdditionalText(localization.getString("DocumentSummaryDraftRemoved",
+                        formatFuzzy(document.getCreatedOn())));
+                break;
+            case NONE:
+                setAdditionalText(localization.getString("DocumentSummary",
+                        formatFuzzy(document.getCreatedOn())));
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
+            setText(document.getName());
         }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeAction()
-         *
-         */
+        @Override
         public void invokeAction() {
-            parent.invokeAction();
+            actionDelegate.invokeForDocument(draft, document);
+        }
+        @Override
+        public void showPopup() {
+            parent.showPopup();
+        }
+    }
+    
+    /** A container version document cell. */
+    private final class ContainerVersionDocumentCell extends AbstractEastCell {
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
+        /** A <code>Delta</code>. */
+        private final Delta delta;
+        /** A <code>DocumentVersion</code>. */
+        private final DocumentVersion version;
+        /**
+         * Create ContainerVersionDocumentCell.
+         * 
+         * @param containerVersion
+         *            A <code>ContainerVersion</code>.
+         * @param version
+         *            A <code>DocumentVersion</code>.
+         * @param delta
+         *            A <code>Delta</code>.
+         */
+        private ContainerVersionDocumentCell(final WestCell parent, final ContainerVersion containerVersion,
+                final DocumentVersion version, final Delta delta) {
+            super();
+            this.parent = parent;
+            this.delta = delta;
+            this.version = version;
+            setIcon(fileIconReader.getIcon(version));
+            switch (delta) {
+            case ADDED:
+            case MODIFIED:
+            case NONE:
+                setAdditionalText(localization.getString("DocumentSummary",
+                        formatFuzzy(version.getCreatedOn())));
+                break;
+            case REMOVED:
+                setAdditionalText(localization.getString("DocumentSummaryVersionRemoved",
+                        formatFuzzy(version.getCreatedOn()), formatFuzzy(containerVersion.getCreatedOn())));
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
+            }
+            setText(version.getName());
         }
         /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup()
-         *
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
          */
+        @Override
+        public void invokeAction() {
+            actionDelegate.invokeForDocument(version, delta);
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
+        public void showPopup() {
+            parent.showPopup();
+        }
+    }
+    
+    /** A container user cell. */
+    private final class ContainerVersionUserCell extends AbstractEastCell {
+        /** A <code>User</code>. */
+        private final User user;
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
+        /**
+         * Create ContainerVersionUserCell.
+         * 
+         * @param user
+         *            A <code>User</code>.
+         */
+        private ContainerVersionUserCell(final WestCell parent, final User user) {
+            super();
+            this.parent = parent;
+            this.user = user;
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+            setText(user.getName());
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
+         */
+        @Override
+        public void invokeAction() {
+            actionDelegate.invokeForUser(user);
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
         public void showPopup() {
             parent.showPopup();
         }

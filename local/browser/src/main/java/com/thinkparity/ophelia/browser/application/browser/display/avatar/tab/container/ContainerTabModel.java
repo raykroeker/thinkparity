@@ -1021,6 +1021,10 @@ public final class ContainerTabModel extends TabPanelModel implements
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);
+        if (isExpanded(panel)) {
+            browser.runApplyContainerFlagSeen(
+                    panel.getContainer().getId());
+        }
         return panel;
     }
 

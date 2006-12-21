@@ -379,6 +379,15 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersion(userId, uniqueId,
+                    documentUniqueId, documentVersionId);
+        }
+    }
+
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId) {

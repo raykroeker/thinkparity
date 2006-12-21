@@ -180,6 +180,14 @@ public class ArchiveModel extends AbstractModel<ArchiveModelImpl> {
         }
     }
 
+    public DocumentVersion readDocumentVersion(final UUID uniqueId,
+            final UUID documentUniqueId, final Long documentVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readDocumentVersion(uniqueId, documentUniqueId,
+                    documentVersionId);
+        }
+    }
+
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final UUID uniqueId, final Long compareVersionId) {
         synchronized (getImplLock()) {

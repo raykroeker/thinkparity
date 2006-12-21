@@ -128,6 +128,11 @@ public final class IQWriter implements ServiceResponseWriter {
         ElementBuilder.addDocumentElements(iq.getChildElement(), parentName, name, values);
     }
 
+    public final void writeDocumentVersion(final String name,
+            final DocumentVersion value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
     public final void writeDocumentVersionDeltas(final String name, final Map<DocumentVersion, Delta> values) {
         ElementBuilder.addDocumentVersionDeltaElements(iq.getChildElement(),
                 name, values);

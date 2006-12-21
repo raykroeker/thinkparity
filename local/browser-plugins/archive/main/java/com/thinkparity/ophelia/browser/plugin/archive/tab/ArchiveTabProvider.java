@@ -101,10 +101,16 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
                     compareToVersionId);
         final List<DocumentView> views = new ArrayList<DocumentView>(versions.size());
         DocumentView view;
+        DocumentVersion firstVersion;
         for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
+            firstVersion = archiveModel.readDocumentVersion(uniqueId,
+                    entry.getKey().getArtifactUniqueId(),
+                    entry.getKey().getVersionId());
+
             view = new DocumentView();
             view.setVersion(entry.getKey());
             view.setDelta(entry.getValue());
+            view.setFirstPublishedOn(firstVersion.getCreatedOn());
             views.add(view);
         }
         return views;

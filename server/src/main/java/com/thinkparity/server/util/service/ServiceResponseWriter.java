@@ -66,6 +66,9 @@ public interface ServiceResponseWriter {
     public void writeDocuments(final String parentName,
             String name, List<Document> values);
 
+    public void writeDocumentVersion(final String name,
+            final DocumentVersion value);
+
     public void writeDocumentVersionDeltas(final String name, Map<DocumentVersion, Delta> values);
 
     public void writeDocumentVersions(final String parentName,

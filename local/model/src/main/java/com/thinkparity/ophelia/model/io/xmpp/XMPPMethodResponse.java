@@ -91,6 +91,10 @@ public class XMPPMethodResponse extends IQ {
         return (List<Document>) readResult(name);
     }
 
+    public DocumentVersion readResultDocumentVersion(final String name) {
+        return (DocumentVersion) readResult(name);
+    }
+
     public Map<DocumentVersion, Delta> readResultDocumentVersionDeltas(final String name) {
         return (Map<DocumentVersion, Delta>) readResult(name);
     }

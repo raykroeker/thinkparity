@@ -35,7 +35,29 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     /** An internal thinkParity client document interface. */
     private final InternalDocumentModel documentModel;
 
-    /** Create DocumentReader. */
+    /**
+     * Create DocumentReader.
+     * 
+     * @param modelFactory
+     *            A <code>ClientModelFactory</code>.
+     * @param containerUniqueId
+     *            A container unique id <code>UUID</code>.
+     */
+    DocumentReader(final ClientModelFactory modelFactory,
+            final UUID containerUniqueId) {
+        this(modelFactory, containerUniqueId, null);
+    }
+
+    /**
+     * Create DocumentReader.
+     * 
+     * @param modelFactory
+     *            A <code>ClientModelFactory</code>.
+     * @param containerUniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param containerVersionId
+     *            A container version id <code>Long</code>.
+     */
     DocumentReader(final ClientModelFactory modelFactory,
             final UUID containerUniqueId, final Long containerVersionId) {
         super(modelFactory);
@@ -76,6 +98,25 @@ public class DocumentReader extends ArchiveReader<Document, DocumentVersion> {
     @Override
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId, final Long versionId) {
         return Collections.emptyMap();
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersion(java.util.UUID, java.lang.Long)
+     *
+     */
+    @Override
+    public DocumentVersion readVersion(final UUID uniqueId, final Long versionId) {
+        final Long containerId = readArchivedArtifactId(containerUniqueId);
+        if (null == containerId) {
+            return null;
+        } else {
+            final Long documentId = artifactModel.readId(uniqueId);
+            if (null == documentId) {
+                return null;
+            } else {
+                return documentModel.readVersion(documentId, versionId);
+            }
+        }
     }
 
     /**

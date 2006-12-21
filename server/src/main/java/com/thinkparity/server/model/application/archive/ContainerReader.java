@@ -64,6 +64,21 @@ public class ContainerReader extends ArchiveReader<Container, ContainerVersion> 
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersion(java.util.UUID, java.lang.Long)
+     *
+     */
+    @Override
+    public ContainerVersion readVersion(final UUID uniqueId,
+            final Long versionId) {
+        final Long containerId = readArchivedArtifactId(uniqueId);
+        if (null == containerId) {
+            return null;
+        } else {
+            return containerModel.readVersion(containerId, versionId);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.archive.ArchiveReader#readVersionDeltas(java.util.UUID)
      *
      */

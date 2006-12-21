@@ -326,6 +326,21 @@ class ArchiveModelImpl extends AbstractModelImpl {
         return readDocuments(uniqueId, versionId, defaultComparator, filter);
     }
 
+    DocumentVersion readDocumentVersion(final UUID uniqueId,
+            final UUID documentUniqueId, final Long documentVersionId) {
+        logger.logApiId();
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("documentVersionId", documentVersionId);
+        try {
+            assertArchiveOnline();
+            return getSessionModel().readArchiveDocumentVersion(localUserId(),
+                    uniqueId, documentUniqueId, documentVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     Map<DocumentVersion, Delta> readDocumentVersionDeltas(final UUID uniqueId,
             final Long compareVersionId) {
         logger.logApiId();

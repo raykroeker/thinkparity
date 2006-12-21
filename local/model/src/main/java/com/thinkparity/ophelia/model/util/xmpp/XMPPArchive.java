@@ -107,6 +107,23 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         return execute(readDocuments, Boolean.TRUE).readResultDocuments("documents");
     }
 
+    DocumentVersion readDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("documentVersionId", documentVersionId);
+        final XMPPMethod readDocumentVersion = new XMPPMethod("archive:readdocumentversion");
+        readDocumentVersion.setParameter("userId", userId);
+        readDocumentVersion.setParameter("uniqueId", uniqueId);
+        readDocumentVersion.setParameter("documentUniqueId", documentUniqueId);
+        readDocumentVersion.setParameter("documentVersionId", documentVersionId);
+        return execute(readDocumentVersion, Boolean.TRUE)
+                .readResultDocumentVersion("version");
+    }
+
     Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId) {
@@ -119,19 +136,6 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("compareVersionId", compareVersionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersionDeltas("versionDeltas");
-    }
-
-    Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readpublishedto");
-        readDocumentVersions.setParameter("userId", userId);
-        readDocumentVersions.setParameter("uniqueId", uniqueId);
-        readDocumentVersions.setParameter("versionId", versionId);
-        return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
     }
 
     Map<DocumentVersion, Delta> readDocumentVersionDeltas(
@@ -161,6 +165,19 @@ final class XMPPArchive extends AbstractXMPP<ArchiveListener> {
         readDocumentVersions.setParameter("uniqueId", uniqueId);
         readDocumentVersions.setParameter("versionId", versionId);
         return execute(readDocumentVersions, Boolean.TRUE).readResultDocumentVersions("documentVersions");
+    }
+
+    Map<User, ArtifactReceipt> readPublishedTo(final JabberId userId,
+            final UUID uniqueId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("versionId", versionId);
+        final XMPPMethod readDocumentVersions = new XMPPMethod("archive:readpublishedto");
+        readDocumentVersions.setParameter("userId", userId);
+        readDocumentVersions.setParameter("uniqueId", uniqueId);
+        readDocumentVersions.setParameter("versionId", versionId);
+        return execute(readDocumentVersions, Boolean.TRUE).readResultUserArtifactReceipts("publishedTo");
     }
 
     List<TeamMember> readTeam(final JabberId userId, final UUID uniqueId) {

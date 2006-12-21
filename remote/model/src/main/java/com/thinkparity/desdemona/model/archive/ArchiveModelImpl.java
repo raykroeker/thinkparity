@@ -119,6 +119,57 @@ class ArchiveModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Open a document version's input stream.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A document unique id <code>UUID</code>.
+     * @param versionId
+     *            A document version id <code>Long</code>.
+     * @return An <code>InputStream</code>.
+     */
+    void createStream(final JabberId userId, final String streamId,
+            final UUID uniqueId, final Long versionId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("streamId", streamId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            final JabberId archiveId = readArchiveId(userId);
+            if (null == archiveId) {
+                logger.logWarning("User {0} has no archive.", userId);
+            } else {
+                final ClientModelFactory modelFactory = getModelFactory(archiveId);
+                final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
+                final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
+
+                final Long documentId = artifactModel.readId(uniqueId);
+                final InputStream stream = documentModel.openVersionStream(documentId, versionId);
+                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+
+                final InternalStreamModel streamModel = getStreamModel();
+                final StreamSession streamSession = streamModel.createSession(userId);
+                final StreamWriter writer = new StreamWriter(streamSession);
+                writer.open();
+                try {
+                    writer.write(streamId, stream, streamSize);
+                } finally {
+                    try {
+                        stream.close();
+                    } finally {
+                        writer.close();
+                    }
+                }
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Delete an artifact.
      * 
      * @param userId
@@ -188,7 +239,30 @@ class ArchiveModelImpl extends AbstractModelImpl {
         logVariable("containerVersionId", containerVersionId);
         try {
             assertIsAuthenticatedUser(userId);
-            return createDocumentReader(userId, containerUniqueId, containerVersionId);
+            return createDocumentReader(userId, containerUniqueId,
+                    containerVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Obtain a document archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     */
+    ArchiveReader<Document, DocumentVersion> getDocumentReader(
+            final JabberId userId, final UUID containerUniqueId) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("containerUniqueId", containerUniqueId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return createDocumentReader(userId, containerUniqueId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -204,57 +278,6 @@ class ArchiveModelImpl extends AbstractModelImpl {
     ClientModelFactory getModelFactory(final JabberId archiveId) {
         synchronized (ARCHIVE_CONTEXT_LOOKUP) {
             return ((ArchiveContext) ARCHIVE_CONTEXT_LOOKUP.get(archiveId)).modelFactory;
-        }
-    }
-
-    /**
-     * Open a document version's input stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
-     */
-    void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("streamId", streamId);
-        logVariable("uniqueId", uniqueId);
-        logVariable("versionId", versionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final JabberId archiveId = readArchiveId(userId);
-            if (null == archiveId) {
-                logger.logWarning("User {0} has no archive.", userId);
-            } else {
-                final ClientModelFactory modelFactory = getModelFactory(archiveId);
-                final InternalArtifactModel artifactModel = modelFactory.getArtifactModel(getClass());
-                final InternalDocumentModel documentModel = modelFactory.getDocumentModel(getClass());
-
-                final Long documentId = artifactModel.readId(uniqueId);
-                final InputStream stream = documentModel.openVersionStream(documentId, versionId);
-                final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-
-                final InternalStreamModel streamModel = getStreamModel();
-                final StreamSession streamSession = streamModel.createSession(userId);
-                final StreamWriter writer = new StreamWriter(streamSession);
-                writer.open();
-                try {
-                    writer.write(streamId, stream, streamSize);
-                } finally {
-                    try {
-                        stream.close();
-                    } finally {
-                        writer.close();
-                    }
-                }
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
         }
     }
 
@@ -419,6 +442,29 @@ class ArchiveModelImpl extends AbstractModelImpl {
                     "Archive context for {0} already exists.", archiveId);
             ARCHIVE_CONTEXT_LOOKUP.put(archiveId, new ArchiveContext(
                     getContext(), environment, workspace));
+        }
+    }
+
+    /**
+     * Create a container archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param containerUniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param containerVersionId
+     *            A container version id <code>Long</code>.
+     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     */
+    private ArchiveReader<Document, DocumentVersion> createDocumentReader(
+            final JabberId userId, final UUID containerUniqueId) {
+        final JabberId archiveId = readArchiveId(userId);
+        if (null == archiveId) {
+            logInfo("No archive exists for user {0}.", userId);
+            return ArchiveReader.emptyReader();
+        } else {
+            return new DocumentReader(getModelFactory(readArchiveId(userId)),
+                    containerUniqueId);
         }
     }
 

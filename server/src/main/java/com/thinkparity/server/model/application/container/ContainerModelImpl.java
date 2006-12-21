@@ -258,6 +258,23 @@ class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
+    DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("documentVersionId", documentVersionId);
+        try {
+            assertIsAuthenticatedUser(userId);
+            return getArchiveModel().getDocumentReader(userId, uniqueId)
+                    .readVersion(documentUniqueId, documentVersionId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read the archived document versions for a user.
      * 

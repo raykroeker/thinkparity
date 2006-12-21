@@ -553,6 +553,13 @@ public final class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppArchive.readDocuments(userId, uniqueId, versionId);
     }
 
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        return xmppArchive.readDocumentVersion(userId, uniqueId,
+                documentUniqueId, documentVersionId);
+    }
+
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId, final Long compareVersionId) {
         return xmppArchive.readDocumentVersionDeltas(userId, uniqueId, compareVersionId);

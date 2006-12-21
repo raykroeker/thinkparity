@@ -64,6 +64,10 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
             public List<U> readVersions(final UUID uniqueId) {
                 return Collections.emptyList();
             }
+            @Override
+            public U readVersion(final UUID uniqueId, final Long versionId) {
+                return null;
+            }
         };
     }
 
@@ -127,6 +131,17 @@ public abstract class ArchiveReader<T extends Artifact, U extends ArtifactVersio
      */
     public abstract Map<User, ArtifactReceipt> readPublishedTo(
             final UUID uniqueId, final Long versionId);
+
+    /**
+     * Read an artifact version.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return An artifact version.
+     */
+    public abstract U readVersion(final UUID uniqueId, final Long versionId);
 
     /**
      * Read a list of archived artifact versions.

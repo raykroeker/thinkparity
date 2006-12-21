@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.archive;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -51,6 +52,22 @@ public class InternalArchiveModel extends ArchiveModel {
         synchronized (getImplLock()) {
             return getImpl().getDocumentReader(userId, containerUniqueId,
                     containerVersionId);
+        }
+    }
+
+    /**
+     * Obtain a document archive reader.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return An <code>ArchiveReader&lt;Document, DocumentVersion&gt;</code>.
+     */
+    public ArchiveReader<Document, DocumentVersion> getDocumentReader(
+            final JabberId userId, final UUID containerUniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().getDocumentReader(userId, containerUniqueId);
         }
     }
 

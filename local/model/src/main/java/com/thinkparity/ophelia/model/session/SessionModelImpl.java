@@ -689,6 +689,25 @@ final class SessionModelImpl extends AbstractModelImpl<SessionListener> {
         }
     }
 
+    DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        logger.logApiId();
+        logger.logVariable("userId", userId);
+        logger.logVariable("uniqueId", uniqueId);
+        logger.logVariable("documentUniqueId", documentUniqueId);
+        logger.logVariable("documentVersionId", documentVersionId);
+        try {
+            final XMPPSession xmppSession = workspace.getXMPPSession();
+            synchronized (xmppSession) {
+                return xmppSession.readArchiveDocumentVersion(userId, uniqueId,
+                        documentUniqueId, documentVersionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(final JabberId userId,
             final UUID uniqueId, final Long compareVersionId) {
         logger.logApiId();

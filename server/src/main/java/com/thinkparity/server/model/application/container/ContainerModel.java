@@ -173,6 +173,15 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArchiveDocumentVersion(userId, uniqueId,
+                    documentUniqueId, documentVersionId);
+        }
+    }
+
     /**
      * Read the archived document versions for a user.
      * 
@@ -325,3 +334,4 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
         }
     }
 }
+

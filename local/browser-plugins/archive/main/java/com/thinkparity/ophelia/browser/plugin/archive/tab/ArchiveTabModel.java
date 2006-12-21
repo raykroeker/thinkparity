@@ -365,7 +365,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
         panels.add(index, toDisplay(container, find(team, container
-                .getCreatedBy()), null, null, versions, documentViews,
+                .getCreatedBy()), new DraftView(), null, versions, documentViews,
                 publishedTo, publishedBy, team));
     }
 

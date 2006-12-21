@@ -381,8 +381,13 @@ public interface XMPPSession {
     public List<Document> readArchiveDocuments(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
+    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
+            final UUID uniqueId, final UUID documentUniqueId,
+            final Long documentVersionId);
+
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId, final Long compareVersionId);
+
     public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
             final JabberId userId, final UUID uniqueId,
             final Long compareVersionId, final Long compareToVersionId);

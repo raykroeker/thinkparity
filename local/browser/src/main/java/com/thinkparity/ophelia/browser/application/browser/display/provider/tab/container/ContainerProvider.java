@@ -3,8 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -18,12 +20,14 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -121,23 +125,42 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-	 * Read the documents and associated delta.
-	 * 
-	 * @param containerId
-	 *            A container id <code>Long</code>.
-	 * @param versionId
-	 *            A container version id <code>Long</code>.
-     * @return A <code>Map&lt;DocumentVersion, ContainerVersionArtifactVersionDelta&gt;</code>.
-	 */
-    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId, final Long versionId) {
+     * Read and generate a list of document views for a document version. The
+     * document view will consist of a document version; its delta as well as
+     * the date it was first published.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>DocumentView</code>.
+     */
+    public List<DocumentView> readDocumentViews(final Long containerId,
+            final Long versionId) {
+        final Map<DocumentVersion, Delta> versions;
         final ContainerVersion previousVersion = containerModel.readPreviousVersion(containerId, versionId);
         if (null == previousVersion) {
-            return containerModel.readDocumentVersionDeltas(containerId, versionId);
+            versions = containerModel.readDocumentVersionDeltas(containerId,
+                    versionId);
         } else {
-            return containerModel.readDocumentVersionDeltas(containerId,
+            versions = containerModel.readDocumentVersionDeltas(containerId,
                     versionId, previousVersion.getVersionId());
         }
+        final List<DocumentView> views = new ArrayList<DocumentView>(versions.size());
+        DocumentVersion firstVersion;
+        DocumentView view;
+        for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
+            firstVersion = documentModel.readVersion(
+                    entry.getKey().getArtifactId(), Versioning.START);
+
+            view = new DocumentView();
+            view.setDelta(entry.getValue());
+            view.setVersion(entry.getKey());
+            view.setFirstPublishedOn(null == firstVersion
+                    ? null : firstVersion.getCreatedOn());
+            views.add(view);
+        }
+        return views;
     }
 
     /**

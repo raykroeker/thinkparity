@@ -15,19 +15,20 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 
 /**
  * <b>Title:</b>thinkParity Container TabId Provider<br>
@@ -164,15 +165,24 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
-	 * Read a container draft.
+	 * Read a container draft view.
 	 * 
 	 * @param containerId
 	 *            A container id <code>Long</code>.
 	 * @return A <code>ContainerDraft</code>.
 	 */
-    public ContainerDraft readDraft(final Long containerId) {
-    	return containerModel.readDraft(containerId);
-    } 
+    public DraftView readDraftView(final Long containerId) {
+        final DraftView draftView = new DraftView();
+        draftView.setDraft(containerModel.readDraft(containerId));
+        DocumentVersion firstVersion;
+        for (final Document document : draftView.getDraft().getDocuments()) {
+            firstVersion = documentModel.readVersion(document.getId(), Versioning.START);
+            if (null != firstVersion)
+                draftView.setFirstPublishedOn(
+                        document, firstVersion.getCreatedOn()); 
+        }
+        return draftView;
+    }
     
     /**
      * Read a the latest container version.

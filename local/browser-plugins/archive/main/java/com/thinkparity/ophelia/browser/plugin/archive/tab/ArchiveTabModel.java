@@ -27,7 +27,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -36,6 +35,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
@@ -557,7 +557,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     private TabPanel toDisplay(
             final Container container,
             final User containerCreatedBy,
-            final ContainerDraft draft,
+            final DraftView draftView,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
@@ -567,7 +567,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         final ContainerPanel panel = new ArchiveTabContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, containerCreatedBy,
-                draft, latestVersion, versions, documentViews, publishedTo,
+                draftView, latestVersion, versions, documentViews, publishedTo,
                 publishedBy, team);
         panel.setExpanded(isExpanded(panel));
         panel.setPopupDelegate(popupDelegate);

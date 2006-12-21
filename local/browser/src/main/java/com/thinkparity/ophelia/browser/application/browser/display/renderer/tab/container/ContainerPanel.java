@@ -39,6 +39,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.F
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
@@ -295,7 +296,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public void setPanelData(
             final Container container,
             final User containerCreatedBy,
-            final ContainerDraft draft,
+            final DraftView draftView,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
@@ -304,7 +305,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final List<TeamMember> team) {
         this.container = container;
         this.containerCreatedBy = containerCreatedBy;
-        this.draft = draft;
+        this.draft = draftView.getDraft();
         this.latestVersion = latestVersion;
         
         // Build the west list

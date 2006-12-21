@@ -34,8 +34,6 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -46,6 +44,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
@@ -482,10 +481,10 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private void addContainerPanel(final int index,
             final Container container) {
-        final ContainerDraft draft = readDraft(container.getId());
+        final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
-        if ((null != draft) && container.isLocalDraft()) {
-            for (final Document document : draft.getDocuments()) {
+        if ((null != draftView) && container.isLocalDraft()) {
+            for (final Document document : draftView.getDocuments()) {
                 containerIdLookup.put(document.getId(), container.getId());
             }
         }
@@ -506,7 +505,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             publishedTo.put(version, readUsers(version.getArtifactId(), version.getVersionId()));
             publishedBy.put(version, readUser(version.getUpdatedBy()));
         }
-        panels.add(index, toDisplay(container, draft, latestVersion,
+        panels.add(index, toDisplay(container, draftView, latestVersion,
                 versions, documentViews, publishedTo, publishedBy,
                 readTeam(container.getId())));
     }
@@ -850,8 +849,8 @@ public final class ContainerTabModel extends TabPanelModel implements
      *      A container id <code>Long</code>.
      * @return A <code>ContainerDraft</code>.
      */
-    private ContainerDraft readDraft(final Long containerId) {
-        return ((ContainerProvider) contentProvider).readDraft(containerId);
+    private DraftView readDraftView(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readDraftView(containerId);
     }
 
     /**
@@ -862,11 +861,11 @@ public final class ContainerTabModel extends TabPanelModel implements
      * @return A <code>List</code> of <code>Document</code>s.
      */
     private List<Document> readDraftDocuments(final Long containerId) {
-        final ContainerDraft draft = readDraft(containerId);
-        if (null == draft) {
+        final DraftView draftView = readDraftView(containerId);
+        if (null == draftView) {
             return Collections.emptyList();
         } else {
-            return draft.getDocuments();
+            return draftView.getDocuments();
         }
     }
 
@@ -1007,7 +1006,7 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private TabPanel toDisplay(
             final Container container,
-            final ContainerDraft draft,
+            final DraftView draftView,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
             final Map<ContainerVersion, List<DocumentView>> documentViews,
@@ -1017,7 +1016,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, readUser(container.getCreatedBy()),
-                draft, latestVersion, versions, documentViews, publishedTo,
+                draftView, latestVersion, versions, documentViews, publishedTo,
                 publishedBy, team);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));

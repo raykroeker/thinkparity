@@ -15,6 +15,8 @@ insert into jiveProperty (NAME,PROPVALUE)
 
 insert into jiveProperty (NAME,PROPVALUE)
     values('thinkparity.environment','PRODUCTION');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('thinkparity.mode','TESTING');
 insert into PARITY_FEATURE (FEATURE)
     values('ARCHIVE');
 

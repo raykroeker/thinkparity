@@ -90,7 +90,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
                 add(ActionId.CONTAINER_PUBLISH, publishData);
                 needSeparator = true;
             }
-            if (!container.isDraft()) {
+            if (!container.isDraft() && container.isLatest()) {
                 final Data createDraftData = new Data(1);
                 createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
                 add(ActionId.CONTAINER_CREATE_DRAFT, createDraftData);  

@@ -187,7 +187,6 @@ public class PanelCellListManager {
         }
         updateModel();
         reloadControls();
-        listModel.setSelectedIndex(0);
     }
     
     private void iconJLabelMouseEntered(final java.awt.event.MouseEvent e) {

@@ -3,19 +3,14 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.text.MessageFormat;
 import java.util.Calendar;
 
-import javax.swing.DefaultListModel;
 import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -23,7 +18,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
 
 /**
  * <b>Title:</b>thinkParity Default Tab Panel<br>
@@ -47,15 +41,11 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
-    /** A session key pattern for the list's selected index. */
-    private static final String SK_LIST_SELECTED_INDEX_PATTERN;
-
     static {
         BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
         NUMBER_VISIBLE_ROWS = 6;
-        SK_LIST_SELECTED_INDEX_PATTERN = "TabPanel#JList.getSelectedIndex({0}:{1})";
     }
 
     /**
@@ -166,139 +156,28 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      * @return An attribute value <code>Object</code> or null if no such
      *         attribute exists.
      */
-    protected final Object getAttribute(final String name) {
+    public final Object getAttribute(final String name) {
         return session.getAttribute(name);
     }
-
-    /**
-     * Handle the focus gained event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>FocusEvent</code>.
-     */
-    protected void jListFocusGained(final javax.swing.JList jList, final java.awt.event.FocusEvent e) {
-        repaintLists();
-    }
-
-    /**
-     * Handle the focus lost event on the list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>FocusEvent</code>.
-     */
-    protected void jListFocusLost(final javax.swing.JList jList, final java.awt.event.FocusEvent e) {
-        repaintLists();
-    }
-
-    /**
-     * Handle the click event for the given list. All we do is check for a
-     * double-click event to run a specific action.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void jListMouseClicked(final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (jList.isSelectionEmpty()) {
-            return;
-        } else {
-            /* we are using a single-click paradigm similar to clicking on links to
-             * invoke actions */
-            ((Cell) jList.getSelectedValue()).invokeAction();
-        }
-    }
     
+    /**
+     * Handle a mouse click on a panel cell.
+     * 
+     * @param cell
+     *          A <code>Cell</code>.
+     * @param e
+     *          A <code>MouseEvent</code>.
+     */
     public void panelCellMouseClicked(final Cell cell, final java.awt.event.MouseEvent e) {        
     }
     
-    public void panelCellSelectionChanged(final Cell cell) {        
-    }
-
     /**
-     * Handle the mouse entered event for the given list.
+     * Handle a change of selection in the panel cell.
      * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
+     * @param cell
+     *          A <code>Cell</code>.
      */
-    protected void jListMouseEntered(final DefaultListModel listModel,
-            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        jListSetCursor(listModel, jList, e);
-    }
-
-    /**
-     * Handle the mouse exited event of the given list. All we do is update the
-     * cursor.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void jListMouseExited(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-    }
-
-    /**
-     * Handle the mouse moved event for the given list.
-     * 
-     * @param listModel
-     *            A <code>DefaultListModel</code>.
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void jListMouseMoved(final DefaultListModel listModel,
-            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        jListSetCursor(listModel, jList, e);
-    }
-
-    /**
-     * Handle the mouse pressed event for the given list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void jListMousePressed(final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            jList.getParent().repaint();
-            getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((Cell) jList.getSelectedValue()).showPopup();
-        }
-    }
-
-    /**
-     * Handle the mouse released event for the given list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void jListMouseReleased(final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            jList.setSelectedIndex(jList.locationToIndex(e.getPoint()));
-            jList.getParent().repaint();
-            getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-            ((Cell) jList.getSelectedValue()).showPopup();
-        }
+    public void panelCellSelectionChanged(final Cell cell) {
     }
 
     /**
@@ -307,7 +186,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      * @param name
      *            An attribute name <code>String</code>.
      */
-    protected final void removeAttribute(final String name) {
+    public final void removeAttribute(final String name) {
         session.removeAttribute(name);
     }
 
@@ -318,52 +197,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected abstract void repaintLists();
 
     /**
-     * Restore the saved selection for the list. If there is no saved selection
-     * then the first index is used.
-     * 
-     * @param listKey
-     *            A list identifier key <code>String</code>.
-     * @param listModel
-     *            A <code>DefaultListModel</code>.
-     * @param jList
-     *            The <code>JList</code>.
-     */
-    protected final void restoreSelection(final String listKey,
-            final DefaultListModel listModel, final javax.swing.JList jList) {
-        final Integer selectedIndex =
-            (Integer) getAttribute(MessageFormat.format(
-                    SK_LIST_SELECTED_INDEX_PATTERN, getId(), listKey));
-        if (null == selectedIndex) {
-            if (listModel.isEmpty()) {
-                return;
-            } else {
-                setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
-                        Integer.valueOf(0));
-                jList.setSelectedIndex(0);
-            }
-        } else {
-            setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
-                    selectedIndex);
-            jList.setSelectedIndex(selectedIndex.intValue());
-        }
-    }
-
-    /**
-     * Save the current selection. This will also save the previous selection.
-     * 
-     * @param listKey
-     *            A list identifier <code>String</code>.
-     * @param jList
-     *            The <code>JList</code>.
-     */
-    protected final void saveSelection(final String listKey,
-            final javax.swing.JList jList) {
-        setAttribute(MessageFormat.format(
-                SK_LIST_SELECTED_INDEX_PATTERN, getId(), listKey),
-                Integer.valueOf(jList.getSelectedIndex()));
-    }
-
-    /**
      * Set a session attribute.
      * 
      * @param name
@@ -371,98 +204,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      * @param value
      *            An attribute value <code>Object</code>.
      */
-    protected final void setAttribute(final String name, final Object value) {
+    public final void setAttribute(final String name, final Object value) {
         session.setAttribute(name, value);
-    }
-
-    /**
-     * Handle a click event in a western list.
-     * 
-     * @param listKey
-     *            A list identifier key <code>String</code>.
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void westJListMouseClicked(final String listKey,
-            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        if (!jList.isSelectionEmpty()) {
-            // ensure the click is within a cell
-            final Rectangle bounds = jList.getCellBounds(
-                    jList.getSelectedIndex(), jList.getSelectedIndex());
-            if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                // ensure the cell has an action available
-                final WestCell selection = (WestCell) jList.getSelectedValue();
-                if (selection.isActionAvailable()) {
-                    /* ensure the previous click was also on this cell or this
-                     * is the first cell */
-                    final Integer clickIndex =
-                        (Integer) getAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey));
-                    if (null != clickIndex && clickIndex.equals(jList.getSelectedIndex())) {
-                        selection.invokeAction();
-                    }
-                    setAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey),
-                            jList.getSelectedIndex());
-                } else {
-                    removeAttribute(MessageFormat.format("clickIndex({0}:{1})", getId(), listKey));
-                }
-            }
-        }
-    }
-
-    /**
-     * Set the cursor for the west list.
-     * 
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    protected void westJListSetCursor(final javax.swing.JList jList,
-            final java.awt.event.MouseEvent e) {
-        if (jList.isSelectionEmpty()) {
-            SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-        } else {
-            final WestCell selection = (WestCell) jList.getSelectedValue();
-            if (selection.isActionAvailable().booleanValue()) {
-                final Rectangle bounds = jList.getCellBounds(
-                        jList.getSelectedIndex(), jList.getSelectedIndex());
-                if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                    SwingUtil.setCursor(jList, java.awt.Cursor.HAND_CURSOR);
-                } else {
-                    SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-                }
-            } else {
-                SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-            }
-        }
-    }
-
-    /**
-     * Set the cursor for the given list.
-     * 
-     * @param listModel
-     *            A <code>DefaultListModel</code>.
-     * @param jList
-     *            A <code>JList</code>.
-     * @param e
-     *            A <code>MouseEvent</code>.
-     */
-    private void jListSetCursor(final DefaultListModel listModel,
-            final javax.swing.JList jList, final java.awt.event.MouseEvent e) {
-        if (listModel.isEmpty()) {
-            SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-        } else {
-            /* if the mouse lies within any row's bounds; update the
-             * cursor to a hand */
-            final Rectangle bounds =
-                jList.getCellBounds(jList.getFirstVisibleIndex(), jList.getLastVisibleIndex());
-            if (SwingUtil.regionContains(bounds, e.getPoint())) {
-                SwingUtil.setCursor(jList, java.awt.Cursor.HAND_CURSOR);
-            } else {
-                SwingUtil.setCursor(jList, java.awt.Cursor.DEFAULT_CURSOR);
-            }
-        }
     }
 }

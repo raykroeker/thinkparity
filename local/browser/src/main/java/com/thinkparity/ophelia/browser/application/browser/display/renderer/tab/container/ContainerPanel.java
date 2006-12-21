@@ -124,10 +124,10 @@ public class ContainerPanel extends DefaultTabPanel {
         this.expanded = Boolean.FALSE;
         this.fileIconReader = new FileIconReader();
         this.localization = new MainCellL18n("ContainerPanel");
-        this.eastListModel = new PanelCellListModel(this, localization,
+        this.eastListModel = new PanelCellListModel(this, "eastList", localization,
                 NUMBER_VISIBLE_ROWS, eastFirstJLabel, eastPreviousJLabel,
                 eastCountJLabel, eastNextJLabel, eastLastJLabel);
-        this.westListModel = new PanelCellListModel(this, localization,
+        this.westListModel = new PanelCellListModel(this, "westList", localization,
                 NUMBER_VISIBLE_ROWS, westFirstJLabel, westPreviousJLabel,
                 westCountJLabel, westNextJLabel, westLastJLabel);
         this.westCells = new ArrayList<Cell>();
@@ -315,9 +315,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
-        // TODO
-        //restoreSelection("eastList", eastListModel, eastJList);
-        //restoreSelection("westList", westListModel, westJList);
     }
 
     /**

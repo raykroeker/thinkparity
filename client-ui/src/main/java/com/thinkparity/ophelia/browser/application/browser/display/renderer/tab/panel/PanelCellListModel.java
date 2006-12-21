@@ -4,9 +4,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
@@ -17,8 +20,18 @@ import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
  */
 public class PanelCellListModel {
     
+    /** A session key pattern for the list's selected index. */
+    private static final String SK_LIST_SELECTED_INDEX_PATTERN;
+    
+    static {
+        SK_LIST_SELECTED_INDEX_PATTERN = "PanelCellListModel#List.getSelectedIndex({0}:{1})";
+    }
+    
     /** The tab panel */
     private final DefaultTabPanel tabPanel;
+    
+    /** The list key */
+    private final String listKey;
     
     /** The list model <code>DefaultListModel</code>. */
     private final DefaultListModel listModel;
@@ -38,6 +51,8 @@ public class PanelCellListModel {
      * 
      * @param tabPanel
      *            A <code>DefaultTabPanel</code> invoker.
+     * @param listKey
+     *            A list key <code>String</code>.         
      * @param localization
      *            A <code>MainCellL18n</code>.          
      * @param visibleRows
@@ -55,6 +70,7 @@ public class PanelCellListModel {
      */
     public PanelCellListModel(
         final DefaultTabPanel tabPanel,
+        final String listKey,
         final MainCellL18n localization,
         final int visibleRows,
         final javax.swing.JLabel firstJLabel,
@@ -64,16 +80,24 @@ public class PanelCellListModel {
         final javax.swing.JLabel lastJLabel) {
         super();
         this.tabPanel = tabPanel;
+        this.listKey = listKey;
         listModel = new DefaultListModel();
         listManager = new PanelCellListManager(this, localization,
                 visibleRows, firstJLabel, previousJLabel, countJLabel,
                 nextJLabel, lastJLabel, Boolean.TRUE);    
         selectedIndex = -1;
+        installDataListener();
     }
     
     public void initialize(final List<? extends Cell> cells) {
+        final int initialSelectedIndex;
+        if (isSavedSelectedIndex()) {
+            initialSelectedIndex = getSavedSelectedIndex();
+        } else {
+            initialSelectedIndex = 0;
+        }
         listManager.initialize(cells);
-        setSelectedIndex(0);
+        setSelectedIndex(initialSelectedIndex);
     }
     
     public Boolean isSelectionEmpty() {
@@ -104,11 +128,52 @@ public class PanelCellListModel {
         setSelectedIndex(listModel.indexOf(cell));
     }
     
-    public void setSelectedIndex(final int selectedIndex) {
+    private void setSelectedIndex(final int selectedIndex) {
         final int saveSelectedIndex = this.selectedIndex;
         this.selectedIndex = selectedIndex;
         if ((saveSelectedIndex != selectedIndex) && !isSelectionEmpty()) {
             tabPanel.panelCellSelectionChanged(getSelectedCell());
+            saveSelectedIndex(selectedIndex);
         }
+    }
+    
+    private void installDataListener() {
+        listModel.addListDataListener(new ListDataListener() {
+            /**
+             * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
+             */
+            public void contentsChanged(final ListDataEvent e) {
+                setSelectedIndex(0);
+            }
+            /**
+             * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
+             */
+            public void intervalAdded(final ListDataEvent e) {
+                setSelectedIndex(0);
+            }
+            /**
+             * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
+             */
+            public void intervalRemoved(final ListDataEvent e) {
+                setSelectedIndex(-1);
+            } 
+        });
+    }
+    
+    private Boolean isSavedSelectedIndex() {
+        return (null != getSavedSelectedIndex());
+    }
+    
+    private Integer getSavedSelectedIndex() {
+        final Integer selectedIndex =
+            (Integer) tabPanel.getAttribute(MessageFormat.format(
+                    SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listKey));
+        return selectedIndex;
+    }
+    
+    private void saveSelectedIndex(final int selectedIndex) {
+        tabPanel.setAttribute(MessageFormat.format(
+                SK_LIST_SELECTED_INDEX_PATTERN, tabPanel.getId(), listKey),
+                Integer.valueOf(selectedIndex));
     }
 }

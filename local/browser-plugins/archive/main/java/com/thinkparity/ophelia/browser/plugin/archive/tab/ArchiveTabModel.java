@@ -24,8 +24,6 @@ import com.thinkparity.codebase.sort.StringComparator;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -37,6 +35,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
@@ -342,8 +341,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         final List<TeamMember> team = readTeam(container.getUniqueId());
         final List<ContainerVersion> versions = readVersions(container.getUniqueId());
 
-        final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions =
-            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<DocumentView>> documentViews =
+            new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
         final Map<ContainerVersion, User> publishedBy =
             new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
         final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo =
@@ -354,11 +353,11 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             if (versions.size() - 1 == i) {
                 /* reading the last version in the list which is the first
                  * version chronologically */
-                documentVersions.put(version, readDocumentVersionDeltas(
+                documentViews.put(version, readDocumentViews(
                         container.getUniqueId(), versions.get(i).getVersionId()));
             } else {
                 previousVersion = versions.get(i + 1);
-                documentVersions.put(version, readDocumentVersionDeltas(
+                documentViews.put(version, readDocumentViews(
                         container.getUniqueId(), version.getVersionId(),
                         previousVersion.getVersionId()));
             }
@@ -366,7 +365,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
         panels.add(index, toDisplay(container, find(team, container
-                .getCreatedBy()), null, null, versions, documentVersions,
+                .getCreatedBy()), null, null, versions, documentViews,
                 publishedTo, publishedBy, team));
     }
 
@@ -496,16 +495,16 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         return ((ArchiveTabProvider) contentProvider).readContainers();
     }
 
-    private Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    private List<DocumentView> readDocumentViews(
             final UUID uniqueId, final Long compareVersionId) {
         return ((ArchiveTabProvider) contentProvider).readDocumentVersionDeltas(
                 uniqueId, compareVersionId);
     }
 
-    private Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    private List<DocumentView> readDocumentViews(
             final UUID uniqueId, final Long compareVersionId,
             final Long compareToVersionId) {
-        return ((ArchiveTabProvider) contentProvider).readDocumentVersionDeltas(
+        return ((ArchiveTabProvider) contentProvider).readDocumentViews(
                 uniqueId, compareVersionId, compareToVersionId);
     }
 
@@ -561,14 +560,14 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             final ContainerDraft draft,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
-            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+            final Map<ContainerVersion, List<DocumentView>> documentViews,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
         final ContainerPanel panel = new ArchiveTabContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPanelData(container, containerCreatedBy,
-                draft, latestVersion, versions, documentVersions, publishedTo,
+                draft, latestVersion, versions, documentViews, publishedTo,
                 publishedBy, team);
         panel.setExpanded(isExpanded(panel));
         panel.setPopupDelegate(popupDelegate);

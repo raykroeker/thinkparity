@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,9 +20,7 @@ import javax.swing.JMenuItem;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
-import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -31,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
@@ -275,15 +275,15 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
      * 
      */
     public void showForVersion(final ContainerVersion version,
-            final Map<DocumentVersion, Delta> documentVersions,
+            final List<DocumentView> documentViews,
             final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
         
         // Open submenu, documents
-        for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
+        for (final DocumentView documentView : documentViews) {
             final Data openData = new Data(2);
-            openData.set(OpenVersion.DataKey.DOCUMENT_ID, entry.getKey().getArtifactId());
-            openData.set(OpenVersion.DataKey.VERSION_ID, entry.getKey().getVersionId());
-            add(ActionId.DOCUMENT_OPEN_VERSION, entry.getKey().getName(), openData);           
+            openData.set(OpenVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
+            openData.set(OpenVersion.DataKey.VERSION_ID, documentView.getVersionId());
+            add(ActionId.DOCUMENT_OPEN_VERSION, documentView.getDocumentName(), openData);           
         }        
         addSeparator(ActionId.DOCUMENT_OPEN_VERSION);
         
@@ -345,11 +345,11 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         
         addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
         
-        for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
+        for (final DocumentView documentView : documentViews) {
             final Data documentVersionPrintData = new Data(2);
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, entry.getKey().getArtifactId());
-            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, entry.getKey().getVersionId());
-            add(ActionId.DOCUMENT_PRINT_VERSION, entry.getKey().getName(), documentVersionPrintData);           
+            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.DOCUMENT_ID, documentView.getDocumentId());
+            documentVersionPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintVersion.DataKey.VERSION_ID, documentView.getVersionId());
+            add(ActionId.DOCUMENT_PRINT_VERSION, documentView.getDocumentName(), documentVersionPrintData);           
         }    
 
         show();

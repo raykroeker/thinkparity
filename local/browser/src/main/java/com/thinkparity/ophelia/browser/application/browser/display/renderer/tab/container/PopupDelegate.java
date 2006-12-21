@@ -3,18 +3,18 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container;
 
+import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
-import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Popup Delegate<br>
@@ -52,6 +52,6 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      *            A <code>ContainerVersion</code>.
      */
     public void showForVersion(final ContainerVersion version,
-            final Map<DocumentVersion, Delta> documentVersions,
+            final List<DocumentView> documentViews,
             final Map<User, ArtifactReceipt> publishedTo, final User publishedBy);
 }

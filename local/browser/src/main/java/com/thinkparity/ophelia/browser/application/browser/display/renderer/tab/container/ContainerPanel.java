@@ -19,6 +19,8 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -27,7 +29,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -35,9 +38,18 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -286,7 +298,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final ContainerDraft draft,
             final ContainerVersion latestVersion,
             final List<ContainerVersion> versions,
-            final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+            final Map<ContainerVersion, List<DocumentView>> documentViews,
             final Map<ContainerVersion, Map<User, ArtifactReceipt>> publishedTo,
             final Map<ContainerVersion, User> publishedBy,
             final List<TeamMember> team) {
@@ -296,14 +308,14 @@ public class ContainerPanel extends DefaultTabPanel {
         this.latestVersion = latestVersion;
         
         // Build the west list
-        westCells.add(new ContainerCell(draft, latestVersion, versions, documentVersions, team));        
+        westCells.add(new ContainerCell(draft, latestVersion, versions,
+                documentViews, team));        
         if (container.isLocalDraft()) {
             westCells.add(new DraftCell());
         }
         for (final ContainerVersion version : versions) {
-            westCells.add(new VersionCell(version, documentVersions
-                    .get(version), publishedTo.get(version), publishedBy
-                    .get(version)));
+            westCells.add(new VersionCell(version, documentViews.get(version),
+                    publishedTo.get(version), publishedBy.get(version)));
         }
         
         // Initialize the list model
@@ -750,15 +762,15 @@ public class ContainerPanel extends DefaultTabPanel {
         private ContainerCell(final ContainerDraft draft,
                 final ContainerVersion latestVersion,
                 final List<ContainerVersion> versions,
-                final Map<ContainerVersion, Map<DocumentVersion, Delta>> documentVersions,
+                final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             if (container.isLocalDraft()) {
                 addDraftDocumentCells(draft);
             } else if (null != latestVersion) {
-                addActiveVersionDocumentCells(latestVersion, documentVersions.get(latestVersion));
+                addActiveVersionDocumentCells(latestVersion, documentViews.get(latestVersion));
             }
             for (final ContainerVersion version : versions) {
-                addRemovedVersionDocumentCells(version, documentVersions.get(version));
+                addRemovedVersionDocumentCells(version, documentViews.get(version));
             }
             addUserCells(team);
             prepareText();
@@ -768,23 +780,23 @@ public class ContainerPanel extends DefaultTabPanel {
                 add(new ContainerDraftDocumentCell(this, document));
             }
         }
-        private void addActiveVersionDocumentCells(final ContainerVersion containerVersion,
-                final Map<DocumentVersion, Delta> documentVersions) {
-            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                final Delta delta = entry.getValue();
-                if (Delta.REMOVED != delta) {
-                    add(new ContainerVersionDocumentCell(this,
-                            containerVersion, entry.getKey(), entry.getValue()));
+        private void addActiveVersionDocumentCells(
+                final ContainerVersion containerVersion,
+                final List<DocumentView> documentViews) {
+            for (final DocumentView documentView : documentViews) {
+                if (Delta.REMOVED != documentView.getDelta()) {
+                    add(new ContainerVersionDocumentCell(this, containerVersion,
+                            documentView.getVersion(), documentView.getDelta()));
                 }
             }
         }
-        private void addRemovedVersionDocumentCells(final ContainerVersion containerVersion,
-                final Map<DocumentVersion, Delta> documentVersions) {
-            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                final Delta delta = entry.getValue();
-                if (Delta.REMOVED == delta) {
-                    add(new ContainerVersionDocumentCell(this,
-                            containerVersion, entry.getKey(), entry.getValue()));
+        private void addRemovedVersionDocumentCells(
+                final ContainerVersion containerVersion,
+                final List<DocumentView> documentViews) {
+            for (final DocumentView documentView : documentViews) {
+                if (Delta.REMOVED == documentView.getDelta()) {
+                    add(new ContainerVersionDocumentCell(this, containerVersion,
+                            documentView.getVersion(), documentView.getDelta()));
                 }
             }
         }
@@ -1037,8 +1049,8 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A version cell. */
     private final class VersionCell extends AbstractWestCell {
-        /** The <code>DocumentVersion</code>s and their <code>Delta</code>s. */ 
-        private final Map<DocumentVersion, Delta> documentVersions;
+        /** The <code>DocumentView</code>s. */ 
+        private final List<DocumentView> documentViews;
         /** A published to <code>User</code>. */
         private final User publishedBy;
         /** The <code>User</code>s and their <code>ArtifactReceipt</code>s. */
@@ -1059,14 +1071,16 @@ public class ContainerPanel extends DefaultTabPanel {
          *            A published by <code>User</code>.
          */
         private VersionCell(final ContainerVersion version,
-                final Map<DocumentVersion, Delta> documentVersions,
-                final Map<User, ArtifactReceipt> publishedTo, final User publishedBy) {
-            this.documentVersions = documentVersions;
+                final List<DocumentView> documentViews,
+                final Map<User, ArtifactReceipt> publishedTo,
+                final User publishedBy) {
+            this.documentViews = documentViews;
             this.version = version;
             this.publishedBy = publishedBy;
             this.publishedTo = publishedTo;
-            for (final Entry<DocumentVersion, Delta> entry : documentVersions.entrySet()) {
-                add(new VersionDocumentCell(this, entry.getKey(), entry.getValue()));
+            for (final DocumentView documentView : documentViews) {
+                add(new VersionDocumentCell(this, documentView.getVersion(),
+                        documentView.getDelta()));
             }
             add(new VersionUserCell(this, publishedBy));
             for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
@@ -1092,8 +1106,8 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForVersion(version, documentVersions,
-                    publishedTo, publishedBy);
+            popupDelegate.showForVersion(version, documentViews, publishedTo,
+                    publishedBy);
         }
         @Override
         public Boolean isActionAvailable() {

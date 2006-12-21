@@ -54,6 +54,15 @@ public class DocumentView {
     }
 
     /**
+     * Obtain the document name.
+     * 
+     * @return A document name <code>String</code>.
+     */
+    public String getDocumentName() {
+        return version.getName();
+    }
+
+    /**
      * Obtain firstPublishedOn.
      *
      * @return A Calendar.
@@ -69,6 +78,15 @@ public class DocumentView {
      */
     public DocumentVersion getVersion() {
         return version;
+    }
+
+    /**
+     * Obtain the version id.
+     * 
+     * @return A version id <code>Long</code>.
+     */
+    public Long getVersionId() {
+        return version.getVersionId();
     }
 
     /**

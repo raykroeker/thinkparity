@@ -3,9 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
@@ -18,6 +20,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.archive.ArchiveModel;
 
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtensionModelContentProvider;
 
 /**
@@ -76,17 +79,35 @@ public final class ArchiveTabProvider extends TabExtensionModelContentProvider {
         return archiveModel.readDocuments(uniqueId, versionId);
     }
 
-    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    public List<DocumentView> readDocumentVersionDeltas(
             final UUID uniqueId, final Long compareVersionId) {
-        return archiveModel.readDocumentVersionDeltas(uniqueId,
-                compareVersionId);
+        final Map<DocumentVersion, Delta> versions =
+            archiveModel.readDocumentVersionDeltas(uniqueId, compareVersionId);
+        final List<DocumentView> views = new ArrayList<DocumentView>(versions.size());
+        DocumentView view;
+        for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
+            view = new DocumentView();
+            view.setVersion(entry.getKey());
+            view.setDelta(entry.getValue());
+            views.add(view);
+        }
+        return views;
     }
 
-    public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final UUID uniqueId, final Long compareVersionId,
-            final Long compareToVersionId) {
-        return archiveModel.readDocumentVersionDeltas(uniqueId,
-                compareVersionId, compareToVersionId);
+    public List<DocumentView> readDocumentViews(final UUID uniqueId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        final Map<DocumentVersion, Delta> versions =
+            archiveModel.readDocumentVersionDeltas(uniqueId, compareVersionId,
+                    compareToVersionId);
+        final List<DocumentView> views = new ArrayList<DocumentView>(versions.size());
+        DocumentView view;
+        for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
+            view = new DocumentView();
+            view.setVersion(entry.getKey());
+            view.setDelta(entry.getValue());
+            views.add(view);
+        }
+        return views;
     }
 
     public Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,

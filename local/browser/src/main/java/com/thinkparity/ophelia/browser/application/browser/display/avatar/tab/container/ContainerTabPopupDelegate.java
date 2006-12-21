@@ -108,11 +108,13 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // Add document
-        final Data addDocumentData = new Data(1);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
-        addSeparator();
+        if (container.isLocalDraft()) {
+            final Data addDocumentData = new Data(1);
+            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, container.getId());
+            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+            addSeparator();
+        }
 
         // Rename container
         if (container.isLocalDraft() && !isDistributed(container.getId())) {
@@ -301,7 +303,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
             if (isLocalUser(entry.getKey())) {
                 final Data data = new Data(1);
                 data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-                add( ActionId.PROFILE_UPDATE, entry.getKey().getName(), data);
+                add(ActionId.PROFILE_UPDATE, entry.getKey().getName(), data);
             } else {
                 final Data data = new Data(1);
                 data.set(Read.DataKey.CONTACT_ID, entry.getKey().getId());

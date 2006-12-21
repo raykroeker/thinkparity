@@ -34,7 +34,6 @@ public class DocumentView {
     public DocumentView() {
         super();
     }
-
     /**
      * Obtain delta.
      *
@@ -87,6 +86,15 @@ public class DocumentView {
      */
     public Long getVersionId() {
         return version.getVersionId();
+    }
+
+    /**
+     * Determine whether or not the first published on date is set.
+     * 
+     * @return True if it is set; false otherwise.
+     */
+    public Boolean isSetFirstPublishedOn() {
+        return null != firstPublishedOn;
     }
 
     /**

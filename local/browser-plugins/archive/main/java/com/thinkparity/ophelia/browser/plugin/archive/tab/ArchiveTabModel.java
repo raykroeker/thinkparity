@@ -44,7 +44,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
  * <b>Title:</b><br>
  * <b>Description:</b><br>
  * @author raymond@thinkparity.com
- * @version 1.1.2.6
+ * @version $Revision$
  */
 final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         implements TabAvatarSortByDelegate {

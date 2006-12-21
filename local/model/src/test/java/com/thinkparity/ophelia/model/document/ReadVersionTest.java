@@ -50,7 +50,7 @@ public class ReadVersionTest extends DocumentTestCase {
 			DocumentVersion documentVersion;
 			for(Fixture datum : data) {
 				documentVersion =
-					datum.documentModel.getVersion(datum.documentId, datum.versionId);
+					datum.documentModel.readVersion(datum.documentId, datum.versionId);
 
 				assertNotNull(documentVersion);
 				assertEquals(datum.documentVersion.getArtifactId(), documentVersion.getArtifactId());

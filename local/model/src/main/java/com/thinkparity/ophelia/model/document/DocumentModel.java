@@ -158,9 +158,11 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	 *            The version id.
 	 * @return The document version.
 	 */
-	public DocumentVersion getVersion(final Long documentId,
-			final Long versionId) {
-		synchronized(getImplLock()) { return getImpl().readVersion(documentId, versionId); }
+	public DocumentVersion readVersion(final Long documentId,
+            final Long versionId) {
+		synchronized (getImplLock()) {
+            return getImpl().readVersion(documentId, versionId);
+		}
 	}
 
     /**

@@ -1117,9 +1117,15 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                         teamMemberIds, contact.getId());
 
             }
-            // update the publish to list if required
-            containerIO.createPublishedTo(containerId, versionId, publishToUsers,
-                            publishedOn);
+            // only create a published to reference if one for the user does not
+            // already exist
+            final Map<User, ArtifactReceipt> publishedTo =
+                containerIO.readPublishedTo(containerId, versionId);
+            for (final User user : publishToUsers) {
+                if (!publishedTo.containsKey(user))
+                    containerIO.createPublishedTo(containerId, versionId,
+                            user, publishedOn);
+            }
             // fire event
             final Container postPublish = read(containerId);
             final ContainerVersion postPublishVersion =

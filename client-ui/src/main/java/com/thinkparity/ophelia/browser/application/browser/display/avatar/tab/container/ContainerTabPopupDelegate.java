@@ -23,9 +23,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
-
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
@@ -35,24 +32,14 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultPopupDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DeleteDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.PrintDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.RevertDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.UndeleteDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 /**
  * <b>Title:</b><br>
@@ -206,10 +193,12 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
 
         // Rename document
         for (final Document document : draft.getDocuments()) {
-            final Data renameData = new Data(2);
-            renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_RENAME_DOCUMENT, document.getName(), renameData);
+            if (ArtifactState.ADDED == draft.getState(document)) {
+                final Data renameData = new Data(2);
+                renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+                renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
+                add(ActionId.CONTAINER_RENAME_DOCUMENT, document.getName(), renameData);
+            }
         }
         
         // Discard changes
@@ -234,7 +223,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         
         // Remove document
         for (final Document document : draft.getDocuments()) {
-            if (ContainerDraft.ArtifactState.REMOVED != draft.getState(document)) {
+            if (ArtifactState.REMOVED != draft.getState(document)) {
                 final Data removeData = new Data(2);
                 removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
                 removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());

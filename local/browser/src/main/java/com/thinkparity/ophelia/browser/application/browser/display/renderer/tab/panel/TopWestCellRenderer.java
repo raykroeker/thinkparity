@@ -11,6 +11,7 @@ import java.awt.Component;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -94,6 +95,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
+        additionalTextJLabel.setForeground(Colors.Browser.List.INNER_LIST_SELECTION_BORDER);
         additionalTextJLabel.setText("!Top West Cell Additional Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;

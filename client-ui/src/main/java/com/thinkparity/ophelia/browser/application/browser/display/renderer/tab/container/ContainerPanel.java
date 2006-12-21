@@ -786,7 +786,7 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final DocumentView documentView : documentViews) {
                 if (Delta.REMOVED != documentView.getDelta()) {
                     add(new ContainerVersionDocumentCell(this, containerVersion,
-                            documentView.getVersion(), documentView.getDelta()));
+                            documentView));
                 }
             }
         }
@@ -796,7 +796,7 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final DocumentView documentView : documentViews) {
                 if (Delta.REMOVED == documentView.getDelta()) {
                     add(new ContainerVersionDocumentCell(this, containerVersion,
-                            documentView.getVersion(), documentView.getDelta()));
+                            documentView));
                 }
             }
         }
@@ -913,22 +913,22 @@ public class ContainerPanel extends DefaultTabPanel {
          *            A <code>Delta</code>.
          */
         private ContainerVersionDocumentCell(final WestCell parent, final ContainerVersion containerVersion,
-                final DocumentVersion version, final Delta delta) {
+                final DocumentView documentView) {
             super();
             this.parent = parent;
-            this.delta = delta;
-            this.version = version;
+            this.delta = documentView.getDelta();
+            this.version = documentView.getVersion();
             setIcon(fileIconReader.getIcon(version));
             switch (delta) {
             case ADDED:
             case MODIFIED:
             case NONE:
                 setAdditionalText(localization.getString("DocumentSummary",
-                        formatFuzzy(version.getCreatedOn())));
+                        formatFuzzy(documentView.getFirstPublishedOn())));
                 break;
             case REMOVED:
                 setAdditionalText(localization.getString("DocumentSummaryVersionRemoved",
-                        formatFuzzy(version.getCreatedOn()), formatFuzzy(containerVersion.getCreatedOn())));
+                        formatFuzzy(documentView.getFirstPublishedOn()), formatFuzzy(containerVersion.getCreatedOn())));
                 break;
             default:
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");

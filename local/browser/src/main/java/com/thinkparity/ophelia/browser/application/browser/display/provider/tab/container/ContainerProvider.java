@@ -138,7 +138,8 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<DocumentView> readDocumentViews(final Long containerId,
             final Long versionId) {
         final Map<DocumentVersion, Delta> versions;
-        final ContainerVersion previousVersion = containerModel.readPreviousVersion(containerId, versionId);
+        final ContainerVersion previousVersion =
+            containerModel.readPreviousVersion(containerId, versionId);
         if (null == previousVersion) {
             versions = containerModel.readDocumentVersionDeltas(containerId,
                     versionId);
@@ -156,8 +157,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             view = new DocumentView();
             view.setDelta(entry.getValue());
             view.setVersion(entry.getKey());
-            view.setFirstPublishedOn(null == firstVersion
-                    ? null : firstVersion.getCreatedOn());
+            view.setFirstPublishedOn(firstVersion.getCreatedOn());
             views.add(view);
         }
         return views;

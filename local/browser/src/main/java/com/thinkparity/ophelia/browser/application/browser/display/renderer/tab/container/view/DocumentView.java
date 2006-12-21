@@ -89,15 +89,6 @@ public class DocumentView {
     }
 
     /**
-     * Determine whether or not the first published on date is set.
-     * 
-     * @return True if it is set; false otherwise.
-     */
-    public Boolean isSetFirstPublishedOn() {
-        return null != firstPublishedOn;
-    }
-
-    /**
      * Set delta.
      *
      * @param delta

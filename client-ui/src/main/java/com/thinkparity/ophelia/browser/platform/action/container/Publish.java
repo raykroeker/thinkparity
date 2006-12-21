@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -25,7 +26,6 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
-import com.thinkparity.ophelia.model.document.DocumentModel;
 
 /**
  * Publish a document.  This will send a given document version to
@@ -58,7 +58,6 @@ public class Publish extends AbstractAction {
         final List<User> teamMembersIn = getDataUsers(data, DataKey.TEAM_MEMBERS);
         final String comment = (String) data.get(DataKey.COMMENT);
         final ContainerModel containerModel = getContainerModel();
-        final DocumentModel documentModel = getDocumentModel();
         
         // Check there are documents with changes to publish.
         Boolean changes = Boolean.FALSE;
@@ -69,9 +68,16 @@ public class Publish extends AbstractAction {
             if (null != draft) {
                 documents = draft.getDocuments();
                 for (final Document document : documents) {
-                    if (documentModel.isDraftModified(document.getId())) {
+                    switch (draft.getState(document)) {
+                    case ADDED:
+                    case MODIFIED:
+                    case REMOVED:
                         changes = Boolean.TRUE;
                         break;
+                    case NONE:
+                        break;
+                    default:
+                        throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
                     }
                 }
             }

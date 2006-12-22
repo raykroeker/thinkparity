@@ -590,7 +590,7 @@ public class BrowserPlatform implements Platform {
     private void startApplications() {
         applicationFactory.create(ApplicationId.SYSTEM).start(this);
         applicationFactory.create(ApplicationId.BROWSER).start(this);
-//        applicationFactory.create(ApplicationId.SESSION).start(this);
+        applicationFactory.create(ApplicationId.SESSION).start(this);
     }
 
     /**

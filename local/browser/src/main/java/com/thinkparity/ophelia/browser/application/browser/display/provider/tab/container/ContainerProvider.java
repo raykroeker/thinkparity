@@ -152,8 +152,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         DocumentVersion firstVersion;
         DocumentView view;
         for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
-            firstVersion = documentModel.readVersion(
-                    entry.getKey().getArtifactId(), Versioning.START);
+            firstVersion = documentModel.readEarliestVersion(entry.getKey().getArtifactId());
 
             view = new DocumentView();
             view.setDelta(entry.getValue());

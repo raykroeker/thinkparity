@@ -150,6 +150,19 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 	}
 
     /**
+     * Obtain the first available version.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    public DocumentVersion readEarliestVersion(final Long documentId) {
+        synchronized (getImplLock()) {
+            return getImpl().readEarliestVersion(documentId);
+        }
+    }
+
+    /**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId

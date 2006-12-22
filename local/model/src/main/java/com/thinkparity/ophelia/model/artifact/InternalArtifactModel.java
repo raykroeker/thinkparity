@@ -311,6 +311,19 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
+     * Read the earliest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    public Long readEarliestVersionId(final Long artifactId) {
+        synchronized(getImplLock()) {
+            return getImpl().readEarliestVersionId(artifactId);
+        }
+    }
+
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId

@@ -130,6 +130,15 @@ public interface ArtifactIOHandler {
 			throws HypersonicException;
 
     /**
+     * Read the earliest version id.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    public Long readEarliestVersionId(final Long artifactId);
+
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId

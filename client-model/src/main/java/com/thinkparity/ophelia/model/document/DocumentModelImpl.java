@@ -768,6 +768,29 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
+
+    /**
+     * Obtain the first available version.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    DocumentVersion readEarliestVersion(final Long documentId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        try {
+            final Long versionId = getArtifactModel().readEarliestVersionId(documentId);
+            if (null == versionId) {
+                return null;
+            } else {
+                return readVersion(documentId, versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
     /**
      * Read a document version.
      * 

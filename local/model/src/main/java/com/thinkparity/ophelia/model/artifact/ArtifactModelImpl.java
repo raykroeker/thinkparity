@@ -488,7 +488,7 @@ final class ArtifactModelImpl extends AbstractModelImpl {
                 localUserId(), readUniqueId(artifactId));
     }
 
-	/**
+    /**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -499,6 +499,19 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         logger.logApiId();
         logger.logVariable("artifactId", artifactId);
         return artifactIO.readLatestVersionId(artifactId);
+    }
+
+    /**
+     * Read the earliest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    Long readEarliestVersionId(final Long artifactId) {
+        logger.logApiId();
+        logger.logVariable("artifactId", artifactId);
+        return artifactIO.readEarliestVersionId(artifactId);
     }
 
     /**

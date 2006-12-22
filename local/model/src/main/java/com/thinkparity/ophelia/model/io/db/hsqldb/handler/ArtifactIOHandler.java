@@ -169,6 +169,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
+    /** Sql to determine if any artifact version exists. */
+    private static final String SQL_DOES_ANY_VERSION_EXIST =
+            new StringBuffer("select COUNT(*) \"COUNT\" ")
+            .append("from ARTIFACT A ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID>=1")
+            .toString();
+
     /** Sql to determine existance by id. */
     private static final String SQL_DOES_EXIST_BY_ID =
         new StringBuffer("select COUNT(ARTIFACT_ID) \"COUNT\" ")
@@ -191,20 +199,20 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
 
-    /** Sql to determine if any artifact version exists. */
-    private static final String SQL_DOES_ANY_VERSION_EXIST =
-            new StringBuffer("select COUNT(*) \"COUNT\" ")
+	/** Sql to read the earliest version id. */
+    private static final String SQL_READ_EARLIEST_VERSION_ID =
+            new StringBuffer("select min(ARTIFACT_VERSION_ID) EARLIEST_VERSION_ID ")
             .append("from ARTIFACT A ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
-            .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID>=1")
+            .append("where A.ARTIFACT_ID=?")
             .toString();
 
-	private static final String SQL_READ_ID =
+    private static final String SQL_READ_ID =
         new StringBuffer("select A.ARTIFACT_ID ")
         .append("from ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
-
+    
     /** Sql to read the latest version id. */
     private static final String SQL_READ_LATEST_VERSION_ID =
             new StringBuffer("select max(ARTIFACT_VERSION_ID) LATEST_VERSION_ID ")
@@ -538,6 +546,25 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		try { return getFlags(session, artifactId); }
 		finally { session.close(); }
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readLatestVersionId(java.lang.Long)
+     */
+    public Long readEarliestVersionId(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EARLIEST_VERSION_ID);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("EARLIEST_VERSION_ID");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readId(java.util.UUID)

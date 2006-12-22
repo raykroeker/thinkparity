@@ -86,7 +86,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
 	 */
 	public DefaultTabPanel(final BrowserSession session) {
 		super();
-        this.animator = new TabAnimator(this, 12);
+        this.animator = new TabAnimator(this);
         this.constraints = new GridBagConstraints();
         this.constraints.fill = GridBagConstraints.BOTH;
         this.constraints.weightx = this.constraints.weighty = 1.0F;

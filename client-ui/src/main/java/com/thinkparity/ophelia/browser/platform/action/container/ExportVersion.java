@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.io.File;
 
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -38,15 +39,10 @@ public class ExportVersion extends AbstractAction  {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
-        File directory = (File) data.get(DataKey.DIRECTORY);  
-        
-        if(null == directory) {
-            // prompt for destination
-            browser.displayExportDialog(containerId, versionId);
-        } else {
-            getContainerModel().exportVersion(directory, containerId, versionId);    
-        }
+        final File directory = Constants.Directories.USER_DATA; 
+        getContainerModel().exportVersion(directory, containerId, versionId);
+        browser.fireContainerExported(directory);
     } 
     
-    public enum DataKey { CONTAINER_ID, VERSION_ID, DIRECTORY }
+    public enum DataKey { CONTAINER_ID, VERSION_ID }
 }

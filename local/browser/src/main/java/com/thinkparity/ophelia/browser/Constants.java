@@ -279,8 +279,6 @@ public final class Constants {
         public static final class Persistence {
             public static final String CONTAINER_ADD_DOCUMENT_CURRENT_DIRECTORY =
                 "com.thinkparity.ophelia.browser.platform.action.container.AddDocument#CurrentDirectory";
-            public static final String CONTAINER_EXPORT_SELECTED_DIRECTORY =
-                "com.thinkparity.ophelia.browser.platform.action.container.Export#SelectedDirectory";
         }
     }
 

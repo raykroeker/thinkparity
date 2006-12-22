@@ -190,8 +190,8 @@ public abstract class FileUtil {
 	}
 
 	/**
-	 * Obtain the extension portion of a file name. If none exists; the full
-	 * name is returned.
+	 * Obtain the extension portion of a file name. If none exists; an empty
+     * string is returned.
 	 * 
 	 * @param fileName
 	 *            The file name.
@@ -201,7 +201,7 @@ public abstract class FileUtil {
 		if(-1 != fileName.indexOf(Separator.Period.toString()))
 			return fileName.substring(
 				fileName.lastIndexOf(Separator.Period.toString()));
-		return fileName;
+		return "";
 	}
 
 	/**

@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -88,8 +89,10 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(final java.awt.event.MouseEvent e) {
                 tabPanel.panelCellMouseClicked(cell, e);
-                if (cell.isActionAvailable()) {
-                    cell.invokeAction();
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (cell.isActionAvailable()) {
+                        cell.invokeAction();
+                    }
                 }
             }
             public void mouseEntered(final java.awt.event.MouseEvent e) {

@@ -19,15 +19,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -39,7 +40,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ExportAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
@@ -64,18 +64,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Export;
-import com.thinkparity.ophelia.browser.platform.action.container.ExportVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -96,8 +85,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -349,37 +336,6 @@ public class Browser extends AbstractApplication {
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
     }
-
-    /**
-     * Display an export dialog for a container, ie. export all versions.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    public void displayExportDialog(final Long containerId) {
-        final Data input = new Data(2);
-        input.set(ExportAvatar.DataKey.EXPORT_TYPE, ExportAvatar.ExportType.CONTAINER);
-        input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
-        setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
-    }
-    
-    /**
-     * Display an export dialog for a version.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            A version id.           
-     */
-    public void displayExportDialog(final Long containerId, final Long versionId) {
-        final Data input = new Data(3);
-        input.set(ExportAvatar.DataKey.EXPORT_TYPE, ExportAvatar.ExportType.VERSION);
-        input.set(ExportAvatar.DataKey.CONTAINER_ID, containerId);
-        input.set(ExportAvatar.DataKey.VERSION_ID, versionId);
-        setInput(AvatarId.DIALOG_CONTAINER_EXPORT, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_EXPORT);
-    } 
     
     /**
      * Display the info (or Help About) dialog.
@@ -528,7 +484,7 @@ public class Browser extends AbstractApplication {
             disposeBrowserWindow();
 		}
 
-		setStatus(ApplicationStatus.ENDING);
+        setStatus(ApplicationStatus.ENDING);        
 		notifyEnd();
 	}
 
@@ -542,7 +498,7 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.  
      */
     public void fireContactAdded(final JabberId contactId, final Boolean remote) {
-        setStatus("ContactAdded");
+        clearStatus();
         // refresh the contact list
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getTabContactAvatar().syncContact(contactId, remote); }
@@ -558,7 +514,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContactDeleted(final JabberId contactId,
             final Boolean remote) {
-        setStatus("ContactDeleted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -574,7 +530,7 @@ public class Browser extends AbstractApplication {
      *           The contact id.
      */
     public void fireContactUpdated(final JabberId contactId) {
-        setStatus("ContactUpdated");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, Boolean.TRUE);
@@ -602,7 +558,7 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.       
      */
     public void fireContainerCreated(final Long containerId, final Boolean remote) {
-        setStatus("ContainerCreated");
+        clearStatus();
         if (remote)
             runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
@@ -618,7 +574,7 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.       
      */
     public void fireContainerDeleted(final Long containerId, final Boolean remote) {
-        setStatus("ContainerDeleted");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -633,7 +589,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDocumentAdded(final Long containerId,
             final Long documentId, final Boolean remote) {
-        setStatus("DocumentCreated");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -648,7 +604,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDocumentRemoved(final Long containerId,
             final Long documentId, final Boolean remote) {
-        setStatus("DocumentDeleted");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -663,7 +619,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDraftCreated(final Long containerId,
             final Boolean remote) {
-        setStatus("ContainerDraftCreated");
+        clearStatus();
         if (remote)
             runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
@@ -679,8 +635,18 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.   
      */
     public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
-        setStatus("ContainerDraftDeleted");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
+    }
+    
+    /**
+     * Notify the application that the container or version has been exported.
+     * 
+     * @param directory
+     *            The directory.
+     */
+    public void fireContainerExported(final File directory) {
+        setStatus("ExportFileCreated", directory);
     }
 
     /**
@@ -691,7 +657,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerTeamMemberAdded(final Long containerId,
             final Boolean remote) {
-        setStatus("ContainerTeamMemberAdded");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
     }
 
@@ -703,7 +669,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerTeamMemberRemoved(final Long containerId,
             final Boolean remote) {
-        setStatus("ContainerTeamMemberRemoved");
+        clearStatus();
         syncContainerTabContainer(containerId, remote);
     }
     
@@ -717,7 +683,7 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.     
      */
     public void fireContainerUpdated(final Long containerId, final Boolean remote) {
-        setStatus("ContainerUpdated");
+        clearStatus();
         if (remote)
             runRemoveContainerFlagSeen(containerId);
         syncContainerTabContainer(containerId, remote);
@@ -730,7 +696,7 @@ public class Browser extends AbstractApplication {
      *            A document id.
      */
     public void fireDocumentDraftUpdated(final Long documentId) {
-        setStatus("DocumentUpdated");
+        clearStatus();
         syncDocumentTabContainer(documentId, Boolean.FALSE);
     }
     
@@ -743,7 +709,7 @@ public class Browser extends AbstractApplication {
      *            The document that has changed.
      */
     public void fireDocumentUpdated(final Long documentId, final Boolean remote) {
-        setStatus("DocumentUpdated");
+        clearStatus();
         syncDocumentTabContainer(documentId, remote);
     }
 
@@ -760,7 +726,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationAccepted(final JabberId contactId,
             final Long invitationId, final Boolean remote) {
-        setStatus("IncomingContactInvitationAccepted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -801,7 +767,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationDeclined(final Long invitationId,
             final Boolean remote) {
-        setStatus("IncomingContactInvitationDeclined");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
@@ -822,7 +788,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationDeleted(final Long invitationId,
             final Boolean remote) {
-        setStatus("IncomingContactInvitationDeleted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
@@ -842,7 +808,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationAccepted(final JabberId contactId,
             final Long invitationId, final Boolean remote) {
-        setStatus("OutgoingContactInvitationAccepted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -862,7 +828,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationCreated(final Long invitationId,
             final Boolean remote) {
-        setStatus("OutgoingContactInvitationDeleted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -881,7 +847,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationDeclined(final Long invitationId,
             final Boolean remote) {
-        setStatus("OutgoingContactInvitationDeclined");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -900,7 +866,7 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationDeleted(final Long invitationId,
             final Boolean remote) {
-        setStatus("OutgoingContactInvitationDeleted");
+        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -1021,7 +987,7 @@ public class Browser extends AbstractApplication {
 
 		disposeBrowserWindow();
 
-		setStatus(ApplicationStatus.HIBERNATING);
+        setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
     
@@ -1109,11 +1075,11 @@ public class Browser extends AbstractApplication {
         
 		reOpenMainWindow();
 
-		setStatus(ApplicationStatus.RESTORING);
-		notifyRestore();
+        setStatus(ApplicationStatus.RESTORING);
+        notifyRestore();
 
-		assertStatusChange(ApplicationStatus.RUNNING);
-		setStatus(ApplicationStatus.RUNNING);
+        assertStatusChange(ApplicationStatus.RUNNING);
+        setStatus(ApplicationStatus.RUNNING);
 	}
 
     /**
@@ -1316,39 +1282,6 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }
-
-    /**
-     * Run the export action.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param directory
-     *            The directory.
-     */
-    public void runExport(final Long containerId, final File directory) {
-        final Data data = new Data(2);
-        data.set(Export.DataKey.CONTAINER_ID, containerId);
-        data.set(Export.DataKey.DIRECTORY, directory);
-        invoke(ActionId.CONTAINER_EXPORT, data);
-    }
-    
-    /**
-     * Run the export version action.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            The version id.              
-     * @param directory
-     *            The directory.
-     */
-    public void runExportVersion(final Long containerId, final Long versionId, final File directory) {
-        final Data data = new Data(3);
-        data.set(ExportVersion.DataKey.CONTAINER_ID, containerId);
-        data.set(ExportVersion.DataKey.VERSION_ID, versionId);
-        data.set(ExportVersion.DataKey.DIRECTORY, directory);
-        invoke(ActionId.CONTAINER_EXPORT_VERSION, data);
     }
     
     /**
@@ -1710,7 +1643,7 @@ public class Browser extends AbstractApplication {
 		logApiId();
 
 		assertStatusChange(ApplicationStatus.STARTING);
-		setStatus(ApplicationStatus.STARTING);
+        setStatus(ApplicationStatus.STARTING);
 
         connection = getSessionModel().isLoggedIn() ?
                 Connection.ONLINE : Connection.OFFLINE;
@@ -1722,7 +1655,7 @@ public class Browser extends AbstractApplication {
 		assertStatusChange(ApplicationStatus.RUNNING);
 		openMainWindow();
 
-		setStatus(ApplicationStatus.RUNNING);
+        setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
 
@@ -1794,6 +1727,14 @@ public class Browser extends AbstractApplication {
 	Object getAvatarInput(final AvatarId id) {
 		return avatarInputMap.get(id);
 	}
+    
+    /**
+     * Clear the custom status message.
+     * 
+     */
+    private void clearStatus() {
+        setStatus("Empty");
+    }
 
     /**
      * Open a confirmation dialogue.
@@ -2059,7 +2000,7 @@ public class Browser extends AbstractApplication {
     private void setStatus(final Connection connection) {
         Data input = (Data) getMainStatusAvatar().getInput();
         if (null == input) {
-            input = new Data(3);
+            input = new Data(4);
         }
         input.set(MainStatusAvatar.DataKey.CONNECTION, connection);
         getMainStatusAvatar().setInput((Data) input.clone());
@@ -2072,7 +2013,19 @@ public class Browser extends AbstractApplication {
      *            A status message.
      */
     private void setStatus(final String customMessage) {
-        setStatus(customMessage, null);
+        setStatus(customMessage, null, null);
+    }
+    
+    /**
+     * Set a custom status message. 
+     * 
+     * @param message
+     *            A status message.
+     * @param file
+     *            A file.
+     */
+    private void setStatus(final String customMessage, final File file) {
+        setStatus(customMessage, null, file);
     }
 
     /**
@@ -2082,11 +2035,14 @@ public class Browser extends AbstractApplication {
      *            A status message.
      * @param arguments
      *            Status message arguments.
+     * @param file
+     *            A file.         
      */
-    private void setStatus(final String customMessage, final Object[] customMessageArguments) {
+    private void setStatus(final String customMessage,
+            final Object[] customMessageArguments, final File file) {
         Data input = (Data) getMainStatusAvatar().getInput();
         if (null == input) {
-            input = new Data(3);
+            input = new Data(4);
         }
         input.set(MainStatusAvatar.DataKey.CUSTOM_MESSAGE, customMessage);
         if (null != customMessageArguments) {
@@ -2094,6 +2050,12 @@ public class Browser extends AbstractApplication {
         }
         else {
             input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
+        }
+        if (null != file) {
+            input.set(MainStatusAvatar.DataKey.FILE, file);
+        }
+        else {
+            input.unset(MainStatusAvatar.DataKey.FILE);
         }
         getMainStatusAvatar().setInput((Data) input.clone());
     }

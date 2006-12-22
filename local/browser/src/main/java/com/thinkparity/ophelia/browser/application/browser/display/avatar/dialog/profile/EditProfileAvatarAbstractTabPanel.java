@@ -7,8 +7,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
@@ -120,8 +122,10 @@ abstract class EditProfileAvatarAbstractTabPanel extends AbstractJPanel {
      * 
      * @param profile
      *            The local user profile.
+     * @param emails
+     *            The local user emails.         
      */
-    protected void reload(final Profile profile) {}
+    protected void reload(final Profile profile, final List<ProfileEMail> emails) {}
     
     /**
      * Save the panel.

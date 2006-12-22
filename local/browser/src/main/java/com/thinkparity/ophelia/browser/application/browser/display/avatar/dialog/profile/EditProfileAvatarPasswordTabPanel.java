@@ -6,9 +6,12 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
+import java.util.List;
+
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 
@@ -29,7 +32,7 @@ public class EditProfileAvatarPasswordTabPanel extends EditProfileAvatarAbstract
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.EditProfileAvatarAbstractTabPanel#reload(com.thinkparity.codebase.model.profile.Profile)
      */
     @Override
-    protected void reload(final Profile profile) {
+    protected void reload(final Profile profile, final List<ProfileEMail> emails) {
         reloadOldPassword();
         reloadNewPassword();
         reloadConfirmNewPassword();

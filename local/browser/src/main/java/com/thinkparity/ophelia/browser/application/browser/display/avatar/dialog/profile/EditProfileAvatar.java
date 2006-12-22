@@ -36,7 +36,6 @@ public class EditProfileAvatar extends Avatar {
         tabs = new ArrayList<EditProfileAvatarAbstractTabPanel>();
         tabs.add(new EditProfileAvatarDataTabPanel(getController(), this, localization.getString("DataTabPanelTitle")));
         tabs.add(new EditProfileAvatarPasswordTabPanel(getController(), this, localization.getString("PasswordTabPanelTitle")));
-        tabs.add(new EditProfileAvatarEmailTabPanel(getController(), this, localization.getString("EmailTabPanelTitle")));
         for (final EditProfileAvatarAbstractTabPanel tab : tabs) {
             profileJTabbedPane.add(tab.getTabName(), tab);
         }
@@ -75,8 +74,9 @@ public class EditProfileAvatar extends Avatar {
     @Override
     public void reload() {        
         final Profile profile = readProfile();
+        final List<ProfileEMail> emails = readEmails();
         for (final EditProfileAvatarAbstractTabPanel tab : tabs) {
-            tab.reload(profile);
+            tab.reload(profile, emails);
         }
     }
 

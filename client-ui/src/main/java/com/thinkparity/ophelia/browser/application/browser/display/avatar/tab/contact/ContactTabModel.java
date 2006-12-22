@@ -4,6 +4,8 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -131,11 +133,8 @@ public final class ContactTabModel extends TabPanelModel implements
      *
      */
     public void toggleExpansion(final TabPanel tabPanel) {
-        logger.logTraceId();
         doToggleExpansion(tabPanel);
-        logger.logTraceId();
         synchronize();
-        logger.logTraceId();
     }
 
     /**
@@ -534,30 +533,44 @@ public final class ContactTabModel extends TabPanelModel implements
     }
 
     /**
-     * Toggle a panel's expansion.
+     * Toggle the expansion of a single panel.
      * 
      * @param tabPanel
      *            A <code>TabPanel</code>.
      */
     private void doToggleExpansion(final TabPanel tabPanel) {
         final ContactTabPanel contactTabPanel = (ContactTabPanel) tabPanel;
-        final Boolean expanded;
         if (isExpanded(contactTabPanel)) {
-            expanded = Boolean.FALSE;
+            // if the panel is already expanded; just collapse it
             contactTabPanel.collapse();
+            expandedState.put(contactTabPanel, Boolean.FALSE);
         } else {
-            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            // find the first expanded panel and collapse it
+            boolean didHit = false;
             for (final TabPanel visiblePanel : visiblePanels) {
-                if (isExpanded(visiblePanel)) {
-                    doToggleExpansion(visiblePanel);
+                final ContactTabPanel otherTabPanel = (ContactTabPanel) visiblePanel;
+                if (isExpanded(otherTabPanel)) {
+                    otherTabPanel.addPropertyChangeListener("expanded",
+                            new PropertyChangeListener() {
+                                public void propertyChange(
+                                        final PropertyChangeEvent evt) {
+                                    otherTabPanel.removePropertyChangeListener("expanded", this);
+
+                                    contactTabPanel.expand();
+                                    expandedState.put(contactTabPanel, Boolean.TRUE);
+                                }
+                            });
+                    otherTabPanel.collapse();
+                    expandedState.put(otherTabPanel, Boolean.FALSE);
+                    didHit = true;
+                    break;
                 }
             }
-            // NOTE-END:multi-expand
-
-            expanded = Boolean.TRUE;
-            contactTabPanel.expand();
+            if (!didHit) {
+                contactTabPanel.expand();
+                expandedState.put(contactTabPanel, Boolean.TRUE);
+            }
         }
-        expandedState.put(tabPanel, expanded);
     }
 
     /**
@@ -596,6 +609,11 @@ public final class ContactTabModel extends TabPanelModel implements
         }
     }
 
+    /**
+     * Determine if search is applied.
+     * 
+     * @return True if a search expression is set.
+     */
     private boolean isSearchApplied() {
         return null != searchExpression;
     }

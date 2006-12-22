@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -609,25 +611,37 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private void doToggleExpansion(final TabPanel tabPanel) {
         final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        final Boolean expanded;
         if (isExpanded(containerPanel)) {
-            expanded = Boolean.FALSE;
+            // if the panel is already expanded; just collapse it
             containerPanel.collapse();
+            expandedState.put(containerPanel, Boolean.FALSE);
         } else {
-            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            // find the first expanded panel and collapse it
+            boolean didHit = false;
             for (final TabPanel visiblePanel : visiblePanels) {
-                if (isExpanded(visiblePanel)) {
-                    doToggleExpansion(visiblePanel);
+                final ContainerPanel otherTabPanel = (ContainerPanel) visiblePanel;
+                if (isExpanded(otherTabPanel)) {
+                    otherTabPanel.addPropertyChangeListener("expanded",
+                            new PropertyChangeListener() {
+                                public void propertyChange(
+                                        final PropertyChangeEvent evt) {
+                                    otherTabPanel.removePropertyChangeListener("expanded", this);
+
+                                    containerPanel.expand();
+                                    expandedState.put(containerPanel, Boolean.TRUE);
+                                }
+                            });
+                    otherTabPanel.collapse();
+                    expandedState.put(otherTabPanel, Boolean.FALSE);
+                    didHit = true;
+                    break;
                 }
             }
-            // NOTE-END:multi-expand
-
-            expanded = Boolean.TRUE;
-            browser.runApplyContainerFlagSeen(
-                    containerPanel.getContainer().getId());
-            containerPanel.expand();
+            if (!didHit) {
+                containerPanel.expand();
+                expandedState.put(containerPanel, Boolean.TRUE);
+            }
         }
-        expandedState.put(tabPanel, expanded);
     }
 
     /**

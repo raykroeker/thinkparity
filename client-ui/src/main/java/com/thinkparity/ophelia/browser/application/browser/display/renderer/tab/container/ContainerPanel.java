@@ -19,6 +19,8 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -27,7 +29,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -37,9 +40,17 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -88,11 +99,14 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
 
-    /** The visible east list model. */
-    private final PanelCellListModel eastListModel;
-        
+    /** The panel's animating indicator. */
+    private boolean animating;
+
     /** The east list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> eastCellPanels;
+        
+    /** The visible east list model. */
+    private final PanelCellListModel eastListModel;
 
     /** A  <code>FileIconReader</code>. */
     private final FileIconReader fileIconReader;
@@ -106,14 +120,14 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
-    /** The visible west list model. */
-    private final PanelCellListModel westListModel;
+    /** The west list of <code>PanelCellRenderer</code>.*/
+    private final List<PanelCellRenderer> westCellPanels;
     
     /** The west list of <code>Cell</code>. */
     private final List<Cell> westCells;
     
-    /** The west list of <code>PanelCellRenderer</code>.*/
-    private final List<PanelCellRenderer> westCellPanels;
+    /** The visible west list model. */
+    private final PanelCellListModel westListModel;
 
     /**
      * Create ContainerPanel.
@@ -153,6 +167,14 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Expand the panel.
+     *
+     */
+    public void expand() {
+        doExpand(true);
+    }
+    
+    /**
      * Obtain actionDelegate.
      *
      * @return A ContainerTabActionDelegate.
@@ -160,7 +182,7 @@ public class ContainerPanel extends DefaultTabPanel {
     public ActionDelegate getActionDelegate() {
         return actionDelegate;
     }
-    
+
     /**
      * Obtain the container.
      * 
@@ -199,6 +221,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Determine if the panel is currently animating.
+     * 
+     * @return True if the panel is currently animating.
+     */
+    public Boolean isAnimating() {
+        return Boolean.valueOf(animating);
+    }
+
+    /**
      * Determine the expanded state.
      * 
      * @return A <code>Boolean</code> expanded state.
@@ -207,37 +238,6 @@ public class ContainerPanel extends DefaultTabPanel {
         return Boolean.valueOf(expanded);
     }
 
-    /**
-     * Set actionDelegate.
-     *
-     * @param actionDelegate
-     *		A ContainerTabActionDelegate.
-     */
-    public void setActionDelegate(final ActionDelegate actionDelegate) {
-        this.actionDelegate = actionDelegate;
-    }
-
-    /**
-     * Set the expanded state.
-     * 
-     * @param expanded
-     *            A <code>Boolean</code> expanded state.
-     */
-    public void setExpanded(final Boolean expanded) {
-        if (expanded.booleanValue())
-            doExpand(false);
-        else
-            doCollapse(false);
-    }
-
-    /**
-     * Expand the panel.
-     *
-     */
-    public void expand() {
-        doExpand(true);
-    }
-    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMouseClicked(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
      */
@@ -256,7 +256,7 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
     }
-       
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellSelectionChanged()
      */
@@ -270,6 +270,29 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             repaint();
         }
+    }
+    
+    /**
+     * Set actionDelegate.
+     *
+     * @param actionDelegate
+     *		A ContainerTabActionDelegate.
+     */
+    public void setActionDelegate(final ActionDelegate actionDelegate) {
+        this.actionDelegate = actionDelegate;
+    }
+       
+    /**
+     * Set the expanded state.
+     * 
+     * @param expanded
+     *            A <code>Boolean</code> expanded state.
+     */
+    public void setExpanded(final Boolean expanded) {
+        if (expanded.booleanValue())
+            doExpand(false);
+        else
+            doCollapse(false);
     }
 
     /**
@@ -334,7 +357,7 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (expanded) {
+        if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
             if (!westListModel.isSelectionEmpty()) {
                 final int selectionIndex = westListModel.getSelectedIndex();
@@ -369,53 +392,124 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
     /**
-     * Expand the panel.
-     * 
-     * @param animate
-     *            Whether or not to animate.
-     */
-    private void doExpand(final boolean animate) {
-        this.expanded = true;
-        remove(collapsedJPanel);
-        add(expandedJPanel, constraints.clone());
-
-        if (animate) {
-            animator.expand(20, 166);
-        } else {
-            final Dimension preferredSize = expandedJPanel.getPreferredSize();
-            preferredSize.height = 166;
-            expandedJPanel.setPreferredSize(preferredSize);
-        }
-
-        revalidate();
-        reload();
-        repaint();
-    }
-
-    /**
      * Collapse the panel.
      * 
      * @param animate
      *            Whether or not to animate.
      */
     private void doCollapse(final boolean animate) {
-        this.expanded = false;
-        remove(expandedJPanel);
-        add(collapsedJPanel, constraints.clone());
+        if (animate) {
+            final Dimension expandedPreferredSize = getPreferredSize();
+            setPreferredSize(expandedPreferredSize);
+            animating = true;
+            animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MINIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            animating = false;
+                            expanded = false;
+
+                            if (isAncestorOf(expandedJPanel))
+                                remove(expandedJPanel);
+                            if (isAncestorOf(collapsedJPanel))
+                                remove(collapsedJPanel);
+                            add(collapsedJPanel, constraints.clone());
+                            
+                            revalidate();
+                            reload();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = false;
+
+            if (isAncestorOf(expandedJPanel))
+                remove(expandedJPanel);
+            if (isAncestorOf(collapsedJPanel))
+                remove(collapsedJPanel);
+            add(collapsedJPanel, constraints.clone());
+
+            revalidate();
+            reload();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
+    }
+
+    /**
+     * Expand the panel.
+     * 
+     * @param animate
+     *            Whether or not to animate.
+     */
+    private void doExpand(final boolean animate) {
+        if (isAncestorOf(expandedJPanel))
+            remove(expandedJPanel);
+        if (isAncestorOf(collapsedJPanel))
+            remove(collapsedJPanel);
+        add(expandedJPanel, constraints.clone());
 
         if (animate) {
-            animator.collapse(20, 25);
-        } else {
-            final Dimension preferredSize = expandedJPanel.getPreferredSize();
-            preferredSize.height = 25;
-            expandedJPanel.setPreferredSize(preferredSize);
-        }
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
+            animating = true;
+            animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            expanded = true;
+                            animating = false;
 
-        revalidate();
-        reload();
-        repaint();
+                            revalidate();
+                            reload();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = true;
+
+            revalidate();
+            reload();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
     }
     
+    private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if ((e.getClickCount() % 2) == 0) {
+            tabDelegate.toggleExpansion(this);
+        }
+    }//GEN-LAST:event_expandedJPanelMousePressed
+
+    private void expandedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMouseReleased
+    }//GEN-LAST:event_expandedJPanelMouseReleased
+
+    /**
+     * Get additional text associated with the container.
+     * 
+     * @param container
+     *       The <code>Container</code>.
+     * @return A <code>String</code>.
+     */
+    private String getContainerAdditionalText(final Container container) {
+        if (!container.isLatest()) {
+            return localization.getString("ContainerMessageNotLatest");    
+        } else if (container.isLocalDraft()) {
+            return localization.getString("ContainerMessageLocalDraftOwner");    
+        } else if (container.isDraft()) {
+            return localization.getString("ContainerMessageDraftOwner",
+                    draft.getOwner().getName()); 
+        } else if (null != latestVersion) {
+            return localization.getString("ContainerMessagePublishDate",
+                    formatFuzzy(latestVersion.getUpdatedOn()));
+        } else {
+            return "";
+        }
+    }
+
     /**
      * Get a panel cell.
      * 
@@ -657,17 +751,6 @@ public class ContainerPanel extends DefaultTabPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void expandedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMouseReleased
-    }//GEN-LAST:event_expandedJPanelMouseReleased
-
-    private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if ((e.getClickCount() % 2) == 0) {
-            tabDelegate.toggleExpansion(this);
-        }
-    }//GEN-LAST:event_expandedJPanelMousePressed
-
     /**
      * Determine if there is a latest version or not.
      * 
@@ -686,7 +769,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void reload() {
         reloadText();
     }
-
+    
     /**
      * Reload the text on the panel.
      *
@@ -707,29 +790,6 @@ public class ContainerPanel extends DefaultTabPanel {
         if (!isLatest()) {
             textJLabel.setForeground(
                     Colors.Browser.List.LIST_LACK_MOST_RECENT_VERSION_FG);
-        }
-    }
-    
-    /**
-     * Get additional text associated with the container.
-     * 
-     * @param container
-     *       The <code>Container</code>.
-     * @return A <code>String</code>.
-     */
-    private String getContainerAdditionalText(final Container container) {
-        if (!container.isLatest()) {
-            return localization.getString("ContainerMessageNotLatest");    
-        } else if (container.isLocalDraft()) {
-            return localization.getString("ContainerMessageLocalDraftOwner");    
-        } else if (container.isDraft()) {
-            return localization.getString("ContainerMessageDraftOwner",
-                    draft.getOwner().getName()); 
-        } else if (null != latestVersion) {
-            return localization.getString("ContainerMessagePublishDate",
-                    formatFuzzy(latestVersion.getUpdatedOn()));
-        } else {
-            return "";
         }
     }
 
@@ -780,10 +840,28 @@ public class ContainerPanel extends DefaultTabPanel {
             addUserCells(team);
             prepareText();
         }
-        private void addDraftDocumentCells(final DraftView draftView) {
-            for (final Document document : draftView.getDraft().getDocuments()) {
-                add(new ContainerDraftDocumentCell(this, document, draftView));
-            }
+        @Override
+        public Icon getIcon() {
+            if (container.isBookmarked())
+                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK);
+            else
+                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
+        }
+        @Override
+        public String getText() {
+            return container.getName();
+        }
+        @Override
+        public void invokeAction() {
+            actionDelegate.invokeForContainer(container);
+        }
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
+        public void showPopup() {
+            popupDelegate.showForContainer(container);
         }
         private void addActiveVersionDocumentCells(
                 final ContainerVersion containerVersion,
@@ -795,6 +873,11 @@ public class ContainerPanel extends DefaultTabPanel {
                 }
             }
         }
+        private void addDraftDocumentCells(final DraftView draftView) {
+            for (final Document document : draftView.getDraft().getDocuments()) {
+                add(new ContainerDraftDocumentCell(this, document, draftView));
+            }
+        }        
         private void addRemovedVersionDocumentCells(
                 final ContainerVersion containerVersion,
                 final List<DocumentView> documentViews) {
@@ -813,37 +896,14 @@ public class ContainerPanel extends DefaultTabPanel {
         private void prepareText() {
             setAdditionalText(getContainerAdditionalText(container));
         }
-        @Override
-        public Icon getIcon() {
-            if (container.isBookmarked())
-                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK);
-            else
-                return IMAGE_CACHE.read(TabPanelIcon.CONTAINER);
-        }
-        @Override
-        public String getText() {
-            return container.getName();
-        }        
-        @Override
-        public void invokeAction() {
-            actionDelegate.invokeForContainer(container);
-        }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForContainer(container);
-        }
-        @Override
-        public Boolean isActionAvailable() {
-            return Boolean.TRUE;
-        }
     }
 
     /** A container draft document cell. */
     private final class ContainerDraftDocumentCell extends AbstractEastCell {
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /** A <code>Document</code>. */
         private final Document document;
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
         /**
          * Create ContainerDraftDocumentCell.
          * 
@@ -893,10 +953,10 @@ public class ContainerPanel extends DefaultTabPanel {
     
     /** A container version document cell. */
     private final class ContainerVersionDocumentCell extends AbstractEastCell {
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /** A <code>Delta</code>. */
         private final Delta delta;
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
         /** A <code>DocumentVersion</code>. */
         private final DocumentVersion version;
         /**
@@ -950,10 +1010,10 @@ public class ContainerPanel extends DefaultTabPanel {
     
     /** A container user cell. */
     private final class ContainerVersionUserCell extends AbstractEastCell {
-        /** A <code>User</code>. */
-        private final User user;
         /** A <code>WestCell</code> parent. */
         private final WestCell parent;
+        /** A <code>User</code>. */
+        private final User user;
         /**
          * Create ContainerVersionUserCell.
          * 
@@ -1046,6 +1106,141 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
+    private enum ListType { EAST_LIST, WEST_LIST }
+
+    private class PanelCellListJPanel extends javax.swing.JPanel {
+        
+        /**
+         * The set of <code>GridBagConstraints</code> used when adding a fill
+         * component.
+         */
+        private final GridBagConstraints fillConstraints;
+        
+        /** A fill <code>JLabel</code>. */
+        private final javax.swing.JLabel fillJLabel = new javax.swing.JLabel();
+        
+        /** The list type. */
+        private final ListType listType;
+
+        /** The list model. */
+        private final PanelCellListModel panelCellListModel;
+        
+        /** The set of <code>GridBagConstraints</code> used when adding a panel. */
+        private final GridBagConstraints panelConstraints;
+        
+        PanelCellListJPanel(final PanelCellListModel panelCellListModel,
+                final ListType listType) {
+            super();
+            this.panelCellListModel = panelCellListModel;
+            this.listType = listType;
+            this.fillConstraints = new GridBagConstraints();
+            this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
+            this.fillConstraints.weightx = 1.0F;
+            this.fillConstraints.weighty = 1.0F;
+            this.fillConstraints.gridx = 0;
+            this.fillConstraints.gridy = GridBagConstraints.RELATIVE;
+            this.panelConstraints = new GridBagConstraints();
+            this.panelConstraints.fill = GridBagConstraints.BOTH;
+            this.panelConstraints.gridx = 0;
+            add(fillJLabel, new java.awt.GridBagConstraints());
+            installDataListener();
+        }
+        
+        /**
+         * Add the fill component.
+         * 
+         * @param listSize
+         *            The <code>int</code> size of the list.
+         */
+        private void addFill(final int listSize) {
+            add(fillJLabel, fillConstraints, listSize);
+        }
+        
+        /**
+         * Add a panel from a model at an index.
+         * 
+         * @param cell
+         *            A <code>Cell</code>.
+         * @param index
+         *            An <code>int</code> index.
+         */
+        private void addPanel(final Cell cell, final int index) {
+            panelConstraints.gridy = index;
+            final PanelCellRenderer panelCell = getPanelCellRenderer(listType, index);
+            panelCell.renderComponent(cell, index);
+            add((Component)panelCell, panelConstraints.clone(), index);
+        }
+
+        private void installDataListener() {
+            final DefaultListModel listModel = panelCellListModel.getListModel();
+            listModel.addListDataListener(new ListDataListener() {
+                /**
+                 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
+                 */
+                public void contentsChanged(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                        removePanel(i);
+                        addPanel((Cell) listModel.get(i), i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                }
+                
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalAdded(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
+                        addPanel((Cell) listModel.get(i), i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                }
+                
+                /**
+                 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
+                 */
+                public void intervalRemoved(final ListDataEvent e) {
+                    removeFill();
+                    for (int i = e.getIndex1(); i >= e.getIndex0(); i--) {
+                        removePanel(i);
+                    }
+                    addFill(listModel.size());
+                    reloadPanels();
+                } 
+            });
+        }
+        
+        /**
+         * Reload the panels display. The jpanel is revalidated.
+         * 
+         */
+        private void reloadPanels() {
+            revalidate();
+            repaint();
+        }
+        
+        /**
+         * Remove the fill component.
+         *
+         */
+        private void removeFill() {
+            remove(fillJLabel);
+        }
+
+        /**
+         * Remove a panel at an index.
+         * 
+         * @param index
+         *            An <code>int</code> index.
+         */
+        private void removePanel(final int index) {
+            remove(index);
+        }
+    }
+
     /** A version cell. */
     private final class VersionCell extends AbstractWestCell {
         /** The <code>DocumentView</code>s. */ 
@@ -1104,13 +1299,13 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForVersion(version);
         }
         @Override
+        public Boolean isActionAvailable() {
+            return version.isSetComment();
+        }
+        @Override
         public void showPopup() {
             popupDelegate.showForVersion(version, documentViews, publishedTo,
                     publishedBy);
-        }
-        @Override
-        public Boolean isActionAvailable() {
-            return version.isSetComment();
         }
     }
 
@@ -1165,13 +1360,13 @@ public class ContainerPanel extends DefaultTabPanel {
             parent.showPopup();
         }
     }
-
+    
     /** A user cell. */
     private final class VersionUserCell extends AbstractEastCell {
-        /** A <code>User</code>. */
-        private final User user;
         /** A <code>WestCell</code> parent. */
         private final WestCell parent;
+        /** A <code>User</code>. */
+        private final User user;
         /**
          * Create VersionUserCell.
          * 
@@ -1224,139 +1419,4 @@ public class ContainerPanel extends DefaultTabPanel {
             parent.showPopup();
         }
     }
-
-    private class PanelCellListJPanel extends javax.swing.JPanel {
-        
-        /** The list model. */
-        private final PanelCellListModel panelCellListModel;
-        
-        /** The list type. */
-        private final ListType listType;
-        
-        /**
-         * The set of <code>GridBagConstraints</code> used when adding a fill
-         * component.
-         */
-        private final GridBagConstraints fillConstraints;
-
-        /** The set of <code>GridBagConstraints</code> used when adding a panel. */
-        private final GridBagConstraints panelConstraints;
-        
-        /** A fill <code>JLabel</code>. */
-        private final javax.swing.JLabel fillJLabel = new javax.swing.JLabel();
-        
-        PanelCellListJPanel(final PanelCellListModel panelCellListModel,
-                final ListType listType) {
-            super();
-            this.panelCellListModel = panelCellListModel;
-            this.listType = listType;
-            this.fillConstraints = new GridBagConstraints();
-            this.fillConstraints.fill = GridBagConstraints.HORIZONTAL;
-            this.fillConstraints.weightx = 1.0F;
-            this.fillConstraints.weighty = 1.0F;
-            this.fillConstraints.gridx = 0;
-            this.fillConstraints.gridy = GridBagConstraints.RELATIVE;
-            this.panelConstraints = new GridBagConstraints();
-            this.panelConstraints.fill = GridBagConstraints.BOTH;
-            this.panelConstraints.gridx = 0;
-            add(fillJLabel, new java.awt.GridBagConstraints());
-            installDataListener();
-        }
-        
-        private void installDataListener() {
-            final DefaultListModel listModel = panelCellListModel.getListModel();
-            listModel.addListDataListener(new ListDataListener() {
-                /**
-                 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
-                 */
-                public void contentsChanged(final ListDataEvent e) {
-                    removeFill();
-                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                        removePanel(i);
-                        addPanel((Cell) listModel.get(i), i);
-                    }
-                    addFill(listModel.size());
-                    reloadPanels();
-                }
-                
-                /**
-                 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
-                 */
-                public void intervalAdded(final ListDataEvent e) {
-                    removeFill();
-                    for (int i = e.getIndex0(); i <= e.getIndex1(); i++) {
-                        addPanel((Cell) listModel.get(i), i);
-                    }
-                    addFill(listModel.size());
-                    reloadPanels();
-                }
-                
-                /**
-                 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
-                 */
-                public void intervalRemoved(final ListDataEvent e) {
-                    removeFill();
-                    for (int i = e.getIndex1(); i >= e.getIndex0(); i--) {
-                        removePanel(i);
-                    }
-                    addFill(listModel.size());
-                    reloadPanels();
-                } 
-            });
-        }
-        
-        /**
-         * Add the fill component.
-         * 
-         * @param listSize
-         *            The <code>int</code> size of the list.
-         */
-        private void addFill(final int listSize) {
-            add(fillJLabel, fillConstraints, listSize);
-        }
-
-        /**
-         * Add a panel from a model at an index.
-         * 
-         * @param cell
-         *            A <code>Cell</code>.
-         * @param index
-         *            An <code>int</code> index.
-         */
-        private void addPanel(final Cell cell, final int index) {
-            panelConstraints.gridy = index;
-            final PanelCellRenderer panelCell = getPanelCellRenderer(listType, index);
-            panelCell.renderComponent(cell, index);
-            add((Component)panelCell, panelConstraints.clone(), index);
-        }
-        
-        /**
-         * Reload the panels display. The jpanel is revalidated.
-         * 
-         */
-        private void reloadPanels() {
-            revalidate();
-            repaint();
-        }
-        
-        /**
-         * Remove the fill component.
-         *
-         */
-        private void removeFill() {
-            remove(fillJLabel);
-        }
-
-        /**
-         * Remove a panel at an index.
-         * 
-         * @param index
-         *            An <code>int</code> index.
-         */
-        private void removePanel(final int index) {
-            remove(index);
-        }
-    }
-    
-    private enum ListType { WEST_LIST, EAST_LIST }
 }

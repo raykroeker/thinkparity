@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.text.MessageFormat;
 
@@ -29,7 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  */
 public class ContactTabPanel extends DefaultTabPanel {
 
-//  Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel collapsedIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
@@ -68,6 +69,9 @@ public class ContactTabPanel extends DefaultTabPanel {
     /** The panel's expanded state. */
     private boolean expanded;
 
+    /** The panel's animating state. */
+    private boolean animating;
+
     /** A contact <code>IncomingInvitation</code>. */
     private IncomingInvitation incoming;
 
@@ -79,6 +83,9 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /**
      * Create ContactTabPanel.
+     * 
+     * @param session
+     *            A <code>BrowserSession</code>.
      */
     public ContactTabPanel(final BrowserSession session) {
         super(session);
@@ -162,6 +169,15 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public Boolean isExpanded() {
         return Boolean.valueOf(expanded);
+    }
+
+    /**
+     * Determine if the panel is animating a collapse or expand operation.
+     * 
+     * @return True if the panel is in the process of expanding or collapsing.
+     */
+    public Boolean isAnimating() {
+        return animating;
     }
 
     /**
@@ -298,7 +314,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (expanded) {
+        if (expanded || animating) {
             renderer.paintExpandedBackground(g, this);
         } else {
             renderer.paintBackground(g, getWidth(), getHeight());
@@ -367,17 +383,40 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doCollapse(final boolean animate) {
-        expanded = false;
+        if (animate) {
+            final Dimension expandedPreferredSize = getPreferredSize();
+            setPreferredSize(expandedPreferredSize);
+            animating = true;
+            animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MINIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            animating = false;
+                            expanded = false;
 
-        if (isAncestorOf(expandedJPanel))
-            remove(expandedJPanel);
-        if (isAncestorOf(collapsedJPanel))
-            remove(collapsedJPanel);
-        add(collapsedJPanel, constraints.clone());
+                            if (isAncestorOf(expandedJPanel))
+                                remove(expandedJPanel);
+                            if (isAncestorOf(collapsedJPanel))
+                                remove(collapsedJPanel);
+                            add(collapsedJPanel, constraints.clone());
+                            
+                            revalidate();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = false;
 
-        revalidate();
-        reload();
-        repaint();
+            if (isAncestorOf(expandedJPanel))
+                remove(expandedJPanel);
+            if (isAncestorOf(collapsedJPanel))
+                remove(collapsedJPanel);
+            add(collapsedJPanel, constraints.clone());
+
+            revalidate();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
     }
 
     /**
@@ -387,7 +426,6 @@ public class ContactTabPanel extends DefaultTabPanel {
      *            Whether or not to animate.
      */
     private void doExpand(final boolean animate) {
-        expanded = true;
         expandedJPanel.removeAll();
         if (isSetContact())
             expandedJPanel.add(contactJPanel, constraints.clone());
@@ -404,9 +442,29 @@ public class ContactTabPanel extends DefaultTabPanel {
             remove(collapsedJPanel);
         add(expandedJPanel, constraints.clone());
 
-        revalidate();
-        reload();
-        repaint();
+        if (animate) {
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
+            animating = true;
+            animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
+                    ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
+                        public void run() {
+                            expanded = true;
+                            animating = false;
+
+                            revalidate();
+                            repaint();
+                            firePropertyChange("expanded", !expanded, expanded);
+                        }
+            });
+        } else {
+            expanded = true;
+
+            revalidate();
+            repaint();
+            firePropertyChange("expanded", !expanded, expanded);
+        }
     }
 
     /**
@@ -922,14 +980,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_outgoingJPanelMouseReleased
 
     /**
-     * Reload the panel data based upon internal criteria.
-     *
-     */
-    private void reload() {
-        reloadText();
-    }
-
-    /**
      * Reload a display label.
      * 
      * @param jLabel
@@ -940,12 +990,5 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void reload(final javax.swing.JLabel jLabel,
             final String value) {
         jLabel.setText(null == value ? " " : value);
-    }
-
-    /**
-     * Reload the text on the panel.
-     *
-     */
-    private void reloadText() {
     }
 }

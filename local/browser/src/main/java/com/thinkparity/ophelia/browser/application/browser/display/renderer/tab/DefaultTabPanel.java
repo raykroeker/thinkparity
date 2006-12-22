@@ -29,6 +29,15 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 public abstract class DefaultTabPanel extends AbstractJPanel implements
         TabPanel {
 
+    /** The maximum height of a panel. */
+    protected static final int ANIMATION_MAXIMUM_HEIGHT;
+
+    /** The number of pixels to adjust the height of the panel by when animating. */
+    protected static final int ANIMATION_HEIGHT_ADJUSTMENT;
+
+    /** The minimum height of a panel. */
+    protected static final int ANIMATION_MINIMUM_HEIGHT;
+    
 	/** The panel <code>Border</code>. */
     protected static final Border BORDER;
 
@@ -42,6 +51,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {
+        ANIMATION_HEIGHT_ADJUSTMENT = 12;
+        ANIMATION_MAXIMUM_HEIGHT = 165;
+        ANIMATION_MINIMUM_HEIGHT = 25;
         BORDER = new BottomBorder(Colors.Browser.List.LIST_CONTAINERS_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();

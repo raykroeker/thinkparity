@@ -58,6 +58,8 @@ public final class Constants {
                 public static final Color BG_GRAD_START = Color.WHITE;
                 public static final Color CONNECTION_FOREGROUND_OFFLINE = new Color(255, 96, 6, 255);
                 public static final Color CONNECTION_FOREGROUND_ONLINE = Color.BLACK;
+                public static final Color USER_NAME_FOREGROUND = Color.BLACK;
+                public static final Color CUSTOM_MESSAGE_FOREGROUND = Color.BLACK;
                 public static final Color TOP_BORDER = new Color(130, 130, 130, 255);
             }
             public static final class MainTitle {
@@ -142,6 +144,9 @@ public final class Constants {
                 public static final Integer STATUS_HEIGHT = 34;
                 public static final Integer TITLE_HEIGHT = 48;
             }
+        }
+        public static final class PopupMenu {
+            public static final Integer MINIMUM_WIDTH = 125;
         }
     }
     /** thinkParity directories. */

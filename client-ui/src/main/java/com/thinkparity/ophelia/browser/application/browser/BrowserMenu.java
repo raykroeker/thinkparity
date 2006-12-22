@@ -22,6 +22,7 @@ import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
 
 /**
@@ -91,6 +92,7 @@ public class BrowserMenu extends JMenu {
             ((ThinkParityBasicMenuItem)menuItem).setLast(Boolean.TRUE);
             thinkParityMenuItems.add((ThinkParityBasicMenuItem)menuItem);
         }
+        setPreferredWidth(menuItem);
         return super.add(menuItem);
     }
     
@@ -103,5 +105,16 @@ public class BrowserMenu extends JMenu {
             thinkParityMenuItems.get(thinkParityMenuItems.size()-1).setSeparatorNext(Boolean.TRUE);
         }
         super.addSeparator();
-    }    
+    }
+    
+    /**
+     * Set the preferred width on the menu item.
+     */
+    private void setPreferredWidth(final JMenuItem menuItem) {
+        final Dimension preferredSize = menuItem.getPreferredSize();
+        if (preferredSize.width < Dimensions.PopupMenu.MINIMUM_WIDTH) {
+            preferredSize.width = Dimensions.PopupMenu.MINIMUM_WIDTH;
+            menuItem.setPreferredSize(preferredSize);     
+        }
+    }   
 }

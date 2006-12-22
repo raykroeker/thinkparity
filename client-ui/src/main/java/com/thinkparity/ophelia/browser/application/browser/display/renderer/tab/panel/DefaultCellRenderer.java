@@ -123,10 +123,12 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
      * Maybe show a popup.
      */
     private void maybeShowPopup(final java.awt.event.MouseEvent e) {
-        tabPanel.panelCellMouseClicked(cell, e);
-        if (e.isPopupTrigger() && (null != tabPanel.getPopupDelegate())) {
-            tabPanel.getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
-            cell.showPopup();
+        if (e.isPopupTrigger()) {
+            tabPanel.panelCellMousePopupTrigger(cell, e);
+            if (null != tabPanel.getPopupDelegate()) {
+                tabPanel.getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
+                cell.showPopup();
+            }
         }
     }
 }

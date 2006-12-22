@@ -19,8 +19,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -29,8 +27,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -40,17 +37,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -243,17 +232,21 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     public void panelCellMouseClicked(final Cell cell, final MouseEvent e) {
+        if ((cell instanceof WestCell) && (e.getButton() == MouseEvent.BUTTON1)) {
+            westListModel.setSelectedCell(cell);
+        }           
+        if ((e.getClickCount() % 2) == 0) {
+            tabDelegate.toggleExpansion(this);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePopupTrigger(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
+     */
+    @Override
+    public void panelCellMousePopupTrigger(final Cell cell, final MouseEvent e) {
         if (cell instanceof WestCell) {
-            if (e.isPopupTrigger() || (e.getButton() == MouseEvent.BUTTON1)) {
-                westListModel.setSelectedCell(cell);
-            }
-            if ((e.getClickCount() % 2) == 0) {
-                tabDelegate.toggleExpansion(this);
-            }
-        } else if (cell instanceof EastCell) {
-            if ((e.getClickCount() % 2) == 0) {
-                tabDelegate.toggleExpansion(this);
-            }
+            westListModel.setSelectedCell(cell);
         }
     }
 

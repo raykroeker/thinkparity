@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -21,11 +23,17 @@ public final class TabAnimator {
     /** The working <code>Timer</code>. */
     private Timer animator;
 
+    /** A completion <code>Runnable</code>. */
+    private Runnable animatorCompletion;
+
     /** The <code>JPanel</code>. */
     private final JPanel jPanel;
 
     /** The panel original height <code>int</code>. */
     private final int jPanelOriginalHeight;
+
+    /** An apache logger wrapper. */
+    private Log4JWrapper logger;
 
     /** The delay used by the <code>Timer</code>. */
     private final int timerDelay;
@@ -35,14 +43,12 @@ public final class TabAnimator {
      * 
      * @param jPanel
      *            The <code>JPanel</code> to animate.
-     * @param adjustmentRate
-     *            The number of adjustments that are made per second.
      */
-    public TabAnimator(final JPanel jPanel, final int adjustmentRate) {
+    public TabAnimator(final JPanel jPanel) {
         super();
         this.jPanel = jPanel;
         this.jPanelOriginalHeight = jPanel.getPreferredSize().height;
-        this.timerDelay = adjustmentRate / 1000;
+        this.timerDelay = 1;
     }
 
     /**
@@ -52,14 +58,34 @@ public final class TabAnimator {
      *            The <code>int</code> amount by which to decrement the
      *            height.
      * @param heightBound
-     *            The lower bound <code>int</code> of the
+     *            The lower bound <code>int</code> of the jpanel height.
      */
     public void collapse(final int heightDecrement, final int heightBound) {
+        collapse(heightDecrement, heightBound, new Runnable() {
+            public void run() {}
+        });
+    }
+
+    /**
+     * Collapse the panel's height via a timer.
+     * 
+     * @param heightDecrement
+     *            The <code>int</code> amount by which to decrement the
+     *            height.
+     * @param heightBound
+     *            The lower bound <code>int</code> of the panel height.
+     * @param animatorCompletion
+     *            The runnable to execute upon completion of the animation.
+     */
+    public void collapse(final int heightDecrement, final int heightBound,
+            final Runnable animatorCompletion) {
         if (null != animator && animator.isRunning()) {
             reset();
         }
+        this.animatorCompletion = animatorCompletion;
         animator = new Timer(timerDelay, new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
+                if (null != logger) logger.logApiId();
                 decrementHeight(heightDecrement, heightBound);
                 jPanel.revalidate();
             }
@@ -69,8 +95,6 @@ public final class TabAnimator {
 
     /**
      * Expand the panel's height via a timer.
-     *
-     * 
      * @param heightIncrement
      *            The <code>int</code> amount by which to increment the
      *            height.
@@ -78,16 +102,55 @@ public final class TabAnimator {
      *            The upper bound <code>int</code> of the height.
      */
     public void expand(final int heightIncrement, final int heightBound) {
+        expand(heightIncrement, heightBound, new Runnable() {
+            public void run() {}
+        });
+    }
+
+    /**
+     * Expand the panel's height via a timer.
+     * 
+     * 
+     * @param heightIncrement
+     *            The <code>int</code> amount by which to increment the
+     *            height.
+     * @param heightBound
+     *            The upper bound <code>int</code> of the height.
+     * @param animatorCompletion
+     *            The completion runnable to execute when finished.
+     */
+    public void expand(final int heightIncrement, final int heightBound,
+            final Runnable animatorCompletion) {
         if (null != animator && animator.isRunning()) {
             reset();
         }
+        this.animatorCompletion = animatorCompletion;
         animator = new Timer(timerDelay, new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
+                if (null != logger) logger.logApiId();
                 incrementHeight(heightIncrement, heightBound);
                 jPanel.revalidate();
             }
         });
         animator.start();
+    }
+
+    /**
+     * Obtain logger.
+     *
+     * @return A Log4JWrapper.
+     */
+    public Log4JWrapper getLogger() {
+        return logger;
+    }
+
+    /**
+     * Determine whether or not the animator is running.
+     * 
+     * @return True if it is running.
+     */
+    public Boolean isRunning() {
+        return animator.isRunning();
     }
 
     /**
@@ -97,10 +160,19 @@ public final class TabAnimator {
      */
     public void reset() {
         if (null != animator && animator.isRunning()) {
-            animator.stop();
-            animator = null;
+            stopAnimator();
         }
         setHeight(jPanelOriginalHeight);
+    }
+
+    /**
+     * Set logger.
+     *
+     * @param logger
+     *		A Log4JWrapper.
+     */
+    public void setLogger(final Log4JWrapper logger) {
+        this.logger = logger;
     }
 
     /**
@@ -118,7 +190,7 @@ public final class TabAnimator {
         size.height -= decrement;
         if (bound >= size.height) {
             size.height = bound;
-            animator.stop();
+            stopAnimator();
         }
         setHeight(size.height);
     }
@@ -138,7 +210,7 @@ public final class TabAnimator {
         size.height += increment;
         if (bound <= size.height) {
             size.height = bound;
-            animator.stop();
+            stopAnimator();
         }
         setHeight(size.height);
     }
@@ -153,5 +225,19 @@ public final class TabAnimator {
         final Dimension size = jPanel.getPreferredSize();
         size.height = height;
         jPanel.setPreferredSize(size);
+    }
+
+    /**
+     * Stop the animator.
+     *
+     */
+    private void stopAnimator() {
+        animator.stop();
+        animator = null;
+        try {
+            animatorCompletion.run();
+        } finally {
+            animatorCompletion = null;
+        }
     }
 }

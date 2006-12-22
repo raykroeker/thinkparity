@@ -23,10 +23,10 @@ import com.thinkparity.desdemona.DesdemonaTestUser;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class MultiStreamWriterTest extends StreamTestCase {
+public final class BrokenStreamWriterTest extends StreamTestCase {
 
     /** The test name <code>String</code>. */
-    private static final String NAME = "Multi stream writer test.";
+    private static final String NAME = "Broken stream writer test.";
 
     /** The test datum <code>Fixture</code>. */
     private Fixture datum;
@@ -35,21 +35,21 @@ public final class MultiStreamWriterTest extends StreamTestCase {
      * Create MultiStreamWriterTest.
      *
      */
-    public MultiStreamWriterTest() {
+    public BrokenStreamWriterTest() {
         super(NAME);
     }
 
     /**
-     * Test multiple upstream simultaneous writers.
+     * Test broken upstream simultaneous writers.
      *
      */
-    public void testMultiWriter() {
+    public void testBrokenWriter() {
         for (final Thread streamWriter : datum.streamWriters) {
             streamWriter.start();
         }
-        synchronized (MultiStreamWriterTest.this) {
+        synchronized (BrokenStreamWriterTest.this) {
             try {
-                MultiStreamWriterTest.this.wait();
+                BrokenStreamWriterTest.this.wait();
             } catch (final InterruptedException ix) {
                 fail(createFailMessage(ix));
             }
@@ -68,7 +68,7 @@ public final class MultiStreamWriterTest extends StreamTestCase {
         final File streamFile = getInputFiles()[8];
         final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
 
-        final int streamCount = 15;
+        final int streamCount = 1;
         final List<Thread> streamWriters = new ArrayList<Thread>();
         for (int i = 0; i < streamCount; i++) {
             streamWriters.add(new Thread(new Runnable() {
@@ -86,8 +86,8 @@ public final class MultiStreamWriterTest extends StreamTestCase {
                                 streamWriter.close();
                                 datum.completedCount++;
                                 if (datum.completedCount == streamCount) {
-                                    synchronized (MultiStreamWriterTest.this) {
-                                        MultiStreamWriterTest.this.notifyAll();
+                                    synchronized (BrokenStreamWriterTest.this) {
+                                        BrokenStreamWriterTest.this.notifyAll();
                                     }
                                 }
                             }
@@ -118,9 +118,9 @@ public final class MultiStreamWriterTest extends StreamTestCase {
      * 
      */
     private final class Fixture extends StreamTestCase.Fixture {
+        private final List<Thread> streamWriters;
         private Integer completedCount;
         private final StreamServer streamServer;
-        private final List<Thread> streamWriters;
         private Fixture(final StreamServer streamServer,
                 final List<Thread> streamWriters) {
             super();

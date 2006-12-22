@@ -43,8 +43,6 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -55,6 +53,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublished
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.UploadMonitor;
 import com.thinkparity.ophelia.model.archive.InternalArchiveModel;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
@@ -3011,22 +3010,22 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 documentVersionStreams.entrySet()) {
             fireStageBegin(monitor, PublishStage.UploadStream,
                     entry.getKey().getName());
-            documentVersionStreamIds.put(entry.getKey(), uploadStream(
-                    new StreamMonitor() {
-                        private long totalChunks = 0;
-                        public void chunkReceived(final int chunkSize) {}
-                        public void chunkSent(final int chunkSize) {
-                            totalChunks += chunkSize;
-                            if (totalChunks >= STEP_SIZE) {
-                                totalChunks -= STEP_SIZE;
-                                fireStageEnd(monitor, PublishStage.UploadStream);
+            try {
+                documentVersionStreamIds.put(entry.getKey(), uploadStream(
+                        new UploadMonitor() {
+                            private long totalChunks = 0;
+                            public void chunkUploaded(final int chunkSize) {
+                                totalChunks += chunkSize;
+                                if (totalChunks >= STEP_SIZE) {
+                                    totalChunks -= STEP_SIZE;
+                                    fireStageEnd(monitor, PublishStage.UploadStream);
+                                }
                             }
-                        }
-                        public void headerReceived(final String header) {}
-                        public void headerSent(final String header) {}
-                        public void streamError(final StreamException error) {}
-                    }, session, entry.getValue(), entry.getKey().getSize()));
-            fireStageEnd(monitor, PublishStage.UploadStream);
+                        }, session, entry.getValue(), entry.getKey().getSize()));
+                fireStageEnd(monitor, PublishStage.UploadStream);
+            } finally {
+                entry.getValue().close();
+            }
         }
         getSessionModel().deleteStreamSession(session);
         fireStageBegin(monitor, PublishStage.PublishContainer);

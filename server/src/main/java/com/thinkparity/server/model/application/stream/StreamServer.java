@@ -191,13 +191,20 @@ final class StreamServer {
      *            A <code>StreamSession</code>.
      * @param streamId
      *            A stream id <code>String</code>.
+     * @param streamOffset
+     *            The point at which to set the read position within the stream.
      * @return An <code>InputStream</code>.
      * @throws IOException
      */
     InputStream openInputStream(final StreamSession session,
-            final String streamId) throws IOException {
-        return new FileInputStream(
-                fileServer.find(authenticate(session), streamId));
+            final String streamId, final Long streamOffset) throws IOException {
+        final File inputFile = fileServer.find(authenticate(session), streamId);
+        Assert.assertTrue(streamOffset.longValue() < inputFile.length(),
+            "Downstream offset {0} cannot be set for {1} of size {2}.",
+            streamOffset, streamId, inputFile.length());
+        final InputStream inputStream = new FileInputStream(inputFile);
+        inputStream.skip(streamOffset);
+        return inputStream;
     }
 
     /**
@@ -207,13 +214,17 @@ final class StreamServer {
      *            A session id <code>String</code>.
      * @param streamId
      *            A stream id <code>String</code>.
+     * @param streamOffset
+     *            At which point to set the write position within the stream.
      * @return An output stream.
      * @throws IOException
      */
     OutputStream openOutputStream(final StreamSession session,
-            final String streamId) throws IOException {
-        return new FileOutputStream(
-                fileServer.find(authenticate(session), streamId));
+            final String streamId, final Long streamOffset) throws IOException {
+        final File outputFile = fileServer.find(authenticate(session), streamId);
+        Assert.assertTrue(streamOffset.longValue() == outputFile.length(),
+                "Upstream offset cannot be set for {0}.", streamId);
+        return new FileOutputStream(outputFile, true);
     }
 
     /**

@@ -35,7 +35,7 @@ public final class DownstreamHandlerTest extends StreamTestCase {
         super(NAME);
     }
 
-    public void testRun() {
+    public void testDownstreamHandler() {
         datum.handler.run();
     }
 
@@ -52,9 +52,10 @@ public final class DownstreamHandlerTest extends StreamTestCase {
         final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
         final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
         final String streamId = createStream(server, session, streamFile.getName());
-        seedServer(server, session, streamId, streamFile);
+        seedServer(server, session, streamId, 0L, streamFile);
         final OutputStream output = new FileOutputStream(new File(getOutputDirectory(), streamId));
-        datum = new Fixture(new DownstreamHandler(server, session, streamId, output));
+        datum = new Fixture(server, new DownstreamHandler(server, session, streamId,
+                0L, streamFile.length(), output));
     }
 
     /**
@@ -63,13 +64,17 @@ public final class DownstreamHandlerTest extends StreamTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
+        datum.streamServer.stop(Boolean.TRUE);
         super.tearDown();
     }
 
     private final class Fixture extends StreamTestCase.Fixture {
         private final DownstreamHandler handler;
-        private Fixture(final DownstreamHandler handler) {
+        private final StreamServer streamServer;
+        private Fixture(final StreamServer streamServer,
+                final DownstreamHandler handler) {
             super();
+            this.streamServer = streamServer;
             this.handler = handler;
         }
     }

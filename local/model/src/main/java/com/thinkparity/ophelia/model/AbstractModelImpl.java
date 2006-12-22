@@ -39,6 +39,7 @@ import com.thinkparity.codebase.model.migrator.Library;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
@@ -188,6 +189,22 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
+     * Assert that the artifact does not exist.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param assertMessage
+     *            An assertion message <code>String</code>.
+     * @param assertArguments
+     *            The assertion message arguments <code>Object...</code>.
+     */
+    protected void assertArtifactDoesNotExist(final UUID uniqueId,
+            final String assertMessage, final Object... assertArguments) {
+        Assert.assertNotTrue(doesArtifactExist(uniqueId), assertMessage,
+                assertArguments);
+    }
+
+    /**
      * Assert a draft doesn't exist for the container.
      * 
      * @param containerId
@@ -210,7 +227,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, getContainerModel().readDraft(containerId));
     }
 
-    /**
+	/**
      * Assert that a latest version exists.
      * 
      * @param assertion
@@ -224,7 +241,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
     }
 
-	/**
+    /**
      * Assert that a version exists.
      * 
      * @param assertion
@@ -241,33 +258,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Assert that the artifact does not exist.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @param assertMessage
-     *            An assertion message <code>String</code>.
-     * @param assertArguments
-     *            The assertion message arguments <code>Object...</code>.
-     */
-    protected void assertArtifactDoesNotExist(final UUID uniqueId,
-            final String assertMessage, final Object... assertArguments) {
-        Assert.assertNotTrue(doesArtifactExist(uniqueId), assertMessage,
-                assertArguments);
-    }
-
-    /**
-     * Determine whether or not the artifact exists.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return True if the artifact exists; false otherwise.
-     */
-    protected Boolean doesArtifactExist(final UUID uniqueId) {
-        return getArtifactModel().doesExist(uniqueId);
-    }
-
-	/**
      * Assert that the list of team members does not contain the user.
      * 
      * 
@@ -283,7 +273,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotTrue(assertion, contains(teamMembers, user));
     }
 
-    /**
+	/**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -311,7 +301,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-	/**
+    /**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -325,7 +315,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-    /**
+	/**
      * Assert the user id does not match the local user id.
      * 
      * @param userId
@@ -369,7 +359,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         Assert.assertNotNull(assertion, reference);
     }
 
-	/**
+    /**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -394,7 +384,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline("USER NOT ONLINE");
     }
 
-    /**
+	/**
      * Assert the user is online.
      *
      * @param assertion
@@ -408,7 +398,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -438,7 +428,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		}
 	}
 
-    /**
+	/**
      * Assert that the user is a team member.
      * 
      * @param assertion
@@ -558,6 +548,17 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
+     * Determine whether or not the artifact exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the artifact exists; false otherwise.
+     */
+    protected Boolean doesArtifactExist(final UUID uniqueId) {
+        return getArtifactModel().doesExist(uniqueId);
+    }
+
+    /**
      * Determine whether or not a latest version exists.
      * 
      * @param artifactId
@@ -582,21 +583,37 @@ public abstract class AbstractModelImpl<T extends EventListener>
     }
 
     /**
-     * Download a stream from the stream server.
+     * Download from the stream server.
      * 
+     * @param downloadMonitor
+     *            A download monitor.
+     * @param streamMonitor
+     *            A <code>StreamMonitor</code>.
      * @param streamId
      *            A stream id <code>String</code>.
-     * @return A stream <code>File</code>.
+     * @return The downloaded <code>File</code>.
+     * @throws IOException
      */
-    protected final File downloadStream(final StreamMonitor streamMonitor,
-            final String streamId) throws IOException {
+    protected final File downloadStream(final DownloadMonitor downloadMonitor,
+            final StreamMonitor streamMonitor, final String streamId,
+            final Long streamOffset) throws IOException {
         final File streamFile = buildStreamFile(streamId);
-        final FileOutputStream stream = new FileOutputStream(streamFile);
+        final Long actualStreamOffset;
+        if (streamFile.length() < streamOffset) {
+            logger.logWarning("Cannot resume download for {0} at {1}.  Starting over.",
+                    streamId, streamOffset);
+            actualStreamOffset = 0L;
+        } else {
+            logger.logInfo("Resuming download for {0} at {1}.",
+                    streamId, streamOffset);
+            actualStreamOffset = streamOffset;
+        }
+        final FileOutputStream stream = new FileOutputStream(streamFile, true);
         final StreamSession session = getSessionModel().createStreamSession();
         final StreamReader reader = new StreamReader(streamMonitor, session);
         try {
             reader.open();
-            reader.read(streamId, stream);
+            reader.read(streamId, stream, actualStreamOffset);
         } finally {
             try {
                 stream.close();
@@ -605,6 +622,51 @@ public abstract class AbstractModelImpl<T extends EventListener>
             }
         }
         return streamFile;
+    }
+
+    /**
+     * Start a download from the stream server.
+     * 
+     * @param downloadMonitor
+     *            A download monitor.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return The downloaded <code>File</code>.
+     * @throws IOException
+     */
+    protected final File downloadStream(final DownloadMonitor downloadMonitor,
+            final String streamId) throws IOException {
+        final StreamMonitor streamMonitor = new StreamMonitor() {
+            long recoverChunkOffset = 0;
+            long totalChunks = 0;
+            public void chunkReceived(final int chunkSize) {
+                totalChunks += chunkSize;
+                downloadMonitor.chunkDownloaded(chunkSize);
+            }
+            public void chunkSent(final int chunkSize) {}
+            public void headerReceived(final String header) {}
+            public void headerSent(final String header) {}
+            public void streamError(final StreamException error) {
+                if (error.isRecoverable()) {
+                    if (recoverChunkOffset <= totalChunks) {
+                        logger.logWarning(error, "Network error.");
+                        recoverChunkOffset = totalChunks;
+                        try {
+                            // attempt to resume the download
+                            downloadStream(downloadMonitor, this, streamId,
+                                    Long.valueOf(recoverChunkOffset));
+                        } catch (final IOException iox) {
+                            throw translateError(iox);
+                        }
+                    } else {
+                        throw translateError(error);
+                    }
+                } else {
+                    throw translateError(error);
+                }
+            }
+        };
+        return downloadStream(downloadMonitor, streamMonitor, streamId, 0L);
     }
 
     /**
@@ -619,6 +681,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected TeamMember get(final List<TeamMember> team, final User user) {
         return team.get(indexOf(team, user));
     }
+
     protected InternalArchiveModel getArchiveModel() {
         return ArchiveModel.getInternalModel(getContext(), environment, workspace);
     }
@@ -631,7 +694,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
     protected InternalArtifactModel getArtifactModel() {
         return ArtifactModel.getInternalModel(getContext(), environment, workspace);
     }
-
     protected InternalBackupModel getBackupModel() {
         return BackupModel.getInternalModel(getContext(), environment, workspace);
     }
@@ -658,7 +720,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
 		return AuditModel.getInternalModel(getContext(), environment, workspace);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -683,9 +745,9 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalDownloadModel getInternalDownloadModel() {
         return DownloadModel.getInternalModel(getContext(), environment, workspace);
-    };
+    }
 
-	/**
+    /**
      * Obtain the internal parity library interface.
      *
      * @return The internal parity library interface.
@@ -701,7 +763,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      */
     protected InternalSystemMessageModel getInternalMessageModel() {
         return getInternalSystemMessageModel();
-    }
+    };
 
 	/**
      * Obtain the internal parity release interface.
@@ -712,7 +774,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
         return ReleaseModel.getInternalModel(getContext(), environment, workspace);
     }
 
-    /**
+	/**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.
@@ -720,7 +782,8 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(getContext(), environment, workspace);
 	}
-    /**
+
+	/**
      * Obtain the internal parity user interface.
      * 
      * @return The internal parity user interface.
@@ -735,7 +798,6 @@ public abstract class AbstractModelImpl<T extends EventListener>
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
-
     protected StringBuffer getLogId(final Library library) {
         if(null == library) { return new StringBuffer("null"); }
         else {
@@ -1070,21 +1132,92 @@ public abstract class AbstractModelImpl<T extends EventListener>
      *            A <code>Iterable</code> series of <code>InputStream</code>.
      * @throws IOException
      */
-    protected final String uploadStream(final StreamMonitor monitor,
-            final StreamSession session, final InputStream stream,
-            final Long streamSize) throws IOException {
+    protected final String uploadStream(final UploadMonitor uploadMonitor,
+            final StreamMonitor streamMonitor, final StreamSession session,
+            final InputStream stream, final Long streamSize,
+            final Long streamOffset) throws IOException {
+        stream.reset();
+        long skipped = stream.skip(streamOffset);
+        while (skipped < streamOffset && 0 < skipped) {
+            skipped += stream.skip(streamOffset.longValue() - skipped);
+        }
+        final Long actualStreamOffset;
+        if (skipped == streamOffset.longValue()) {
+            logger.logInfo("Resuming download for {0} at {1}.",
+                    session, streamOffset);
+            actualStreamOffset = streamOffset;
+        } else {
+            logger.logWarning("Could not resume download for {0} at {1}.  Starting over.",
+                    session, streamOffset);
+            actualStreamOffset = 0L;
+        }
         final InternalSessionModel sessionModel = getSessionModel();
-        final StreamWriter writer = new StreamWriter(monitor, session);
+        final StreamWriter writer = new StreamWriter(streamMonitor, session);
         writer.open();
         try {
             final String streamId = sessionModel.createStream(session);
-            writer.write(streamId, stream, streamSize);
+            writer.write(streamId, stream, streamSize, actualStreamOffset);
             return streamId;
         } finally {
             writer.close();
         }
     }
 
+    /**
+     * Upload a stream to the stream server using an existing session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param iStream
+     *            A <code>Iterable</code> series of <code>InputStream</code>.
+     * @throws IOException
+     */
+    protected final String uploadStream(final UploadMonitor uploadMonitor,
+            final StreamSession session, final InputStream stream,
+            final Long streamSize) throws IOException {
+        final StreamMonitor streamMonitor = new StreamMonitor() {
+            long recoverChunkOffset = 0;
+            long totalChunks = 0;
+            public void chunkReceived(final int chunkSize) {}
+            public void chunkSent(final int chunkSize) {
+                totalChunks += chunkSize;
+                uploadMonitor.chunkUploaded(chunkSize);
+            }
+            public void headerReceived(final String header) {}
+            public void headerSent(final String header) {}
+            public void streamError(final StreamException error) {
+                if (error.isRecoverable()) {
+                    if (recoverChunkOffset <= totalChunks) {
+                        // attempt to resume the upload
+                        recoverChunkOffset = totalChunks;
+                        try {
+                            uploadStream(uploadMonitor, this, session, stream,
+                                    streamSize, Long.valueOf(recoverChunkOffset));
+                        } catch (final IOException iox) {
+                            throw translateError(iox);
+                        }
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    throw error;
+                }
+            }
+        };
+        return uploadStream(uploadMonitor, streamMonitor, session, stream,
+                streamSize, 0L);
+    }
+
+    /**
+     * Build a local file to back a stream. Note that the file is transient in
+     * nature and will be deleted when thinkParity is shutdown or the next time
+     * it is started up.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return A <code>File</code>.
+     * @throws IOException
+     */
     private File buildStreamFile(final String streamId) throws IOException {
         return workspace.createTempFile(streamId);
     }

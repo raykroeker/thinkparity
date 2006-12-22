@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,6 +29,9 @@ import com.thinkparity.codebase.model.stream.StreamSession;
  * @version 1.1.2.1
  */
 class StreamSocketServer implements Runnable {
+
+    /** A stack of the connected client <code>Socket</code>. */
+    private final Stack<Socket> clientSockets;
 
     /** A <code>ExecutorServer</code> to create threads within. */
     private final ExecutorService executorService;
@@ -87,14 +92,14 @@ class StreamSocketServer implements Runnable {
             final String host, final Integer port,
             final ServerSocketFactory factory) {
         super();
+        this.clientSockets = new Stack<Socket>();
         this.executorService = Executors.newSingleThreadExecutor();
         this.logger = new Log4JWrapper(getClass());
         this.serverSocketAddress = new InetSocketAddress(host, port);
         this.serverSocketBacklog = 75;
         this.serverSocketFactory = factory;
         this.streamServer = streamServer;
-    }
-
+    } 
 
     /**
      * Run the stream socket server.
@@ -109,16 +114,32 @@ class StreamSocketServer implements Runnable {
                 synchronized (this) {
                     notifyAll();
                 }
-                final Socket clientSocket = serverSocket.accept();
-                logger.logTrace("Socket connected.");
+
+                // attempt to establish a socket connection
                 try {
-                    new Thread(new StreamSocketDelegate(streamServer, clientSocket),
-                            clientSocket.getRemoteSocketAddress().toString()).start();
+                    clientSockets.push(serverSocket.accept());
+                } catch (final SocketException sx) {
+                    if ("Socket closed".equals(sx.getMessage())) {
+                        logger.logInfo("Stream socket server shutdown.");
+                        synchronized (this) {
+                            notifyAll();
+                        }
+                        return;
+                    } else {
+                        throw sx;
+                    }
+                }
+
+                // use the socket delegate to handle the streaming
+                try {
+                    new Thread(new StreamSocketDelegate(streamServer, clientSockets.peek()),
+                            clientSockets.peek().getRemoteSocketAddress().toString()).start();
                 } catch (final Throwable t) {
                     logger.logError(t, "Failed to negotiate stream {0}.",
-                            clientSocket.getRemoteSocketAddress());
+                            clientSockets.peek().getRemoteSocketAddress());
+                } finally {
+                    clientSockets.pop();
                 }
-                logger.logTrace("Socket handler executed.");
             }
         } catch (final Throwable t) {
             logger.logFatal(t, "Fatal stream socket server error.");
@@ -187,6 +208,8 @@ class StreamSocketServer implements Runnable {
     void stop(final Boolean wait) {
         try {
             doStop(wait);
+        } catch (final InterruptedException ix) {
+            throw new StreamException(ix);
         } catch (final IOException iox) {
             throw new StreamException(iox);
         }
@@ -212,9 +235,21 @@ class StreamSocketServer implements Runnable {
         logger.logTrace("Socket server started.");
     }
 
-    private void doStop(final Boolean wait) throws IOException {
+    private void doStop(final Boolean wait) throws IOException,
+            InterruptedException {
         run = false;
-        serverSocket.close();
-        serverSocket = null;
+        try {
+            if (wait.booleanValue() && 0 < clientSockets.size()) {
+                synchronized (this) {
+                    wait();
+                }
+            }
+        } finally {
+            try {
+                serverSocket.close();
+            } finally {
+                serverSocket = null;
+            }
+        }
     }
 }

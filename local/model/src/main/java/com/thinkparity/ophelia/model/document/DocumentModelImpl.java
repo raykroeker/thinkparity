@@ -31,11 +31,10 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.util.xmpp.event.ContainerArtifactPublishedEvent;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
 import com.thinkparity.ophelia.model.Constants.Encoding;
@@ -322,12 +321,8 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                     version = readVersion(document.getId(), event.getArtifactVersionId());
                 }
                 else {
-                    final File streamFile = downloadStream(new StreamMonitor() {
-                        public void chunkReceived(final int chunkSize) {}
-                        public void chunkSent(final int chunkSize) {}
-                        public void headerReceived(final String header) {}
-                        public void headerSent(final String header) {}
-                        public void streamError(final StreamException error) {}
+                    final File streamFile = downloadStream(new DownloadMonitor() {
+                        public void chunkDownloaded(final int chunkSize) {}
                     }, event.getArtifactStreamId());
                     final InputStream stream = new FileInputStream(streamFile);
                     try {
@@ -343,12 +338,8 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 document = create(event.getArtifactUniqueId(),
                         event.getArtifactName(), event.getPublishedBy(),
                         event.getPublishedOn());
-                final File streamFile = downloadStream(new StreamMonitor() {
-                    public void chunkReceived(final int chunkSize) {}
-                    public void chunkSent(final int chunkSize) {}
-                    public void headerReceived(final String header) {}
-                    public void headerSent(final String header) {}
-                    public void streamError(final StreamException error) {}
+                final File streamFile = downloadStream(new DownloadMonitor() {
+                    public void chunkDownloaded(final int chunkSize) {}
                 }, event.getArtifactStreamId());
                 final InputStream stream = new FileInputStream(streamFile);
                 try {

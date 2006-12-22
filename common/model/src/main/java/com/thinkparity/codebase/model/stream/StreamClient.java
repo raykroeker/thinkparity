@@ -16,6 +16,7 @@ import javax.net.SocketFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Environment;
 
 /**
@@ -34,12 +35,15 @@ abstract class StreamClient {
     /** A default <code>StreamMonitor</code>. */
     private static final StreamMonitor DEFAULT_MONITOR;
 
+    /** An apache logger wrapper. */
+    private static final Log4JWrapper LOGGER;
+
     /** A list of socket error messages know to be recoverable from. */
     private static final List<String> RECOVERABLE_MESSAGES;
 
     static {
+        LOGGER = new Log4JWrapper();
         DEFAULT_MONITOR = new StreamMonitor() {
-            private final Log4JWrapper LOGGER = new Log4JWrapper();
             public void chunkReceived(int chunkSize) {
                 LOGGER.logApiId();
                 LOGGER.logVariable("chunkSize", chunkSize);
@@ -179,10 +183,21 @@ abstract class StreamClient {
                 }
             } finally {
                 stream.flush();
-                stream.close();
             }
         } catch (final IOException iox) {
-            throw panic(iox);
+            if(SocketException.class.isAssignableFrom(iox.getClass())) {
+                if (RECOVERABLE_MESSAGES.contains(iox.getMessage())) {
+                    if (isResumable()) {
+                        fireStreamError(new StreamException(Boolean.TRUE, iox));
+                    } else{ 
+                        fireStreamError(new StreamException(Boolean.FALSE, iox));
+                    }
+                } else {
+                    fireStreamError(new StreamException(Boolean.FALSE, iox));
+                }
+            } else {
+                fireStreamError(new StreamException(Boolean.FALSE, iox));
+            }
         }
     }
 
@@ -198,29 +213,25 @@ abstract class StreamClient {
         try {
             int len;
             final byte[] b = new byte[session.getBufferSize()];
-            try {
-                while((len = stream.read(b)) > 0) {
-                    output.write(b, 0, len);
-                    output.flush();
-                    fireChunkSent(len);
-                }
-            } finally {
-                stream.close();
+            while((len = stream.read(b)) > 0) {
+                output.write(b, 0, len);
+                output.flush();
+                fireChunkSent(len);
             }
         } catch (final IOException iox) {
             if(SocketException.class.isAssignableFrom(iox.getClass())) {
                 if (RECOVERABLE_MESSAGES.contains(iox.getMessage())) {
-                    if (isResumable()) {
-                        try {
-                            connect();
-                        } catch (final IOException iox2) {
-                            throw panic(iox);
-                        }
-                        resumeWrite(stream, streamSize);
+                    if (isResumable(stream)) {
+                        fireStreamError(new StreamException(Boolean.TRUE, iox));
+                    } else {
+                        fireStreamError(new StreamException(Boolean.FALSE, iox));
                     }
+                } else {
+                    fireStreamError(new StreamException(Boolean.FALSE, iox));
                 }
+            } else {
+                fireStreamError(new StreamException(Boolean.FALSE, iox));
             }
-            throw panic(iox);
         }
     }
 
@@ -277,6 +288,7 @@ abstract class StreamClient {
             monitor.chunkReceived(chunkSize);
         } catch (final Throwable t) {
             // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
         }
     }
 
@@ -291,6 +303,7 @@ abstract class StreamClient {
             monitor.chunkSent(chunkSize);
         } catch (final Throwable t) {
             // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
         }
     }
 
@@ -305,6 +318,22 @@ abstract class StreamClient {
             monitor.headerSent(header.toHeader());
         } catch (final Throwable t) {
             // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
+    }
+
+    /**
+     * Notify the client monitor that a stream error has occured.
+     * 
+     * @param error
+     *            The <code>StreamException</code>.
+     */
+    private void fireStreamError(final StreamException error) {
+        try {
+            monitor.streamError(error);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
         }
     }
 
@@ -326,21 +355,54 @@ abstract class StreamClient {
      * 
      * @return True if the stream host is reachable.
      */
-    private Boolean isResumable() {
+    private boolean isResumable() {
         Socket socket = null;
         try {
             socket = socketFactory.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
-            return Boolean.TRUE;
+            return true;
         } catch (final Throwable t) {
-            return Boolean.FALSE;
+            return false;
         } finally {
             if (null != socket) {
                 if (socket.isConnected()) {
                     try {
                         socket.close();
                     } catch (final IOException iox) {
-                        panic(iox);
+                        throw panic(iox);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Determine whether or not a stream error is recoverable. The criteria for
+     * being able to recover are:
+     * <ul>
+     * <li>Being able to create a socket connection to the socket address.
+     * <li>Subsequent bytes being avaialbe on stream.
+     * </ul>
+     * 
+     * @param stream
+     *            A stream <code>InputStream</code>.
+     * @return True if the stream host is reachable.
+     */
+    private boolean isResumable(final InputStream stream) {
+        Socket socket = null;
+        try {
+            socket = socketFactory.createSocket(
+                socketAddress.getAddress(), socketAddress.getPort());
+            return 0 < stream.available();
+        } catch (final Throwable t) {
+            return false;
+        } finally {
+            if (null != socket) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (final IOException iox) {
+                        throw panic(iox);
                     }
                 }
             }
@@ -355,15 +417,6 @@ abstract class StreamClient {
      */
     private StreamException panic(final Throwable t) {
         return new StreamException(Boolean.FALSE, t);
-    }
-
-    /**
-     * Resume the client write operation. Re-establish the connection; write a
-     * header indicating the position; and continue.
-     * 
-     */
-    private void resumeWrite(final InputStream stream, final Long streamSize) {
-        Assert.assertNotYetImplemented("");
     }
 
     /**

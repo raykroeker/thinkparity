@@ -60,10 +60,20 @@ abstract class StreamTestCase extends ModelTestCase {
             final DesdemonaTestUser testUser, final File workingDirectory) {
         return new StreamServer(workingDirectory, testUser.getEnvironment());
     }
+
+    /**
+     * @param server
+     * @param session
+     * @param streamId
+     * @param streamOffset
+     * @param file
+     * @throws IOException
+     */
     protected void seedServer(final StreamServer server,
-            final StreamSession session, final String streamId, final File file)
-            throws IOException {
-        final OutputStream output = server.openOutputStream(session, streamId);
+            final StreamSession session, final String streamId,
+            final Long streamOffset, final File file) throws IOException {
+        final OutputStream output = server.openOutputStream(session, streamId,
+                streamOffset);
         try {
             StreamUtil.copy(new FileInputStream(file), output);
         } finally {

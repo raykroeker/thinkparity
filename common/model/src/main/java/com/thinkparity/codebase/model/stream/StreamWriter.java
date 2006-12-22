@@ -18,8 +18,8 @@ public final class StreamWriter extends StreamClient {
      * @param session
      *            A stream <code>Session</code>.
      */
-    public StreamWriter(final StreamSession session) {
-        super(Type.UPSTREAM, session);
+    public StreamWriter(final StreamMonitor monitor, final StreamSession session) {
+        super(Type.UPSTREAM, monitor, session);
     }
 
     /**
@@ -28,8 +28,8 @@ public final class StreamWriter extends StreamClient {
      * @param session
      *            A stream <code>Session</code>.
      */
-    public StreamWriter(final StreamMonitor monitor, final StreamSession session) {
-        super(Type.UPSTREAM, monitor, session);
+    public StreamWriter(final StreamSession session) {
+        super(Type.UPSTREAM, session);
     }
 
     /**
@@ -63,8 +63,27 @@ public final class StreamWriter extends StreamClient {
      */
     public void write(final String streamId, final InputStream stream,
             final Long streamSize) {
+        write(streamId, stream, streamSize, 0L);
+    }
+
+
+    /**
+     * Write a stream.
+     * 
+     * @param monitor
+     *            A progress monitor.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @param streamSize
+     *            The size of the stream in bytes.
+     */
+    public void write(final String streamId, final InputStream stream,
+            final Long streamSize, final Long streamOffset) {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
         write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
+        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
         write(stream, streamSize);
     }
 }

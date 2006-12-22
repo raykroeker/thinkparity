@@ -16,13 +16,34 @@ import com.thinkparity.codebase.model.stream.StreamWriter;
 
 import com.thinkparity.desdemona.DesdemonaTestUser;
 
+/**
+ * <b>Title:</b>thinkParity Multi Stream Writer Test<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
 public final class MultiStreamWriterTest extends StreamTestCase {
-    private static final String NAME = "Stream Writer Test";
+
+    /** The test name <code>String</code>. */
+    private static final String NAME = "Multi stream writer test.";
+
+    /** The test datum <code>Fixture</code>. */
     private Fixture datum;
+
+    /**
+     * Create MultiStreamWriterTest.
+     *
+     */
     public MultiStreamWriterTest() {
         super(NAME);
     }
-    public void testDualWriters() {
+
+    /**
+     * Test multiple upstream simultaneous writers.
+     *
+     */
+    public void testMultiWriter() {
         for (final Thread streamWriter : datum.streamWriters) {
             streamWriter.start();
         }
@@ -34,6 +55,11 @@ public final class MultiStreamWriterTest extends StreamTestCase {
             }
         }
     }
+
+    /**
+     * @see com.thinkparity.desdemona.model.stream.StreamTestCase#setUp()
+     *
+     */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -41,8 +67,8 @@ public final class MultiStreamWriterTest extends StreamTestCase {
         Assert.assertTrue(workingDirectory.mkdir(), "Could not create directory {0}.", workingDirectory);
         final File streamFile = getInputFiles()[8];
         final StreamServer server = startStreamServer(DesdemonaTestUser.JUNIT, workingDirectory);
-        
-        final int streamCount = 25;
+
+        final int streamCount = 15;
         final List<Thread> streamWriters = new ArrayList<Thread>();
         for (int i = 0; i < streamCount; i++) {
             streamWriters.add(new Thread(new Runnable() {
@@ -69,21 +95,36 @@ public final class MultiStreamWriterTest extends StreamTestCase {
                             fail(createFailMessage(x));
                         }
                     }
-                }, "Stream Writer Thread" + String.valueOf(i)));
+                }, "Stream Writer Thread:  " + String.valueOf(i)));
         }
         
-        datum = new Fixture(streamWriters);
+        datum = new Fixture(server, streamWriters);
     }
+
+    /**
+     * @see com.thinkparity.desdemona.model.stream.StreamTestCase#tearDown()
+     *
+     */
     @Override
     protected void tearDown() throws Exception {
+        datum.streamServer.stop(Boolean.TRUE);
         datum = null;
         super.tearDown();
     }
+
+    /**
+     * <b>Title:</b>thinkParity Multi Stream Writer Test Fixture<br>
+     * <b>Description:</b>Test datum fixture for the test.<br>
+     * 
+     */
     private final class Fixture extends StreamTestCase.Fixture {
-        private final List<Thread> streamWriters;
         private Integer completedCount;
-        private Fixture(final List<Thread> streamWriters) {
+        private final StreamServer streamServer;
+        private final List<Thread> streamWriters;
+        private Fixture(final StreamServer streamServer,
+                final List<Thread> streamWriters) {
             super();
+            this.streamServer = streamServer;
             this.streamWriters = streamWriters;
             this.completedCount = 0;
         }

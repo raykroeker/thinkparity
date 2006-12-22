@@ -18,7 +18,7 @@ public final class StreamServerTest extends StreamTestCase {
     public StreamServerTest() {
         super(NAME);
     }
-    public void testStreamServer() {
+    public void testServer() {
         datum.streamServer.start();
         
         final ServerSession session = new ServerSession();

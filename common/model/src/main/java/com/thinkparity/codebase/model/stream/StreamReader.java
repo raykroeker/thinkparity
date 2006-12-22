@@ -61,7 +61,23 @@ public final class StreamReader extends StreamClient {
      *            A target <code>OutputStream</code>.
      */
     public void read(final String streamId, final OutputStream stream) {
+        read(streamId, stream, 0L);
+    }
+
+    /**
+     * Read a stream.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @param stream
+     *            A target <code>OutputStream</code>.
+     * @param streamOffset
+     *            The offset <code>Long</code> at which to start reading.
+     */
+    public void read(final String streamId, final OutputStream stream,
+            final Long streamOffset) {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
+        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(0)));
         read(stream);
     }
 }

@@ -7,47 +7,40 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.thinkparity.codebase.log4j.Log4JWrapper;
-
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class UpstreamHandler implements Runnable {
+public final class UpstreamHandler extends AbstractStreamHandler implements
+        Runnable {
     
+    /** The <code>InputStream</code> to upload. */
     private final InputStream input;
 
-    /** An apache logger wrapper. */
-    private final Log4JWrapper logger;
-
-    private final String streamId;
-
-    /** The <code>StreamServer</code>. */
-    private final StreamServer streamServer;
-
-    private final StreamSession streamSession;
-
-    private final Long streamSize;
-
     /**
-     * Create UpstreamSocketHandler.
+     * Create UpstreamHandler.
      * 
      * @param streamServer
      *            The <code>StreamServer</code>.
-     * @param socketChannel
-     *            The client <code>SocketChannel</code>.
+     * @param streamSession
+     *            The <code>StreamSession</code>.
+     * @param streamId
+     *            The stream id <code>String</code>.
+     * @param streamOffset
+     *            The offset <code>Long</code> within the stream to upload
+     *            from.
+     * @param streamSize
+     *            The size <code>Long</code> of the stream to upload.
+     * @param input
+     *            The <code>InputStream</code> to upload.
      */
     UpstreamHandler(final StreamServer streamServer,
             final StreamSession streamSession, final String streamId,
-            final Long streamSize, final InputStream input) {
-        super();
-        this.logger = new Log4JWrapper();
-        this.streamServer = streamServer;
-        this.streamSession = streamSession;
-        this.streamId = streamId;
-        this.streamSize = streamSize;
+            final Long streamOffset, final Long streamSize,
+            final InputStream input) {
+        super(streamServer, streamSession, streamId, streamOffset, streamSize);
         this.input = input;
     }
 
@@ -58,17 +51,20 @@ public final class UpstreamHandler implements Runnable {
      * 
      */
     public void run() {
-        logger.logApiId();
-        logger.logVariable("streamSize", streamSize);
+        LOGGER.logApiId();
+        LOGGER.logVariable("streamId", streamId);
+        LOGGER.logVariable("streamId", streamOffset);
+        LOGGER.logVariable("streamId", streamSize);
         try {
             final OutputStream output =
-                streamServer.openOutputStream(streamSession, streamId);
+                streamServer.openOutputStream(streamSession, streamId, streamOffset);
 
-            int len, total = 0;
+            int len;
+            long total = streamOffset.longValue();
             final byte[] b = new byte[streamSession.getBufferSize()];
             try {
                 while((len = input.read(b)) > 0) {
-                    logger.logDebug("UPSTREAM RECEIVED {0}/{1}", total += len, streamSize);
+                    LOGGER.logDebug("Upstream recieved:  {0}/{1}", total += len, streamSize);
                     output.write(b, 0, len);
                     output.flush();
                 }

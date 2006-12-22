@@ -22,7 +22,7 @@ public final class DualStreamWriterTest extends StreamTestCase {
     public DualStreamWriterTest() {
         super(NAME);
     }
-    public void testDualWriters() {
+    public void testDualWriter() {
         for (final Thread streamWriter : datum.streamWriters) {
             streamWriter.start();
         }
@@ -71,19 +71,22 @@ public final class DualStreamWriterTest extends StreamTestCase {
                     }
                 }, "Stream Writer Thread" + String.valueOf(i)));
         }
-        
-        datum = new Fixture(streamWriters);
+        datum = new Fixture(server, streamWriters);
     }
     @Override
     protected void tearDown() throws Exception {
+        datum.streamServer.stop(Boolean.TRUE);
         datum = null;
         super.tearDown();
     }
     private final class Fixture extends StreamTestCase.Fixture {
-        private final List<Thread> streamWriters;
         private Integer completedCount;
-        private Fixture(final List<Thread> streamWriters) {
+        private final StreamServer streamServer;
+        private final List<Thread> streamWriters;
+        private Fixture(final StreamServer streamServer,
+                final List<Thread> streamWriters) {
             super();
+            this.streamServer = streamServer;
             this.streamWriters = streamWriters;
             this.completedCount = 0;
         }

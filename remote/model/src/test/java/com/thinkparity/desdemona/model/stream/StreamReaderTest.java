@@ -47,21 +47,25 @@ public final class StreamReaderTest extends StreamTestCase {
         final StreamSession session = createSession(DesdemonaTestUser.JUNIT, server);
         final String streamId = createStream(server, session, streamFile.getName());
         final OutputStream stream = new FileOutputStream(new File(getOutputDirectory(), streamFile.getName()));
-        seedServer(server, session, streamId, streamFile);
-        datum = new Fixture(stream, streamId, session);
+        seedServer(server, session, streamId, 0L, streamFile);
+        datum = new Fixture(server, stream, streamId, session);
     }
     @Override
     protected void tearDown() throws Exception {
+        datum.streamServer.stop(Boolean.TRUE);
         datum = null;
         super.tearDown();
     }
     private final class Fixture extends StreamTestCase.Fixture {
         private final OutputStream stream;
         private final String streamId;
+        private final StreamServer streamServer;
         private final StreamSession streamSession;
-        private Fixture(final OutputStream stream, final String streamId,
+        private Fixture(final StreamServer streamServer,
+                final OutputStream stream, final String streamId,
                 final StreamSession streamSession) {
             super();
+            this.streamServer = streamServer;
             this.stream = stream;
             this.streamId = streamId;
             this.streamSession = streamSession;

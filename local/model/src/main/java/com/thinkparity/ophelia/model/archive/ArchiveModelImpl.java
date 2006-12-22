@@ -29,13 +29,12 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.archive.monitor.OpenMonitor;
 import com.thinkparity.ophelia.model.archive.monitor.OpenStage;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
@@ -127,19 +126,15 @@ class ArchiveModelImpl extends AbstractModelImpl {
                 sessionModel.createArchiveStream(localUserId(), streamId,
                         uniqueId, versionId);
                 try {
-                    streamFile = downloadStream(new StreamMonitor() {
+                    streamFile = downloadStream(new DownloadMonitor() {
                         long totalChunks = versionSize;
-                        public void chunkReceived(final int chunkSize) {
+                        public void chunkDownloaded(final int chunkSize) {
                             totalChunks += chunkSize;
                             if (totalChunks >= STEP_SIZE) {
                                 totalChunks -= STEP_SIZE;
                                 fireStageEnd(monitor, OpenStage.DownloadStream);
                             }
                         }
-                        public void chunkSent(final int chunkSize) {}
-                        public void headerReceived(final String header) {}
-                        public void headerSent(final String header) {}
-                        public void streamError(final StreamException error) {}
                     }, streamId);
                     final File archiveFile = new File(streamFile.getParent(),
                             streamFile.getName() +
@@ -168,12 +163,8 @@ class ArchiveModelImpl extends AbstractModelImpl {
             sessionModel.createArchiveStream(localUserId(), streamId, uniqueId,
                     versionId);
             try {
-                return new FileInputStream(downloadStream(new StreamMonitor() {
-                    public void chunkReceived(final int chunkSize) {}
-                    public void chunkSent(final int chunkSize) {}
-                    public void headerReceived(final String header) {}
-                    public void headerSent(final String header) {}
-                    public void streamError(final StreamException error) {}
+                return new FileInputStream(downloadStream(new DownloadMonitor() {
+                    public void chunkDownloaded(final int chunkSize) {}
                 }, streamId));
             } finally {
                 sessionModel.deleteStreamSession(session);

@@ -247,11 +247,11 @@ public class ContainerPanel extends DefaultTabPanel {
             if (e.isPopupTrigger() || (e.getButton() == MouseEvent.BUTTON1)) {
                 westListModel.setSelectedCell(cell);
             }
-            if (((e.getClickCount() % 2) == 0) &&  (westListModel.getIndexOf(cell)==0)) {
+            if ((e.getClickCount() % 2) == 0) {
                 tabDelegate.toggleExpansion(this);
             }
         } else if (cell instanceof EastCell) {
-            if (((e.getClickCount() % 2) == 0) &&  (eastListModel.getIndexOf(cell)==0)) {
+            if ((e.getClickCount() % 2) == 0) {
                 tabDelegate.toggleExpansion(this);
             }
         }
@@ -360,23 +360,12 @@ public class ContainerPanel extends DefaultTabPanel {
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            popupDelegate.showForContainer(container);
-        } else if ((e.getClickCount() % 2) == 0) {
+        if ((e.getClickCount() % 2) == 0) {
             tabDelegate.toggleExpansion(this);
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
     private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
-        logger.logApiId();
-        logger.logVariable("e", e);
-        if (e.isPopupTrigger()) {
-            tabDelegate.toggleExpansion(this);
-            popupDelegate.initialize(expandedJPanel, e.getX(), e.getY());
-            popupDelegate.showForContainer(container);
-        }
     }//GEN-LAST:event_collapsedJPanelMouseReleased
 
     /**
@@ -446,7 +435,9 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
-        actionDelegate.invokeForContainer(container);
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            actionDelegate.invokeForContainer(container);
+        }
     }//GEN-LAST:event_iconJLabelMouseClicked
 
     private void iconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
@@ -531,6 +522,15 @@ public class ContainerPanel extends DefaultTabPanel {
         expandedJPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         expandedJPanel.setOpaque(false);
+        expandedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                expandedJPanelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                expandedJPanelMouseReleased(evt);
+            }
+        });
+
         westJPanel.setLayout(new java.awt.GridBagLayout());
 
         westJPanel.setOpaque(false);
@@ -552,36 +552,35 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         westJPanel.add(westFillerJLabel, gridBagConstraints);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/ListItem_Messages"); // NOI18N
-        westFirstJLabel.setText(bundle.getString("ContainerPanel.firstJLabelWest")); // NOI18N
+        westFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.firstJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 5);
         westJPanel.add(westFirstJLabel, gridBagConstraints);
 
-        westPreviousJLabel.setText(bundle.getString("ContainerPanel.previousJLabelWest")); // NOI18N
+        westPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.previousJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westPreviousJLabel, gridBagConstraints);
 
-        westCountJLabel.setText(bundle.getString("ContainerPanel.countJLabel")); // NOI18N
+        westCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westCountJLabel, gridBagConstraints);
 
-        westNextJLabel.setText(bundle.getString("ContainerPanel.nextJLabelWest")); // NOI18N
+        westNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.nextJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westNextJLabel, gridBagConstraints);
 
-        westLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabelWest")); // NOI18N
+        westLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.lastJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -611,35 +610,35 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         eastJPanel.add(eastFillerJLabel, gridBagConstraints);
 
-        eastFirstJLabel.setText(bundle.getString("ContainerPanel.firstJLabelEast")); // NOI18N
+        eastFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.firstJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastFirstJLabel, gridBagConstraints);
 
-        eastPreviousJLabel.setText(bundle.getString("ContainerPanel.previousJLabelEast")); // NOI18N
+        eastPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.previousJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastPreviousJLabel, gridBagConstraints);
 
-        eastCountJLabel.setText(bundle.getString("ContainerPanel.countJLabel")); // NOI18N
+        eastCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastCountJLabel, gridBagConstraints);
 
-        eastNextJLabel.setText(bundle.getString("ContainerPanel.nextJLabelEast")); // NOI18N
+        eastNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.nextJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastNextJLabel, gridBagConstraints);
 
-        eastLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabelEast")); // NOI18N
+        eastLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.lastJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -657,6 +656,17 @@ public class ContainerPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void expandedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMouseReleased
+    }//GEN-LAST:event_expandedJPanelMouseReleased
+
+    private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
+        logger.logApiId();
+        logger.logVariable("e", e);
+        if ((e.getClickCount() % 2) == 0) {
+            tabDelegate.toggleExpansion(this);
+        }
+    }//GEN-LAST:event_expandedJPanelMousePressed
 
     /**
      * Determine if there is a latest version or not.

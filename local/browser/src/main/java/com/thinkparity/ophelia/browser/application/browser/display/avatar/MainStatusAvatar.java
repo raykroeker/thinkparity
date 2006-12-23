@@ -74,14 +74,6 @@ public class MainStatusAvatar extends Avatar {
     protected ResizeEdges getResizeEdges() {
         return Resizer.ResizeEdges.BOTTOM;
     }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isSupportMouseMove()
-     */
-    @Override
-    protected Boolean isSupportMouseMove() {
-        return Boolean.FALSE;
-    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -364,10 +356,10 @@ public class MainStatusAvatar extends Avatar {
     private void reloadMessage() {
         if (Connection.OFFLINE == getInputConnection()) {
             reloadConnection();
-        } else {
+        } else {        
             reloadCustom();
-            reloadFile();
-        }        
+            reloadFile();  
+        }
     }
     
     /**

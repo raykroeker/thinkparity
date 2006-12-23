@@ -22,7 +22,6 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
@@ -43,8 +42,6 @@ public class WindowTitle extends AbstractJPanel {
     /** Creates new form WindowTitle */
     public WindowTitle(final String title) {
         initComponents();
-        addMoveListener(this);
-        new Resizer(null, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
         titleJLabel.setText(title);
         closeJLabel.addMouseListener(new MouseAdapter() {
             @Override

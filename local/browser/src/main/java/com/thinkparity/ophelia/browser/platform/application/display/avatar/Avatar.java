@@ -113,7 +113,6 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
-        addMoveListener(this);
 	}
 
 	/**
@@ -134,7 +133,6 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new JPanelLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
-        addMoveListener(this);
 	}
     
     /**
@@ -217,16 +215,25 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return The avatar's state information.
 	 */
 	public abstract State getState();
-
+    
     /**
-     * Install the resizer.
+     * Install the move listener so the mouse can be used to
+     * move the avatar.
+     */
+	public void installMoveListener() {
+        addMoveListener(this);
+    }
+    
+    /**
+     * Install the resizer so the mouse can be used to resize
+     * the avatar.
      */
     public void installResizer() {
         if (null!=this.resizer) {
             resizer.removeAllListeners();
         }
 
-        this.resizer = new Resizer(getController(), this, isSupportMouseMove(), getResizeEdges());
+        this.resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
     }
 
 	/**
@@ -388,13 +395,6 @@ public abstract class Avatar extends AbstractJPanel {
         }
     }
     
-    /**
-     * Flag to indicate if dragging the centre of the control will cause moving.
-     * Override this method if you don't want the avatar to support movement.
-     */
-    protected Boolean isSupportMouseMove() {
-        return Boolean.FALSE;
-    }
     /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 

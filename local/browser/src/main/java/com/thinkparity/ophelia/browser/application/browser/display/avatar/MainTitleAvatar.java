@@ -34,6 +34,7 @@ public class MainTitleAvatar extends Avatar {
         super("BrowserTitle");
         initComponents();
         installResizer();
+        installMoveListener();
         
         // Double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {

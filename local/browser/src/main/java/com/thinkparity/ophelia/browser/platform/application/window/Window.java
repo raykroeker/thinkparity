@@ -147,11 +147,7 @@ public abstract class Window extends AbstractJDialog {
         windowPanel = new WindowPanel();
         windowPanel.addPanel(avatar, titleText);
 
-        add(windowPanel);
-        
-        // Install the resizer here; if done earlier then the resizer
-        // can't successfully get the window ancestor.
-        avatar.installResizer();        
+        add(windowPanel);     
     }
 
     /**

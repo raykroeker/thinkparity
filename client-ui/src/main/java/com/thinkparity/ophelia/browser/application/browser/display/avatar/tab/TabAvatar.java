@@ -36,7 +36,6 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         this.id = id;
         this.menuItemFactory = PopupItemFactory.getInstance();
         this.model = model;
-        installResizer();
     }
 
     /**

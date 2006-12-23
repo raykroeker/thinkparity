@@ -130,14 +130,6 @@ public abstract class TabListAvatar<T extends TabListModel> extends TabAvatar<T>
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isSupportMouseMove()
-     */
-    @Override
-    protected Boolean isSupportMouseMove() {
-        return Boolean.FALSE;
-    }
-
-    /**
      * Restore the saved selection.
      *
      */

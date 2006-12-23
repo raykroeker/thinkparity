@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import java.awt.AlphaComposite;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
+
+import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -32,8 +27,6 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.l2fprod.NativeSkin;
-
-import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -135,7 +128,7 @@ public class BrowserWindow extends AbstractJFrame {
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         }        
         setResizable(true);
-        setMinimumSize(getMainWindowSize());
+        setMinimumSize(Dimensions.BrowserWindow.MIN_SIZE);
         setSize(getMainWindowSize());
 		initComponents();
         if (!maximized) {
@@ -254,7 +247,6 @@ public class BrowserWindow extends AbstractJFrame {
         }
         
         if (!getSize().equals(dFinal)) {
-            setMinimumSize(dFinal);
             setSize(dFinal);
             mainWindowSize.setSize(dFinal);
             roundCorners();
@@ -299,7 +291,6 @@ public class BrowserWindow extends AbstractJFrame {
             else {      // Resize only                
                 setSize(dFinal);
             }
-            setMinimumSize(dFinal);
             mainWindowSize.setSize(dFinal);
             mainWindowLocation.setLocation(pFinal);
             roundCorners();

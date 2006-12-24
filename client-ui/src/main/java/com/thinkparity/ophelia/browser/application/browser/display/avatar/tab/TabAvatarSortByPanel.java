@@ -117,7 +117,7 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
             jLabel.setBorder(new TopBorder(Colors.Swing.MENU_BETWEEN_ITEMS_BG));
         jLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(final MouseEvent e) {
+            public void mousePressed(final MouseEvent e) {
                 sortBy.getAction().actionPerformed(
                         new ActionEvent(e.getSource(), e.getID(),
                                 "SortBy", e.getWhen(), e.getModifiers()));
@@ -154,7 +154,7 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
         }
         addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(final MouseEvent e) {
+            public void mousePressed(final MouseEvent e) {
                 if (!sortByJPanel.contains(e.getPoint()))
                     uninstall();
             }

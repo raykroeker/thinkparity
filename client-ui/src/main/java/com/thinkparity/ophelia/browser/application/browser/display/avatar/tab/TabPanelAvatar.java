@@ -250,8 +250,8 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
 
         orderByJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/SortButton.png")));
         orderByJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                orderByJLabelMouseClicked(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                orderByJLabelMousePressed(evt);
             }
         });
 
@@ -285,6 +285,8 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         add(tabJScrollPane, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+
 
     /**
      * Install the a data listener on the list model. This will translate the
@@ -335,8 +337,8 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 reloadPanels();
             } 
         });
-    }
-    private void orderByJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMouseClicked
+    }    
+    private void orderByJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_orderByJLabelMousePressed
         if (null != sortByDelegate) {
             final javax.swing.JLabel orderByJLabel = (javax.swing.JLabel) e.getSource();
             final TabAvatarSortByPanel sortByPanel = new TabAvatarSortByPanel();
@@ -344,7 +346,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
             sortByPanel.show(this, orderByJLabel.getX(),
                     orderByJLabel.getY() + orderByJLabel.getHeight());
         }
-    }//GEN-LAST:event_orderByJLabelMouseClicked
+    }//GEN-LAST:event_orderByJLabelMousePressed
 
     /**
      * Reload the panels display. The jpanel is revalidated.

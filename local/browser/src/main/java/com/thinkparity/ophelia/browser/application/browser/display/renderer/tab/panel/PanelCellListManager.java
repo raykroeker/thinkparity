@@ -126,8 +126,8 @@ public class PanelCellListManager {
     
     private void initializeMouseListeners() {
         MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
-            public void mouseClicked(final java.awt.event.MouseEvent e) {
-                iconJLabelMouseClicked(e);
+            public void mousePressed(final java.awt.event.MouseEvent e) {
+                iconJLabelMousePressed(e);
             }
             public void mouseEntered(final java.awt.event.MouseEvent e) {
                 iconJLabelMouseEntered(e);
@@ -175,7 +175,7 @@ public class PanelCellListManager {
         lastJLabel.setVisible(currentPage+2 < numberPages);
     }
     
-    private void iconJLabelMouseClicked(final java.awt.event.MouseEvent e) {
+    private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {
         if (e.getSource().equals(firstJLabel)) {
             currentPage = 0;
         } else if (e.getSource().equals(previousJLabel)) {

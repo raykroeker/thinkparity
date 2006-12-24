@@ -328,10 +328,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     @Override
     protected void repaintLists() {}
 
-    private void collapsedIconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseClicked
-        actionDelegate.invokeForContact(contact);
-    }//GEN-LAST:event_collapsedIconJLabelMouseClicked
-
     private void collapsedIconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseEntered
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
     }//GEN-LAST:event_collapsedIconJLabelMouseEntered
@@ -339,6 +335,10 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void collapsedIconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedIconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_collapsedIconJLabelMouseExited
+    
+    private void collapsedIconJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapsedIconJLabelMousePressed
+        actionDelegate.invokeForContact(contact);
+    }//GEN-LAST:event_collapsedIconJLabelMousePressed
 
     private void collapsedJPanelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseClicked
         jPanelMouseClicked((javax.swing.JPanel) e.getSource(), e);
@@ -540,27 +540,27 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         collapsedJPanel.setOpaque(false);
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                collapsedJPanelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                collapsedJPanelMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                collapsedJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                collapsedJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                collapsedJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                collapsedJPanelMouseReleased(evt);
             }
         });
 
         collapsedIconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconUser.png")));
         collapsedIconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                collapsedIconJLabelMouseClicked(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                collapsedIconJLabelMouseEntered(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                collapsedIconJLabelMouseEntered(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                collapsedIconJLabelMouseExited(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                collapsedIconJLabelMouseExited(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                collapsedIconJLabelMousePressed(evt);
             }
         });
 
@@ -595,14 +595,14 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         contactJPanel.setOpaque(false);
         contactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                contactJPanelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                contactJPanelMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                contactJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                contactJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                contactJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                contactJPanelMouseReleased(evt);
             }
         });
 
@@ -632,35 +632,34 @@ public class ContactTabPanel extends DefaultTabPanel {
         contactJScrollPane.getViewport().setOpaque(false);
         contactScrolledJPanel.setOpaque(false);
         contactScrolledJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                contactScrolledJPanelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                contactScrolledJPanelMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                contactScrolledJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                contactScrolledJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                contactScrolledJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                contactScrolledJPanelMouseReleased(evt);
             }
         });
 
         contactEMailValueJLabel.setText("!E-Mail Address!");
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        contactEMailJLabel.setText(bundle.getString("TAB_CONTACT.emailJLabel")); // NOI18N
+        contactEMailJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.emailJLabel"));
 
-        contactPhoneJLabel.setText(bundle.getString("TAB_CONTACT.phoneJLabel")); // NOI18N
+        contactPhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.phoneJLabel"));
 
         contactPhoneValueJLabel.setText("!Phone!");
 
-        contactMobilePhoneJLabel.setText(bundle.getString("TAB_CONTACT.mobilePhoneJLabel")); // NOI18N
+        contactMobilePhoneJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.mobilePhoneJLabel"));
 
         contactMobliePhoneValueJLabel.setText("!Mobile Phone!");
 
-        contactCountryJLabel.setText(bundle.getString("TAB_CONTACT.countryJLabel")); // NOI18N
+        contactCountryJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.countryJLabel"));
 
         contactCountryValueJLabel.setText("!Country!");
 
-        contactCityJLabel.setText(bundle.getString("TAB_CONTACT.cityJLabel")); // NOI18N
+        contactCityJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.cityJLabel"));
 
         contactCityValueJLabel.setText("!City!");
 
@@ -726,14 +725,14 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         outgoingJPanel.setOpaque(false);
         outgoingJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                outgoingJPanelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                outgoingJPanelMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                outgoingJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                outgoingJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                outgoingJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                outgoingJPanelMouseReleased(evt);
             }
         });
 
@@ -759,9 +758,9 @@ public class ContactTabPanel extends DefaultTabPanel {
         outgoingJPanel.add(outgoingAdditionalTextJLabel, gridBagConstraints);
 
         outgoingNestedJPanel.setOpaque(false);
-        outgoingInvitedAsJLabel.setText(bundle.getString("TAB_CONTACT.invitedAsJLabel")); // NOI18N
+        outgoingInvitedAsJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.invitedAsJLabel"));
 
-        outgoingInvitedOnJLabel.setText(bundle.getString("TAB_CONTACT.invitedOnJLabel")); // NOI18N
+        outgoingInvitedOnJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.invitedOnJLabel"));
 
         outgoingInvitedAsValueJLabel.setText("!Sent To!");
 
@@ -809,14 +808,14 @@ public class ContactTabPanel extends DefaultTabPanel {
 
         incomingJPanel.setOpaque(false);
         incomingJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                incomingJPanelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                incomingJPanelMouseClicked(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                incomingJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                incomingJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                incomingJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                incomingJPanelMouseReleased(evt);
             }
         });
 
@@ -841,15 +840,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         incomingJPanel.add(incomingAdditionalTextJLabel, gridBagConstraints);
 
         incomingNestedJPanel.setOpaque(false);
-        incomingInvitedByJLabel.setText(bundle.getString("TAB_CONTACT.invitedByJLabel")); // NOI18N
+        incomingInvitedByJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.invitedByJLabel"));
 
         incomingInvitedByValueJLabel.setText("!Invited By!");
 
-        incomingInvitedAsJLabel.setText(bundle.getString("TAB_CONTACT.invitedAsJLabel")); // NOI18N
+        incomingInvitedAsJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.invitedAsJLabel"));
 
         incomingInvitedAsValueJLabel.setText("!Sent To!");
 
-        incomingInvitedOnJLabel.setText(bundle.getString("TAB_CONTACT.invitedOnJLabel")); // NOI18N
+        incomingInvitedOnJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("TAB_CONTACT.invitedOnJLabel"));
 
         incomingInvitedOnValueJLabel.setText("!Invited On!");
 

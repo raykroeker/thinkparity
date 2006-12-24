@@ -131,8 +131,7 @@ public class DisplayInfoAvatar extends Avatar {
 
         versionJLabel.setFont(Fonts.DialogFontBold);
         versionJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/JPanel_Messages"); // NOI18N
-        versionJLabel.setText(bundle.getString("DisplayInfoAvatar.Version")); // NOI18N
+        versionJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DisplayInfoAvatar.Version"));
         versionJLabel.setFocusable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -143,7 +142,7 @@ public class DisplayInfoAvatar extends Avatar {
         add(versionJLabel, gridBagConstraints);
 
         buildJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        buildJLabel.setText(bundle.getString("DisplayInfoAvatar.Build")); // NOI18N
+        buildJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DisplayInfoAvatar.Build"));
         buildJLabel.setFocusable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -154,7 +153,7 @@ public class DisplayInfoAvatar extends Avatar {
         add(buildJLabel, gridBagConstraints);
 
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        copyrightJLabel.setText(bundle.getString("DisplayInfoAvatar.Copyright")); // NOI18N
+        copyrightJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DisplayInfoAvatar.Copyright"));
         copyrightJLabel.setFocusable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -173,18 +172,18 @@ public class DisplayInfoAvatar extends Avatar {
         add(fillLeftJLabel, gridBagConstraints);
 
         webPageJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        webPageJLabel.setText(bundle.getString("DisplayInfoAvatar.ExampleWebPage")); // NOI18N
+        webPageJLabel.setText(java.util.ResourceBundle.getBundle("localization/JPanel_Messages").getString("DisplayInfoAvatar.ExampleWebPage"));
         webPageJLabel.setFocusable(false);
         webPageJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         webPageJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                webPageJLabelMouseClicked(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                webPageJLabelMouseEntered(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                webPageJLabelMouseEntered(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                webPageJLabelMouseExited(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                webPageJLabelMouseExited(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                webPageJLabelMousePressed(evt);
             }
         });
 
@@ -205,8 +204,8 @@ public class DisplayInfoAvatar extends Avatar {
         okJButton.setText("OK");
         okJButton.setPreferredSize(new java.awt.Dimension(65, 23));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                okJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okJButtonActionPerformed(evt);
             }
         });
 
@@ -227,15 +226,14 @@ public class DisplayInfoAvatar extends Avatar {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void webPageJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseClicked
+    private void webPageJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMousePressed
         try {
             String runString = "rundll32 url.dll,FileProtocolHandler " + getWebPage().toString();
             Runtime.getRuntime().exec(runString);
         } catch (final Throwable t) {
             throw new BrowserException(LAUNCH_WEB_BROWSER_ERROR, t);            
         }
-        
-    }//GEN-LAST:event_webPageJLabelMouseClicked
+    }//GEN-LAST:event_webPageJLabelMousePressed
 
     private void webPageJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseExited
         webPageJLabel.setText(getString("WebPage", new Object[] {getWebPageString()}));

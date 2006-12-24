@@ -299,7 +299,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             this.jLabelText = tabPanelExtension.getText();
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseClicked(final MouseEvent e) {
+                public void mousePressed(final MouseEvent e) {
                     final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
                     data.unset(MainTitleAvatar.DataKey.TAB_ID);
                     data.set(MainTitleAvatar.DataKey.TAB_PANEL_EXTENSION, tabPanelExtension);
@@ -341,7 +341,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                             .append(tabId).toString());
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseClicked(final MouseEvent e) {
+                public void mousePressed(final MouseEvent e) {
                     final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
                     data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
                     mainTitleAvatar.setInput(data);   

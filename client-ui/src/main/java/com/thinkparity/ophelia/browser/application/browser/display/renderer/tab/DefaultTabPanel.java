@@ -173,25 +173,14 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
     
     /**
-     * Handle a mouse click on a panel cell.
+     * Handle a mouse press on a panel cell.
      * 
      * @param cell
      *          A <code>Cell</code>.
      * @param e
      *          A <code>MouseEvent</code>.
      */
-    public void panelCellMouseClicked(final Cell cell, final java.awt.event.MouseEvent e) {        
-    }
-    
-    /**
-     * Handle a mouse popup event on a panel cell.
-     * 
-     * @param cell
-     *          A <code>Cell</code>.
-     * @param e
-     *          A <code>MouseEvent</code>.
-     */
-    public void panelCellMousePopupTrigger(final Cell cell, final java.awt.event.MouseEvent e) {        
+    public void panelCellMousePressed(final Cell cell, final java.awt.event.MouseEvent e) {        
     }
     
     /**

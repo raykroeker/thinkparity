@@ -87,8 +87,8 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
     protected void installListeners(final DefaultTabPanel tabPanel,
             final javax.swing.JLabel iconJLabel) {
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(final java.awt.event.MouseEvent e) {
-                tabPanel.panelCellMouseClicked(cell, e);
+            public void mousePressed(final java.awt.event.MouseEvent e) {
+                tabPanel.panelCellMousePressed(cell, e);
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (cell.isActionAvailable()) {
                         cell.invokeAction();
@@ -107,10 +107,8 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             }
         });
         addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(final java.awt.event.MouseEvent e) {
-                tabPanel.panelCellMouseClicked(cell, e);
-            }
             public void mousePressed(final java.awt.event.MouseEvent e) {
+                tabPanel.panelCellMousePressed(cell, e);
                 maybeShowPopup(e);
             }
             public void mouseReleased(final java.awt.event.MouseEvent e) {
@@ -124,7 +122,6 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
      */
     private void maybeShowPopup(final java.awt.event.MouseEvent e) {
         if (e.isPopupTrigger()) {
-            tabPanel.panelCellMousePopupTrigger(cell, e);
             if (null != tabPanel.getPopupDelegate()) {
                 tabPanel.getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
                 cell.showPopup();

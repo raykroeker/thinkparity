@@ -228,25 +228,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMouseClicked(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
      */
     @Override
-    public void panelCellMouseClicked(final Cell cell, final MouseEvent e) {
-        if ((cell instanceof WestCell) && (e.getButton() == MouseEvent.BUTTON1)) {
+    public void panelCellMousePressed(final Cell cell, final MouseEvent e) {
+        if (cell instanceof WestCell) {
             westListModel.setSelectedCell(cell);
         }           
         if ((e.getClickCount() % 2) == 0) {
             tabDelegate.toggleExpansion(this);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePopupTrigger(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
-     */
-    @Override
-    public void panelCellMousePopupTrigger(final Cell cell, final MouseEvent e) {
-        if (cell instanceof WestCell) {
-            westListModel.setSelectedCell(cell);
         }
     }
 
@@ -521,12 +511,6 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    private void iconJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseClicked
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            actionDelegate.invokeForContainer(container);
-        }
-    }//GEN-LAST:event_iconJLabelMouseClicked
-
     private void iconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
     }//GEN-LAST:event_iconJLabelMouseEntered
@@ -534,6 +518,12 @@ public class ContainerPanel extends DefaultTabPanel {
     private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_iconJLabelMouseExited
+    
+    private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            actionDelegate.invokeForContainer(container);
+        }
+    }//GEN-LAST:event_iconJLabelMousePressed
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -565,14 +555,14 @@ public class ContainerPanel extends DefaultTabPanel {
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                iconJLabelMouseClicked(evt);
-            }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 iconJLabelMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 iconJLabelMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                iconJLabelMousePressed(evt);
             }
         });
 
@@ -743,6 +733,8 @@ public class ContainerPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+
 
     /**
      * Determine if there is a latest version or not.

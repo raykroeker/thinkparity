@@ -131,7 +131,7 @@ public class BrowserMenuBar extends JMenuBar {
         
         // Double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(final java.awt.event.MouseEvent e) {
+            public void mousePressed(final java.awt.event.MouseEvent e) {
                 if (e.getButton()==MouseEvent.BUTTON1) {
                     if (e.getClickCount() % 2 == 0) {
                         browser.maximize();

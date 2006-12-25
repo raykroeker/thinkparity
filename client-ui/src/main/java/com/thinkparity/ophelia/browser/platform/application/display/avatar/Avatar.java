@@ -52,16 +52,16 @@ public abstract class Avatar extends AbstractJPanel {
     protected final PluginRegistry pluginRegistry;
 
     /** The Resizer */
-    protected Resizer resizer = null;
+    protected Resizer resizer;
 
 	/** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
 
     /** The clipped background image. */
-    private BufferedImage clippedBackgroundImage = null;
+    private BufferedImage clippedBackgroundImage;
     
     /** The scaled background image. */
-    private BufferedImage scaledBackgroundImage = null;
+    private BufferedImage scaledBackgroundImage;
     
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;

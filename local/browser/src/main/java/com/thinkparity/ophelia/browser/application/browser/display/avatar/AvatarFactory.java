@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.event.EventDispatcherFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -76,15 +77,18 @@ public class AvatarFactory {
         return SINGLETON.doCreate(tabPanelExtension);
     }
 
-	/** The avatar registry. */
+	/** The <code>AvatarRegistry</code>. */
 	private final AvatarRegistry avatarRegistry;
 
-	/** Create AvatarFactory */
+	/**
+     * Create AvatarFactory.
+     * 
+     */
 	private AvatarFactory(final Platform platform) {
 		super();
 		this.avatarRegistry = new AvatarRegistry();
 	}
-    
+
 	/**
      * Create an avatar; set its provider (if required) and register it.
      * 
@@ -107,7 +111,8 @@ public class AvatarFactory {
 
         case TAB_CONTAINER:
             avatar = new ContainerTabAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(id));            
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
             break;
         case TAB_CONTACT:
             avatar = new ContactTabAvatar();

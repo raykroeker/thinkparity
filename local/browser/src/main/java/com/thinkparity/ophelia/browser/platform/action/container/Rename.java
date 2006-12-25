@@ -45,9 +45,9 @@ public class Rename  extends AbstractAction {
         }
         else {
             getContainerModel().rename(containerId, containerName);
-            browser.fireContainerUpdated(containerId, Boolean.FALSE);
         }    
     }
-    
+
+    /** The data keys. */
     public enum DataKey { CONTAINER_ID, CONTAINER_NAME }
 }

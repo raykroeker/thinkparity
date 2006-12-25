@@ -19,16 +19,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.swing.JFileChooserUtil;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -64,7 +62,16 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.*;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.Create;
+import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
+import com.thinkparity.ophelia.browser.platform.action.container.Publish;
+import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.Rename;
+import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -85,6 +92,8 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
+
+import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -537,107 +546,6 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
-    /**
-     * Notify the application a container confirmation has been received.
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerConfirmationReceived(final Long containerId) {
-        syncContainerTabContainer(containerId, Boolean.FALSE);
-    }
-
-    /**
-     * Notify the application that a container has been created.
-     * 
-     * @param containerId
-     *            The container id.  
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.       
-     */
-    public void fireContainerCreated(final Long containerId, final Boolean remote) {
-        clearStatus();
-        if (remote)
-            runRemoveContainerFlagSeen(containerId);
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application that a container has been deleted.
-     * 
-     * @param containerId
-     *            The container id.  
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.       
-     */
-    public void fireContainerDeleted(final Long containerId, final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application that a document has been added.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.
-     */
-    public void fireContainerDocumentAdded(final Long containerId,
-            final Long documentId, final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application that a document has been deleted.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.
-     */
-    public void fireContainerDocumentRemoved(final Long containerId,
-            final Long documentId, final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application that the draft has been added.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.   
-     */
-    public void fireContainerDraftCreated(final Long containerId,
-            final Boolean remote) {
-        clearStatus();
-        if (remote)
-            runRemoveContainerFlagSeen(containerId);
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application that the draft has been deleted.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.   
-     */
-    public void fireContainerDraftDeleted(final Long containerId, final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
     
     /**
      * Notify the application that the container or version has been exported.
@@ -647,46 +555,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerExported(final File directory) {
         setStatus("ExportFileCreated", directory);
-    }
-
-    /**
-     * Notify the application a team member has been added to the container.
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerTeamMemberAdded(final Long containerId,
-            final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
-
-    /**
-     * Notify the application a team member has been removed from the document.
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerTeamMemberRemoved(final Long containerId,
-            final Boolean remote) {
-        clearStatus();
-        syncContainerTabContainer(containerId, remote);
-    }
-    
-    /**
-     * Notify the application that a container has in some way been updated.
-     *
-     * @param containerId
-     *            The container that has changed.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.     
-     */
-    public void fireContainerUpdated(final Long containerId, final Boolean remote) {
-        clearStatus();
-        if (remote)
-            runRemoveContainerFlagSeen(containerId);
-        syncContainerTabContainer(containerId, remote);
     }
 
     /**
@@ -1159,9 +1027,8 @@ public class Browser extends AbstractApplication {
      *            A document id <code>Long</code>.
      */
     public void runApplyContainerFlagSeen(final Long containerId) {
-        final Data data = new Data(2);
+        final Data data = new Data(1);
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, containerId);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.CONTAINER);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
 
@@ -1172,9 +1039,8 @@ public class Browser extends AbstractApplication {
      *            A document id <code>Long</code>.
      */
     public void runApplyDocumentFlagSeen(final Long documentId) {
-        final Data data = new Data(2);
+        final Data data = new Data(1);
         data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
-        data.set(ApplyFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.DOCUMENT);
         invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);         
     }
 
@@ -1433,9 +1299,8 @@ public class Browser extends AbstractApplication {
      *            A document id <code>Long</code>.
      */
     public void runRemoveContainerFlagSeen(final Long containerId) {
-        final Data data = new Data(2);
+        final Data data = new Data(1);
         data.set(RemoveFlagSeen.DataKey.ARTIFACT_ID, containerId);
-        data.set(RemoveFlagSeen.DataKey.ARTIFACT_TYPE, ArtifactType.CONTAINER);
         invoke(ActionId.ARTIFACT_REMOVE_FLAG_SEEN, data);         
     }
 
@@ -2073,25 +1938,6 @@ public class Browser extends AbstractApplication {
         window.addWindowListener(new WindowAdapter() {
             public void windowClosed(WindowEvent e) {
                 mainWindow.enableSemiTransparentLayer(Boolean.FALSE);
-            }
-        });
-    }
-
-    /**
-     * Synchronize a container within the container tab.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            The remote event indicator.
-     * @param select
-     *            The selection indicator.
-     */
-    private void syncContainerTabContainer(final Long containerId,
-            final Boolean remote) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote);
             }
         });
     }

@@ -3,10 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.artifact;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -15,16 +11,15 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Browser Remove Flag Seen<br>
+ * <b>Description:</b>A browser action to remove the seen flag from an
+ * artifact.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class RemoveFlagSeen extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
-
 	/**
      * Create RemoveFlagSeen.
      * 
@@ -33,7 +28,6 @@ public final class RemoveFlagSeen extends AbstractAction {
      */
 	public RemoveFlagSeen(final Browser browser) {
 		super(ActionId.ARTIFACT_REMOVE_FLAG_SEEN);
-        this.browser = browser;
 	}
 
 	/**
@@ -45,22 +39,9 @@ public final class RemoveFlagSeen extends AbstractAction {
 		final ArtifactModel artifactModel = getArtifactModel();
         if (artifactModel.hasBeenSeen(artifactId)) {
 		    artifactModel.removeFlagSeen(artifactId);
-        
-            // The "seen" flag does not impact the back end. Therefore it is OK to fire this event directly.
-            final ArtifactType type = artifactModel.readType(artifactId);
-            switch (type) {
-            case CONTAINER:
-                browser.fireContainerUpdated(artifactId, Boolean.FALSE);
-                break;
-            case DOCUMENT:
-                browser.fireDocumentUpdated(artifactId, Boolean.FALSE);
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN ARTIFACT TYPE");
-            }
         }
 	}
 
-	/** Data keys. */
-	public enum DataKey { ARTIFACT_ID, ARTIFACT_TYPE }
+	/** The data key. */
+	public enum DataKey { ARTIFACT_ID }
 }

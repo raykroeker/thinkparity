@@ -39,23 +39,26 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
     }
 
     /**
-	 * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
-	 */
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
+     *
+     */
 	@Override
 	public final AvatarId getId() {
 		return id;
 	}
 
-    /**
-	 * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
-	 */
+	/**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
+     * 
+     */
 	@Override
 	public final State getState() {
 		return null;
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+     * 
      */
     @Override
     public void reload() {
@@ -64,14 +67,16 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider)
+     * 
      */
     @Override
     public final void setContentProvider(final ContentProvider contentProvider) {
         model.setContentProvider(contentProvider);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+     * 
      */
     @Override
     public final void setInput(final Object input) {
@@ -79,15 +84,17 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         super.setInput(input);
     }
 
-	/**
-	 * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
-	 */
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
+     * 
+     */
 	@Override
 	public final void setState(final State state) {}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     */
+     *
+	 */
     @Override
     public Boolean isAvatarBackgroundImage() {
         // Default avatar background image is not required for tab avatars.

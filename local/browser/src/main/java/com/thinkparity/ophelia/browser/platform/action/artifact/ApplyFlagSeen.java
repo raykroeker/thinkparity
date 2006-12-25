@@ -3,29 +3,30 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.artifact;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.artifact.ArtifactModel;
-
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Browser Apply Flag Seen<br>
+ * <b>Description:</b>A browser action to apply the seen flag to an artifact.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class ApplyFlagSeen extends AbstractAction {
-    
-    /** The browser application. */
-    private final Browser browser;
 
-	/** Create ApplyFlagSeen. */
+    /**
+     * Create ApplyFlagSeen.
+     * 
+     * @param browser
+     *            The <code>Browser</code>.
+     */
 	public ApplyFlagSeen(final Browser browser) {
 		super(ActionId.ARTIFACT_APPLY_FLAG_SEEN);
-        this.browser = browser;
 	}
 
 	/**
@@ -37,22 +38,9 @@ public class ApplyFlagSeen extends AbstractAction {
 		final ArtifactModel artifactModel = getArtifactModel();
         if (!artifactModel.hasBeenSeen(artifactId)) {
 		    artifactModel.applyFlagSeen(artifactId);
-        
-            // The "seen" flag does not impact the back end. Therefore it is OK to fire this event directly.
-            final ArtifactType type = artifactModel.readType(artifactId);
-            switch (type) {
-            case CONTAINER:
-                browser.fireContainerUpdated(artifactId, Boolean.FALSE);
-                break;
-            case DOCUMENT:
-                browser.fireDocumentUpdated(artifactId, Boolean.FALSE);
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN ARTIFACT TYPE");
-            }
         }
 	}
 
-	/** Data keys. */
-	public enum DataKey { ARTIFACT_ID, ARTIFACT_TYPE }
+	/** The data key. */
+	public enum DataKey { ARTIFACT_ID }
 }

@@ -7,7 +7,6 @@ import com.thinkparity.ophelia.model.events.ContactAdapter;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -119,76 +118,12 @@ class EventDispatcher {
     }
 
     /**
-     * Create a container listener.
-     * Some notes as of July 28, 2006...
-     *   - Closing and reactivating a package won't be supported (in the GUI)
-     *   - Adding and removing documents won't be a remote event since this will
-     *     be done in a draft, and then show up when the package is published.
-     *   - Deleting a package won't be a remote event since this can only be
-     *     done in the draft, before the package is published for the first time.
+     * Create a container listener for the browser application.
      * 
-     * @return A container listener.
+     * @return A <code>ContainerListener</code>.
      */
     private ContainerListener createContainerListener() {
-        return new ContainerAdapter() {
-            @Override
-            public void containerArchived(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void containerCreated(final ContainerEvent e) {
-                browser.fireContainerCreated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void containerDeleted(final ContainerEvent e) {
-                browser.fireContainerDeleted(e.getContainer().getId(), e.isRemote());
-            }
-            @Override
-            public void containerRestored(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void containerUpdated(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void documentAdded(final ContainerEvent e) {
-                browser.fireContainerDocumentAdded(e.getContainer().getId(), e.getDocument().getId(), e.isRemote());
-            }
-            @Override
-            public void documentRemoved(final ContainerEvent e) {
-                browser.fireContainerDocumentRemoved(e.getContainer().getId(), e.getDocument().getId(), e.isRemote());
-            }
-            @Override
-            public void draftCreated(final ContainerEvent e) {
-                browser.fireContainerDraftCreated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void draftDeleted(final ContainerEvent e) {
-                browser.fireContainerDraftDeleted(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void draftPublished(final ContainerEvent e) {
-                browser.fireContainerUpdated(e.getContainer().getId(), e
-                        .isRemote());
-            }
-            @Override
-            public void teamMemberAdded(final ContainerEvent e) {
-                browser.fireContainerTeamMemberAdded(e.getContainer().getId(),
-                        e.isRemote());
-            }
-            @Override
-            public void teamMemberRemoved(ContainerEvent e) {
-                browser.fireContainerTeamMemberRemoved(
-                        e.getContainer().getId(), e.isRemote());
-            }
-        };     
+        return new ContainerAdapter() {};
     }
 
 	/**

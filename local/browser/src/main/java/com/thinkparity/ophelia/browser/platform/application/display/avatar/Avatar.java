@@ -29,10 +29,13 @@ import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Browser Avatar<br>
+ * <b>Description:</b>An abstraction of the view component of the MVC design
+ * pattern for the thinkParity browser.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public abstract class Avatar extends AbstractJPanel {
 
@@ -60,9 +63,12 @@ public abstract class Avatar extends AbstractJPanel {
     /** The clipped background image. */
     private BufferedImage clippedBackgroundImage;
     
+    /** An avatar's <code>EventDispatcher</code>. */
+    private EventDispatcher eventDispatcher;
+    
     /** The scaled background image. */
     private BufferedImage scaledBackgroundImage;
-    
+
     /** The avatar's scrolling policy. */
 	private final ScrollPolicy scrollPolicy;
 
@@ -76,7 +82,7 @@ public abstract class Avatar extends AbstractJPanel {
         this(id.toString());
     }
 
-    /**
+	/**
 	 * Create a Avatar.
 	 * 
 	 * @param l18nContext
@@ -114,8 +120,8 @@ public abstract class Avatar extends AbstractJPanel {
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
 	}
-
-	/**
+    
+    /**
 	 * Create an Avatar.
 	 * 
 	 * @param l18nContext
@@ -134,7 +140,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
 	}
-    
+
     /**
 	 * Set an error for display.
 	 * 
@@ -142,7 +148,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The error.
 	 */
 	public void addError(final Throwable error) { errors.add(error); }
-
+    
     /**
 	 * Clear all display errors.
 	 *
@@ -155,8 +161,17 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return True if error has been set; false otherwise.
 	 */
 	public Boolean containsErrors() { return 0 < errors.size(); }
-    
+
     /**
+     * Obtain the avatar's event dispatcher.
+     * 
+     * @return An <code>EventDispatcher</code>.
+     */
+    public EventDispatcher getEventDispatcher() {
+        return eventDispatcher;
+    }
+
+	/**
      * Get the avatar title, used for dialogs.
      * 
      * @return the avatar title
@@ -165,14 +180,16 @@ public abstract class Avatar extends AbstractJPanel {
         return getString("Title");
     }
 
-	/**
+    /**
 	 * Obtain the content provider.
 	 * 
 	 * @return The content provider.
 	 */
-	public ContentProvider getContentProvider() { return contentProvider; }
+	public ContentProvider getContentProvider() {
+        return contentProvider;
+	}
 
-    /**
+	/**
      * Obtain the browser application.
      * 
      * @return The browser application.
@@ -186,7 +203,9 @@ public abstract class Avatar extends AbstractJPanel {
 	 * 
 	 * @return The error.
 	 */
-	public List<Throwable> getErrors() { return errors; }
+	public List<Throwable> getErrors() {
+        return errors;
+	}
 
 	/**
 	 * Obtain the avatar id.
@@ -195,20 +214,24 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	public abstract AvatarId getId();
 
-	/**
+    /**
 	 * Obtain the avatar's input.
 	 * 
 	 * @return The input.
 	 */
-	public Object getInput() { return input; }
+	public Object getInput() {
+        return input;
+	}
 
     /**
 	 * Obtain the scroll policy for the avatar.
 	 * 
 	 * @return The scroll policy for the avatar.
 	 */
-	public ScrollPolicy getScrollPolicy() { return scrollPolicy; }
-
+	public ScrollPolicy getScrollPolicy() {
+        return scrollPolicy;
+	}
+    
     /**
 	 * Obtain the avatar's state information.
 	 * 
@@ -223,17 +246,16 @@ public abstract class Avatar extends AbstractJPanel {
 	public void installMoveListener() {
         addMoveListener(this);
     }
-    
-    /**
+
+	/**
      * Install the resizer so the mouse can be used to resize
      * the avatar.
      */
     public void installResizer() {
-        if (null!=this.resizer) {
+        if (null != resizer) {
             resizer.removeAllListeners();
         }
-
-        this.resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
+        resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
     }
 
 	/**
@@ -254,28 +276,49 @@ public abstract class Avatar extends AbstractJPanel {
         return Boolean.TRUE;
     }
 
-	/**
+    /**
 	 * Reload the avatar. This event is called when either the content provider
 	 * or the input has changed; or as a manual reload of the avatar.
 	 * 
 	 */
 	public void reload() {}
 
-	/**
-	 * Set the content provider.
-	 * 
-	 * @param contentProvider
-	 *            The content provider.
-	 */
+    /**
+     * Set the avatar's content provider. The avatar is reloaded when the
+     * content provider is changed. The content provider is a bound property.
+     * 
+     * @param contentProvider
+     *            A <code>ContentProvider</code>.
+     */
 	public void setContentProvider(final ContentProvider contentProvider) {
-		Assert.assertNotNull(
-				"Cannot set a null content provider:  " + getId(), contentProvider);
-		if(this.contentProvider == contentProvider
-				|| contentProvider.equals(this.contentProvider)) { return; }
-		
+		Assert.assertNotNull(contentProvider,
+                "Cannot set a null content provider for avatar:  {0}", getId());
+		if (this.contentProvider == contentProvider
+				|| contentProvider.equals(this.contentProvider))
+            return;
+        final ContentProvider oldContentProvider = this.contentProvider;
 		this.contentProvider = contentProvider;
 		reload();
+        firePropertyChange("contentProvider", oldContentProvider, contentProvider);
 	}
+
+	/**
+     * Set the avatar's event dispatcher. The event dispatcher is a bound
+     * property.
+     * 
+     * @param eventDispatcher
+     *            An <code>EventDispatcher</code>.
+     */
+    public void setEventDispatcher(final EventDispatcher eventDispatcher) {
+        Assert.assertNotNull(eventDispatcher,
+                "Cannot set a null event dispatcher for avatar:  {0}", getId());
+        if (this.eventDispatcher == eventDispatcher
+                || eventDispatcher.equals(this.eventDispatcher))
+            return;
+        final EventDispatcher oldEventDispatcher = this.eventDispatcher;
+        this.eventDispatcher = eventDispatcher;
+        firePropertyChange("eventDispatcher", oldEventDispatcher, eventDispatcher);
+    }
 
 	/**
 	 * Set the avatar's input.
@@ -285,10 +328,13 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	public void setInput(final Object input) {
 		Assert.assertNotNull("Cannot set null input:  " + getId(), input);
-		if(this.input == input || input.equals(this.input)) { return; }
+		if (this.input == input || input.equals(this.input))
+            return;
 		
+        final Object oldInput = this.input;
 		this.input = input;
 		reload();
+        firePropertyChange("input", oldInput, input);
 	}
 
 	/**
@@ -388,7 +434,7 @@ public abstract class Avatar extends AbstractJPanel {
      * own mouse dragging. (For example, the bottom right resize control.)
      */
     protected Boolean isResizeDragging() {
-        if (null==resizer) {
+        if (null == resizer) {
             return Boolean.FALSE;
         } else {
             return resizer.isResizeDragging();
@@ -455,9 +501,9 @@ public abstract class Avatar extends AbstractJPanel {
      * These get and set methods are used by classes that intend to do their
      * own mouse dragging. (For example, the bottom right resize control.)
      */
-    protected void setResizeDragging(Boolean resizerDragging) {
-        if (null!=resizer) {
-            resizer.setResizeDragging(resizerDragging);
+    protected void setResizeDragging(final Boolean resizeDragging) {
+        if (null != resizer) {
+            resizer.setResizeDragging(resizeDragging);
         }
     }
 
@@ -466,14 +512,17 @@ public abstract class Avatar extends AbstractJPanel {
 	 *
 	 */
 	protected void toggleVisualFeedback(final Boolean isWorking) {
-		if(isWorking) { setIsWorking(); }
-		else { setIsNotWorking(); }
+		if (isWorking.booleanValue()) {
+            setIsWorking();
+		} else {
+            setIsNotWorking();
+		}
 	}
 
     private void setIsNotWorking() {
 		final Component[] components = getComponents();
 		for(final Component c : components) {
-			if(c.getClass().isAssignableFrom(JButton.class)) {
+			if (c.getClass().isAssignableFrom(JButton.class)) {
 				c.setEnabled(true);
 			}
 		}
@@ -483,7 +532,7 @@ public abstract class Avatar extends AbstractJPanel {
     private void setIsWorking() {
 		final Component[] components = getComponents();
 		for(final Component c : components) {
-			if(c.getClass().isAssignableFrom(JButton.class)) {
+			if (c.getClass().isAssignableFrom(JButton.class)) {
 				c.setEnabled(false);
 			}
 		}

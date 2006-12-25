@@ -93,6 +93,8 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         if (e.isRemote())
             removeFlagSeen(e);
         sync(e);
+        if (e.isLocal())
+            setDraftSelection(e);
     }
 
     /**
@@ -181,6 +183,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     private void removeFlagSeen(final ContainerEvent e) {
         getController().runRemoveContainerFlagSeen(e.getContainer().getId());
+    }
+
+    /**
+     * Select the draft for a container.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    private void setDraftSelection(final ContainerEvent e) {
+        model.setDraftSelection(e.getContainer().getId());
     }
 
     /**

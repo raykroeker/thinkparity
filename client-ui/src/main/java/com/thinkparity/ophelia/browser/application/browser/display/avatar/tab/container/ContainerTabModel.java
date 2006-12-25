@@ -396,6 +396,19 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
+     * Set the draft to be selected for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void setDraftSelection(final Long containerId) {
+        final TabPanel tabPanel = lookupPanel(containerId);
+        Assert.assertTrue(isExpanded(tabPanel),
+                "Cannot select a draft for container:  {0}", containerId);
+        ((ContainerPanel) tabPanel).setDraftSelection();
+    }
+
+    /**
      * Set the model's localization.
      * 
      * @param localization

@@ -4,12 +4,12 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -63,8 +63,13 @@ public class CreateVersionTest extends DocumentTestCase {
             output = new FileOutputStream(outputFile);
             StreamUtil.copy(stream, output);
             
-            final String checksum = MD5Util.md5Hex(FileUtil.readBytes(outputFile));
-            assertEquals("File checksums do not match", datum.documentChecksum, checksum);
+            final InputStream outputFileStream = new FileInputStream(outputFile);
+            try {
+                final String checksum = MD5Util.md5Hex(outputFileStream);
+                assertEquals("File checksums do not match", datum.documentChecksum, checksum);
+            } finally {
+                outputFileStream.close();
+            }
         } catch (final IOException iox) {
             fail(createFailMessage(iox));
         } finally {
@@ -83,10 +88,14 @@ public class CreateVersionTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final File inputFile = getInputFiles()[0];
-        final byte[] inputFileBytes = FileUtil.readBytes(inputFile);
 		final InternalDocumentModel documentModel = getDocumentModel(OpheliaTestUser.JUNIT);
         final Document document = createDocument(OpheliaTestUser.JUNIT, inputFile);
-		datum = new Fixture(document, MD5Util.md5Hex(inputFileBytes), documentModel, inputFile);
+        final InputStream inputFileStream = new FileInputStream(inputFile);
+        try {
+            datum = new Fixture(document, MD5Util.md5Hex(inputFileStream), documentModel, inputFile);
+        } finally {
+            inputFileStream.close();
+        }
     }
 
 	/**

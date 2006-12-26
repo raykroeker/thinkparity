@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.TeamMember;
 
-
 /**
  * <b>Title:</b>thinkParity Container Draft<br>
  * <b>Description:</b>A <code>ContainerDraft</code> contains a list of
@@ -258,6 +257,15 @@ public class ContainerDraft {
         return new StringBuffer(getClass().getName()).append("//")
                 .append("/").append(containerId)
                 .toString();
+    }
+
+    /**
+     * Obtain artifactsState.
+     *
+     * @return A Map<Long,ArtifactState>.
+     */
+    Map<Long, ArtifactState> getArtifactsState() {
+        return Collections.unmodifiableMap(artifactsState);
     }
 
     /**

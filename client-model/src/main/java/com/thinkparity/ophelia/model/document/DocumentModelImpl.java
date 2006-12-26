@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -38,7 +37,6 @@ import com.thinkparity.ophelia.model.DownloadMonitor;
 import com.thinkparity.ophelia.model.ParityException;
 import com.thinkparity.ophelia.model.Constants.Compression;
 import com.thinkparity.ophelia.model.Constants.Encoding;
-import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 import com.thinkparity.ophelia.model.audit.InternalAuditModel;
@@ -251,7 +249,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-	/**
+    /**
      * Determine whether or not a draft exists.
      * 
      * @param documentId
@@ -284,7 +282,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
+	/**
      * Handle the publish of a document from the thinkParity network. The
      * implementation is identical to sending a document.
      * 
@@ -359,7 +357,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-	/**
+    /**
      * Determine whether or not the draft of the document is different from the
      * latest version.
      * 
@@ -369,16 +367,18 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		logger.logApiId();
 		logger.logVariable("documentId", documentId);
         try {
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            if (artifactModel.doesVersionExist(documentId, Versioning.START)) {
+            final Long latestVersionId = getArtifactModel().readLatestVersionId(documentId);
+            if (null == latestVersionId) {
+                return Boolean.TRUE;
+            } else {
                 final Document document = read(documentId);
+                final DocumentVersion latestVersion =
+                    readVersion(documentId, latestVersionId);
+
                 final LocalFile draftFile = getLocalFile(document);
                 draftFile.read();
                 final String draftChecksum = draftFile.getFileChecksum();
-                final DocumentVersion latestVersion = readLatestVersion(documentId);
                 return !latestVersion.getChecksum().equals(draftChecksum);
-            } else {
-                return Boolean.TRUE;
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -399,7 +399,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return list(defaultComparator);
 	}
 
-    /**
+	/**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -422,7 +422,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		}
 	}
 
-	/**
+    /**
      * Obtain a filtered and sorted list of documents.
      * 
      * @param comparator
@@ -497,6 +497,16 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		ModelSorter.sortDocumentVersions(versions, comparator);
 		return versions;
 	}
+
+	/**
+     * Fire a local document updated event.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    void notifyDocumentUpdated(final Long documentId) {
+        notifyDocumentUpdated(read(documentId), localEventGen);
+    }
 
 	/**
 	 * Open a document.
@@ -673,6 +683,28 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     }
 
     /**
+     * Obtain the first available version.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    DocumentVersion readEarliestVersion(final Long documentId) {
+        logger.logApiId();
+        logger.logVariable("documentId", documentId);
+        try {
+            final Long versionId = getArtifactModel().readEarliestVersionId(documentId);
+            if (null == versionId) {
+                return null;
+            } else {
+                return readVersion(documentId, versionId);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Read the document history.
      * 
      * @param documentId
@@ -685,7 +717,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		return readHistory(documentId, defaultHistoryComparator);
 	}
 
-    /**
+	/**
      * Read the document history.
      * 
      * @param documentId
@@ -702,7 +734,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return readHistory(documentId, comparator, defaultHistoryFilter);
     }
 
-	/**
+    /**
      * Read the document history.
      * 
      * @param documentId
@@ -747,6 +779,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return readHistory(documentId, defaultHistoryComparator, filter);
     }
 
+
     /**
 	 * Obtain the latest document version.
 	 * 
@@ -767,29 +800,6 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             throw translateError(t);
 		}
 	}
-
-
-    /**
-     * Obtain the first available version.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>DocumentVersion</code>.
-     */
-    DocumentVersion readEarliestVersion(final Long documentId) {
-        logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        try {
-            final Long versionId = getArtifactModel().readEarliestVersionId(documentId);
-            if (null == versionId) {
-                return null;
-            } else {
-                return readVersion(documentId, versionId);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
 
     /**
      * Read a document version.
@@ -874,7 +884,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-	/**
+    /**
      * Update the working version of a document. Note that the content stream is
      * not closed.
      * 
@@ -958,7 +968,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         }
     }
 
-    /**
+	/**
      * Create a document. Simply create the document and the artifact remote
      * info object in the database.
      * 
@@ -991,7 +1001,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         return read(document.getId());
     }
 
-	/**
+    /**
      * Create a document version.
      * 
      * @param documentId
@@ -1023,7 +1033,12 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     		version.setArtifactId(documentId);
     		version.setArtifactType(document.getType());
     		version.setArtifactUniqueId(document.getUniqueId());
-    		version.setChecksum(MD5Util.md5Hex(FileUtil.readBytes(tempContentFile)));
+            final InputStream checksumStream = new FileInputStream(tempContentFile);
+		    try {
+                version.setChecksum(MD5Util.md5Hex(checksumStream));
+            } finally {
+                checksumStream.close();
+            }
     		version.setCompression(Compression.NONE);
     		version.setCreatedBy(createdBy);
     		version.setCreatedOn(createdOn);
@@ -1034,11 +1049,11 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             version.setSize(tempContentFile.length());
             version.setVersionId(versionId);
             // create version content
-            final InputStream stream = new FileInputStream(tempContentFile);
+            final InputStream versionStream = new FileInputStream(tempContentFile);
             try {
-                documentIO.createVersion(version, stream);
+                documentIO.createVersion(version, versionStream);
             } finally {
-                stream.close();
+                versionStream.close();
             }
     		// write local version file
     		final LocalFile localFile = getLocalFile(document, version);
@@ -1124,7 +1139,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 		});
 	}
 
-    /**
+	/**
 	 * Fire document deleted.
 	 * 
 	 * @param document
@@ -1140,6 +1155,23 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
 			}
 		});
 	}
+
+    /**
+     * Fire document updated.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @param eventGen
+     *            A <code>DocumentModelEventGenerator</code>.
+     */
+    private void notifyDocumentUpdated(final Document document,
+            final DocumentModelEventGenerator eventGen) {
+        notifyListeners(new EventNotifier<DocumentListener>() {
+            public void notifyListener(final DocumentListener listener) {
+                listener.documentUpdated(eventGen.generate(document));
+            }
+        });
+    }
 
     /**
      * Revert a document draft to a version's content.

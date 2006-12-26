@@ -49,7 +49,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		return new InternalDocumentModel(context, environment, workspace);
 	}
 
-	/**
+    /**
 	 * Obtain a handle to a document model.
 	 * 
      * @param workspace
@@ -61,7 +61,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		return new DocumentModel(environment, workspace);
 	}
 
-	/**
+    /**
 	 * Create a DocumentModel [Singleton]
 	 */
 	protected DocumentModel(final Environment environment,
@@ -80,7 +80,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		synchronized(getImplLock()) { getImpl().addListener(l); }
 	}
 
-    /**
+	/**
      * @deprecated =>
      *             {@link com.thinkparity.ophelia.model.container.ContainerModel#archive(java.lang.Long)}
      */
@@ -89,8 +89,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
         throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long)");
     }
 
-
-    /**
+	/**
      * @deprecated =>
      *             {@link com.thinkparity.ophelia.model.container.ContainerModel#archive(Long, ProgressIndicator)}
      */
@@ -109,6 +108,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
         throw Assert.createUnreachable("DocumentModel#close(java.lang.Long) => ContainerModel#close(java.lang.Long)");
     }
 
+
     /**
      * Create a document and attach it to a container. This will take a name,
      * and input stream of a file and create a document.
@@ -123,7 +123,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		synchronized(getImplLock()) { return getImpl().create(name, inputStream); }
 	}
 
-	/**
+    /**
 	 * Create a new document version based upon an existing document. This will
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
@@ -138,7 +138,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentId
@@ -149,36 +149,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		synchronized(getImplLock()) { return getImpl().read(documentId); }
 	}
 
-    /**
-     * Obtain the first available version.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>DocumentVersion</code>.
-     */
-    public DocumentVersion readEarliestVersion(final Long documentId) {
-        synchronized (getImplLock()) {
-            return getImpl().readEarliestVersion(documentId);
-        }
-    }
-
-    /**
-	 * Obtain a document version.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param versionId
-	 *            The version id.
-	 * @return The document version.
-	 */
-	public DocumentVersion readVersion(final Long documentId,
-            final Long versionId) {
-		synchronized (getImplLock()) {
-            return getImpl().readVersion(documentId, versionId);
-		}
-	}
-
-    /**
+	/**
      * Determine whether or not the draft of the document has been modified by
      * the user.
      * 
@@ -191,40 +162,6 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
     }
 
     /**
-	 * Obtain a list of document versions for a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @return The list of document versions; ordered by the version id
-	 *         ascending.
-	 * 
-	 * @see ComparatorBuilder
-	 * @see #listVersions(Long, Comparator)
-	 */
-	public List<DocumentVersion> readVersions(final Long documentId) {
-		synchronized(getImplLock()) { return getImpl().listVersions(documentId); }
-	}
-
-	/**
-	 * Obtain a list of document versions for a document; ordered by the
-	 * specified comparator.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param comparator
-	 *            The document version sorter.
-	 * @return The list of document versions.
-	 * 
-	 * @see ComparatorBuilder
-	 */
-	public Collection<DocumentVersion> readVersions(final Long documentId,
-			final Comparator<ArtifactVersion> comparator) {
-		synchronized(getImplLock()) {
-			return getImpl().listVersions(documentId, comparator);
-		}
-	}
-
-	/**
 	 * Open a document.
 	 * 
 	 * @param documentId
@@ -236,7 +173,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		}
 	}
 
-	/**
+    /**
 	 * Open a document version.
 	 * 
 	 * @param documentId
@@ -251,7 +188,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		}
 	}
 
-	/**
+    /**
      * Print a document draft.
      * 
      * @param documentId
@@ -265,7 +202,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
         }
     }
 
-	/**
+    /**
      * Print a document version.
      * 
      * @param documentId
@@ -282,7 +219,20 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
         }
     }
 
-    /**
+	/**
+     * Obtain the first available version.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    public DocumentVersion readEarliestVersion(final Long documentId) {
+        synchronized (getImplLock()) {
+            return getImpl().readEarliestVersion(documentId);
+        }
+    }
+
+	/**
 	 * Read the document's history.
 	 * 
 	 * @param documentId
@@ -293,7 +243,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		synchronized(getImplLock()) { return getImpl().readHistory(documentId); }
 	}
 
-    /**
+	/**
 	 * Read the document's history.
 	 * 
 	 * @param documentId
@@ -309,7 +259,7 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
 		}
 	}
 
-    /**
+	/**
      * Read the document's history.
      * 
      * @param documentId
@@ -355,7 +305,57 @@ public class DocumentModel extends AbstractModel<DocumentModelImpl> {
         }
     }
 
+    /**
+	 * Obtain a document version.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @param versionId
+	 *            The version id.
+	 * @return The document version.
+	 */
+	public DocumentVersion readVersion(final Long documentId,
+            final Long versionId) {
+		synchronized (getImplLock()) {
+            return getImpl().readVersion(documentId, versionId);
+		}
+	}
+
+    /**
+	 * Obtain a list of document versions for a document.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @return The list of document versions; ordered by the version id
+	 *         ascending.
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #listVersions(Long, Comparator)
+	 */
+	public List<DocumentVersion> readVersions(final Long documentId) {
+		synchronized(getImplLock()) { return getImpl().listVersions(documentId); }
+	}
+
 	/**
+	 * Obtain a list of document versions for a document; ordered by the
+	 * specified comparator.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @param comparator
+	 *            The document version sorter.
+	 * @return The list of document versions.
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	public Collection<DocumentVersion> readVersions(final Long documentId,
+			final Comparator<ArtifactVersion> comparator) {
+		synchronized(getImplLock()) {
+			return getImpl().listVersions(documentId, comparator);
+		}
+	}
+
+    /**
 	 * Remove a document listener.
 	 * 
 	 * @param l

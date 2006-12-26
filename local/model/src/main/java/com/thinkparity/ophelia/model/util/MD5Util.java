@@ -3,16 +3,24 @@
  */
 package com.thinkparity.ophelia.model.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * MD5Util
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity MD5 Util<br>
+ * <b>Description:</b>Calculate an MD5 checksum from a variety of sources.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class MD5Util {
 
-	/**
+    /**
 	 * Calculates the md5 digest and returns the value as a 16 element byte[].
 	 * @param data - <code>byte[]</code>
 	 * @return <code>byte[]</code>
@@ -22,16 +30,39 @@ public class MD5Util {
 	}
 
 	/**
-	 * Calculates the md5 digest and returns the value as a 32 character hex string.
-	 * @param data <code>byte[]</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static String md5Hex(final byte[] data) {
-		return DigestUtils.md5Hex(data);
-	}
+     * Create an MD5 hex encoded checksum of an input stream.
+     * 
+     * @param inputStream
+     *            An <code>InputStream</code>.
+     * @return An MD5 hex encoded checksum.
+     * @throws IOException
+     */
+    public static String md5Hex(final InputStream inputStream) throws IOException {
+        final MessageDigest messageDigest = getDigest();
+        final byte[] bytes = new byte[512];
+        int bytesRead;
+        while (-1 != (bytesRead = inputStream.read(bytes))) {
+            messageDigest.update(bytes, 0, bytesRead);
+        }
+        return new String(Hex.encodeHex(messageDigest.digest()));
+    }
+
+    /**
+     * Create an instance of a message digest using the MD5 algorithm.
+     * 
+     * @return An instance of <code>MessageDigest</code>.
+     */
+    private static MessageDigest getDigest() {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (final NoSuchAlgorithmException nsax) {
+            throw new RuntimeException(nsax);
+        }
+    }
 
 	/**
 	 * Create a MD5Util [Singleton]
+     * 
 	 */
 	private MD5Util() { super(); }
 }

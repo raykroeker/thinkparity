@@ -119,24 +119,24 @@ public class PanelCellListModel {
             return (Cell)listModel.get(selectedIndex);
         }
     }
-    
+
     public int getSelectedIndex() {
         return selectedIndex;
     }
-    
+
     public void setSelectedCell(final Cell cell) {
         setSelectedIndex(listModel.indexOf(cell));
     }
-    
+
     private void setSelectedIndex(final int selectedIndex) {
-        final int saveSelectedIndex = this.selectedIndex;
+        final int oldSelectedIndex = this.selectedIndex;
         this.selectedIndex = selectedIndex;
-        if ((saveSelectedIndex != selectedIndex) && !isSelectionEmpty()) {
+        if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
             tabPanel.panelCellSelectionChanged(getSelectedCell());
             saveSelectedIndex(selectedIndex);
         }
     }
-    
+
     private void installDataListener() {
         listModel.addListDataListener(new ListDataListener() {
             /**

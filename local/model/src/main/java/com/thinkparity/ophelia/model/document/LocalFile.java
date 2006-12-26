@@ -40,16 +40,13 @@ class LocalFile {
     /** An apache logger. */
 	protected final Log4JWrapper logger;
 
-	/** The local <code>File</code>. */
+    /** The local <code>File</code>. */
 	private final File file;
 
-	/** The file's content <code>byte[]</code>. */
-	private byte[] fileBytes;
-
-    /** The file content's checksum <code>String</code>. */
+	/** The file content's checksum <code>String</code>. */
 	private String fileChecksum;
 
-	/** A document name generator. */ 
+    /** A document name generator. */ 
     private final DocumentNameGenerator nameGenerator;
 
 	/**
@@ -138,6 +135,16 @@ class LocalFile {
 	String getFileChecksum() { return fileChecksum; }
 
 	/**
+     * Obtain the last modified date of the file.
+     * 
+     * @return The last modified date as a <code>Long</code> number of
+     *         milliseconds.
+     */
+    long lastModified() {
+        return file.lastModified();
+    }
+
+	/**
 	 * Lock the file.
 	 *
 	 */
@@ -174,10 +181,13 @@ class LocalFile {
 	 */
 	void read() throws FileNotFoundException, IOException {
         if (file.exists()) {
-            fileBytes = FileUtil.readBytes(file);
-            fileChecksum = MD5Util.md5Hex(fileBytes);
+            final InputStream fileInputStream = openStream();
+            try {
+                fileChecksum = MD5Util.md5Hex(fileInputStream);
+            } finally {
+                fileInputStream.close();
+            }
         } else {
-            fileBytes = null;
             fileChecksum = null;
         }
 	}

@@ -36,6 +36,10 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -57,6 +61,14 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  */
 public final class ContainerTabModel extends TabPanelModel implements
         TabAvatarSortByDelegate {
+
+    /** A session key for the draft monitor. */
+    private static final String SK_DRAFT_MONITOR;
+
+    static {
+        SK_DRAFT_MONITOR = new StringBuffer(ContainerTabModel.class.getName())
+            .append("#ContainerDraftMonitor").toString();
+    }
 
     /** A <code>ContainerTabActionDelegate</code>. */
     private final ContainerTabActionDelegate actionDelegate;
@@ -150,7 +162,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         doToggleExpansion(tabPanel);
         synchronize();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
      * 
@@ -175,7 +187,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     protected boolean canImportData(final DataFlavor[] transferFlavors) {
         return TxUtils.containsJavaFileList(transferFlavors);
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#canImportData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.awt.datatransfer.DataFlavor[])
      *
@@ -265,7 +277,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             browser.runCreateContainer(importFiles);
         }
     }
-
+    
     /**
      * Initialize the container model with containers; container versions;
      * documents and users from the provider.
@@ -344,7 +356,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         }
         debug();
     }
-    
+
     /**
      * Obtain the popup delegate.
      * 
@@ -673,6 +685,29 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
+     * Obtain a container draft monitor created by the model.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param listener
+     *            A <code>ContainerDraftListener</code>.
+     * @return A <code>ContainerDraftMonitor</code>.
+     */
+    private ContainerDraftMonitor getDraftMonitor(final Long containerId,
+            final ContainerDraftListener listener) {
+        return ((ContainerProvider) contentProvider).getDraftMonitor(containerId, listener);
+    }
+
+    /**
+     * Obtain the session draft monitor.
+     * 
+     * @return The session draft monitor; or null if no draft monitor is set.
+     */
+    private ContainerDraftMonitor getSessionDraftMonitor() {
+        return (ContainerDraftMonitor) session.getAttribute(SK_DRAFT_MONITOR);        
+    }
+    
+    /**
      * Obtain a localized string for an ordering.
      * 
      * @param ordering
@@ -796,7 +831,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             return isExpanded(tabPanel);
         }
     }
-    
+
     /**
      * Determine if a search is applied by checking the search expression.
      * 
@@ -804,6 +839,19 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private boolean isSearchApplied() {
         return null != searchExpression;
+    }
+
+    /**
+     * Determine if the session draft monitor is set for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the session draft monitor is not null and is monitoring
+     *         the container.
+     */
+    private boolean isSetSessionDraftMonitor(final Long containerId) {
+        final ContainerDraftMonitor monitor = getSessionDraftMonitor();
+        return null != monitor && monitor.getContainerId().equals(containerId);
     }
 
     /**
@@ -817,7 +865,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         debug();
         return sortedBy.contains(sortBy);
     }
-
+    
     /**
      * Lookup the index of the container's corresponding panel.
      * 
@@ -859,7 +907,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-
+    
     /**
      * Read the containers from the provider.
      * 
@@ -868,16 +916,20 @@ public final class ContainerTabModel extends TabPanelModel implements
     private List<Container> readContainers() {
         return ((ContainerProvider) contentProvider).read();
     }
-    
+
     /**
-     * Read the draft for a container.
-     *
+     * Read the documents from the provider.
+     * 
      * @param containerId
-     *      A container id <code>Long</code>.
-     * @return A <code>ContainerDraft</code>.
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
      */
-    private DraftView readDraftView(final Long containerId) {
-        return ((ContainerProvider) contentProvider).readDraftView(containerId);
+    private List<DocumentView> readDocumentViews(final Long containerId,
+            final Long versionId) {
+        return ((ContainerProvider) contentProvider).readDocumentViews(
+                containerId, versionId);
     }
 
     /**
@@ -897,6 +949,17 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
+     * Read the draft for a container.
+     *
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    private DraftView readDraftView(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readDraftView(containerId);
+    }
+
+    /**
      * Determine if the draft document has been modified.
      * 
      * @param documentId
@@ -906,7 +969,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
-    
+
     /**
      * Read the latest version for a container.
      * 
@@ -985,21 +1048,6 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
-     * Read the documents from the provider.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return A <code>Map&lt;DocumentVersion, Delta&gt;</code>.
-     */
-    private List<DocumentView> readDocumentViews(final Long containerId,
-            final Long versionId) {
-        return ((ContainerProvider) contentProvider).readDocumentViews(
-                containerId, versionId);
-    }
-
-    /**
      * Remove a container panel.
      * 
      * @param container
@@ -1016,11 +1064,49 @@ public final class ContainerTabModel extends TabPanelModel implements
             }
         }
         final int panelIndex = lookupIndex(containerId);
+        final TabPanel containerPanel = panels.remove(panelIndex);
         if (removeExpandedState) {
-            final TabPanel containerPanel = panels.remove(panelIndex);
             expandedState.remove(containerPanel);
-        } else {
-            panels.remove(panelIndex);
+        }
+        if (isSetSessionDraftMonitor(containerId)) {
+            stopSessionDraftMonitor();
+        }
+    }
+
+    /**
+     * Start a draft monitor for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void startSessionDraftMonitor(final Long containerId) {
+        // if the current draft monitor is set for this container; do nothing
+        if (isSetSessionDraftMonitor(containerId))
+            return;
+        // if a current draft monitor exists stop it
+        ContainerDraftMonitor monitor = getSessionDraftMonitor();
+        if (null != monitor) {
+            stopSessionDraftMonitor();
+        }
+        // create a new monitor and start it
+        monitor = getDraftMonitor(containerId, new ContainerDraftListener() {
+            public void documentModified(final ContainerEvent e) {
+                syncContainer(containerId, Boolean.FALSE);
+            }
+        });
+        session.setAttribute(SK_DRAFT_MONITOR, monitor);
+        monitor.start();
+    }
+
+    /**
+     * Stop the session draft monitor.
+     *
+     */
+    private void stopSessionDraftMonitor() {
+        final ContainerDraftMonitor monitor = getSessionDraftMonitor();
+        if (null != monitor) {
+            monitor.stop();
+            session.removeAttribute(SK_DRAFT_MONITOR);
         }
     }
 
@@ -1052,6 +1138,17 @@ public final class ContainerTabModel extends TabPanelModel implements
             browser.runApplyContainerFlagSeen(
                     panel.getContainer().getId());
         }
+        // the session will maintain the single draft monitor for the tab
+        panel.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if ("expanded".equals(evt.getPropertyName())
+                        || "draftSelected".equals(evt.getPropertyName())) {
+                    if (panel.isExpanded() && panel.isDraftSelected()) {
+                        startSessionDraftMonitor(panel.getContainer().getId());
+                    }
+                }
+            }
+        });
         return panel;
     }
 

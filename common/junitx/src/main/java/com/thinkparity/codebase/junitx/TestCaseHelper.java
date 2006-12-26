@@ -31,6 +31,9 @@ public class TestCaseHelper {
     /** A <code>List</code> of input file name <code>String</code>s. */
     private static List<String> inputFileNames;
 
+    /** A <code>List</code> of input file md5 checksum <code>String</code>s. */
+    private static List<String> inputFileMD5Checksums;
+    
 	/**
 	 * List of modified input files to use for testing.
 	 * 
@@ -101,6 +104,7 @@ public class TestCaseHelper {
     static String[] getInputFileNames() {
         if (null == inputFileNames) {
             inputFileNames = new ArrayList<String>();
+            inputFileNames.add("JUnitTestFramework");
             inputFileNames.add("JUnitTestFramework.doc");
             inputFileNames.add("JUnitTestFramework.odt");
             inputFileNames.add("JUnitTestFramework.pdf");
@@ -115,6 +119,23 @@ public class TestCaseHelper {
         return inputFileNames.toArray(new String[] {});
     }
 
+    static String[] getInputFileMD5Checksums() {
+        if (null == inputFileMD5Checksums) {
+            inputFileMD5Checksums = new ArrayList<String>();
+            inputFileMD5Checksums.add("bff1335bddbbec6825f28a452cf89eb7");
+            inputFileMD5Checksums.add("da943e042bba49db773955de4596ade8");
+            inputFileMD5Checksums.add("c672813799783c87e1d0c71ea01aa203");
+            inputFileMD5Checksums.add("f8600055e0e298e758d7a3f47a0794be");
+            inputFileMD5Checksums.add("f025bb38caeae6d25d41af5da12a1088");
+            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
+            inputFileMD5Checksums.add("65cbd1464eb95d74cdcc9ec73fb92a7e");
+            inputFileMD5Checksums.add("23c48cbb68603cd9a078e548cce61ab7");
+            inputFileMD5Checksums.add("a32663e1998e908a73e4c9e88287b9ba");
+            inputFileMD5Checksums.add("19edc66c9f6603dad03fd3dde85f02cb");
+            inputFileMD5Checksums.add("30e61cba71f4f7499f74f0dbc6ede060");
+        }
+        return inputFileMD5Checksums.toArray(new String[] {});
+    }
 	/**
      * Obtain a list of all of the input files.
      * 
@@ -133,8 +154,10 @@ public class TestCaseHelper {
 	static File[] getModFiles() throws IOException {
 		if(null == modFiles) {
 			modFiles = new LinkedList<File>();
+            modFiles.add(copyInputFile("JUnitTestFrameworkMod"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.doc"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.odt"));
+            modFiles.add(copyInputFile("JUnitTestFrameworkMod.pdf"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.png"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.txt"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.unknown"));

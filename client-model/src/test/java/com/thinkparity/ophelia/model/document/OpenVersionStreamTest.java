@@ -4,18 +4,20 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.OpheliaTestUser;
 import com.thinkparity.ophelia.model.util.MD5Util;
+
+import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model open version api.
@@ -68,13 +70,25 @@ public class OpenVersionStreamTest extends DocumentTestCase {
         }
 
         try {
-            final byte[] inputBytes = FileUtil.readBytes(datum.inputFile);
-            final String inputChecksum = MD5Util.md5Hex(inputBytes);
-            System.gc();
+            final InputStream inputFileStream = new FileInputStream(datum.inputFile);
+            String inputChecksum;
+            try {
+                 inputChecksum = MD5Util.md5Hex(inputFileStream);
+            } catch (final Throwable t) {
+                inputChecksum = null;
+            } finally {
+                inputFileStream.close();
+            }
 
-            final byte[] outputBytes = FileUtil.readBytes(outputFile);
-            final String outputChecksum = MD5Util.md5Hex(outputBytes);
-            System.gc();
+            final InputStream outputFileStream = new FileInputStream(outputFile);
+            String outputChecksum;
+            try {
+                outputChecksum = MD5Util.md5Hex(outputFileStream);
+            } catch (final Throwable t) {
+                outputChecksum = null;
+            } finally {
+                outputFileStream.close();
+            }
 
             assertEquals("Input and output files do not match.", inputChecksum,
                     outputChecksum);

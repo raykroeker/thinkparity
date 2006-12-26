@@ -64,6 +64,7 @@ import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
 import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent.Source;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
@@ -101,6 +102,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             public void stageBegin(final PublishStage stage, final Object data) {}
             public void stageEnd(final PublishStage stage) {}
         };
+    }
+
+    /**
+     * Obtain a draft monitor. The monitor will be notified if and when a
+     * document's state is changed.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param listener
+     *            A <code>ContainerDraftListener</code>.
+     * @return A <code>ContainerDraftMonitor</code>.
+     */
+    ContainerDraftMonitor getDraftMonitor(final Long containerId,
+            final ContainerDraftListener listener) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        assertDraftExists("Cannot monitor a null draft.", containerId);
+        try {
+            return new ContainerDraftMonitor(internalModelFactory,
+                    readDraft(containerId), localEventGenerator, listener);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /** The artifact io layer. */

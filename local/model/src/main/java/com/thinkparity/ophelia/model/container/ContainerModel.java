@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.AbstractModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.util.Printer;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -196,6 +197,22 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
             final Long versionId) {
         synchronized (getImplLock()) {
             return getImpl().exportVersion(exportDirectory, containerId, versionId);
+        }
+    }
+
+    /**
+     * Create a document monitor.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param listener
+     *            A <code>ContainerDraftListener</code>.
+     * @return A <code>ContainerDraftMonitor</code>.
+     */
+    public ContainerDraftMonitor getDraftMonitor(final Long containerId,
+            final ContainerDraftListener listener) {
+        synchronized (getImplLock()) {
+            return getImpl().getDraftMonitor(containerId, listener);
         }
     }
 
@@ -382,11 +399,10 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>ContainerVersionDelta</code>.
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId,
-            final Long compareVersionId, final Long compareToVersionId) {
+            final Long containerId, final Long compareVersionId) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersionDeltas(containerId,
-                    compareVersionId, compareToVersionId);
+                    compareVersionId);
         }
     }
 
@@ -402,10 +418,11 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      * @return A <code>ContainerVersionDelta</code>.
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
-            final Long containerId, final Long compareVersionId) {
+            final Long containerId,
+            final Long compareVersionId, final Long compareToVersionId) {
         synchronized (getImplLock()) {
             return getImpl().readDocumentVersionDeltas(containerId,
-                    compareVersionId);
+                    compareVersionId, compareToVersionId);
         }
     }
 

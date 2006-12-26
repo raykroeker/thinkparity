@@ -866,6 +866,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return inputFiles;
 	}
 
+    protected String[] getInputFileMD5Checksums() {
+        final String[] inputFileMD5Checksums = new String[NUMBER_OF_INPUT_FILES];
+        System.arraycopy(super.getInputFileMD5Checksums(), 0, inputFileMD5Checksums, 0, NUMBER_OF_INPUT_FILES);
+        return inputFileMD5Checksums;
+    }
+
     protected InternalLibraryModel getLibraryModel(
             final OpheliaTestUser testUser) {
         return modelFactory.getLibraryModel(testUser);

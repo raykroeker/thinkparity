@@ -180,6 +180,10 @@ public abstract class TestCase extends junit.framework.TestCase {
         return TestCaseHelper.getInputFileNames();
     }
 
+    protected String[] getInputFileMD5Checksums() {
+        return TestCaseHelper.getInputFileMD5Checksums();
+    }
+
     /**
 	 * Obtain a list of input test files.
 	 * 

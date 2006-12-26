@@ -12,7 +12,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.ophelia.model.AbstractModelImpl;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.LibraryIOHandler;
-import com.thinkparity.ophelia.model.util.MD5Util;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -58,8 +57,9 @@ class LibraryModelImpl extends AbstractModelImpl {
         logger.logVariable("variable", version);
         logger.logVariable("variable", null == bytes ? null : bytes.length);
         final Long libraryId = libraryIO.create(artifactId, groupId, path, type, version);
-        final String checksum = MD5Util.md5Hex(bytes);
-        libraryIO.createBytes(libraryId, bytes, checksum);
+        // final String checksum = MD5Util.md5Hex(bytes);
+        // TODO Refactor to use streams.
+        libraryIO.createBytes(libraryId, bytes, null);
         return read(libraryId);
     }
 

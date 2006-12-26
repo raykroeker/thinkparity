@@ -22,8 +22,10 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -71,6 +73,20 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         this.containerModel = containerModel;
         this.documentModel = documentModel;
         this.userModel = userModel;
+    }
+
+    /**
+     * Obtain a draft monitor for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param listener
+     *            A <code>ContainerDraftListener</code>.
+     * @return A <code>ContainerDraftMonitor</code>.
+     */
+    public ContainerDraftMonitor getDraftMonitor(final Long containerId,
+            final ContainerDraftListener listener) {
+        return containerModel.getDraftMonitor(containerId, listener);
     }
 
     @Override
@@ -179,7 +195,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 firstVersion = documentModel.readVersion(document.getId(), Versioning.START);
                 if (null != firstVersion)
                     draftView.setFirstPublishedOn(
-                            document, firstVersion.getCreatedOn()); 
+                            document, firstVersion.getCreatedOn());
             }
         }
         return draftView;

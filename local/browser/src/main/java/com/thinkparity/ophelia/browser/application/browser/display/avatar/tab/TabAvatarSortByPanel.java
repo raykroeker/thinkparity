@@ -7,15 +7,18 @@ import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -49,6 +52,12 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
     /** The menu item <code>GridBagConstraints</code>. */
     private final GridBagConstraints constraints;
 
+    /** The menu item icon <code>GridBagConstraints</code>. */
+    private final GridBagConstraints iconConstraints;
+
+    /** The menu item icon <code>GridBagConstraints</code>. */
+    private final GridBagConstraints panelConstraints;
+
     /** The <code>TabAvatarSortByDelegate</code>. */
     private TabAvatarSortByDelegate delegate;
 
@@ -79,12 +88,20 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
         } catch (final AWTException awtx) {
             throw new BrowserException("", awtx);
         }
+        this.panelConstraints = new GridBagConstraints();
+        this.panelConstraints.fill = GridBagConstraints.BOTH;
+        this.panelConstraints.gridx = this.panelConstraints.gridy = 0;
+        this.panelConstraints.ipady = 4;
+        this.panelConstraints.weightx = this.panelConstraints.weighty = 1.0F;
+
         this.constraints = new GridBagConstraints();
         this.constraints.fill = GridBagConstraints.BOTH;
-        this.constraints.gridx = this.constraints.gridy = 0;
         this.constraints.insets.left = 10;
-        this.constraints.ipady = 4;
-        this.constraints.weightx = this.constraints.weighty = 1.0F;
+        this.constraints.weightx = 1.0F;
+
+        this.iconConstraints = new GridBagConstraints();
+        this.iconConstraints.insets.right = 6;
+
         initComponents();
     }
 
@@ -125,11 +142,16 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
      */
     private void addSortBy(final int index, final TabAvatarSortBy sortBy) {
         final JLabel jLabel = LabelFactory.create(sortBy.getText(),
-                getIcon(sortBy), LabelFactory.TextAlignment.LEFT,
                 BrowserConstants.Fonts.DefaultFont);
-        if (0 < index)
-            jLabel.setBorder(new TopBorder(Colors.Swing.MENU_BETWEEN_ITEMS_BG));
-        jLabel.addMouseListener(new MouseAdapter() {
+        final JPanel jPanel = new AbstractJPanel() {};
+        jPanel.setLayout(new GridBagLayout());
+        
+        final JLabel iconJLabel = LabelFactory.create(getIcon(sortBy));
+        if (0 < index) {
+            jPanel.setBorder(new TopBorder(Colors.Swing.MENU_BETWEEN_ITEMS_BG));
+        }
+
+        final MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
                 sortBy.getAction().actionPerformed(
@@ -137,9 +159,13 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
                                 "SortBy", e.getWhen(), e.getModifiers()));
                 reload();
             }
-        });
-        constraints.gridy++;
-        sortByJPanel.add(jLabel, constraints.clone());        
+        };
+        jPanel.addMouseListener(mouseListener);
+        jPanel.add(jLabel, constraints.clone());
+        jPanel.add(iconJLabel, iconConstraints.clone());
+
+        panelConstraints.gridy++;
+        sortByJPanel.add(jPanel, panelConstraints.clone());
     }
     
     /**
@@ -174,8 +200,8 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
     private void reload() {
         final List<TabAvatarSortBy> sortBy = delegate.getSortBy();
         for (int i = 0; i < sortBy.size(); i++) {
-            ((JLabel) sortByJPanel.getComponent(i)).setText(sortBy.get(i).getText());
-            ((JLabel) sortByJPanel.getComponent(i)).setIcon(getIcon(sortBy.get(i)));
+            ((JLabel) ((JPanel) sortByJPanel.getComponent(i)).getComponent(0)).setText(sortBy.get(i).getText());
+            ((JLabel) ((JPanel) sortByJPanel.getComponent(i)).getComponent(1)).setIcon(getIcon(sortBy.get(i)));
         }
         sortByJPanel.revalidate();
     }

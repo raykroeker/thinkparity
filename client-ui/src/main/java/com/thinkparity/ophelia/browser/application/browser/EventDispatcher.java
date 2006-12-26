@@ -7,6 +7,7 @@ import com.thinkparity.ophelia.model.events.ContactAdapter;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.events.ContainerAdapter;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -123,7 +124,12 @@ class EventDispatcher {
      * @return A <code>ContainerListener</code>.
      */
     private ContainerListener createContainerListener() {
-        return new ContainerAdapter() {};
+        return new ContainerAdapter() {
+            @Override
+            public void containerRestored(final ContainerEvent e) {
+                browser.fireContainerRestored(e);
+            }
+        };
     }
 
 	/**

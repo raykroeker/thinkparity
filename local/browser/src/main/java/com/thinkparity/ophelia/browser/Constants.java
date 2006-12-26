@@ -201,9 +201,9 @@ public final class Constants {
     public static final class Icons {
         public static final class Tray {
             public static final Icon TRAY_ICON_OFFLINE =
-                ImageIOUtil.readIcon("SystemTrayOffline.png");
+                ImageIOUtil.readIcon("ThinkParityGray16x16.png");
             public static final Icon TRAY_ICON_ONLINE =
-                ImageIOUtil.readIcon("SystemTray.png");
+                ImageIOUtil.readIcon("ThinkParity16x16.png");
         }
         public static final class BrowserTitle {
             public static final Icon LEFTMOST_TAB_SELECTED =

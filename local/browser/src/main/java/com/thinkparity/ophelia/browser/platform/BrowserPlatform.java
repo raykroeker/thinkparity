@@ -210,7 +210,7 @@ public class BrowserPlatform implements Platform {
             final StringComparator stringComparator =
                 new StringComparator(Boolean.TRUE);
             public int compare(final Locale o1, final Locale o2) {
-                return stringComparator.compare(o1.getCountry(), o2.getCountry());
+                return stringComparator.compare(o1.getDisplayCountry(), o2.getDisplayCountry());
             }
         });
         return availableLocales.toArray(new Locale[] {});

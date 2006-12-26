@@ -4,7 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action;
 
-
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$

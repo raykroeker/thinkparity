@@ -5,15 +5,14 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 
 import com.thinkparity.codebase.model.contact.Contact;
 
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
-
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b><br>
@@ -26,7 +25,7 @@ final class ContactTabActionDelegate extends DefaultActionDelegate implements
         ActionDelegate {
 
     /** A contact read <code>AbstractAction</code>. */
-    private final AbstractAction contactRead;
+    private final ActionInvocation contactRead;
 
     /**
      * Create ContactTabActionDelegate.

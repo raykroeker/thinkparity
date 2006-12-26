@@ -19,14 +19,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.swing.JFileChooserUtil;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.swing.JFileChooserUtil;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -57,16 +58,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.AddDocument;
-import com.thinkparity.ophelia.browser.platform.action.container.Create;
-import com.thinkparity.ophelia.browser.platform.action.container.CreateDraft;
-import com.thinkparity.ophelia.browser.platform.action.container.Publish;
-import com.thinkparity.ophelia.browser.platform.action.container.PublishVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Rename;
-import com.thinkparity.ophelia.browser.platform.action.container.RenameDocument;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
@@ -87,8 +79,6 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensi
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -491,6 +481,13 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.ENDING);        
 		notifyEnd();
 	}
+    
+    /**
+     * Notify the application that an actin has been invoked.
+     */
+    public void fireActionInvoked() {
+        clearStatus();
+    }
 
     /**
      * Notify the application that a contact has been added.
@@ -502,7 +499,6 @@ public class Browser extends AbstractApplication {
      *            the action was a local event.  
      */
     public void fireContactAdded(final JabberId contactId, final Boolean remote) {
-        clearStatus();
         // refresh the contact list
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getTabContactAvatar().syncContact(contactId, remote); }
@@ -518,7 +514,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireContactDeleted(final JabberId contactId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -534,7 +529,6 @@ public class Browser extends AbstractApplication {
      *           The contact id.
      */
     public void fireContactUpdated(final JabberId contactId) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, Boolean.TRUE);
@@ -559,7 +553,6 @@ public class Browser extends AbstractApplication {
      *            A document id.
      */
     public void fireDocumentDraftUpdated(final Long documentId) {
-        clearStatus();
         syncDocumentTabContainer(documentId, Boolean.FALSE);
     }
     
@@ -572,7 +565,6 @@ public class Browser extends AbstractApplication {
      *            The document that has changed.
      */
     public void fireDocumentUpdated(final Long documentId, final Boolean remote) {
-        clearStatus();
         syncDocumentTabContainer(documentId, remote);
     }
 
@@ -589,7 +581,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationAccepted(final JabberId contactId,
             final Long invitationId, final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -630,7 +621,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationDeclined(final Long invitationId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
@@ -651,7 +641,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationDeleted(final Long invitationId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
@@ -671,7 +660,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationAccepted(final JabberId contactId,
             final Long invitationId, final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
@@ -691,7 +679,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationCreated(final Long invitationId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -710,7 +697,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationDeclined(final Long invitationId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -729,7 +715,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireOutgoingContactInvitationDeleted(final Long invitationId,
             final Boolean remote) {
-        clearStatus();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
@@ -1703,7 +1688,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 * @see ActionId
 	 */
-	private AbstractAction getAction(final ActionId id) {
+	private ActionInvocation getAction(final ActionId id) {
         if (actionRegistry.contains(id)) {
             return actionRegistry.get(id);
         } else {
@@ -1778,7 +1763,7 @@ public class Browser extends AbstractApplication {
 
 	private void invoke(final ActionId actionId, final Data data) {
 		try {
-			getAction(actionId).invoke(data);
+			getAction(actionId).invokeAction(data);
 		} catch(final Throwable t) {
             logger.logError(t, "Could not invoke action {0} with data {1}.", actionId, data);
             // TODO Provide meaningful error messages

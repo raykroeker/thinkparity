@@ -28,9 +28,9 @@ public class DefaultActionDelegate {
      * 
      * @param actionId
      *            An <code>ActionId</code>.
-     * @return An <code>AbstractAction</code>.
+     * @return An <code>ActionInvocation</code>.
      */
-    public AbstractAction getInstance(final ActionId actionId) {
+    public ActionInvocation getInstance(final ActionId actionId) {
         if (registry.contains(actionId)) {
             return registry.get(actionId);
         } else {
@@ -42,11 +42,11 @@ public class DefaultActionDelegate {
      * Invoke a thinkParity action.
      * 
      * @param action
-     *            An <code>AbstractAction</code>.
+     *            An <code>ActionInvocation</code>.
      * @param data
      *            The action <code>Data</code>.
      */
-    public void invoke(final AbstractAction action, final Data data) {
-        action.invoke(data);
+    public void invoke(final ActionInvocation action, final Data data) {
+        action.invokeAction(data);
     }
 }

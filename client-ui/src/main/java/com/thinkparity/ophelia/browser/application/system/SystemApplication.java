@@ -5,13 +5,12 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -27,8 +26,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.util.State;
-
-import org.apache.log4j.Logger;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author raykroeker@gmail.com
@@ -343,9 +341,9 @@ public class SystemApplication extends AbstractApplication {
     private void run(final ActionId actionId, final Data data) {
         try {
             if (actionRegistry.contains(actionId)) {
-                actionRegistry.get(actionId).invoke(data);
+                actionRegistry.get(actionId).invokeAction(data);
             }
-            else { ActionFactory.create(actionId).invoke(data); }
+            else { ActionFactory.create(actionId).invokeAction(data); }
         } catch(final Throwable t) {
             logger.logError(t,
                     "Could not run system application action {0} with data {1}.",

@@ -9,11 +9,19 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
+import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -24,21 +32,11 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
-import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension;
-import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.browser.util.localization.ActionLocalization;
-
-import org.apache.log4j.Logger;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractAction {
+public abstract class AbstractAction implements ActionInvocation {
 
 	/** Action localization. */
 	protected final ActionLocalization localization;
@@ -158,7 +156,18 @@ public abstract class AbstractAction {
 	 * @param data
 	 *            The action data.
 	 */
-	public abstract void invoke(final Data data);
+	protected abstract void invoke(final Data data);
+    
+    /**
+     * Invoke the action.
+     * 
+     * @param data
+     *            The action data.
+     */
+    public void invokeAction(final Data data) {
+        getBrowserApplication().fireActionInvoked();
+        invoke(data);
+    }
     
     /**
      * Determine if the accelerator is set.

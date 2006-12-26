@@ -10,12 +10,10 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.container.ContainerDraft;
-
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.DefaultActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
@@ -25,6 +23,7 @@ import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b><br>
@@ -39,25 +38,25 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
     private final ContainerTabModel model;
 
     /** The container's add bookmark <code>AbstractAction</code>. */
-    private final AbstractAction containerAddBookmark;
+    private final ActionInvocation containerAddBookmark;
 
     /** The container's add bookmark <code>AbstractAction</code>. */
-    private final AbstractAction containerRemoveBookmark;
+    private final ActionInvocation containerRemoveBookmark;
 
     /** The draft document <code>AbstractAction</code>. */
-    private final AbstractAction documentOpenDraft;
+    private final ActionInvocation documentOpenDraft;
 
     /** The document version <code>AbstractAction</code>. */
-    private final AbstractAction documentOpenVersion;
+    private final ActionInvocation documentOpenVersion;
 
     /** The profile update <code>AbstractAction</code>. */
-    private final AbstractAction profileUpdate;
+    private final ActionInvocation profileUpdate;
 
     /** The user <code>AbstractAction</code>. */
-    private final AbstractAction userRead;
+    private final ActionInvocation userRead;
 
     /** A <code>ContainerVersion</code> <code>AbstractAction</code>. */
-    private final AbstractAction versionRead;
+    private final ActionInvocation versionRead;
 
     /**
      * Create ContainerTabActionDelegate.
@@ -83,10 +82,10 @@ final class ContainerTabActionDelegate extends DefaultActionDelegate implements
         final Data data = new Data(1);
         if (container.isBookmarked()) {
             data.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerRemoveBookmark.invoke(data);
+            containerRemoveBookmark.invokeAction(data);
         } else {
             data.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
-            containerAddBookmark.invoke(data);
+            containerAddBookmark.invokeAction(data);
         }
     }
 

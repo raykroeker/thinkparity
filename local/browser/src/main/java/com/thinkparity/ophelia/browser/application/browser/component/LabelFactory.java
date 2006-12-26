@@ -12,17 +12,13 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class LabelFactory extends ComponentFactory {
-
-	/**
-	 * Foreground color of the link.
-	 * 
-	 */
-	private static final Color LINK_FOREGROUND;
 
 	/**
 	 * Singleton instance.
@@ -39,9 +35,6 @@ public class LabelFactory extends ComponentFactory {
 	static {
 		singleton = new LabelFactory();
 		singletonLock = new Object();
-
-		// COLOR 49, 102, 148, 255
-		LINK_FOREGROUND = new Color(49, 102, 148, 255);
 	}
 
 	/**
@@ -239,7 +232,7 @@ public class LabelFactory extends ComponentFactory {
 	 * @return The JLabel.
 	 */
 	private JLabel doCreateLink(final String text, final Font font) {
-		final JLabel jLabel = doCreate(text, font, LINK_FOREGROUND);
+		final JLabel jLabel = doCreate(text, font, Colors.Browser.Link.LINK_FOREGROUND);
 		applyHandCursor(jLabel);
 		applyColorChange(jLabel);
 		return jLabel;
@@ -247,11 +240,9 @@ public class LabelFactory extends ComponentFactory {
 
 	private void applyColorChange(final JLabel jLabel) {
 		jLabel.addMouseListener(new MouseAdapter() {
-			// COLOR 249,163,97,255
-			final Color hoverForeground = new Color(249, 163, 97, 255);
 			final Color originalForeground = jLabel.getForeground();
 			public void mouseEntered(final MouseEvent e) {
-				jLabel.setForeground(hoverForeground);
+				jLabel.setForeground(Colors.Browser.Link.LINK_HOVER_FOREGROUND);
 			}
 			public void mouseExited(final MouseEvent e) {
 				jLabel.setForeground(originalForeground);

@@ -20,6 +20,9 @@ public class ExportVersion extends AbstractAction  {
     
     /** The browser application. */
     private final Browser browser;
+    
+    /** An instance of the link action. */
+    private final ExportFileLink exportFileLink;
 
     /**
      * Create ExportVersion.
@@ -30,6 +33,7 @@ public class ExportVersion extends AbstractAction  {
     public ExportVersion(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT_VERSION);
         this.browser = browser;
+        this.exportFileLink = new ExportFileLink();
     }
 
     /**
@@ -40,8 +44,10 @@ public class ExportVersion extends AbstractAction  {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         final File directory = Constants.Directories.USER_DATA; 
-        getContainerModel().exportVersion(directory, containerId, versionId);
-        browser.fireContainerExported(directory);
+        final File file = getContainerModel().exportVersion(directory, containerId, versionId);
+        
+        exportFileLink.setFile(file);
+        browser.fireContainerExported(exportFileLink);
     } 
     
     public enum DataKey { CONTAINER_ID, VERSION_ID }

@@ -8,22 +8,24 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
-import java.io.File;
+import java.awt.event.ActionEvent;
 
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.GradientPainter;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.LinkAction;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
@@ -81,9 +83,11 @@ public class MainStatusAvatar extends Avatar {
     @Override
     public void reload() {
         if (null != input) {
-            this.profile = getInputProfile();
-            reloadMessage();
+            this.profile = getInputProfile();     
+            reloadCustom();
+            reloadLinkAction();  
             reloadUser();
+            reloadConnection(); 
         }
     }
 
@@ -180,15 +184,15 @@ public class MainStatusAvatar extends Avatar {
     }
     
     /**
-     * Obtain the input file.
+     * Obtain the input link action.
      * 
-     * @return The input file.
+     * @return The input link action.
      */
-    private File getInputFile() {
+    private LinkAction getInputLinkAction() {
         if(null == input) {
             return null;
         } else {
-            return (File) ((Data) input).get(DataKey.FILE);
+            return (LinkAction) ((Data) input).get(DataKey.LINK_ACTION);
         }
     }
     
@@ -212,30 +216,30 @@ public class MainStatusAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JLabel fillJLabel;
         javax.swing.JLabel resizeJLabel;
 
         customJLabel = new javax.swing.JLabel();
-        fileJLabel = new javax.swing.JLabel();
+        linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+        fillJLabel = new javax.swing.JLabel();
         userJLabel = new javax.swing.JLabel();
+        connectionJLabel = new javax.swing.JLabel();
         resizeJLabel = new javax.swing.JLabel();
 
         setBorder(new TopBorder(Colors.Browser.MainStatus.TOP_BORDER));
-        customJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        customJLabel.setFont(Fonts.DefaultFont);
 
-        fileJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        fileJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                fileJLabelMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                fileJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                fileJLabelMouseExited(evt);
+        linkJLabel.setFont(Fonts.DefaultFont);
+        linkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                linkJLabelMousePressed(evt);
             }
         });
 
-        userJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
+        userJLabel.setFont(Fonts.DefaultFont);
+
+        connectionJLabel.setFont(Fonts.DefaultFont);
+        connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -264,13 +268,19 @@ public class MainStatusAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(customJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 413, Short.MAX_VALUE)
-                .add(userJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(resizeJLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(resizeJLabel)
+                    .add(layout.createSequentialGroup()
+                        .add(customJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(linkJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(fillJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 343, Short.MAX_VALUE)
+                        .add(userJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(connectionJLabel)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -279,46 +289,46 @@ public class MainStatusAvatar extends Avatar {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(userJLabel)
                             .add(customJLabel)
-                            .add(fileJLabel))
+                            .add(linkJLabel)
+                            .add(fillJLabel))
                         .addContainerGap(57, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, resizeJLabel)))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, resizeJLabel)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(connectionJLabel)
+                            .add(userJLabel))
+                        .addContainerGap(57, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void fileJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_fileJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
-    }//GEN-LAST:event_fileJLabelMouseExited
+    private void linkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_linkJLabelMousePressed
+        getInputLinkAction().getAction().actionPerformed(
+                new ActionEvent(e.getSource(), e.getID(),
+                        "MainStatusAvatar", e.getWhen(), e.getModifiers()));
 
-    private void fileJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_fileJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-    }//GEN-LAST:event_fileJLabelMouseEntered
-
-    private void fileJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fileJLabelMouseClicked
-    // TODO open the file.
-    }//GEN-LAST:event_fileJLabelMouseClicked
+    }//GEN-LAST:event_linkJLabelMousePressed
 
     /**
      * Reload the connection status message.
      * 
      */
     private void reloadConnection() {
-        customJLabel.setText("");
+        connectionJLabel.setText("");
         final String connectionText;
         switch(getInputConnection()) {
         case ONLINE:
-            customJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
+            connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_ONLINE);
             connectionText = getString(Connection.ONLINE);
             break;
         case OFFLINE:
-            customJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
+            connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
             connectionText = getString(Connection.OFFLINE);
             break;
         default:
             throw Assert.createUnreachable("UNKNOWN CONNECTION");
         }
-        customJLabel.setText(connectionText);
+        connectionJLabel.setText(connectionText);
     }
     
     /**
@@ -340,25 +350,13 @@ public class MainStatusAvatar extends Avatar {
     }
     
     /**
-     * Reload the file message.
+     * Reload the link message.
      */
-    private void reloadFile() {
-        fileJLabel.setText("");
-        final File file = getInputFile();
-        if (null != file) {
-            fileJLabel.setText(file.getAbsolutePath());
-        }
-    }
-    
-    /**
-     * Reload the message.
-     */
-    private void reloadMessage() {
-        if (Connection.OFFLINE == getInputConnection()) {
-            reloadConnection();
-        } else {        
-            reloadCustom();
-            reloadFile();  
+    private void reloadLinkAction() {
+        linkJLabel.setText("");
+        final LinkAction linkAction = getInputLinkAction();
+        if (null != linkAction) {
+            linkJLabel.setText(linkAction.getText());
         }
     }
     
@@ -413,10 +411,11 @@ public class MainStatusAvatar extends Avatar {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel connectionJLabel;
     private javax.swing.JLabel customJLabel;
-    private javax.swing.JLabel fileJLabel;
+    private javax.swing.JLabel linkJLabel;
     private javax.swing.JLabel userJLabel;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { PROFILE, CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS, FILE }
+    public enum DataKey { PROFILE, CONNECTION, CUSTOM_MESSAGE, CUSTOM_MESSAGE_ARGUMENTS, LINK_ACTION }
 }

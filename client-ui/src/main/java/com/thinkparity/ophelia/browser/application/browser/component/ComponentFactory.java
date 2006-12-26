@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
@@ -16,6 +15,8 @@ import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
 import org.apache.log4j.Logger;
+
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 
@@ -82,13 +83,11 @@ abstract class ComponentFactory {
 	 */
 	protected void applyHandCursor(final Component component) {
 		component.addMouseListener(new MouseAdapter() {
-			final Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
-			final Cursor originalCursor = component.getCursor();
 			public void mouseEntered(final MouseEvent e) {
-				component.setCursor(handCursor);
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
 			}
 			public void mouseExited(final MouseEvent e) {
-				component.setCursor(originalCursor);
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
 			}
 		});
 	}

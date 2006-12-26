@@ -112,6 +112,10 @@ public final class Constants {
                 public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
                 public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
             }
+            public static final class Link {
+                public static final Color LINK_FOREGROUND = new Color(49, 102, 148, 255);
+                public static final Color LINK_HOVER_FOREGROUND = new Color(252, 146, 62, 255); //new Color(249, 163, 97, 255);
+            }
         }
         public static final class Swing {
             public static final Color DEFAULT_LIST_SELECTION_BG = new Color(201, 208, 218, 255);

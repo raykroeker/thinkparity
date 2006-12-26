@@ -49,12 +49,7 @@ import com.thinkparity.ophelia.browser.application.browser.window.WindowFactory;
 import com.thinkparity.ophelia.browser.application.browser.window.WindowId;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
-import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
-import com.thinkparity.ophelia.browser.platform.action.ActionId;
-import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
+import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.artifact.RemoveFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInvitation;
@@ -553,8 +548,8 @@ public class Browser extends AbstractApplication {
      * @param directory
      *            The directory.
      */
-    public void fireContainerExported(final File directory) {
-        setStatus("ExportFileCreated", directory);
+    public void fireContainerExported(final LinkAction linkAction) {
+        setStatus("ExportFileCreated", null, linkAction);
     }
 
     /**
@@ -1869,7 +1864,7 @@ public class Browser extends AbstractApplication {
         }
         input.set(MainStatusAvatar.DataKey.CONNECTION, connection);
         getMainStatusAvatar().setInput((Data) input.clone());
-    }
+    } 
 
     /**
      * Set a custom status message.
@@ -1880,18 +1875,6 @@ public class Browser extends AbstractApplication {
     private void setStatus(final String customMessage) {
         setStatus(customMessage, null, null);
     }
-    
-    /**
-     * Set a custom status message. 
-     * 
-     * @param message
-     *            A status message.
-     * @param file
-     *            A file.
-     */
-    private void setStatus(final String customMessage, final File file) {
-        setStatus(customMessage, null, file);
-    }
 
     /**
      * Set a custom status message.
@@ -1900,11 +1883,12 @@ public class Browser extends AbstractApplication {
      *            A status message.
      * @param arguments
      *            Status message arguments.
-     * @param file
-     *            A file.         
+     * @param linkAction
+     *            A link action.                  
      */
     private void setStatus(final String customMessage,
-            final Object[] customMessageArguments, final File file) {
+            final Object[] customMessageArguments,
+            final LinkAction linkAction) {
         Data input = (Data) getMainStatusAvatar().getInput();
         if (null == input) {
             input = new Data(4);
@@ -1916,11 +1900,11 @@ public class Browser extends AbstractApplication {
         else {
             input.unset(MainStatusAvatar.DataKey.CUSTOM_MESSAGE_ARGUMENTS);
         }
-        if (null != file) {
-            input.set(MainStatusAvatar.DataKey.FILE, file);
+        if (null != linkAction) {
+            input.set(MainStatusAvatar.DataKey.LINK_ACTION, linkAction);
         }
         else {
-            input.unset(MainStatusAvatar.DataKey.FILE);
+            input.unset(MainStatusAvatar.DataKey.LINK_ACTION);
         }
         getMainStatusAvatar().setInput((Data) input.clone());
     }

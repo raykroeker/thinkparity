@@ -4,21 +4,32 @@
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
+
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
@@ -31,7 +42,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
-import com.thinkparity.ophelia.model.user.UserUtils;
 
 /**
  * <b>Title:</b><br>
@@ -411,23 +421,37 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      */
     private void doToggleExpansion(final TabPanel tabPanel) {
         final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        final Boolean expanded;
         if (isExpanded(containerPanel)) {
-            expanded = Boolean.FALSE;
+            // if the panel is already expanded; just collapse it
             containerPanel.collapse();
+            expandedState.put(containerPanel, Boolean.FALSE);
         } else {
-            // NOTE-BEGIN:multi-expand to allow multiple selection in the list; remove here
+            // find the first expanded panel and collapse it
+            boolean didHit = false;
             for (final TabPanel visiblePanel : visiblePanels) {
-                if (isExpanded(visiblePanel)) {
-                    doToggleExpansion(visiblePanel);
+                final ContainerPanel otherTabPanel = (ContainerPanel) visiblePanel;
+                if (isExpanded(otherTabPanel)) {
+                    otherTabPanel.addPropertyChangeListener("expanded",
+                            new PropertyChangeListener() {
+                                public void propertyChange(
+                                        final PropertyChangeEvent evt) {
+                                    otherTabPanel.removePropertyChangeListener("expanded", this);
+
+                                    containerPanel.expand();
+                                    expandedState.put(containerPanel, Boolean.TRUE);
+                                }
+                            });
+                    otherTabPanel.collapse();
+                    expandedState.put(otherTabPanel, Boolean.FALSE);
+                    didHit = true;
+                    break;
                 }
             }
-            // NOTE-END:multi-expand
-
-            expanded = Boolean.TRUE;
-            containerPanel.expand();
+            if (!didHit) {
+                containerPanel.expand();
+                expandedState.put(containerPanel, Boolean.TRUE);
+            }
         }
-        expandedState.put(tabPanel, expanded);
     }
 
     private <T extends User> T find(final List<T> users,

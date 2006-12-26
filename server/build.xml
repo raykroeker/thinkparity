@@ -13,11 +13,10 @@
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC25"/>
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
-    <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.cvsroot" value=":pserver:${cvs.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/model common/xdoclet local/model remote/codebase remote/model vendor/fop/0.20.5 vendor/groovy vendor/xstream/1.2.1 lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/lucene lib/smack lib/smackx lib/swing-layout lib/wildfire lib/xdoclet"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>

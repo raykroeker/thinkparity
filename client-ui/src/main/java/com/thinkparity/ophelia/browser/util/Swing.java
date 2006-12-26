@@ -49,6 +49,9 @@ public class Swing {
         defaults.put("MenuItem.foreground", Colors.Swing.MENU_ITEM_FG);
         defaults.put("Menu.submenuPopupOffsetX", BrowserConstants.Menu.SUBMENU_POPUP_OFFSET_X);
         defaults.put("Menu.submenuPopupOffsetY", BrowserConstants.Menu.SUBMENU_POPUP_OFFSET_Y);
+        defaults.put("PopupMenu.background", Colors.Swing.MENU_BG);
+        defaults.put("PopupMenu.foreground", Colors.Swing.MENU_FG);
+        defaults.put("PopupMenu.font", BrowserConstants.Fonts.DefaultFont);
 
         try {
         	final LookAndFeel laf;

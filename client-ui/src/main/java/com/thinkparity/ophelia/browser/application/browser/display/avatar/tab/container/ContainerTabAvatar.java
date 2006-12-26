@@ -90,8 +90,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.   
      */
     public void fireDraftCreated(final ContainerEvent e) {
-        if (e.isRemote())
-            removeFlagSeen(e);
         sync(e);
         if (e.isLocal())
             setDraftSelection(e);

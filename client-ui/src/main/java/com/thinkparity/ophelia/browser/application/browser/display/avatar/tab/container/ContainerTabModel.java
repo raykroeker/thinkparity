@@ -156,8 +156,19 @@ public final class ContainerTabModel extends TabPanelModel implements
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
         doToggleExpansion(tabPanel);
-        synchronize();
+        /*
+         * we only want to synchronize the panel once; so we check first if we
+         * need/want to apply the seen flag.
+         */
+        if (!containerPanel.getContainer().isSeen()) {
+            browser.runApplyContainerFlagSeen(containerPanel.getContainer()
+                    .getId());
+            syncContainer(containerPanel.getContainer().getId(), Boolean.FALSE);
+        } else {
+            synchronize();
+        }
     }
     
     /**

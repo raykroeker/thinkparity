@@ -9,14 +9,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -24,10 +17,6 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-import com.thinkparity.codebase.swing.dnd.TxUtils;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -35,10 +24,9 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -54,6 +42,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -148,6 +139,12 @@ public final class ContainerTabModel extends TabPanelModel implements
                 }
                 public String getText() {
                     return getString(sortByValue);
+                }
+                public Boolean isSorting() {
+                    return isSortApplied(sortByValue);
+                }
+                public Boolean isSortAscending() {
+                    return (isSortApplied(sortByValue) && sortByValue.ascending);
                 }
             });
         }
@@ -715,15 +712,7 @@ public final class ContainerTabModel extends TabPanelModel implements
      * @return A localized <code>String</code>.
      */
     private String getString(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return localization.getString(sortBy + "_ASC");
-            } else {
-                return localization.getString(sortBy + "_DESC");
-            }
-        } else {
-            return localization.getString(sortBy);
-        }
+        return localization.getString(sortBy);
     }
 
     /**

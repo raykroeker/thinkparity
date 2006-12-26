@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -23,7 +24,10 @@ import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 
 /**
  * <b>Title:</b>thinkParity Tab Avatar Sort By Panel<br>
@@ -55,6 +59,13 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
 
     /** The x, y coordinates to show the panel at. */
     private int x, y;
+    
+    /** An image cache. */
+    private static final MainPanelImageCache IMAGE_CACHE;
+    
+    static {
+        IMAGE_CACHE = new MainPanelImageCache();
+    }
 
     /**
      * Create TabAvatarSortByPanel.
@@ -112,7 +123,9 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
      *            The sort by to add.
      */
     private void addSortBy(final int index, final TabAvatarSortBy sortBy) {
-        final JLabel jLabel = LabelFactory.create(sortBy.getText());
+        final JLabel jLabel = LabelFactory.create(sortBy.getText(),
+                getIcon(sortBy), LabelFactory.TextAlignment.LEFT,
+                BrowserConstants.Fonts.DefaultFont);
         if (0 < index)
             jLabel.setBorder(new TopBorder(Colors.Swing.MENU_BETWEEN_ITEMS_BG));
         jLabel.addMouseListener(new MouseAdapter() {
@@ -127,6 +140,25 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
         constraints.gridy++;
         sortByJPanel.add(jLabel, constraints.clone());        
     }
+    
+    /**
+     * Obtain aan icon for an ordering.
+     * 
+     * @param ordering
+     *            An <code>Ordering</code>.
+     * @return An <code>Icon</code>.
+     */
+    private Icon getIcon(final TabAvatarSortBy sortBy) {
+        if (sortBy.isSorting()) {
+            if (sortBy.isSortAscending()) {
+                return IMAGE_CACHE.read(TabPanelIcon.SORT_ASCENDING);
+            } else {
+                return IMAGE_CACHE.read(TabPanelIcon.SORT_DESCENDING);
+            }
+        } else {
+            return IMAGE_CACHE.read(TabPanelIcon.SORT_NONE);
+        }
+    }
 
     /**
      * Reload the sort by labels.
@@ -136,6 +168,7 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
         final List<TabAvatarSortBy> sortBy = delegate.getSortBy();
         for (int i = 0; i < sortBy.size(); i++) {
             ((JLabel) sortByJPanel.getComponent(i)).setText(sortBy.get(i).getText());
+            ((JLabel) sortByJPanel.getComponent(i)).setIcon(getIcon(sortBy.get(i)));
         }
         sortByJPanel.revalidate();
     }

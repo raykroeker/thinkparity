@@ -126,13 +126,10 @@ public class MainPanelImageCache {
         FILE_DEFAULT("IconFileDefault.png"),
         COMMENT("IconComment.png"),
         
-        // Column sort icons
+        // Sort icons
         SORT_NONE("SortNone.png"),
-        SORT_NONE_ROLLOVER("SortNoneRollover.png"),
-        SORT_DOWN("SortDown.png"),
-        SORT_DOWN_ROLLOVER("SortDownRollover.png"),
-        SORT_UP("SortUp.png"),
-        SORT_UP_ROLLOVER("SortUpRollover.png");
+        SORT_ASCENDING("SortAscending.png"),
+        SORT_DESCENDING("SortDescending.png");
         
         /** The icon file name. */
         private final String iconName;

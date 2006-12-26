@@ -19,14 +19,10 @@ import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.contact.IncomingInvitation;
-import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -38,6 +34,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+import com.thinkparity.ophelia.model.contact.IncomingInvitation;
+import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
 /**
  * <b>Title:</b>thinkParity Contact Tab Model<br>
@@ -122,6 +120,12 @@ public final class ContactTabModel extends TabPanelModel implements
                 }
                 public String getText() {
                     return getString(sortByValue);
+                }
+                public Boolean isSorting() {
+                    return isSortApplied(sortByValue);
+                }
+                public Boolean isSortAscending() {
+                    return (isSortApplied(sortByValue) && sortByValue.ascending);
                 }
             });
         }
@@ -581,15 +585,7 @@ public final class ContactTabModel extends TabPanelModel implements
      * @return A localized <code>String</code>.
      */
     private String getString(final SortBy sortBy) {
-        if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                return localization.getString(sortBy + "_ASC");
-            } else {
-                return localization.getString(sortBy + "_DESC");
-            }
-        } else {
-            return localization.getString(sortBy);
-        }
+        return localization.getString(sortBy);
     }
 
     /**

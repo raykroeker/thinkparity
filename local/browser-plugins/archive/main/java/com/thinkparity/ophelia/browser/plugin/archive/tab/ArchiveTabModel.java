@@ -5,29 +5,20 @@ package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.user.UserUtils;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
@@ -39,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 /**
  * <b>Title:</b><br>
@@ -113,6 +105,12 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
                 }
                 public String getText() {
                     return getString(sortByValue);
+                }
+                public Boolean isSorting() {
+                    return isSortApplied(sortByValue);
+                }
+                public Boolean isSortAscending() {
+                    return (isSortApplied(sortByValue) && sortByValue.ascending);
                 }
             });
         }
@@ -259,19 +257,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      */
     String getString(final SortBy sortBy) {
         final StringBuffer pattern = new StringBuffer("ArchiveTab.{0}");
-        if (isSortApplied(sortBy)) {
-            pattern.append("_{1}");
-            if (sortBy.ascending) {
-                return getExtension().getLocalization().getString(
-                        MessageFormat.format(pattern.toString(), sortBy, "ASC"));
-            } else {
-                return getExtension().getLocalization().getString(
-                        MessageFormat.format(pattern.toString(), sortBy, "DESC"));
-            }
-        } else {
-            return getExtension().getLocalization().getString(
-                    MessageFormat.format(pattern.toString(), sortBy));
-        }
+        return getExtension().getLocalization().getString(
+                MessageFormat.format(pattern.toString(), sortBy));
     }
 
     /**

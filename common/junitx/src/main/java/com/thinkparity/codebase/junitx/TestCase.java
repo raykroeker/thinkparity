@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.util.Calendar;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -25,6 +27,23 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * @author raykroeker@gmail.com
  */
 public abstract class TestCase extends junit.framework.TestCase {
+
+    /**
+     * Assert the contents of two streams are equal.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param actual
+     *            The actual <code>InputStream</code>.
+     * @param expected
+     *            The expected <code>InputStream</code>.
+     */
+    protected static void assertEquals(final String assertion,
+            final Calendar expected, final Calendar actual) {
+        final String e = DateUtil.format(expected, DateImage.ISO);
+        final String a = DateUtil.format(actual, DateImage.ISO);
+        assertEquals(assertion, e, a);
+    }
 
     /**
      * Assert the contents of two streams are equal.
@@ -58,7 +77,13 @@ public abstract class TestCase extends junit.framework.TestCase {
         }
     }
 
-	/**
+	protected static void assertTrue(final boolean expression,
+            final String assertionPattern, final Object... assertionArguments) {
+        assertTrue(new MessageFormat(assertionPattern)
+                .format(assertionArguments), expression);
+    }
+
+    /**
 	 * Obtain the test session.
 	 * 
 	 * @return The test session.
@@ -67,7 +92,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getTestSession();
 	}
 
-    /**
+	/**
      * Return the current date and time as a GMT ISO string.
      * 
      * @return The date time <code>String</code>.
@@ -126,7 +151,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		}
 	}
 
-	/**
+    /**
 	 * Clear the session data.
 	 *
 	 */
@@ -134,7 +159,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		testCaseHelper.clearSessionData();
 	}
 
-    /**
+	/**
 	 * Create a test directory.
 	 * 
 	 * @param directoryName
@@ -171,7 +196,11 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return createFailMessage(getName(), t);
 	}
 
-	/**
+    protected String[] getInputFileMD5Checksums() {
+        return TestCaseHelper.getInputFileMD5Checksums();
+    }
+
+    /**
      * Obtain a list of input file names.
      * 
      * @return A <code>String[]</code>.
@@ -180,11 +209,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         return TestCaseHelper.getInputFileNames();
     }
 
-    protected String[] getInputFileMD5Checksums() {
-        return TestCaseHelper.getInputFileMD5Checksums();
-    }
-
-    /**
+	/**
 	 * Obtain a list of input test files.
 	 * 
 	 * @return A list of input test files.
@@ -222,7 +247,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		return TestCaseHelper.getModFiles();
 	}
 
-	/**
+    /**
 	 * Obtain random text of a given length.
 	 * 
 	 * @param textLength
@@ -257,7 +282,7 @@ public abstract class TestCase extends junit.framework.TestCase {
         logger.logTrace(tracePattern, traceArguments);
     }
 
-    /**
+	/**
      * Log a warning statement.
      * 
      * @param pattern
@@ -280,7 +305,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		testCaseHelper.removeSessionDataItem(key);
 	}
 
-	/**
+    /**
      * @see junit.framework.TestCase#setUp()
      */
     @Override
@@ -323,10 +348,4 @@ public abstract class TestCase extends junit.framework.TestCase {
 		finally { fis.close(); }
 		return byteBuffer.array();
 	}
-
-    protected static void assertTrue(final boolean expression,
-            final String assertionPattern, final Object... assertionArguments) {
-        assertTrue(new MessageFormat(assertionPattern)
-                .format(assertionArguments), expression);
-    }
 }

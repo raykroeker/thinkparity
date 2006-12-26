@@ -77,7 +77,7 @@ public final class StreamReader extends StreamClient {
     public void read(final String streamId, final OutputStream stream,
             final Long streamOffset) {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
-        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(0)));
+        write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
         read(stream);
     }
 }

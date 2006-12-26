@@ -82,8 +82,8 @@ public final class StreamWriter extends StreamClient {
     public void write(final String streamId, final InputStream stream,
             final Long streamSize, final Long streamOffset) {
         write(new StreamHeader(StreamHeader.Type.STREAM_ID, streamId));
-        write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
         write(new StreamHeader(StreamHeader.Type.STREAM_OFFSET, String.valueOf(streamOffset)));
+        write(new StreamHeader(StreamHeader.Type.STREAM_SIZE, String.valueOf(streamSize)));
         write(stream, streamSize);
     }
 }

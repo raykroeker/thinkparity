@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.border.DropShadowBorder;
 import com.thinkparity.codebase.swing.border.TopBorder;
@@ -149,15 +150,21 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
      * @return An <code>Icon</code>.
      */
     private Icon getIcon(final TabAvatarSortBy sortBy) {
-        if (sortBy.isSorting()) {
-            if (sortBy.isSortAscending()) {
-                return IMAGE_CACHE.read(TabPanelIcon.SORT_ASCENDING);
-            } else {
-                return IMAGE_CACHE.read(TabPanelIcon.SORT_DESCENDING);
-            }
-        } else {
-            return IMAGE_CACHE.read(TabPanelIcon.SORT_NONE);
+        final Icon icon;
+        switch (sortBy.getDirection()) {
+        case ASCENDING:
+            icon = IMAGE_CACHE.read(TabPanelIcon.SORT_ASCENDING);
+            break;
+        case DESCENDING:
+            icon = IMAGE_CACHE.read(TabPanelIcon.SORT_DESCENDING);
+            break;
+        case NONE:
+            icon = IMAGE_CACHE.read(TabPanelIcon.SORT_NONE);
+            break;
+        default:
+            throw Assert.createUnreachable("UNKNOWN SORT DIRECTION");
         }
+        return icon;
     }
 
     /**

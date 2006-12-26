@@ -17,7 +17,7 @@ public interface TabAvatarSortBy {
 
     public String getText();
     
-    public Boolean isSorting();
-    
-    public Boolean isSortAscending();
+    public SortDirection getDirection();
+
+    public enum SortDirection { ASCENDING, DESCENDING, NONE }
 }

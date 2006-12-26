@@ -29,6 +29,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy.SortDirection;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
@@ -121,11 +122,8 @@ public final class ContactTabModel extends TabPanelModel implements
                 public String getText() {
                     return getString(sortByValue);
                 }
-                public Boolean isSorting() {
-                    return isSortApplied(sortByValue);
-                }
-                public Boolean isSortAscending() {
-                    return (isSortApplied(sortByValue) && sortByValue.ascending);
+                public SortDirection getDirection() {
+                    return getSortDirection(sortByValue);
                 }
             });
         }
@@ -576,12 +574,31 @@ public final class ContactTabModel extends TabPanelModel implements
             }
         }
     }
+    
+    /**
+     * Get the sort direction.
+     * 
+     * @param sortBy
+     *            A <code>SortBy</code>.
+     * @return A <code>SortDirection</code>.        
+     */
+    public SortDirection getSortDirection(final SortBy sortBy) {
+        if (isSortApplied(sortBy)) {
+            if (sortBy.ascending) {
+                return SortDirection.ASCENDING;
+            } else {
+                return SortDirection.DESCENDING;
+            }
+        } else {
+            return SortDirection.NONE;
+        }
+    }
 
     /**
      * Obtain a localized string for an ordering.
      * 
-     * @param ordering
-     *            An <code>Ordering</code>.
+     * @param sortBy
+     *            A <code>SortBy</code>.
      * @return A localized <code>String</code>.
      */
     private String getString(final SortBy sortBy) {

@@ -659,6 +659,8 @@ public final class ContainerTabModel extends TabPanelModel implements
                     break;
                 }
             }
+            browser.runApplyContainerFlagSeen(
+                    containerPanel.getContainer().getId());
             if (!didHit) {
                 containerPanel.expand();
                 expandedState.put(containerPanel, Boolean.TRUE);

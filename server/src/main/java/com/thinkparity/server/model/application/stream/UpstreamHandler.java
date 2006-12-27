@@ -53,8 +53,8 @@ public final class UpstreamHandler extends AbstractStreamHandler implements
     public void run() {
         LOGGER.logApiId();
         LOGGER.logVariable("streamId", streamId);
-        LOGGER.logVariable("streamId", streamOffset);
-        LOGGER.logVariable("streamId", streamSize);
+        LOGGER.logVariable("streamOffset", streamOffset);
+        LOGGER.logVariable("streamSize", streamSize);
         try {
             final OutputStream output =
                 streamServer.openOutputStream(streamSession, streamId, streamOffset);

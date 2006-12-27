@@ -16,6 +16,7 @@ import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
+import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.util.MD5Util;
 
 import org.jivesoftware.util.JiveProperties;
@@ -81,6 +82,25 @@ final class StreamModelImpl extends AbstractModelImpl {
             final String streamId = buildStreamId();
             streamServer.initialize(session, streamId);
             return streamId;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Create a stream session for an achive user.
+     * 
+     * @param archiveId
+     *            An archive user id <code>JabberId</code>.
+     * @return A stream session.
+     */
+    StreamSession createArchiveSession(final JabberId archiveId) {
+        logger.logApiId();
+        logger.logVariable("archiveId", archiveId);
+        try {
+            final ServerSession streamSession = buildSession(archiveId, null);
+            streamServer.initialize(streamSession);
+            return streamSession;
         } catch (final Throwable t) {
             throw translateError(t);
         }

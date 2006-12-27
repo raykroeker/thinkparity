@@ -16,13 +16,13 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.UploadMonitor;
 import com.thinkparity.desdemona.model.archive.ClientModelFactory;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
@@ -114,20 +114,19 @@ final class BackupModelImpl extends AbstractModelImpl {
                 final Long documentId = artifactModel.readId(uniqueId);
                 final InputStream stream = documentModel.openVersionStream(documentId, versionId);
                 final Long streamSize = documentModel.readVersionSize(documentId, versionId);
+                logger.logVariable("documentId", documentId);
+                logger.logVariable("streamSize", streamSize);
 
                 final InternalStreamModel streamModel = getStreamModel();
-                final StreamSession streamSession = streamModel.createSession(userId);
-                final StreamWriter writer = new StreamWriter(streamSession);
-                writer.open();
-                try {
-                    writer.write(streamId, stream, streamSize);
-                } finally {
-                    try {
-                        stream.close();
-                    } finally {
-                        writer.close();
+                final StreamSession streamSession =
+                    streamModel.createArchiveSession(archiveId);
+                uploadStream(new UploadMonitor() {
+                    public void chunkUploaded(final int chunkSize) {
+                        logger.logApiId();
+                        logger.logVariable("chunkSize", chunkSize);
                     }
-                }
+                }, streamId, streamSession, stream, streamSize);
+
             }
         } catch (final Throwable t) {
             throw translateError(t);

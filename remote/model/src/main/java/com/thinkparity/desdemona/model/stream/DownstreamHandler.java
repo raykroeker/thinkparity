@@ -54,8 +54,8 @@ public final class DownstreamHandler extends AbstractStreamHandler implements
     public void run() {
         LOGGER.logApiId();
         LOGGER.logVariable("streamId", streamId);
-        LOGGER.logVariable("streamId", streamOffset);
-        LOGGER.logVariable("streamId", streamSize);
+        LOGGER.logVariable("streamOffset", streamOffset);
+        LOGGER.logVariable("streamSize", streamSize);
         try {
             final InputStream input =
                 streamServer.openInputStream(streamSession, streamId, streamOffset);

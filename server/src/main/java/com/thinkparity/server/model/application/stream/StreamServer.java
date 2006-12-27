@@ -87,12 +87,17 @@ final class StreamServer {
             final InetAddress sessionAddress) {
         synchronized (SESSIONS) {
             final ServerSession session = SESSIONS.get(sessionId);
-            if (session.getInetAddress().equals(sessionAddress)) {
+            final InetAddress inetAddress = session.getInetAddress();
+            if (null == inetAddress) {
                 return session;
             } else {
-                logger.logWarning("Session address {0} does not match original.",
-                        sessionAddress);
-                return null;
+                if (inetAddress.equals(sessionAddress)) {
+                    return session;
+                } else {
+                    logger.logFatal("Session address {0} does not match original.",
+                            sessionAddress);
+                    return null;
+                }
             }
         }
     }
@@ -162,7 +167,6 @@ final class StreamServer {
         Assert.assertNotNull("Session charset is null.", session.getCharset());
         Assert.assertNotNull("Session environment is null.", session.getEnvironment());
         Assert.assertNotNull("Session id is null.", session.getId());
-        Assert.assertNotNull("Session inet address is null.", session.getInetAddress());
         synchronized (SESSIONS) {
             SESSIONS.put(session.getId(), session);
             fileServer.initialize(session);

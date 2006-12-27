@@ -3,6 +3,8 @@
  */
 package com.thinkparity.desdemona.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +29,10 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -47,6 +53,7 @@ import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
+import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
 import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.ClientSession;
@@ -69,8 +76,12 @@ public abstract class AbstractModelImpl
     /** An apache xmpp iq logger wrapper. */
     private static final Log4JWrapper XMPP_IQ_LOGGER;
 
+    /** A <code>SessionUtil</code>. */
+    private static final SessionUtil SESSION_UTIL;
+
     static {
         NO_SESSION = User.THINK_PARITY.getId();
+        SESSION_UTIL = SessionUtil.getInstance();
         XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
     }
 
@@ -126,7 +137,7 @@ public abstract class AbstractModelImpl
         Assert.assertTrue(assertion, expected.equals(actual));
     }
 
-	/**
+    /**
      * Assert that the actual and expected jive id's are equal.
      * 
      * @param message
@@ -141,7 +152,7 @@ public abstract class AbstractModelImpl
         Assert.assertTrue(message, actualJID.equals(expectedJID));
     }
 
-	/**
+    /**
      * Assert that the user id matched that of the authenticated user.
      * 
      * @param userId
@@ -154,7 +165,7 @@ public abstract class AbstractModelImpl
                 userId, session.getJabberId());
     }
 
-    /**
+	/**
 	 * Assert that the session user is the artifact key holder.
 	 * 
 	 * @param artifact
@@ -172,7 +183,7 @@ public abstract class AbstractModelImpl
                 session.getJabberId(), keyHolder);
 	}
 
-    /**
+	/**
      * Assert that the thinkParity system is the current key holder.
      * 
      * @param assertion
@@ -196,6 +207,24 @@ public abstract class AbstractModelImpl
 	protected JID buildJID(final String username) {
 		return JIDBuilder.build(username);
 	}
+
+    /**
+     * Build a unique id for a user in time. Use the user id plus the current
+     * timestamp to generate a unique id.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A unique id <code>String</code>.
+     */
+    protected String buildUserTimestampId(final JabberId userId) {
+        /*
+         * NOTE A user timestamp id is unique per user per timestamp
+         */
+       // TIME A global timestamp
+       final String hashString = new StringBuffer(userId.toString())
+           .append(currentTimeMillis()).toString();
+       return MD5Util.md5Hex(hashString.getBytes());
+    }
 
     /**
      * Obtain the date and time.
@@ -224,7 +253,7 @@ public abstract class AbstractModelImpl
         enqueueEvent(userId, eventUserIds, event);
     }
 
-	protected void enqueueEvent(final JabberId userId,
+    protected void enqueueEvent(final JabberId userId,
             final List<JabberId> eventUserIds, final XMPPEvent event) {
         logApiId();
         logVariable("userId", userId);
@@ -252,11 +281,7 @@ public abstract class AbstractModelImpl
         return ArchiveModel.getInternalModel(getContext(), session);
     }
 
-    protected InternalQueueModel getQueueModel() {
-        return QueueModel.getInternalModel(getContext(), session);
-    }
-
-    /**
+	/**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -299,7 +324,7 @@ public abstract class AbstractModelImpl
 		return ContactModel.getModel(session);
 	}
 
-	/**
+    /**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -312,11 +337,15 @@ public abstract class AbstractModelImpl
                     t.getMessage());
     }
 
-    protected InternalStreamModel getStreamModel() {
+    protected InternalQueueModel getQueueModel() {
+        return QueueModel.getInternalModel(getContext(), session);
+    }
+
+	protected InternalStreamModel getStreamModel() {
         return StreamModel.getInternalModel(getContext(), session);
     }
 
-	/**
+    /**
      * Obtain the parity user interface.
      * 
      * @return The parity user interface.
@@ -356,7 +385,7 @@ public abstract class AbstractModelImpl
         return session.getJabberId().equals(userId);
     }
 
-    /**
+	/**
      * Determine whether or not the user represented by the jabber id is
      * currently online.
      * 
@@ -371,16 +400,16 @@ public abstract class AbstractModelImpl
 		else { return Boolean.FALSE; }
 	}
 
-	protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
+    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
 		return readKeyHolder(uniqueId).equals(session.getJabberId());
 	}
 
-    /** Log an api id. */
+	/** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
@@ -390,7 +419,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an info message.
      * 
      * @param infoPattern
@@ -408,7 +437,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -433,7 +462,7 @@ public abstract class AbstractModelImpl
         logger.logWarning(warningPattern, warningArguments);
     }
 
-    /**
+	/**
      * Process an xmpp internet query for a jive client session. The to portion
      * of the query will be set according to the session.
      * 
@@ -500,7 +529,7 @@ public abstract class AbstractModelImpl
         query.setTo(getJID(userId));
     }
 
-	/**
+    /**
      * Translate an error into a parity unchecked error.
      * 
      * @param t
@@ -517,7 +546,91 @@ public abstract class AbstractModelImpl
         }
     }
 
-	private void backupEvent(final JabberId userId, final JabberId eventUserId,
+	/**
+     * Upload a stream to the stream server using an existing session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param iStream
+     *            A <code>Iterable</code> series of <code>InputStream</code>.
+     * @throws IOException
+     */
+    protected final String uploadStream(final UploadMonitor uploadMonitor,
+            final StreamMonitor streamMonitor, final String streamId,
+            final StreamSession session, final InputStream stream,
+            final Long streamSize, final Long streamOffset) throws IOException {
+        stream.reset();
+        long skipped = stream.skip(streamOffset);
+        while (skipped < streamOffset && 0 < skipped) {
+            skipped += stream.skip(streamOffset.longValue() - skipped);
+        }
+        final Long actualStreamOffset;
+        if (skipped == streamOffset.longValue()) {
+            logger.logInfo("Resuming upload for {0} at {1}.",
+                    streamId, streamOffset);
+            actualStreamOffset = streamOffset;
+        } else {
+            logger.logWarning("Could not resume upload for {0} at {1}.  Starting over.",
+                    streamId, streamOffset);
+            actualStreamOffset = 0L;
+        }
+        final StreamWriter writer = new StreamWriter(streamMonitor, session);
+        writer.open();
+        try {
+            writer.write(streamId, stream, streamSize, actualStreamOffset);
+            return streamId;
+        } finally {
+            writer.close();
+        }
+    }
+
+	/**
+     * Upload a stream to the stream server using an existing session.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @param iStream
+     *            A <code>Iterable</code> series of <code>InputStream</code>.
+     * @throws IOException
+     */
+    protected final String uploadStream(final UploadMonitor uploadMonitor,
+            final String streamId, final StreamSession session,
+            final InputStream stream, final Long streamSize) throws IOException {
+        final StreamMonitor streamMonitor = new StreamMonitor() {
+            long recoverChunkOffset = 0;
+            long totalChunks = 0;
+            public void chunkReceived(final int chunkSize) {}
+            public void chunkSent(final int chunkSize) {
+                totalChunks += chunkSize;
+                uploadMonitor.chunkUploaded(chunkSize);
+            }
+            public void headerReceived(final String header) {}
+            public void headerSent(final String header) {}
+            public void streamError(final StreamException error) {
+                if (error.isRecoverable()) {
+                    if (recoverChunkOffset <= totalChunks) {
+                        // attempt to resume the upload
+                        recoverChunkOffset = totalChunks;
+                        try {
+                            uploadStream(uploadMonitor, this, streamId,
+                                    session, stream, streamSize, Long
+                                            .valueOf(recoverChunkOffset));
+                        } catch (final IOException iox) {
+                            throw translateError(iox);
+                        }
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    throw error;
+                }
+            }
+        };
+        return uploadStream(uploadMonitor, streamMonitor, streamId, session,
+                stream, streamSize, 0L);
+    }
+
+    private void backupEvent(final JabberId userId, final JabberId eventUserId,
             final XMPPEvent event) {
         final JabberId archiveId = getUserModel().readArchiveId(eventUserId);
         if (null == archiveId) {
@@ -563,20 +676,22 @@ public abstract class AbstractModelImpl
     }
 
     /**
-	 * Obtain a handle to the xmpp server's session manager.
-	 * @return The xmpp servers's session manager.
-	 */
+     * Obtain a handle to the xmpp server's session manager.
+     * 
+     * @return The xmpp servers's session manager.
+     */
 	private SessionManager getSessionManager() {
 		return getXMPPServer().getSessionManager();
 	}
-
 
     /**
 	 * Obtain a handle to the underlying xmpp server.
 	 * 
 	 * @return The xmpp server.
 	 */
-	private XMPPServer getXMPPServer() { return XMPPServer.getInstance(); }
+	private XMPPServer getXMPPServer() {
+        return XMPPServer.getInstance();
+    }
 
     /**
      * Determine whether or not the system account is the key holder.
@@ -607,23 +722,5 @@ public abstract class AbstractModelImpl
         for (final ClientSession session : getClientSessions(userId)) {
             process(session, query);
         }        
-    }
-
-    /**
-     * Build a unique id for a user in time. Use the user id plus the current
-     * timestamp to generate a unique id.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A unique id <code>String</code>.
-     */
-    protected String buildUserTimestampId(final JabberId userId) {
-        /*
-         * NOTE A user timestamp id is unique per user per timestamp
-         */
-       // TIME A global timestamp
-       final String hashString = new StringBuffer(userId.toString())
-           .append(currentTimeMillis()).toString();
-       return MD5Util.md5Hex(hashString.getBytes());
     }
 }

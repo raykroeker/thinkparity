@@ -246,7 +246,7 @@ public final class Constants {
             public static final BufferedImage SEARCH_BACKGROUND =
                 ImageIOUtil.read("BrowserTitle_SearchBackground.png");
             public static final BufferedImage LOGO =
-                ImageIOUtil.read("BrowserTitle_Logo.png");
+                ImageIOUtil.read("thinkParityLogo.png");
         }
     }
     public static final class InsetFactors {

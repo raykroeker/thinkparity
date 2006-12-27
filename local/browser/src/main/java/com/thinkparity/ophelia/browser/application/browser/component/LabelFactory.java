@@ -217,7 +217,6 @@ public class LabelFactory extends ComponentFactory {
 		final JLabel jLabel = new JLabel(text, icon, textAlignment
 				.getSwingConstant());
 		applyFont(jLabel, font);
-        jLabel.setHorizontalTextPosition(textAlignment.getSwingConstant());
 		return jLabel;
 	}
 

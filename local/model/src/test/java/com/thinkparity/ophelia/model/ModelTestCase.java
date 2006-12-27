@@ -81,7 +81,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected static final UserUtils USER_UTILS;
 
     /** Number of files to use from the total test input set. */
-    private static final Integer NUMBER_OF_INPUT_FILES = 5;
+    private static final Integer NUMBER_OF_INPUT_FILES = 7;
 
     static {
         USER_UTILS = UserUtils.getInstance();

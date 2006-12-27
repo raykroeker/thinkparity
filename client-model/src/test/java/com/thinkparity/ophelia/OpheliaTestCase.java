@@ -83,10 +83,10 @@ public abstract class OpheliaTestCase extends TestCase {
     protected static void assertEquals(final String assertion,
             final List<ArtifactFlag> expected, final List<ArtifactFlag> actual) {
         for (final ArtifactFlag expectedFlag : expected) {
-            assertTrue(assertion + "  Expected flag not present.", actual.contains(expectedFlag));
+            assertTrue(assertion + "  Expected flag " + expectedFlag + " not present.", actual.contains(expectedFlag));
         }
         for (final ArtifactFlag actualFlag : actual) {
-            assertTrue(assertion + " Actual flag not present.", expected.contains(actualFlag));
+            assertTrue(assertion + " Actual flag " + actualFlag + "not present.", expected.contains(actualFlag));
         }
     }
 

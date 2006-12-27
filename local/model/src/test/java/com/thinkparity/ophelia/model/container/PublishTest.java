@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
@@ -78,20 +79,37 @@ public class PublishTest extends ContainerTestCase {
                 !getArtifactModel(datum.junit).isFlagApplied(c.getId(), ArtifactFlag.KEY));
         InternalDocumentModel documentModel;
         Document d_other;
+        DocumentVersion dv, dv_x, dv_y;
+        String d_checksum, d_checksum_x, d_checksum_y;
+        Long d_size, d_size_x, d_size_y;
         for (final Document d : documents) {
             documentModel = getDocumentModel(datum.junit);
             assertFalse("Document \"" + d.getName() + "\" for user \"" + datum.junit.getSimpleUsername() + "\" still maintains draft.",
                     documentModel.doesExistDraft(d.getId()));
+            dv = documentModel.readLatestVersion(d.getId());
+            d_checksum = dv.getChecksum();
+            d_size = dv.getSize();
 
             documentModel = getDocumentModel(datum.junit_x);
             d_other = readDocument(datum.junit_x, d.getUniqueId());
             assertFalse("Document \"" + d_other.getName() + "\" for user \"" + datum.junit_x.getSimpleUsername() + "\" still maintains draft.",
                     documentModel.doesExistDraft(d_other.getId()));
+            dv_x = documentModel.readLatestVersion(d_other.getId());
+            d_checksum_x = dv_x.getChecksum();
+            d_size_x = dv_x.getSize();
 
             documentModel = getDocumentModel(datum.junit_y);
             d_other = readDocument(datum.junit_y, d.getUniqueId());
             assertFalse("Document \"" + d_other.getName() + "\" for user \"" + datum.junit_y.getSimpleUsername() + "\" still maintains draft.",
                     documentModel.doesExistDraft(d_other.getId()));
+            dv_y = documentModel.readLatestVersion(d_other.getId());
+            d_checksum_y = dv_y.getChecksum();
+            d_size_y = dv_y.getSize();
+
+            assertEquals(d_size, d_size_x);
+            assertEquals(d_size, d_size_y);
+            assertEquals(d_checksum, d_checksum_x);
+            assertEquals(d_checksum, d_checksum_y);
         }
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());

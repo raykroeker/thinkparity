@@ -320,7 +320,9 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 }
                 else {
                     final File streamFile = downloadStream(new DownloadMonitor() {
-                        public void chunkDownloaded(final int chunkSize) {}
+                        public void chunkDownloaded(final int chunkSize) {
+                            logger.logInfo("Downloaded {0} bytes", chunkSize);
+                        }
                     }, event.getArtifactStreamId());
                     final InputStream stream = new FileInputStream(streamFile);
                     try {

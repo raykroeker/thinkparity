@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
 
@@ -43,17 +45,47 @@ public class ArchiveRestoreTest extends ArchiveTestCase {
     /** Test the restore api. */
     public void testRestore() {
         final Container c = createContainer(datum.junit_z, NAME);
-        addDocuments(datum.junit_z, c.getId());
+        final List<Document> d_list = addDocuments(datum.junit_z, c.getId());
         publish(datum.junit_z, c.getId(), "JUnit thinkParity", "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
+
+        final List<ContainerVersion> cv_list =
+            readContainerVersions(datum.junit_z, c.getId());
+        final ContainerVersion cv_latest =
+            readContainerLatestVersion(datum.junit_z, c.getId());
+        final List<DocumentVersion> dv_list =
+            readContainerVersionDocumentVersions(datum.junit_z, c.getId(),
+                    cv_latest.getVersionId());
+
         archive(datum.junit_z, c.getId());
         datum.waitForEvents();
         restore(datum.junit_z, c.getUniqueId());
+        datum.waitForEvents();
 
         final Container c_restore = readContainer(datum.junit_z, c.getUniqueId());
-        assertNotNull(NAME + " - Container is null.", c);
+        assertNotNull("Restored container is null.", c);
+        assertEquals("Restored container does not match expectation.", c, c_restore);
+
         final List<ContainerVersion> cv_list_restore = readContainerVersions(datum.junit_z, c_restore.getId());
-        assertNotNull(NAME + " - Container versions is null.", cv_list_restore);
+        assertNotNull("Restored container versions is null.", cv_list_restore);
+        for (int i = 0; i < cv_list_restore.size(); i++) {
+            assertEquals("Restored container version does not match expectaion.",
+                    cv_list_restore.get(i), cv_list.get(i));
+        }
+
+        final ContainerVersion cv_latest_restore = readContainerLatestVersion(datum.junit_z, c_restore.getId());
+        final List<Document> d_list_restore = readContainerVersionDocuments(
+                datum.junit_z, c_restore.getId(), cv_latest_restore.getVersionId());
+        for (int i = 0; i < d_list_restore.size(); i++) {
+            assertEquals("Restored document does not match expectation.",
+                    d_list_restore.get(i), d_list.get(i));
+        }
+        final List<DocumentVersion> dv_list_restore = readContainerVersionDocumentVersions(
+                datum.junit_z, c_restore.getId(), cv_latest_restore.getVersionId());
+        for (int i = 0; i < dv_list_restore.size(); i++) {
+            assertEquals("Restored document version does not match expectation.",
+                    dv_list_restore.get(i), dv_list.get(i));
+        }
     }
 
     /**

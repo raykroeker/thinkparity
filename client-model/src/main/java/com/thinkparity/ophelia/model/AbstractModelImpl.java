@@ -604,11 +604,18 @@ public abstract class AbstractModelImpl<T extends EventListener>
                     streamId, streamOffset);
             actualStreamOffset = 0L;
         } else {
-            logger.logInfo("Resuming download for {0} at {1}.",
-                    streamId, streamOffset);
             actualStreamOffset = streamOffset;
         }
-        final FileOutputStream stream = new FileOutputStream(streamFile, true);
+        final FileOutputStream stream;
+        if (0 == actualStreamOffset) {
+            stream = new FileOutputStream(streamFile);
+            logger.logInfo("Starting download for {0}.", streamId);
+        } else {
+            stream = new FileOutputStream(streamFile, true);
+            logger.logInfo("Resuming download for {0} at {1}.", streamId,
+                    actualStreamOffset);
+        }
+
         final StreamSession session = getSessionModel().createStreamSession();
         final StreamReader reader = new StreamReader(streamMonitor, session);
         try {
@@ -640,6 +647,8 @@ public abstract class AbstractModelImpl<T extends EventListener>
             long recoverChunkOffset = 0;
             long totalChunks = 0;
             public void chunkReceived(final int chunkSize) {
+                logger.logApiId();
+                logger.logVariable("chunkSize", chunkSize);
                 totalChunks += chunkSize;
                 downloadMonitor.chunkDownloaded(chunkSize);
             }

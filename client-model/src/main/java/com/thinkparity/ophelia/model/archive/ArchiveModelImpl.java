@@ -164,7 +164,10 @@ class ArchiveModelImpl extends AbstractModelImpl {
                     versionId);
             try {
                 return new FileInputStream(downloadStream(new DownloadMonitor() {
-                    public void chunkDownloaded(final int chunkSize) {}
+                    public void chunkDownloaded(final int chunkSize) {
+                        logger.logApiId();
+                        logger.logVariable("chunkSize", chunkSize);
+                    }
                 }, streamId));
             } finally {
                 sessionModel.deleteStreamSession(session);

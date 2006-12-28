@@ -7,9 +7,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -20,7 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public abstract class DefaultCellRenderer extends AbstractJPanel implements PanelCellRenderer, ListCellRenderer {
+public abstract class DefaultCellRenderer extends AbstractJPanel implements PanelCellRenderer {
     
     /** The tab panel */
     protected final DefaultTabPanel tabPanel;
@@ -52,14 +49,6 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
     public abstract void renderComponent(final Cell cell, final int index);
     
     /**
-     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
-     *      java.lang.Object, int, boolean, boolean)
-     */
-    public abstract Component getListCellRendererComponent(final JList list,
-            final Object value, final int index, final boolean isSelected,
-            final boolean cellHasFocus);
-    
-    /**
      * This method is always called before the panel is added and painted.
      */
     protected void renderComponent(final Cell cell, final int index,
@@ -88,8 +77,8 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             final javax.swing.JLabel iconJLabel) {
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
-                tabPanel.panelCellMousePressed(cell, e);
-                if (e.getButton() == MouseEvent.BUTTON1) {
+                tabPanel.panelCellMousePressed(cell, Boolean.TRUE, e);
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
                     if (cell.isActionAvailable()) {
                         cell.invokeAction();
                     }
@@ -108,7 +97,7 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
         });
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(final java.awt.event.MouseEvent e) {
-                tabPanel.panelCellMousePressed(cell, e);
+                tabPanel.panelCellMousePressed(cell, Boolean.FALSE, e);
                 maybeShowPopup(e);
             }
             public void mouseReleased(final java.awt.event.MouseEvent e) {

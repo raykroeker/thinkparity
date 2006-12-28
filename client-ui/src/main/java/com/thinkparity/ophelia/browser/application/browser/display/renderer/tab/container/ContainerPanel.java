@@ -19,8 +19,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -29,8 +27,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
@@ -40,17 +37,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.M
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EastCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.EmptyCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellListModel;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.TopWestCellRenderer;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCell;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.WestCellRenderer;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
 import com.thinkparity.ophelia.browser.util.localization.MainCellL18n;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 /**
  * <b>Title:</b>thinkParity Container Panel<br>
@@ -249,18 +238,18 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.lang.Boolean, java.awt.event.MouseEvent)
      */
     @Override
-    public void panelCellMousePressed(final Cell cell, final MouseEvent e) {
+    public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final MouseEvent e) {
         if (cell instanceof WestCell) {
             westListModel.setSelectedCell(cell);
         }           
-        if ((e.getClickCount() % 2) == 0) {
+        if (!onIcon && e.getClickCount() % 2 == 0) {
             tabDelegate.toggleExpansion(this);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellSelectionChanged()
      */
@@ -274,8 +263,7 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             repaint();
         }
-        /* HACK The cells themselves should be aware of selection and in
-         * this case fire the property change. */
+        /* NOTE This is ugly, perhaps can be improved with refactoring. */
         if (cell instanceof DraftCell) {
             draftSelected = true;
             firePropertyChange("draftSelected", !draftSelected, draftSelected);
@@ -501,7 +489,25 @@ public class ContainerPanel extends DefaultTabPanel {
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
-    }
+    }    
+
+    private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
+        if (e.isPopupTrigger()) {
+            if (!westListModel.isSelectionEmpty()) {
+                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
+                westListModel.getSelectedCell().showPopup();
+            }
+        }
+    }//GEN-LAST:event_eastJPanelMouseReleased
+
+    private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
+        if (e.isPopupTrigger()) {
+            if (!westListModel.isSelectionEmpty()) {
+                getPopupDelegate().initialize((Component) e.getSource(), e.getX(), e.getY());
+                westListModel.getSelectedCell().showPopup();
+            }
+        }
+    }//GEN-LAST:event_eastJPanelMousePressed
     
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
         logger.logApiId();
@@ -591,24 +597,24 @@ public class ContainerPanel extends DefaultTabPanel {
         collapsedJPanel.setLayout(new java.awt.GridBagLayout());
 
         collapsedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                collapsedJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                collapsedJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                collapsedJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                collapsedJPanelMouseReleased(evt);
             }
         });
 
         iconJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/IconContainer.png")));
         iconJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                iconJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                iconJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseExited(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                iconJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                iconJLabelMousePressed(evt);
             }
         });
 
@@ -646,11 +652,11 @@ public class ContainerPanel extends DefaultTabPanel {
 
         expandedJPanel.setOpaque(false);
         expandedJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                expandedJPanelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                expandedJPanelMousePressed(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                expandedJPanelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                expandedJPanelMouseReleased(evt);
             }
         });
 
@@ -675,36 +681,35 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         westJPanel.add(westFillerJLabel, gridBagConstraints);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("localization/ListItem_Messages"); // NOI18N
-        westFirstJLabel.setText(bundle.getString("ContainerPanel.firstJLabelWest")); // NOI18N
+        westFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.firstJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 5);
         westJPanel.add(westFirstJLabel, gridBagConstraints);
 
-        westPreviousJLabel.setText(bundle.getString("ContainerPanel.previousJLabelWest")); // NOI18N
+        westPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.previousJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westPreviousJLabel, gridBagConstraints);
 
-        westCountJLabel.setText(bundle.getString("ContainerPanel.countJLabel")); // NOI18N
+        westCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westCountJLabel, gridBagConstraints);
 
-        westNextJLabel.setText(bundle.getString("ContainerPanel.nextJLabelWest")); // NOI18N
+        westNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.nextJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westNextJLabel, gridBagConstraints);
 
-        westLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabelWest")); // NOI18N
+        westLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.lastJLabelWest"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -716,6 +721,15 @@ public class ContainerPanel extends DefaultTabPanel {
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastJPanel.setOpaque(false);
+        eastJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                eastJPanelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                eastJPanelMouseReleased(evt);
+            }
+        });
+
         eastListJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastListJPanel.setOpaque(false);
@@ -734,35 +748,35 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         eastJPanel.add(eastFillerJLabel, gridBagConstraints);
 
-        eastFirstJLabel.setText(bundle.getString("ContainerPanel.firstJLabelEast")); // NOI18N
+        eastFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.firstJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastFirstJLabel, gridBagConstraints);
 
-        eastPreviousJLabel.setText(bundle.getString("ContainerPanel.previousJLabelEast")); // NOI18N
+        eastPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.previousJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastPreviousJLabel, gridBagConstraints);
 
-        eastCountJLabel.setText(bundle.getString("ContainerPanel.countJLabel")); // NOI18N
+        eastCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastCountJLabel, gridBagConstraints);
 
-        eastNextJLabel.setText(bundle.getString("ContainerPanel.nextJLabelEast")); // NOI18N
+        eastNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.nextJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastNextJLabel, gridBagConstraints);
 
-        eastLastJLabel.setText(bundle.getString("ContainerPanel.lastJLabelEast")); // NOI18N
+        eastLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/ListItem_Messages").getString("ContainerPanel.lastJLabelEast"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -826,13 +840,26 @@ public class ContainerPanel extends DefaultTabPanel {
     /** An east list cell. */
     private abstract class AbstractEastCell extends DefaultCell implements
             EastCell {
+        
+        /** A <code>WestCell</code> parent. */
+        private final WestCell parent;
+        
         /**
          * Create AbstractEastCell.
          *
          */
-        private AbstractEastCell() {
+        private AbstractEastCell(final WestCell parent) {
             super();
+            this.parent = parent;
             setEnabled(isLatest());
+        }
+        
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
+         */
+        @Override
+        public void showPopup() {
+            parent.showPopup();
         }
     }
 
@@ -845,7 +872,7 @@ public class ContainerPanel extends DefaultTabPanel {
         private AbstractWestCell() {
             super();
             setEnabled(isLatest());
-            add(EmptyCell.getEmptyCell());
+            add(new EmptyEastCell(this));
         }
     }
 
@@ -920,7 +947,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         private void addUserCells(final List<TeamMember> team) {
             for (final TeamMember teamMember : team) {
-                add(new ContainerVersionUserCell(this, teamMember));
+                add(new ContainerTeamMemberCell(this, teamMember));
             }
         }
         private void prepareText() {
@@ -932,8 +959,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class ContainerDraftDocumentCell extends AbstractEastCell {
         /** A <code>Document</code>. */
         private final Document document;
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /**
          * Create ContainerDraftDocumentCell.
          * 
@@ -946,8 +971,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private ContainerDraftDocumentCell(final WestCell parent, final Document document,
                 final DraftView draftView) {
-            super();
-            this.parent = parent;
+            super(parent);
             this.document = document;
             setIcon(fileIconReader.getIcon(document));
             switch (draftView.getDraft().getState(document)) {
@@ -975,18 +999,12 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(draft, document);
         }
-        @Override
-        public void showPopup() {
-            parent.showPopup();
-        }
     }
     
     /** A container version document cell. */
     private final class ContainerVersionDocumentCell extends AbstractEastCell {
         /** A <code>Delta</code>. */
         private final Delta delta;
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /** A <code>DocumentVersion</code>. */
         private final DocumentVersion version;
         /**
@@ -1001,8 +1019,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private ContainerVersionDocumentCell(final WestCell parent, final ContainerVersion containerVersion,
                 final DocumentView documentView) {
-            super();
-            this.parent = parent;
+            super(parent);
             this.delta = documentView.getDelta();
             this.version = documentView.getVersion();
             setIcon(fileIconReader.getIcon(version));
@@ -1029,19 +1046,10 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(version, delta);
         }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
-        @Override
-        public void showPopup() {
-            parent.showPopup();
-        }
     }
     
-    /** A container user cell. */
-    private final class ContainerVersionUserCell extends AbstractEastCell {
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
+    /** A container team member cell. */
+    private final class ContainerTeamMemberCell extends AbstractEastCell {
         /** A <code>User</code>. */
         private final User user;
         /**
@@ -1052,9 +1060,8 @@ public class ContainerPanel extends DefaultTabPanel {
          * @param user
          *            A <code>User</code>.
          */
-        private ContainerVersionUserCell(final WestCell parent, final User user) {
-            super();
-            this.parent = parent;
+        private ContainerTeamMemberCell(final WestCell parent, final User user) {
+            super(parent);
             this.user = user;
             setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
             setText(user.getName());
@@ -1065,13 +1072,6 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public void invokeAction() {
             actionDelegate.invokeForUser(user);
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
-        @Override
-        public void showPopup() {
-            parent.showPopup();
         }
     }
 
@@ -1084,7 +1084,7 @@ public class ContainerPanel extends DefaultTabPanel {
         private DraftCell() {
             super();
             for (final Document document : draft.getDocuments()) {
-                add(new DraftDocumentCell(document));
+                add(new DraftDocumentCell(this, document));
             }
         }
         @Override
@@ -1108,9 +1108,10 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A draft document cell. */
     private final class DraftDocumentCell extends AbstractEastCell {
+        /** A <code>Document</code>. */
         private final Document document;
-        private DraftDocumentCell(final Document document) {
-            super();
+        private DraftDocumentCell(final WestCell parent, final Document document) {
+            super(parent);
             this.document = document;
             setIcon(fileIconReader.getIcon(document));
             switch (draft.getState(document)) {
@@ -1130,10 +1131,23 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(draft, document);
         }
-        @Override
-        public void showPopup() {
-            popupDelegate.showForDraft(container, draft);
+    }
+        
+    private final class EmptyEastCell extends AbstractEastCell {        
+        /**
+         * Create EmptyEastCell.
+         */
+        private EmptyEastCell(final WestCell parent) {
+            super(parent);
         }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+         */
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.FALSE;
+        }        
     }
 
     private enum ListType { EAST_LIST, WEST_LIST }
@@ -1343,8 +1357,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionDocumentCell extends AbstractEastCell {
         /** A <code>Delta</code>. */
         private final Delta delta;
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /** A <code>DocumentVersion</code>. */
         private final DocumentVersion version;
         /**
@@ -1357,9 +1369,8 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private VersionDocumentCell(final WestCell parent,
                 final DocumentVersion version, final Delta delta) {
-            super();
+            super(parent);
             this.delta = delta;
-            this.parent = parent;
             this.version = version;
             setIcon(fileIconReader.getIcon(version));
             switch (delta) {
@@ -1382,19 +1393,10 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForDocument(version, delta);
         }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
-        @Override
-        public void showPopup() {
-            parent.showPopup();
-        }
     }
     
     /** A user cell. */
     private final class VersionUserCell extends AbstractEastCell {
-        /** A <code>WestCell</code> parent. */
-        private final WestCell parent;
         /** A <code>User</code>. */
         private final User user;
         /**
@@ -1404,8 +1406,7 @@ public class ContainerPanel extends DefaultTabPanel {
          *            A <code>User</code>.
          */
         private VersionUserCell(final WestCell parent, final User user) {
-            super();
-            this.parent = parent;
+            super(parent);
             this.user = user;
             setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
             setText(user.getName());
@@ -1422,8 +1423,7 @@ public class ContainerPanel extends DefaultTabPanel {
          */
         private VersionUserCell(final WestCell parent, final User user,
                 final ArtifactReceipt receipt) {
-            super();
-            this.parent = parent;
+            super(parent);
             this.user = user;
             setIcon(receipt.isSetReceivedOn()
                     ? IMAGE_CACHE.read(TabPanelIcon.USER)
@@ -1440,13 +1440,6 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public void invokeAction() {
             actionDelegate.invokeForUser(user);
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
-         */
-        @Override
-        public void showPopup() {
-            parent.showPopup();
         }
     }
 }

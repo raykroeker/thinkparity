@@ -35,4 +35,12 @@ public final class EmptyCell extends DefaultCell implements EastCell {
     private EmptyCell() {
         super();
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+     */
+    @Override
+    public Boolean isActionAvailable() {
+        return Boolean.FALSE;
+    }
 }

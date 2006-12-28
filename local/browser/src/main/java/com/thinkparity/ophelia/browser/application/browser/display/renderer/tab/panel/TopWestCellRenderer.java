@@ -6,11 +6,6 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
-import java.awt.Component;
-
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
@@ -18,7 +13,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  *
  * @author  Administrator
  */
-public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer, ListCellRenderer {
+public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel additionalTextJLabel;
@@ -50,19 +45,6 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
     @Override
     public void renderComponent(final Cell cell, final int index) {
         renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
-    }
-    
-    /**
-     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
-     *      java.lang.Object, int, boolean, boolean)
-     */
-    @Override    
-    public Component getListCellRendererComponent(final JList list,
-            final Object value, final int index, final boolean isSelected,
-            final boolean cellHasFocus) {
-        final Cell cell = (Cell) value;
-        renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
-        return this;
     }
 
     /** This method is called from within the constructor to

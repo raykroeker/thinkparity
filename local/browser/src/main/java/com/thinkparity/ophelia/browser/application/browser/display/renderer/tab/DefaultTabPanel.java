@@ -177,10 +177,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      * 
      * @param cell
      *          A <code>Cell</code>.
+     * @param onIcon
+     *          A <code>Boolean</code> flag indicating if the mouse press was on an icon.        
      * @param e
      *          A <code>MouseEvent</code>.
      */
-    public void panelCellMousePressed(final Cell cell, final java.awt.event.MouseEvent e) {        
+    public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final java.awt.event.MouseEvent e) {        
     }
     
     /**

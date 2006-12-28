@@ -7,29 +7,20 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.user.UserUtils;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
@@ -42,6 +33,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 /**
  * <b>Title:</b><br>
@@ -354,6 +346,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     private void addContainerPanel(final int index, final Container container) {
         final List<TeamMember> team = readTeam(container.getUniqueId());
         final List<ContainerVersion> versions = readVersions(container.getUniqueId());
+        final ContainerVersion latestVersion = findLatestVersion(versions);
 
         final Map<ContainerVersion, List<DocumentView>> documentViews =
             new HashMap<ContainerVersion, List<DocumentView>>(versions.size(), 1.0F);
@@ -379,7 +372,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             publishedTo.put(version, readPublishedTo(container.getUniqueId(), version.getVersionId()));
         }
         panels.add(index, toDisplay(container, find(team, container
-                .getCreatedBy()), new DraftView(), null, versions, documentViews,
+                .getCreatedBy()), new DraftView(), latestVersion, versions, documentViews,
                 publishedTo, publishedBy, team));
     }
 
@@ -534,6 +527,27 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             final Long compareToVersionId) {
         return ((ArchiveTabProvider) contentProvider).readDocumentViews(
                 uniqueId, compareVersionId, compareToVersionId);
+    }
+    
+    /**
+     * Find the latest version for a container.
+     * 
+     * @param versions
+     *            A list of <code>ContainerVersion</code>.
+     * @return The latest <code>ContainerVersion</code>.
+     */
+    private ContainerVersion findLatestVersion(final List<ContainerVersion> versions) {
+        if (versions.isEmpty()) {
+            return null;
+        } else {
+            ContainerVersion latestVersion = versions.get(0);
+            for (final ContainerVersion version : versions) {
+                if (version.getCreatedOn().compareTo(latestVersion.getCreatedOn()) > 0) {
+                    latestVersion = version;
+                }
+            }
+            return latestVersion;
+        }        
     }
 
     private Map<User, ArtifactReceipt> readPublishedTo(final UUID uniqueId,

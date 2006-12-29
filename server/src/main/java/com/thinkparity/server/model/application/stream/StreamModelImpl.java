@@ -16,7 +16,6 @@ import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.util.MD5Util;
 
 import org.jivesoftware.util.JiveProperties;

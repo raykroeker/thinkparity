@@ -74,23 +74,21 @@ final class StreamSocketDelegate implements Runnable {
                 final StreamHeader sessionType = headerReader.readNext();
                 final StreamHeader streamId = headerReader.readNext();
                 final StreamHeader streamOffset = headerReader.readNext();
-                if(null != streamSession) {
-                    if ("UPSTREAM".equals(sessionType.getValue())) {
-                        final StreamHeader streamSize = headerReader.readNext();
-                        new UpstreamHandler(streamServer, streamSession,
-                                streamId.getValue(),
-                                Long.valueOf(streamOffset.getValue()),
-                                Long.valueOf(streamSize.getValue()),
-                                socket.getInputStream()).run();
-                    } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
-                        new DownstreamHandler(streamServer, streamSession,
-                                streamId.getValue(),
-                                Long.valueOf(streamOffset.getValue()),
-                                streamServer.getSize(streamSession, streamId.getValue()),
-                                socket.getOutputStream()).run();
-                    } else {
-                        Assert.assertUnreachable("Unkown stream transfer.");
-                    }
+                if ("UPSTREAM".equals(sessionType.getValue())) {
+                    final StreamHeader streamSize = headerReader.readNext();
+                    new UpstreamHandler(streamServer, streamSession,
+                            streamId.getValue(),
+                            Long.valueOf(streamOffset.getValue()),
+                            Long.valueOf(streamSize.getValue()),
+                            socket.getInputStream()).run();
+                } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
+                    new DownstreamHandler(streamServer, streamSession,
+                            streamId.getValue(),
+                            Long.valueOf(streamOffset.getValue()),
+                            streamServer.getSize(streamSession, streamId.getValue()),
+                            socket.getOutputStream()).run();
+                } else {
+                    Assert.assertUnreachable("Unkown stream transfer.");
                 }
             }
         } catch (final IOException iox) {

@@ -97,6 +97,7 @@ public abstract class AbstractHandler extends
         try {
             synchronized (getServiceLock(session, reader)) {
                 IQ_LOGGER.logVariable("iq", iq);
+                IQ_LOGGER.logVariable("iq length", iq.getChildElement().asXML().length());
                 service(new ServiceModelProvider() {
                     public ArchiveModel getArchiveModel() {
                         return ArchiveModel.getModel(session);
@@ -133,6 +134,7 @@ public abstract class AbstractHandler extends
             return createErrorResponse(iq, t);
         }
         IQ_LOGGER.logVariable("response", response);
+        IQ_LOGGER.logVariable("response length", response.getChildElement().asXML().length());
         return response;
     }
 

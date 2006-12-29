@@ -53,7 +53,6 @@ import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.MD5Util;
 import com.thinkparity.desdemona.util.xmpp.IQWriter;
 import com.thinkparity.desdemona.wildfire.JIDBuilder;
-import com.thinkparity.desdemona.wildfire.util.SessionUtil;
 
 import org.jivesoftware.util.JiveProperties;
 import org.jivesoftware.wildfire.ClientSession;
@@ -76,12 +75,8 @@ public abstract class AbstractModelImpl
     /** An apache xmpp iq logger wrapper. */
     private static final Log4JWrapper XMPP_IQ_LOGGER;
 
-    /** A <code>SessionUtil</code>. */
-    private static final SessionUtil SESSION_UTIL;
-
     static {
         NO_SESSION = User.THINK_PARITY.getId();
-        SESSION_UTIL = SessionUtil.getInstance();
         XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
     }
 

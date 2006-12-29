@@ -601,15 +601,16 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         try {
             // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getArtifactModel();
-            final Boolean doesExist = artifactModel.doesExist(event.getUniqueId());
-            final Long containerId;
+            final boolean doesExist = artifactModel.doesExist(
+                    event.getUniqueId()).booleanValue();
+            final boolean doesVersionExist;
             final Container container;
             final ContainerVersion version;
             if (doesExist) {
-                containerId = artifactModel.readId(event.getUniqueId());
+                final Long containerId = artifactModel.readId(event.getUniqueId());
                 container = read(containerId);
-                final Boolean doesVersionExist =
-                    artifactModel.doesVersionExist(containerId, event.getVersionId());
+                doesVersionExist = artifactModel.doesVersionExist(
+                        containerId, event.getVersionId()).booleanValue();
 
                 if (doesVersionExist) {
                     version = readVersion(container.getId(), event.getVersionId());
@@ -618,7 +619,9 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                             event.getVersionId(), event.getPublishedBy(),
                             event.getPublishedOn());
                 }
-            } else { 
+            } else {
+                doesVersionExist = false;
+
                 // ensure the published by user exists locally
                 getInternalUserModel().readLazyCreate(event.getPublishedBy());
 
@@ -642,32 +645,27 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
                 // index
                 getIndexModel().indexContainer(container.getId());
             }
-            final Long artifactId = artifactIO.readId(event.getArtifactUniqueId());
-            final boolean doesArtifactVersionExist = null == artifactId
-                    ? false
-                    : artifactIO.doesVersionExist(artifactId,
-                            event.getArtifactVersionId());
+
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
             switch (event.getArtifactType()) {
             case DOCUMENT:
                 artifactVersion = handleDocumentPublished(event);
                 break;
-            case CONTAINER:
             default:
-                throw Assert.createUnreachable("UNKNOWN ARTIFACT TYPE");
+                throw Assert.createUnreachable("Cannot publish a container within a container.");
             }
-            if (doesArtifactVersionExist) {
-                logger.logWarning("Artifact {0}:{1} already exists.", event
-                        .getArtifactUniqueId(), event.getArtifactVersionId());
-            } else {
+            final Long artifactId = artifactModel.readId(event.getArtifactUniqueId());
+            if (!containerIO.doesExistVersion(container.getId(),
+                    event.getVersionId(), artifactId,
+                    event.getArtifactVersionId()).booleanValue()) {
                 containerIO.addVersion(version.getArtifactId(),
                         version.getVersionId(), artifactVersion.getArtifactId(),
                         artifactVersion.getVersionId(),
                         artifactVersion.getArtifactType());
             }
-        }
-        catch(final Throwable t) {
+            
+        } catch (final Throwable t) {
             throw translateError(t);
         }
     }
@@ -2365,7 +2363,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * Create the container in the distributed network.
      * 
      * @param container
-     *            The container.
+     *            A <code>Container</code>.
      */
     private void createDistributed(final Container container,
             final Calendar createdOn) {
@@ -2373,6 +2371,7 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         sessionModel.createArtifact(localUserId(), container.getUniqueId(),
                 createdOn);
         // TODO update the container's created on date
+        // TODO update all documents' created on dates
     }
 
     /**

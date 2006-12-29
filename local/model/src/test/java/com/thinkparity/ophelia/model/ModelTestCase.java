@@ -277,7 +277,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertEquals(assertion, expected.getVersion(), actual.getVersion());
     }
 
-	/**
+    /**
 	 * Assert that the document list provided doesn't contain the document.
 	 * 
 	 * @param documentList
@@ -300,7 +300,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
 	}
 
-	protected static void assertNotNull(final String assertion, final ArtifactReceipt receipt) {
+    protected static void assertNotNull(final String assertion, final ArtifactReceipt receipt) {
         assertNotNull(assertion + " [RECEIPT IS NULL]", (Object) receipt);
         assertNotNull(assertion + " [RECEIPT'S ARTIFACT ID IS NULL]", receipt.getArtifactId());
         assertNotNull(assertion + " [RECEIPT'S USER ID IS NULL]", receipt.getUserId());
@@ -345,7 +345,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER HISTORY ITEM CONTAINER ID IS NULL]", historyItem.getContainerId());
     }
 
-    /**
+	/**
      * Assert that a container version is not null.
      * 
      * @param assertion
@@ -366,7 +366,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
     }
 
-    /**
+	/**
      * Assert that the document and all of its required members are not null.
      * 
      * @param assertion
@@ -497,6 +497,96 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         assertNotNull(assertion + " [USER'S NAME IS NULL]", user.getName());
     }
 
+    /**
+     * Assert that the expected container matches the actual; aside from the local id
+     * and dates.  This api is used to compare containers across users.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected container.
+     * @param actual
+     *            The actual container.
+     */
+    protected static void assertSimilar(final String assertion, final Container expected, final Container actual) {
+        assertEquals(assertion + " [CONTAINER'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [CONTAINER'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [CONTAINER'S REMOTE INFO'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedBy(), actual.getRemoteInfo().getUpdatedBy());
+        assertEquals(assertion + " [CONTAINER'S STATE DOES NOT MATCH EXPECTATION]", expected.getState(), actual.getState());
+        assertEquals(assertion + " [CONTAINER'S TYPE DOES NOT MATCH EXPECTATION]", expected.getType(), actual.getType());
+        assertEquals(assertion + " [CONTAINER'S UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getUniqueId(), actual.getUniqueId());
+        assertEquals(assertion + " [CONTAINER'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+    }
+
+    /**
+     * Assert the expected version matches the actual one; aside from an
+     * artifact id and dates. This api is used to compare container versions
+     * across users.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected container version.
+     * @param actual
+     *            The actual container version.
+     */
+    protected static void assertSimilar(final String assertion, final ContainerVersion expected, final ContainerVersion actual) {
+        assertEquals(assertion + " [CONTAINER VERSION DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
+        assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
+        assertEquals(assertion + " [CONTAINER VERSION'S ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
+        assertEquals(assertion + " [CONTAINER VERSION'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [CONTAINER VERSION'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [CONTAINER VERSION'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+        assertEquals(assertion + " [CONTAINER VERSION'S VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
+    }
+
+    /**
+     * Assert the expected document matches the actual; aside from the local id.
+     * This api can be used to compare documents across users.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected document.
+     * @param actual
+     *            The actual document.
+     */
+    protected static void assertSimilar(final String assertion,
+            final Document expected, final Document actual) {
+        assertEquals(assertion + " [DOCUMENT DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
+        assertEquals(assertion + " [DOCUMENT'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [DOCUMENT'S FLAGS DO NOT MATCH EXPECTATION]", expected.getFlags(), actual.getFlags());
+        assertEquals(assertion + " [DOCUMENT'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedBy(), actual.getRemoteInfo().getUpdatedBy());
+        assertEquals(assertion + " [DOCUMENT'S STATE DOES NOT MATCH EXPECTATION]", expected.getState(), actual.getState());
+        assertEquals(assertion + " [DOCUMENT'S TYPE DOES NOT MATCH EXPECTATION]", expected.getType(), actual.getType());
+        assertEquals(assertion + " [DOCUMENT'S UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getUniqueId(), actual.getUniqueId());
+        assertEquals(assertion + " [DOCUMENT'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+    }
+
+    /**
+     * Assert that the expected version matches the actual one; aside from the artifact ids
+     * and dates.  This is used to compare document versions across users.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected version.
+     * @param actual
+     *            The actual version.
+     */
+    protected static void assertSimilar(final String assertion, final DocumentVersion expected, final DocumentVersion actual) {
+        assertEquals(assertion + " [ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
+        assertEquals(assertion + " [ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
+        assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
+        assertEquals(assertion + " [COMPRESSION DOES NOT MATCH EXPECTATION]", expected.getCompression(), actual.getCompression());
+        assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [ENCODING DOES NOT MATCH EXPECTATION]", expected.getEncoding(), actual.getEncoding());
+        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+        assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
+    }
+
     /** A test model factory. */
     private OpheliaTestModelFactory modelFactory;
 
@@ -621,14 +711,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         logger.logInfo("Creating container \"{0}\" as \"{1}.\"", actualName,
                 createAs.getSimpleUsername());
         return logger.logVariable("container", getContainerModel(createAs).create(actualName));
-    }
-
-    protected void renameContainer(final OpheliaTestUser renameAs,
-            final Long localContainerId, final String renameTo) {
-        final Container container = readContainer(renameAs, localContainerId);
-        logger.logInfo("Renaming container \"{0}\" as \"{1}\" to \"{2}\".",
-                container.getName(), renameAs.getSimpleUsername(), renameTo);
-        getContainerModel(renameAs).rename(localContainerId, renameTo);
     }
 
     /**
@@ -845,6 +927,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         }
 	}
 
+    protected String[] getInputFileMD5Checksums() {
+        final String[] inputFileMD5Checksums = new String[NUMBER_OF_INPUT_FILES];
+        System.arraycopy(super.getInputFileMD5Checksums(), 0, inputFileMD5Checksums, 0, NUMBER_OF_INPUT_FILES);
+        return inputFileMD5Checksums;
+    }
+
     /**
      * @see com.thinkparity.codebase.junitx.TestCase#getInputFileNames()
      *
@@ -865,12 +953,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, NUMBER_OF_INPUT_FILES);
 		return inputFiles;
 	}
-
-    protected String[] getInputFileMD5Checksums() {
-        final String[] inputFileMD5Checksums = new String[NUMBER_OF_INPUT_FILES];
-        System.arraycopy(super.getInputFileMD5Checksums(), 0, inputFileMD5Checksums, 0, NUMBER_OF_INPUT_FILES);
-        return inputFileMD5Checksums;
-    }
 
     protected InternalLibraryModel getLibraryModel(
             final OpheliaTestUser testUser) {
@@ -902,7 +984,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getScriptModel(testUser);
     }
 
-	protected InternalSessionModel getSessionModel(
+    protected InternalSessionModel getSessionModel(
             final OpheliaTestUser user) {
         return modelFactory.getSessionModel(user);
     }
@@ -920,7 +1002,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return modelFactory.getWorkspaceModel(testUser);
 	}
 
-    /**
+	/**
      * Determine if the session model is currently logged in.
      * 
      * @return True if it is.
@@ -1426,6 +1508,14 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     document.getName(), container.getName(), removeAs.getSimpleUsername());
             getContainerModel(removeAs).removeDocument(localContainerId, document.getId());
         }
+    }
+
+    protected void renameContainer(final OpheliaTestUser renameAs,
+            final Long localContainerId, final String renameTo) {
+        final Container container = readContainer(renameAs, localContainerId);
+        logger.logInfo("Renaming container \"{0}\" as \"{1}\" to \"{2}\".",
+                container.getName(), renameAs.getSimpleUsername(), renameTo);
+        getContainerModel(renameAs).rename(localContainerId, renameTo);
     }
 
     /**

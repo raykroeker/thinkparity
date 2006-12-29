@@ -163,6 +163,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
             .toString();
 
+    /** Sql to determine if the container version to artifact version exists. */
+    private static final String SQL_DOES_EXIST_VERSION =
+        new StringBuffer("select COUNT(ARTIFACT_ID) \"COUNT\" ")
+        .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
+        .append("where CVAVR.CONTAINER_ID=? ")
+        .append("and CVAVR.CONTAINER_VERSION_ID=? ")
+        .append("and CVAVR.ARTIFACT_ID=? ")
+        .append("and CVAVR.ARTIFACT_VERSION_ID=?")
+        .toString();
+
     /** Sql to extract the artifact version delta. */
     private static final String SQL_EXTRACT_DELTA =
         new StringBuffer("select CONTAINER_VERSION_DELTA_ID,DELTA,DELTA_ARTIFACT_ID,DELTA_ARTIFACT_VERSION_ID ")
@@ -493,7 +503,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDelta(com.thinkparity.codebase.model.container.ContainerVersionDelta)
      *
@@ -555,7 +565,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#createDraftArtifactRel(java.lang.Long, java.lang.Long, com.thinkparity.model.parity.model.container.ContainerDraftArtifactState)
      */
@@ -798,6 +808,35 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         } catch (final Throwable t) {
             session.rollback();
             throw translateError(t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#doesExistVersion(java.lang.Long,
+     *      java.lang.Long, java.lang.Long, java.lang.Long)
+     * 
+     */
+    public Boolean doesExistVersion(final Long containerId,
+            final Long containerVersionId, final Long artifactId,
+            final Long artifactVersionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_VERSION);
+            session.setLong(1, containerId);
+            session.setLong(2, containerVersionId);
+            session.setLong(3, artifactId);
+            session.setLong(3, artifactVersionId);
+            session.executeQuery();
+            session.nextResult();
+            if (0 == session.getInteger("COUNT")) {
+                return Boolean.FALSE;
+            } else if (1 == session.getInteger("COUNT")) {
+                return Boolean.TRUE;
+            } else {
+                throw new HypersonicException("Could not determine artifact existance.");
+            }
         } finally {
             session.close();
         }

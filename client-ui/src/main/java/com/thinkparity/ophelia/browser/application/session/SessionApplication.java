@@ -34,9 +34,6 @@ public class SessionApplication extends AbstractApplication {
             .append(Application.OPHELIA).append(" - ").append("Connect Timer")
             .toString();
 
-    /** The thinkParity <code>Connection</code>. */
-    private Connection connection;
-
     /** The connect <code>Timer</code>. */
     private Timer connectTimer;
 
@@ -86,7 +83,8 @@ public class SessionApplication extends AbstractApplication {
      * 
      */
     public Connection getConnection() {
-        return connection;
+        return getSessionModel().isLoggedIn() ? Connection.ONLINE
+                : Connection.OFFLINE;
     }
 
     /**
@@ -168,7 +166,6 @@ public class SessionApplication extends AbstractApplication {
      */
     void fireConnectionOffline() {
         logApiId();
-        connection = Connection.OFFLINE;
         connectLater();
     }
 
@@ -178,8 +175,6 @@ public class SessionApplication extends AbstractApplication {
      */
     void fireConnectionOnline() {
         logApiId();
-        connection = Connection.ONLINE;
-
         connectTimer.cancel();
         connectTimer = null;
     }
@@ -215,7 +210,11 @@ public class SessionApplication extends AbstractApplication {
                 try {
                     logVariable("isOnline()", isOnline());
                     if (isOnline()) {
-                        connect();
+                        if (Connection.OFFLINE == getConnection()) {
+                            connect();
+                        } else {
+                            logWarn("User already online.");
+                        }
                     } else {
                         logWarn("Server not online.");
                     }

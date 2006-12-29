@@ -177,6 +177,24 @@ public interface ContainerIOHandler {
     public void deleteVersion(final Long containerId, final Long versionId);
 
     /**
+     * Determine if an container version to artifact version relationship
+     * exists.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param containerVersionId
+     *            A container version id <code>Long</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param artifactVersionId
+     *            An artifact version id <code>Long</code>.
+     * @return True if the relationship exists; false otherwise.
+     */
+    public Boolean doesExistVersion(final Long containerId,
+            final Long containerVersionId, final Long artifactId,
+            final Long artifactVersionId);
+
+    /**
      * Read a container.
      * 
      * @param containerId

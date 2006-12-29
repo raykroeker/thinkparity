@@ -204,18 +204,6 @@ class LocalFile {
     }
 
     /**
-	 * Write the document local file.
-	 * 
-	 * @param bytes
-	 *            The bytes.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	void write(final byte[] bytes) throws FileNotFoundException, IOException {
-		FileUtil.writeBytes(file, bytes);
-	}
-
-    /**
      * Write the input stream to the local file.
      * 
      * @param is

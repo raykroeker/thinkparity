@@ -424,8 +424,13 @@ final class ArtifactModelImpl extends AbstractModelImpl {
         logger.logVariable("event", event);
         try {
             final Long artifactId = readId(event.getUniqueId());
-            final User user = getInternalUserModel().read(event.getJabberId());
-            artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+            if (null == artifactId) {
+                logger.logWarning("Artifact {0} no longer exists.", event
+                        .getUniqueId());
+            } else {
+                final User user = getInternalUserModel().read(event.getJabberId());
+                artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+            }
         } catch(final Throwable t) {
             throw translateError(t);
         }

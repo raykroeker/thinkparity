@@ -207,12 +207,10 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
-     * Determine if the artifact version exists.
+     * Determine if an artifact version exists.
      * 
      * @param artifactId
      *            An artifact id.
-     * @param versionId
-     *            An artifact version id.
      * @return True if the artifact version exists.
      */
     public Boolean doesVersionExist(final Long artifactId) {

@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,6 +38,81 @@ public class PublishTest extends ContainerTestCase {
 
     /** Create PublishTest. */
     public PublishTest() { super(NAME); }
+
+    /**
+     * The fourth test in the publish test case. Create a package; add a series
+     * of documents (>1); publish it to 2 users; modify a single document and
+     * publish to the same users.
+     * 
+     * The validation is about ensuring that the document state and content for
+     * the published to users is the same as for the publishing user.
+     */
+    public void test4() {
+        final Container c = createContainer(datum.junit, "Packages Test: Publish 4");
+        final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        modifyDocument(datum.junit, d_list_initial.get(0).getId());
+        publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+
+        final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        final List<Document> d_list = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
+
+        final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
+        final ContainerVersion cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
+        final List<Document> d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+
+        final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
+        final ContainerVersion cv_latest_y = readContainerLatestVersion(datum.junit_y, c_y.getId());
+        final List<Document> d_list_y = readContainerVersionDocuments(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
+
+        assertSimilar("Container does not match expectation.", c, c_x);
+        assertSimilar("Container does not match expectation.", c, c_y);
+
+        assertSimilar("Container version does not match expectation.", cv_latest, cv_latest_x);
+        assertSimilar("Container version does not match expectation.", cv_latest, cv_latest_y);
+        
+        assertEquals("Document list size does not match expectation.", d_list.size(), d_list_x.size());
+        assertEquals("Document list size does not match expectation.", d_list.size(), d_list_y.size());
+
+        Document d, d_x, d_y;
+        DocumentVersion dv_latest, dv_latest_x, dv_latest_y;
+        InputStream is, is_x, is_y;
+        for (int i = 0; i < d_list.size(); i++) {
+            d = d_list.get(i);
+            d_x = d_list_x.get(i);
+            d_y = d_list_y.get(i);
+
+            assertSimilar("Document does not match expectation.", d, d_x);
+            assertSimilar("Document does not match expectation.", d, d_y);
+
+            dv_latest = getDocumentModel(datum.junit).readLatestVersion(d.getId());
+            dv_latest_x = getDocumentModel(datum.junit_x).readLatestVersion(d_x.getId());
+            dv_latest_y = getDocumentModel(datum.junit_y).readLatestVersion(d_y.getId());
+
+            assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_x);
+            assertSimilar("Document version does not match expectation.", dv_latest, dv_latest_y);
+
+            is = getDocumentModel(datum.junit).openVersionStream(d.getId(), dv_latest.getVersionId());
+            is_x = getDocumentModel(datum.junit_x).openVersionStream(d_x.getId(), dv_latest_x.getVersionId());
+            try {
+                assertEquals("Document version content does not match expectation.", is, is_x);
+            } catch (final IOException iox) {
+                fail(createFailMessage(iox));
+            }
+
+            is = getDocumentModel(datum.junit).openVersionStream(d.getId(), dv_latest.getVersionId());
+            is_y = getDocumentModel(datum.junit_y).openVersionStream(d_y.getId(), dv_latest_y.getVersionId());
+            try {
+                assertEquals("Document version content does not match expectation.", is, is_y);
+            } catch (final IOException iox) {
+                fail(createFailMessage(iox));
+            }
+        }
+    }
 
     /**
      * Test the publish api.

@@ -308,7 +308,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final Document document;
             final DocumentVersion version;
             if (artifactModel.doesExist(event.getArtifactUniqueId())) {
-                logger.logWarning("Document {0} already exists.",
+                logger.logInfo("Document {0} already exists.",
                         event.getArtifactUniqueId());
                 document = read(event.getArtifactUniqueId());
                 if (artifactModel.doesVersionExist(document.getId(),
@@ -317,8 +317,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                             "Document version {0}:{1} already exists.",
                             event.getArtifactUniqueId(), event.getArtifactVersionId());
                     version = readVersion(document.getId(), event.getArtifactVersionId());
-                }
-                else {
+                } else {
                     final File streamFile = downloadStream(new DownloadMonitor() {
                         public void chunkDownloaded(final int chunkSize) {
                             logger.logInfo("Downloaded {0} bytes", chunkSize);
@@ -963,7 +962,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final Document document = create(uniqueId, name, createdBy, createdOn);
             // create local file
             final LocalFile localFile = getLocalFile(document);
-            localFile.write(StreamUtil.read(content));
+            localFile.write(content);
             return read(document.getId());
         } catch (final Throwable t) {
             throw translateError(t);

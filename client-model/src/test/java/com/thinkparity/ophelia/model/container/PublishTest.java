@@ -60,14 +60,17 @@ public class PublishTest extends ContainerTestCase {
         datum.waitForEvents();
 
         final ContainerVersion cv_latest = readContainerLatestVersion(datum.junit, c.getId());
+        final ContainerVersion cv_previous = readContainerPreviousVersion(datum.junit, c.getId(), cv_latest.getVersionId());
         final List<Document> d_list = readContainerVersionDocuments(datum.junit, c.getId(), cv_latest.getVersionId());
 
         final Container c_x = readContainer(datum.junit_x, c.getUniqueId());
         final ContainerVersion cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
+        final ContainerVersion cv_previous_x = readContainerPreviousVersion(datum.junit_x, c.getId(), cv_latest.getVersionId());
         final List<Document> d_list_x = readContainerVersionDocuments(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
 
         final Container c_y = readContainer(datum.junit_y, c.getUniqueId());
         final ContainerVersion cv_latest_y = readContainerLatestVersion(datum.junit_y, c_y.getId());
+        final ContainerVersion cv_previous_y = readContainerPreviousVersion(datum.junit_y, c.getId(), cv_latest.getVersionId());
         final List<Document> d_list_y = readContainerVersionDocuments(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
 
         assertSimilar("Container does not match expectation.", c, c_x);

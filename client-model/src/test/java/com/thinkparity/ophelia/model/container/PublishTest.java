@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.User;
@@ -111,6 +112,39 @@ public class PublishTest extends ContainerTestCase {
             } catch (final IOException iox) {
                 fail(createFailMessage(iox));
             }
+        }
+
+
+        final List<DocumentVersion> dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
+        final Map<DocumentVersion, Delta> delta = getContainerModel(datum.junit).readDocumentVersionDeltas(c.getId(), cv_latest.getVersionId(), cv_previous.getVersionId());
+        final List<DocumentVersion> dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        final Map<DocumentVersion, Delta> delta_x = getContainerModel(datum.junit_x).readDocumentVersionDeltas(c_x.getId(), cv_latest_x.getVersionId(), cv_previous_x.getVersionId());
+        final List<DocumentVersion> dv_list_y = readContainerVersionDocumentVersions(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
+        final Map<DocumentVersion, Delta> delta_y = getContainerModel(datum.junit_y).readDocumentVersionDeltas(c_y.getId(), cv_latest_y.getVersionId(), cv_previous_y.getVersionId());
+
+        
+        assertEquals("Differences between versions do not match expectation.", dv_list.size(), dv_list_x.size());
+        assertEquals("Differences between versions do not match expectation.", dv_list.size(), dv_list_y.size());
+
+        assertEquals("Differences between versions do not match expectation.", delta.size(), delta_x.size());
+        assertEquals("Differences between versions do not match expectation.", delta.size(), delta_y.size());
+
+        DocumentVersion dv, dv_x, dv_y;
+        Delta del, del_x, del_y;
+        for (int i = 0; i < dv_list.size(); i++) {
+            dv = dv_list.get(i);
+            dv_x = dv_list_x.get(i);
+            dv_y = dv_list_y.get(i);
+
+            assertSimilar("Document version does not match expectation.", dv, dv_x);
+            assertSimilar("Document version does not match expectation.", dv, dv_y);
+            
+            del = delta.get(dv);
+            del_x = delta_x.get(dv_x);
+            del_y = delta_y.get(dv_y);
+
+            assertEquals("Document version delta info does not match expectation.", del, del_x);
+            assertEquals("Document version delta info does not match expectation.", del, del_y);
         }
     }
 

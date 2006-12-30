@@ -1353,6 +1353,24 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Read the previous container version.
+     * 
+     * @param readAs
+     *            An <code>OpheliaTestUser</code> to read as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to readAs.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    protected ContainerVersion readContainerPreviousVersion(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long versionId) {
+        return getContainerModel(readAs).readPreviousVersion(localContainerId,
+                versionId);
+    }
+
+    /**
      * Read the documents for a version.
      * 
      * @param readAs

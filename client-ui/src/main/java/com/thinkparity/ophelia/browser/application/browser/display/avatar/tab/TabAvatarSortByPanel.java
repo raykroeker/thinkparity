@@ -169,7 +169,7 @@ public final class TabAvatarSortByPanel extends AbstractJPanel {
     }
     
     /**
-     * Obtain aan icon for an ordering.
+     * Obtain an icon for an ordering.
      * 
      * @param ordering
      *            An <code>Ordering</code>.

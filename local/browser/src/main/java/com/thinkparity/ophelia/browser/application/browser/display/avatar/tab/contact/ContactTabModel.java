@@ -4,18 +4,13 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -24,8 +19,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -33,8 +26,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
-import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 import com.thinkparity.ophelia.model.contact.OutgoingInvitation;
 
@@ -50,24 +41,6 @@ public final class ContactTabModel extends TabPanelModel implements
     /** The <code>ContactTabActionDelegate</code>. */
     private final ContactTabActionDelegate actionDelegate;
 
-    /** The application. */
-    private final Browser browser;
-
-    /** The contact model's expanded state map. */
-    private final Map<TabPanel, Boolean> expandedState;
-
-    /** A list of filtered panels. */
-    private final List<TabPanel> filteredPanels;
-
-    /** The swing list model. */
-    private final DefaultListModel listModel;
-
-    /** A <code>JPanelLocalization</code>. */
-    private JPanelLocalization localization;
-
-    /** A list of all contacts. */
-    private final List<TabPanel> panels;
-
     /** The <code>ContactTabPopupDelegate</code>. */
     private final ContactTabPopupDelegate popupDelegate;
 
@@ -77,14 +50,8 @@ public final class ContactTabModel extends TabPanelModel implements
     /** A search result list of contact id <code>JabberId</code>. */
     private final List<JabberId> searchResults;
 
-    /** A <code>BrowserSession</code>. */
-    private BrowserSession session;
-
     /** A list of the current sort orderings. */
     private final List<SortBy> sortedBy;
-
-    /** A list of all visible cells. */
-    private final List<TabPanel> visiblePanels;
 
     /**
      * Create ContactTabModel.
@@ -93,15 +60,9 @@ public final class ContactTabModel extends TabPanelModel implements
     ContactTabModel() {
         super();
         this.actionDelegate = new ContactTabActionDelegate(this);
-        this.browser = getBrowser();
-        this.expandedState = new HashMap<TabPanel, Boolean>();
-        this.filteredPanels = new ArrayList<TabPanel>();
-        this.listModel = new DefaultListModel();
-        this.panels = new ArrayList<TabPanel>();
         this.popupDelegate= new ContactTabPopupDelegate(this);
         this.searchResults = new ArrayList<JabberId>();
         this.sortedBy = new ArrayList<SortBy>();
-        this.visiblePanels = new ArrayList<TabPanel>();
     }
 
     /**
@@ -128,15 +89,6 @@ public final class ContactTabModel extends TabPanelModel implements
             });
         }
         return sortBy;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     *
-     */
-    public void toggleExpansion(final TabPanel tabPanel) {
-        doToggleExpansion(tabPanel);
-        synchronize();
     }
 
     /**
@@ -172,16 +124,6 @@ public final class ContactTabModel extends TabPanelModel implements
         }
         logger.logDebug("Search expression:  {0}", searchExpression);
         logger.logDebug("{0} search result hits.", searchResults.size());
-    }
-
-    /**
-     * Obtain the swing list model.
-     * 
-     * @return The swing list model.
-     */
-    @Override
-    protected DefaultListModel getListModel() {
-        return listModel;
     }
 
     /**
@@ -231,84 +173,12 @@ public final class ContactTabModel extends TabPanelModel implements
     }
 
     /**
-     * Create a final list of contact cells and invitation cells. Apply the
-     * search results to the list.
-     * 
-     */
-    @Override
-    protected void synchronize() {
-        debug();
-        applyFilters();
-        applySort();
-        /* add the filtered panels the visibility list */
-        visiblePanels.clear();
-        for (final TabPanel filteredPanel : filteredPanels) {
-            visiblePanels.add(filteredPanel);
-        }
-        // add newly visible panels to the model; and set other panels
-        int listModelIndex;
-        for (int i = 0; i < visiblePanels.size(); i++) {
-            if (listModel.contains(visiblePanels.get(i))) {
-                listModelIndex = listModel.indexOf(visiblePanels.get(i));
-                /* the position of the panel in the model is identical to that
-                 * of the panel the list */
-                if (i == listModelIndex) {
-                    listModel.set(i, visiblePanels.get(i));
-                } else {
-                    listModel.remove(listModelIndex);
-                    listModel.add(i, visiblePanels.get(i));
-                }
-            } else {
-                listModel.add(i, visiblePanels.get(i));
-            }
-        }
-        // prune newly invisible panels from the model
-        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
-        listModel.copyInto(invisiblePanels);
-        for (int i = 0; i < invisiblePanels.length; i++) {
-            if (!visiblePanels.contains(invisiblePanels[i])) {
-                listModel.removeElement(invisiblePanels[i]);
-            }
-        }
-        debug();
-    }
-
-    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
      */
     ContactTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
-    }
-
-    /**
-     * Determine whether or not we are online.
-     * 
-     * @return True if we are online.
-     */
-    Boolean isOnline() {
-        return browser.getConnection() == Connection.ONLINE;
-    }
-
-    /**
-     * Set localization.
-     *
-     * @param localization
-     *		A JPanelLocalization.
-     */
-    void setLocalization(final JPanelLocalization localization) {
-        this.localization = localization;
-    }
-
-    /**
-     * Set the session.
-     * 
-     * @param session
-     *            A <code>BrowserSession</code>.
-     */
-    void setSession(final BrowserSession session) {
-        this.session = session;
     }
 
     void syncContact(final JabberId contactId, final Boolean remote) {
@@ -462,7 +332,7 @@ public final class ContactTabModel extends TabPanelModel implements
      * Apply a series of filters on the panels.
      * 
      */
-    private void applyFilters() {
+    protected void applyFilters() {
         filteredPanels.clear();
         if (isSearchApplied()) {
             TabPanel searchResultPanel;
@@ -490,7 +360,7 @@ public final class ContactTabModel extends TabPanelModel implements
      * Apply the sort to the filtered list of panels.
      *
      */
-    private void applySort() {
+    protected void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
         for (final SortBy sortBy : sortedBy) {
             comparator.add(sortBy);
@@ -525,55 +395,6 @@ public final class ContactTabModel extends TabPanelModel implements
             synchronize();
         }
     }
-
-    /**
-     * Clear all panels.
-     *
-     */
-    private void clearPanels() {
-        panels.clear();
-    }
-
-    /**
-     * Toggle the expansion of a single panel.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void doToggleExpansion(final TabPanel tabPanel) {
-        final ContactTabPanel contactTabPanel = (ContactTabPanel) tabPanel;
-        if (isExpanded(contactTabPanel)) {
-            // if the panel is already expanded; just collapse it
-            contactTabPanel.collapse();
-            expandedState.put(contactTabPanel, Boolean.FALSE);
-        } else {
-            // find the first expanded panel and collapse it
-            boolean didHit = false;
-            for (final TabPanel visiblePanel : visiblePanels) {
-                final ContactTabPanel otherTabPanel = (ContactTabPanel) visiblePanel;
-                if (isExpanded(otherTabPanel)) {
-                    otherTabPanel.addPropertyChangeListener("expanded",
-                            new PropertyChangeListener() {
-                                public void propertyChange(
-                                        final PropertyChangeEvent evt) {
-                                    otherTabPanel.removePropertyChangeListener("expanded", this);
-
-                                    contactTabPanel.expand();
-                                    expandedState.put(contactTabPanel, Boolean.TRUE);
-                                }
-                            });
-                    otherTabPanel.collapse();
-                    expandedState.put(otherTabPanel, Boolean.FALSE);
-                    didHit = true;
-                    break;
-                }
-            }
-            if (!didHit) {
-                contactTabPanel.expand();
-                expandedState.put(contactTabPanel, Boolean.TRUE);
-            }
-        }
-    }
     
     /**
      * Get the sort direction.
@@ -603,23 +424,6 @@ public final class ContactTabModel extends TabPanelModel implements
      */
     private String getString(final SortBy sortBy) {
         return localization.getString(sortBy);
-    }
-
-    /**
-     * Determine if a panel is expanded.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is expanded; false otherwise.
-     */
-    private boolean isExpanded(final TabPanel tabPanel) {
-        if (expandedState.containsKey(tabPanel)) {
-            return expandedState.get(tabPanel).booleanValue();
-        } else {
-            // NOTE the default panel expanded state can be changed here
-            expandedState.put(tabPanel, Boolean.FALSE);
-            return isExpanded(tabPanel);
-        }
     }
 
     /**

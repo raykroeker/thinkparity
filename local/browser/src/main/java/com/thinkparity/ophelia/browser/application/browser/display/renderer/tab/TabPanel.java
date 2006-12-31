@@ -29,4 +29,10 @@ public interface TabPanel {
      * @return A <code>PopupDelegate</code>.
      */
     public PopupDelegate getPopupDelegate();
+    
+    public void collapse(final boolean animate);
+    
+    public void expand(final boolean animate);
+    
+    public void setExpanded(final Boolean expanded);
 }

@@ -4,14 +4,11 @@
 package com.thinkparity.ophelia.browser.plugin.archive.tab;
 
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -22,7 +19,6 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.sort.DefaultComparator;
 import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy.SortDirection;
@@ -30,7 +26,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
-import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtensionModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
@@ -54,41 +49,18 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     /** The <code>ArchiveTabActionDelegate</code>. */
     private final ArchiveTabActionDelegate actionDelegate;
 
-    /** A list of the panels' expanded state. */
-    private final Map<TabPanel, Boolean> expandedState;
-
-    /** A list of panels passing through all filters. */
-    private final List<TabPanel> filteredPanels;
-
-    /** The list model. */
-    private final DefaultListModel listModel;
-
-    /** A list of the archived container panels. */
-    private final List<TabPanel> panels;
-
     /** The <code>ArchiveTabPopupDelegate</code>. */
     private final ArchiveTabPopupDelegate popupDelegate;
 
-    /** A <code>BrowserSession</code>. */
-    private BrowserSession session;
-
     /** The current ordering. */
     private final List<SortBy> sortedBy;
-
-    /** A list of all visible panels. */
-    private final List<TabPanel> visiblePanels;
 
     /** Create ArchiveTabModel. */
     ArchiveTabModel(final TabPanelExtension extension) {
         super(extension);
         this.actionDelegate = new ArchiveTabActionDelegate(this);
-        this.expandedState = new HashMap<TabPanel, Boolean>();
-        this.filteredPanels = new ArrayList<TabPanel>();
-        this.listModel = new DefaultListModel();
-        this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ArchiveTabPopupDelegate(this);
         this.sortedBy = new ArrayList<SortBy>();
-        this.visiblePanels = new ArrayList<TabPanel>();
     }
 
     /**
@@ -116,17 +88,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         }
         return sortBy;
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     *
-     */
-    @Override
-    public void toggleExpansion(final TabPanel tabPanel) {
-        doToggleExpansion(tabPanel);
-        synchronize();
-    }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#debug()
      * 
@@ -145,15 +107,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
-     */
-    @Override
-    protected DefaultListModel getListModel() {
-        debug();
-        return listModel;
-    }
-
-    /**
      * Initialize the model. This reads from the provider the initial archive
      * list.
      * 
@@ -166,48 +119,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
             addContainerPanel(container);
         }
         applySort(SortBy.CREATED_ON);
-        debug();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
-     *
-     */
-    @Override
-    protected void synchronize() {
-        debug();
-        applyFilters();
-        applySort();
-        /* add the filtered panels the visibility list */
-        visiblePanels.clear();
-        for (final TabPanel filteredPanel : filteredPanels) {
-            visiblePanels.add(filteredPanel);
-        }
-        // add newly visible panels to the model; and set other panels
-        int listModelIndex;
-        for (int i = 0; i < visiblePanels.size(); i++) {
-            if (listModel.contains(visiblePanels.get(i))) {
-                listModelIndex = listModel.indexOf(visiblePanels.get(i));
-                /* the position of the panel in the model is identical to that
-                 * of the panel the list */
-                if (i == listModelIndex) {
-                    listModel.set(i, visiblePanels.get(i));
-                } else {
-                    listModel.remove(listModelIndex);
-                    listModel.add(i, visiblePanels.get(i));
-                }
-            } else {
-                listModel.add(i, visiblePanels.get(i));
-            }
-        }
-        // prune newly invisible panels from the model
-        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
-        listModel.copyInto(invisiblePanels);
-        for (int i = 0; i < invisiblePanels.length; i++) {
-            if (!visiblePanels.contains(invisiblePanels[i])) {
-                listModel.removeElement(invisiblePanels[i]);
-            }
-        }
         debug();
     }
 
@@ -278,25 +189,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         final StringBuffer pattern = new StringBuffer("ArchiveTab.{0}");
         return getExtension().getLocalization().getString(
                 MessageFormat.format(pattern.toString(), sortBy));
-    }
-
-    /**
-     * Determine if the model is online.
-     * 
-     * @return True if the model is online.
-     */
-    Boolean isOnline() {
-        return Connection.ONLINE == super.getBrowser().getConnection();
-    }
-
-    /**
-     * Set the session.
-     * 
-     * @param session
-     *            A <code>BrowserSession</code>.
-     */
-    void setSession(final BrowserSession session) {
-        this.session = session;
     }
 
     /**
@@ -380,7 +272,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      * Apply a series of filters on the panels.
      * 
      */
-    private void applyFilters() {
+    protected void applyFilters() {
         filteredPanels.clear();
         filteredPanels.addAll(panels);
     }
@@ -389,7 +281,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      * Apply the sort to the filtered list of panels.
      *
      */
-    private void applySort() {
+    protected void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
         for (final SortBy sortBy : sortedBy) {
             comparator.add(sortBy);
@@ -397,76 +289,9 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         Collections.sort(filteredPanels, comparator);
     }
 
-    /**
-     * Clear all container and container version panels.
-     * 
-     */
-    private void clearPanels() {
-        panels.clear();
-    }
-
-    /**
-     * Toggle the expansion of a panel on and off. At the moment only
-     * single-panel expansion is enabled as well as containers only.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void doToggleExpansion(final TabPanel tabPanel) {
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        if (isExpanded(containerPanel)) {
-            // if the panel is already expanded; just collapse it
-            containerPanel.collapse();
-            expandedState.put(containerPanel, Boolean.FALSE);
-        } else {
-            // find the first expanded panel and collapse it
-            boolean didHit = false;
-            for (final TabPanel visiblePanel : visiblePanels) {
-                final ContainerPanel otherTabPanel = (ContainerPanel) visiblePanel;
-                if (isExpanded(otherTabPanel)) {
-                    otherTabPanel.addPropertyChangeListener("expanded",
-                            new PropertyChangeListener() {
-                                public void propertyChange(
-                                        final PropertyChangeEvent evt) {
-                                    otherTabPanel.removePropertyChangeListener("expanded", this);
-
-                                    containerPanel.expand();
-                                    expandedState.put(containerPanel, Boolean.TRUE);
-                                }
-                            });
-                    otherTabPanel.collapse();
-                    expandedState.put(otherTabPanel, Boolean.FALSE);
-                    didHit = true;
-                    break;
-                }
-            }
-            if (!didHit) {
-                containerPanel.expand();
-                expandedState.put(containerPanel, Boolean.TRUE);
-            }
-        }
-    }
-
     private <T extends User> T find(final List<T> users,
             final JabberId userId) {
         return users.get(USER_UTILS.indexOf(users, userId));
-    }
-
-    /**
-     * Determine if a panel is expanded.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is expanded; false otherwise.
-     */
-    private boolean isExpanded(final TabPanel tabPanel) {
-        if (expandedState.containsKey(tabPanel)) {
-            return expandedState.get(tabPanel).booleanValue();
-        } else {
-            // NOTE the default panel expanded state can be changed here
-            expandedState.put(tabPanel, Boolean.FALSE);
-            return isExpanded(tabPanel);
-        }
     }
 
     /**

@@ -351,9 +351,12 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     /**
      * Reload the panels display. The jpanel is revalidated.
      * 
+     * NOTE validate() is used rather than revalidate() so validation
+     * occurs immediately. From the perspective of the model, this means
+     * after synchronize() it is possible to call getBounds() on panels.
      */
     private void reloadPanels() {
-        tabJPanel.revalidate();
+        tabJPanel.validate();
         tabJPanel.repaint();
     }
 

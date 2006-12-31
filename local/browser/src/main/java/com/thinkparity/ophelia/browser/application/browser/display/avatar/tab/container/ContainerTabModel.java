@@ -9,25 +9,13 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.sort.DefaultComparator;
-import com.thinkparity.codebase.sort.StringComparator;
-import com.thinkparity.codebase.swing.dnd.TxUtils;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -35,14 +23,11 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-
-import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
-import com.thinkparity.ophelia.model.events.ContainerDraftListener;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.codebase.sort.DefaultComparator;
+import com.thinkparity.codebase.sort.StringComparator;
+import com.thinkparity.codebase.swing.dnd.TxUtils;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarSortByDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
@@ -54,7 +39,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
-import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
+import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
+import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * @author rob_masako@shaw.ca; raykroeker@gmail.com
@@ -74,26 +61,8 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** A <code>ContainerTabActionDelegate</code>. */
     private final ContainerTabActionDelegate actionDelegate;
 
-    /** An application. */
-    private final Browser browser;
-
     /** A way to lookup container ids from document ids. */
     private final Map<Long, Long> containerIdLookup;
-
-    /** A list of the container's expanded state. */
-    private final Map<TabPanel, Boolean> expandedState;
-
-    /** A list of panels passing through all filters. */
-    private final List<TabPanel> filteredPanels;
-
-    /** A list model. */
-    private final DefaultListModel listModel;
-
-    /** A <code>JPanelLocalization</code>. */
-    private JPanelLocalization localization;
-
-    /** A list of all panels. */
-    private final List<TabPanel> panels;
 
     /** A <code>ContainerTabPopupDelegate</code>. */
     private final ContainerTabPopupDelegate popupDelegate;
@@ -104,14 +73,8 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** A list search result container ids <code>Long</code>. */
     private final List<Long> searchResults;
 
-    /** A <code>BrowserSession</code>. */
-    private BrowserSession session;
-
     /** The current ordering. */
     private final List<SortBy> sortedBy;
-
-    /** A list of visible panels. */
-    private final List<TabPanel> visiblePanels;
 
     /**
      * Create ContainerModel.
@@ -120,16 +83,36 @@ public final class ContainerTabModel extends TabPanelModel implements
     ContainerTabModel() {
         super();
         this.actionDelegate = new ContainerTabActionDelegate(this);
-        this.browser = getBrowser();
         this.containerIdLookup = new HashMap<Long, Long>();
-        this.filteredPanels = new ArrayList<TabPanel>();
-        this.expandedState = new HashMap<TabPanel, Boolean>();
-        this.listModel = new DefaultListModel();
-        this.panels = new ArrayList<TabPanel>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.searchResults = new ArrayList<Long>();
         this.sortedBy = new Stack<SortBy>();
-        this.visiblePanels = new ArrayList<TabPanel>();
+    }
+    
+    /**
+     * Expand the panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param animate
+     *            Animate flag <code>Boolean</code>.           
+     */
+    void expandPanel(final Long containerId, final Boolean animate) {
+        final TabPanel tabPanel = (TabPanel)lookupPanel(containerId);
+        if (!isExpanded(tabPanel)) {
+            toggleExpansion(tabPanel, animate);
+        }
+    }
+    
+    /**
+     * Scroll the panel so it is visible.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void scrollPanelToVisible(final Long containerId) {
+        final ContainerPanel containerPanel = (ContainerPanel)lookupPanel(containerId);
+        containerPanel.scrollRectToVisible(containerPanel.getBounds());        
     }
 
     /**
@@ -158,17 +141,18 @@ public final class ContainerTabModel extends TabPanelModel implements
         return sortBy;
     }
 
+    
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
      */
-    public void toggleExpansion(final TabPanel tabPanel) {
+    @Override
+    public void toggleExpansion(TabPanel tabPanel, Boolean animate) {
         final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        doToggleExpansion(tabPanel);
-        /*
-         * we only want to synchronize the panel once; so we check first if we
-         * need/want to apply the seen flag.
-         */
+        doToggleExpansion(tabPanel, animate);
+        
+        // We only want to synchronize the panel once; so we check first if we
+        // need/want to apply the seen flag.
+         
         if (!containerPanel.getContainer().isSeen()) {
             browser.runApplyContainerFlagSeen(containerPanel.getContainer()
                     .getId());
@@ -177,7 +161,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             synchronize();
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
      * 
@@ -239,14 +223,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         }
         logger.logDebug("Search expression:  {0}", searchExpression);
         logger.logDebug("{0} search result hits.", searchResults.size());
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#getListModel()
-     */
-    @Override
-    protected DefaultListModel getListModel() {
-        return listModel;
     }
 
     /**
@@ -327,50 +303,6 @@ public final class ContainerTabModel extends TabPanelModel implements
             synchronize();
         }
     }
-    
-    /**
-     * Create the final list of container cells; container draft cells; draft
-     * document cells; container version cells and container version document
-     * cells. The search filter is also applied here.
-     * 
-     */
-    @Override
-    protected void synchronize() {
-        debug();
-        applyFilters();
-        applySort();
-        /* add the filtered panels the visibility list */
-        visiblePanels.clear();
-        for (final TabPanel filteredPanel : filteredPanels) {
-            visiblePanels.add(filteredPanel);
-        }
-        // add newly visible panels to the model; and set other panels
-        int listModelIndex;
-        for (int i = 0; i < visiblePanels.size(); i++) {
-            if (listModel.contains(visiblePanels.get(i))) {
-                listModelIndex = listModel.indexOf(visiblePanels.get(i));
-                /* the position of the panel in the model is identical to that
-                 * of the panel the list */
-                if (i == listModelIndex) {
-                    listModel.set(i, visiblePanels.get(i));
-                } else {
-                    listModel.remove(listModelIndex);
-                    listModel.add(i, visiblePanels.get(i));
-                }
-            } else {
-                listModel.add(i, visiblePanels.get(i));
-            }
-        }
-        // prune newly invisible panels from the model
-        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
-        listModel.copyInto(invisiblePanels);
-        for (int i = 0; i < invisiblePanels.length; i++) {
-            if (!visiblePanels.contains(invisiblePanels[i])) {
-                listModel.removeElement(invisiblePanels[i]);
-            }
-        }
-        debug();
-    }
 
     /**
      * Obtain the popup delegate.
@@ -379,24 +311,6 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     ContainerTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
-    }
-
-    /**
-     * Determine whether or not thinkParity is running in development mode.
-     * 
-     * @return True if thinkParity is running in development mode.
-     */
-    boolean isDevelopmentMode() {
-        return browser.isDevelopmentMode();
-    }
-
-    /**
-     * Determine whether or not the user is online.
-     * 
-     * @return True if the user is online.
-     */
-    Boolean isOnline() {
-        return browser.getConnection() == Connection.ONLINE;
     }
 
     /**
@@ -433,34 +347,14 @@ public final class ContainerTabModel extends TabPanelModel implements
         if (isExpanded(tabPanel))
             ((ContainerPanel) tabPanel).setDraftSelection();
     }
-
-    /**
-     * Set the model's localization.
-     * 
-     * @param localization
-     *            A <code>JPanelLocalization</code>.
-     */
-    void setLocalization(final JPanelLocalization localization) {
-        this.localization = localization;
-    }
-
-    /**
-     * Set the session.
-     * 
-     * @param session
-     *            A <code>BrowserSession</code>.
-     */
-    void setSession(final BrowserSession session) {
-        this.session = session;
-    }
-
+    
     /**
      * Synchronize the container in the display.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param remote
-     *            A remote event <code>Boolean</code> indicator.
+     *            A remote event <code>Boolean</code> indicator.             
      */
     void syncContainer(final Long containerId, final Boolean remote) {
         debug();
@@ -484,7 +378,9 @@ public final class ContainerTabModel extends TabPanelModel implements
                 addContainerPanel(0, container);
             }
         }
+        
         synchronize();
+        
         debug();
     }
 
@@ -555,7 +451,7 @@ public final class ContainerTabModel extends TabPanelModel implements
      * Apply a series of filters on the panels.
      * 
      */
-    private void applyFilters() {
+    protected void applyFilters() {
         filteredPanels.clear();
         if (isSearchApplied()) {
             TabPanel searchResultPanel;
@@ -583,7 +479,7 @@ public final class ContainerTabModel extends TabPanelModel implements
      * Apply the sort to the filtered list of panels.
      *
      */
-    private void applySort() {
+    protected void applySort() {
         final DefaultComparator<TabPanel> comparator = new DefaultComparator<TabPanel>();
         for (final SortBy sortBy : sortedBy) {
             comparator.add(sortBy);
@@ -635,51 +531,6 @@ public final class ContainerTabModel extends TabPanelModel implements
             return true;
         } else {
             return false;
-        }
-    }
-
-    private void clearPanels() {
-        panels.clear();
-    }
-
-    /**
-     * Toggle a panel's expansion.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     */
-    private void doToggleExpansion(final TabPanel tabPanel) {
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        if (isExpanded(containerPanel)) {
-            // if the panel is already expanded; just collapse it
-            containerPanel.collapse();
-            expandedState.put(containerPanel, Boolean.FALSE);
-        } else {
-            // find the first expanded panel and collapse it
-            boolean didHit = false;
-            for (final TabPanel visiblePanel : visiblePanels) {
-                final ContainerPanel otherTabPanel = (ContainerPanel) visiblePanel;
-                if (isExpanded(otherTabPanel)) {
-                    otherTabPanel.addPropertyChangeListener("expanded",
-                            new PropertyChangeListener() {
-                                public void propertyChange(
-                                        final PropertyChangeEvent evt) {
-                                    otherTabPanel.removePropertyChangeListener("expanded", this);
-
-                                    containerPanel.expand();
-                                    expandedState.put(containerPanel, Boolean.TRUE);
-                                }
-                            });
-                    otherTabPanel.collapse();
-                    expandedState.put(otherTabPanel, Boolean.FALSE);
-                    didHit = true;
-                    break;
-                }
-            }
-            if (!didHit) {
-                containerPanel.expand();
-                expandedState.put(containerPanel, Boolean.TRUE);
-            }
         }
     }
 
@@ -837,23 +688,6 @@ public final class ContainerTabModel extends TabPanelModel implements
                     } 
                 }
             }
-        }
-    }
-
-    /**
-     * Determine if a panel is expanded.
-     * 
-     * @param tabPanel
-     *            A <code>TabPanel</code>.
-     * @return True if the panel is expanded; false otherwise.
-     */
-    private boolean isExpanded(final TabPanel tabPanel) {
-        if (expandedState.containsKey(tabPanel)) {
-            return expandedState.get(tabPanel).booleanValue();
-        } else {
-            // NOTE the default panel expanded state can be changed here
-            expandedState.put(tabPanel, Boolean.FALSE);
-            return isExpanded(tabPanel);
         }
     }
 

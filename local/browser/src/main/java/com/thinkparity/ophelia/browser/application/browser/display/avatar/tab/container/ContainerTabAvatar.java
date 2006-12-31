@@ -6,11 +6,10 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Avatar<br>
@@ -48,9 +47,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireCreated(final ContainerEvent e) {
-        if (e.isRemote())
+        if (e.isRemote()) {
             removeFlagSeen(e);
-        sync(e);
+            sync(e);
+        } else {
+            getController().changeTab(AvatarId.TAB_CONTAINER);
+            sync(e);
+            model.expandPanel(e.getContainer().getId(), Boolean.FALSE);
+            setDraftSelection(e);
+            model.scrollPanelToVisible(e.getContainer().getId());
+        }
     }
 
     /**
@@ -198,8 +204,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      * 
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.
      */
     private void sync(final ContainerEvent e) {
         model.syncContainer(e.getContainer().getId(), e.isRemote());

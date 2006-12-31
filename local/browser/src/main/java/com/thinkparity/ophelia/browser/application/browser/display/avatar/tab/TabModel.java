@@ -80,7 +80,13 @@ public abstract class TabModel implements TabDelegate {
      * 
      */
     public void toggleExpansion(final TabPanel tabPanel) {}
-
+    
+    /**
+     * Apply a series of filters on the panels.
+     * 
+     */
+    protected void applyFilters() {}
+    
     /**
      * Apply an ordering to the tab.
      * 
@@ -96,6 +102,12 @@ public abstract class TabModel implements TabDelegate {
      *            A search expression <code>String</code>.
      */
     protected void applySearch(final String searchExpression) {}
+    
+    /**
+     * Apply the sort to the filtered list of panels.
+     *
+     */
+    protected void applySort() {}
 
     /**
      * Determine whether an import is possible.

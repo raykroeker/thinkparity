@@ -96,16 +96,16 @@ public class ContactTabPanel extends DefaultTabPanel {
      * Collapse the panel.
      *
      */
-    public void collapse() {
-        doCollapse(true);
+    public void collapse(final boolean animate) {
+        doCollapse(animate);
     }
 
     /**
      * Expand the panel.
      *
      */
-    public void expand() {
-        doExpand(true);
+    public void expand(final boolean animate) {
+        doExpand(animate);
     }
 
     /**

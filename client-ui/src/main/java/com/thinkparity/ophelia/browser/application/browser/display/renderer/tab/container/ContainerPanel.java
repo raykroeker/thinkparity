@@ -412,6 +412,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void doCollapse(final boolean animate) {
         if (animate) {
             final Dimension expandedPreferredSize = getPreferredSize();
+            expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
             setPreferredSize(expandedPreferredSize);
             animating = true;
             animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,

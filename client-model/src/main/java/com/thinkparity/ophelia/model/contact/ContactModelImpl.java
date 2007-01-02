@@ -677,14 +677,15 @@ class ContactModelImpl extends AbstractModelImpl<ContactListener> {
      *            A contact id.
      */
     private void deleteLocal(final JabberId contactId) {
+        // delete index
+        getIndexModel().deleteContact(contactId);
+        // delete emails
         final Contact contact = read(contactId);
         for (final EMail email : contact.getEmails()) {
             contactIO.deleteEmail(contact.getLocalId(), email);
         }
         // delete local
         contactIO.delete(contact.getLocalId());
-        // delete index
-        getIndexModel().deleteContact(contactId);
     }
 
     /**

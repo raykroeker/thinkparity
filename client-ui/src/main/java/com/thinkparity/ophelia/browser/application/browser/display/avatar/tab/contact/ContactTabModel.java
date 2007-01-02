@@ -44,12 +44,6 @@ public final class ContactTabModel extends TabPanelModel implements
     /** The <code>ContactTabPopupDelegate</code>. */
     private final ContactTabPopupDelegate popupDelegate;
 
-    /** A user search expression <code>String</code>. */
-    private String searchExpression;
-
-    /** A search result list of contact id <code>JabberId</code>. */
-    private final List<JabberId> searchResults;
-
     /** A list of the current sort orderings. */
     private final List<SortBy> sortedBy;
 
@@ -61,7 +55,6 @@ public final class ContactTabModel extends TabPanelModel implements
         super();
         this.actionDelegate = new ContactTabActionDelegate(this);
         this.popupDelegate= new ContactTabPopupDelegate(this);
-        this.searchResults = new ArrayList<JabberId>();
         this.sortedBy = new ArrayList<SortBy>();
     }
 
@@ -89,22 +82,6 @@ public final class ContactTabModel extends TabPanelModel implements
             });
         }
         return sortBy;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
-     *
-     */
-    @Override
-    protected void applySearch(final String searchExpression) {
-        debug();
-        if (searchExpression.equals(this.searchExpression)) {
-            return;
-        } else {
-            this.searchExpression = searchExpression;
-            applySearch();
-            synchronize();
-        }
     }
 
     /**
@@ -151,25 +128,6 @@ public final class ContactTabModel extends TabPanelModel implements
         }
         applySort(SortBy.NAME);
         debug();
-    }
-
-    /**
-     * Remove the search.
-     * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #applySearch(String)
-     */
-    @Override
-    protected void removeSearch() {
-        debug();
-        if (null == searchExpression) {
-            return;
-        } else {
-            searchExpression = null;
-            searchResults.clear();
-            synchronize();
-        }
     }
 
     /**
@@ -259,6 +217,27 @@ public final class ContactTabModel extends TabPanelModel implements
         debug();
 
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     */
+    @Override
+    protected TabPanel lookupPanel(final Object uniqueId) {
+        final JabberId contactId = (JabberId)uniqueId;
+        final int panelIndex = lookupIndex(contactId); 
+        if (-1 == panelIndex)
+            return null;
+        else
+            return panels.get(panelIndex);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     */
+    @Override
+    protected List<? extends Object> readSearchResults() {
+        return ((ContactProvider) contentProvider).search(searchExpression);
+    }
 
     /**
      * Add a contact to the end of the panels list.
@@ -329,34 +308,6 @@ public final class ContactTabModel extends TabPanelModel implements
     }
 
     /**
-     * Apply a series of filters on the panels.
-     * 
-     */
-    protected void applyFilters() {
-        filteredPanels.clear();
-        if (isSearchApplied()) {
-            TabPanel searchResultPanel;
-            for (final JabberId searchResult : searchResults) {
-                searchResultPanel = lookupPanel(searchResult);
-                if (!filteredPanels.contains(searchResultPanel))
-                    filteredPanels.add(searchResultPanel);
-            }
-        } else {
-            // no filter is applied
-            filteredPanels.addAll(panels);
-        }
-    }
-
-    /**
-     * Apply the search results.
-     *
-     */
-    private void applySearch() {
-        this.searchResults.clear();
-        this.searchResults.addAll(readSearchResults());
-    }
-
-    /**
      * Apply the sort to the filtered list of panels.
      *
      */
@@ -415,15 +366,6 @@ public final class ContactTabModel extends TabPanelModel implements
     }
 
     /**
-     * Determine if search is applied.
-     * 
-     * @return True if a search expression is set.
-     */
-    private boolean isSearchApplied() {
-        return null != searchExpression;
-    }
-
-    /**
      * Determine if an ordering is applied.
      * 
      * @param ordering
@@ -457,14 +399,6 @@ public final class ContactTabModel extends TabPanelModel implements
                     return i;
         }
         return -1;
-    }
-
-    private TabPanel lookupPanel(final JabberId contactId) {
-        final int panelIndex = lookupIndex(contactId);
-        if (-1 == panelIndex)
-            return null;
-        else
-            return panels.get(panelIndex);
     }
 
     private Contact read(final JabberId contactId) {
@@ -504,15 +438,6 @@ public final class ContactTabModel extends TabPanelModel implements
      */
     private List<OutgoingInvitation> readOutgoingInvitations() {
         return ((ContactProvider) contentProvider).readOutgoingInvitations();
-    }
-
-    /**
-     * Search for a list of contact jabber ids through the content provider.
-     * 
-     * @return A list of contact ids.
-     */
-    private List<JabberId> readSearchResults() {
-        return ((ContactProvider) contentProvider).search(searchExpression);
     }
 
     /**

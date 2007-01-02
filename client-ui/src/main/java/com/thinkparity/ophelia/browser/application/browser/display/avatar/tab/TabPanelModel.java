@@ -50,6 +50,12 @@ public abstract class TabPanelModel extends TabModel {
 
     /** A list of all panels. */
     protected final List<TabPanel> panels;
+    
+    /** A user search expression <code>String</code>. */
+    protected String searchExpression;
+    
+    /** A search result list of unique id <code>Object</code>. */
+    protected final List<Object> searchResults;
 
     /** A <code>BrowserSession</code>. */
     protected BrowserSession session;
@@ -69,6 +75,7 @@ public abstract class TabPanelModel extends TabModel {
         this.filteredPanels = new ArrayList<TabPanel>();
         this.listModel = new DefaultListModel();
         this.panels = new ArrayList<TabPanel>();
+        this.searchResults = new ArrayList<Object>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
     
@@ -132,58 +139,49 @@ public abstract class TabPanelModel extends TabModel {
     }
     
     /**
-     * Obtain the swing list model.
+     * Apply a series of filters on the panels.
      * 
-     * @return The swing list model.
      */
-    @Override
-    protected DefaultListModel getListModel() {
-        return listModel;
+    protected void applyFilters() {
+        filteredPanels.clear();
+        if (isSearchApplied()) {
+            TabPanel searchResultPanel;
+            for (final Object searchResult : searchResults) {
+                searchResultPanel = lookupPanel(searchResult);
+                if (!filteredPanels.contains(searchResultPanel))
+                    filteredPanels.add(searchResultPanel);
+            }
+        } else {
+            // no filter is applied
+            filteredPanels.addAll(panels);
+        }
     }
     
     /**
-     * Create a final list of contact cells and invitation cells. Apply the
-     * search results to the list.
-     * 
+     * Apply the search results.
+     *
+     */
+    private void applySearch() {
+        this.searchResults.clear();
+        this.searchResults.addAll(readSearchResults());
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
+     *
      */
     @Override
-    protected void synchronize() {
+    protected void applySearch(final String searchExpression) {
         debug();
-        applyFilters();
-        applySort();
-        /* add the filtered panels the visibility list */
-        visiblePanels.clear();
-        for (final TabPanel filteredPanel : filteredPanels) {
-            visiblePanels.add(filteredPanel);
+        if (searchExpression.equals(this.searchExpression)) {
+            return;
+        } else {
+            this.searchExpression = searchExpression;
+            applySearch();
+            synchronize();
         }
-        // add newly visible panels to the model; and set other panels
-        int listModelIndex;
-        for (int i = 0; i < visiblePanels.size(); i++) {
-            if (listModel.contains(visiblePanels.get(i))) {
-                listModelIndex = listModel.indexOf(visiblePanels.get(i));
-                /* the position of the panel in the model is identical to that
-                 * of the panel the list */
-                if (i == listModelIndex) {
-                    listModel.set(i, visiblePanels.get(i));
-                } else {
-                    listModel.remove(listModelIndex);
-                    listModel.add(i, visiblePanels.get(i));
-                }
-            } else {
-                listModel.add(i, visiblePanels.get(i));
-            }
-        }
-        // prune newly invisible panels from the model
-        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
-        listModel.copyInto(invisiblePanels);
-        for (int i = 0; i < invisiblePanels.length; i++) {
-            if (!visiblePanels.contains(invisiblePanels[i])) {
-                listModel.removeElement(invisiblePanels[i]);
-            }
-        }
-        debug();
     }
-        
+       
     /**
      * Clear all panels.
      *
@@ -191,7 +189,7 @@ public abstract class TabPanelModel extends TabModel {
     protected void clearPanels() {
         panels.clear();
     }
-    
+   
     /**
      * Toggle the expansion of a single panel.
      * 
@@ -245,6 +243,16 @@ public abstract class TabPanelModel extends TabModel {
     }
     
     /**
+     * Obtain the swing list model.
+     * 
+     * @return The swing list model.
+     */
+    @Override
+    protected DefaultListModel getListModel() {
+        return listModel;
+    }
+    
+    /**
      * Determine if a panel is expanded.
      * 
      * @param tabPanel
@@ -259,5 +267,91 @@ public abstract class TabPanelModel extends TabModel {
             expandedState.put(tabPanel, Boolean.FALSE);
             return isExpanded(tabPanel);
         }
-    } 
+    }
+        
+    /**
+     * Determine if search is applied.
+     * 
+     * @return True if a search expression is set.
+     */
+    protected boolean isSearchApplied() {
+        return null != searchExpression;
+    }
+    
+    /**
+     * Lookup the panel for the corresponding id.
+     * 
+     * @param uniqueId
+     *          The id.
+     * @return A <code>TabPanel</code>.
+     */
+    protected abstract TabPanel lookupPanel(final Object uniqueId);
+    
+    /**
+     * Search for a list of ids through the content provider.
+     * 
+     * @return A list of ids.
+     */
+    protected abstract List<? extends Object> readSearchResults();
+    
+    /**
+     * Remove the search.
+     * 
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #applySearch(String)
+     */
+    @Override
+    protected void removeSearch() {
+        debug();
+        if (null == searchExpression) {
+            return;
+        } else {
+            searchExpression = null;
+            searchResults.clear();
+            synchronize();
+        }
+    }
+    
+    /**
+     * Create a final list of panels. Apply the
+     * search results to the list.
+     */
+    @Override
+    protected void synchronize() {
+        debug();
+        applyFilters();
+        applySort();
+        /* add the filtered panels the visibility list */
+        visiblePanels.clear();
+        for (final TabPanel filteredPanel : filteredPanels) {
+            visiblePanels.add(filteredPanel);
+        }
+        // add newly visible panels to the model; and set other panels
+        int listModelIndex;
+        for (int i = 0; i < visiblePanels.size(); i++) {
+            if (listModel.contains(visiblePanels.get(i))) {
+                listModelIndex = listModel.indexOf(visiblePanels.get(i));
+                /* the position of the panel in the model is identical to that
+                 * of the panel the list */
+                if (i == listModelIndex) {
+                    listModel.set(i, visiblePanels.get(i));
+                } else {
+                    listModel.remove(listModelIndex);
+                    listModel.add(i, visiblePanels.get(i));
+                }
+            } else {
+                listModel.add(i, visiblePanels.get(i));
+            }
+        }
+        // prune newly invisible panels from the model
+        final TabPanel[] invisiblePanels = new TabPanel[listModel.size()];
+        listModel.copyInto(invisiblePanels);
+        for (int i = 0; i < invisiblePanels.length; i++) {
+            if (!visiblePanels.contains(invisiblePanels[i])) {
+                listModel.removeElement(invisiblePanels[i]);
+            }
+        }
+        debug();
+    }
 }

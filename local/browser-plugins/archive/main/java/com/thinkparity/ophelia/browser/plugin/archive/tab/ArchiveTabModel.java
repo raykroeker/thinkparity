@@ -202,6 +202,27 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         synchronize();
         debug();
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     */
+    @Override
+    protected TabPanel lookupPanel(final Object uniqueId) {
+        final UUID containerId = (UUID)uniqueId;
+        final int panelIndex = lookupIndex(containerId); 
+        if (-1 == panelIndex)
+            return null;
+        else
+            return panels.get(panelIndex);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     */
+    @Override
+    protected List<? extends Object> readSearchResults() {
+        return Collections.emptyList();
+    }
 
     /**
      * Add a container panel.
@@ -254,15 +275,6 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         panels.add(index, toDisplay(container, find(team, container
                 .getCreatedBy()), new DraftView(), latestVersion, versions, documentViews,
                 publishedTo, publishedBy, team));
-    }
-
-    /**
-     * Apply a series of filters on the panels.
-     * 
-     */
-    protected void applyFilters() {
-        filteredPanels.clear();
-        filteredPanels.addAll(panels);
     }
 
     /**

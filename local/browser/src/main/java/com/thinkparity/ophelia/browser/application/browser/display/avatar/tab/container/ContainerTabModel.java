@@ -68,12 +68,6 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** A <code>ContainerTabPopupDelegate</code>. */
     private final ContainerTabPopupDelegate popupDelegate;
 
-    /** A user search expression <code>String</code>. */
-    private String searchExpression;
-
-    /** A list search result container ids <code>Long</code>. */
-    private final List<Long> searchResults;
-
     /** The current ordering. */
     private final List<SortBy> sortedBy;
 
@@ -86,7 +80,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         this.actionDelegate = new ContainerTabActionDelegate(this);
         this.containerIdLookup = new HashMap<Long, Long>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
-        this.searchResults = new ArrayList<Long>();
         this.sortedBy = new Stack<SortBy>();
     }
     
@@ -155,22 +148,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         if (!containerPanel.getContainer().isSeen()) {
             browser.runApplyContainerFlagSeen(containerPanel.getContainer().getId());
             syncContainer(containerPanel.getContainer().getId(), Boolean.FALSE);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
-     * 
-     */
-    @Override
-    protected void applySearch(final String searchExpression) {
-        debug();
-        if (searchExpression.equals(this.searchExpression)) {
-            return;
-        } else {
-            this.searchExpression = searchExpression;
-            applySearch();
-            synchronize();
         }
     }
     
@@ -282,24 +259,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         browser.runDisplayContainerSeenFlagInfo();
         debug();
     }
-    
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#removeSearch()
-     * 
-     */
-    @Override
-    protected void removeSearch() {
-        debug();
-        // if the member search expression is already null; then there is no
-        // search applied -> do nothing
-        if (null == searchExpression) {
-            return;
-        } else {
-            searchExpression = null;
-            searchResults.clear();
-            synchronize();
-        }
-    }
 
     /**
      * Obtain the popup delegate.
@@ -394,6 +353,27 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
+     */
+    @Override
+    protected TabPanel lookupPanel(final Object uniqueId) {
+        final Long containerId = (Long)uniqueId;
+        final int panelIndex = lookupIndex(containerId); 
+        if (-1 == panelIndex)
+            return null;
+        else
+            return panels.get(panelIndex);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#readSearchResults()
+     */
+    @Override
+    protected List<? extends Object> readSearchResults() {
+        return ((ContainerProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
      * Add a container panel. This will read the container's versions and add
      * the appropriate version panel as well.
      * 
@@ -442,34 +422,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         panels.add(index, toDisplay(container, draftView, latestVersion,
                 versions, documentViews, publishedTo, publishedBy,
                 readTeam(container.getId())));
-    }
-
-    /**
-     * Apply a series of filters on the panels.
-     * 
-     */
-    protected void applyFilters() {
-        filteredPanels.clear();
-        if (isSearchApplied()) {
-            TabPanel searchResultPanel;
-            for (final Long searchResult : searchResults) {
-                searchResultPanel = lookupPanel(searchResult);
-                if (!filteredPanels.contains(searchResultPanel))
-                    filteredPanels.add(searchResultPanel);
-            }
-        } else {
-            // no filter is applied
-            filteredPanels.addAll(panels);
-        }
-    }
-
-    /**
-     * Apply the search results.
-     *
-     */
-    private void applySearch() {
-        this.searchResults.clear();
-        this.searchResults.addAll(readSearchResults());
     }
 
     /**
@@ -677,15 +629,6 @@ public final class ContainerTabModel extends TabPanelModel implements
     }
 
     /**
-     * Determine if a search is applied by checking the search expression.
-     * 
-     * @return True if the search expression is not null.
-     */
-    private boolean isSearchApplied() {
-        return null != searchExpression;
-    }
-
-    /**
      * Determine if the session draft monitor is set for the container.
      * 
      * @param containerId
@@ -724,21 +667,6 @@ public final class ContainerTabModel extends TabPanelModel implements
                     .getId().equals(containerId))
                 return i;
         return -1;
-    }
-
-    /**
-     * Lookup the panel for the corresponding container id.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>TabPanel</code>.
-     */
-    private TabPanel lookupPanel(final Long containerId) {
-        final int panelIndex = lookupIndex(containerId); 
-        if (-1 == panelIndex)
-            return null;
-        else
-            return panels.get(panelIndex);
     }
 
     /**
@@ -832,15 +760,6 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private Profile readProfile() {
         return ((ContainerProvider) contentProvider).readProfile();
-    }
-
-    /**
-     * Search for a list of container ids through the content provider.
-     * 
-     * @return A list of container ids.
-     */
-    private List<Long> readSearchResults() {
-        return ((ContainerProvider) contentProvider).search(searchExpression);
     }
 
     /**

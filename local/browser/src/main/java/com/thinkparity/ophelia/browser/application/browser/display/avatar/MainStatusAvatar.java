@@ -41,6 +41,9 @@ public class MainStatusAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
+    /** The saved LinkAction */
+    private LinkAction showAlwaysLinkAction = null;
+    
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;    
     
@@ -189,7 +192,7 @@ public class MainStatusAvatar extends Avatar {
      * @return The input link action.
      */
     private LinkAction getInputLinkAction() {
-        if(null == input) {
+        if (null == input) {
             return null;
         } else {
             return (LinkAction) ((Data) input).get(DataKey.LINK_ACTION);
@@ -202,11 +205,58 @@ public class MainStatusAvatar extends Avatar {
      * @return The input profile.
      */
     private Profile getInputProfile() {
-        if(null == input) {
+        if (null == input) {
             return null;
         } else {
             return (Profile) ((Data) input).get(DataKey.PROFILE);
         }
+    }
+        
+    /**
+     * Get the link action.
+     * 
+     * @return The LinkAction.
+     */
+    private LinkAction getLinkAction() {
+        LinkAction linkAction = null;
+        if (isInputLinkAction()) {
+            switch(getInputLinkAction().getLinkType()) {
+            case CLEAR_SHOW_ALWAYS:
+                showAlwaysLinkAction = null;
+                break;                
+            case SHOW_ALWAYS:
+                linkAction = getInputLinkAction();
+                showAlwaysLinkAction = linkAction;
+                break;
+            case SHOW_ONCE:
+                linkAction = getInputLinkAction();
+                break;
+            default:
+                throw Assert.createUnreachable("UNKNOWN LINK ACTION TYPE");
+            }
+        } else if (isShowAlwaysLinkAction()) {
+            linkAction = showAlwaysLinkAction;
+        }
+
+        return linkAction;
+    }
+    
+    /**
+     * Determine if there is an input link action.
+     * 
+     * @return A Boolean.
+     */
+    private Boolean isInputLinkAction() {
+        return (null != getInputLinkAction());
+    }
+    
+    /**
+     * Determine if there is a link action to show always.
+     * 
+     * @return A Boolean.
+     */
+    private Boolean isShowAlwaysLinkAction() {
+        return (null != showAlwaysLinkAction);
     }
 
     /** This method is called from within the constructor to
@@ -220,7 +270,10 @@ public class MainStatusAvatar extends Avatar {
         javax.swing.JLabel resizeJLabel;
 
         customJLabel = new javax.swing.JLabel();
+        linkIntroJLabel = new javax.swing.JLabel();
         linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+        link2IntroJLabel = new javax.swing.JLabel();
+        link2JLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         fillJLabel = new javax.swing.JLabel();
         userJLabel = new javax.swing.JLabel();
         connectionJLabel = new javax.swing.JLabel();
@@ -266,17 +319,23 @@ public class MainStatusAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(resizeJLabel)
-                    .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, resizeJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(customJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(linkIntroJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(linkJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fillJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 343, Short.MAX_VALUE)
+                        .add(link2IntroJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(link2JLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(fillJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 283, Short.MAX_VALUE)
                         .add(userJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(connectionJLabel)
@@ -287,12 +346,13 @@ public class MainStatusAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(customJLabel)
-                            .add(linkJLabel)
-                            .add(fillJLabel))
-                        .addContainerGap(57, Short.MAX_VALUE))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(customJLabel)
+                        .add(linkJLabel)
+                        .add(fillJLabel)
+                        .add(linkIntroJLabel)
+                        .add(link2IntroJLabel)
+                        .add(link2JLabel))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, resizeJLabel)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -303,7 +363,7 @@ public class MainStatusAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void linkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_linkJLabelMousePressed
-        getInputLinkAction().getAction().actionPerformed(
+        getLinkAction().getAction().actionPerformed(
                 new ActionEvent(e.getSource(), e.getID(),
                         "MainStatusAvatar", e.getWhen(), e.getModifiers()));
 
@@ -353,10 +413,12 @@ public class MainStatusAvatar extends Avatar {
      * Reload the link message.
      */
     private void reloadLinkAction() {
+        linkIntroJLabel.setText("");
         linkJLabel.setText("");
-        final LinkAction linkAction = getInputLinkAction();
+        final LinkAction linkAction = getLinkAction();
         if (null != linkAction) {
-            linkJLabel.setText(linkAction.getText());
+            linkIntroJLabel.setText(linkAction.getIntroText());
+            linkJLabel.setText(linkAction.getLinkText());
         }
     }
     
@@ -413,6 +475,9 @@ public class MainStatusAvatar extends Avatar {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel connectionJLabel;
     private javax.swing.JLabel customJLabel;
+    private javax.swing.JLabel link2IntroJLabel;
+    private javax.swing.JLabel link2JLabel;
+    private javax.swing.JLabel linkIntroJLabel;
     private javax.swing.JLabel linkJLabel;
     private javax.swing.JLabel userJLabel;
     // End of variables declaration//GEN-END:variables

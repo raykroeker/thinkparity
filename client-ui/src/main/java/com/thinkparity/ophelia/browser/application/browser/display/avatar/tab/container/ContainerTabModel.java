@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -112,7 +113,9 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     void scrollPanelToVisible(final Long containerId) {
         final ContainerPanel containerPanel = (ContainerPanel)lookupPanel(containerId);
-        containerPanel.scrollRectToVisible(containerPanel.getBounds());        
+        final Rectangle rectangle = containerPanel.getBounds();
+        rectangle.x = rectangle.y = 0;
+        containerPanel.scrollRectToVisible(rectangle);
     }
 
     /**
@@ -283,6 +286,7 @@ public final class ContainerTabModel extends TabPanelModel implements
             addContainerPanel(container);
         }
         applySort(SortBy.CREATED_ON);
+        browser.runDisplayContainerSeenFlagInfo();
         debug();
     }
     
@@ -495,24 +499,12 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     private void applySort(final SortBy sortBy) {
         debug();
-        // if the sorted by stack already contains the ordering do nothing
         if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                sortBy.ascending = false;
-
-                sortedBy.clear();
-                sortedBy.add(sortBy);
-            } else {
-                sortedBy.clear();
-            }
-            synchronize();
-        } else {
-            sortBy.ascending = true;
-
-            sortedBy.clear();
-            sortedBy.add(sortBy);
-            synchronize();
+            sortBy.ascending = !sortBy.ascending;
         }
+        sortedBy.clear();
+        sortedBy.add(sortBy);
+        synchronize();
     }
 
     /**
@@ -1014,7 +1006,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        BOOKMARK(true), CREATED_ON(true), NAME(true), OWNER(true), UPDATED_ON(true);
+        BOOKMARK(true), CREATED_ON(false), NAME(true), OWNER(true), UPDATED_ON(false);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;

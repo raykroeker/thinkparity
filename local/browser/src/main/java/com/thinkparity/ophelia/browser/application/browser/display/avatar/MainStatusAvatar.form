@@ -18,17 +18,23 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="resizeJLabel" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="resizeJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="customJLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="linkIntroJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="linkJLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fillJLabel" pref="45" max="32767" attributes="0"/>
-                      <EmptySpace pref="343" max="32767" attributes="0"/>
+                      <Component id="link2IntroJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="link2JLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fillJLabel" pref="87" max="32767" attributes="0"/>
+                      <EmptySpace pref="283" max="32767" attributes="0"/>
                       <Component id="userJLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="connectionJLabel" min="-2" max="-2" attributes="0"/>
@@ -43,13 +49,13 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="customJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="linkJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fillJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace pref="57" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="customJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="linkJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="fillJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="linkIntroJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="link2IntroJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="link2JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="resizeJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -76,6 +82,12 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>
     </Component>
+    <Component class="javax.swing.JLabel" name="linkIntroJLabel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+      </AuxValues>
+    </Component>
     <Component class="javax.swing.JLabel" name="linkJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -85,6 +97,19 @@
       <Events>
         <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="linkJLabelMousePressed"/>
       </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="link2IntroJLabel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="link2JLabel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>

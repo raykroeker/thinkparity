@@ -34,7 +34,7 @@ public class Export extends AbstractAction {
     public Export(final Browser browser) {
         super(ActionId.CONTAINER_EXPORT);
         this.browser = browser;
-        this.exportFileLink = new ExportFileLink();
+        this.exportFileLink = new ExportFileLink(localization.getString("ExportFileCreated"));
     }
 
     /**
@@ -47,7 +47,7 @@ public class Export extends AbstractAction {
         final File file = getContainerModel().export(directory, containerId);
 
         exportFileLink.setFile(file);
-        browser.fireContainerExported(exportFileLink);
+        browser.displayLink(exportFileLink); 
     }
     
     public enum DataKey { CONTAINER_ID }

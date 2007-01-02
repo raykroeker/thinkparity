@@ -510,6 +510,20 @@ public class Browser extends AbstractApplication {
     public void fireActionInvoked() {
         clearStatus();
     }
+    
+    /**
+     * Notify the application that the "seen" flag has been updated.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void fireArtifactSeenFlagUpdated(final Long artifactId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().fireSeenFlagUpdated(artifactId);
+            }
+        });    
+    }
 
     /**
      * Notify the application that a contact has been added.
@@ -559,13 +573,13 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Notify the application that the container or version has been exported.
+     * Display a link in the status area.
      * 
-     * @param directory
-     *            The directory.
+     * @param linkAction
+     *            A link action.    
      */
-    public void fireContainerExported(final LinkAction linkAction) {
-        setStatus("ExportFileCreated", null, linkAction);
+    public void displayLink(final LinkAction linkAction) {
+        setStatus(linkAction);
     }
 
     /**
@@ -1153,6 +1167,13 @@ public class Browser extends AbstractApplication {
     }
     
     /**
+     * Run the display container flag seen info action.
+     */
+    public void runDisplayContainerSeenFlagInfo() {
+        invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, Data.emptyData());   
+    }
+    
+    /**
 	 * Run the open document action.
 	 *
      * @param containerId
@@ -1500,6 +1521,20 @@ public class Browser extends AbstractApplication {
      */
     public void setCursor(Cursor cursor) {
         SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
+    }
+    
+    /**
+     * Show the container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void showContainer(final Long containerId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().showContainer(containerId);
+            }
+        });   
     }
 
     /**
@@ -1892,6 +1927,16 @@ public class Browser extends AbstractApplication {
      */
     private void setStatus(final String customMessage) {
         setStatus(customMessage, null, null);
+    }
+    
+    /**
+     * Set a custom status message with a link.
+     * 
+     * @param linkAction
+     *            A link action.    
+     */
+    private void setStatus(final LinkAction linkAction) {
+        setStatus("Empty", null, linkAction);
     }
 
     /**

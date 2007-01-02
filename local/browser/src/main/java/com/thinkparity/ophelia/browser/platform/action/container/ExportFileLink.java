@@ -7,8 +7,6 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.Action;
-
 import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -24,8 +22,12 @@ public class ExportFileLink implements LinkAction {
     /** The file */
     private File file;
     
-    public ExportFileLink() {
+    /** The intro text */
+    private String introText;
+    
+    public ExportFileLink(final String introText) {
         super();
+        this.introText = introText;
     }
     
     /**
@@ -41,7 +43,7 @@ public class ExportFileLink implements LinkAction {
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getAction()
      */
-    public Action getAction() {
+    public javax.swing.Action getAction() {
         return new javax.swing.AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 try {
@@ -52,11 +54,32 @@ public class ExportFileLink implements LinkAction {
             }
         };
     }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getActionName()
+     */
+    public String getActionName() {
+        return ("ExportFileLink");
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getIntroText()
+     */
+    public String getIntroText() {
+        return introText;
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkType()
+     */
+    public LinkType getLinkType() {
+        return LinkType.SHOW_ONCE;
+    }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getText()
+     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkText()
      */
-    public String getText() {
+    public String getLinkText() {
         return file.getName();
     }   
 }

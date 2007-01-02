@@ -45,6 +45,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel fillJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel tabJPanel = new javax.swing.JPanel();
+    private final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -227,7 +228,6 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         final javax.swing.JPanel headerJPanel = new javax.swing.JPanel();
         final javax.swing.JLabel paddingJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel orderByJLabel = new javax.swing.JLabel();
-        final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -354,10 +354,15 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      * NOTE validate() is used rather than revalidate() so validation
      * occurs immediately. From the perspective of the model, this means
      * after synchronize() it is possible to call getBounds() on panels.
+     * 
+     * It is also important to note that a revalidate() of tabJPanel
+     * will cause tabJScrollPane to validate, but if validate() is used
+     * on tabJPanel then the tabJScrollPane must also validate().
      */
     private void reloadPanels() {
         tabJPanel.validate();
-        tabJPanel.repaint();
+        tabJScrollPane.validate();
+        tabJPanel.repaint();        
     }
 
     /**

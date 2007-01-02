@@ -53,9 +53,8 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         } else {
             getController().changeTab(AvatarId.TAB_CONTAINER);
             sync(e);
-            model.expandPanel(e.getContainer().getId(), Boolean.FALSE);
+            showContainer(e.getContainer().getId());           
             setDraftSelection(e);
-            model.scrollPanelToVisible(e.getContainer().getId());
         }
     }
 
@@ -122,6 +121,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             removeFlagSeen(e);
         sync(e);
     }
+    
+    /**
+     * Notify the avatar that a "seen" flag has been updated.
+     * 
+     * @param artifactId
+     *            An artifactId <code>Long</code>.
+     */
+    public void fireSeenFlagUpdated(final Long artifactId) {
+        getController().runDisplayContainerSeenFlagInfo();
+    }
 
     /**
      * Notify the avatar that a team member has been added.
@@ -150,9 +159,22 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.     
      */
     public void fireUpdated(final ContainerEvent e) {
-        if (e.isRemote())
+        if (e.isRemote()) {
             removeFlagSeen(e);
+        }
         sync(e);
+    }
+    
+    /**
+     * Show the container (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void showContainer(final Long containerId) {
+        model.expandPanel(containerId, Boolean.FALSE);
+        model.scrollPanelToVisible(containerId); 
     }
 
     /**

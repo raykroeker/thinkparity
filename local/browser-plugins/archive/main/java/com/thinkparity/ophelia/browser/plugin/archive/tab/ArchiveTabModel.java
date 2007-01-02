@@ -130,24 +130,12 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
      */
     void applySort(final SortBy sortBy) {
         debug();
-        // if the sorted by stack already contains the ordering do nothing
         if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                sortBy.ascending = false;
-
-                sortedBy.clear();
-                sortedBy.add(sortBy);
-            } else {
-                sortedBy.clear();
-            }
-            synchronize();
-        } else {
-            sortBy.ascending = true;
-
-            sortedBy.clear();
-            sortedBy.add(sortBy);
-            synchronize();
+            sortBy.ascending = !sortBy.ascending;
         }
+        sortedBy.clear();
+        sortedBy.add(sortBy);
+        synchronize();
     }
 
     /**
@@ -445,7 +433,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        CREATED_ON(true), NAME(true), UPDATED_ON(true);
+        CREATED_ON(false), NAME(true), UPDATED_ON(false);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;

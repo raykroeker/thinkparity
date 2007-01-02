@@ -376,24 +376,12 @@ public final class ContactTabModel extends TabPanelModel implements
      */
     private void applySort(final SortBy sortBy) {
         debug();
-        // if the sorted by stack already contains the ordering do nothing
         if (isSortApplied(sortBy)) {
-            if (sortBy.ascending) {
-                sortBy.ascending = false;
-
-                sortedBy.clear();
-                sortedBy.add(sortBy);
-            } else {
-                sortedBy.clear();
-            }
-            synchronize();
-        } else {
-            sortBy.ascending = true;
-
-            sortedBy.clear();
-            sortedBy.add(sortBy);
-            synchronize();
+            sortBy.ascending = !sortBy.ascending;
         }
+        sortedBy.clear();
+        sortedBy.add(sortBy);
+        synchronize();
     }
     
     /**

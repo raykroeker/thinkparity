@@ -47,7 +47,7 @@ public class Export extends AbstractAction {
         final File file = getContainerModel().export(directory, containerId);
 
         exportFileLink.setFile(file);
-        browser.displayLink(exportFileLink); 
+        browser.setStatus(exportFileLink); 
     }
     
     public enum DataKey { CONTAINER_ID }

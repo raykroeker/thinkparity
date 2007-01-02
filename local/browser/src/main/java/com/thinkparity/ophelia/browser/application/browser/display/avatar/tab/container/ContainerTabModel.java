@@ -143,25 +143,18 @@ public final class ContainerTabModel extends TabPanelModel implements
         }
         return sortBy;
     }
-
-    
+   
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
      */
     @Override
     public void toggleExpansion(TabPanel tabPanel, Boolean animate) {
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        doToggleExpansion(tabPanel, animate);
+        super.toggleExpansion(tabPanel, animate);
         
-        // We only want to synchronize the panel once; so we check first if we
-        // need/want to apply the seen flag.
-         
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;         
         if (!containerPanel.getContainer().isSeen()) {
-            browser.runApplyContainerFlagSeen(containerPanel.getContainer()
-                    .getId());
+            browser.runApplyContainerFlagSeen(containerPanel.getContainer().getId());
             syncContainer(containerPanel.getContainer().getId(), Boolean.FALSE);
-        } else {
-            synchronize();
         }
     }
 

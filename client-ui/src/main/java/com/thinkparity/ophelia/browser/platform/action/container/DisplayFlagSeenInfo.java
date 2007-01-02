@@ -10,7 +10,7 @@ import java.util.List;
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -58,7 +58,7 @@ public class DisplayFlagSeenInfo extends AbstractAction {
 
         displayFlagSeenInfoLink.setFirstNotSeenContainerId(firstNotSeenContainerId);
         displayFlagSeenInfoLink.setNumberContainersNotSeen(countNotSeen);
-        browser.displayLink(displayFlagSeenInfoLink);                   
+        browser.setStatus(displayFlagSeenInfoLink);                   
     }
     
     public class DisplayFlagSeenInfoLink implements LinkAction {
@@ -104,7 +104,7 @@ public class DisplayFlagSeenInfo extends AbstractAction {
         public javax.swing.Action getAction() {
             return new javax.swing.AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
-                    browser.changeTab(AvatarId.TAB_CONTAINER);
+                    browser.selectTab(MainTitleAvatar.TabId.CONTAINER);
                     browser.showContainer(firstNotSeenContainerId);
                 }
             };

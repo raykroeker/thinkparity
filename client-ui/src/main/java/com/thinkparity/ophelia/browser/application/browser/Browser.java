@@ -159,27 +159,6 @@ public class Browser extends AbstractApplication {
             Assert.assertUnreachable("UNKNOWN TAB");
         }
 	}
-    
-    /**
-     * Change tabs. This displays the tab and also causes the
-     * tab buttons to update.
-     */
-    public void changeTab(final AvatarId avatarId) {
-        final Data data = (Data) ((Data) getMainTitleAvatar().getInput()).clone();
-        switch(avatarId) {
-        case TAB_CONTACT:
-            data.set(MainTitleAvatar.DataKey.TAB_ID, MainTitleAvatar.TabId.CONTACT);
-            break;
-        case TAB_CONTAINER:
-            data.set(MainTitleAvatar.DataKey.TAB_ID, MainTitleAvatar.TabId.CONTAINER);
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
-            break;
-           
-        }
-        getMainTitleAvatar().setInput(data);  
-    }
 
     /** Close the main window. */
     public void closeBrowserWindow() {
@@ -570,16 +549,6 @@ public class Browser extends AbstractApplication {
                 getTabContactAvatar().syncContact(contactId, Boolean.TRUE);
             }
         });
-    }
-    
-    /**
-     * Display a link in the status area.
-     * 
-     * @param linkAction
-     *            A link action.    
-     */
-    public void displayLink(final LinkAction linkAction) {
-        setStatus(linkAction);
     }
 
     /**
@@ -1512,6 +1481,16 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void saveState(final State state) {}
+        
+    /**
+     * Select a tab. This displays the tab and also causes the
+     * tab buttons to update.
+     */
+    public void selectTab(final MainTitleAvatar.TabId tabId) {
+        final Data data = (Data) ((Data) getMainTitleAvatar().getInput()).clone();
+        data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
+        getMainTitleAvatar().setInput(data); 
+    }
 
 	/**
      * Set the cursor.
@@ -1521,6 +1500,16 @@ public class Browser extends AbstractApplication {
      */
     public void setCursor(Cursor cursor) {
         SwingUtil.setCursor(mainWindow.getContentPane(), cursor);
+    }
+        
+    /**
+     * Set a custom status message with a link.
+     * 
+     * @param linkAction
+     *            A link action.    
+     */
+    public void setStatus(final LinkAction linkAction) {
+        setStatus("Empty", null, linkAction);
     }
     
     /**
@@ -1927,16 +1916,6 @@ public class Browser extends AbstractApplication {
      */
     private void setStatus(final String customMessage) {
         setStatus(customMessage, null, null);
-    }
-    
-    /**
-     * Set a custom status message with a link.
-     * 
-     * @param linkAction
-     *            A link action.    
-     */
-    private void setStatus(final LinkAction linkAction) {
-        setStatus("Empty", null, linkAction);
     }
 
     /**

@@ -342,9 +342,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
-                    data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
-                    mainTitleAvatar.setInput(data);   
+                    getBrowser().selectTab(tabId); 
                 }
                 @Override
                 public void mouseEntered(final MouseEvent e) {

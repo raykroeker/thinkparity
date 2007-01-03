@@ -26,6 +26,9 @@ public class MovableDropShadowBorder extends AbstractBorder {
     /** A screen-size image for storing screen captures. */
     private static BufferedImage mainImage;
     
+    /** The screen size. */
+    private static Dimension screenSize;
+    
     /** Dimensions of the shadow border. */
     private static int SHADOW_TOP;
     private static int SHADOW_LEFT;
@@ -33,7 +36,7 @@ public class MovableDropShadowBorder extends AbstractBorder {
     private static int SHADOW_RIGHT;
     
     static {
-        final Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         mainImage = new BufferedImage((int) screenSize.getWidth(),
                 (int) screenSize.getHeight(), BufferedImage.TYPE_INT_RGB);
         
@@ -331,35 +334,38 @@ public class MovableDropShadowBorder extends AbstractBorder {
             g2.setPaint(gPaintRight);
             g2.fillRect(x + width - outerRight - 1, y + outerTop + 2, 1, y + height - outerBottom - outerTop - 4);
                 
-            // Prepare subimages for the edges
-            leftImage = mainImage.getSubimage(point.x, point.y, outerLeft, height);
-            rightImage = mainImage.getSubimage(
-                    point.x + width - outerRight, point.y, outerRight, height);
-            topImage = mainImage.getSubimage(point.x + outerLeft, point.y,
-                    width - outerLeft - outerRight, outerTop);
-            bottomImage = mainImage.getSubimage(point.x + outerLeft,
-                    point.y + height - outerBottom, width - outerLeft - outerRight, outerBottom);
-
-            // Prepare subimages for the rounded corners
-            topLeftImage = mainImage.getSubimage(point.x + outerLeft,
-                    point.y + outerTop, 2, 2);
-            topRightImage = mainImage.getSubimage(point.x + width
-                    - outerRight - 3, point.y + outerTop, 2, 2);
-            bottomLeftImage = mainImage.getSubimage(point.x + outerLeft,
-                    point.y + height - outerBottom - 3, 2, 2);
-            bottomRightImage = mainImage.getSubimage(point.x + width
-                    - outerRight - 3, point.y + height - outerBottom - 3, 2, 2);
-            
-            // Draw the background images to the border.
-            g2.drawImage(leftImage, null, x, y);
-            g2.drawImage(rightImage, null, x + width - outerRight, y);
-            g2.drawImage(topImage, null, x + outerLeft, y);
-            g2.drawImage(bottomImage, null, x + outerLeft, y + height - outerBottom);
-            
-            g2.drawImage(topLeftImage, null, outerLeft, outerTop);
-            g2.drawImage(topRightImage, null, width - outerRight - 2, outerTop);
-            g2.drawImage(bottomLeftImage, null, outerLeft, height - outerBottom - 2);
-            g2.drawImage(bottomRightImage, null, width - outerRight - 2, height - outerBottom - 2);
+            // Prepare subimages for the edges.
+            // NOTE This is skipped if the component is larger than the screen.
+            if (isComponentOnScreen(x, y, width, height)) {
+                leftImage = mainImage.getSubimage(point.x, point.y, outerLeft, height);
+                rightImage = mainImage.getSubimage(
+                        point.x + width - outerRight, point.y, outerRight, height);
+                topImage = mainImage.getSubimage(point.x + outerLeft, point.y,
+                        width - outerLeft - outerRight, outerTop);
+                bottomImage = mainImage.getSubimage(point.x + outerLeft,
+                        point.y + height - outerBottom, width - outerLeft - outerRight, outerBottom);
+    
+                // Prepare subimages for the rounded corners
+                topLeftImage = mainImage.getSubimage(point.x + outerLeft,
+                        point.y + outerTop, 2, 2);
+                topRightImage = mainImage.getSubimage(point.x + width
+                        - outerRight - 3, point.y + outerTop, 2, 2);
+                bottomLeftImage = mainImage.getSubimage(point.x + outerLeft,
+                        point.y + height - outerBottom - 3, 2, 2);
+                bottomRightImage = mainImage.getSubimage(point.x + width
+                        - outerRight - 3, point.y + height - outerBottom - 3, 2, 2);
+                
+                // Draw the background images to the border.
+                g2.drawImage(leftImage, null, x, y);
+                g2.drawImage(rightImage, null, x + width - outerRight, y);
+                g2.drawImage(topImage, null, x + outerLeft, y);
+                g2.drawImage(bottomImage, null, x + outerLeft, y + height - outerBottom);
+                
+                g2.drawImage(topLeftImage, null, outerLeft, outerTop);
+                g2.drawImage(topRightImage, null, width - outerRight - 2, outerTop);
+                g2.drawImage(bottomLeftImage, null, outerLeft, height - outerBottom - 2);
+                g2.drawImage(bottomRightImage, null, width - outerRight - 2, height - outerBottom - 2);
+            }
             
             // Create composites
             final AlphaComposite[] composites = new AlphaComposite[] {
@@ -473,5 +479,13 @@ public class MovableDropShadowBorder extends AbstractBorder {
             line.setLine(x1+pixel*deltaX, y1+pixel*deltaY, x1+pixel*deltaX, y1+pixel*deltaY);
             g2.draw(line);  
         }
+    }
+    
+    private Boolean isComponentOnScreen(final int x, final int y, final int width, final int height) {
+        if (x < 0 || y < 0 || x + width >= screenSize.getWidth() || y + height >= screenSize.getHeight()) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }        
     }
 }

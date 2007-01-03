@@ -127,6 +127,7 @@ public final class ContactTabModel extends TabPanelModel implements
             addPanel(contact);
         }
         applySort(SortBy.NAME);
+        browser.runDisplayContactInvitationInfo();
         debug();
     }
 
@@ -223,8 +224,16 @@ public final class ContactTabModel extends TabPanelModel implements
      */
     @Override
     protected TabPanel lookupPanel(final Object uniqueId) {
-        final JabberId contactId = (JabberId)uniqueId;
-        final int panelIndex = lookupIndex(contactId); 
+        final int panelIndex;
+        if (uniqueId instanceof JabberId) {
+            final JabberId contactId = (JabberId)uniqueId;
+            panelIndex = lookupIndex(contactId); 
+        } else if (uniqueId instanceof Long) {
+            final Long invitationId = (Long)uniqueId;
+            panelIndex = lookupIndex(invitationId); 
+        } else {
+            throw Assert.createUnreachable("Unknown contact id type.");
+        }
         if (-1 == panelIndex)
             return null;
         else

@@ -605,7 +605,6 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationCreated(final Long invitationId,
             final Boolean remote) {
-        setStatus("IncomingContactInvitationCreated");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
@@ -1136,6 +1135,13 @@ public class Browser extends AbstractApplication {
     }
     
     /**
+     * Run the display contact invitation info action.
+     */
+    public void runDisplayContactInvitationInfo() {
+        invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, Data.emptyData());     
+    }
+    
+    /**
      * Run the display container flag seen info action.
      */
     public void runDisplayContainerSeenFlagInfo() {
@@ -1510,6 +1516,20 @@ public class Browser extends AbstractApplication {
      */
     public void setStatus(final LinkAction linkAction) {
         setStatus("Empty", null, linkAction);
+    }
+    
+    /**
+     * Show the contact invitation.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void showContactInvitation(final Long invitationId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showContactInvitation(invitationId);
+            }
+        });   
     }
     
     /**

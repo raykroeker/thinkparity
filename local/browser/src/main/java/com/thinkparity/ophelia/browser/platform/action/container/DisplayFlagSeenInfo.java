@@ -29,7 +29,7 @@ public class DisplayFlagSeenInfo extends AbstractAction {
     private final DisplayFlagSeenInfoLink displayFlagSeenInfoLink;
 
     /**
-     * Create a Create.
+     * Create a DisplayFlagSeenInfo.
      * 
      * @param browser
      *            The browser application.
@@ -81,7 +81,7 @@ public class DisplayFlagSeenInfo extends AbstractAction {
         /**
          * Set the container id.
          * 
-         * @param containerId
+         * @param firstNotSeenContainerId
          *            The container Id.
          */
         public void setFirstNotSeenContainerId(final Long firstNotSeenContainerId) {

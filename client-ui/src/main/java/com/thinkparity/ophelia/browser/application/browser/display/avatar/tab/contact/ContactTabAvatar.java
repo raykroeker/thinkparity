@@ -27,6 +27,18 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         model.setSession(getSession());
         setSortByDelegate(model);
     }
+    
+    /**
+     * Show the contact invitation (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void showContactInvitation(final Long invitationId) {
+        model.expandPanel(invitationId, Boolean.FALSE);
+        model.scrollPanelToVisible(invitationId); 
+    }
 
     /**
      * Synchronize the contact in the list, for example if it is deleted.
@@ -51,6 +63,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     public void syncIncomingInvitation(final Long invitationId,
             final Boolean remote) {
         model.syncIncomingInvitation(invitationId, remote);
+        getController().runDisplayContactInvitationInfo();
     }
 
     /**

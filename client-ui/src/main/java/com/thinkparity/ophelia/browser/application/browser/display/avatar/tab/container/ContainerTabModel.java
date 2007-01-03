@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
-import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -81,34 +80,6 @@ public final class ContainerTabModel extends TabPanelModel implements
         this.containerIdLookup = new HashMap<Long, Long>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.sortedBy = new Stack<SortBy>();
-    }
-    
-    /**
-     * Expand the panel.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param animate
-     *            Animate flag <code>Boolean</code>.           
-     */
-    void expandPanel(final Long containerId, final Boolean animate) {
-        final TabPanel tabPanel = (TabPanel)lookupPanel(containerId);
-        if (!isExpanded(tabPanel)) {
-            toggleExpansion(tabPanel, animate);
-        }
-    }
-    
-    /**
-     * Scroll the panel so it is visible.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    void scrollPanelToVisible(final Long containerId) {
-        final ContainerPanel containerPanel = (ContainerPanel)lookupPanel(containerId);
-        final Rectangle rectangle = containerPanel.getBounds();
-        rectangle.x = rectangle.y = 0;
-        containerPanel.scrollRectToVisible(rectangle);
     }
 
     /**

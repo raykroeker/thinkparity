@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -80,6 +82,21 @@ public abstract class TabPanelModel extends TabModel {
     }
     
     /**
+     * Expand the panel.
+     * 
+     * @param uniqueId
+     *            A unique id <code>Object</code>.
+     * @param animate
+     *            Animate flag <code>Boolean</code>.           
+     */
+    public void expandPanel(final Object uniqueId, final Boolean animate) {
+        final TabPanel tabPanel = (TabPanel)lookupPanel(uniqueId);
+        if (!isExpanded(tabPanel)) {
+            toggleExpansion(tabPanel, animate);
+        }
+    }
+    
+    /**
      * Determine whether or not thinkParity is running in development mode.
      * 
      * @return True if thinkParity is running in development mode.
@@ -95,6 +112,19 @@ public abstract class TabPanelModel extends TabModel {
      */
     public Boolean isOnline() {
         return browser.getConnection() == Connection.ONLINE;
+    }
+    
+    /**
+     * Scroll the panel so it is visible.
+     * 
+     * @param uniqueId
+     *            A unique id <code>Object</code>.
+     */
+    public void scrollPanelToVisible(final Object uniqueId) {
+        final JComponent panel = (JComponent)lookupPanel(uniqueId);
+        final Rectangle rectangle = panel.getBounds();
+        rectangle.x = rectangle.y = 0;
+        panel.scrollRectToVisible(rectangle);
     }
     
     /**

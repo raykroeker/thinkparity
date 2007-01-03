@@ -111,6 +111,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_DELETE_OUTGOING_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingInvitation(browser);
             break;
+        case CONTACT_DISPLAY_INVITATION_INFO:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo(browser);
+            break;
 		case CONTACT_READ:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Read(browser);
             break;

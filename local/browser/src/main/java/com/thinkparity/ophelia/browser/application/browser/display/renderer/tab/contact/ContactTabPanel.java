@@ -385,6 +385,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     private void doCollapse(final boolean animate) {
         if (animate) {
             final Dimension expandedPreferredSize = getPreferredSize();
+            expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
             setPreferredSize(expandedPreferredSize);
             animating = true;
             animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
@@ -412,6 +413,10 @@ public class ContactTabPanel extends DefaultTabPanel {
             if (isAncestorOf(collapsedJPanel))
                 remove(collapsedJPanel);
             add(collapsedJPanel, constraints.clone());
+            
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
 
             revalidate();
             repaint();
@@ -460,6 +465,9 @@ public class ContactTabPanel extends DefaultTabPanel {
             });
         } else {
             expanded = true;
+            final Dimension preferredSize = getPreferredSize();
+            preferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
+            setPreferredSize(preferredSize);
 
             revalidate();
             repaint();

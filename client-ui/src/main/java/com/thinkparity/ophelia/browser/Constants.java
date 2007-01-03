@@ -150,7 +150,7 @@ public final class Constants {
             }
         }
         public static final class PopupMenu {
-            public static final Integer MINIMUM_WIDTH = 125;
+            public static final Integer MINIMUM_WIDTH = 135;
         }
     }
     /** thinkParity directories. */

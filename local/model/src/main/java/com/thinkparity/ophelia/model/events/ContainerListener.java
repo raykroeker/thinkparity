@@ -78,6 +78,14 @@ public interface ContainerListener extends EventListener {
     public void documentRemoved(final ContainerEvent e);
 
     /**
+     * A document was reverted to its previous state.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void documentReverted(final ContainerEvent e);
+
+    /**
      * A container draft was created.
      * 
      * @param e

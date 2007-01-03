@@ -60,6 +60,12 @@ public class ContainerAdapter implements ContainerListener {
     public void documentRemoved(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#documentReverted(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    public void documentReverted(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#draftCreated(com.thinkparity.ophelia.model.events.ContainerEvent)
      * 
      */

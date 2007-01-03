@@ -53,6 +53,7 @@ import com.thinkparity.ophelia.model.container.monitor.PublishStage;
 import com.thinkparity.ophelia.model.document.DocumentHistoryItem;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.message.InternalSystemMessageModel;
 import com.thinkparity.ophelia.model.migrator.InternalLibraryModel;
 import com.thinkparity.ophelia.model.migrator.InternalReleaseModel;
@@ -1172,6 +1173,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         publishWithComment(publishAs, localContainerId, null, userNames);
     }
 
+    protected void addContainerListener(final OpheliaTestUser addAs,
+            final ContainerListener listener) {
+        logger.logInfo("Adding container listener for user \"{0}\".", addAs
+                .getSimpleUsername());
+        getContainerModel(addAs).addListener(listener);
+    }
+
+    protected void removeContainerListener(final OpheliaTestUser removeAs,
+            final ContainerListener listener) {
+        logger.logInfo("Removing container listener for user \"{0}\".",
+                removeAs.getSimpleUsername());
+        getContainerModel(removeAs).removeListener(listener);
+    }
+
     /**
      * Publish a container version. By providing a list of user names a filtered
      * list of contacts and team members is created. Only users whose names
@@ -1497,14 +1512,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      *            A local container id <code>Long</code> relative to removeAs.
      * @param localDocumentId
      *            A local document id <code>Long</code> relative to removeAs.
+     * @return The <code>Document</code> that was removed.
      */
-    protected void removeDocument(final OpheliaTestUser removeAs,
+    protected Document removeDocument(final OpheliaTestUser removeAs,
             final Long localContainerId, final Long localDocumentId) {
         final Document document = getDocumentModel(removeAs).read(localDocumentId);
         final Container container = getContainerModel(removeAs).read(localContainerId);
         logger.logInfo("Removing document \"{0}\" from container \"{1}\" as \"{2}.\"",
                 document.getName(), container.getName(), removeAs.getSimpleUsername());
         getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
+        return getDocumentModel(removeAs).read(localDocumentId);
     }
 
     protected void removeDocuments(final OpheliaTestUser removeAs,
@@ -1550,13 +1567,14 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         getContainerModel(restoreAs).restore(uniqueId);
     }
 
-    protected void revertDocument(final OpheliaTestUser revertAs,
+    protected Document revertDocument(final OpheliaTestUser revertAs,
             final Long localContainerId, final Long localDocumentId) {
         final Document document = getDocumentModel(revertAs).read(localDocumentId);
         final Container container = getContainerModel(revertAs).read(localContainerId);
         logger.logInfo("Reverting document \"{0}\" for container \"{1}\" as \"{2}.\"",
                 document.getName(), container.getName(), revertAs.getSimpleUsername());
         getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
+        return getDocumentModel(revertAs).read(localDocumentId);
     }
 
     /**

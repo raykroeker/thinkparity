@@ -104,29 +104,6 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         };
     }
 
-    /**
-     * Obtain a draft monitor. The monitor will be notified if and when a
-     * document's state is changed.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param listener
-     *            A <code>ContainerDraftListener</code>.
-     * @return A <code>ContainerDraftMonitor</code>.
-     */
-    ContainerDraftMonitor getDraftMonitor(final Long containerId,
-            final ContainerDraftListener listener) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        assertDraftExists("Cannot monitor a null draft.", containerId);
-        try {
-            return new ContainerDraftMonitor(internalModelFactory,
-                    readDraft(containerId), localEventGenerator, listener);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /** The artifact io layer. */
     private final ArtifactIOHandler artifactIO;
 
@@ -534,6 +511,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
             versions.add(version);
             return export(exportDirectory,
                     getNameGenerator().exportFileName(version), container, versions);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Obtain a draft monitor. The monitor will be notified if and when a
+     * document's state is changed.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param listener
+     *            A <code>ContainerDraftListener</code>.
+     * @return A <code>ContainerDraftMonitor</code>.
+     */
+    ContainerDraftMonitor getDraftMonitor(final Long containerId,
+            final ContainerDraftListener listener) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        assertDraftExists("Cannot monitor a null draft.", containerId);
+        try {
+            return new ContainerDraftMonitor(internalModelFactory,
+                    readDraft(containerId), localEventGenerator, listener);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -2077,6 +2077,12 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         containerIO.createDraftArtifactRel(containerId, document.getId(),
                 ContainerDraft.ArtifactState.NONE);
         getInternalDocumentModel().revertDraft(documentId);
+
+        final Container postRevertContainer = read(containerId);        
+        final ContainerDraft postRevertDraft = readDraft(containerId);
+        notifyDocumentReverted(postRevertContainer, postRevertDraft, document,
+                localEventGenerator);
+
     }
 
     /**
@@ -2962,6 +2968,29 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.documentRemoved(eventGenerator.generate(container,
+                        draft, document));
+            }
+        });
+    }
+
+    /**
+     * Fire a document reverted notification.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A draft.
+     * @param document
+     *            A document.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyDocumentReverted(final Container container,
+            final ContainerDraft draft, final Document document,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.documentReverted(eventGenerator.generate(container,
                         draft, document));
             }
         });

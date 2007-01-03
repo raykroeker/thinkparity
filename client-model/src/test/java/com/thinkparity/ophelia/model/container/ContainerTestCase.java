@@ -151,6 +151,9 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void documentRemoved(ContainerEvent e) {
             fail(getName() + " - Document removed event was fired.");
         }
+        public void documentReverted(ContainerEvent e) {
+            fail(getName() + " - Document reverted event was fired.");
+        }
         public void draftCreated(ContainerEvent e) {
             fail(getName() + " - Draft created event was fired.");
         }

@@ -343,8 +343,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
             final javax.swing.JLabel orderByJLabel = (javax.swing.JLabel) e.getSource();
             final TabAvatarSortByPanel sortByPanel = new TabAvatarSortByPanel();
             sortByPanel.setDelegate(sortByDelegate);
+            // The sortByPanel is shown slightly below the button
             sortByPanel.show(this, orderByJLabel.getX(),
-                    orderByJLabel.getY() + orderByJLabel.getHeight());
+                    orderByJLabel.getY() + orderByJLabel.getHeight() + 3);
         }
     }//GEN-LAST:event_orderByJLabelMousePressed
 

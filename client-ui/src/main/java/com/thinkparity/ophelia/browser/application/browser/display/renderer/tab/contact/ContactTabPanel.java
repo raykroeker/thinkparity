@@ -468,7 +468,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Extract addtional text from a user.
+     * Extract additional text from a user.
      * 
      * @param <T>
      *            A user type.
@@ -479,19 +479,19 @@ public class ContactTabPanel extends DefaultTabPanel {
     private <T extends User> String getAdditionalText(final T user) {
         final String pattern;
         final Object[] values;
-        if (contact.isSetTitle()) {
-            if (contact.isSetOrganization()) {
+        if (user.isSetTitle()) {
+            if (user.isSetOrganization()) {
                 pattern = "({0}, {1})";
-                values = new Object[] { contact.getTitle(),
-                        contact.getOrganization() };
+                values = new Object[] { user.getTitle(),
+                        user.getOrganization() };
             } else {
                 pattern = "({0})";
-                values = new Object[] { contact.getTitle() };
+                values = new Object[] { user.getTitle() };
             }
         } else {
-            if (contact.isSetOrganization()) {
+            if (user.isSetOrganization()) {
                 pattern = "({0})";
-                values = new Object[] { contact.getOrganization() };
+                values = new Object[] { user.getOrganization() };
             } else {
                 pattern = "";
                 values = new Object[] {};

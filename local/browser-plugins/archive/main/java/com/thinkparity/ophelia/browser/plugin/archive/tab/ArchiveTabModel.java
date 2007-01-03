@@ -445,7 +445,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        CREATED_ON(false), NAME(true), UPDATED_ON(false);
+        CREATED_ON(false), UPDATED_ON(false), NAME(true);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;

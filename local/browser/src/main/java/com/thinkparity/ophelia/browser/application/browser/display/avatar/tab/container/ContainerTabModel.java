@@ -889,7 +889,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        BOOKMARK(true), CREATED_ON(false), NAME(true), OWNER(true), UPDATED_ON(false);
+        BOOKMARK(true), CREATED_ON(false), UPDATED_ON(false), NAME(true), OWNER(true);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;

@@ -320,7 +320,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             });
             final Dimension minimumSize = jLabel.getMinimumSize();
             minimumSize.height = 25;
-            minimumSize.width = 76;
+            minimumSize.width = 77;
             this.jLabel.setMinimumSize(minimumSize);
         }
 
@@ -359,7 +359,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             });
             final Dimension minimumSize = jLabel.getMinimumSize();
             minimumSize.height = 25;
-            minimumSize.width = 76;
+            minimumSize.width = 77;
             this.jLabel.setMinimumSize(minimumSize);
         }       
 

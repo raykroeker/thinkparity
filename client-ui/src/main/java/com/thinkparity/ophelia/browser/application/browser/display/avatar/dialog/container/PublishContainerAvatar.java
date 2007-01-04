@@ -502,6 +502,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
     private void publishJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publishJButtonActionPerformed
         if (isInputValid()) {
+            publishJButton.setEnabled(false);
             publishContainer();
         }
     }//GEN-LAST:event_publishJButtonActionPerformed

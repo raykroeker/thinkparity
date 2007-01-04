@@ -90,9 +90,14 @@ public class PanelCellListModel {
     }
     
     public void initialize(final List<? extends Cell> cells) {
-        final int initialSelectedIndex;
+        int initialSelectedIndex;
         if (isSavedSelectedIndex()) {
             initialSelectedIndex = getSavedSelectedIndex();
+            // The only case where the selected index may not exist anymore
+            // is when the draft is deleted and there are no versions.            
+            if (initialSelectedIndex >= cells.size()) {
+                initialSelectedIndex = 0;
+            }
         } else {
             initialSelectedIndex = 0;
         }

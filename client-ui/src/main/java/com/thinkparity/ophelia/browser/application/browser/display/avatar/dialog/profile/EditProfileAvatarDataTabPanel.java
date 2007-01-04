@@ -75,7 +75,7 @@ public class EditProfileAvatarDataTabPanel extends EditProfileAvatarAbstractTabP
             final String name = extractInputName();
             final String city = SwingUtil.extract(cityJTextField);
             final Locale locale = (Locale) countryJComboBox.getSelectedItem();
-            final String country = locale.getCountry();
+            final String country = locale.getDisplayCountry();
             final String organization = extractInputOrganization();
             final String title = extractInputTitle();
             final String phone = extractInputOfficePhone();

@@ -73,6 +73,10 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireDocumentRemoved(e);
             }
             @Override
+            public void documentReverted(ContainerEvent e) {
+                avatar.fireDocumentReverted(e);
+            }
+            @Override
             public void draftCreated(final ContainerEvent e) {
                 avatar.fireDraftCreated(e);
             }

@@ -88,6 +88,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireDocumentRemoved(final ContainerEvent e) {
         sync(e);
     }
+    
+    /**
+     * Notify the avatar that a document has been reverted.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void fireDocumentReverted(final ContainerEvent e) {
+        sync(e);
+    }
 
     /**
      * Notify the avatar that the draft has been created.

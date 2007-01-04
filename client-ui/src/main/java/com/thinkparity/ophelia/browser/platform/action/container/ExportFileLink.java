@@ -80,6 +80,6 @@ public class ExportFileLink implements LinkAction {
      * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkText()
      */
     public String getLinkText() {
-        return file.getName();
+        return file.getAbsolutePath();
     }   
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -44,7 +45,6 @@ public class InternalContainerModel extends ContainerModel implements
             final Environment environment, final Workspace workspace) {
         super(environment, workspace);
     }
-
     /**
      * Determine whether or not a draft exists.
      * 
@@ -184,6 +184,22 @@ public class InternalContainerModel extends ContainerModel implements
      */
     public ContainerDraft readDraft(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
+    }
+
+    /**
+     * Read the list of published to artifact receipts.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     */
+    public List<ArtifactReceipt> readPublishedTo2(final Long containerId,
+            final Long versionId) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo2(containerId, versionId);
+        }
     }
 
     /**

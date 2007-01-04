@@ -566,7 +566,7 @@ public abstract class AbstractModelImpl<T extends EventListener>
      * @return True if a version exists; false otherwise.
      */
     protected Boolean doesExistLatestVersion(final Long artifactId) {
-        return doesExistVersion(artifactId, Versioning.START);
+        return getArtifactModel().doesVersionExist(artifactId);
     }
 
     /**

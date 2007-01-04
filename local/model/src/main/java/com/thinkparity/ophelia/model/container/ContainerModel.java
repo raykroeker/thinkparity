@@ -394,9 +394,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container id <code>Long</code>.
      * @param compareVersionId
      *            A container compare version id <code>Long</code>.
-     * @param compareToVersionId
-     *            A container compare to version id <code>Long</code>.
-     * @return A <code>ContainerVersionDelta</code>.
+     * @return A <code>Map</code> of <code>DocumentVersion</code>s to their
+     *         <code>Delta</code>s.
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long compareVersionId) {
@@ -415,7 +414,8 @@ public class ContainerModel extends AbstractModel<ContainerModelImpl> {
      *            A container compare version id <code>Long</code>.
      * @param compareToVersionId
      *            A container compare to version id <code>Long</code>.
-     * @return A <code>ContainerVersionDelta</code>.
+     * @return A <code>Map</code> of <code>DocumentVersion</code>s to their
+     *         <code>Delta</code>s.
      */
     public Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId,

@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.document.DocumentVersionContent;
@@ -302,9 +304,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 	}
 
     protected static void assertNotNull(final String assertion, final ArtifactReceipt receipt) {
-        assertNotNull(assertion + " [RECEIPT IS NULL]", (Object) receipt);
-        assertNotNull(assertion + " [RECEIPT'S ARTIFACT ID IS NULL]", receipt.getArtifactId());
-        assertNotNull(assertion + " [RECEIPT'S USER ID IS NULL]", receipt.getUserId());
+        assertNotNull(MessageFormat.format("{0}  Artifact receipt is null.", assertion), (Object) receipt);
+        assertNotNull(MessageFormat.format("{0}  Artifact receipt artifact id is null.", assertion), receipt.getArtifactId());
+        assertNotNull(MessageFormat.format("{0}  Artifact receipt published on is null.", assertion), receipt.getPublishedOn());
+        assertNotNull(MessageFormat.format("{0}  Artifact receipt user id.", assertion), receipt.getUserId());
     }
 
     /**
@@ -605,6 +608,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         this.userUtils = UserUtils.getInstance();
 	}
 
+    protected void addContainerListener(final OpheliaTestUser addAs,
+            final ContainerListener listener) {
+        logger.logInfo("Adding container listener for user \"{0}\".", addAs
+                .getSimpleUsername());
+        getContainerModel(addAs).addListener(listener);
+    }
+
     /**
      * Add a document.
      * 
@@ -682,6 +692,23 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         getContainerModel(archiveAs).archive(localContainerId);
     }
 
+
+    /**
+     * Assert that the expected artifact recceipt matches the actual; aside from
+     * the artifact id and received on date. This api is usd to compare receipts
+     * across users.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param expected
+     *            The expected <code>ArtifactReceipt</code>.
+     * @param actual
+     *            The actual <code>ArtifactReceipt</code>.
+     */
+    protected void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
+        assertEquals(MessageFormat.format("{0}  Artifact receipt published on does not match expectation.", assertion), expected.getPublishedOn(), actual.getPublishedOn());
+        assertEquals(MessageFormat.format("{0}.  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
+    }
 
     /**
      * Create a document.
@@ -985,7 +1012,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         return modelFactory.getScriptModel(testUser);
     }
 
-    protected InternalSessionModel getSessionModel(
+	protected InternalSessionModel getSessionModel(
             final OpheliaTestUser user) {
         return modelFactory.getSessionModel(user);
     }
@@ -1003,7 +1030,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
 		return modelFactory.getWorkspaceModel(testUser);
 	}
 
-	/**
+    /**
      * Determine if the session model is currently logged in.
      * 
      * @return True if it is.
@@ -1171,20 +1198,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     protected void publish(final OpheliaTestUser publishAs,
             final Long localContainerId, final String... userNames) {
         publishWithComment(publishAs, localContainerId, null, userNames);
-    }
-
-    protected void addContainerListener(final OpheliaTestUser addAs,
-            final ContainerListener listener) {
-        logger.logInfo("Adding container listener for user \"{0}\".", addAs
-                .getSimpleUsername());
-        getContainerModel(addAs).addListener(listener);
-    }
-
-    protected void removeContainerListener(final OpheliaTestUser removeAs,
-            final ContainerListener listener) {
-        logger.logInfo("Removing container listener for user \"{0}\".",
-                removeAs.getSimpleUsername());
-        getContainerModel(removeAs).removeListener(listener);
     }
 
     /**
@@ -1385,6 +1398,20 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 versionId);
     }
 
+    protected Map<DocumentVersion, Delta> readContainerVersionDeltas(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long compareVersionId) {
+        return getContainerModel(readAs).readDocumentVersionDeltas(
+                localContainerId, compareVersionId);
+    }
+
+    protected Map<DocumentVersion, Delta> readContainerVersionDeltas(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long compareVersionId, final Long compareToVersionId) {
+        return getContainerModel(readAs).readDocumentVersionDeltas(
+                localContainerId, compareVersionId, compareToVersionId);
+    }
+
     /**
      * Read the documents for a version.
      * 
@@ -1470,6 +1497,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 versionId);
     }
 
+    protected List<ArtifactReceipt> readPublishedTo2(
+            final OpheliaTestUser readAs, final Long localContainerId,
+            final Long versionId) {
+        return getContainerModel(readAs).readPublishedTo2(localContainerId,
+                versionId);
+    }
+
     /**
      * Read a team for an artifact.
      * 
@@ -1501,6 +1535,13 @@ public abstract class ModelTestCase extends OpheliaTestCase {
             teamIds.add(teamMember.getId());
         }
         return teamIds;
+    }
+
+    protected void removeContainerListener(final OpheliaTestUser removeAs,
+            final ContainerListener listener) {
+        logger.logInfo("Removing container listener for user \"{0}\".",
+                removeAs.getSimpleUsername());
+        getContainerModel(removeAs).removeListener(listener);
     }
 
     /**

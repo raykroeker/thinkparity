@@ -1709,6 +1709,58 @@ final class ContainerModelImpl extends AbstractModelImpl<ContainerListener> {
      * @param versionId
      *            A version id <code>Long</code>.
      * @param comparator
+     *            A <code>User</code> <code>Comparator</code>.
+     * @param filter
+     *            A <code>User</code> <code>Filter</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<ArtifactReceipt> readPublishedTo2(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        logger.logVariable("comparator", comparator);
+        logger.logVariable("filter", filter);
+        try {
+            final Map<User, ArtifactReceipt> publishedTo =
+                containerIO.readPublishedTo(containerId, versionId);
+            final List<User> users = new ArrayList<User>(publishedTo.size());
+            for (final Entry<User, ArtifactReceipt> entry : publishedTo.entrySet()) {
+                users.add(entry.getKey());
+            }
+            FilterManager.filter(users, filter);
+            Collections.sort(users, comparator);
+            final List<ArtifactReceipt> filteredPublishedTo = new ArrayList<ArtifactReceipt>();
+            for (final User user : users) {
+                filteredPublishedTo.add(publishedTo.get(user));
+            }
+            return filteredPublishedTo;
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    List<ArtifactReceipt> readPublishedTo2(final Long containerId, final Long versionId) {
+        logger.logApiId();
+        logger.logVariable("containerId", containerId);
+        logger.logVariable("versionId", versionId);
+        try {
+            return readPublishedTo2(containerId, versionId,
+                    defaultUserComparator, defaultUserFilter);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */

@@ -46,7 +46,7 @@ public class Ticket409Test extends TicketTestCase {
      * 
      */
     public void testTicket() {
-        final Container c = createContainer(datum.junit, "No such test case.");
+        final Container c = createContainer(datum.junit, "Ticket 409.");
         final List<Document> d_list_initial = addDocuments(datum.junit, c.getId());
         publish(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();

@@ -234,12 +234,13 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addSeparator();
         
         // Print
-        final Data printData = new Data(1);
-        printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-        add(ActionId.DOCUMENT_PRINT_DRAFT, ActionId.CONTAINER_PRINT_DRAFT, printData);
-        
-        addSeparator(ActionId.DOCUMENT_PRINT_DRAFT);
-        
+        if (draft.getDocuments().size() > 1) {
+            final Data printData = new Data(1);
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.DOCUMENT_PRINT_DRAFT, ActionId.CONTAINER_PRINT_DRAFT, printData);
+            addSeparator(ActionId.DOCUMENT_PRINT_DRAFT);           
+        }
+       
         for (final Document document : draft.getDocuments()) {
             final Data documentPrintData = new Data(1);
             documentPrintData.set(com.thinkparity.ophelia.browser.platform.action.document.PrintDraft.DataKey.DOCUMENT_ID, document.getId());
@@ -327,12 +328,13 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         addSeparator();
         
         // Print
-        final Data printData = new Data(2);
-        printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-        printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
-        add(ActionId.DOCUMENT_PRINT_VERSION, ActionId.CONTAINER_PRINT_VERSION, printData);
-        
-        addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
+        if (documentViews.size() > 1) {
+            final Data printData = new Data(2);
+            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
+            add(ActionId.DOCUMENT_PRINT_VERSION, ActionId.CONTAINER_PRINT_VERSION, printData);        
+            addSeparator(ActionId.DOCUMENT_PRINT_VERSION);
+        }
         
         for (final DocumentView documentView : documentViews) {
             final Data documentVersionPrintData = new Data(2);

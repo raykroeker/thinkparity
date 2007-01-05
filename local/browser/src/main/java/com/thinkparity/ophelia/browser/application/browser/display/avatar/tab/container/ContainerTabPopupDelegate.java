@@ -111,7 +111,7 @@ final class ContainerTabPopupDelegate extends DefaultPopupDelegate implements
         }
 
         // archive
-        if (isOnline() && isDistributed(container.getId()) && !container.isDraft())
+        if (isOnline() && isDistributed(container.getId()) && !container.isLocalDraft())
             add(PluginId.ARCHIVE, "ArchiveAction", container);
 
         // delete

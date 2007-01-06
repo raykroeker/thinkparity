@@ -13,9 +13,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import com.thinkparity.codebase.swing.SwingUtil;
-
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -239,8 +238,8 @@ public class CreateContainerAvatar extends Avatar {
 
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
-            createContainer();
             disposeWindow();
+            createContainer();
         }
     }// GEN-LAST:event_okJButtonActionPerformed
 

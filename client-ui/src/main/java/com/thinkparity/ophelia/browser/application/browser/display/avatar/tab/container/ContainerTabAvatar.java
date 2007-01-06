@@ -7,7 +7,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -52,7 +51,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             removeFlagSeen(e);
             sync(e);
         } else {
-            getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
             sync(e);
             showContainer(e.getContainer().getId());           
             setDraftSelection(e);

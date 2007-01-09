@@ -311,6 +311,11 @@ public final class Constants {
     public static final class Resize {
         public static final Integer EDGE_PIXEL_BUFFER = 6;
     }
+    
+    /** Scrollbar constants. */
+    public static final class ScrollBar {
+        public static final Integer UNIT_INCREMENT = 25;
+    }
 
     public static final class Search {
         public static final Integer ACTIVATION_DELAY = 500; // Milliseconds

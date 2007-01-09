@@ -27,7 +27,7 @@ public enum Environment {
     DEVELOPMENT_ROBERT("thinkparity.dyndns.org", 5228, Boolean.FALSE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20003, Boolean.TRUE),
 
     /** Production environment. */
-    PRODUCTION("thinkparity.dyndns.org", 5223, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20000, Boolean.TRUE),
+    PRODUCTION("thinkparity.net", 5223, Boolean.TRUE, "thinkparity.net", "thinkparity.dyndns.org", 20000, Boolean.TRUE),
 
     /** Testing environment. */
     TESTING("thinkparity.dyndns.org", 5225, Boolean.TRUE, "thinkparity.dyndns.org", "thinkparity.dyndns.org", 20001, Boolean.TRUE),

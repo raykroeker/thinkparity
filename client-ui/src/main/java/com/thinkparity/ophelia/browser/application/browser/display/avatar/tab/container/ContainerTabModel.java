@@ -229,7 +229,6 @@ public final class ContainerTabModel extends TabPanelModel implements
             addContainerPanel(container);
         }
         applySort(SortBy.CREATED_ON);
-        browser.runDisplayContainerSeenFlagInfo();
         debug();
     }
 
@@ -323,6 +322,14 @@ public final class ContainerTabModel extends TabPanelModel implements
      */
     void syncDocument(final Long documentId, final Boolean remote) {
         syncContainer(containerIdLookup.get(documentId), remote);
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected Object lookupId(final TabPanel tabPanel) {
+        return ((ContainerPanel)tabPanel).getContainer().getId();
     }
 
     /**

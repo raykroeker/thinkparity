@@ -227,6 +227,7 @@ public class BrowserWindow extends AbstractJFrame {
         browser.displayMainTitleAvatar();
         browser.displayMainStatusAvatar();
         browser.displayTabContainerAvatar();
+        browser.initializeStatus();
     }
 
     /**

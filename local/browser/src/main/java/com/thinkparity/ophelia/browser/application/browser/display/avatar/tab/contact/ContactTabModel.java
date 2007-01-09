@@ -127,7 +127,6 @@ public final class ContactTabModel extends TabPanelModel implements
             addPanel(contact);
         }
         applySort(SortBy.NAME);
-        browser.runDisplayContactInvitationInfo();
         debug();
     }
 
@@ -217,6 +216,23 @@ public final class ContactTabModel extends TabPanelModel implements
         synchronize();
         debug();
 
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected Object lookupId(final TabPanel tabPanel) {
+        final ContactTabPanel panel = (ContactTabPanel)tabPanel;
+        if (panel.isSetContact()) {
+            return panel.getContact().getId();
+        } else if (panel.isSetIncoming()) {
+            return panel.getIncoming().getId();
+        } else if (panel.isSetOutgoing()) {
+            return (panel.getOutgoing().getId());
+        } else {
+            throw Assert.createUnreachable("Unknown contact panel type.");
+        }
     }
     
     /**

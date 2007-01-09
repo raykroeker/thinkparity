@@ -10,14 +10,14 @@ import java.io.File;
 import org.jdesktop.jdic.desktop.DesktopException;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractLinkAction;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class ExportFileLink implements LinkAction {
+public class ExportFileLink extends AbstractLinkAction {
 
     /** The file */
     private File file;
@@ -65,7 +65,7 @@ public class ExportFileLink implements LinkAction {
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getIntroText()
      */
-    public String getIntroText() {
+    public String getIntroText(final Boolean displayedFirst) {
         return introText;
     }
     
@@ -81,5 +81,12 @@ public class ExportFileLink implements LinkAction {
      */
     public String getLinkText() {
         return file.getName();
-    }   
+    }
+    
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getPriority()
+     */
+    public LinkPriority getPriority() {
+        return LinkPriority.LOW;
+    }  
 }

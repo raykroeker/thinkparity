@@ -204,6 +204,14 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     }
     
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupId(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     */
+    @Override
+    protected Object lookupId(final TabPanel tabPanel) {
+        return ((ContainerPanel)tabPanel).getContainer().getUniqueId();
+    }
+    
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#lookupPanel(java.lang.Object)
      */
     @Override

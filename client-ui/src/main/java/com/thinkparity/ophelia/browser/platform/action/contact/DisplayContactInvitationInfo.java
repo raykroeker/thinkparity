@@ -5,14 +5,16 @@
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractLinkAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
 import com.thinkparity.ophelia.model.contact.IncomingInvitation;
 
 /**
@@ -26,6 +28,9 @@ public class DisplayContactInvitationInfo extends AbstractAction {
     
     /** An instance of the link action. */
     private final DisplayContactInvitationInfoLink displayContactInvitationInfoLink;
+    
+    /** A user search expression <code>String</code>. */
+    private String searchExpression;
     
     /**
      * Create a DisplayContactInvitationInfo.
@@ -44,30 +49,44 @@ public class DisplayContactInvitationInfo extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        final List<IncomingInvitation> invitations = getContactModel().readIncomingInvitations();
-        final int numberInvitations = invitations.size();
-        final Long firstInvitationId;
-        if (numberInvitations > 0) {
-            firstInvitationId = invitations.get(0).getId();
+        final List<IncomingInvitation> invitations;
+        searchExpression = (String) data.get(DataKey.SEARCH_EXPRESSION);
+        
+        // Prepare the list of incoming invitations
+        if (isSearchApplied()) {
+            // TODO At the moment search in contacts tab hides all invitations. When this
+            // is fixed in contacts tab, fix here too.
+            invitations = Collections.emptyList();
         } else {
-            firstInvitationId = null; 
+            invitations = getContactModel().readIncomingInvitations();
         }
 
-        displayContactInvitationInfoLink.setFirstInvitationId(firstInvitationId);
-        displayContactInvitationInfoLink.setNumberInvitations(numberInvitations);
+        // Build the list of invitation ids
+        final List<Long> invitationIds = new ArrayList<Long>();
+        for (final IncomingInvitation invitation : invitations) {
+            invitationIds.add(invitation.getId());
+        }
+
+        displayContactInvitationInfoLink.setInvitationIds(invitationIds);
         browser.setStatus(displayContactInvitationInfoLink);                   
     }
     
-    public class DisplayContactInvitationInfoLink implements LinkAction {
+    /**
+     * Determine if a search is applied.
+     * 
+     * @return True if a search expression is set.
+     */
+    private boolean isSearchApplied() { 
+        return null != searchExpression;
+    }  
+    
+    public class DisplayContactInvitationInfoLink extends AbstractLinkAction {
         
         /** The browser application. */
         private final Browser browser;
         
-        /** The invitation Id */
-        private Long firstInvitationId;
-        
-        /** The number of invitations */
-        private int numberInvitations;
+        /** The list of not-seen containers. */
+        private List<Long> invitationIds;  
         
         public DisplayContactInvitationInfoLink(final Browser browser) {
             super();
@@ -75,23 +94,10 @@ public class DisplayContactInvitationInfo extends AbstractAction {
         }
         
         /**
-         * Set the invitation id.
-         * 
-         * @param firstInvitationId
-         *            The invitation Id.
+         * Set the list of invitation ids.
          */
-        public void setFirstInvitationId(final Long firstInvitationId) {
-            this.firstInvitationId = firstInvitationId;
-        }
-        
-        /**
-         * Set the number of invitations.
-         * 
-         * @param numberInvitations
-         *          The number of invitations.
-         */
-        public void setNumberInvitations(final int numberInvitations) {
-            this.numberInvitations = numberInvitations;
+        public void setInvitationIds(final List<Long> invitationIds) {
+            this.invitationIds = invitationIds;
         }
 
         /**
@@ -101,7 +107,7 @@ public class DisplayContactInvitationInfo extends AbstractAction {
             return new javax.swing.AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     browser.selectTab(MainTitleAvatar.TabId.CONTACT);
-                    browser.showContactInvitation(firstInvitationId);
+                    browser.showContactInvitation(invitationIds, 0);
                 }
             };
         }
@@ -116,16 +122,20 @@ public class DisplayContactInvitationInfo extends AbstractAction {
         /**
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getIntroText()
          */
-        public String getIntroText() {
-            return localization.getString("ContactInvitationIntro");
+        public String getIntroText(final Boolean displayedFirst) {
+            if (displayedFirst) {
+                return localization.getString("ContactInvitationIntro");
+            } else {
+                return localization.getString("ContactInvitationIntroNotFirst");     
+            }
         }
 
         /**
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkType()
          */
         public LinkType getLinkType() {
-            if (0 == numberInvitations) {
-                return LinkType.CLEAR_SHOW_ALWAYS;
+            if (0 == invitationIds.size()) {
+                return LinkType.CLEAR;
             } else {
                 return LinkType.SHOW_ALWAYS;
             }
@@ -135,11 +145,20 @@ public class DisplayContactInvitationInfo extends AbstractAction {
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkText()
          */
         public String getLinkText() {
-            if (1 == numberInvitations) {
-                return localization.getString("OneInvitation", new Object[] {numberInvitations});
+            if (1 == invitationIds.size()) {
+                return localization.getString("OneInvitation", new Object[] {invitationIds.size()});
             } else {
-                return localization.getString("ManyInvitations", new Object[] {numberInvitations});
+                return localization.getString("ManyInvitations", new Object[] {invitationIds.size()});
             }
         }
+        
+        /**
+         * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getPriority()
+         */
+        public LinkPriority getPriority() {
+            return LinkPriority.LOW;
+        }  
     }
+    
+    public enum DataKey { SEARCH_EXPRESSION }
 }

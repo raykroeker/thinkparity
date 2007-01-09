@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -12,9 +13,9 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
+import com.thinkparity.ophelia.browser.platform.action.AbstractLinkAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.LinkAction;
 
 /**
  * @author rob_masako@shaw.ca
@@ -27,6 +28,9 @@ public class DisplayFlagSeenInfo extends AbstractAction {
     
     /** An instance of the link action. */
     private final DisplayFlagSeenInfoLink displayFlagSeenInfoLink;
+    
+    /** A user search expression <code>String</code>. */
+    private String searchExpression;
 
     /**
      * Create a DisplayFlagSeenInfo.
@@ -45,33 +49,52 @@ public class DisplayFlagSeenInfo extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        final List<Container> containers = getContainerModel().read();
-        Long firstNotSeenContainerId = null;
-        int countNotSeen = 0;       
+        final List<Container> containers;
+        searchExpression = (String) data.get(DataKey.SEARCH_EXPRESSION);
+        
+        // Prepare the list of containers
+        if (isSearchApplied()) {
+            final List<Long> containerIds = getContainerModel().search(searchExpression);
+            containers = new ArrayList<Container>();
+            for (final Long containerId : containerIds) {
+                final Container container = getContainerModel().read(containerId);
+                if (!containers.contains(container)) {
+                    containers.add(container);
+                }
+            }
+        } else {
+            containers = getContainerModel().read();            
+        }
+
+        // Build the list of containers that have not been seen
+        final List<Long> containerIds = new ArrayList<Long>();
         for (final Container container : containers) {
-            final Boolean seen = container.isSeen();
-            countNotSeen += seen ? 0 : 1;
-            if (!seen && countNotSeen==1) {
-                firstNotSeenContainerId = container.getId();
+            if (!container.isSeen()) {
+                containerIds.add(container.getId());
             }
         }
 
-        displayFlagSeenInfoLink.setFirstNotSeenContainerId(firstNotSeenContainerId);
-        displayFlagSeenInfoLink.setNumberContainersNotSeen(countNotSeen);
+        // Prepare the LinkAction
+        displayFlagSeenInfoLink.setContainerIds(containerIds);
         browser.setStatus(displayFlagSeenInfoLink);                   
     }
     
-    public class DisplayFlagSeenInfoLink implements LinkAction {
+    /**
+     * Determine if a search is applied.
+     * 
+     * @return True if a search expression is set.
+     */
+    private boolean isSearchApplied() { 
+        return null != searchExpression;
+    }    
+    
+    public class DisplayFlagSeenInfoLink extends AbstractLinkAction {
         
         /** The browser application. */
         private final Browser browser;
-
-        /** The container Id */
-        private Long firstNotSeenContainerId;
         
-        /** The number of containers not seen */
-        private int numberContainersNotSeen;
-        
+        /** The list of not-seen containers. */
+        private List<Long> containerIds;        
         
         public DisplayFlagSeenInfoLink(final Browser browser) {
             super();
@@ -79,23 +102,10 @@ public class DisplayFlagSeenInfo extends AbstractAction {
         }
         
         /**
-         * Set the container id.
-         * 
-         * @param firstNotSeenContainerId
-         *            The container Id.
+         * Set the list of not-seen container ids.
          */
-        public void setFirstNotSeenContainerId(final Long firstNotSeenContainerId) {
-            this.firstNotSeenContainerId = firstNotSeenContainerId;
-        }
-        
-        /**
-         * Set the number of containers not seen.
-         * 
-         * @param numberContainersNotSeen
-         *          The number of containers not seen.
-         */
-        public void setNumberContainersNotSeen(final int numberContainersNotSeen) {
-            this.numberContainersNotSeen = numberContainersNotSeen;
+        public void setContainerIds(final List<Long> containerIds) {
+            this.containerIds = containerIds;
         }
 
         /**
@@ -105,7 +115,7 @@ public class DisplayFlagSeenInfo extends AbstractAction {
             return new javax.swing.AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     browser.selectTab(MainTitleAvatar.TabId.CONTAINER);
-                    browser.showContainer(firstNotSeenContainerId);
+                    browser.showContainer(containerIds, 0);
                 }
             };
         }
@@ -120,16 +130,20 @@ public class DisplayFlagSeenInfo extends AbstractAction {
         /**
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getIntroText()
          */
-        public String getIntroText() {
-            return localization.getString("ContainerNotSeenIntro");
+        public String getIntroText(final Boolean displayedFirst) {
+            if (displayedFirst) {
+                return localization.getString("ContainerNotSeenIntro");
+            } else {
+                return localization.getString("ContainerNotSeenIntroNotFirst");      
+            }
         }
 
         /**
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkType()
          */
         public LinkType getLinkType() {
-            if (0 == numberContainersNotSeen) {
-                return LinkType.CLEAR_SHOW_ALWAYS;
+            if (0 == containerIds.size()) {
+                return LinkType.CLEAR;
             } else {
                 return LinkType.SHOW_ALWAYS;
             }
@@ -139,11 +153,20 @@ public class DisplayFlagSeenInfo extends AbstractAction {
          * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getLinkText()
          */
         public String getLinkText() {
-            if (1 == numberContainersNotSeen) {
-                return localization.getString("ContainerNotSeenOne", new Object[] {numberContainersNotSeen});
+            if (1 == containerIds.size()) {
+                return localization.getString("ContainerNotSeenOne", new Object[] {containerIds.size()});
             } else {
-                return localization.getString("ContainerNotSeenMany", new Object[] {numberContainersNotSeen});
+                return localization.getString("ContainerNotSeenMany", new Object[] {containerIds.size()});
             }
         }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.platform.action.LinkAction#getPriority()
+         */
+        public LinkPriority getPriority() {
+            return LinkPriority.HIGH;
+        }        
     }
+    
+    public enum DataKey { SEARCH_EXPRESSION }
 }

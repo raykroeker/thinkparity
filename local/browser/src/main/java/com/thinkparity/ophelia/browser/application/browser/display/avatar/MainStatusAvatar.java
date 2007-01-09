@@ -8,7 +8,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 
 import javax.swing.SwingUtilities;
 
@@ -23,6 +22,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.MainStatusAvatarLinks;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.LinkAction;
@@ -41,8 +41,8 @@ public class MainStatusAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
-    /** The saved LinkAction */
-    private LinkAction showAlwaysLinkAction = null;
+    /** The links */
+    private final MainStatusAvatarLinks links;
     
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;    
@@ -53,11 +53,14 @@ public class MainStatusAvatar extends Avatar {
     /** A thinkParity user's profile. */
     private Profile profile;
 
-    /** Creates new form BrowserStatus */
+    /** Creates new form MainStatusAvatar */
     MainStatusAvatar() {
         super(AvatarId.MAIN_STATUS.toString());
         initComponents();
         installResizer();
+        this.links = new MainStatusAvatarLinks(
+                new javax.swing.JLabel[] {linkIntroJLabel, link2IntroJLabel},
+                new javax.swing.JLabel[] {linkJLabel, link2JLabel} );
     }
 
     /**
@@ -88,7 +91,7 @@ public class MainStatusAvatar extends Avatar {
         if (null != input) {
             this.profile = getInputProfile();     
             reloadCustom();
-            reloadLinkAction();  
+            reloadLinkActions();  
             reloadUser();
             reloadConnection(); 
         }
@@ -211,53 +214,7 @@ public class MainStatusAvatar extends Avatar {
             return (Profile) ((Data) input).get(DataKey.PROFILE);
         }
     }
-        
-    /**
-     * Get the link action.
-     * 
-     * @return The LinkAction.
-     */
-    private LinkAction getLinkAction() {
-        LinkAction linkAction = null;
-        if (isInputLinkAction()) {
-            switch(getInputLinkAction().getLinkType()) {
-            case CLEAR_SHOW_ALWAYS:
-                showAlwaysLinkAction = null;
-                break;                
-            case SHOW_ALWAYS:
-                linkAction = getInputLinkAction();
-                showAlwaysLinkAction = linkAction;
-                break;
-            case SHOW_ONCE:
-                linkAction = getInputLinkAction();
-                break;
-            default:
-                throw Assert.createUnreachable("UNKNOWN LINK ACTION TYPE");
-            }
-        } else if (isShowAlwaysLinkAction()) {
-            linkAction = showAlwaysLinkAction;
-        }
 
-        return linkAction;
-    }
-    
-    /**
-     * Determine if there is an input link action.
-     * 
-     * @return A Boolean.
-     */
-    private Boolean isInputLinkAction() {
-        return (null != getInputLinkAction());
-    }
-    
-    /**
-     * Determine if there is a link action to show always.
-     * 
-     * @return A Boolean.
-     */
-    private Boolean isShowAlwaysLinkAction() {
-        return (null != showAlwaysLinkAction);
-    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -286,6 +243,12 @@ public class MainStatusAvatar extends Avatar {
         linkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 linkJLabelMousePressed(evt);
+            }
+        });
+
+        link2JLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                link2JLabelMousePressed(evt);
             }
         });
 
@@ -349,29 +312,29 @@ public class MainStatusAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(connectionJLabel)
-                            .add(userJLabel))
-                        .addContainerGap())
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(connectionJLabel)
+                        .add(userJLabel))
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(customJLabel)
                         .add(linkJLabel)
                         .add(fillJLabel)
                         .add(linkIntroJLabel)
                         .add(link2IntroJLabel)
-                        .add(link2JLabel))))
+                        .add(link2JLabel)))
+                .add(57, 57, 57))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(53, Short.MAX_VALUE)
                 .add(resizeJLabel))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void linkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_linkJLabelMousePressed
-        getLinkAction().getAction().actionPerformed(
-                new ActionEvent(e.getSource(), e.getID(),
-                        "MainStatusAvatar", e.getWhen(), e.getModifiers()));
+    private void link2JLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_link2JLabelMousePressed
+        links.linkJLabelMousePressed(e, 1);
+    }//GEN-LAST:event_link2JLabelMousePressed
 
+    private void linkJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_linkJLabelMousePressed
+        links.linkJLabelMousePressed(e, 0);
     }//GEN-LAST:event_linkJLabelMousePressed
 
     /**
@@ -415,16 +378,10 @@ public class MainStatusAvatar extends Avatar {
     }
     
     /**
-     * Reload the link message.
+     * Reload the link messages.
      */
-    private void reloadLinkAction() {
-        linkIntroJLabel.setText("");
-        linkJLabel.setText("");
-        final LinkAction linkAction = getLinkAction();
-        if (null != linkAction) {
-            linkIntroJLabel.setText(linkAction.getIntroText());
-            linkJLabel.setText(linkAction.getLinkText());
-        }
+    private void reloadLinkActions() {
+        links.reload(getInputLinkAction());
     }
     
     /**

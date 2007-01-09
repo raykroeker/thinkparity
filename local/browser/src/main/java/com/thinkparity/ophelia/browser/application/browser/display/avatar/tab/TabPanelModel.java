@@ -80,7 +80,7 @@ public abstract class TabPanelModel extends TabModel {
         this.searchResults = new ArrayList<Object>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }
-    
+       
     /**
      * Expand the panel.
      * 
@@ -145,6 +145,30 @@ public abstract class TabPanelModel extends TabModel {
      */
     public void setSession(final BrowserSession session) {
         this.session = session;
+    }
+    
+    /**
+     * Sort and filter the ids according to the existing visible order.
+     * Visible elements are returned in the order they
+     * are currently displayed top to bottom.
+     * Elements that are not visible are not included in the
+     * returned list.
+     * This method assumes visiblePanels are already filtered
+     * and sorted correctly.
+     * 
+     * @param ids
+     *          A list of unique id <code>Object</code>.
+     * @return A sorted list of unique id <code>Object</code>.
+     */
+    public List<Object> getCurrentVisibleOrder(final List<? extends Object> ids) {
+        final List<Object> sortedIds = new ArrayList<Object>();
+        for (final TabPanel visiblePanel : visiblePanels) {
+            final Object uniqueId = lookupId(visiblePanel);
+            if (ids.contains(uniqueId)) {
+                sortedIds.add(uniqueId);
+            }            
+        }
+        return sortedIds;
     }
     
     /**
@@ -307,6 +331,15 @@ public abstract class TabPanelModel extends TabModel {
     protected boolean isSearchApplied() {
         return null != searchExpression;
     }
+        
+    /**
+     * Lookup id of the object displayed in the tabPanel.
+     * 
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
+     * @return A unique id <code>Object</code>.
+     */
+    protected abstract Object lookupId(final TabPanel tabPanel);
     
     /**
      * Lookup the panel for the corresponding id.

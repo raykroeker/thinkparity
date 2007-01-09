@@ -29,9 +29,11 @@ public interface LinkAction {
     /**
      * Get the localized intro text.
      * 
+     * @param displayedFirst
+     *            Indicates if this LinkAction is displayed first.
      * @return A <code>String</code>.
      */
-    public String getIntroText();
+    public String getIntroText(final Boolean displayedFirst);
     
     /**
      * Get the link type.
@@ -47,5 +49,13 @@ public interface LinkAction {
      */
     public String getLinkText();
     
-    public enum LinkType { CLEAR_SHOW_ALWAYS, SHOW_ALWAYS, SHOW_ONCE }
+    /**
+     * Get the priority.
+     * 
+     * @return The <code>LinkPriority</code>.
+     */
+    public LinkPriority getPriority();
+    
+    public enum LinkType { CLEAR, SHOW_ALWAYS, SHOW_ONCE }
+    public enum LinkPriority { HIGH, LOW }
 }

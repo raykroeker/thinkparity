@@ -57,6 +57,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingInv
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.Delete;
+import com.thinkparity.ophelia.browser.platform.action.contact.DisplayContactInvitationInfo;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
@@ -151,9 +152,11 @@ public class Browser extends AbstractApplication {
         switch(getMainTitleAvatarTab()) {
         case CONTACT:
             setInput(AvatarId.TAB_CONTACT, data);
+            runDisplayContactInvitationInfo(expression);
             break;
         case CONTAINER:
             setInput(AvatarId.TAB_CONTAINER, data);
+            runDisplayContainerSeenFlagInfo(expression);
             break;
         default:
             Assert.assertUnreachable("UNKNOWN TAB");
@@ -842,6 +845,14 @@ public class Browser extends AbstractApplication {
         setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
+
+    /**
+     * Initialize the status message.
+     */
+    public void initializeStatus() {
+        runDisplayContainerSeenFlagInfo();
+        runDisplayContactInvitationInfo();
+    }
     
     public Boolean isBrowserWindowMaximized() {
         return JFrame.MAXIMIZED_BOTH == mainWindow.getExtendedState();
@@ -1142,10 +1153,38 @@ public class Browser extends AbstractApplication {
     }
     
     /**
+     * Run the display contact invitation info action.
+     * 
+     * @param searchExpression
+     *            A search expression.
+     */
+    public void runDisplayContactInvitationInfo(final String searchExpression) {
+        final Data data = new Data(1);
+        if (null != searchExpression) {
+            data.set(DisplayContactInvitationInfo.DataKey.SEARCH_EXPRESSION, searchExpression);
+        }
+        invoke(ActionId.CONTACT_DISPLAY_INVITATION_INFO, data);     
+    }
+    
+    /**
      * Run the display container flag seen info action.
      */
     public void runDisplayContainerSeenFlagInfo() {
         invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, Data.emptyData());   
+    }
+    
+    /**
+     * Run the display container flag seen info action.
+     * 
+     * @param searchExpression
+     *            A search expression.
+     */
+    public void runDisplayContainerSeenFlagInfo(final String searchExpression) {
+        final Data data = new Data(1);
+        if (null != searchExpression) {
+            data.set(DisplayFlagSeenInfo.DataKey.SEARCH_EXPRESSION, searchExpression);
+        }
+        invoke(ActionId.CONTAINER_DISPLAY_FLAG_SEEN_INFO, data);  
     }
     
     /**
@@ -1521,13 +1560,15 @@ public class Browser extends AbstractApplication {
     /**
      * Show the contact invitation.
      * 
-     * @param invitationId
-     *            An invitation id <code>Long</code>.
+     * @param invitationIds
+     *            The list of invitationIds.
+     * @param index
+     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
      */
-    public void showContactInvitation(final Long invitationId) {
+    public void showContactInvitation(final List<Long> invitationIds, final int index) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContactAvatar().showContactInvitation(invitationId);
+                getTabContactAvatar().showContactInvitation(invitationIds, index);
             }
         });   
     }
@@ -1535,13 +1576,15 @@ public class Browser extends AbstractApplication {
     /**
      * Show the container.
      * 
-     * @param containerId
-     *            The container id.
+     * @param containerIds
+     *            The list of containerIds.
+     * @param index
+     *            The index of the container to show (0 indicates the container displayed at top).         
      */
-    public void showContainer(final Long containerId) {
+    public void showContainer(final List<Long> containerIds, final int index) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().showContainer(containerId);
+                getTabContainerAvatar().showContainer(containerIds, index);
             }
         });   
     }

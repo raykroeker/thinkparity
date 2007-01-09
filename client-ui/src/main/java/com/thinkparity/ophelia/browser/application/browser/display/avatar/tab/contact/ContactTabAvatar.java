@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
+import java.util.List;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -29,14 +31,28 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
     
     /**
-     * Show the contact invitation (expand the panel and scroll so it
-     * is visible).
+     * Show the contact invitation (scroll so it visible).
+     * 
+     * @param invitationIds
+     *            The list of invitationIds.
+     * @param index
+     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
+     */
+    public void showContactInvitation(final List<Long> invitationIds, final int index) {
+        final List<Object> sortedInvitationIds = model.getCurrentVisibleOrder(invitationIds);
+        if (index < sortedInvitationIds.size()) {
+            final Long invitationId = (Long)sortedInvitationIds.get(index);
+            showContactInvitation(invitationId);
+        }
+    }
+    
+    /**
+     * Show the contact invitation (scroll so it visible).
      * 
      * @param invitationId
      *            An invitation id <code>Long</code>.
      */
-    public void showContactInvitation(final Long invitationId) {
-        model.expandPanel(invitationId, Boolean.FALSE);
+    private void showContactInvitation(final Long invitationId) {
         model.scrollPanelToVisible(invitationId); 
     }
 

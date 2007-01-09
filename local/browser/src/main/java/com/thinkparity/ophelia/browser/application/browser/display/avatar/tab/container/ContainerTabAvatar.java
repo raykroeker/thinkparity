@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -126,8 +127,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDraftPublished(final ContainerEvent e) {
-        if (e.isRemote())
+        if (e.isRemote()) {
             removeFlagSeen(e);
+            // Display information when containers are seen for
+            // the first time. In this case we can't assume that
+            // fireSeenFlagUpdated() will be called.
+            getController().runDisplayContainerSeenFlagInfo();
+        }
+        
         sync(e);
     }
     
@@ -178,12 +185,17 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      * Show the container (expand the panel and scroll so it
      * is visible).
      * 
-     * @param containerId
-     *            A container id <code>Long</code>.
+     * @param containerIds
+     *            A list of container id <code>Long</code>.
+     * @param displayIndex
+     *            The index of the container to show (0 indicates the container displayed at top). 
      */
-    public void showContainer(final Long containerId) {
-        model.expandPanel(containerId, Boolean.FALSE);
-        model.scrollPanelToVisible(containerId); 
+    public void showContainer(final List<Long> containerIds, final int index) {
+        final List<Object> sortedContainerIds = model.getCurrentVisibleOrder(containerIds);
+        if (index < sortedContainerIds.size()) {
+            final Long containerId = (Long)sortedContainerIds.get(index);
+            showContainer(containerId);
+        }
     }
 
     /**
@@ -228,6 +240,18 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     private void setDraftSelection(final ContainerEvent e) {
         model.setDraftSelection(e.getContainer().getId());
+    }
+    
+    /**
+     * Show the container (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void showContainer(final Long containerId) {
+        model.expandPanel(containerId, Boolean.FALSE);
+        model.scrollPanelToVisible(containerId);
     }
 
     /**

@@ -55,12 +55,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="connectionJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="userJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="connectionJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="userJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                       <Component id="customJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -71,6 +68,7 @@
                       <Component id="link2JLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace pref="53" max="32767" attributes="0"/>
@@ -119,6 +117,9 @@
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="link2JLabel">
+      <Events>
+        <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="link2JLabelMousePressed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>

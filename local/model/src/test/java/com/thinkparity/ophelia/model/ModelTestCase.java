@@ -705,9 +705,30 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @param actual
      *            The actual <code>ArtifactReceipt</code>.
      */
-    protected void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
+    protected static void assertSimilar(final String assertion, final ArtifactReceipt expected, final ArtifactReceipt actual) {
         assertEquals(MessageFormat.format("{0}  Artifact receipt published on does not match expectation.", assertion), expected.getPublishedOn(), actual.getPublishedOn());
-        assertEquals(MessageFormat.format("{0}.  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
+        assertEquals(MessageFormat.format("{0}  Artifact receipt user id does not match expectation.", assertion), expected.getUserId(), actual.getUserId());
+    }
+
+    /**
+     * Assert that the expected team member is simlar to the actual.  This will
+     * not compare the local user id as well as the artifact id.  This api is
+     * used to compare across users.
+     *
+     * @param assertion
+     *      An assertion <code>String</code>.
+     * @param expected
+     *      The expected <code>TeamMember</code>.
+     * @param actual
+     *      The actual <code>TeamMember</code>.
+     */
+    protected static void assertSimilar(final String assertion, final TeamMember expected, final TeamMember actual) {
+        assertEquals(MessageFormat.format("{0} Team member id does not match expectation.", assertion), expected.getId(), actual.getId());
+        assertEquals(MessageFormat.format("{0} Team member name does not match expectation.", assertion), expected.getName(), actual.getName());
+        assertEquals(MessageFormat.format("{0} Team member organization does not match expectation.", assertion), expected.getOrganization(), actual.getOrganization());
+        assertEquals(MessageFormat.format("{0} Team member simple username does not match expectation.", assertion), expected.getSimpleUsername(), actual.getSimpleUsername());
+        assertEquals(MessageFormat.format("{0} Team member title does not match expectation.", assertion), expected.getTitle(), actual.getTitle());
+        assertEquals(MessageFormat.format("{0} Team member username does not match expectation.", assertion), expected.getUsername(), actual.getUsername());
     }
 
     /**

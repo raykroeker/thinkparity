@@ -256,7 +256,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
-        .append("where ATR.ARTIFACT_ID=?")
+        .append("where ATR.ARTIFACT_ID=? ")
+        .append("order by U.JABBER_ID asc")
         .toString();
 
     /**
@@ -265,9 +266,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
      * @see ArtifactIOHandler#SQL_READ_TEAM_REL
      */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
-            new StringBuffer(SQL_READ_TEAM_REL)
-            .append(" and ATR.USER_ID=?")
-            .toString();
+        new StringBuffer("select U.NAME,U.JABBER_ID,")
+        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
+        .append("from ARTIFACT_TEAM_REL ATR ")
+        .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
+        .append("where ATR.ARTIFACT_ID=? ")
+        .append("and ATR.USER_ID=?")
+        .append("order by U.JABBER_ID asc")
+        .toString();
 
     /** Sql to count the team relationship rows for an artifact. */
     private static final String SQL_READ_TEAM_REL_COUNT =

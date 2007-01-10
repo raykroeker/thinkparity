@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 
@@ -27,13 +28,13 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 public class Ticket410Test extends TicketTestCase {
 
     /** Test name. */
-    private static final String NAME = "Test ticket 409";
+    private static final String NAME = "Test ticket 410";
 
     /** Test datum. */
     private Fixture datum;
 
     /**
-     * Create Ticket406Test.
+     * Create Ticket410Test.
      *
      */
     public Ticket410Test() {
@@ -61,6 +62,7 @@ public class Ticket410Test extends TicketTestCase {
         List<DocumentVersion> cv_latest_dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
         Map<DocumentVersion, Delta> cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId());
         List<ArtifactReceipt> cv_latest_pt = readPublishedTo2(datum.junit, c.getId(), cv_latest.getVersionId());
+        List<TeamMember> tm_list = readTeam(datum.junit, c.getId());
         DocumentVersion cv_latest_dv;
         InputStream is;
 
@@ -71,6 +73,7 @@ public class Ticket410Test extends TicketTestCase {
         List<DocumentVersion> cv_latest_dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         Map<DocumentVersion, Delta> cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         List<ArtifactReceipt> cv_latest_pt_x = readPublishedTo2(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        List<TeamMember> tm_list_x = readTeam(datum.junit_x, c_x.getId());
         InputStream is_x;
         DocumentVersion cv_latest_dv_x;
 
@@ -119,6 +122,11 @@ public class Ticket410Test extends TicketTestCase {
         for (int i = 0; i < cv_latest_pt.size(); i++) {
             assertSimilar("Published to artifact receipt does not match expectation.", cv_latest_pt.get(i), cv_latest_pt_x.get(i));
         }
+        assertEquals("Team list does not match expectation.", 2, tm_list.size());
+        assertEquals("Team list does not match expectation.", tm_list.size(), tm_list_x.size());
+        for (int i = 0; i < tm_list.size(); i++) {
+            assertSimilar("Team member does not match expectation.", tm_list.get(i), tm_list_x.get(i));
+        }
 
         // create a draft modfiy document publish to first user
         createDraft(datum.junit, c_initial.getId());
@@ -135,6 +143,7 @@ public class Ticket410Test extends TicketTestCase {
         cv_latest_dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
         cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId(), cv_previous.getVersionId());
         cv_latest_pt = readPublishedTo2(datum.junit, c.getId(), cv_latest.getVersionId());
+        tm_list = readTeam(datum.junit, c.getId());
 
         c_x = readContainer(datum.junit_x, c_initial.getUniqueId());
         cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
@@ -143,6 +152,7 @@ public class Ticket410Test extends TicketTestCase {
         cv_latest_dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId(), cv_previous_x.getVersionId());
         cv_latest_pt_x = readPublishedTo2(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        tm_list_x = readTeam(datum.junit_x, c_x.getId());
 
         assertSimilar("Container does not match expectation.", c, c_x);
         assertSimilar("Latest container version does not match expectation.", cv_latest, cv_latest_x);
@@ -188,6 +198,11 @@ public class Ticket410Test extends TicketTestCase {
         for (int i = 0; i < cv_latest_pt.size(); i++) {
             assertSimilar("Published to artifact receipt does not match expectation.", cv_latest_pt.get(i), cv_latest_pt_x.get(i));
         }
+        assertEquals("Team list does not match expectation.", 2, tm_list.size());
+        assertEquals("Team list does not match expectation.", tm_list.size(), tm_list_x.size());
+        for (int i = 0; i < tm_list.size(); i++) {
+            assertSimilar("Team member does not match expectation.", tm_list.get(i), tm_list_x.get(i));
+        }
 
         /* create a draft modfiy document publish to first user as well as
          * adding another user */
@@ -205,6 +220,7 @@ public class Ticket410Test extends TicketTestCase {
         cv_latest_dv_list = readContainerVersionDocumentVersions(datum.junit, c.getId(), cv_latest.getVersionId());
         cv_latest_delta = readContainerVersionDeltas(datum.junit, c.getId(), cv_latest.getVersionId(), cv_previous.getVersionId());
         cv_latest_pt = readPublishedTo2(datum.junit, c.getId(), cv_latest.getVersionId());
+        tm_list = readTeam(datum.junit, c.getId());
 
         c_x = readContainer(datum.junit_x, c_initial.getUniqueId());
         cv_latest_x = readContainerLatestVersion(datum.junit_x, c_x.getId());
@@ -213,6 +229,7 @@ public class Ticket410Test extends TicketTestCase {
         cv_latest_dv_list_x = readContainerVersionDocumentVersions(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
         cv_latest_delta_x = readContainerVersionDeltas(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId(), cv_previous_x.getVersionId());
         cv_latest_pt_x = readPublishedTo2(datum.junit_x, c_x.getId(), cv_latest_x.getVersionId());
+        tm_list_x = readTeam(datum.junit_x, c_x.getId());
 
         assertSimilar("Container does not match expectation.", c, c_x);
         assertSimilar("Latest container version does not match expectation.", cv_latest, cv_latest_x);
@@ -258,6 +275,11 @@ public class Ticket410Test extends TicketTestCase {
         for (int i = 0; i < cv_latest_pt.size(); i++) {
             assertSimilar("Published to artifact receipt does not match expectation.", cv_latest_pt.get(i), cv_latest_pt_x.get(i));
         }
+        assertEquals("Team list does not match expectation.", 3, tm_list.size());
+        assertEquals("Team list does not match expectation.", tm_list.size(), tm_list_x.size());
+        for (int i = 0; i < tm_list.size(); i++) {
+            assertSimilar("Team member does not match expectation.", tm_list.get(i), tm_list_x.get(i));
+        }
 
         // ensure the container; the container version; the documents; the document streams; the document versions; the document version streams and the delta information are similar
         Container c_y = readContainer(datum.junit_y, c_initial.getUniqueId());
@@ -267,6 +289,7 @@ public class Ticket410Test extends TicketTestCase {
         List<DocumentVersion> cv_latest_dv_list_y = readContainerVersionDocumentVersions(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
         Map<DocumentVersion, Delta> cv_latest_delta_y = readContainerVersionDeltas(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
         List<ArtifactReceipt> cv_latest_pt_y = readPublishedTo2(datum.junit_y, c_y.getId(), cv_latest_y.getVersionId());
+        List<TeamMember> tm_list_y = readTeam(datum.junit_y, c_y.getId());
         DocumentVersion cv_latest_dv_y;
         InputStream is_y;
 
@@ -313,6 +336,11 @@ public class Ticket410Test extends TicketTestCase {
         assertEquals("Published to list does not match expectation.", cv_latest_pt.size(), cv_latest_pt_y.size());
         for (int i = 0; i < cv_latest_pt.size(); i++) {
             assertSimilar("Published to artifact receipt does not match expectation.", cv_latest_pt.get(i), cv_latest_pt_y.get(i));
+        }
+        assertEquals("Team list does not match expectation.", 3, tm_list.size());
+        assertEquals("Team list does not match expectation.", tm_list.size(), tm_list_y.size());
+        for (int i = 0; i < tm_list.size(); i++) {
+            assertSimilar("Team member does not match expectation.", tm_list.get(i), tm_list_y.get(i));
         }
     }
 

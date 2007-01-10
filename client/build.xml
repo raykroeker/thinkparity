@@ -502,18 +502,20 @@ Examples:
 
         <junit fork="on" forkmode="once" reloading="false"
                         errorproperty="junit.didError" failureproperty="junit.didFail">
+            <jvmarg value="-Dthinkparity.mode=${thinkparity.innerMode}"/>
+            <jvmarg value="-Dthinkparity.environment=${thinkparity.innerEnvironment}"/>
             <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
             <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
 
-                        <classpath refid="project.test-classpath"/>
-                        <formatter type="brief" usefile="false"/>
+            <classpath refid="project.test-classpath"/>
+            <formatter type="brief" usefile="false"/>
 
-                    <!-- execute batch tests -->
-                    <batchtest todir="${target.test-sessions.dir}">
+            <!-- execute batch tests -->
+            <batchtest todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
                 <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
-                        </batchtest>
-                </junit>
+            </batchtest>
+        </junit>
         <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
 
         <fail message="JUnit failure." if="junit.didFail"/>

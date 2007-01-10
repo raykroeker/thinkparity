@@ -3,12 +3,7 @@
  */
 package com.thinkparity.codebase.swing;
 
-import java.awt.Dimension;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 
@@ -72,33 +67,38 @@ public class SwingUtil {
     public static void setCursor(final javax.swing.JComponent jComponent, final int cursor) {
         SINGLETON.doSetCursor(jComponent, cursor);
     }
+    
+    public static void setCursor(final java.awt.Component component, final int cursor) {
+        SINGLETON.doSetCursor(component, cursor);
+    }
 
     public static void setCursor(final java.awt.Container container, final int cursor) {
         SINGLETON.doSetCursor(container, cursor);
+    }
+    
+    public static void setCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
+        SINGLETON.doSetCursor(jComponent, cursor);
+    }
+    
+    public static void setCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
+        SINGLETON.doSetCursor(component, cursor);
     }
 
     public static void setCursor(final java.awt.Container container, final java.awt.Cursor cursor) {
         SINGLETON.doSetCursor(container, cursor);
     }
-
-    public static void setCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
-        SINGLETON.doSetCursor(jComponent, cursor);
+    
+    private void doSetCursor(final java.awt.Component component, final int cursor) {
+        doSetCursor(component, java.awt.Cursor.getPredefinedCursor(cursor));
     }
 
-    private void doSetCursor(final java.awt.Container container, final java.awt.Cursor cursor) {
-        javax.swing.SwingUtilities.getWindowAncestor(container).setCursor(cursor);
-    }
-
-    private void doSetCursor(final java.awt.Container container, final int cursor) {
-        doSetCursor(container, java.awt.Cursor.getPredefinedCursor(cursor));
-    }
-
-    private void doSetCursor(final javax.swing.JComponent jComponent, final int cursor) {
-        doSetCursor(jComponent, java.awt.Cursor.getPredefinedCursor(cursor));
-    }
-
-    private void doSetCursor(final javax.swing.JComponent jComponent, final java.awt.Cursor cursor) {
-        javax.swing.SwingUtilities.getWindowAncestor(jComponent).setCursor(cursor);
+    private void doSetCursor(final java.awt.Component component, final java.awt.Cursor cursor) {
+        final Window window = javax.swing.SwingUtilities.getWindowAncestor(component);
+        if (null != window) {
+            window.setCursor(cursor);
+        } else {
+            component.setCursor(cursor);
+        }
     }
 
     /**

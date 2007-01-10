@@ -4,7 +4,12 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
@@ -14,6 +19,8 @@ import java.util.Map;
 
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Resize;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -225,50 +232,35 @@ public class Resizer {
         return newDirection;
     }
     
-    private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {
-        Cursor cursor;
-        
+    private void adjustCursor(final ResizeDirection resizeDirection, final Component component) {       
         switch (resizeDirection) {
         case NW:
-            cursor = new Cursor(Cursor.NW_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.NW_RESIZE_CURSOR);
             break;
         case NE:
-            cursor = new Cursor(Cursor.NE_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.NE_RESIZE_CURSOR);
             break;
         case SW:
-            cursor = new Cursor(Cursor.SW_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.SW_RESIZE_CURSOR);
             break;
         case SE:
-            cursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.SE_RESIZE_CURSOR);
             break;
         case W:
-            cursor = new Cursor(Cursor.W_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.W_RESIZE_CURSOR);
             break;
         case E:
-            cursor = new Cursor(Cursor.E_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.E_RESIZE_CURSOR);
             break;
         case N:
-            cursor = new Cursor(Cursor.N_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.N_RESIZE_CURSOR);
             break;
         case S:
-            cursor = new Cursor(Cursor.S_RESIZE_CURSOR);
+            SwingUtil.setCursor(component, java.awt.Cursor.S_RESIZE_CURSOR);
             break;
         default:
-            cursor = null;
+            SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
             break;
-        }
-        
-        changeCursor(cursor, component);
-    }
-    
-    private void changeCursor(final Cursor cursor, final Component component) {
-        component.setCursor(cursor);
-        Window window = SwingUtilities.getWindowAncestor(component);
-        if (null!=window) {
-            window.setCursor(cursor);
-        }
-        if (null!=browser) {
-            browser.setCursor(cursor);
         }
     }
     
@@ -520,7 +512,7 @@ public class Resizer {
     private void formMouseExited(final java.awt.event.MouseEvent evt, final Component component) {
         if ((!resizeDragging) && (!moveDragging)) {
             resizeDirection = ResizeDirection.NONE;
-            changeCursor(null, component);
+            SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
         }
     }    
     
@@ -548,7 +540,7 @@ public class Resizer {
         // best to reset the cursor rather than hope for the 
         // mouse exit event.
         resizeDirection = ResizeDirection.NONE;
-        changeCursor(null, component);
+        SwingUtil.setCursor(component, java.awt.Cursor.DEFAULT_CURSOR);
     }
     
     private void initComponents() {

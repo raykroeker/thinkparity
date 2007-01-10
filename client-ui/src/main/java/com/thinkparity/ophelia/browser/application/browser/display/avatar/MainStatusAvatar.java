@@ -3,17 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Window;
-
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -403,15 +399,13 @@ public class MainStatusAvatar extends Avatar {
 
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
         if (!isResizeDragging()) {
-            final Cursor cursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
-            changeCursor(cursor, e.getComponent());
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.SE_RESIZE_CURSOR);
         }
     }//GEN-LAST:event_resizeJLabelMouseEntered
     
     private void resizeJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseExited
         if (!isResizeDragging()) {
-            final Cursor cursor = null;
-            changeCursor(cursor, e.getComponent());
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
         }
     }//GEN-LAST:event_resizeJLabelMouseExited
 
@@ -424,15 +418,6 @@ public class MainStatusAvatar extends Avatar {
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
         setResizeDragging(Boolean.FALSE);
     }//GEN-LAST:event_resizeJLabelMouseReleased
-    
-    private void changeCursor(final Cursor cursor, final Component component) {
-        component.setCursor(cursor);
-        Window window = SwingUtilities.getWindowAncestor(component);
-        if (null!=window) {
-            window.setCursor(cursor);
-        }
-        getController().setCursor(cursor);
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel connectionJLabel;

@@ -6,12 +6,11 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
-import java.awt.Cursor;
-
 import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.http.Link;
 import com.thinkparity.codebase.http.LinkFactory;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.Version;
@@ -237,12 +236,12 @@ public class DisplayInfoAvatar extends Avatar {
 
     private void webPageJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseExited
         webPageJLabel.setText(getString("WebPage", new Object[] {getWebPageString()}));
-        setCursor(null);
+        SwingUtil.setCursor((javax.swing.JLabel) evt.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
     }//GEN-LAST:event_webPageJLabelMouseExited
 
     private void webPageJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMouseEntered
         webPageJLabel.setText(getString("WebPageHighlighted", new Object[] {getWebPageString()}));
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        SwingUtil.setCursor((javax.swing.JLabel) evt.getSource(), java.awt.Cursor.HAND_CURSOR);
     }//GEN-LAST:event_webPageJLabelMouseEntered
 
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed

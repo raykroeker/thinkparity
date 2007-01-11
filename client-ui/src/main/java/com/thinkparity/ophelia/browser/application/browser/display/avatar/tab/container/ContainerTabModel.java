@@ -949,6 +949,13 @@ public final class ContainerTabModel extends TabPanelModel implements
                         p1.getContainer().getName(),
                         p2.getContainer().getName());
         }
+        
+        /**
+         * Determine if there is a visible draft.
+         */
+        private boolean isVisibleDraft(final ContainerPanel panel) {
+            return (panel.getContainer().isDraft() && panel.getContainer().isLatest());
+        }
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -992,8 +999,8 @@ public final class ContainerTabModel extends TabPanelModel implements
                 }
                 
                 // Sort by draft, and within drafts, by draft owner
-                if (p1.getContainer().isDraft()) {
-                    if(p2.getContainer().isDraft()) {
+                if (isVisibleDraft(p1)) {
+                    if(isVisibleDraft(p2)) {
                         // note the lack of multiplier
                         result = ascending
                             ? STRING_COMPARATOR_ASC.compare(
@@ -1006,7 +1013,7 @@ public final class ContainerTabModel extends TabPanelModel implements
                         return multiplier * -1;
                     }
                 } else {
-                    if (p2.getContainer().isDraft()) {
+                    if (isVisibleDraft(p2)) {
                         return multiplier * 1;
                     }
                 }

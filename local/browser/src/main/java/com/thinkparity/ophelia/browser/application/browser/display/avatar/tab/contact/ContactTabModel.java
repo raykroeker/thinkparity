@@ -126,7 +126,7 @@ public final class ContactTabModel extends TabPanelModel implements
         for (final Contact contact : contacts) {
             addPanel(contact);
         }
-        applySort(SortBy.NAME);
+        applySort(getInitialSort());
         debug();
     }
 
@@ -357,7 +357,20 @@ public final class ContactTabModel extends TabPanelModel implements
         }
         sortedBy.clear();
         sortedBy.add(sortBy);
+        persistence.set(sortByKey, sortBy);
+        persistence.set(sortAscendingKey, sortBy.ascending);
         synchronize();
+    }
+    
+    /**
+     * Get the initial sort from persistence.
+     * 
+     * @return A <code>SortBy</code>.
+     */
+    private SortBy getInitialSort() {
+        final SortBy sortBy = (SortBy)persistence.get(sortByKey, SortBy.NAME);
+        sortBy.ascending = persistence.get(sortAscendingKey, true);
+        return sortBy;
     }
     
     /**

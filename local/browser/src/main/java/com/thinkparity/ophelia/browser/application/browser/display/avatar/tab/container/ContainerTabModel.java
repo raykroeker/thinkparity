@@ -228,7 +228,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         for (final Container container : containers) {
             addContainerPanel(container);
         }
-        applySort(SortBy.CREATED_ON);
+        applySort(getInitialSort());
         debug();
     }
 
@@ -429,6 +429,8 @@ public final class ContainerTabModel extends TabPanelModel implements
         }
         sortedBy.clear();
         sortedBy.add(sortBy);
+        persistence.set(sortByKey, sortBy);
+        persistence.set(sortAscendingKey, sortBy.ascending);
         synchronize();
     }
 
@@ -478,6 +480,17 @@ public final class ContainerTabModel extends TabPanelModel implements
     private ContainerDraftMonitor getDraftMonitor(final Long containerId,
             final ContainerDraftListener listener) {
         return ((ContainerProvider) contentProvider).getDraftMonitor(containerId, listener);
+    }
+    
+    /**
+     * Get the initial sort from persistence.
+     * 
+     * @return A <code>SortBy</code>.
+     */
+    private SortBy getInitialSort() {
+        final SortBy sortBy = (SortBy)persistence.get(sortByKey, SortBy.CREATED_ON);
+        sortBy.ascending = persistence.get(sortAscendingKey, false);
+        return sortBy;
     }
 
     /**

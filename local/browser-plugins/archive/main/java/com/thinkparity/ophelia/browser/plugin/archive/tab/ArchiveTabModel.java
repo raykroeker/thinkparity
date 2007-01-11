@@ -118,7 +118,7 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         for (final Container container : containers) {
             addContainerPanel(container);
         }
-        applySort(SortBy.CREATED_ON);
+        applySort(getInitialSort());
         debug();
     }
 
@@ -135,6 +135,8 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
         }
         sortedBy.clear();
         sortedBy.add(sortBy);
+        persistence.set(sortByKey, sortBy);
+        persistence.set(sortAscendingKey, sortBy.ascending);
         synchronize();
     }
 
@@ -300,6 +302,17 @@ final class ArchiveTabModel extends TabPanelExtensionModel<ArchiveTabProvider>
     private <T extends User> T find(final List<T> users,
             final JabberId userId) {
         return users.get(USER_UTILS.indexOf(users, userId));
+    }
+    
+    /**
+     * Get the initial sort from persistence.
+     * 
+     * @return A <code>SortBy</code>.
+     */
+    private SortBy getInitialSort() {
+        final SortBy sortBy = (SortBy)persistence.get(sortByKey, SortBy.CREATED_ON);
+        sortBy.ascending = persistence.get(sortAscendingKey, false);
+        return sortBy;
     }
 
     /**

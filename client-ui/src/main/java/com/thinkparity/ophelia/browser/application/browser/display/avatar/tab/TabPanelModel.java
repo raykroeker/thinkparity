@@ -21,6 +21,8 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
+import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
 
 /**
@@ -31,6 +33,17 @@ import com.thinkparity.ophelia.browser.util.localization.JPanelLocalization;
  * @version 1.1.2.2
  */
 public abstract class TabPanelModel extends TabModel {
+    
+    /** A sort by persistence key */
+    protected static final String sortByKey;
+    
+    /** A sort ascending persistence key */
+    protected static final String sortAscendingKey;
+    
+    static {
+        sortByKey = "sort.by";
+        sortAscendingKey = "sort.ascending";
+    }
 
     /** An apache logger wrapper. */
     protected final Log4JWrapper logger;
@@ -52,6 +65,9 @@ public abstract class TabPanelModel extends TabModel {
 
     /** A list of all panels. */
     protected final List<TabPanel> panels;
+    
+    /** A parity persistence. */
+    protected final Persistence persistence;
     
     /** A user search expression <code>String</code>. */
     protected String searchExpression;
@@ -77,6 +93,7 @@ public abstract class TabPanelModel extends TabModel {
         this.filteredPanels = new ArrayList<TabPanel>();
         this.listModel = new DefaultListModel();
         this.panels = new ArrayList<TabPanel>();
+        this.persistence = PersistenceFactory.getPersistence(getClass()); 
         this.searchResults = new ArrayList<Object>();
         this.visiblePanels = new ArrayList<TabPanel>();
     }

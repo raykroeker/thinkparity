@@ -5,8 +5,8 @@ package com.thinkparity.ophelia.browser.application.browser.component;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -228,27 +228,28 @@ public class LabelFactory extends ComponentFactory {
 	 *            The link text.
 	 * @param font
 	 *            The font.
-	 * 
 	 * @return The JLabel.
 	 */
 	private JLabel doCreateLink(final String text, final Font font) {
-		final JLabel jLabel = doCreate(text, font, Colors.Browser.Link.LINK_FOREGROUND);
+        final JLabel jLabel = new UnderlinedJLabel();
+        applyText(jLabel, text);
+        applyFont(jLabel, font);
+        applyForeground(jLabel, Colors.Browser.Link.LINK_FOREGROUND);
 		applyHandCursor(jLabel);
-		applyColorChange(jLabel);
 		return jLabel;
 	}
-
-	private void applyColorChange(final JLabel jLabel) {
-		jLabel.addMouseListener(new MouseAdapter() {
-			final Color originalForeground = jLabel.getForeground();
-			public void mouseEntered(final MouseEvent e) {
-				jLabel.setForeground(Colors.Browser.Link.LINK_HOVER_FOREGROUND);
-			}
-			public void mouseExited(final MouseEvent e) {
-				jLabel.setForeground(originalForeground);
-			}
-		});
-	}
+    
+    private class UnderlinedJLabel extends JLabel {
+        @Override
+        protected void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+            if (getText().length() > 0) {            
+                final FontMetrics fontMetrics = getFontMetrics(getFont());
+                final int y = fontMetrics.getMaxAscent() + 1;
+                g.drawLine(0, y, fontMetrics.stringWidth(getText()), y);                
+            }
+        }        
+    }
 
 	/**
 	 * Text alignment when using an image and text in a label.

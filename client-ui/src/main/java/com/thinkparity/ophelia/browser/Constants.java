@@ -114,7 +114,6 @@ public final class Constants {
             }
             public static final class Link {
                 public static final Color LINK_FOREGROUND = new Color(49, 102, 148, 255);
-                public static final Color LINK_HOVER_FOREGROUND = new Color(252, 146, 62, 255); //new Color(249, 163, 97, 255);
             }
         }
         public static final class Swing {

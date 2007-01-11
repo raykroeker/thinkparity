@@ -22,6 +22,7 @@ public interface Persistence {
     public Point get(final String key, final Point defaultPoint);
 	public String get(final String key, final String defaultValue);
 	public TimeZone get(final String key, final TimeZone defaultValue);
+    public Enum<?> get(final String key, final Enum<?> defaultValue);
 	public void set(final String key, final Boolean value);
 	public void set(final String key, final Dimension value);
 	public void set(final String key, final File value);
@@ -30,4 +31,5 @@ public interface Persistence {
     public void set(final String key, final Point point);
     public void set(final String key, final String value);
     public void set(final String key, final TimeZone value);
+    public void set(final String key, final Enum<?> value);
 }

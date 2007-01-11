@@ -19,9 +19,8 @@ import java.util.TimeZone;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.ophelia.model.workspace.Workspace;
-
 import com.thinkparity.ophelia.browser.util.ModelFactory;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
@@ -125,6 +124,10 @@ public class PersistenceFactory {
             public TimeZone get(final String key, final TimeZone defaultValue) {
                 return TimeZone.getTimeZone(get(key + ".id", defaultValue.getID()));
             }
+            
+            public Enum<?> get(final String key, final Enum<?> defaultValue) {
+                return Enum.valueOf(defaultValue.getDeclaringClass(), get(key, defaultValue.toString()));
+            }
 
 			public void set(final String key, final Boolean value) {
 				set(key, value.toString());
@@ -160,6 +163,10 @@ public class PersistenceFactory {
 
             public void set(final String key, final TimeZone value) {
                 set(key + ".id", value.getID());
+            }
+            
+            public void set(final String key, final Enum<?> value) {
+                set(key, value.toString());
             }
 
 			/**

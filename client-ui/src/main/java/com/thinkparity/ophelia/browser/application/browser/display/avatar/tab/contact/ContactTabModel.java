@@ -588,6 +588,19 @@ public final class ContactTabModel extends TabPanelModel implements
         private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
+        
+        /**
+         * Apply a default ordering.
+         */
+        private int compareDefault(final ContactTabPanel p1, final ContactTabPanel p2) {
+            return ascending
+                ? STRING_COMPARATOR_ASC.compare(
+                        p1.getContact().getName(),
+                        p2.getContact().getName())
+                : STRING_COMPARATOR_DESC.compare(
+                        p1.getContact().getName(),
+                        p2.getContact().getName());
+        }
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -596,6 +609,7 @@ public final class ContactTabModel extends TabPanelModel implements
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContactTabPanel p1 = (ContactTabPanel) o1;
             final ContactTabPanel p2 = (ContactTabPanel) o2;
+            int result = 0;
             if (p1.isSetContact()) {
                 if (p2.isSetContact()) {
                     switch (this) {
@@ -610,22 +624,30 @@ public final class ContactTabModel extends TabPanelModel implements
                                     p2.getContact().getName());
                     case TITLE:
                         // note the lack of multiplier
-                        return ascending
+                        result =  ascending
                             ? STRING_COMPARATOR_ASC.compare(
                                     p1.getContact().getTitle(),
                                     p2.getContact().getTitle())
-                                : STRING_COMPARATOR_DESC.compare(
-                                        p1.getContact().getTitle(),
-                                        p2.getContact().getTitle());
+                            : STRING_COMPARATOR_DESC.compare(
+                                    p1.getContact().getTitle(),
+                                    p2.getContact().getTitle());
+                        if (0 == result) {
+                            result = compareDefault(p1, p2);
+                        }
+                        return result;
                     case ORGANIZATION:
                         // note the lack of multiplier
-                        return ascending
+                        result = ascending
                             ? STRING_COMPARATOR_ASC.compare(
                                     p1.getContact().getOrganization(),
                                     p2.getContact().getOrganization())
-                                : STRING_COMPARATOR_DESC.compare(
-                                        p1.getContact().getOrganization(),
-                                        p2.getContact().getOrganization());
+                            : STRING_COMPARATOR_DESC.compare(
+                                    p1.getContact().getOrganization(),
+                                    p2.getContact().getOrganization());
+                        if (0 == result) {
+                            result = compareDefault(p1, p2);
+                        }
+                        return result;            
                     default:
                         throw Assert.createUnreachable("Unknown ordering.");
                     }

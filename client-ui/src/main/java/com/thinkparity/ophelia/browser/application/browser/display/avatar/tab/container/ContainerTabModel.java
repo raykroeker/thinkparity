@@ -911,7 +911,7 @@ public final class ContainerTabModel extends TabPanelModel implements
     /** An enumerated type defining the tab panel ordering. */
     private enum SortBy implements Comparator<TabPanel> {
 
-        BOOKMARK(true), CREATED_ON(false), UPDATED_ON(false), NAME(true), OWNER(true);
+        BOOKMARK(true), CREATED_ON(false), UPDATED_ON(false), OWNER(true), NAME(true);
 
         /** An ascending <code>StringComparator</code>. */
         private static final StringComparator STRING_COMPARATOR_ASC;
@@ -936,6 +936,19 @@ public final class ContainerTabModel extends TabPanelModel implements
         private SortBy(final boolean ascending) {
             this.ascending = ascending;
         }
+        
+        /**
+         * Apply a default ordering.
+         */
+        private int compareDefault(final ContainerPanel p1, final ContainerPanel p2) {
+            return ascending
+                ? STRING_COMPARATOR_ASC.compare(
+                        p1.getContainer().getName(),
+                        p2.getContainer().getName())
+                : STRING_COMPARATOR_DESC.compare(
+                        p1.getContainer().getName(),
+                        p2.getContainer().getName());
+        }
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
@@ -945,11 +958,16 @@ public final class ContainerTabModel extends TabPanelModel implements
             final ContainerPanel p1 = (ContainerPanel) o1;
             final ContainerPanel p2 = (ContainerPanel) o2;
             final int multiplier = ascending ? 1 : -1;
+            int result = 0;
             switch (this) {
             case BOOKMARK:
                 // we want true values at the top
-                return -1 * multiplier * p1.getContainer().isBookmarked().compareTo(
+                result = -1 * multiplier * p1.getContainer().isBookmarked().compareTo(
                         p2.getContainer().isBookmarked());
+                if (0 == result) {
+                    result = compareDefault(p1, p2);
+                }
+                return result;
             case CREATED_ON:
                 return multiplier * p1.getContainer().getCreatedOn().compareTo(
                         p2.getContainer().getCreatedOn());
@@ -966,23 +984,38 @@ public final class ContainerTabModel extends TabPanelModel implements
                             p1.getContainer().getName(),
                             p2.getContainer().getName());
             case OWNER:
-                if (p1.getContainer().isDraft())
-                    if(p2.getContainer().isDraft())
+                // Sort by local draft first
+                if (p1.getContainer().isLocalDraft() && !p2.getContainer().isLocalDraft()) {
+                    return multiplier * -1;
+                } else if (!p1.getContainer().isLocalDraft() && p2.getContainer().isLocalDraft()) {
+                    return multiplier * 1;            
+                }
+                
+                // Sort by draft, and within drafts, by draft owner
+                if (p1.getContainer().isDraft()) {
+                    if(p2.getContainer().isDraft()) {
                         // note the lack of multiplier
-                        return ascending
+                        result = ascending
                             ? STRING_COMPARATOR_ASC.compare(
                                 p1.getDraft().getOwner().getName(),
                                 p2.getDraft().getOwner().getName())
                             : STRING_COMPARATOR_DESC.compare(
                                     p1.getDraft().getOwner().getName(),
                                     p2.getDraft().getOwner().getName());
-                    else
+                    } else {
                         return multiplier * -1;
-                else
-                    if (p2.getContainer().isDraft())
+                    }
+                } else {
+                    if (p2.getContainer().isDraft()) {
                         return multiplier * 1;
-                    else
-                        return 0;
+                    }
+                }
+
+                // Default sort if necessary
+                if (0 == result) {
+                    result = compareDefault(p1, p2);
+                }
+                return result;               
             default:
                 return 0;
             }

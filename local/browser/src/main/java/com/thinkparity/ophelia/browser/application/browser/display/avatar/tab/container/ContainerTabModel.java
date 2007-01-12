@@ -38,6 +38,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.platform.application.Application;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
@@ -81,6 +83,7 @@ public final class ContainerTabModel extends TabPanelModel implements
         this.containerIdLookup = new HashMap<Long, Long>();
         this.popupDelegate = new ContainerTabPopupDelegate(this);
         this.sortedBy = new Stack<SortBy>();
+        addApplicationListener();
     }
 
     /**
@@ -520,6 +523,21 @@ public final class ContainerTabModel extends TabPanelModel implements
         } else {
             return SortDirection.NONE;
         }
+    }
+    
+    /**
+     * Add an application listener. The session draft monitor is
+     * stopped before the application ends.
+     */
+    private void addApplicationListener() {
+        browser.addListener(new ApplicationListener() {
+            public void notifyEnd(Application application) {
+                stopSessionDraftMonitor();
+            }
+            public void notifyHibernate(Application application) {}
+            public void notifyRestore(Application application) {}
+            public void notifyStart(Application application) {}           
+        });
     }
     
     /**

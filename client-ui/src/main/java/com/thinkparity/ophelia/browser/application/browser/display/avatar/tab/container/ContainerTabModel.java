@@ -916,27 +916,31 @@ public final class ContainerTabModel extends TabPanelModel implements
         panel.setTabDelegate(this);
         if (isExpanded(panel)) {
             browser.runApplyContainerFlagSeen(panel.getContainer().getId());
-            startSessionDraftMonitor(panel.getContainer().getId());
         }
         // the session will maintain the single draft monitor for the tab
-        panel.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if ("expanded".equals(evt.getPropertyName())) {
-                    if (panel.isExpanded()) {
-                        // Check if the DocumentDraft become out of date while
-                        // the draft monitor was off, if it has then syncContainer()
-                        // will result in startSessionDraftMonitor() being called above.
-                        if (readIsDraftDocumentStateChanged(draftView.getDraft())) {
-                            syncContainer(container.getId(), Boolean.FALSE);
+        if (container.isLocalDraft()) {
+            if (isExpanded(panel)) {
+                startSessionDraftMonitor(panel.getContainer().getId());
+            }
+            panel.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if ("expanded".equals(evt.getPropertyName())) {
+                        if (panel.isExpanded()) {
+                            // Check if the DocumentDraft become out of date while
+                            // the draft monitor was off, if it has then syncContainer()
+                            // will result in startSessionDraftMonitor() being called above.
+                            if (readIsDraftDocumentStateChanged(draftView.getDraft())) {
+                                syncContainer(container.getId(), Boolean.FALSE);
+                            } else {
+                                startSessionDraftMonitor(panel.getContainer().getId());
+                            }
                         } else {
-                            startSessionDraftMonitor(panel.getContainer().getId());
+                            stopSessionDraftMonitor();
                         }
-                    } else {
-                        stopSessionDraftMonitor();
                     }
                 }
-            }
-        });
+            });
+        }
         return panel;
     }
 

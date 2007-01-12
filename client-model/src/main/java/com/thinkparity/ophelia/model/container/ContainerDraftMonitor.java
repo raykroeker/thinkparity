@@ -88,8 +88,12 @@ public class ContainerDraftMonitor {
             @Override
             public void run() {
                 for (final Document document : draft.getDocuments()) {
-                    if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
-                        if (documentModel.isDraftModified(document.getId())) {
+                    final ContainerDraft.ArtifactState state = draft.getState(document);
+                    if (ContainerDraft.ArtifactState.NONE == state ||
+                        ContainerDraft.ArtifactState.MODIFIED == state ) {
+                        final Boolean documentModified =
+                            ContainerDraft.ArtifactState.NONE == state ? Boolean.FALSE : Boolean.TRUE;
+                        if (documentModel.isDraftModified(document.getId()) != documentModified) {
                             listener.documentModified(
                                     eventGenerator.generate(
                                             containerModel.read(draft.getContainerId()),
@@ -99,7 +103,7 @@ public class ContainerDraftMonitor {
                     }
                 }
             }
-        }, 60 % (monitorCount + 1), 30 * 1000);
+        }, (monitorCount % 100) + 1, 10 * 1000);
         monitorCount++;
     }
 

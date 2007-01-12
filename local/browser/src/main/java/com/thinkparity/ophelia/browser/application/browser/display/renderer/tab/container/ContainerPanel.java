@@ -89,9 +89,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The panel's animating indicator. */
     private boolean animating;
 
-    /** The draft's selection state. */
-    private boolean draftSelected;
-
     /** The east list of <code>PanelCellRenderer</code>.*/
     private final List<PanelCellRenderer> eastCellPanels;
         
@@ -220,15 +217,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Determine the draft selection state.
-     * 
-     * @return A <code>Boolean</code> draft selected state.
-     */
-    public Boolean isDraftSelected() {
-        return Boolean.valueOf(draftSelected);
-    }
-
-    /**
      * Determine the expanded state.
      * 
      * @return A <code>Boolean</code> expanded state.
@@ -262,14 +250,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 eastListModel.initialize(((WestCell)cell).getEastCells());
             }
             repaint();
-        }
-        /* NOTE This is ugly, perhaps can be improved with refactoring. */
-        if (cell instanceof DraftCell) {
-            draftSelected = true;
-            firePropertyChange("draftSelected", !draftSelected, draftSelected);
-        } else {
-            draftSelected = false;
-            firePropertyChange("draftSelected", !draftSelected, draftSelected);
         }
     }
     

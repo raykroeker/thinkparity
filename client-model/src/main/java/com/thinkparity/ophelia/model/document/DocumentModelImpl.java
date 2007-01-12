@@ -3,14 +3,7 @@
  */
 package com.thinkparity.ophelia.model.document;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +15,6 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -179,7 +171,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final InputStream versionStream = openVersionStream(
                     document.getId(), latestVersion.getVersionId());
             try {
-                draftFile.write(versionStream);
+                draftFile.write(versionStream, latestVersion);
             } finally {
                 versionStream.close();
             }
@@ -375,11 +367,20 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 final Document document = read(documentId);
                 final DocumentVersion latestVersion =
                     readVersion(documentId, latestVersionId);
-
+                
                 final LocalFile draftFile = getLocalFile(document);
-                draftFile.read();
-                final String draftChecksum = draftFile.getFileChecksum();
-                return !latestVersion.getChecksum().equals(draftChecksum);
+                final Long draftModifiedTime = draftFile.lastModified();
+                final Long latestVersionModifiedTime = latestVersion.getCreatedOn().getTimeInMillis();
+
+                // The time stamp is checked first because it is fast.
+                // However documents are considered different only if the checksums are different.
+                if (draftModifiedTime.equals(latestVersionModifiedTime)) {
+                    return Boolean.FALSE;
+                } else {
+                    draftFile.read();
+                    final String draftChecksum = draftFile.getFileChecksum();
+                    return !latestVersion.getChecksum().equals(draftChecksum);
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -530,7 +531,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 final InputStream stream = openVersionStream(documentId,
                         latestVersion.getVersionId());
                 try {
-                    localFile.write(stream);
+                    localFile.write(stream, latestVersion);
                 } finally {
                     stream.close();
                 }
@@ -564,7 +565,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
                 final InputStream stream = openVersionStream(
                         documentId, versionId);
                 try {
-                    localFile.write(stream);
+                    localFile.write(stream, version);
                 } finally {
                     stream.close();
                 }
@@ -900,7 +901,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         logger.logVariable("content", content);
         final LocalFile localFile = getLocalFile(read(documentId));
         try {
-            localFile.write(content);
+            localFile.write(content, currentDateTime().getTimeInMillis());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -962,7 +963,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
             final Document document = create(uniqueId, name, createdBy, createdOn);
             // create local file
             final LocalFile localFile = getLocalFile(document);
-            localFile.write(content);
+            localFile.write(content, createdOn.getTimeInMillis());
             return read(document.getId());
         } catch (final Throwable t) {
             throw translateError(t);
@@ -1059,7 +1060,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
     		// write local version file
     		final LocalFile localFile = getLocalFile(document, version);
             final InputStream tempInput = new BufferedInputStream(new FileInputStream(tempContentFile));
-    		try { localFile.write(tempInput); }
+    		try { localFile.write(tempInput, version.getCreatedOn().getTimeInMillis()); }
             finally { tempInput.close(); }
     		localFile.lock();
     		// update document
@@ -1189,7 +1190,7 @@ final class DocumentModelImpl extends AbstractModelImpl<DocumentListener> {
         draftFile.delete();
         final InputStream inputStream = openVersionStream(documentId, versionId);
         try {
-            draftFile.write(inputStream);
+            draftFile.write(inputStream, readVersion(documentId, versionId));
         } finally {
             inputStream.close();
         }

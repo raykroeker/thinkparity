@@ -39,6 +39,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -734,6 +735,29 @@ public final class ContainerTabModel extends TabPanelModel implements
     private boolean readIsDraftDocumentModified(final Long documentId) {
         return ((ContainerProvider) contentProvider).isDraftDocumentModified(documentId).booleanValue();
     }
+    
+    /**
+     * Read to see if any draft document ArtifactState has become out of date.
+     * This can happen during the time that the session draft monitor is disabled.
+     * 
+     * @param draft
+     *      A <code>ContainerDraft</code>.
+     * @return True if the a draft document state has changed; false otherwise.
+     */
+    private Boolean readIsDraftDocumentStateChanged(final ContainerDraft draft) {
+        for (final Document document : draft.getDocuments()) {
+            final ContainerDraft.ArtifactState state = draft.getState(document);
+            if (ContainerDraft.ArtifactState.NONE == state ||
+                ContainerDraft.ArtifactState.MODIFIED == state ) {
+                final Boolean documentModified =
+                    ContainerDraft.ArtifactState.NONE == state ? Boolean.FALSE : Boolean.TRUE;
+                if (readIsDraftDocumentModified(document.getId()) != documentModified) {
+                    return Boolean.TRUE;
+                }
+            }
+        }
+        return Boolean.FALSE;
+    }
 
     /**
      * Read the latest version for a container.
@@ -891,16 +915,24 @@ public final class ContainerTabModel extends TabPanelModel implements
         panel.setExpanded(isExpanded(panel));
         panel.setTabDelegate(this);
         if (isExpanded(panel)) {
-            browser.runApplyContainerFlagSeen(
-                    panel.getContainer().getId());
+            browser.runApplyContainerFlagSeen(panel.getContainer().getId());
+            startSessionDraftMonitor(panel.getContainer().getId());
         }
         // the session will maintain the single draft monitor for the tab
         panel.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {
-                if ("expanded".equals(evt.getPropertyName())
-                        || "draftSelected".equals(evt.getPropertyName())) {
-                    if (panel.isExpanded() && panel.isDraftSelected()) {
-                        startSessionDraftMonitor(panel.getContainer().getId());
+                if ("expanded".equals(evt.getPropertyName())) {
+                    if (panel.isExpanded()) {
+                        // Check if the DocumentDraft become out of date while
+                        // the draft monitor was off, if it has then syncContainer()
+                        // will result in startSessionDraftMonitor() being called above.
+                        if (readIsDraftDocumentStateChanged(draftView.getDraft())) {
+                            syncContainer(container.getId(), Boolean.FALSE);
+                        } else {
+                            startSessionDraftMonitor(panel.getContainer().getId());
+                        }
+                    } else {
+                        stopSessionDraftMonitor();
                     }
                 }
             }
